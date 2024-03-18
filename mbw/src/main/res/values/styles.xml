@@ -324,6 +324,10 @@
         <item name="colorAccent">@color/dark_sky_blue</item>
     </style>
 
+    <style name="CircularProgressBar" parent="@style/Widget.AppCompat.ProgressBar">
+        <item name="colorAccent">@color/white</item>
+    </style>
+
     <style name="MyceliumDroppyPopup">
         <item name="android:background">#343434</item>
     </style>

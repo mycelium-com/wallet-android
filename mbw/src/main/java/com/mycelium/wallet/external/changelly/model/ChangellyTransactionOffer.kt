@@ -7,8 +7,6 @@ import java.math.BigDecimal
 class ChangellyTransactionOffer : Serializable {
     @JvmField
     var id: String? = null
-    var apiExtraFee = 0.0
-    var changellyFee = 0.0
     @JvmField
     var payinExtraId: String? = null
     var status: String? = null
@@ -24,4 +22,9 @@ class ChangellyTransactionOffer : Serializable {
     var createdAt: String? = null
 
     val amountExpectedFrom:BigDecimal = BigDecimal.ZERO
+
+    var trackUrl: String? = null
+    var type: String? = null
+    var refundAddress: String? = null
+    var refundExtraId: String? = null
 }

@@ -36,10 +36,10 @@ import java.util.Map;
 import java.util.Set;
 
 import static android.content.Context.MODE_PRIVATE;
-import static com.mycelium.wallet.external.changelly.bch.ExchangeFragment.BCH_EXCHANGE;
-import static com.mycelium.wallet.external.changelly.bch.ExchangeFragment.BCH_EXCHANGE_TRANSACTIONS;
 
 public class TransactionArrayAdapter extends ArrayAdapter<TransactionSummary> {
+   public static final String BCH_EXCHANGE = "bch_exchange";
+   public static final String BCH_EXCHANGE_TRANSACTIONS = "bch_exchange_transactions";
    private final MetadataStorage _storage;
    protected Context _context;
    private DateFormat _dateFormat;

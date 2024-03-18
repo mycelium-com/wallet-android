@@ -9,18 +9,22 @@ import com.mycelium.wapi.wallet.coins.Value
 
 import java.io.Serializable
 
-class BtcTransaction constructor(type: CryptoCurrency, val destination: BtcAddress?, val amount: Value?, feePerKb: Value?)
+class BtcTransaction constructor(
+    type: CryptoCurrency,
+    val destinations: List<Pair<BtcAddress?, Value?>>,
+    feePerKb: Value?
+)
     : BitcoinBasedTransaction(type, feePerKb), Serializable {
     fun setTransaction(tx: BitcoinTransaction) {
         this.tx = tx
         this.isSigned = true
     }
 
-    constructor(coinType: CryptoCurrency, tx: BitcoinTransaction): this (coinType, null, null, null) {
+    constructor(coinType: CryptoCurrency, tx: BitcoinTransaction): this (coinType, listOf(), null) {
         setTransaction(tx)
     }
 
-    constructor(coinType: CryptoCurrency, unsignedTx: UnsignedTransaction) : this(coinType, null, null, null){
+    constructor(coinType: CryptoCurrency, unsignedTx: UnsignedTransaction) : this(coinType, listOf(), null){
         this.unsignedTx = unsignedTx
     }
 
@@ -40,8 +44,7 @@ class BtcTransaction constructor(type: CryptoCurrency, val destination: BtcAddre
 
     companion object {
         @JvmStatic
-        fun to(destination: BtcAddress, amount: Value, feePerkb: Value): BtcTransaction {
-            return BtcTransaction(destination.coinType, destination, amount, feePerkb)
-        }
+        fun to(destination: BtcAddress, amount: Value, feePerkb: Value): BtcTransaction =
+            BtcTransaction(destination.coinType, listOf(destination to amount), feePerkb)
     }
 }

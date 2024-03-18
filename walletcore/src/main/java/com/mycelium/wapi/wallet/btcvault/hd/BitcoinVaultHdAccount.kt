@@ -27,6 +27,7 @@ import com.mycelium.wapi.wallet.btcvault.BtcvAddress
 import com.mycelium.wapi.wallet.btcvault.BtcvTransaction
 import com.mycelium.wapi.wallet.coins.Balance
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
+import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.manager.HDAccountKeyManager
 import java.util.*
 import java.util.concurrent.TimeUnit
@@ -124,6 +125,14 @@ class BitcoinVaultHdAccount(protected var accountContext: BitcoinVaultHDAccountC
             e.printStackTrace()
             false
         }
+    }
+
+    override fun createTx(
+        outputs: List<Pair<Address, Value>>,
+        fee: Fee,
+        data: TransactionData?
+    ): Transaction {
+        TODO("Not yet implemented")
     }
 
     override fun isExchangeable(): Boolean = true

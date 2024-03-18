@@ -50,7 +50,6 @@ import com.mycelium.wapi.wallet.Util
 import com.mycelium.wapi.wallet.btc.AbstractBtcAccount
 import com.mycelium.wapi.wallet.btc.BtcAddress
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
-import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.erc20.ERC20Account
 import com.mycelium.wapi.wallet.eth.EthAccount
 import com.mycelium.wapi.wallet.eth.EthAddress
@@ -437,8 +436,9 @@ class ExchangeFragment : Fragment(), BackListener {
                     Util.trimTestnetSymbolDecoration(viewModel.fromCurrency.value?.symbol!!),
                     Util.trimTestnetSymbolDecoration(viewModel.toCurrency.value?.symbol!!),
                     { result ->
-                        if (result?.result != null) {
-                            viewModel.exchangeInfo.value = result.result
+                        val data = result?.result?.firstOrNull()
+                        if (data != null) {
+                            viewModel.exchangeInfo.value = data
                             viewModel.errorRemote.value = ""
                         } else {
                             viewModel.errorRemote.value = result?.error?.message ?: ""
@@ -478,16 +478,18 @@ class ExchangeFragment : Fragment(), BackListener {
                     if (fromAmount > BigDecimal.ZERO) {
                         amountJob?.cancel()
                         viewModel.rateLoading.value = true
-                        amountJob = Changelly2Repository.exchangeAmount(lifecycleScope,
+                        amountJob = Changelly2Repository.getFixRateForAmount(lifecycleScope,
                                 Util.trimTestnetSymbolDecoration(viewModel.fromCurrency.value?.symbol!!),
                                 Util.trimTestnetSymbolDecoration(viewModel.toCurrency.value?.symbol!!),
                                 fromAmount,
                                 { result ->
-                                    result?.result?.let {
+                                    result?.result?.firstOrNull()?.let {
                                         val info = viewModel.exchangeInfo.value
                                         viewModel.exchangeInfo.postValue(
                                                 FixRate(it.id, it.result, it.from, it.to,
-                                                        info!!.maxFrom, info.maxTo, info.minFrom, info.minTo))
+                                                        info!!.maxFrom, info.maxTo, info.minFrom,
+                                                    info.minTo, info.amountFrom, info.amountTo)
+                                        )
                                         viewModel.errorRemote.value = ""
                                     } ?: run {
                                         viewModel.errorRemote.value = result?.error?.message ?: ""
