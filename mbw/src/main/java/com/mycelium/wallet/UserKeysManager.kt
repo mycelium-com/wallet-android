@@ -51,14 +51,16 @@ object UserKeysManager {
     private val mbwManger = MbwManager.getInstance(WalletApplication.getInstance())
     val userSignKeys = getDeterministicECKeyPair()
     private fun getDeterministicECKeyPair(): AsymmetricCipherKeyPair {
-        val masterSeed = mbwManger.masterSeedManager.getMasterSeed(AesKeyCipher.defaultKeyCipher())
-
+        val keyCipher = AesKeyCipher.defaultKeyCipher()
+        val accountManager = mbwManger.masterSeedManager.getIdentityAccountKeyManager(keyCipher)
+        val accountPublicKey = accountManager.getPrivateKeyForWebsite(WEBSITE, keyCipher).publicKey
+        val seed = accountPublicKey.publicKeyBytes
         if (Security.getProvider(BouncyCastleProvider.PROVIDER_NAME) == null) {
             Security.addProvider(BouncyCastleProvider())
         }
-        // generate determine asymmetric keys using master seed as random seed
+        // generate determine asymmetric keys using account seed as random seed
         val hkdfGenerator = HKDFBytesGenerator(SHA256Digest())
-        hkdfGenerator.init(HKDFParameters(masterSeed.bip32Seed, null, ByteArray(0)))
+        hkdfGenerator.init(HKDFParameters(seed, null, ByteArray(0)))
         val privateKeyBytes = ByteArray(32)
         hkdfGenerator.generateBytes(privateKeyBytes, 0, privateKeyBytes.size)
 
@@ -72,4 +74,5 @@ object UserKeysManager {
         return keyPairGenerator.generateKeyPair()
     }
 
+    private const val WEBSITE = "changelly-viper.mycelium.com"
 }
