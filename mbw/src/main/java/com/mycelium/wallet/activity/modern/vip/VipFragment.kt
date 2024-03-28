@@ -11,6 +11,7 @@ import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.viewpager.widget.ViewPager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.databinding.FragmentVipBinding
 import kotlinx.coroutines.flow.collect
@@ -32,6 +33,7 @@ class VipFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         setupInputs()
         setupObservers()
+        setupPageObserver()
     }
 
     private fun setupInputs() {
@@ -49,6 +51,21 @@ class VipFragment : Fragment() {
             handleError(state.error)
             handleSuccess(state.success)
         }
+    }
+
+    private fun setupPageObserver() {
+        val pager = requireActivity().findViewById<ViewPager>(R.id.pager)
+        pager.addOnPageChangeListener(object : ViewPager.OnPageChangeListener {
+            override fun onPageSelected(position: Int) {
+                if (position == VIP_FRAGMENT_POSITION) {
+                    binding.icon.playAnimation()
+                }
+            }
+
+            override fun onPageScrolled(p: Int, po: Float, pop: Int) {}
+
+            override fun onPageScrollStateChanged(state: Int) {}
+        })
     }
 
     private fun updateButtons(state: VipViewModel.State) {
@@ -72,11 +89,10 @@ class VipFragment : Fragment() {
     private fun handleSuccess(success: Boolean) {
         if (!success) return
         binding.apply {
-            successText.isVisible = true
             vipApplyButton.isVisible = false
-            vipDescription.isVisible = false
-            icon.isVisible = false
-            vipTitle.setText(R.string.vip_title_welcome)
+            vipInputGroup.isVisible = false
+            vipSuccessGroup.isVisible = true
+            vipTitle.setText(R.string.vip_title_success)
             vipCodeInput.apply {
                 hint = null
                 text = null
@@ -90,5 +106,9 @@ class VipFragment : Fragment() {
     private fun hideKeyBoard() {
         val imm = context?.getSystemService(Activity.INPUT_METHOD_SERVICE) as? InputMethodManager
         imm?.hideSoftInputFromWindow(requireView().windowToken, 0)
+    }
+
+    private companion object {
+        const val VIP_FRAGMENT_POSITION = 6
     }
 }
