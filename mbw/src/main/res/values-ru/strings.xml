@@ -977,4 +977,18 @@
     <string name="unlock_label_fingerprint">Продолжить используя отпечаток</string>
     <string name="use_pin">Использовать ПИН-код</string>
     <string name="hide_this_ad">Отключить рекламу</string>
+    <string name="vip_code_hint">Введите VIP код</string>
+    <string name="vip_code_who_can_get_title">Кто имеет право на статус VIP</string>
+    <string name="vip_code_who_can_get">Старые пользователи Mycelium\nОбладатели токенов Mycelium\nУчастники розыгрыша SU7 Max\nПостоянные пользователи Mycelium, которые получили личное приглашение</string>
+    <string name="vip_code_granted_status">Вам присвоен статус VIP Mycelium.</string>
+    <string name="vip_code_discount_title">Скидки на обмен криптовалюты на криптовалюту</string>
+    <string name="vip_code_discount_description">Комиссия за обмен снижается на 25%.</string>
+    <string name="vip_code_limits_title">Нет ограничений</string>
+    <string name="vip_code_limits_description">Теперь вы можете обменивать любые суммы.</string>
+    <string name="vip_code_privacy_related_notice">И ОЧЕНЬ ВАЖНЫЙ с точки зрения конфиденциальности момент, о котором вы, вероятно, уже знаете.</string>
+    <string name="apply_vip_code">Применить</string>
+    <string name="vip_code_invalid">Код недействителен</string>
+    <string name="vip_title">Получите VIP-опыт</string>
+    <string name="vip_menu_text">VIP</string>
+    <string name="vip_title_success">Всё готово!</string>
 </resources>

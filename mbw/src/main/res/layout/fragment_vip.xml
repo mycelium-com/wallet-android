@@ -1,0 +1,244 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/black"
+    android:paddingHorizontal="24dp">
+
+    <com.airbnb.lottie.LottieAnimationView
+        android:id="@+id/icon"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:layout_marginTop="48dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:lottie_autoPlay="true"
+        app:lottie_loop="false"
+        app:lottie_rawRes="@raw/mycelium_vip_logo" />
+
+    <TextView
+        android:id="@+id/vipTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="48dp"
+        android:fontFamily="sans-serif-black"
+        android:gravity="center"
+        android:text="@string/vip_title"
+        android:textColor="@color/white"
+        android:textSize="24sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/icon" />
+
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/vipCodeLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        app:boxBackgroundMode="none"
+        app:errorEnabled="false"
+        app:hintEnabled="false"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/vipTitle">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/vipCodeInput"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/bg_vip_input_text_filled"
+            android:fontFamily="sans-serif-medium"
+            android:hint="@string/vip_code_hint"
+            android:maxLength="20"
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="17dp"
+            android:textColorHint="#626365"
+            android:textSize="16sp" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <TextView
+        android:id="@+id/errorText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        android:fontFamily="@font/exo2medium"
+        android:text="@string/vip_code_invalid"
+        android:textColor="#ff0000"
+        android:textSize="14sp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@id/vipCodeLayout"
+        app:layout_constraintEnd_toEndOf="@id/vipCodeLayout"
+        app:layout_constraintTop_toTopOf="@id/vipCodeLayout"
+        tools:visibility="visible" />
+
+    <Button
+        android:id="@+id/vipApplyButton"
+        style="@style/MyceliumButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="0dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="0dp"
+        android:enabled="false"
+        android:paddingVertical="16dp"
+        android:text="@string/apply_vip_code"
+        android:textSize="14sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/vipCodeLayout" />
+
+    <ProgressBar
+        android:id="@+id/vipProgress"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:theme="@style/CircularProgressBar"
+        app:layout_constraintBottom_toBottomOf="@id/vipApplyButton"
+        app:layout_constraintEnd_toEndOf="@id/vipApplyButton"
+        app:layout_constraintStart_toStartOf="@id/vipApplyButton"
+        app:layout_constraintTop_toTopOf="@id/vipApplyButton" />
+
+
+    <TextView
+        android:id="@+id/whoCanGetTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:fontFamily="sans-serif-medium"
+        android:gravity="center"
+        android:text="@string/vip_code_who_can_get_title"
+        android:textColor="@color/white"
+        android:textSize="14sp"
+        app:layout_constraintBottom_toTopOf="@id/whoCanGet"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <TextView
+        android:id="@+id/whoCanGet"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="48dp"
+        android:fontFamily="sans-serif"
+        android:gravity="center"
+        android:text="@string/vip_code_who_can_get"
+        android:textColor="#99FFFFFF"
+        android:textSize="14sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <androidx.constraintlayout.widget.Group
+        android:id="@+id/vipInputGroup"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:constraint_referenced_ids="vipCodeLayout,errorText,vipApplyButton,vipProgress,whoCanGetTitle,whoCanGet"
+        tools:visibility="visible" />
+
+    <TextView
+        android:id="@+id/grantedStatus"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:fontFamily="sans-serif"
+        android:text="@string/vip_code_granted_status"
+        android:textColor="#99FFFFFF"
+        android:textSize="14sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/vipTitle" />
+
+
+    <ImageView
+        android:id="@+id/discountIcon"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginTop="48dp"
+        android:background="@drawable/bg_vip_icon"
+        android:padding="10dp"
+        android:src="@drawable/ic_vip_discount"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/grantedStatus" />
+
+    <TextView
+        android:id="@+id/discountTitle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:fontFamily="sans-serif-medium"
+        android:text="@string/vip_code_discount_title"
+        android:textColor="@color/white"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/discountIcon"
+        app:layout_constraintTop_toTopOf="@id/discountIcon" />
+
+    <TextView
+        android:id="@+id/discountDescription"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:fontFamily="sans-serif"
+        android:text="@string/vip_code_discount_description"
+        android:textColor="#99FFFFFF"
+        android:textSize="14sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="@id/discountTitle"
+        app:layout_constraintTop_toBottomOf="@id/discountTitle" />
+
+    <ImageView
+        android:id="@+id/limitsIcon"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginTop="24dp"
+        android:background="@drawable/bg_vip_icon"
+        android:padding="10dp"
+        android:src="@drawable/ic_vip_limits"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/discountDescription" />
+
+    <TextView
+        android:id="@+id/limitsTitle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:fontFamily="sans-serif-medium"
+        android:text="@string/vip_code_limits_title"
+        android:textColor="@color/white"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/limitsIcon"
+        app:layout_constraintTop_toTopOf="@id/limitsIcon" />
+
+    <TextView
+        android:id="@+id/limitsDescription"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:fontFamily="sans-serif"
+        android:text="@string/vip_code_limits_description"
+        android:textColor="#99FFFFFF"
+        android:textSize="14sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="@id/limitsTitle"
+        app:layout_constraintTop_toBottomOf="@id/limitsTitle" />
+
+    <TextView
+        android:id="@+id/notice"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="48dp"
+        android:fontFamily="sans-serif"
+        android:gravity="center"
+        android:text="@string/vip_code_privacy_related_notice"
+        android:textColor="#99FFFFFF"
+        android:textSize="14sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/limitsIcon" />
+
+    <androidx.constraintlayout.widget.Group
+        android:id="@+id/vipSuccessGroup"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:visibility="gone"
+        app:constraint_referenced_ids="grantedStatus,discountIcon,discountTitle,discountDescription,limitsIcon,limitsTitle,limitsDescription,notice"
+        tools:visibility="gone" />
+</androidx.constraintlayout.widget.ConstraintLayout>

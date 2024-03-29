@@ -150,6 +150,7 @@
         <activity
             android:name=".activity.modern.ModernMain"
             android:exported="true"
+            android:windowSoftInputMode="adjustNothing"
             android:theme="@style/MyceliumActionBar">
             <intent-filter android:label="Exchange">
                 <action android:name="action.CHANGELLY" />

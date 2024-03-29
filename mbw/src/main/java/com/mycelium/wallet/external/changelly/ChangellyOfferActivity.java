@@ -156,7 +156,7 @@ public class ChangellyOfferActivity extends AppCompatActivity {
         amount = getIntent().getDoubleExtra(ChangellyAPIService.AMOUNT, 0);
         currency = getIntent().getStringExtra(ChangellyAPIService.FROM);
         receivingAddress = getIntent().getStringExtra(ChangellyAPIService.DESTADDRESS);
-        ChangellyAPIService.getRetrofit().create(ChangellyAPIService.class)
+        ChangellyRetrofitFactory.INSTANCE.getApi()
                 .createTransaction(currency, BTC, amount, receivingAddress)
                 .enqueue(new GetOfferCallback(amount));
         progressDialog = new ProgressDialog(this);
@@ -208,7 +208,7 @@ public class ChangellyOfferActivity extends AppCompatActivity {
         public void onResponse(@NonNull Call<ChangellyResponse<ChangellyTransactionOffer>> call,
                                @NonNull Response<ChangellyResponse<ChangellyTransactionOffer>> response) {
             ChangellyResponse<ChangellyTransactionOffer> result = response.body();
-            if(result != null && !result.getResult().isEmpty()) {
+            if(result != null && result.getResult() != null) {
                 progressDialog.dismiss();
                 // if the amount changed after the offer was requested but before the offer was
                 // received, we reset the amount to the requested amount instead of ignoring the
@@ -216,7 +216,7 @@ public class ChangellyOfferActivity extends AppCompatActivity {
                 // If the user requested a new offer meanwhile, the new amount will return with
                 // the new offer, too.
                 amount = amountFrom;
-                offer = result.getResult().get(0);
+                offer = result.getResult();
                 sendOrderToService(getOrder());
                 updateUI();
             } else {

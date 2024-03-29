@@ -1854,4 +1854,19 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="hide_this_ad">Stop showing this ad</string>
     <string name="batch">Batch</string>
     <string name="add_all_receiving_addresses_and_amounts">Add all receiving addresses and amounts</string>
+    <string name="tab_vip">VIP</string>
+    <string name="vip_code_hint">Enter your personal VIP code</string>
+    <string name="vip_code_who_can_get_title">Who is eligible for VIP status</string>
+    <string name="vip_code_who_can_get">Mycelium token holders\nSU7 Max giveaway participants\nLoyal MyceIium users who received а personal\ninvitation</string>
+    <string name="vip_code_granted_status">You have been granted Mycelium VIP status.</string>
+    <string name="vip_code_discount_title">Discounts on crypto to crypto swaps</string>
+    <string name="vip_code_discount_description">The exchange commission is reduced by 25%.</string>
+    <string name="vip_code_limits_title">No limits</string>
+    <string name="vip_code_limits_description">You can swap any amounts now.</string>
+    <string name="vip_code_privacy_related_notice">And one VERY IMPORTANT privacy related thing you should already be aware of.</string>
+    <string name="apply_vip_code">Proceed</string>
+    <string name="vip_code_invalid">Code is not valid</string>
+    <string name="vip_title">Get the VIP experience</string>
+    <string name="vip_menu_text">VIP</string>
+    <string name="vip_title_success">You are all set!</string>
 </resources>
