@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog>
+    <release version="3.17.0" versioncode="3170000">
+        <change>Added ability to send batch transactions</change>
+        <change>Bug fixes</change>
+    </release>
     <release version="3.16.2.0" versioncode="3160200">
         <change>Bug fixes</change>
         <change>Updated interface</change>
