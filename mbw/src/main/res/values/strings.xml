@@ -1825,7 +1825,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
                         BTC-Pay Server, the wallet checking only 20 future addresses beyond
                         your last unused address might not find those transactions. <b>Press
                         "Boost Gap Limit"</b> below to check if this is the case. This will check
-                        for 200 addresses on all active accounts once.?]]></string>
+                        for 200 addresses on all active accounts once.]]></string>
     <string name="boost_gap_limit">Boost Gap Limit</string>
     <string name="help_share_logs_text">We get your logs only if you share them with us. Logs do not contain personal information.</string>
     <string name="missing_tx_text">Most common cases of missing coins and how it can be resolved.</string>
@@ -1852,6 +1852,8 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="unlock_label_fingerprint">Proceed using fingerprint</string>
     <string name="use_pin">Use PIN code</string>
     <string name="hide_this_ad">Stop showing this ad</string>
+    <string name="batch">Batch</string>
+    <string name="add_all_receiving_addresses_and_amounts">Add all receiving addresses and amounts</string>
     <string name="tab_vip">VIP</string>
     <string name="vip_code_hint">Enter your personal VIP code</string>
     <string name="vip_code_who_can_get_title">Who is eligible for VIP status</string>

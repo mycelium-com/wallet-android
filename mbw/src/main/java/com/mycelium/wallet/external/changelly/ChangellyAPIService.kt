@@ -7,6 +7,10 @@ import com.mycelium.wallet.external.changelly.model.ChangellyResponse
 import com.mycelium.wallet.external.changelly.model.ChangellyTransaction
 import com.mycelium.wallet.external.changelly.model.ChangellyTransactionOffer
 import com.mycelium.wallet.external.changelly.model.FixRate
+import com.mycelium.wallet.external.changelly.model.*
+import okhttp3.OkHttpClient
+import okhttp3.logging.HttpLoggingInterceptor
+import org.jetbrains.annotations.TestOnly
 import retrofit2.Call
 import retrofit2.Response
 import retrofit2.http.POST
@@ -63,17 +67,6 @@ interface ChangellyAPIService {
         @Query("amountFrom") amount: BigDecimal = BigDecimal.ONE,
     ): Response<ChangellyListResponse<FixRate>>
 
-    @Deprecated(
-        "To get the fixed rate, you need to use getFixRateForAmount, but the transaction amount must be within limits",
-        ReplaceWith("getFixRateForAmount")
-    )
-    @POST("getFixRate")
-    suspend fun getFixRate(
-        @Query("from") from: String,
-        @Query("to") to: String,
-    ): Response<ChangellyListResponse<FixRate>>
-
-
     @POST("createFixTransaction")
     suspend fun createFixTransaction(
         @Query("from") from: String,
@@ -94,6 +87,12 @@ interface ChangellyAPIService {
     suspend fun getTransactions(
         @Query("id") id: List<String>,
     ): Response<ChangellyResponse<List<ChangellyTransaction>>>
+
+
+    @TestOnly
+    @POST("getFixRate")
+    suspend fun getFixRate(@Query("from") from: String,
+                                  @Query("to") to: String): Response<ChangellyResponse<FixRateForAmount>>
 
 
     companion object {

@@ -39,17 +39,15 @@ object Changelly2Repository {
             api.getFixRateForAmount(exportSymbol(from), exportSymbol(to), amount)
         }, success, error, finally)
 
-    fun fixRate(
-        scope: CoroutineScope,
-        from: String,
-        to: String,
-        success: (ChangellyListResponse<FixRate>?) -> Unit,
-        error: (Int, String) -> Unit,
-        finally: (() -> Unit)? = null
-    ) =
-        doRequest(scope, {
-            api.getFixRate(exportSymbol(from), exportSymbol(to))
-        }, success, error, finally)
+    fun fixRate(scope: CoroutineScope,
+                from: String,
+                to: String,
+                success: (ChangellyResponse<FixRateForAmount>?) -> Unit,
+                error: (Int, String) -> Unit,
+                finally: (() -> Unit)? = null) =
+            doRequest(scope, {
+                api.exchangeAmountFix(exportSymbol(from), exportSymbol(to), BigDecimal.ONE)
+            }, success, error, finally)
 
     fun createFixTransaction(
         scope: CoroutineScope,
@@ -110,5 +108,5 @@ private fun importSymbol(currency: String) =
     else currency
 
 private fun exportSymbol(currency: String) =
-    if (currency.equals("USDT", true)) "USDT20"
-    else currency
+    if (currency.equals("USDT", true)) "USDT20".toLowerCase()
+    else currency.toLowerCase()
