@@ -39,6 +39,8 @@ import com.mycelium.wallet.databinding.FragmentChangelly2ExchangeBinding
 import com.mycelium.wallet.event.*
 import com.mycelium.wallet.external.changelly.model.ChangellyResponse
 import com.mycelium.wallet.external.changelly.model.ChangellyTransactionOffer
+import com.mycelium.wallet.external.changelly.model.FixRate
+import com.mycelium.wallet.external.changelly.model.FixRateForAmount
 import com.mycelium.wallet.external.changelly2.remote.Changelly2Repository
 import com.mycelium.wallet.external.changelly2.viewmodel.ExchangeViewModel
 import com.mycelium.wallet.external.partner.openLink
@@ -82,7 +84,7 @@ class ExchangeFragment : Fragment(), BackListener {
         }
         viewModel.toAccount.value = viewModel.getToAccountForInit()
         Changelly2Repository.supportCurrenciesFull(lifecycleScope, {
-            it?.result?.first()
+            it?.result
                     ?.filter { it.fixRateEnabled && it.enabled }
                     ?.map { it.ticker }
                     ?.toSet()?.let {
@@ -267,19 +269,19 @@ class ExchangeFragment : Fragment(), BackListener {
                     viewModel.toAddress.value!!,
                     viewModel.fromAddress.value!!,
                     { result ->
-                        if (result?.result?.isNotEmpty() == true) {
+                        if (result?.result != null) {
                             viewLifecycleOwner.lifecycleScope.launch(Dispatchers.Default) {
                                 val unsignedTx = prepareTx(
                                         if (BuildConfig.FLAVOR == "btctestnet")
                                             viewModel.fromAddress.value!!
                                         else
-                                            result.result!!.first().payinAddress!!,
-                                        result.result!!.first().amountExpectedFrom.toPlainString())
+                                            result.result!!.payinAddress!!,
+                                        result.result!!.amountExpectedFrom.toPlainString())
                                 if(unsignedTx != null) {
                                     launch(Dispatchers.Main) {
                                         loader(false)
                                         acceptDialog(unsignedTx, result) {
-                                            sendTx(result.result!!.first().id!!, unsignedTx)
+                                            sendTx(result.result!!.id!!, unsignedTx)
                                         }
                                     }
                                 }
@@ -380,11 +382,11 @@ class ExchangeFragment : Fragment(), BackListener {
             AlertDialog.Builder(requireContext())
                     .setTitle(getString(R.string.exchange_accept_dialog_title))
                     .setMessage(getString(R.string.exchange_accept_dialog_msg,
-                            result.result?.first()?.amountExpectedFrom?.stripTrailingZeros()?.toPlainString(),
-                            result.result?.first()?.currencyFrom?.toUpperCase(),
+                            result.result?.amountExpectedFrom?.stripTrailingZeros()?.toPlainString(),
+                            result.result?.currencyFrom?.toUpperCase(),
                             unsignedTx?.totalFee()?.toStringWithUnit(),
-                            result.result?.first()?.amountTo?.stripTrailingZeros()?.toPlainString(),
-                            result.result?.first()?.currencyTo?.toUpperCase()))
+                            result.result?.amountTo?.stripTrailingZeros()?.toPlainString(),
+                            result.result?.currencyTo?.toUpperCase()))
                     .setPositiveButton(R.string.button_ok) { _, _ ->
                         viewModel.mbwManager.runPinProtectedFunction(activity) {
                             action()
@@ -484,11 +486,7 @@ class ExchangeFragment : Fragment(), BackListener {
                                 { result ->
                                     result?.result?.firstOrNull()?.let {
                                         val info = viewModel.exchangeInfo.value
-                                        viewModel.exchangeInfo.postValue(
-                                                FixRate(it.id, it.result, it.from, it.to,
-                                                        info!!.maxFrom, info.maxTo, info.minFrom,
-                                                    info.minTo, info.amountFrom, info.amountTo)
-                                        )
+                                        viewModel.exchangeInfo.postValue(it)
                                         viewModel.errorRemote.value = ""
                                     } ?: run {
                                         viewModel.errorRemote.value = result?.error?.message ?: ""

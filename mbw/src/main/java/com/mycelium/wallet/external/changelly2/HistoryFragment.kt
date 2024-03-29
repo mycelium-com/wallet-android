@@ -68,7 +68,7 @@ class HistoryFragment : DialogFragment() {
             loader(true)
             Changelly2Repository.getTransactions(lifecycleScope, txIds,
                     {
-                        it?.result?.first()?.let {
+                        it?.result?.let {
                             adapter.submitList(it.map {
                                 TxItem(it.id,
                                         it.amountExpectedFrom.toString(), it.getExpectedAmount().toString(),

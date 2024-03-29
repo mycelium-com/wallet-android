@@ -65,7 +65,7 @@ interface ChangellyAPIService {
         @Query("from") from: String,
         @Query("to") to: String,
         @Query("amountFrom") amount: BigDecimal = BigDecimal.ONE,
-    ): Response<ChangellyListResponse<FixRate>>
+    ): Response<ChangellyListResponse<FixRateForAmount>>
 
     @POST("createFixTransaction")
     suspend fun createFixTransaction(

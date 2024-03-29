@@ -3,12 +3,7 @@ package com.mycelium.wallet.external.changelly2.remote
 import androidx.lifecycle.LifecycleCoroutineScope
 import com.mycelium.bequant.remote.doRequest
 import com.mycelium.wallet.external.changelly.ChangellyRetrofitFactory
-import com.mycelium.wallet.external.changelly.model.ChangellyCurrency
-import com.mycelium.wallet.external.changelly.model.ChangellyListResponse
-import com.mycelium.wallet.external.changelly.model.ChangellyResponse
-import com.mycelium.wallet.external.changelly.model.ChangellyTransaction
-import com.mycelium.wallet.external.changelly.model.ChangellyTransactionOffer
-import com.mycelium.wallet.external.changelly.model.FixRate
+import com.mycelium.wallet.external.changelly.model.*
 import kotlinx.coroutines.CoroutineScope
 import java.math.BigDecimal
 
@@ -31,7 +26,7 @@ object Changelly2Repository {
         from: String,
         to: String,
         amount: BigDecimal,
-        success: (ChangellyListResponse<FixRate>?) -> Unit,
+        success: (ChangellyListResponse<FixRateForAmount>?) -> Unit,
         error: (Int, String) -> Unit,
         finally: (() -> Unit)? = null
     ) =
@@ -42,11 +37,11 @@ object Changelly2Repository {
     fun fixRate(scope: CoroutineScope,
                 from: String,
                 to: String,
-                success: (ChangellyResponse<FixRateForAmount>?) -> Unit,
+                success: (ChangellyListResponse<FixRateForAmount>?) -> Unit,
                 error: (Int, String) -> Unit,
                 finally: (() -> Unit)? = null) =
             doRequest(scope, {
-                api.exchangeAmountFix(exportSymbol(from), exportSymbol(to), BigDecimal.ONE)
+                api.getFixRateForAmount(exportSymbol(from), exportSymbol(to))
             }, success, error, finally)
 
     fun createFixTransaction(
