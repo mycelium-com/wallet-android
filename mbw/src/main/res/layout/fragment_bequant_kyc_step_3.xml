@@ -59,6 +59,7 @@
             <androidx.appcompat.widget.LinearLayoutCompat
                 android:id="@+id/llInputPanel"
                 style="@style/Bequant.EditText"
+                android:theme="@style/EditText.Theme"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="24sp"
@@ -73,6 +74,7 @@
                 <androidx.appcompat.widget.AppCompatTextView
                     android:id="@+id/tvCountry"
                     style="@style/Bequant.EditText"
+                    android:theme="@style/EditText.Theme"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:background="@null"
@@ -94,6 +96,7 @@
                     <androidx.appcompat.widget.AppCompatTextView
                         android:id="@+id/tvPhoneCode"
                         style="@style/Bequant.EditText"
+                        android:theme="@style/EditText.Theme"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_weight="3"
@@ -110,6 +113,7 @@
                     <androidx.appcompat.widget.AppCompatEditText
                         android:id="@+id/edPhone"
                         style="@style/Bequant.EditText"
+                        android:theme="@style/EditText.Theme"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
