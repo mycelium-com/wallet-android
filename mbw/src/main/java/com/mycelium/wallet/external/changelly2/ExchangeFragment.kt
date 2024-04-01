@@ -385,7 +385,7 @@ class ExchangeFragment : Fragment(), BackListener {
                             result.result?.amountExpectedFrom?.stripTrailingZeros()?.toPlainString(),
                             result.result?.currencyFrom?.toUpperCase(),
                             unsignedTx?.totalFee()?.toStringWithUnit(),
-                            result.result?.amountTo?.stripTrailingZeros()?.toPlainString(),
+                            result.result?.amountExpectedTo?.stripTrailingZeros()?.toPlainString(),
                             result.result?.currencyTo?.toUpperCase()))
                     .setPositiveButton(R.string.button_ok) { _, _ ->
                         viewModel.mbwManager.runPinProtectedFunction(activity) {
