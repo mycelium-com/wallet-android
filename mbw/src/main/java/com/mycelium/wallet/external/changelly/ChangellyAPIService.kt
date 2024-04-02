@@ -70,7 +70,7 @@ interface ChangellyAPIService {
 
     @POST("getTransactions")
     suspend fun getTransaction(
-        @Query("id") id: String,
+        @Query("id") id: String
     ): Response<ChangellyResponse<List<ChangellyTransaction>>>
 
     @POST("getTransactions")
