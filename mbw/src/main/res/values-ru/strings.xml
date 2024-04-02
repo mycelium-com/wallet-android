@@ -979,7 +979,7 @@
     <string name="hide_this_ad">Отключить рекламу</string>
     <string name="vip_code_hint">Введите VIP код</string>
     <string name="vip_code_who_can_get_title">Кто имеет право на статус VIP</string>
-    <string name="vip_code_who_can_get">Старые пользователи Mycelium\nОбладатели токенов Mycelium\nУчастники розыгрыша SU7 Max\nПостоянные пользователи Mycelium, которые получили личное приглашение</string>
+    <string name="vip_code_who_can_get">Обладатели токенов Mycelium\nУчастники розыгрыша SU7 Max\nПостоянные пользователи Mycelium, которые получили личное приглашение</string>
     <string name="vip_code_granted_status">Вам присвоен статус VIP Mycelium.</string>
     <string name="vip_code_discount_title">Скидки на обмен криптовалюты на криптовалюту</string>
     <string name="vip_code_discount_description">Комиссия за обмен снижается на 25%.</string>
