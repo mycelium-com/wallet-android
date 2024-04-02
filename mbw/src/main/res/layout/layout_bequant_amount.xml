@@ -39,6 +39,7 @@
 
                 <EditText
                     android:id="@+id/edAmount"
+                    android:theme="@style/EditText.Theme"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"

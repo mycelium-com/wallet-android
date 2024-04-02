@@ -47,6 +47,7 @@
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/vipCodeInput"
+            android:theme="@style/EditText.Theme"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:background="@drawable/bg_vip_input_text_filled"

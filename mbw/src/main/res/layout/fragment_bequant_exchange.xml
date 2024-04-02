@@ -88,6 +88,7 @@
             <EditText
                 android:id="@+id/sendView"
                 style="@style/Bequant.TextNormal"
+                android:theme="@style/EditText.Theme"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
@@ -185,6 +186,7 @@
             <EditText
                 android:id="@+id/getView"
                 style="@style/Bequant.TextNormal"
+                android:theme="@style/EditText.Theme"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"

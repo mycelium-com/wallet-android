@@ -697,4 +697,8 @@
     <style name="MyceliumModern.BottomSheetDialog.Transparent" parent="Widget.MaterialComponents.BottomSheet.Modal">
         <item name="backgroundTint">@android:color/transparent</item>
     </style>
+
+    <style name="EditText.Theme" parent="AppBaseTheme">
+        <item name="android:popupBackground">@color/transparent</item>
+    </style>
 </resources>
