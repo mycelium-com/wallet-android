@@ -22,6 +22,7 @@ class ChangellyTransactionOffer : Serializable {
     var createdAt: String? = null
 
     val amountExpectedFrom:BigDecimal = BigDecimal.ZERO
+    val amountExpectedTo:BigDecimal = BigDecimal.ZERO
 
     var trackUrl: String? = null
     var type: String? = null
