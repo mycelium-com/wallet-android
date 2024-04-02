@@ -15,6 +15,7 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:id="@+id/etMessageToSign"
+            android:theme="@style/EditText.Theme"
             android:lines="5"
             android:hint="@string/enter_message_hint" />
 
