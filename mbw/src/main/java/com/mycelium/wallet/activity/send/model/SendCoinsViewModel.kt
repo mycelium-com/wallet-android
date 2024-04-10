@@ -10,7 +10,6 @@ import android.widget.Toast.*
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import com.mrd.bitlib.crypto.HdKeyNode
 import com.mycelium.paymentrequest.PaymentRequestException
@@ -56,6 +55,9 @@ import com.squareup.otto.Subscribe
 import org.bitcoin.protocols.payments.PaymentACK
 import java.util.*
 import java.util.regex.Pattern
+import kotlin.reflect.jvm.internal.ReflectProperties.Val
+
+
 
 abstract class SendCoinsViewModel(application: Application) : AndroidViewModel(application) {
     val context: Context = application
@@ -72,7 +74,7 @@ abstract class SendCoinsViewModel(application: Application) : AndroidViewModel(a
     private var receivingAcc: UUID? = null
     private var xpubSyncing: Boolean = false
 
-    open val isBatched = false
+    open val isBatchable = false
 
     // As ottobus does not support inheritance listener should be incapsulated into an object
     private val eventListener = object : Any() {
@@ -250,8 +252,14 @@ abstract class SendCoinsViewModel(application: Application) : AndroidViewModel(a
     fun getGenericUri() = model.genericUri
 
     fun getFiatValue(): String? {
-        val fiat = mbwManager.exchangeRateManager.get(model.amount.value,
-                mbwManager.currencySwitcher.getCurrentFiatCurrency(model.account.coinType))
+        val fiat = mbwManager.exchangeRateManager.get(
+            if (isBatch.value == true) {
+                model.outputList.value?.mapNotNull { it.crypto }?.sumOf()
+            } else {
+                model.amount.value
+            },
+            mbwManager.currencySwitcher.getCurrentFiatCurrency(model.account.coinType)
+        )
         return fiat?.toStringWithUnit()
     }
 
@@ -524,5 +532,13 @@ abstract class SendCoinsViewModel(application: Application) : AndroidViewModel(a
         model.outputList.value = newList
     }
 
+}
+
+private fun List<Value>.sumOf(): Value? {
+    var result: Value? = null
+    forEach {
+        result = result?.plus(it) ?: it
+    }
+    return result
 }
 
