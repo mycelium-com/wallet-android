@@ -238,6 +238,7 @@
                     android:id="@+id/etMerchantMemo"
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
+                android:theme="@style/EditText.Theme"
                     android:inputType="textShortMessage"/>
         </LinearLayout>
 

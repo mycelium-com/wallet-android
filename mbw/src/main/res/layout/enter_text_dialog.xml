@@ -20,6 +20,7 @@
         android:layout_marginStart="5dp"
         android:layout_marginEnd="5dp"
         android:inputType="textCapSentences"
+        android:theme="@style/EditText.Theme"
         android:gravity="top"
         android:hint="@string/name"
         android:lines="1"
