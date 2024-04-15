@@ -72,7 +72,7 @@ object SettingsPreference {
 
     private fun <E> load(key: String, clazz: Class<E>): E? = gson.fromJson(sharedPreferences.getLocalizedString(key), clazz)
 
-    private fun getPartnersLocalized() = load("partners", PartnersLocalized::class.java)
+    fun getPartnersLocalized() = load("partners", PartnersLocalized::class.java)
 
     @JvmStatic
     fun getMediaFlowContent() = load(MEDIAFLOW_KEY, MediaFlowContent::class.java)
