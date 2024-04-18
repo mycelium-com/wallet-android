@@ -51,7 +51,7 @@ import com.mycelium.wallet.event.*
 import com.mycelium.wallet.external.changelly.ChangellyConstants
 import com.mycelium.wallet.external.changelly2.ExchangeFragment
 import com.mycelium.wallet.external.changelly2.HistoryFragment
-import com.mycelium.wallet.external.changelly2.remote.UserRepository
+import com.mycelium.wallet.external.changelly2.remote.Api
 import com.mycelium.wallet.external.mediaflow.NewsConstants
 import com.mycelium.wallet.fio.FioRequestNotificator
 import com.mycelium.wallet.modularisation.ModularisationVersionHelper
@@ -91,7 +91,7 @@ class ModernMain : AppCompatActivity(), BackHandler {
 
     lateinit var binding: ModernMainBinding
 
-    private val userRepository = UserRepository()
+    private val userRepository = Api.userRepository
 
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

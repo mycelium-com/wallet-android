@@ -9,8 +9,6 @@ import java.math.BigDecimal
 
 object Changelly2Repository {
     private val api = ChangellyRetrofitFactory.api
-    val userRepository by lazy { UserRepository() }
-
 
     fun supportCurrenciesFull(
         scope: CoroutineScope,
