@@ -7,7 +7,7 @@ import com.mycelium.wallet.update
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 class VipViewModel : ViewModel() {
@@ -26,47 +26,26 @@ class VipViewModel : ViewModel() {
 
     init {
         viewModelScope.launch {
-            val initialUser = userRepository.userFlow.first()
-            _stateFlow.update { state ->
-                state.copy(
-                    progress = false,
-                    success = initialUser.status.isVIP(),
-                )
+            userRepository.userFlow.collect { user ->
+                val success = user.status.isVIP()
+                _stateFlow.update { state -> state.copy(progress = false, success = success) }
             }
         }
     }
 
     fun updateVipText(text: String) {
-        _stateFlow.update { state -> state.copy(text = text, success = false, error = false) }
+        _stateFlow.update { s -> s.copy(text = text, error = false) }
     }
 
     private val exceptionHandler = CoroutineExceptionHandler { _, _ ->
-        _stateFlow.update { state ->
-            state.copy(
-                progress = false,
-                success = false,
-                error = true,
-            )
-        }
+        _stateFlow.update { s -> s.copy(progress = false, error = true, success = false) }
     }
 
     fun applyCode() {
         viewModelScope.launch(exceptionHandler) {
-            _stateFlow.update { state ->
-                state.copy(
-                    progress = true,
-                    success = false,
-                    error = false,
-                )
-            }
+            _stateFlow.update { s -> s.copy(progress = true, error = false, success = false) }
             val status = userRepository.applyVIPCode(_stateFlow.value.text)
-            _stateFlow.update { state ->
-                state.copy(
-                    progress = false,
-                    success = status.isVIP(),
-                    error = !status.isVIP(),
-                )
-            }
+            _stateFlow.update { s -> s.copy(progress = false, error = !status.isVIP()) }
         }
     }
 }

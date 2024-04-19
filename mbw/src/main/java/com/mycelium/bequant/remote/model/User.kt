@@ -8,5 +8,13 @@ data class User(
         REGULAR;
 
         fun isVIP() = this == VIP
+
+        companion object {
+            fun fromName(name: String) = when (name) {
+                VIP.name -> VIP
+                REGULAR.name -> REGULAR
+                else -> REGULAR
+            }
+        }
     }
 }

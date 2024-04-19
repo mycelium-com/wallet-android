@@ -64,6 +64,7 @@ import com.mycelium.wapi.wallet.manager.State
 import com.squareup.otto.Subscribe
 import info.guardianproject.netcipher.proxy.OrbotHelper
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 import java.util.*
 import java.util.concurrent.TimeUnit
 
@@ -160,7 +161,7 @@ class ModernMain : AppCompatActivity(), BackHandler {
         lifecycleScope.launchWhenResumed {
             ChangeLog.showIfNewVersion(this@ModernMain, supportFragmentManager)
         }
-        lifecycleScope.launchWhenStarted {
+        lifecycleScope.launch {
             userRepository.identify()
             userRepository.userFlow.collect { user ->
                 val icon =
