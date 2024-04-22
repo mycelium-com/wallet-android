@@ -22,7 +22,10 @@ import com.bumptech.glide.load.resource.bitmap.CircleCrop
 import com.bumptech.glide.request.RequestOptions
 import com.mrd.bitlib.model.BitcoinAddress
 import com.mycelium.view.RingDrawable
-import com.mycelium.wallet.*
+import com.mycelium.wallet.BuildConfig
+import com.mycelium.wallet.MbwManager
+import com.mycelium.wallet.R
+import com.mycelium.wallet.Utils
 import com.mycelium.wallet.activity.modern.ModernMain
 import com.mycelium.wallet.activity.modern.event.BackHandler
 import com.mycelium.wallet.activity.modern.event.BackListener
@@ -36,14 +39,19 @@ import com.mycelium.wallet.activity.util.toStringWithUnit
 import com.mycelium.wallet.activity.view.ValueKeyboard
 import com.mycelium.wallet.activity.view.loader
 import com.mycelium.wallet.databinding.FragmentChangelly2ExchangeBinding
-import com.mycelium.wallet.event.*
+import com.mycelium.wallet.event.ExchangeRatesRefreshed
+import com.mycelium.wallet.event.ExchangeSourceChanged
+import com.mycelium.wallet.event.PageSelectedEvent
+import com.mycelium.wallet.event.SelectedAccountChanged
+import com.mycelium.wallet.event.SelectedCurrencyChanged
+import com.mycelium.wallet.event.TransactionBroadcasted
 import com.mycelium.wallet.external.changelly.model.ChangellyResponse
 import com.mycelium.wallet.external.changelly.model.ChangellyTransactionOffer
 import com.mycelium.wallet.external.changelly.model.FixRate
-import com.mycelium.wallet.external.changelly.model.FixRateForAmount
 import com.mycelium.wallet.external.changelly2.remote.Changelly2Repository
 import com.mycelium.wallet.external.changelly2.viewmodel.ExchangeViewModel
 import com.mycelium.wallet.external.partner.openLink
+import com.mycelium.wallet.startCoroutineTimer
 import com.mycelium.wapi.wallet.AesKeyCipher
 import com.mycelium.wapi.wallet.BroadcastResultType
 import com.mycelium.wapi.wallet.Transaction
@@ -183,7 +191,7 @@ class ExchangeFragment : Fragment(), BackListener {
                         val exchangeInfoResult = viewModel.exchangeInfo.value?.result
                         if (friendlyDigits == null || exchangeInfoResult == null) N_A
                         else amount.toBigDecimal().setScale(friendlyDigits, RoundingMode.HALF_UP)
-                                ?.div(viewModel.exchangeInfo.value!!.getExpectedValue())
+                                ?.div(exchangeInfoResult)
                                 ?.stripTrailingZeros()
                                 ?.toPlainString() ?: N_A
                     } catch (e: NumberFormatException) {
@@ -358,13 +366,17 @@ class ExchangeFragment : Fragment(), BackListener {
 
     private fun computeBuyValue() {
         val amount = viewModel.sellValue.value
-        viewModel.buyValue.value = if (amount?.isNotEmpty() == true
-                && viewModel.exchangeInfo.value?.result != null) {
+        val info = viewModel.exchangeInfo.value
+        val rate = info?.result
+        val networkFee = info?.networkFee ?: BigDecimal.ZERO
+        viewModel.buyValue.value = if (amount?.isNotEmpty() == true && rate != null) {
             try {
-                (amount.toBigDecimal() * viewModel.exchangeInfo.value?.getExpectedValue()!!)
-                        .setScale(viewModel.toCurrency.value?.friendlyDigits!!, RoundingMode.HALF_UP)
-                        .stripTrailingZeros()
-                        .toPlainString()
+                val result = amount.toBigDecimal() * rate - networkFee
+                if (result <= BigDecimal.ZERO) null
+                else result
+                    .setScale(viewModel.toCurrency.value?.friendlyDigits!!, RoundingMode.HALF_UP)
+                    .stripTrailingZeros()
+                    .toPlainString()
             } catch (e: NumberFormatException) {
                 "N/A"
             }
@@ -439,7 +451,12 @@ class ExchangeFragment : Fragment(), BackListener {
                     { result ->
                         val data = result?.result?.firstOrNull()
                         if (data != null) {
-                            viewModel.exchangeInfo.value = data
+                            val info = viewModel.exchangeInfo.value
+                            viewModel.exchangeInfo.value = if (info == null) data else data.copy(
+                                amountFrom = info.amountFrom,
+                                amountTo = info.amountTo,
+                                networkFee = info.networkFee,
+                            )
                             viewModel.errorRemote.value = ""
                         } else {
                             viewModel.errorRemote.value = result?.error?.message ?: ""
@@ -485,8 +502,7 @@ class ExchangeFragment : Fragment(), BackListener {
                                 fromAmount,
                                 { result ->
                                     result?.result?.firstOrNull()?.let {
-                                        val info = viewModel.exchangeInfo.value
-                                        viewModel.exchangeInfo.postValue(it)
+                                        viewModel.exchangeInfo.value = it
                                         viewModel.errorRemote.value = ""
                                     } ?: run {
                                         viewModel.errorRemote.value = result?.error?.message ?: ""

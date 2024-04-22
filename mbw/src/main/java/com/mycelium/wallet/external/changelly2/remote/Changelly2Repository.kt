@@ -3,7 +3,12 @@ package com.mycelium.wallet.external.changelly2.remote
 import androidx.lifecycle.LifecycleCoroutineScope
 import com.mycelium.bequant.remote.doRequest
 import com.mycelium.wallet.external.changelly.ChangellyRetrofitFactory
-import com.mycelium.wallet.external.changelly.model.*
+import com.mycelium.wallet.external.changelly.model.ChangellyCurrency
+import com.mycelium.wallet.external.changelly.model.ChangellyListResponse
+import com.mycelium.wallet.external.changelly.model.ChangellyResponse
+import com.mycelium.wallet.external.changelly.model.ChangellyTransaction
+import com.mycelium.wallet.external.changelly.model.ChangellyTransactionOffer
+import com.mycelium.wallet.external.changelly.model.FixRate
 import kotlinx.coroutines.CoroutineScope
 import java.math.BigDecimal
 
@@ -26,7 +31,7 @@ object Changelly2Repository {
         from: String,
         to: String,
         amount: BigDecimal,
-        success: (ChangellyListResponse<FixRateForAmount>?) -> Unit,
+        success: (ChangellyListResponse<FixRate>?) -> Unit,
         error: (Int, String) -> Unit,
         finally: (() -> Unit)? = null
     ) =
@@ -34,15 +39,17 @@ object Changelly2Repository {
             api.getFixRateForAmount(exportSymbol(from), exportSymbol(to), amount)
         }, success, error, finally)
 
-    fun fixRate(scope: CoroutineScope,
-                from: String,
-                to: String,
-                success: (ChangellyListResponse<FixRateForAmount>?) -> Unit,
-                error: (Int, String) -> Unit,
-                finally: (() -> Unit)? = null) =
-            doRequest(scope, {
-                api.getFixRateForAmount(exportSymbol(from), exportSymbol(to))
-            }, success, error, finally)
+    fun fixRate(
+        scope: CoroutineScope,
+        from: String,
+        to: String,
+        success: (ChangellyListResponse<FixRate>?) -> Unit,
+        error: (Int, String) -> Unit,
+        finally: (() -> Unit)? = null
+    ) =
+        doRequest(scope, {
+            api.getFixRate(exportSymbol(from), exportSymbol(to))
+        }, success, error, finally)
 
     fun createFixTransaction(
         scope: CoroutineScope,

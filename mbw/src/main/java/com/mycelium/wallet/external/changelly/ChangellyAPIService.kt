@@ -1,7 +1,12 @@
 package com.mycelium.wallet.external.changelly
 
-import com.mycelium.wallet.external.changelly.model.*
-import org.jetbrains.annotations.TestOnly
+import com.mycelium.wallet.external.changelly.model.ChangellyCurrency
+import com.mycelium.wallet.external.changelly.model.ChangellyGetExchangeAmountResponse
+import com.mycelium.wallet.external.changelly.model.ChangellyListResponse
+import com.mycelium.wallet.external.changelly.model.ChangellyResponse
+import com.mycelium.wallet.external.changelly.model.ChangellyTransaction
+import com.mycelium.wallet.external.changelly.model.ChangellyTransactionOffer
+import com.mycelium.wallet.external.changelly.model.FixRate
 import retrofit2.Call
 import retrofit2.Response
 import retrofit2.http.POST
@@ -56,7 +61,17 @@ interface ChangellyAPIService {
         @Query("from") from: String,
         @Query("to") to: String,
         @Query("amountFrom") amount: BigDecimal = BigDecimal.ONE,
-    ): Response<ChangellyListResponse<FixRateForAmount>>
+    ): Response<ChangellyListResponse<FixRate>>
+
+    @Deprecated(
+        "To get the fixed rate, you need to use getFixRateForAmount, but the transaction amount must be within limits",
+        ReplaceWith("getFixRateForAmount")
+    )
+    @POST("getFixRate")
+    suspend fun getFixRate(
+        @Query("from") from: String,
+        @Query("to") to: String,
+    ): Response<ChangellyListResponse<FixRate>>
 
     @POST("createFixTransaction")
     suspend fun createFixTransaction(
@@ -70,20 +85,14 @@ interface ChangellyAPIService {
 
     @POST("getTransactions")
     suspend fun getTransaction(
-        @Query("id") id: String
+        @Query("id") id: String,
+        @Query("limit") limit: Int = 1,
     ): Response<ChangellyResponse<List<ChangellyTransaction>>>
 
     @POST("getTransactions")
     suspend fun getTransactions(
         @Query("id") id: List<String>,
     ): Response<ChangellyResponse<List<ChangellyTransaction>>>
-
-
-    @TestOnly
-    @POST("getFixRate")
-    suspend fun getFixRate(@Query("from") from: String,
-                                  @Query("to") to: String): Response<ChangellyResponse<FixRateForAmount>>
-
 
     companion object {
         const val BCH = "BCH"
