@@ -13,7 +13,6 @@ class ChangellyTransaction(val id: String,
                            val currencyFrom: String,
                            val moneyReceived: String,
                            val currencyTo: String,
-                           val trackUrl: String,
                            val payoutAddress:String,
                            val createdAt: Long
 ) : Serializable {
