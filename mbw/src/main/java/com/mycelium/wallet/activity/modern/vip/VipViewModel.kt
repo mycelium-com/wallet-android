@@ -12,7 +12,7 @@ import kotlinx.coroutines.launch
 
 class VipViewModel : ViewModel() {
 
-    private val userRepository = Api.userRepository
+    private val userRepository = Api.statusRepository
 
     data class State(
         val success: Boolean = false,
@@ -26,8 +26,8 @@ class VipViewModel : ViewModel() {
 
     init {
         viewModelScope.launch {
-            userRepository.userFlow.collect { user ->
-                val success = user.status.isVIP()
+            userRepository.statusFlow.collect { status ->
+                val success = status.isVIP()
                 _stateFlow.update { state -> state.copy(progress = false, success = success) }
             }
         }

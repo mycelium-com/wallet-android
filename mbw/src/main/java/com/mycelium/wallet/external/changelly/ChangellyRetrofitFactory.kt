@@ -10,11 +10,12 @@ import retrofit2.converter.gson.GsonConverterFactory
 import javax.net.ssl.SSLContext
 
 object ChangellyRetrofitFactory {
-    private const val BASE_URL = "https://changelly-viper.mycelium.com/v2/"
+    private const val VIPER_BASE_URL = "https://changelly-viper.mycelium.com/v2/"
+    private const val CHANGELLY_BASE_URL = "https://api.changelly.com/v2/"
 
-    private val userKeyPair = UserKeysManager.userSignKeys
+    private val userKeyPair by lazy { UserKeysManager.userSignKeys }
 
-    private fun getHttpClient(): OkHttpClient {
+    private fun getViperHttpClient(): OkHttpClient {
         val sslContext = SSLContext.getInstance("TLSv1.3")
         sslContext.init(null, null, null)
         return OkHttpClient.Builder().apply {
@@ -33,13 +34,28 @@ object ChangellyRetrofitFactory {
         }.build()
     }
 
+    private fun getChangellyHttpClient(): OkHttpClient {
+        return OkHttpClient.Builder().apply {
+            addInterceptor(ChangellyInterceptor())
+            if (!BuildConfig.DEBUG) return@apply
+            addInterceptor(HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY))
+        }.build()
+    }
 
-    val api: ChangellyAPIService =
+    val viperApi: ChangellyAPIService by lazy {
         Retrofit.Builder()
-            .baseUrl(BASE_URL)
+            .baseUrl(VIPER_BASE_URL)
             .addConverterFactory(GsonConverterFactory.create())
-            .client(getHttpClient())
+            .client(getViperHttpClient())
+            .build()
+            .create(ChangellyAPIService::class.java)
+    }
+
+    val changellyApi: ChangellyAPIService =
+        Retrofit.Builder()
+            .baseUrl(CHANGELLY_BASE_URL)
+            .addConverterFactory(GsonConverterFactory.create())
+            .client(getChangellyHttpClient())
             .build()
             .create(ChangellyAPIService::class.java)
 }
-

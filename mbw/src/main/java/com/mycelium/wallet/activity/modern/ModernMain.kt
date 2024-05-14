@@ -92,7 +92,7 @@ class ModernMain : AppCompatActivity(), BackHandler {
 
     lateinit var binding: ModernMainBinding
 
-    private val userRepository = Api.userRepository
+    private val userRepository = Api.statusRepository
 
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -162,10 +162,9 @@ class ModernMain : AppCompatActivity(), BackHandler {
             ChangeLog.showIfNewVersion(this@ModernMain, supportFragmentManager)
         }
         lifecycleScope.launch {
-            userRepository.identify()
-            userRepository.userFlow.collect { user ->
+            userRepository.statusFlow.collect { status ->
                 val icon =
-                    if (user.status.isVIP()) R.drawable.action_bar_logo_vip
+                    if (status.isVIP()) R.drawable.action_bar_logo_vip
                     else R.drawable.action_bar_logo
                 supportActionBar?.setIcon(icon)
             }

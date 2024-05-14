@@ -2,6 +2,7 @@ package com.mycelium.wallet.external.changelly2.remote
 
 import androidx.lifecycle.LifecycleCoroutineScope
 import com.mycelium.bequant.remote.doRequest
+import com.mycelium.wallet.external.changelly.ChangellyAPIService
 import com.mycelium.wallet.external.changelly.ChangellyRetrofitFactory
 import com.mycelium.wallet.external.changelly.model.ChangellyCurrency
 import com.mycelium.wallet.external.changelly.model.ChangellyListResponse
@@ -13,7 +14,14 @@ import kotlinx.coroutines.CoroutineScope
 import java.math.BigDecimal
 
 object Changelly2Repository {
-    private val api = ChangellyRetrofitFactory.api
+    private val userRepository by lazy { Api.statusRepository }
+    private val viperApi by lazy { ChangellyRetrofitFactory.viperApi }
+    private val changellyApi = ChangellyRetrofitFactory.changellyApi
+    private val api
+        get(): ChangellyAPIService {
+            val status = userRepository.statusFlow.value
+            return if (status.isVIP()) viperApi else changellyApi
+        }
 
     fun supportCurrenciesFull(
         scope: CoroutineScope,
@@ -83,7 +91,7 @@ object Changelly2Repository {
         finally: (() -> Unit)? = null
     ) {
         doRequest(scope, {
-            api.getTransaction(id)
+            changellyApi.getTransaction(id)
         }, success, error, finally)
     }
 
@@ -94,7 +102,7 @@ object Changelly2Repository {
         finally: (() -> Unit)? = null
     ) {
         doRequest(scope, {
-            api.getTransactions(ids)
+            changellyApi.getTransactions(ids)
         }, success, error, finally)
     }
 }
