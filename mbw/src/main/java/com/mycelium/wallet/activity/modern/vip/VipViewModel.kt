@@ -9,14 +9,15 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
+import retrofit2.HttpException
 
 class VipViewModel : ViewModel() {
 
     private val userRepository = Api.statusRepository
 
     data class State(
-        val success: Boolean = false,
-        val error: Boolean = false,
+        val isVip: Boolean = false,
+        val error: ErrorType? = null,
         val progress: Boolean = true,
         val text: String = "",
     )
@@ -27,25 +28,41 @@ class VipViewModel : ViewModel() {
     init {
         viewModelScope.launch {
             userRepository.statusFlow.collect { status ->
-                val success = status.isVIP()
-                _stateFlow.update { state -> state.copy(progress = false, success = success) }
+                val isVip = status.isVIP()
+                _stateFlow.update { state -> state.copy(progress = false, isVip = isVip) }
             }
         }
     }
 
     fun updateVipText(text: String) {
-        _stateFlow.update { s -> s.copy(text = text, error = false) }
+        _stateFlow.update { s -> s.copy(text = text, error = null) }
     }
 
-    private val exceptionHandler = CoroutineExceptionHandler { _, _ ->
-        _stateFlow.update { s -> s.copy(progress = false, error = true, success = false) }
+    private val exceptionHandler = CoroutineExceptionHandler { _, e ->
+        var errorType = ErrorType.UNEXPECTED
+        if (e is HttpException) {
+            if (e.code() == 404 || e.code() == 409 || e.code() == 401) {
+                errorType = ErrorType.BAD_REQUEST
+            }
+        }
+        _stateFlow.update { s -> s.copy(progress = false, error = errorType, isVip = false) }
     }
 
     fun applyCode() {
         viewModelScope.launch(exceptionHandler) {
-            _stateFlow.update { s -> s.copy(progress = true, error = false, success = false) }
+            _stateFlow.update { s -> s.copy(progress = true, error = null, isVip = false) }
             val status = userRepository.applyVIPCode(_stateFlow.value.text)
-            _stateFlow.update { s -> s.copy(progress = false, error = !status.isVIP()) }
+            val error = if (status.isVIP()) null else ErrorType.BAD_REQUEST
+            _stateFlow.update { s -> s.copy(progress = false, error = error) }
         }
+    }
+
+    fun resetState() {
+        _stateFlow.update { s -> s.copy(progress = false, error = null, isVip = false) }
+    }
+
+    enum class ErrorType {
+        UNEXPECTED,
+        BAD_REQUEST,
     }
 }

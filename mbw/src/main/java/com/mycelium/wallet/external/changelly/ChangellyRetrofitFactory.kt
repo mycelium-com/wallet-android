@@ -7,6 +7,7 @@ import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import java.util.concurrent.TimeUnit
 import javax.net.ssl.SSLContext
 
 object ChangellyRetrofitFactory {
@@ -19,6 +20,7 @@ object ChangellyRetrofitFactory {
         val sslContext = SSLContext.getInstance("TLSv1.3")
         sslContext.init(null, null, null)
         return OkHttpClient.Builder().apply {
+            connectTimeout(3, TimeUnit.SECONDS)
             // sslSocketFactory uses system defaults X509TrustManager, so deprecation suppressed
             // referring to sslSocketFactory(SSLSocketFactory, X509TrustManager) docs:
             /**

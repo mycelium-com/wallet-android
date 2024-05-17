@@ -19,12 +19,14 @@ class StatusRepository {
 
     private fun getLocalStatus() = UserStatus.fromName(preference.getString(VIP_STATUS_KEY, null))
 
-    private val _statusFlow = MutableStateFlow(getLocalStatus() ?: UserStatus.REGULAR)
+    private val _statusFlow = MutableStateFlow(UserStatus.REGULAR)
     val statusFlow = _statusFlow.asStateFlow()
 
     init {
         val localStatus = getLocalStatus()
-        if (localStatus == null) {
+        if (localStatus != null) {
+            _statusFlow.value = localStatus
+        } else {
             GlobalScope.launch(Dispatchers.IO) {
                 try {
                     val checkResult = vipApi.check()
@@ -45,6 +47,11 @@ class StatusRepository {
         _statusFlow.value = status
         preference.edit { putString(VIP_STATUS_KEY, status.name) }
         return status
+    }
+
+    fun dropStatus() {
+        preference.edit { putString(VIP_STATUS_KEY, UserStatus.REGULAR.name) }
+        _statusFlow.value = UserStatus.REGULAR
     }
 
     private companion object {

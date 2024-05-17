@@ -2,7 +2,6 @@ package com.mycelium.wallet.external.changelly2.remote
 
 import androidx.lifecycle.LifecycleCoroutineScope
 import com.mycelium.bequant.remote.doRequest
-import com.mycelium.wallet.external.changelly.ChangellyAPIService
 import com.mycelium.wallet.external.changelly.ChangellyRetrofitFactory
 import com.mycelium.wallet.external.changelly.model.ChangellyCurrency
 import com.mycelium.wallet.external.changelly.model.ChangellyListResponse
@@ -11,17 +10,13 @@ import com.mycelium.wallet.external.changelly.model.ChangellyTransaction
 import com.mycelium.wallet.external.changelly.model.ChangellyTransactionOffer
 import com.mycelium.wallet.external.changelly.model.FixRate
 import kotlinx.coroutines.CoroutineScope
+import retrofit2.HttpException
 import java.math.BigDecimal
 
 object Changelly2Repository {
     private val userRepository by lazy { Api.statusRepository }
     private val viperApi by lazy { ChangellyRetrofitFactory.viperApi }
     private val changellyApi = ChangellyRetrofitFactory.changellyApi
-    private val api
-        get(): ChangellyAPIService {
-            val status = userRepository.statusFlow.value
-            return if (status.isVIP()) viperApi else changellyApi
-        }
 
     fun supportCurrenciesFull(
         scope: CoroutineScope,
@@ -30,7 +25,7 @@ object Changelly2Repository {
         finally: (() -> Unit)? = null
     ) {
         doRequest(scope, {
-            api.getCurrenciesFull()
+            changellyApi.getCurrenciesFull()
         }, success, error, finally)
     }
 
@@ -44,7 +39,7 @@ object Changelly2Repository {
         finally: (() -> Unit)? = null
     ) =
         doRequest(scope, {
-            api.getFixRateForAmount(exportSymbol(from), exportSymbol(to), amount)
+            changellyApi.getFixRateForAmount(exportSymbol(from), exportSymbol(to), amount)
         }, success, error, finally)
 
     fun fixRate(
@@ -56,31 +51,46 @@ object Changelly2Repository {
         finally: (() -> Unit)? = null
     ) =
         doRequest(scope, {
-            api.getFixRate(exportSymbol(from), exportSymbol(to))
+            changellyApi.getFixRate(exportSymbol(from), exportSymbol(to))
         }, success, error, finally)
 
-    fun createFixTransaction(
-        scope: CoroutineScope,
+    suspend fun createFixTransaction(
         rateId: String,
         from: String,
         to: String,
         amount: String,
         addressTo: String,
         refundAddress: String,
-        success: (ChangellyResponse<ChangellyTransactionOffer>?) -> Unit,
-        error: (Int, String) -> Unit,
-        finally: (() -> Unit)? = null
-    ) {
-        doRequest(scope, {
-            api.createFixTransaction(
+        changellyOnly: Boolean,
+    ): ChangellyResponse<ChangellyTransactionOffer> {
+        val isVip = userRepository.statusFlow.value.isVIP()
+        if (!isVip || changellyOnly) {
+            return changellyApi.createFixTransaction(
                 exportSymbol(from),
                 exportSymbol(to),
                 amount,
                 addressTo,
                 rateId,
-                refundAddress
+                refundAddress,
             )
-        }, success, error, finally)
+        }
+        try {
+            return viperApi.createFixTransaction(
+                exportSymbol(from),
+                exportSymbol(to),
+                amount,
+                addressTo,
+                rateId,
+                refundAddress,
+            )
+        } catch (e: Exception) {
+            // Http exception with 401 unauthorized code means that user isn't vip anymore
+            if (e is HttpException && e.code() == 401) {
+                userRepository.dropStatus()
+                throw ViperStatusException(e)
+            }
+            throw ViperUnexpectedException(e)
+        }
     }
 
     fun getTransaction(
@@ -120,3 +130,6 @@ private fun importSymbol(currency: String) =
 private fun exportSymbol(currency: String) =
     if (currency.equals("USDT", true)) "USDT20".toLowerCase()
     else currency.toLowerCase()
+
+class ViperUnexpectedException(e: Exception) : Exception(e)
+class ViperStatusException(e: Exception) : Exception(e)
