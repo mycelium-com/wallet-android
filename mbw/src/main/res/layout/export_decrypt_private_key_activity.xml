@@ -42,6 +42,7 @@
             android:maxLength="21"
             android:singleLine="true"
             android:gravity="center"
+            android:theme="@style/EditText.Theme"
             android:hint="@string/decryption_password_hint"/>
 
         <TextView

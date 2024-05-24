@@ -18,6 +18,7 @@
             android:layout_marginTop="16dp"
             android:layout_marginEnd="16dp"
             android:drawablePadding="8dp"
+            android:theme="@style/EditText.Theme"
             android:hint="@string/search_country"
             android:lines="1"
             android:maxLines="1"
