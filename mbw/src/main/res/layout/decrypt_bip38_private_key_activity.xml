@@ -59,6 +59,7 @@
             android:id="@+id/password"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:theme="@style/EditText.Theme"
             android:gravity="center"
             android:inputType="textPassword"
             android:singleLine="true" />

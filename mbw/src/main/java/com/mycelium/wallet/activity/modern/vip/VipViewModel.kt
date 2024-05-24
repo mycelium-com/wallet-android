@@ -2,7 +2,7 @@ package com.mycelium.wallet.activity.modern.vip
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.mycelium.bequant.remote.repositories.Api
+import com.mycelium.wallet.external.changelly2.remote.Api
 import com.mycelium.wallet.update
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.flow.MutableStateFlow

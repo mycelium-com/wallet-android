@@ -20,6 +20,7 @@
         android:id="@+id/search"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:theme="@style/EditText.Theme"
         android:layout_marginHorizontal="@dimen/activity_horizontal_margin"
         android:layout_marginTop="16dp"
         android:drawablePadding="8dp"

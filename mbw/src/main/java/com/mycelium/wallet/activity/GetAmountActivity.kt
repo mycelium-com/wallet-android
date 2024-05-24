@@ -311,8 +311,12 @@ class GetAmountActivity : AppCompatActivity(), NumberEntryListener {
     override fun onResume() {
         MbwManager.getEventBus().register(this)
         _mbwManager!!.exchangeRateManager.requestOptionalRefresh()
-        binding.btPaste.visibility = if (enablePaste()) View.VISIBLE else View.GONE
         super.onResume()
+    }
+
+    override fun onWindowFocusChanged(hasFocus: kotlin.Boolean) {
+        super.onWindowFocusChanged(hasFocus)
+        binding.btPaste.visibility = if (enablePaste()) View.VISIBLE else View.GONE
     }
 
     override fun onPause() {
