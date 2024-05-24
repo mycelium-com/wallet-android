@@ -8,11 +8,10 @@ import com.mycelium.wapi.wallet.coins.AssetInfo
 class FeeEstimationsBacking(walletDB: WalletDB) {
     private val queries = walletDB.feeEstimationsQueries
 
-    fun getEstimationForCurrency(currency: AssetInfo): FeeEstimationsGeneric? {
-        val estimation = queries.selectByCurrency(currency).executeAsOneOrNull()
-                ?: return null
-        return FeeEstimationsGeneric(estimation.low, estimation.economy, estimation.normal, estimation.high, estimation.lastCheck)
-    }
+    fun getEstimationForCurrency(currency: AssetInfo): FeeEstimationsGeneric? =
+        queries.selectByCurrency(currency).executeAsOneOrNull()?.let {
+            FeeEstimationsGeneric(it.low, it.economy, it.normal, it.high, it.lastCheck, it.scale)
+        }
 
     fun updateFeeEstimation(estimation: FeeEstimation) {
         queries.insertFullObject(estimation)
