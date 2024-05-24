@@ -697,7 +697,13 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener, AmountLi
             val hash = HexUtils.toHex(signedTransaction.id)
             val fiat = viewModel.getFiatValue()
             fiat?.run {
-                getSharedPreferences(TRANSACTION_FIAT_VALUE, Context.MODE_PRIVATE).edit().putString(hash, fiat).apply()
+                val pref = getSharedPreferences(TRANSACTION_FIAT_VALUE, Context.MODE_PRIVATE).edit()
+                if (viewModel.isBatch.value == true) {
+                    pref.putString(BATCH_HASH_PREFIX + hash, fiat)
+                } else {
+                    pref.putString(hash, fiat)
+                }
+                pref.apply()
             }
             result.putExtra(Constants.TRANSACTION_FIAT_VALUE_KEY, fiat)
                     .putExtra(Constants.TRANSACTION_ID_INTENT_KEY, hash)
@@ -735,6 +741,7 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener, AmountLi
         internal const val ASSET_URI = "assetUri"
         const val SIGNED_TRANSACTION = "signedTransaction"
         const val TRANSACTION_FIAT_VALUE = "transaction_fiat_value"
+        const val BATCH_HASH_PREFIX = "batch_"
 
         @JvmStatic
         fun getIntent(currentActivity: Activity, account: UUID, isColdStorage: Boolean): Intent =

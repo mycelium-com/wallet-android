@@ -17,7 +17,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.tabs.TabLayout
 import com.google.common.base.Preconditions
-import com.mycelium.bequant.remote.repositories.Api
 import com.mycelium.giftbox.GiftBoxRootActivity
 import com.mycelium.giftbox.client.GiftboxConstants
 import com.mycelium.net.ServerEndpointType
@@ -52,6 +51,7 @@ import com.mycelium.wallet.event.*
 import com.mycelium.wallet.external.changelly.ChangellyConstants
 import com.mycelium.wallet.external.changelly2.ExchangeFragment
 import com.mycelium.wallet.external.changelly2.HistoryFragment
+import com.mycelium.wallet.external.changelly2.remote.UserRepository
 import com.mycelium.wallet.external.mediaflow.NewsConstants
 import com.mycelium.wallet.fio.FioRequestNotificator
 import com.mycelium.wallet.modularisation.ModularisationVersionHelper
@@ -91,7 +91,7 @@ class ModernMain : AppCompatActivity(), BackHandler {
 
     lateinit var binding: ModernMainBinding
 
-    private val userRepository = Api.userRepository
+    private val userRepository = UserRepository()
 
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
