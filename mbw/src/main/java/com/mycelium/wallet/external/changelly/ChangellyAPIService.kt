@@ -81,7 +81,7 @@ interface ChangellyAPIService {
         @Query("address") address: String,
         @Query("rateId") rateId: String,
         @Query("refundAddress") refundAddress: String,
-    ): Response<ChangellyResponse<ChangellyTransactionOffer>>
+    ): ChangellyResponse<ChangellyTransactionOffer>
 
     @POST("getTransactions")
     suspend fun getTransaction(

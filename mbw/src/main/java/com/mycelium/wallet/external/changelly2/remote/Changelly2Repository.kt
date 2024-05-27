@@ -10,10 +10,13 @@ import com.mycelium.wallet.external.changelly.model.ChangellyTransaction
 import com.mycelium.wallet.external.changelly.model.ChangellyTransactionOffer
 import com.mycelium.wallet.external.changelly.model.FixRate
 import kotlinx.coroutines.CoroutineScope
+import retrofit2.HttpException
 import java.math.BigDecimal
 
 object Changelly2Repository {
-    private val api = ChangellyRetrofitFactory.api
+    private val userRepository by lazy { Api.statusRepository }
+    private val viperApi by lazy { ChangellyRetrofitFactory.viperApi }
+    private val changellyApi = ChangellyRetrofitFactory.changellyApi
 
     fun supportCurrenciesFull(
         scope: CoroutineScope,
@@ -22,7 +25,7 @@ object Changelly2Repository {
         finally: (() -> Unit)? = null
     ) {
         doRequest(scope, {
-            api.getCurrenciesFull()
+            changellyApi.getCurrenciesFull()
         }, success, error, finally)
     }
 
@@ -36,7 +39,7 @@ object Changelly2Repository {
         finally: (() -> Unit)? = null
     ) =
         doRequest(scope, {
-            api.getFixRateForAmount(exportSymbol(from), exportSymbol(to), amount)
+            changellyApi.getFixRateForAmount(exportSymbol(from), exportSymbol(to), amount)
         }, success, error, finally)
 
     fun fixRate(
@@ -48,31 +51,53 @@ object Changelly2Repository {
         finally: (() -> Unit)? = null
     ) =
         doRequest(scope, {
-            api.getFixRate(exportSymbol(from), exportSymbol(to))
+            changellyApi.getFixRate(exportSymbol(from), exportSymbol(to))
         }, success, error, finally)
 
-    fun createFixTransaction(
-        scope: CoroutineScope,
+    suspend fun createFixTransaction(
         rateId: String,
         from: String,
         to: String,
         amount: String,
         addressTo: String,
         refundAddress: String,
-        success: (ChangellyResponse<ChangellyTransactionOffer>?) -> Unit,
-        error: (Int, String) -> Unit,
-        finally: (() -> Unit)? = null
-    ) {
-        doRequest(scope, {
-            api.createFixTransaction(
-                exportSymbol(from),
-                exportSymbol(to),
+        changellyOnly: Boolean,
+    ): ChangellyResponse<ChangellyTransactionOffer> {
+        val isVip = userRepository.statusFlow.value.isVIP()
+        val fromSymbol = exportSymbol(from)
+        val toSymbol = exportSymbol(to)
+        if (!isVip || changellyOnly) {
+            return changellyApi.createFixTransaction(
+                fromSymbol,
+                toSymbol,
                 amount,
                 addressTo,
                 rateId,
-                refundAddress
+                refundAddress,
             )
-        }, success, error, finally)
+        }
+        try {
+            // changelly can handle rates only from same api keys
+            // that's why new rateId should be refetched
+            val rate = viperApi.getFixRate(fromSymbol, toSymbol)
+            val viperRateId = rate.body()?.result?.firstOrNull()?.id
+                ?: throw RuntimeException("Unable to fetch rates")
+            return viperApi.createFixTransaction(
+                fromSymbol,
+                toSymbol,
+                amount,
+                addressTo,
+                viperRateId,
+                refundAddress,
+            )
+        } catch (e: Exception) {
+            // Http exception with 401 unauthorized code means that user isn't vip anymore
+            if (e is HttpException && e.code() == 401) {
+                userRepository.dropStatus()
+                throw ViperStatusException(e)
+            }
+            throw ViperUnexpectedException(e)
+        }
     }
 
     fun getTransaction(
@@ -83,7 +108,7 @@ object Changelly2Repository {
         finally: (() -> Unit)? = null
     ) {
         doRequest(scope, {
-            api.getTransaction(id)
+            changellyApi.getTransaction(id)
         }, success, error, finally)
     }
 
@@ -94,7 +119,7 @@ object Changelly2Repository {
         finally: (() -> Unit)? = null
     ) {
         doRequest(scope, {
-            api.getTransactions(ids)
+            changellyApi.getTransactions(ids)
         }, success, error, finally)
     }
 }
@@ -112,3 +137,6 @@ private fun importSymbol(currency: String) =
 private fun exportSymbol(currency: String) =
     if (currency.equals("USDT", true)) "USDT20".toLowerCase()
     else currency.toLowerCase()
+
+class ViperUnexpectedException(e: Exception) : Exception(e)
+class ViperStatusException(e: Exception) : Exception(e)
