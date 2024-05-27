@@ -15,6 +15,7 @@
         android:layout_marginStart="18dp"
         android:layout_marginTop="20dp"
         android:layout_marginEnd="18dp"
+        android:theme="@style/EditText.Theme"
         android:hint="@string/enter_recipient_hint"
         android:inputType="textAutoComplete"
         android:textSize="18sp" />

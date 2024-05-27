@@ -11,6 +11,7 @@ import javax.net.ssl.SSLContext
 
 object ChangellyRetrofitFactory {
     private const val BASE_URL = "https://changelly-viper.mycelium.com/v2/"
+    private const val CHANGELLEY_BASE_URL ="https://api.changelly.com/"
 
     private val userKeyPair = UserKeysManager.userSignKeys
 
@@ -26,8 +27,9 @@ object ChangellyRetrofitFactory {
              * if the implementations are decorated.
              */
             @Suppress("DEPRECATION") sslSocketFactory(sslContext.socketFactory)
-            addInterceptor(ChangellyInterceptor())
-            addInterceptor(DigitalSignatureInterceptor(userKeyPair))
+            addInterceptor(ChangellyHeaderInterceptor())
+//            addInterceptor(ChangellyInterceptor())
+//            addInterceptor(DigitalSignatureInterceptor(userKeyPair))
             if (!BuildConfig.DEBUG) return@apply
             addInterceptor(HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY))
         }.build()
@@ -36,7 +38,7 @@ object ChangellyRetrofitFactory {
 
     val api: ChangellyAPIService =
         Retrofit.Builder()
-            .baseUrl(BASE_URL)
+            .baseUrl(CHANGELLEY_BASE_URL)
             .addConverterFactory(GsonConverterFactory.create())
             .client(getHttpClient())
             .build()

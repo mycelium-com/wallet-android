@@ -249,6 +249,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
                     android:layout_weight="1"
+                    android:theme="@style/EditText.Theme"
                     android:hint="@string/lt_chat_message_hint"
                     android:inputType="textCapSentences|textMultiLine"
                     android:textSize="16sp" />

@@ -29,6 +29,7 @@
             <EditText
                 android:id="@+id/address"
                 style="@style/Bequant.EditText"
+                android:theme="@style/EditText.Theme"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Enter Address"

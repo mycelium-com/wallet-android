@@ -46,7 +46,6 @@ class ExchangeResultViewModel : ViewModel() {
         spendValueFiat.value = getFiatValue(result.amountExpectedFrom, result.currencyFrom)
         getValueFiat.value = getFiatValue(result.getExpectedAmount(), result.currencyTo)
         isExchangeComplete.value = result.status == "finished"
-        trackLink.value = if (result.status in LINK_ACTIVE_LIST) result.trackUrl else ""
         trackInProgress.value = result.status !in LINK_TEXT_LIST
         trackLinkText.value =
                 if (!trackInProgress.value!!) WalletApplication.getInstance().getString(R.string.link_to_track_transaction)
