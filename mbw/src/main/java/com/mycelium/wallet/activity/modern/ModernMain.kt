@@ -77,7 +77,7 @@ class ModernMain : AppCompatActivity(), BackHandler {
     private var mNewsTab: TabLayout.Tab? = null
     private var mAccountsTab: TabLayout.Tab? = null
     private var mTransactionsTab: TabLayout.Tab? = null
-//    private var mVipTab: TabLayout.Tab? = null
+    private var mVipTab: TabLayout.Tab? = null
     private var mRecommendationsTab: TabLayout.Tab? = null
     private var mFioRequestsTab: TabLayout.Tab? = null
     private var refreshItem: MenuItem? = null
@@ -125,8 +125,8 @@ class ModernMain : AppCompatActivity(), BackHandler {
         mTabsAdapter!!.addTab(mBalanceTab!!, BalanceMasterFragment::class.java, null, TAB_BALANCE)
         mTransactionsTab = binding.pagerTabs.newTab().setText(getString(R.string.tab_transactions))
         mTabsAdapter!!.addTab(mTransactionsTab!!, TransactionHistoryFragment::class.java, null, TAB_HISTORY)
-//        mVipTab = binding.pagerTabs.newTab().setText(getString(R.string.tab_vip))
-//        mTabsAdapter!!.addTab(mVipTab!!, VipFragment::class.java, null, TAB_VIP)
+        mVipTab = binding.pagerTabs.newTab().setText(getString(R.string.tab_vip))
+        mTabsAdapter!!.addTab(mVipTab!!, VipFragment::class.java, null, TAB_VIP)
 
         if (getPartnersLocalized()?.isActive() == true) {
             mRecommendationsTab =
