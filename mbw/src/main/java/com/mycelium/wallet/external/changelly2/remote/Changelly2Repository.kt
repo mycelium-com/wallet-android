@@ -39,7 +39,9 @@ object Changelly2Repository {
         finally: (() -> Unit)? = null
     ) =
         doRequest(scope, {
-            changellyApi.getFixRateForAmount(exportSymbol(from), exportSymbol(to), amount)
+            val isVip = userRepository.statusFlow.value.isVIP()
+            val api = if (isVip) viperApi else changellyApi
+            api.getFixRateForAmount(exportSymbol(from), exportSymbol(to), amount)
         }, success, error, finally)
 
     fun fixRate(
@@ -77,17 +79,12 @@ object Changelly2Repository {
             )
         }
         try {
-            // changelly can handle rates only from same api keys
-            // that's why new rateId should be refetched
-            val rate = viperApi.getFixRate(fromSymbol, toSymbol)
-            val viperRateId = rate.body()?.result?.firstOrNull()?.id
-                ?: throw RuntimeException("Unable to fetch rates")
             return viperApi.createFixTransaction(
                 fromSymbol,
                 toSymbol,
                 amount,
                 addressTo,
-                viperRateId,
+                rateId,
                 refundAddress,
             )
         } catch (e: Exception) {
