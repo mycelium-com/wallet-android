@@ -1869,4 +1869,5 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="vip_title">Get the VIP experience</string>
     <string name="vip_menu_text">VIP</string>
     <string name="vip_title_success">You are all set!</string>
+    <string name="add_address">Add address</string>
 </resources>
