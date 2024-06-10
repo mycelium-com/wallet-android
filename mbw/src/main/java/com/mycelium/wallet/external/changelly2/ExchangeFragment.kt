@@ -361,12 +361,16 @@ class ExchangeFragment : Fragment(), BackListener {
                 when (e) {
                     is HttpException -> showErrorNotificationDialog(e.message())
                     is ViperStatusException -> showViperErrorDialog(
-                        getString(R.string.vip_exchange_unexpected_alert_title),
+                        getString(R.string.vip_exchange_expired_title),
                         getString(R.string.vip_exchange_status_expired_alert_message),
+                        getString(R.string.proceed),
+                        getString(R.string.cancel_transaction)
                     )
                     is ViperUnexpectedException -> showViperErrorDialog(
                         getString(R.string.vip_exchange_unexpected_alert_title),
                         getString(R.string.vip_exchange_unexpected_alert_message),
+                        getString(R.string.proceed),
+                        getString(R.string.vip_alert_cancel)
                     )
                     else -> showErrorNotificationDialog(e.message)
                 }
@@ -386,15 +390,15 @@ class ExchangeFragment : Fragment(), BackListener {
             .show()
     }
 
-    private fun showViperErrorDialog(title: String, message: String) {
+    private fun showViperErrorDialog(title: String, message: String, positive:String, negative:String) {
         AlertDialog.Builder(requireContext())
             .setTitle(title)
             .setMessage(message)
-            .setPositiveButton(R.string.vip_alert_proceed) { _, _ ->
+            .setPositiveButton(positive) { _, _ ->
                 updateAmount()
                 createFixTransaction(true)
             }
-            .setNegativeButton(R.string.vip_alert_cancel, null)
+            .setNegativeButton(negative, null)
             .show()
     }
 

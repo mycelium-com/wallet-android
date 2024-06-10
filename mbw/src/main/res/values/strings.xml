@@ -1869,9 +1869,10 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="vip_title">Get the VIP experience</string>
     <string name="vip_menu_text">VIP</string>
     <string name="vip_title_success">You are all set!</string>
-    <string name="vip_exchange_unexpected_alert_title">Make an exchange at regular rate?</string>
+    <string name="vip_exchange_unexpected_alert_title">Ooops, something went wrong</string>
+    <string name="vip_exchange_expired_title">Vip SWAP is not available</string>
     <string name="vip_exchange_status_expired_alert_message">Your VIP status has expired, so regular (non-VIP) rates now apply.</string>
-    <string name="vip_exchange_unexpected_alert_message">VIP service is currently unavailable due to technical reasons, so regular (non-VIP) rates are now in effect.</string>
+    <string name="vip_exchange_unexpected_alert_message">VIP service is currently not available due to technical reasons. Try again later or proceed without VIP benefits.</string>
     <string name="vip_unexpected_alert_title">VIP service is currently unavailable</string>
     <string name="vip_unexpected_alert_message">Please try again later</string>
     <string name="vip_alert_proceed">Yes, proceed</string>
