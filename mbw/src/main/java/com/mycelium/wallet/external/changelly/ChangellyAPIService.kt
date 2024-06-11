@@ -85,8 +85,7 @@ interface ChangellyAPIService {
 
     @POST("getTransactions")
     suspend fun getTransaction(
-        @Query("id") id: String,
-        @Query("limit") limit: Int = 1,
+        @Query("id") id: String
     ): Response<ChangellyResponse<List<ChangellyTransaction>>>
 
     @POST("getTransactions")
