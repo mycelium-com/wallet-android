@@ -42,7 +42,7 @@ class ExchangeResultViewModel : ViewModel() {
         txId.value = result.id
         spendValue.value = "${result.amountExpectedFrom} ${result.currencyFrom.toUpperCase()}"
         getValue.value = "${result.getExpectedAmount()} ${result.currencyTo.toUpperCase()}"
-        date.value = DateFormat.getDateInstance(DateFormat.LONG).format(Date(result.createdAt * 1000L))
+        date.value = DateFormat.getDateInstance(DateFormat.LONG).format(Date(result.createdAt / 1000L))
         spendValueFiat.value = getFiatValue(result.amountExpectedFrom, result.currencyFrom)
         getValueFiat.value = getFiatValue(result.getExpectedAmount(), result.currencyTo)
         isExchangeComplete.value = result.status == "finished"

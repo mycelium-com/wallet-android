@@ -73,7 +73,7 @@ class HistoryFragment : DialogFragment() {
                                 TxItem(it.id,
                                         it.amountExpectedFrom.toString(), it.getExpectedAmount().toString(),
                                         it.fixedCurrencyFrom(), it.fixedCurrencyTo(),
-                                        DateFormat.getDateInstance(DateFormat.LONG).format(Date(it.createdAt * 1000L)),
+                                        DateFormat.getDateInstance(DateFormat.LONG).format(Date(it.createdAt / 1000L)),
                                         it.getReadableStatus())
                             })
                         }
