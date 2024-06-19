@@ -2,11 +2,18 @@ package com.mycelium.wallet.external.changelly2
 
 import android.content.Context
 import android.os.Bundle
-import android.view.*
+import android.util.Log
+import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
+import android.view.View
+import android.view.ViewGroup
 import android.widget.LinearLayout
 import androidx.core.view.forEach
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.lifecycleScope
+import com.mycelium.wallet.Constants.TAG
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.view.DividerItemDecoration
 import com.mycelium.wallet.activity.view.loader
@@ -16,12 +23,15 @@ import com.mycelium.wallet.external.adapter.TxItem
 import com.mycelium.wallet.external.changelly2.remote.Changelly2Repository
 import com.mycelium.wallet.external.changelly2.remote.fixedCurrencyFrom
 import com.mycelium.wallet.external.changelly2.remote.fixedCurrencyTo
+import kotlinx.coroutines.launch
 import java.text.DateFormat
-import java.util.*
+import java.util.Date
+import java.util.UUID
 
 
 class HistoryFragment : DialogFragment() {
 
+    private val historyDateFormat = DateFormat.getDateInstance(DateFormat.LONG)
     var binding: FragmentChangelly2HistoryBinding? = null
     val pref by lazy { requireContext().getSharedPreferences(ExchangeFragment.PREF_FILE, Context.MODE_PRIVATE) }
     val adapter = TxHistoryAdapter()
@@ -29,7 +39,7 @@ class HistoryFragment : DialogFragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setStyle(STYLE_NORMAL, R.style.Dialog_Changelly)
-        setHasOptionsMenu(true)
+        setHasOptionsMenu(false)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View =
@@ -64,27 +74,29 @@ class HistoryFragment : DialogFragment() {
         val txIds = (pref.getStringSet(ExchangeFragment.KEY_HISTORY, null) ?: setOf()).toList()
             .filterNotNull()
             .filterNot { it.isEmpty() }
-        if (txIds.isNotEmpty()) {
-            loader(true)
-            Changelly2Repository.getTransactions(lifecycleScope, txIds,
-                    {
-                        it?.result?.let {
-                            adapter.submitList(it.map {
-                                TxItem(it.id,
-                                        it.amountExpectedFrom.toString(), it.getExpectedAmount().toString(),
-                                        it.fixedCurrencyFrom(), it.fixedCurrencyTo(),
-                                        DateFormat.getDateInstance(DateFormat.LONG).format(Date(it.createdAt * 1000L)),
-                                        it.getReadableStatus())
-                            })
-                        }
-                    },
-                    { _, _ ->
+        if (txIds.isEmpty()) return
+        loader(true)
+        lifecycleScope.launch {
+            try {
+                val result = Changelly2Repository.getTransactions(txIds).result ?: return@launch
+                adapter.submitList(result.map {
+                    TxItem(
+                        it.id,
+                        it.amountExpectedFrom.toString(),
+                        it.getExpectedAmount().toString(),
+                        it.fixedCurrencyFrom(),
+                        it.fixedCurrencyTo(),
+                        historyDateFormat.format(Date(it.createdAt * 1000L)),
+                        it.getReadableStatus()
+                    )
+                })
 
-                    },
-                    {
-                        updateEmpty()
-                        loader(false)
-                    })
+            } catch (e: Exception) {
+                Log.e(TAG, "${e.message}");
+            } finally {
+                updateEmpty()
+                loader(false)
+            }
         }
     }
 

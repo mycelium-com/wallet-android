@@ -1,6 +1,5 @@
 package com.mycelium.wallet.external.changelly2.remote
 
-import androidx.lifecycle.LifecycleCoroutineScope
 import com.mycelium.bequant.remote.doRequest
 import com.mycelium.wallet.external.changelly.ChangellyRetrofitFactory
 import com.mycelium.wallet.external.changelly.model.ChangellyCurrency
@@ -8,8 +7,12 @@ import com.mycelium.wallet.external.changelly.model.ChangellyListResponse
 import com.mycelium.wallet.external.changelly.model.ChangellyResponse
 import com.mycelium.wallet.external.changelly.model.ChangellyTransaction
 import com.mycelium.wallet.external.changelly.model.ChangellyTransactionOffer
+import com.mycelium.wallet.external.changelly.model.Error
 import com.mycelium.wallet.external.changelly.model.FixRate
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.withContext
 import retrofit2.HttpException
 import java.math.BigDecimal
 
@@ -97,27 +100,42 @@ object Changelly2Repository {
         }
     }
 
-    fun getTransaction(
-        scope: CoroutineScope,
-        id: String,
-        success: (ChangellyResponse<List<ChangellyTransaction>>?) -> Unit,
-        error: (Int, String) -> Unit,
-        finally: (() -> Unit)? = null
-    ) {
-        doRequest(scope, {
-            changellyApi.getTransaction(id)
-        }, success, error, finally)
+    suspend fun getTransaction(id: String): ChangellyResponse<List<ChangellyTransaction>> {
+        val isVip = userRepository.statusFlow.value.isVIP()
+        val changellyTransactions = changellyApi.getTransaction(id)
+        if (!isVip) return changellyTransactions
+        if (changellyTransactions.result?.any { it.id == id } == true) return changellyTransactions
+        return try {
+            viperApi.getTransaction(id)
+        } catch (e: HttpException) {
+            ChangellyResponse(null, Error(e.code(), e.message()))
+        } catch (e: Exception) {
+            ChangellyResponse(null, Error(500, e.message ?: ""))
+        }
     }
 
-    fun getTransactions(
-        scope: LifecycleCoroutineScope, ids: List<String>,
-        success: (ChangellyResponse<List<ChangellyTransaction>>?) -> Unit,
-        error: (Int, String) -> Unit,
-        finally: (() -> Unit)? = null
-    ) {
-        doRequest(scope, {
-            changellyApi.getTransactions(ids)
-        }, success, error, finally)
+    suspend fun getTransactions(ids: List<String>): ChangellyResponse<List<ChangellyTransaction>> {
+        val isVip = userRepository.statusFlow.value.isVIP()
+        if (!isVip) return changellyApi.getTransactions(ids)
+        val changellyTransactionsDeferred = withContext(Dispatchers.IO) {
+            async { changellyApi.getTransactions(ids) }
+        }
+        val viperTransactionsDeferred = withContext(Dispatchers.IO) {
+            async {
+                try {
+                    viperApi.getTransactions(ids)
+                } catch (e: HttpException) {
+                    ChangellyResponse(null, Error(e.code(), e.message()))
+                } catch (e: Exception) {
+                    ChangellyResponse(null, Error(500, e.message ?: ""))
+                }
+            }
+        }
+        val changellyTransactions = changellyTransactionsDeferred.await()
+        val viperTransactions = viperTransactionsDeferred.await()
+        val changellyResult = changellyTransactions.result ?: emptyList()
+        val viperResult = viperTransactions.result ?: emptyList()
+        return ChangellyResponse(changellyResult + viperResult)
     }
 }
 

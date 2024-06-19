@@ -87,12 +87,12 @@ interface ChangellyAPIService {
     suspend fun getTransaction(
         @Query("id") id: String,
         @Query("limit") limit: Int = 1,
-    ): Response<ChangellyResponse<List<ChangellyTransaction>>>
+    ): ChangellyResponse<List<ChangellyTransaction>>
 
     @POST("getTransactions")
     suspend fun getTransactions(
         @Query("id") id: List<String>,
-    ): Response<ChangellyResponse<List<ChangellyTransaction>>>
+    ): ChangellyResponse<List<ChangellyTransaction>>
 
     companion object {
         const val BCH = "BCH"
