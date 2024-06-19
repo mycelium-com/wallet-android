@@ -3,7 +3,12 @@ package com.mycelium.wallet.external.changelly2
 import android.app.AlertDialog
 import android.graphics.Color
 import android.os.Bundle
-import android.view.*
+import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
+import android.view.View
+import android.view.ViewGroup
 import androidx.core.view.forEach
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.viewModels
@@ -21,8 +26,10 @@ import com.mycelium.wallet.startCoroutineTimer
 import com.mycelium.wapi.wallet.AddressUtils
 import com.mycelium.wapi.wallet.TransactionSummary
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 import java.text.DateFormat
-import java.util.*
+import java.util.Date
+import java.util.UUID
 import java.util.concurrent.TimeUnit
 
 
@@ -82,31 +89,31 @@ class ExchangeResultFragment : DialogFragment() {
 
     private fun update(txId: String) {
         loader(true)
-        Changelly2Repository.getTransaction(lifecycleScope, txId,
-                { response ->
-                    response?.result?.first()?.let { result ->
-                        binding?.toolbar?.title = result.getReadableStatus("exchange")
-                        viewModel.setTransaction(result)
-                    } ?: let {
-                        AlertDialog.Builder(requireContext())
-                                .setMessage(response?.error?.message)
-                                .setPositiveButton(R.string.button_ok) { _, _ ->
-                                    dismissAllowingStateLoss()
-                                }
-                                .show()
-                    }
-                },
-                { _, msg ->
-                    AlertDialog.Builder(requireContext())
-                            .setMessage(msg)
-                            .setPositiveButton(R.string.button_ok) { _, _ ->
-                                dismissAllowingStateLoss()
-                            }
-                            .show()
-                },
-                {
-                    loader(false)
-                })
+        lifecycleScope.launch {
+            try {
+                val transaction = Changelly2Repository.getTransaction(txId)
+                val result = transaction.result?.firstOrNull { it.id == txId }
+                if (transaction.error != null || result == null) {
+                    showErrorDialog(transaction.error?.message)
+                    return@launch
+                }
+                binding?.toolbar?.title = result.getReadableStatus("exchange")
+                viewModel.setTransaction(result)
+            } catch (e: Exception) {
+                showErrorDialog(e.message)
+            } finally {
+                loader(false)
+            }
+        }
+    }
+
+    private fun showErrorDialog(message: String?) {
+        AlertDialog.Builder(requireContext())
+            .setMessage(message)
+            .setPositiveButton(R.string.button_ok) { _, _ ->
+                dismissAllowingStateLoss()
+            }
+            .show()
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
