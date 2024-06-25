@@ -41,10 +41,10 @@ class ExchangeResultViewModel : ViewModel() {
     fun setTransaction(result: ChangellyTransaction) {
         txId.value = result.id
         spendValue.value = "${result.amountExpectedFrom} ${result.currencyFrom.toUpperCase()}"
-        getValue.value = "${result.getExpectedAmount()} ${result.currencyTo.toUpperCase()}"
+        getValue.value = "${result.amountExpectedTo} ${result.currencyTo.toUpperCase()}"
         date.value = DateFormat.getDateInstance(DateFormat.LONG).format(Date(result.createdAt / 1000L))
         spendValueFiat.value = getFiatValue(result.amountExpectedFrom, result.currencyFrom)
-        getValueFiat.value = getFiatValue(result.getExpectedAmount(), result.currencyTo)
+        getValueFiat.value = getFiatValue(result.amountExpectedTo, result.currencyTo)
         isExchangeComplete.value = result.status == "finished"
         trackInProgress.value = result.status !in LINK_TEXT_LIST
         trackLinkText.value =
