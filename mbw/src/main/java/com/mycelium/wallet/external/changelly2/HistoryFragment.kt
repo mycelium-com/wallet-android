@@ -83,7 +83,7 @@ class HistoryFragment : DialogFragment() {
                     TxItem(
                         it.id,
                         it.amountExpectedFrom.toString(),
-                        it.getExpectedAmount().toString(),
+                        it.amountExpectedTo.toString(),
                         it.fixedCurrencyFrom(),
                         it.fixedCurrencyTo(),
                         historyDateFormat.format(Date(it.createdAt * 1000L)),

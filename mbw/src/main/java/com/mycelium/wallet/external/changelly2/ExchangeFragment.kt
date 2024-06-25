@@ -402,10 +402,9 @@ class ExchangeFragment : Fragment(), BackListener {
         val amount = viewModel.sellValue.value
         val info = viewModel.exchangeInfo.value
         val rate = info?.result
-        val networkFee = info?.networkFee ?: BigDecimal.ZERO
         viewModel.buyValue.value = if (amount?.isNotEmpty() == true && rate != null) {
             try {
-                val result = amount.toBigDecimal() * rate - networkFee
+                val result = amount.toBigDecimal() * rate
                 if (result <= BigDecimal.ZERO) null
                 else result
                     .setScale(viewModel.toCurrency.value?.friendlyDigits!!, RoundingMode.HALF_UP)
