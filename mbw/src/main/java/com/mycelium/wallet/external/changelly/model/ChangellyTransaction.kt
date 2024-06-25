@@ -17,5 +17,5 @@ class ChangellyTransaction(val id: String,
                            val createdAt: Long
 ) : Serializable {
 
-    fun getExpectedAmount(): BigDecimal? = amountExpectedTo?.minus(networkFee ?: BigDecimal.ZERO)
+    fun getExpectedAmount(): BigDecimal? = amountExpectedTo //?.minus(networkFee ?: BigDecimal.ZERO)
 }
