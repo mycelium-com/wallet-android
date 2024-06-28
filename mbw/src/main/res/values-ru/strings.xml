@@ -991,4 +991,6 @@
     <string name="vip_title">Получите VIP-опыт</string>
     <string name="vip_menu_text">VIP</string>
     <string name="vip_title_success">Всё готово!</string>
+    <string name="vip_exchange_expired_title">Ваш SWAP обмен недоступен</string>
+    <string name="vip_exchange_status_expired_alert_message">Ваш VIP-статус истек, поэтому теперь применяются обычные (не VIP) тарифы.</string>
 </resources>
