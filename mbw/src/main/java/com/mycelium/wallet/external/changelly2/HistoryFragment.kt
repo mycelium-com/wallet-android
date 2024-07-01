@@ -86,7 +86,7 @@ class HistoryFragment : DialogFragment() {
                         it.amountExpectedTo.toString(),
                         it.fixedCurrencyFrom(),
                         it.fixedCurrencyTo(),
-                        historyDateFormat.format(Date(it.createdAt * 1000L)),
+                        historyDateFormat.format(Date(it.createdAt / 1000L)),
                         it.getReadableStatus()
                     )
                 })
