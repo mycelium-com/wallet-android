@@ -79,7 +79,9 @@ class HistoryFragment : DialogFragment() {
         lifecycleScope.launch {
             try {
                 val result = Changelly2Repository.getTransactions(txIds).result ?: return@launch
-                adapter.submitList(result.map {
+                adapter.submitList(result.sortedByDescending {
+                    it.createdAt
+                }.map {
                     TxItem(
                         it.id,
                         it.amountExpectedFrom.toString(),
