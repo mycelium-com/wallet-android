@@ -1,0 +1,2341 @@
+{
+  "partner-info": {
+    "fio-presale": {
+      "id": "fio-presale",
+      "start-date": "2019-09-25T00:00:00+0100",
+      "end-date": "2020-02-28T23:59:59+0100",
+      "isEnabled": false
+    },
+    "currencycom": {
+      "id": "currencycom",
+      "start-date": "2020-06-26T00:00:00+0100",
+      "end-date": "2020-12-01T23:59:59+0100",
+      "isEnabled": false
+    },
+    "bitjack": {
+      "id": "bitjack",
+      "name": "BitJack",
+      "start-date": "2023-11-12T00:00:00+0100",
+      "end-date": "2024-12-01T23:59:59+0100",
+      "isEnabled": false
+    },
+      "su7": {
+      "id": "su7",
+      "name": "su7.mycelium.com",
+      "start-date": "2024-03-08T00:00:00+0100",
+      "end-date": "2025-12-01T23:59:59+0100",
+      "isEnabled": true
+    },
+    "currency": {
+      "id": "currency",
+      "start-date": "2020-06-26T00:00:00+0100",
+      "end-date": "2020-12-01T23:59:59+0100",
+      "isEnabled": false
+    },
+    "cryptocom": {
+      "id": "cryptocom",
+      "start-date": "2020-06-29T00:00:00+0100",
+      "end-date": "2023-02-25T02:00:00+0100",
+      "isEnabled": true
+    },
+    "cryptomining": {
+      "id": "cryptomining",
+      "start-date": "2020-07-22T00:00:00+0100",
+      "end-date": "2020-07-29T23:59:59+0100",
+      "isEnabled": false
+    },
+    "1xbit": {
+      "id": "1xbit",
+      "name": "1xBit.com",
+      "start-date": "2024-06-14T14:00:00+0300",
+      "end-date": "2024-07-14T17:30:00+0300",
+      "isEnabled": true
+    },
+    "coinplay": {
+      "id": "coinplay",
+      "name": "Coinplay",
+      "start-date": "2022-12-12T19:00:00+0300",
+      "end-date": "2023-03-16T23:00:00+0300",
+      "isEnabled": false
+    },
+    "bookmakereu": {
+      "id": "bookmakereu",
+      "start-date": "2022-04-07T00:00:00+0100",
+      "end-date": "2022-05-01T00:00:00+0100",
+      "isEnabled": false
+    },
+    "protonvpn": {
+      "id": "protonvpn",
+      "start-date": "2020-11-05T00:00:00+0300",
+      "end-date": "2020-12-05T00:00:00+0300",
+      "isEnabled": false
+    },
+    "bitstarz": {
+      "id": "bitstarz",
+      "start-date": "2020-11-10T14:45:00+0300",
+      "end-date": "2021-06-25T16:00:00+0300",
+      "isEnabled": false
+    },
+    "rubtc": {
+      "id": "rubtc",
+      "start-date": "2020-07-22T00:00:00+0100",
+      "end-date": "2099-07-29T23:59:59+0100",
+      "isEnabled": false
+    },
+    "bequant": {
+      "id": "bequant",
+      "name": "Bequant",
+      "start-date": "2020-07-22T00:00:00+0100",
+      "end-date": "2099-07-29T23:59:59+0100",
+      "isEnabled": true
+    },
+    "bitcasino.io": {
+      "id": "bitcasino.io",
+      "start-date": "2020-12-02T20:27:00+0300",
+      "end-date": "2020-12-16T23:00:00+0300",
+      "isEnabled": false
+    },
+    "stormgain": {
+      "id": "stormgain",
+      "name": "Storm gain",
+      "start-date": "2023-02-25T03:00:00+0100",
+      "end-date": "2023-09-25T03:00:00+0100",
+      "isEnabled": false
+
+    },
+    "merchanttoken": {
+      "id": "merchanttoken",
+      "start-date": "2021-05-13T00:00:00+0300",
+      "end-date": "2021-06-14T00:00:00+0300",
+      "isEnabled": false
+    },
+    "fairspin": {
+      "id": "fairspin",
+      "name": "Fairspin",
+      "start-date": "2023-10-03T13:30:00+0100",
+      "end-date": "2023-11-03T13:30:00+0100",
+      "isEnabled": true
+    },
+    "thearchy": {
+      "id": "thearchy",
+      "start-date": "2022-04-08T12:00:00+0100",
+      "end-date": "2022-05-08T16:50:00+0100",
+      "isEnabled": false
+    },
+    "spendabit": {
+      "id": "spendabit",
+      "start-date": "2022-04-02T00:00:00+0100",
+      "end-date": "2022-05-01T00:00:00+0100",
+      "isEnabled": false
+    },
+    "cryptoslots-casino": {
+      "id": "cryptoslots-casino",
+      "start-date": "2021-02-04T02:00:00+0100",
+      "end-date": "2021-03-04T02:00:00+0100",
+      "isEnabled": false
+    },
+    "student-coin": {
+      "id": "student-coin",
+      "start-date": "2021-03-09T18:00:00+0300",
+      "end-date": "2021-04-09T18:00:00+0300",
+      "isEnabled": false
+    },
+    "mycelium": {
+      "id": "mycelium",
+      "start-date": "2021-04-21T19:27:00+0300",
+      "end-date": "2021-05-15T23:59:59+0300",
+      "isEnabled": false
+    },
+    "mercuryo": {
+      "id": "mercuryo",
+      "name": "mercuryo",
+      "start-date": "2020-08-09T13:00:00+0300",
+      "end-date": "2031-08-09T13:00:00+0300",
+      "isEnabled": false
+    },
+    "simplex": {
+      "id": "simplex",
+      "name": "simplex",
+      "start-date": "2020-08-09T13:00:00+0300",
+      "end-date": "2031-08-09T13:00:00+0300",
+      "isEnabled": true
+    },
+    "minidoge": {
+      "id": "minidoge",
+      "start-date": "2020-08-09T13:00:00+0300",
+      "end-date": "2021-08-09T13:00:00+0300",
+      "isEnabled": false
+    },
+    "giftbox": {
+      "id": "giftbox",
+      "name": "Gift Cards",
+      "start-date": "2020-08-09T13:00:00+0300",
+      "end-date": "2031-08-09T13:00:00+0300",
+      "isEnabled": true
+    },
+    "changelly": {
+      "id": "changelly",
+      "name": "Exchange",
+      "start-date": "2022-05-30T13:00:00+0300",
+      "end-date": "2031-08-09T13:00:00+0300",
+      "isEnabled": true
+    },
+    "coinfluence": {
+      "id": "coinfluence",
+      "start-date": "2021-08-30T22:00:00+0300",
+      "end-date": "2021-09-06T22:00:00+0300",
+      "isEnabled": false
+    },
+    "tranche": {
+      "id": "tranche",
+      "start-date": "2021-11-04T20:00:00+0100",
+      "end-date": "2021-12-05T20:00:00+0100",
+      "isEnabled": false
+    },
+    "mycelium-gear": {
+      "id": "mycelium-gear",
+      "name": "Mycelium Gear",
+      "start-date": "2021-01-01T20:00:00+0100",
+      "end-date": "2100-07-29T23:59:59+0100",
+      "isEnabled": true
+    },
+    "aircraft": {
+      "id": "aircraft",
+      "name": "Small Amphibious Aircraft",
+      "start-date": "2021-11-04T20:00:00+0100",
+      "end-date": "2031-12-05T20:00:00+0100",
+      "isEnabled": false
+    },
+    "tefi": {
+      "id": "tefi",
+      "start-date": "2021-12-06T20:00:00+0100",
+      "end-date": "2022-01-07T20:00:00+0100",
+      "isEnabled": false
+    },
+    "santa": {
+      "id": "santa",
+      "start-date": "2021-12-08T20:00:00+0100",
+      "end-date": "2022-01-09T20:00:00+0100",
+      "isEnabled": false
+    },
+    "satoshiswap": {
+      "id": "satoshiswap",
+      "start-date": "2022-01-11T20:00:00+0100",
+      "end-date": "2022-02-11T20:00:00+0100",
+      "isEnabled": false
+    },
+    "bitsler": {
+      "id": "bitsler",
+      "start-date": "2022-08-24T12:00:00+0300",
+      "end-date": "2022-09-24T12:00:00+0300",
+      "isEnabled": false
+    },
+    "mt": {
+      "id": "mt",
+      "start-date": "2022-02-10T10:00:00+0100",
+      "end-date": "2022-05-11T10:00:00+0100",
+      "isEnabled": false
+    },
+    "darxx": {
+      "id": "darxx",
+      "name": "Darxx",
+      "start-date": "2022-10-03T10:00:00+0100",
+      "end-date": "2100-05-11T10:00:00+0100",
+      "isEnabled": true
+    },
+    "bcgame": {
+      "id": "bcgame",
+      "name": "Bcgame",
+      "start-date": "2023-03-24T11:50:00+0100",
+      "end-date": "2023-08-14T11:55:00+0100",
+      "isEnabled": true
+    },
+    "nexo": {
+      "id": "nexo",
+      "name": "Nexo",
+      "start-date": "2023-01-31T12:00:00+0000",
+      "end-date": "2023-03-31T12:00:00+0000",
+      "isEnabled": true
+    },
+    "mgb": {
+      "id": "mgb",
+      "name": "mgb",
+      "start-date": "2023-07-19T12:00:00+0000",
+      "end-date": "2100-07-19T12:00:00+0000",
+      "isEnabled": true
+    }
+  },
+  "MediaFlow": {
+    "en": {
+      "banner-in-list": [
+        {
+          "imageUrl": "https://mycelium-wallet.s3.us-east-1.amazonaws.com/business-partners/1xbit/20241080x633.jpg",
+          "link": "https://refpa4979689.top//L?tag=d_3476490m_1732c_&site=3476490&ad=1732&r=promotions/european-tour-2024",
+          "index": 2,
+          "parentId": "1xbit",
+          "isEnabled": true
+        },
+        {
+          "imageUrl": "https://mycelium-wallet.s3.us-east-1.amazonaws.com/business-partners/coinplay/coinplay_3_1080x633.jpg",
+          "link": "https://promotioncoinplay.com/L?tag=d_1943701m_57509c_1080x633&site=1943701&ad=57509",
+          "index": 2,
+          "parentId": "coinplay",
+          "isEnabled": true
+        },
+        {
+          "imageUrl": "https://mycelium-wallet.s3.us-east-1.amazonaws.com/business-partners/bcgame/72_Best_crypro_HTML_1080x633.png",
+          "link": "https://bcgame.top/i-erf4cln4-n/?spin=true",
+          "index": 2,
+          "parentId": "bcgame",
+          "isEnabled": true
+        }
+      ],
+      "banner-top": [
+        {
+          "imageUrl": "https://mycelium-wallet.s3.us-east-1.amazonaws.com/business-partners/1xbit/1080x150_EUROCLUB.png",
+          "link": "https://refpa9063395.top/L?tag=d_371849m_1732c_euroclub&site=371849&ad=1732&r=promotions/euro-club",
+          "parentId": "1xbit",
+          "isEnabled": true
+        },
+        {
+          "imageUrl": "https://mycelium-wallet.s3.us-east-1.amazonaws.com/business-partners/1xbit/1xbit_1_720x100_2.jpg",
+          "link": "https://refpa4903566.top///L?tag=d_371849m_1732c_wc2022_ban&site=371849&ad=1732&r=line/qatar/football",
+          "parentId": "1xbit",
+          "isEnabled": false
+        },
+        {
+          "imageUrl": "https://mycelium-wallet.s3.us-east-1.amazonaws.com/business-partners/1xbit/20241080x150.jpg",
+          "link": "https://refpa4979689.top//L?tag=d_3476490m_1732c_&site=3476490&ad=1732&r=promotions/european-tour-2024",
+          "parentId": "1xbit",
+          "isEnabled": true
+        },
+        {
+          "imageUrl": "https://mycelium-wallet.s3.us-east-1.amazonaws.com/business-partners/coinplay/coinplay_3_1080x150.jpg",
+          "link": "https://promotioncoinplay.com/L?tag=d_1943701m_57509c_1080x150&site=1943701&ad=57509",
+          "parentId": "coinplay",
+          "isEnabled": false
+        },
+        {
+          "imageUrl": "https://mycelium-wallet.s3.us-east-1.amazonaws.com/business-partners/bcgame/72_Best_crypro_HTML_1080x150.png",
+          "link": "https://bcgame.top/i-erf4cln4-n/?spin=true",
+          "parentId": "bcgame",
+          "isEnabled": false
+        }
+      ],
+      "banner-bottom-details" : []
+    }
+  },
+  "Accounts": {
+    "en": {
+      "banner-top": [
+        {
+          "parentId": "giftbox",
+          "imageUrl": "https://mycelium-wallet.s3.us-east-1.amazonaws.com/business-partners/giftbox/giftboxerc20.png",
+          "link": "mycelium://action.GIFTBOX",
+          "isEnabled": false
+        }
+      ]
+    },
+    "es": {
+      "banner-top": [
+        {
+          "parentId": "giftbox",
+          "imageUrl": "https://mycelium-wallet.s3.us-east-1.amazonaws.com/business-partners/giftbox/giftboxerc20.png",
+          "link": "mycelium://action.GIFTBOX",
+          "isEnabled": false
+        }
+      ]
+    }
+  },
+  "MainMenu": {
+    "en": {
+      "pages": [
+        {
+          "tabName": "Win Crypto",
+          "tabIndex": 3,
+          "imageUrl": "https://mycelium-wallet.s3.us-east-1.amazonaws.com/business-partners/1xbit/10801854.png",
+          "link": "https://refpa4979689.top//L?tag=d_3476490m_1732c_&site=3476490&ad=1732&r=promotions/european-tour-2024",
+          "parentId": "1xbit",
+          "isEnabled": true
+        },
+        {
+          "tabName": "Win Crypto",
+          "tabIndex": 4,
+          "imageUrl": "https://mycelium-wallet.s3.us-east-1.amazonaws.com/business-partners/coinplay/coinplay_4_1080x1854.png",
+          "link": "https://promotioncoinplay.com/L?tag=d_1943701m_57509c_1080x1854&site=1943701&ad=57509",
+          "parentId": "coinplay",
+          "isEnabled": false
+        },
+        {
+          "tabName": "Win Crypto",
+          "tabIndex": 4,
+          "imageUrl": "https://mycelium-wallet.s3.us-east-1.amazonaws.com/business-partners/bcgame/72_Best_crypro_HTML_1080x1854.png",
+          "link": "https://bcgame.top/i-erf4cln4-n/?spin=true",
+          "parentId": "bcgame",
+          "isEnabled": false
+        },
+        {
+          "tabName": "Electric Cars",
+          "tabIndex": 2,
+          "imageUrl": "https://mycelium-wallet.s3.us-east-1.amazonaws.com/business-partners/su7-tab.png",
+          "link": "https://su7.mycelium.com/buy-ticket/",
+          "parentId": "su7",
+          "isEnabled": true
+        },
+        {
+          "tabName": "Gold Bitcoin",
+          "tabIndex": 2,
+          "imageUrl": "https://mycelium-wallet.s3.us-east-1.amazonaws.com/business-partners/MGB2.jpg",
+          "link": "https://000.mycelium.com/",
+          "parentId": "mgb",
+          "isEnabled": false
+        }
+      ]
+    }
+  },
+  "Balance": {
+    "en": {
+      "buy-sell-buttons": [
+        {
+          "name": "Buy/Sell %%%account.type.name%%%",
+          "index": 0,
+          "link": "mycelium://action.BUY_SELL",
+          "filter": {
+            "currency": ["BTC","ETH","BAT","USDT","ALGO","TRX","OKB","BCH","DAI","EGLD"]
+          },
+          "isEnabled": false
+        },
+        {
+          "name": "Buy/Sell %%%account.type.name%%%",
+          "iconUrl": "https://mycelium-wallet.s3.us-east-1.amazonaws.com/business-partners/buybtc.png",
+          "index": 0,
+          "link": "mycelium://action.BUY_SELL",
+          "filter": {
+            "currency": ["BTC"]
+          },
+          "isEnabled": true
+        },
+        {
+          "name": "Buy/Sell %%%account.type.name%%%",
+          "iconUrl": "https://mycelium-wallet.s3.us-east-1.amazonaws.com/business-partners/buyeth.png",
+          "index": 0,
+          "link": "mycelium://action.BUY_SELL",
+          "filter": {
+            "currency": ["ETH"]
+          },
+          "isEnabled": true
+        },
+        {
+          "name": "Earn on Crypto",
+          "iconUrl": "https://mycelium-wallet.s3.us-east-1.amazonaws.com/business-partners/nexo-symbol-light.png",
+          "index": 2,
+          "link": "https://app.adjust.com/86lkco6?campaign=mycelium_mb_button_earn_q123",
+          "parentId": "nexo",
+          "isEnabled": false
+        },
+        {
+          "name": "Donate BTC",
+          "iconUrl": "https://mycelium-wallet.s3.us-east-1.amazonaws.com/business-partners/send_btc_to_yt_tg_5.png",
+          "index": 2,
+          "link": "https://dar.is",
+          "isEnabled": false
+        },
+        {
+          "parentId": "changelly",
+          "iconUrl": "https://mycelium-wallet.s3.us-east-1.amazonaws.com/business-partners/exchangesmall.png",
+          "name": "Exchange",
+          "index": 3,
+          "link": "mycelium://action.changelly",
+          "isEnabled": true
+        },
+        {
+          "name": "CRYPTO CASINO",
+          "iconUrl": "https://mycelium-wallet.s3.us-east-1.amazonaws.com/business-partners/bitsler.png",
+          "index": 4,
+          "link": "https://sancellspotershed.com/a6278cc7-fffe-42af-a99e-ed12d276d95f",
+          "parentId": "bitsler",
+          "isEnabled": false
+        },
+        {
+          "name": "Buy Gift Card",
+          "iconUrl": "https://mycelium-wallet.s3.us-east-1.amazonaws.com/business-partners/giftbox.png",
+          "index": 5,
+          "link": "mycelium://action.GIFTBOX",
+          "parentId": "giftbox",
+          "isEnabled": false
+        }
+      ],
+            "buy-sell-quads": [
+        {
+          "name": "Secure Bitcoin Messenger",
+          "iconUrl": "https://mycelium-wallet.s3.us-east-1.amazonaws.com/business-partners/darxxbig2.png",
+          "index": 3,
+          "link": "https://darxx.net/",
+          "parentId": "darxx",
+          "isEnabled": true
+        },
+        {
+          "name": "Free Delivery Worldwide",
+          "iconUrl": "https://mycelium-wallet.s3.us-east-1.amazonaws.com/business-partners/su7_1.min.png",
+          "index": 4,
+          "link": "https://su7.mycelium.com/buy-ticket/",
+          "parentId": "su7",
+          "isEnabled": true
+        },
+        {
+          "name": "1 BTC Gold Coin",
+          "iconUrl": "https://mycelium-wallet.s3.us-east-1.amazonaws.com/business-partners/MGBPROMO.png",
+          "index": 6,
+          "link": "http://000.mycelium.com",
+          "parentId": "mgb",
+          "isEnabled": true
+        }
+      ]
+    },
+    "ru": {
+      "buy-sell-buttons": [
+        {
+          "name": "Buy/Sell Ethereum",
+          "iconUrl": "https://mycelium-wallet.s3.us-east-1.amazonaws.com/business-partners/buyeth.png",
+          "index": 0,
+          "link": "mycelium://action.BUY_SELL",
+          "filter": {
+            "currency": ["BAT","USDT","ALGO","TRX","OKB","BCH","DAI","EGLD"]
+          },
+          "isEnabled": true
+        },
+        {
+          "name": "Buy/Sell %%%account.type.name%%%",
+          "iconUrl": "https://mycelium-wallet.s3.us-east-1.amazonaws.com/business-partners/buybtc.png",
+          "index": 0,
+          "link": "mycelium://action.BUY_SELL",
+          "filter": {
+            "currency": ["BTC"]
+          },
+          "isEnabled": true
+        },
+        {
+          "name": "Buy/Sell %%%account.type.name%%%",
+          "iconUrl": "https://mycelium-wallet.s3.us-east-1.amazonaws.com/business-partners/buyeth.png",
+          "index": 0,
+          "link": "mycelium://action.BUY_SELL",
+          "filter": {
+            "currency": ["ETH"]
+          },
+          "isEnabled": true
+        },
+        {
+          "name": "Donate BTC",
+          "iconUrl": "https://mycelium-wallet.s3.us-east-1.amazonaws.com/business-partners/send_btc_to_yt_tg_5.png",
+          "index": 2,
+          "link": "https://dar.is",
+          "isEnabled": false
+        },
+        {
+          "parentId": "changelly",
+          "iconUrl": "https://mycelium-wallet.s3.us-east-1.amazonaws.com/business-partners/exchangesmall.png",
+          "name": "Exchange",
+          "index": 3,
+          "link": "mycelium://action.changelly",
+          "isEnabled": true
+        },
+        {
+          "name": "CRYPTO CASINO",
+          "iconUrl": "https://mycelium-wallet.s3.us-east-1.amazonaws.com/business-partners/bitsler.png",
+          "index": 4,
+          "link": "https://sancellspotershed.com/a6278cc7-fffe-42af-a99e-ed12d276d95f",
+          "parentId": "bitsler",
+          "isEnabled": false
+        },
+        {
+          "name": "Buy Gift Card",
+          "iconUrl": "https://mycelium-wallet.s3.us-east-1.amazonaws.com/business-partners/giftbox.png",
+          "index": 5,
+          "link": "mycelium://action.GIFTBOX",
+          "parentId": "giftbox",
+          "isEnabled": false
+        }
+      ],
+            "buy-sell-quads": [
+        {
+          "name": "Secure Bitcoin Messenger",
+          "iconUrl": "https://mycelium-wallet.s3.us-east-1.amazonaws.com/business-partners/darxxbig2.png",
+          "index": 3,
+          "link": "https://darxx.net/",
+          "parentId": "darxx",
+          "isEnabled": true
+        },
+        {
+          "name": "Free Delivery Worldwide",
+          "iconUrl": "https://mycelium-wallet.s3.us-east-1.amazonaws.com/business-partners/su7_1.min.png",
+          "index": 4,
+          "link": "https://su7.mycelium.com/buy-ticket/",
+          "parentId": "su7",
+          "isEnabled": true
+        },
+        {
+          "name": "1 BTC Gold Coin",
+          "iconUrl": "https://mycelium-wallet.s3.us-east-1.amazonaws.com/business-partners/MGBPROMO.png",
+          "index": 6,
+          "link": "http://000.mycelium.com",
+          "parentId": "mgb",
+          "isEnabled": true
+        }
+      ]
+    },
+    "es": {
+      "buy-sell-buttons": [
+        {
+          "name": "Buy/Sell %%%account.type.name%%%",
+          "index": 0,
+          "link": "mycelium://action.BUY_SELL",
+          "filter": {
+            "currency": ["BTC","ETH","BAT","USDT","ALGO","TRX","OKB","BCH","DAI","EGLD"]
+          },
+          "isEnabled": false
+        },
+        {
+          "name": "Buy/Sell %%%account.type.name%%%",
+          "iconUrl": "https://mycelium-wallet.s3.us-east-1.amazonaws.com/business-partners/buybtc.png",
+          "index": 0,
+          "link": "mycelium://action.BUY_SELL",
+          "filter": {
+            "currency": ["BTC"]
+          },
+          "isEnabled": true
+        },
+        {
+          "name": "Buy/Sell %%%account.type.name%%%",
+          "iconUrl": "https://mycelium-wallet.s3.us-east-1.amazonaws.com/business-partners/buyeth.png",
+          "index": 0,
+          "link": "mycelium://action.BUY_SELL",
+          "filter": {
+            "currency": ["ETH"]
+          },
+          "isEnabled": true
+        },
+        {
+          "name": "Earn on Crypto",
+          "iconUrl": "https://mycelium-wallet.s3.us-east-1.amazonaws.com/business-partners/nexo-symbol-light.png",
+          "index": 2,
+          "link": "https://app.adjust.com/86lkco6?campaign=mycelium_mb_button_earn_q123",
+          "parentId": "nexo",
+          "isEnabled": false
+        },
+        {
+          "name": "Donate BTC",
+          "iconUrl": "https://mycelium-wallet.s3.us-east-1.amazonaws.com/business-partners/send_btc_to_yt_tg_5.png",
+          "index": 2,
+          "link": "https://dar.is",
+          "isEnabled": false
+        },
+        {
+          "parentId": "changelly",
+          "iconUrl": "https://mycelium-wallet.s3.us-east-1.amazonaws.com/business-partners/exchangesmall.png",
+          "name": "Exchange",
+          "index": 3,
+          "link": "mycelium://action.changelly",
+          "isEnabled": true
+        },
+        {
+          "name": "CRYPTO CASINO",
+          "iconUrl": "https://mycelium-wallet.s3.us-east-1.amazonaws.com/business-partners/bitsler.png",
+          "index": 4,
+          "link": "https://sancellspotershed.com/a6278cc7-fffe-42af-a99e-ed12d276d95f",
+          "parentId": "bitsler",
+          "isEnabled": false
+        },
+        {
+          "name": "Buy Gift Card",
+          "iconUrl": "https://mycelium-wallet.s3.us-east-1.amazonaws.com/business-partners/giftbox.png",
+          "index": 5,
+          "link": "mycelium://action.GIFTBOX",
+          "parentId": "giftbox",
+          "isEnabled": false
+        }
+      ],
+            "buy-sell-quads": [
+        {
+          "name": "Secure Bitcoin Messenger",
+          "iconUrl": "https://mycelium-wallet.s3.us-east-1.amazonaws.com/business-partners/darxxbig2.png",
+          "index": 3,
+          "link": "https://darxx.net/",
+          "parentId": "darxx",
+          "isEnabled": true
+        },
+        {
+          "name": "Free Delivery Worldwide",
+          "iconUrl": "https://mycelium-wallet.s3.us-east-1.amazonaws.com/business-partners/su7_1.min.png",
+          "index": 4,
+          "link": "https://su7.mycelium.com/buy-ticket/",
+          "parentId": "su7",
+          "isEnabled": true
+        },
+        {
+          "name": "1 BTC Gold Coin",
+          "iconUrl": "https://mycelium-wallet.s3.us-east-1.amazonaws.com/business-partners/MGBPROMO.png",
+          "index": 6,
+          "link": "http://000.mycelium.com",
+          "parentId": "mgb",
+          "isEnabled": true
+        }
+      ]
+    },
+    "de": {
+      "buy-sell-buttons": [
+        {
+          "name": "Buy/Sell %%%account.type.name%%%",
+          "index": 0,
+          "link": "mycelium://action.BUY_SELL",
+          "filter": {
+            "currency": ["BTC","ETH","BAT","USDT","ALGO","TRX","OKB","BCH","DAI","EGLD"]
+          },
+          "isEnabled": false
+        },
+        {
+          "name": "Buy/Sell %%%account.type.name%%%",
+          "iconUrl": "https://mycelium-wallet.s3.us-east-1.amazonaws.com/business-partners/buybtc.png",
+          "index": 0,
+          "link": "mycelium://action.BUY_SELL",
+          "filter": {
+            "currency": ["BTC"]
+          },
+          "isEnabled": true
+        },
+        {
+          "name": "Buy/Sell %%%account.type.name%%%",
+          "iconUrl": "https://mycelium-wallet.s3.us-east-1.amazonaws.com/business-partners/buyeth.png",
+          "index": 0,
+          "link": "mycelium://action.BUY_SELL",
+          "filter": {
+            "currency": ["ETH"]
+          },
+          "isEnabled": true
+        },
+        {
+          "name": "Earn on Crypto",
+          "iconUrl": "https://mycelium-wallet.s3.us-east-1.amazonaws.com/business-partners/nexo-symbol-light.png",
+          "index": 2,
+          "link": "https://app.adjust.com/86lkco6?campaign=mycelium_mb_button_earn_q123",
+          "parentId": "nexo",
+          "isEnabled": false
+        },
+        {
+          "name": "Donate BTC",
+          "iconUrl": "https://mycelium-wallet.s3.us-east-1.amazonaws.com/business-partners/send_btc_to_yt_tg_5.png",
+          "index": 2,
+          "link": "https://dar.is",
+          "isEnabled": false
+        },
+        {
+          "parentId": "changelly",
+          "iconUrl": "https://mycelium-wallet.s3.us-east-1.amazonaws.com/business-partners/exchangesmall.png",
+          "name": "Exchange",
+          "index": 3,
+          "link": "mycelium://action.changelly",
+          "isEnabled": true
+        },
+        {
+          "name": "CRYPTO CASINO",
+          "iconUrl": "https://mycelium-wallet.s3.us-east-1.amazonaws.com/business-partners/bitsler.png",
+          "index": 4,
+          "link": "https://sancellspotershed.com/a6278cc7-fffe-42af-a99e-ed12d276d95f",
+          "parentId": "bitsler",
+          "isEnabled": false
+        },
+        {
+          "name": "Buy Gift Card",
+          "iconUrl": "https://mycelium-wallet.s3.us-east-1.amazonaws.com/business-partners/giftbox.png",
+          "index": 5,
+          "link": "mycelium://action.GIFTBOX",
+          "parentId": "giftbox",
+          "isEnabled": false
+        }
+      ],
+            "buy-sell-quads": [
+
+        {
+          "name": "Secure Bitcoin Messenger",
+          "iconUrl": "https://mycelium-wallet.s3.us-east-1.amazonaws.com/business-partners/darxxbig2.png",
+          "index": 3,
+          "link": "https://darxx.net/",
+          "parentId": "darxx",
+          "isEnabled": true
+        },
+        {
+          "name": "Free Delivery Worldwide",
+          "iconUrl": "https://mycelium-wallet.s3.us-east-1.amazonaws.com/business-partners/su7_1.min.png",
+          "index": 4,
+          "link": "https://su7.mycelium.com/buy-ticket/",
+          "parentId": "su7",
+          "isEnabled": true
+        },
+        {
+          "name": "1 BTC Gold Coin",
+          "iconUrl": "https://mycelium-wallet.s3.us-east-1.amazonaws.com/business-partners/MGBPROMO.png",
+          "index": 6,
+          "link": "http://000.mycelium.com",
+          "parentId": "mgb",
+          "isEnabled": true
+        }
+      ]
+    },
+    "pt": {
+      "buy-sell-buttons": [
+        {
+          "name": "Buy/Sell %%%account.type.name%%%",
+          "index": 0,
+          "link": "mycelium://action.BUY_SELL",
+          "filter": {
+            "currency": ["BTC","ETH","BAT","USDT","ALGO","TRX","OKB","BCH","DAI","EGLD"]
+          },
+          "isEnabled": false
+        },
+        {
+          "name": "Buy/Sell %%%account.type.name%%%",
+          "iconUrl": "https://mycelium-wallet.s3.us-east-1.amazonaws.com/business-partners/buybtc.png",
+          "index": 0,
+          "link": "mycelium://action.BUY_SELL",
+          "filter": {
+            "currency": ["BTC"]
+          },
+          "isEnabled": true
+        },
+        {
+          "name": "Buy/Sell %%%account.type.name%%%",
+          "iconUrl": "https://mycelium-wallet.s3.us-east-1.amazonaws.com/business-partners/buyeth.png",
+          "index": 0,
+          "link": "mycelium://action.BUY_SELL",
+          "filter": {
+            "currency": ["ETH"]
+          },
+          "isEnabled": true
+        },
+        {
+          "name": "Earn on Crypto",
+          "iconUrl": "https://mycelium-wallet.s3.us-east-1.amazonaws.com/business-partners/nexo-symbol-light.png",
+          "index": 2,
+          "link": "https://app.adjust.com/86lkco6?campaign=mycelium_mb_button_earn_q123",
+          "parentId": "nexo",
+          "isEnabled": false
+        },
+        {
+          "name": "Donate BTC",
+          "iconUrl": "https://mycelium-wallet.s3.us-east-1.amazonaws.com/business-partners/send_btc_to_yt_tg_5.png",
+          "index": 2,
+          "link": "https://dar.is",
+          "isEnabled": false
+        },
+        {
+          "parentId": "changelly",
+          "iconUrl": "https://mycelium-wallet.s3.us-east-1.amazonaws.com/business-partners/exchangesmall.png",
+          "name": "Exchange",
+          "index": 3,
+          "link": "mycelium://action.changelly",
+          "isEnabled": true
+        },
+        {
+          "name": "CRYPTO CASINO",
+          "iconUrl": "https://mycelium-wallet.s3.us-east-1.amazonaws.com/business-partners/bitsler.png",
+          "index": 4,
+          "link": "https://sancellspotershed.com/a6278cc7-fffe-42af-a99e-ed12d276d95f",
+          "parentId": "bitsler",
+          "isEnabled": false
+        },
+        {
+          "name": "Buy Gift Card",
+          "iconUrl": "https://mycelium-wallet.s3.us-east-1.amazonaws.com/business-partners/giftbox.png",
+          "index": 5,
+          "link": "mycelium://action.GIFTBOX",
+          "parentId": "giftbox",
+          "isEnabled": false
+        }
+      ],
+            "buy-sell-quads": [
+        {
+          "name": "Secure Bitcoin Messenger",
+          "iconUrl": "https://mycelium-wallet.s3.us-east-1.amazonaws.com/business-partners/darxxbig2.png",
+          "index": 3,
+          "link": "https://darxx.net/",
+          "parentId": "darxx",
+          "isEnabled": true
+        },
+        {
+          "name": "Free Delivery Worldwide",
+          "iconUrl": "https://mycelium-wallet.s3.us-east-1.amazonaws.com/business-partners/su7_1.min.png",
+          "index": 4,
+          "link": "https://su7.mycelium.com/buy-ticket/",
+          "parentId": "su7",
+          "isEnabled": true
+        },
+        {
+          "name": "1 BTC Gold Coin",
+          "iconUrl": "https://mycelium-wallet.s3.us-east-1.amazonaws.com/business-partners/MGBPROMO.png",
+          "index": 6,
+          "link": "http://000.mycelium.com",
+          "parentId": "mgb",
+          "isEnabled": true
+        }
+      ]
+    },
+    "zh": {
+      "buy-sell-buttons": [
+        {
+          "name": "Buy/Sell %%%account.type.name%%%",
+          "index": 0,
+          "link": "mycelium://action.BUY_SELL",
+          "filter": {
+            "currency": ["BTC","ETH","BAT","USDT","ALGO","TRX","OKB","BCH","DAI","EGLD"]
+          },
+          "isEnabled": false
+        },
+        {
+          "name": "Buy/Sell %%%account.type.name%%%",
+          "iconUrl": "https://mycelium-wallet.s3.us-east-1.amazonaws.com/business-partners/buybtc.png",
+          "index": 0,
+          "link": "mycelium://action.BUY_SELL",
+          "filter": {
+            "currency": ["BTC"]
+          },
+          "isEnabled": true
+        },
+        {
+          "name": "Buy/Sell %%%account.type.name%%%",
+          "iconUrl": "https://mycelium-wallet.s3.us-east-1.amazonaws.com/business-partners/buyeth.png",
+          "index": 0,
+          "link": "mycelium://action.BUY_SELL",
+          "filter": {
+            "currency": ["ETH"]
+          },
+          "isEnabled": true
+        },
+        {
+          "name": "Earn on Crypto",
+          "iconUrl": "https://mycelium-wallet.s3.us-east-1.amazonaws.com/business-partners/nexo-symbol-light.png",
+          "index": 2,
+          "link": "https://app.adjust.com/86lkco6?campaign=mycelium_mb_button_earn_q123",
+          "parentId": "nexo",
+          "isEnabled": false
+        },
+        {
+          "name": "Donate BTC",
+          "iconUrl": "https://mycelium-wallet.s3.us-east-1.amazonaws.com/business-partners/send_btc_to_yt_tg_5.png",
+          "index": 2,
+          "link": "https://dar.is",
+          "isEnabled": false
+        },
+        {
+          "parentId": "changelly",
+          "iconUrl": "https://mycelium-wallet.s3.us-east-1.amazonaws.com/business-partners/exchangesmall.png",
+          "name": "Exchange",
+          "index": 3,
+          "link": "mycelium://action.changelly",
+          "isEnabled": true
+        },
+        {
+          "name": "CRYPTO CASINO",
+          "iconUrl": "https://mycelium-wallet.s3.us-east-1.amazonaws.com/business-partners/bitsler.png",
+          "index": 4,
+          "link": "https://sancellspotershed.com/a6278cc7-fffe-42af-a99e-ed12d276d95f",
+          "parentId": "bitsler",
+          "isEnabled": false
+        },
+        {
+          "name": "Buy Gift Card",
+          "iconUrl": "https://mycelium-wallet.s3.us-east-1.amazonaws.com/business-partners/giftbox.png",
+          "index": 5,
+          "link": "mycelium://action.GIFTBOX",
+          "parentId": "giftbox",
+          "isEnabled": false
+        }
+      ],
+            "buy-sell-quads": [
+        {
+          "name": "Secure Bitcoin Messenger",
+          "iconUrl": "https://mycelium-wallet.s3.us-east-1.amazonaws.com/business-partners/darxxbig2.png",
+          "index": 3,
+          "link": "https://darxx.net/",
+          "parentId": "darxx",
+          "isEnabled": true
+        },
+        {
+          "name": "Free Delivery Worldwide",
+          "iconUrl": "https://mycelium-wallet.s3.us-east-1.amazonaws.com/business-partners/su7_1.min.png",
+          "index": 4,
+          "link": "https://su7.mycelium.com/buy-ticket/",
+          "parentId": "su7",
+          "isEnabled": true
+        },
+        {
+          "name": "1 BTC Gold Coin",
+          "iconUrl": "https://mycelium-wallet.s3.us-east-1.amazonaws.com/business-partners/MGBPROMO.png",
+          "index": 6,
+          "link": "http://000.mycelium.com",
+          "parentId": "mgb",
+          "isEnabled": true
+        }
+      ]
+    },
+    "ja": {
+      "buy-sell-buttons": [
+        {
+          "name": "Buy/Sell %%%account.type.name%%%",
+          "index": 0,
+          "link": "mycelium://action.BUY_SELL",
+          "filter": {
+            "currency": ["BTC","ETH","BAT","USDT","ALGO","TRX","OKB","BCH","DAI","EGLD"]
+          },
+          "isEnabled": false
+        },
+        {
+          "name": "Buy/Sell %%%account.type.name%%%",
+          "iconUrl": "https://mycelium-wallet.s3.us-east-1.amazonaws.com/business-partners/buybtc.png",
+          "index": 0,
+          "link": "mycelium://action.BUY_SELL",
+          "filter": {
+            "currency": ["BTC"]
+          },
+          "isEnabled": true
+        },
+        {
+          "name": "Buy/Sell %%%account.type.name%%%",
+          "iconUrl": "https://mycelium-wallet.s3.us-east-1.amazonaws.com/business-partners/buyeth.png",
+          "index": 0,
+          "link": "mycelium://action.BUY_SELL",
+          "filter": {
+            "currency": ["ETH"]
+          },
+          "isEnabled": true
+        },
+        {
+          "name": "Earn on Crypto",
+          "iconUrl": "https://mycelium-wallet.s3.us-east-1.amazonaws.com/business-partners/nexo-symbol-light.png",
+          "index": 2,
+          "link": "https://app.adjust.com/86lkco6?campaign=mycelium_mb_button_earn_q123",
+          "parentId": "nexo",
+          "isEnabled": false
+        },
+        {
+          "name": "Donate BTC",
+          "iconUrl": "https://mycelium-wallet.s3.us-east-1.amazonaws.com/business-partners/send_btc_to_yt_tg_5.png",
+          "index": 2,
+          "link": "https://dar.is",
+          "isEnabled": false
+        },
+        {
+          "parentId": "changelly",
+          "iconUrl": "https://mycelium-wallet.s3.us-east-1.amazonaws.com/business-partners/exchangesmall.png",
+          "name": "Exchange",
+          "index": 3,
+          "link": "mycelium://action.changelly",
+          "isEnabled": true
+        },
+        {
+          "name": "CRYPTO CASINO",
+          "iconUrl": "https://mycelium-wallet.s3.us-east-1.amazonaws.com/business-partners/bitsler.png",
+          "index": 4,
+          "link": "https://sancellspotershed.com/a6278cc7-fffe-42af-a99e-ed12d276d95f",
+          "parentId": "bitsler",
+          "isEnabled": false
+        },
+        {
+          "name": "Buy Gift Card",
+          "iconUrl": "https://mycelium-wallet.s3.us-east-1.amazonaws.com/business-partners/giftbox.png",
+          "index": 5,
+          "link": "mycelium://action.GIFTBOX",
+          "parentId": "giftbox",
+          "isEnabled": false
+        }
+      ],
+            "buy-sell-quads": [
+        {
+          "name": "Secure Bitcoin Messenger",
+          "iconUrl": "https://mycelium-wallet.s3.us-east-1.amazonaws.com/business-partners/darxxbig2.png",
+          "index": 3,
+          "link": "https://darxx.net/",
+          "parentId": "darxx",
+          "isEnabled": true
+        },
+        {
+          "name": "Free Delivery Worldwide",
+          "iconUrl": "https://mycelium-wallet.s3.us-east-1.amazonaws.com/business-partners/su7_1.min.png",
+          "index": 4,
+          "link": "https://su7.mycelium.com/buy-ticket/",
+          "parentId": "su7",
+          "isEnabled": true
+        },
+        {
+          "name": "1 BTC Gold Coin",
+          "iconUrl": "https://mycelium-wallet.s3.us-east-1.amazonaws.com/business-partners/MGBPROMO.png",
+          "index": 6,
+          "link": "http://000.mycelium.com",
+          "parentId": "mgb",
+          "isEnabled": true
+        }
+      ]
+    }
+  },
+  "Buy-Sell": {
+    "en": {
+      "list-item": [],
+      "bankcard": [
+        {
+          "title": "Mercuryo",
+          "description": "Buy and sell crypto instantly with low fees using debit/credit cards, Apple Pay, Google Pay",
+          "crypto-currencies": ["BTC","ETH","BAT","USDT","ALGO","TRX","OKB","BCH","DAI","EGLD"],
+          "counties": [
+            "Albania",
+            "American Samoa",
+            "Andorra",
+            "Angola",
+            "Anguilla",
+            "Antigua And Barbuda",
+            "Armenia",
+            "Aruba",
+            "Australia",
+            "Austria",
+            "Azerbaijan",
+            "Bahamas",
+            "Belarus",
+            "Belgium",
+            "Belize",
+            "Benin",
+            "Bermuda",
+            "Bhutan",
+            "Bonaire, Sint Eustatius, And Saba",
+            "Bosnia And Herzegovina",
+            "Botswana",
+            "Bouvet Island",
+            "Brazil",
+            "British Indian Ocean Territory",
+            "Brunei Darussalam",
+            "Bulgaria",
+            "Burkina Faso",
+            "Cameroon",
+            "Canada",
+            "Cabo Verde",
+            "Cayman Islands",
+            "Chad",
+            "Christmas Island",
+            "Cocos (keeling) Islands",
+            "Comoros",
+            "Cook Islands",
+            "Cote D'ivoire (ivory Coast)",
+            "Croatia",
+            "Curacao",
+            "Cyprus",
+            "Czech Republic",
+            "Denmark",
+            "Djibouti",
+            "Dominica",
+            "Dominican Republic",
+            "Egypt",
+            "El Salvador",
+            "Equatorial Guinea",
+            "Eritrea",
+            "Estonia",
+            "Ethiopia",
+            "Falkland Islands (malvinas)",
+            "Faroe Islands",
+            "Fiji",
+            "Finland",
+            "France",
+            "French Southern Territories",
+            "Gabon",
+            "Gambia",
+            "Germany",
+            "Ghana",
+            "Gibraltar",
+            "Greece",
+            "Greenland",
+            "Grenada",
+            "Guadeloupe",
+            "Guam",
+            "Guernsey",
+            "Guinea",
+            "Guinea-bissau",
+            "Guyana",
+            "Heard Island And Mcdonald Islands",
+            "Holy See (vatican City State)",
+            "Hong Kong",
+            "Hungary",
+            "India",
+            "Indonesia",
+            "Ireland",
+            "Isle Of Man",
+            "Israel",
+            "Italy",
+            "Jamaica",
+            "Japan",
+            "Jersey",
+            "Hashemite Kingdom Of Jordan",
+            "Kazakhstan",
+            "Kenya",
+            "Kiribati",
+            "South Korea",
+            "Republic of Kosovo",
+            "Kuwait",
+            "Lao People's Democratic Republic",
+            "Latvia",
+            "Lesotho",
+            "Liberia",
+            "Liechtenstein",
+            "Lithuania",
+            "Luxembourg",
+            "Macao",
+            "Macedonia",
+            "Madagascar",
+            "Malawi",
+            "Malaysia",
+            "Maldives",
+            "Malta",
+            "Marshall Islands",
+            "Martinique",
+            "Mauritania",
+            "Mauritius",
+            "Mayotte",
+            "Mexico",
+            "Micronesia, Federated States Of",
+            "Moldova",
+            "Monaco",
+            "Mongolia",
+            "Montenegro",
+            "Montserrat",
+            "Mozambique",
+            "Namibia",
+            "Nauru",
+            "Netherlands",
+            "New Caledonia",
+            "New Zealand (aotearoa)",
+            "Niger",
+            "Nigeria",
+            "Niue",
+            "Norfolk Island",
+            "Northern Mariana Islands",
+            "Norway",
+            "Oman",
+            "Palau",
+            "Paraguay",
+            "Philippines",
+            "Pitcairn",
+            "Poland",
+            "Portugal",
+            "Puerto Rico",
+            "Qatar",
+            "Reunion",
+            "Romania",
+            "Russia",
+            "Rwanda",
+            "Saint Barthelemy",
+            "Saint Helena, Ascension And Tristan Da Cunha",
+            "Saint Kitts And Nevis",
+            "Saint Lucia",
+            "Saint Martin",
+            "Saint Pierre And Miquelon",
+            "Saint Vincent And The Grenadines",
+            "Samoa",
+            "San Marino",
+            "Sao Tome And Principe",
+            "Senegal",
+            "Serbia",
+            "Seychelles",
+            "Sierra Leone",
+            "Singapore",
+            "Sint Maarten",
+            "Slovakia",
+            "Slovenia",
+            "Solomon Islands",
+            "South Africa",
+            "South Georgia And The South Sandwich Islands",
+            "Spain",
+            "Sri Lanka",
+            "Suriname",
+            "Svalbard And Jan Mayen",
+            "Swaziland",
+            "Sweden",
+            "Switzerland",
+            "Taiwan",
+            "Tajikistan",
+            "Tanzania, United Republic Of",
+            "Thailand",
+            "Timor-leste",
+            "Togo",
+            "Tokelau",
+            "Tonga",
+            "Trinidad And Tobago",
+            "Turkey",
+            "Turkmenistan",
+            "Turks And Caicos Islands",
+            "Tuvalu",
+            "Ukraine",
+            "United Arab Emirates",
+            "United Kingdom",
+            "United States",
+            "United States Minor Outlying Islands",
+            "Uruguay",
+            "Uzbekistan",
+            "Vanuatu",
+            "British Virgin Islands",
+            "Virgin Islands, U.s.",
+            "Wallis And Futuna",
+            "Western Sahara"
+          ],
+          "iconUrl": "https://mycelium-wallet.s3.amazonaws.com/business-partners/mercuryo/mercuryo.png",
+          "link": "https://exchange.mercuryo.io/?widget_id=839fe469-0088-485a-98c5-e1cd762059c9&utm_source=Mycelium&utm_medium=referral&theme=mycelium&currency=%currency%&address=%address%&lang=%lang%",
+          "parentId": "mercuryo",
+          "isEnabled": true
+        },
+        {
+          "title": "Simplex",
+          "description": "Buy %currency% safely and easily using your debit/credit card.",
+          "crypto-currencies": ["BTC","ETH", "AAVE", "BAT", "BUSD", "LINK", "DAI", "MANA", "ENJ", "HUSD", "HEDG", "ICX", "KCS", "MKR", "MATIC", "PAX", "XAUT", "USDT", "TUSD", "USDC", "CHZ"],
+          "counties": [
+            "Australia",
+            "Azerbaijan",
+            "Brazil",
+            "United Kingdom",
+            "Bulgaria",
+            "Canada",
+            "Chile",
+            "Colombia",
+            "Costa Rica",
+            "Czech Republic",
+            "Denmark",
+            "Dominican Republic",
+            "Europe",
+            "Georgia",
+            "Hong Kong",
+            "Hungary",
+            "India",
+            "Indonesia",
+            "Israel",
+            "Japan",
+            "Kazakhstan",
+            "Malaysia",
+            "Mexico",
+            "Moldova",
+            "Morocco",
+            "Namibia",
+            "Taiwan",
+            "New Zealand",
+            "Nigeria",
+            "Norway",
+            "Peru",
+            "Uruguay",
+            "Philippines",
+            "Poland",
+            "Qatar",
+            "Romania",
+            "Russia",
+            "Saudi Arabia",
+            "Singapore",
+            "South Africa",
+            "South Korea",
+            "Sweden",
+            "Switzerland",
+            "Turkey",
+            "Ukraine",
+            "United Arab Emirates",
+            "United States",
+            "Uzbekistan",
+            "Vietnam"
+          ],
+          "iconUrl": "https://mycelium-wallet.s3.amazonaws.com/business-partners/simplex/simplex.png",
+          "link": "https://exchange.mycelium.com/?crypto=%currency%&address=%address%",
+          "parentId": "simplex",
+          "isEnabled": true
+        }
+      ]
+    },
+    "ru": {
+      "list-item": [],
+      "bankcard": [
+        {
+          "title": "Mercuryo",
+          "description": "Купить и продать крипто мгновенно с низкими комиссиями с помощью банковской карты, Apple Pay, Google Pay в 150+ странах",
+          "crypto-currencies": ["BTC","ETH","BAT","USDT","ALGO","TRX","OKB","BCH","DAI","EGLD"],
+          "counties": [
+            "Албания",
+            "американское Самоа",
+            "Андорра",
+            "Ангола",
+            "Ангилья",
+            "Антигуа и Барбуда",
+            "Армения",
+            "Аруба",
+            "Австралия",
+            "Австрия",
+            "Азербайджан",
+            "Багамы",
+            "Беларусь",
+            "Бельгия",
+            "Белиз",
+            "Бенин",
+            "Бермуды",
+            "Бутан",
+            "Бонэйр, Синт-Эстатиус и Саба",
+            "Босния и Герцеговина",
+            "Ботсвана",
+            "Остров Буве",
+            "Бразилия",
+            "Британская территория Индийского океана",
+            "Бруней-Даруссалам",
+            "Болгария",
+            "Буркина-Фасо",
+            "Камерун",
+            "Канада",
+            "Кабо-Верде",
+            "Каймановы острова",
+            "Чад",
+            "Остров Рождества",
+            "Кокосовые (Килинг) острова",
+            "Коморские острова",
+            "Острова Кука",
+            "Кот-д'Ивуар (берег слоновой кости)",
+            "Хорватия",
+            "Кюрасао",
+            "Кипр",
+            "Чехия",
+            "Дания",
+            "Джибути",
+            "Доминика",
+            "Доминиканская Республика",
+            "Египет",
+            "Эль Сальвадор",
+            "Экваториальная Гвинея",
+            "Эритрея",
+            "Эстония",
+            "Эфиопия",
+            "Фолклендские острова (мальвинские острова)",
+            "Фарерские острова",
+            "Фиджи",
+            "Финляндия",
+            "Франция",
+            "Южные Французские Территории",
+            "Габон",
+            "Гамбия",
+            "Германия",
+            "Гана",
+            "Гибралтар",
+            "Греция",
+            "Гренландия",
+            "Гренада",
+            "Гваделупа",
+            "Гуам",
+            "Гернси",
+            "Гвинея",
+            "Гвинея-Бисау",
+            "Гайана",
+            "Остров Херд и острова Макдональд",
+            "Святой Престол (государство-город ватикан)",
+            "Гонконг",
+            "Венгрия",
+            "Индия",
+            "Индонезия",
+            "Ирландия",
+            "Остров Мэн",
+            "Израиль",
+            "Италия",
+            "Ямайка",
+            "Япония",
+            "Джерси",
+            "Иорданское Хашимитское Королевство",
+            "Казахстан",
+            "Кения",
+            "Кирибати",
+            "Южная Корея",
+            "Косово",
+            "Кувейт",
+            "Лаосская Народно-Демократическая Республика",
+            "Латвия",
+            "Лесото",
+            "Либерия",
+            "Лихтенштейн",
+            "Литва",
+            "Люксембург",
+            "Макао",
+            "Македония",
+            "Мадагаскар",
+            "Малави",
+            "Малайзия",
+            "Мальдивы",
+            "Мальта",
+            "Маршалловы острова",
+            "Мартиника",
+            "Мавритания",
+            "Маврикий",
+            "Майотта",
+            "Мексика",
+            "Микронезия, Федеративные Штаты",
+            "Молдова",
+            "Монако",
+            "Монголия",
+            "Черногория",
+            "Монтсеррат",
+            "Мозамбик",
+            "Намибия",
+            "Науру",
+            "Нидерланды",
+            "Новая Каледония",
+            "Новая Зеландия (аотеароа)",
+            "Нигер",
+            "Нигерия",
+            "Ниуэ",
+            "Остров Норфолк",
+            "Северные Марианские острова",
+            "Норвегия",
+            "Оман",
+            "Палау",
+            "Парагвай",
+            "Филиппины",
+            "Питкэрн",
+            "Польша",
+            "Португалия",
+            "Пуэрто-Рико",
+            "Катар",
+            "Воссоединение",
+            "Румыния",
+            "Россия",
+            "Руанда",
+            "Сен-Бартелеми",
+            "Святой Елены, Вознесения и Тристан-да-Кунья",
+            "Сент-Китс и Невис",
+            "Сент-Люсия",
+            "Сен-Мартен",
+            "Сен-Пьер и Микелон",
+            "Святой Винсент и Гренадины",
+            "Самоа",
+            "Сан-Марино",
+            "Сан-Томе и Принсипи",
+            "Сенегал",
+            "Сербия",
+            "Сейшельские острова",
+            "Сьерра-Леоне",
+            "Сингапур",
+            "Синт-Мартен",
+            "Словакия",
+            "Словения",
+            "Соломоновы острова",
+            "Южная Африка",
+            "Южная Георгия и Южные Сандвичевы острова",
+            "Испания",
+            "Шри-Ланка",
+            "Суринам",
+            "Шпицберген и Ян Майен",
+            "Свазиленд",
+            "Швеция",
+            "Швейцария",
+            "Тайвань",
+            "Таджикистан",
+            "Танзания, Объединенная Республика",
+            "Таиланд",
+            "Тимор-Лешти",
+            "Идти",
+            "Токелау",
+            "Тонга",
+            "Тринидад и Тобаго",
+            "индюк",
+            "Туркменистан",
+            "Острова Теркс и Кайкос",
+            "Тувалу",
+            "Украина",
+            "Объединенные Арабские Эмираты",
+            "объединенное Королевство",
+            "Соединенные Штаты",
+            "Внешние малые острова США",
+            "Уругвай",
+            "Узбекистан",
+            "Вануату",
+            "Британские Виргинские острова",
+            "Виргинские острова, США",
+            "Уоллис и Футуна",
+            "Западная Сахара"
+          ],
+          "iconUrl": "https://mycelium-wallet.s3.amazonaws.com/business-partners/mercuryo/mercuryo.png",
+          "link": "https://exchange.mercuryo.io/?widget_id=839fe469-0088-485a-98c5-e1cd762059c9&utm_source=Mycelium&utm_medium=referral?theme=mycelium&currency=%currency%&address=%address%&lang=%lang%",
+          "parentId": "mercuryo",
+          "isEnabled": true
+        },
+        {
+          "title": "Simplex",
+          "description": "Buy %currency% safely and easily using your debit/credit card.",
+          "crypto-currencies": ["BTC","ETH", "AAVE", "BAT", "BUSD", "LINK", "DAI", "MANA", "ENJ", "HUSD", "HEDG", "ICX", "KCS", "MKR", "MATIC", "PAX", "XAUT", "USDT", "TUSD", "USDC", "CHZ"],
+          "counties": [
+            "Австралия",
+            "Азербайджан",
+            "Бразилия",
+            "Объединенное Королевство",
+            "Болгария",
+            "Канада",
+            "Чили",
+            "Колумбия",
+            "Коста-Рика",
+            "Чехия",
+            "Дания",
+            "Доминиканская Республика",
+            "Европа",
+            "Грузия",
+            "Гонконг",
+            "Венгрия",
+            "Индия",
+            "Индонезия",
+            "Израиль",
+            "Япония",
+            "Казахстан",
+            "Малайзия",
+            "Мексика",
+            "Молдова",
+            "Марокко",
+            "Намибия",
+            "Тайвань",
+            "Новая Зеландия",
+            "Нигерия",
+            "Норвегия",
+            "Перу",
+            "Уругвай",
+            "Филиппины",
+            "Польша",
+            "Катар",
+            "Румыния",
+            "Россия",
+            "Саудовская Аравия",
+            "Сингапур",
+            "Южная Африка",
+            "Южная Корея",
+            "Швеция",
+            "Швейцария",
+            "Индюк",
+            "Украина",
+            "Объединенные Арабские Эмираты",
+            "Соединенные Штаты",
+            "Узбекистан",
+            "Вьетнам"
+          ],
+          "iconUrl": "https://mycelium-wallet.s3.amazonaws.com/business-partners/simplex/simplex.png",
+          "link": "https://exchange.mycelium.com/?crypto=%currency%&address=%address%",
+          "parentId": "simplex",
+          "isEnabled": true
+        }
+      ]
+    }
+  },
+  "Business": {
+    "en": {
+      "header-title": "New to crypto?",
+      "header-text": "Please find here a selection of partner businesses",
+      "Partners": [
+        {
+          "parentId": "darxx",
+          "title": "Messenger for your bug out life",
+          "description": "Off-grid status ensured: to add a contact, you must see a person face-to-face.",
+          "imageUrl": "https://mycelium-wallet.s3.amazonaws.com/business-partners/darxx/darxx.png",
+          "link": "https://play.google.com/store/apps/details?id=me.proxx.android",
+          "isEnabled": true
+        },
+        {
+          "parentId":"bookmakereu",
+          "title": "Live betting on the madness",
+          "description": "Get up to $1000 CASH BONUS",
+          "imageUrl": "https://mycelium-wallet.s3.amazonaws.com/business-partners/bookmakereu/bookmakereu.png",
+          "link": "https://record.revshare.ag/_sZGna4oyLrGVAv0U_Fv2nWNd7ZgqdRLk/1/",
+          "isEnabled": true
+        },
+        {
+          "parentId": "giftbox",
+          "title": "Save on buying with BTC & ETH!",
+          "description": "Buy anything you want without exchanging crypto!\uD83C\uDF89",
+          "imageUrl": "https://mycelium-wallet.s3.amazonaws.com/business-partners/giftbox/giftbox_Logo.png",
+          "link": "mycelium://action.GIFTBOX",
+          "isEnabled": true
+        },
+        {
+          "parentId":"stormgain",
+          "title": "\uD83D\uDD255$ Your Bonus\uD83D\uDD25",
+          "description": "Simply use promo code MINER\nRegister and start mining crypto!",
+          "imageUrl": "https://mycelium-wallet.s3.amazonaws.com/business-partners/stormgain/stormgain-logo.png",
+          "link": "https://sg-tracking.com/click.php?key=ff7zhr96m2o1vkhyo15z",
+          "isEnabled": false
+        },
+        {
+          "title": "1xBit sportsbook and casino",
+          "description": "Welcome bonus up to 7 BTC!\nHigh odds, huge bonuses, fast payout",
+          "imageUrl": "https://mycelium-wallet.s3.amazonaws.com/business-partners/1xbit-icon.png",
+          "link": "https://refpaexhil.top/L?tag=d_33760m_1732c_mycelium&site=33760&ad=1732",
+          "isEnabled": false
+        },
+        {
+          "id":"aircraft",
+          "parentId":"aircraft",
+          "title": "Small aircraft. $570,000 (only for Mycelium users).",
+          "description": "Takes off and lands on water, soil or snow. Carrying capacity: 2000 kg. Carbon fiber. Parachute rescue system",
+          "imageUrl": "https://mycelium-wallet.s3.amazonaws.com/business-partners/aircraft/aircraft_logo.png",
+          "link": "https://www.notion.so/natzbitz/Small-Amphibious-Aircraft-a219db78754e414ca22111683658014f",
+          "isEnabled": true
+        },
+        {
+          "title": "NEFT Vodka",
+          "description": "Life is a story. Make it a good one",
+          "imageUrl": "https://mycelium-wallet.s3.amazonaws.com/business-partners/neftvodka-icon.png",
+          "link": "https://www.neftvodkaus.com/",
+          "isEnabled": true
+        },
+        {
+          "parentId": "mycelium-gear",
+          "title": "Start accepting BTC",
+          "description": "No middlemen. No KYC. Anonymous. Money goes from your customer straight into your wallet.",
+          "imageUrl": "https://mycelium-wallet.s3.amazonaws.com/business-partners/mycelium/mycelium_gear.png",
+          "link": "https://gear.mycelium.com",
+          "isEnabled": true
+        }
+      ]
+    },
+    "ru": {
+      "header-title": "Вы новичок в криптовалютах?",
+      "header-text": "Please find here a selection of partner businesses",
+      "Partners": [
+        {
+          "parentId": "darxx",
+          "title": "Messenger for your bug out life",
+          "description": "Off-grid status ensured: to add a contact, you must see a person face-to-face.",
+          "imageUrl": "https://mycelium-wallet.s3.amazonaws.com/business-partners/darxx/darxx.png",
+          "link": "https://play.google.com/store/apps/details?id=me.proxx.android",
+          "isEnabled": true
+        },
+        {
+          "parentId":"bookmakereu",
+          "title": "Live betting on the madness",
+          "description": "Get up to $1000 CASH BONUS",
+          "imageUrl": "https://mycelium-wallet.s3.amazonaws.com/business-partners/bookmakereu/bookmakereu.png",
+          "link": "https://record.revshare.ag/_sZGna4oyLrGVAv0U_Fv2nWNd7ZgqdRLk/1/",
+          "isEnabled": true
+        },
+        {
+          "parentId": "giftbox",
+          "title": "Покупай товары за BTC & ETH!",
+          "description": "Покупай товары без обмена криптовалюты!\uD83C\uDF89",
+          "imageUrl": "https://mycelium-wallet.s3.amazonaws.com/business-partners/giftbox/giftbox_Logo.png",
+          "link": "mycelium://action.GIFTBOX",
+          "isEnabled": true
+        },
+        {
+          "parentId":"stormgain",
+          "title": "\uD83D\uDD255$ Your Bonus\uD83D\uDD25",
+          "description": "Simply use promo code MINER\nRegister and start mining crypto!",
+          "imageUrl": "https://mycelium-wallet.s3.amazonaws.com/business-partners/stormgain/stormgain-logo.png",
+          "link": "https://sg-tracking.com/click.php?key=ff7zhr96m2o1vkhyo15z",
+          "isEnabled": true
+        },
+        {
+          "title": "1xBit sportsbook and casino",
+          "description": "Welcome bonus up to 7 BTC!\nHigh odds, huge bonuses, fast payout",
+          "imageUrl": "https://mycelium-wallet.s3.amazonaws.com/business-partners/1xbit-icon.png",
+          "link": "https://refpaexhil.top/L?tag=d_33760m_1732c_mycelium&site=33760&ad=1732",
+          "isEnabled": false
+        },
+        {
+          "id":"aircraft",
+          "parentId":"aircraft",
+          "title": "Small aircraft. $570,000 (only for Mycelium users).",
+          "description": "Takes off and lands on water, soil or snow. Carrying capacity: 2000 kg. Carbon fiber. Parachute rescue system",
+          "imageUrl": "https://mycelium-wallet.s3.amazonaws.com/business-partners/aircraft/aircraft_logo.png",
+          "link": "https://www.notion.so/natzbitz/Small-Amphibious-Aircraft-a219db78754e414ca22111683658014f",
+          "isEnabled": true
+        },
+        {
+          "title": "NEFT Vodka",
+          "description": "Life is a story. Make it a good one",
+          "imageUrl": "https://mycelium-wallet.s3.amazonaws.com/business-partners/neftvodka-icon.png",
+          "link": "https://www.neftvodkaus.com/",
+          "isEnabled": true
+        },
+        {
+          "parentId": "mycelium-gear",
+          "title": "Start accepting BTC",
+          "description": "No middlemen. No KYC. Anonymous. Money goes from your customer straight into your wallet.",
+          "imageUrl": "https://mycelium-wallet.s3.amazonaws.com/business-partners/mycelium/mycelium_gear.png",
+          "link": "https://gear.mycelium.com",
+          "isEnabled": true
+        }
+      ]
+    },
+    "de": {
+      "header-title": "New to crypto?",
+      "header-text": "Please find here a selection of partner businesses",
+      "Partners": [
+        {
+          "parentId": "darxx",
+          "title": "Messenger for your bug out life",
+          "description": "Off-grid status ensured: to add a contact, you must see a person face-to-face.",
+          "imageUrl": "https://mycelium-wallet.s3.amazonaws.com/business-partners/darxx/darxx.png",
+          "link": "https://play.google.com/store/apps/details?id=me.proxx.android",
+          "isEnabled": true
+        },
+        {
+          "parentId":"bookmakereu",
+          "title": "Live betting on the madness",
+          "description": "Get up to $1000 CASH BONUS",
+          "imageUrl": "https://mycelium-wallet.s3.amazonaws.com/business-partners/bookmakereu/bookmakereu.png",
+          "link": "https://record.revshare.ag/_sZGna4oyLrGVAv0U_Fv2nWNd7ZgqdRLk/1/",
+          "isEnabled": true
+        },
+        {
+          "parentId": "giftbox",
+          "title": "Save on buying with BTC & ETH!",
+          "description": "Buy anything you want without exchanging crypto!\uD83C\uDF89",
+          "imageUrl": "https://mycelium-wallet.s3.amazonaws.com/business-partners/giftbox/giftbox_Logo.png",
+          "link": "mycelium://action.GIFTBOX",
+          "isEnabled": true
+        },
+        {
+          "parentId":"stormgain",
+          "title": "\uD83D\uDD255$ Your Bonus\uD83D\uDD25",
+          "description": "Simply use promo code MINER\nRegister and start mining crypto!",
+          "imageUrl": "https://mycelium-wallet.s3.amazonaws.com/business-partners/stormgain/stormgain-logo.png",
+          "link": "https://sg-tracking.com/click.php?key=ff7zhr96m2o1vkhyo15z",
+          "isEnabled": false
+        },
+        {
+          "title": "1xBit sportsbook and casino",
+          "description": "Welcome bonus up to 7 BTC!\nHigh odds, huge bonuses, fast payout",
+          "imageUrl": "https://mycelium-wallet.s3.amazonaws.com/business-partners/1xbit-icon.png",
+          "link": "https://refpaexhil.top/L?tag=d_33760m_1732c_mycelium&site=33760&ad=1732",
+          "isEnabled": false
+        },
+        {
+          "id":"aircraft",
+          "parentId":"aircraft",
+          "title": "Small aircraft. $570,000 (only for Mycelium users).",
+          "description": "Takes off and lands on water, soil or snow. Carrying capacity: 2000 kg. Carbon fiber. Parachute rescue system",
+          "imageUrl": "https://mycelium-wallet.s3.amazonaws.com/business-partners/aircraft/aircraft_logo.png",
+          "link": "https://www.notion.so/natzbitz/Small-Amphibious-Aircraft-a219db78754e414ca22111683658014f",
+          "isEnabled": true
+        },
+        {
+          "title": "NEFT Vodka",
+          "description": "Life is a story. Make it a good one",
+          "imageUrl": "https://mycelium-wallet.s3.amazonaws.com/business-partners/neftvodka-icon.png",
+          "link": "https://www.neftvodkaus.com/",
+          "isEnabled": true
+        },
+        {
+          "parentId": "mycelium-gear",
+          "title": "Start accepting BTC",
+          "description": "No middlemen. No KYC. Anonymous. Money goes from your customer straight into your wallet.",
+          "imageUrl": "https://mycelium-wallet.s3.amazonaws.com/business-partners/mycelium/mycelium_gear.png",
+          "link": "https://gear.mycelium.com",
+          "isEnabled": true
+        }
+      ]
+    },
+    "es": {
+      "header-title": "New to crypto?",
+      "header-text": "Please find here a selection of partner businesses",
+      "Partners": [
+        {
+          "parentId": "darxx",
+          "title": "Messenger for your bug out life",
+          "description": "Off-grid status ensured: to add a contact, you must see a person face-to-face.",
+          "imageUrl": "https://mycelium-wallet.s3.amazonaws.com/business-partners/darxx/darxx.png",
+          "link": "https://play.google.com/store/apps/details?id=me.proxx.android",
+          "isEnabled": true
+        },
+        {
+          "parentId":"bookmakereu",
+          "title": "Live betting on the madness",
+          "description": "Get up to $1000 CASH BONUS",
+          "imageUrl": "https://mycelium-wallet.s3.amazonaws.com/business-partners/bookmakereu/bookmakereu.png",
+          "link": "https://record.revshare.ag/_sZGna4oyLrGVAv0U_Fv2nWNd7ZgqdRLk/1/",
+          "isEnabled": true
+        },
+        {
+          "parentId": "giftbox",
+          "title": "Save on buying with BTC & ETH!",
+          "description": "Buy anything you want without exchanging crypto!\uD83C\uDF89",
+          "imageUrl": "https://mycelium-wallet.s3.amazonaws.com/business-partners/giftbox/giftbox_Logo.png",
+          "link": "mycelium://action.GIFTBOX",
+          "isEnabled": true
+        },
+        {
+          "parentId":"stormgain",
+          "title": "\uD83D\uDD255$ Your Bonus\uD83D\uDD25",
+          "description": "Simply use promo code MINER\nRegister and start mining crypto!",
+          "imageUrl": "https://mycelium-wallet.s3.amazonaws.com/business-partners/stormgain/stormgain-logo.png",
+          "link": "https://sg-tracking.com/click.php?key=ff7zhr96m2o1vkhyo15z",
+          "isEnabled": false
+        },
+        {
+          "title": "1xBit sportsbook and casino",
+          "description": "Welcome bonus up to 7 BTC!\nHigh odds, huge bonuses, fast payout",
+          "imageUrl": "https://mycelium-wallet.s3.amazonaws.com/business-partners/1xbit-icon.png",
+          "link": "https://refpaexhil.top/L?tag=d_33760m_1732c_mycelium&site=33760&ad=1732",
+          "isEnabled": false
+        },
+        {
+          "id":"aircraft",
+          "parentId":"aircraft",
+          "title": "Small aircraft. $570,000 (only for Mycelium users).",
+          "description": "Takes off and lands on water, soil or snow. Carrying capacity: 2000 kg. Carbon fiber. Parachute rescue system",
+          "imageUrl": "https://mycelium-wallet.s3.amazonaws.com/business-partners/aircraft/aircraft_logo.png",
+          "link": "https://www.notion.so/natzbitz/Small-Amphibious-Aircraft-a219db78754e414ca22111683658014f",
+          "isEnabled": true
+        },
+        {
+          "title": "NEFT Vodka",
+          "description": "Life is a story. Make it a good one",
+          "imageUrl": "https://mycelium-wallet.s3.amazonaws.com/business-partners/neftvodka-icon.png",
+          "link": "https://www.neftvodkaus.com/",
+          "isEnabled": true
+        },
+        {
+          "parentId": "mycelium-gear",
+          "title": "Start accepting BTC",
+          "description": "No middlemen. No KYC. Anonymous. Money goes from your customer straight into your wallet.",
+          "imageUrl": "https://mycelium-wallet.s3.amazonaws.com/business-partners/mycelium/mycelium_gear.png",
+          "link": "https://gear.mycelium.com",
+          "isEnabled": true
+        }
+      ]
+    },
+    "pt": {
+      "header-title": "New to crypto?",
+      "header-text": "Please find here a selection of partner businesses",
+      "Partners": [
+        {
+          "parentId": "darxx",
+          "title": "Messenger for your bug out life",
+          "description": "Off-grid status ensured: to add a contact, you must see a person face-to-face.",
+          "imageUrl": "https://mycelium-wallet.s3.amazonaws.com/business-partners/darxx/darxx.png",
+          "link": "https://play.google.com/store/apps/details?id=me.proxx.android",
+          "isEnabled": true
+        },
+        {
+          "parentId":"bookmakereu",
+          "title": "Live betting on the madness",
+          "description": "Get up to $1000 CASH BONUS",
+          "imageUrl": "https://mycelium-wallet.s3.amazonaws.com/business-partners/bookmakereu/bookmakereu.png",
+          "link": "https://record.revshare.ag/_sZGna4oyLrGVAv0U_Fv2nWNd7ZgqdRLk/1/",
+          "isEnabled": true
+        },
+        {
+          "parentId": "giftbox",
+          "title": "Save on buying with BTC & ETH!",
+          "description": "Buy anything you want without exchanging crypto!\uD83C\uDF89",
+          "imageUrl": "https://mycelium-wallet.s3.amazonaws.com/business-partners/giftbox/giftbox_Logo.png",
+          "link": "mycelium://action.GIFTBOX",
+          "isEnabled": true
+        },
+        {
+          "parentId":"stormgain",
+          "title": "\uD83D\uDD255$ Your Bonus\uD83D\uDD25",
+          "description": "Simply use promo code MINER\nRegister and start mining crypto!",
+          "imageUrl": "https://mycelium-wallet.s3.amazonaws.com/business-partners/stormgain/stormgain-logo.png",
+          "link": "https://sg-tracking.com/click.php?key=ff7zhr96m2o1vkhyo15z",
+          "isEnabled": false
+        },
+        {
+          "title": "1xBit sportsbook and casino",
+          "description": "Welcome bonus up to 7 BTC!\nHigh odds, huge bonuses, fast payout",
+          "imageUrl": "https://mycelium-wallet.s3.amazonaws.com/business-partners/1xbit-icon.png",
+          "link": "https://refpaexhil.top/L?tag=d_33760m_1732c_mycelium&site=33760&ad=1732",
+          "isEnabled": false
+        },
+        {
+          "id":"aircraft",
+          "parentId":"aircraft",
+          "title": "Small aircraft. $570,000 (only for Mycelium users).",
+          "description": "Takes off and lands on water, soil or snow. Carrying capacity: 2000 kg. Carbon fiber. Parachute rescue system",
+          "imageUrl": "https://mycelium-wallet.s3.amazonaws.com/business-partners/aircraft/aircraft_logo.png",
+          "link": "https://www.notion.so/natzbitz/Small-Amphibious-Aircraft-a219db78754e414ca22111683658014f",
+          "isEnabled": true
+        },
+        {
+          "title": "NEFT Vodka",
+          "description": "Life is a story. Make it a good one",
+          "imageUrl": "https://mycelium-wallet.s3.amazonaws.com/business-partners/neftvodka-icon.png",
+          "link": "https://www.neftvodkaus.com/",
+          "isEnabled": true
+        },
+        {
+          "parentId": "mycelium-gear",
+          "title": "Start accepting BTC",
+          "description": "No middlemen. No KYC. Anonymous. Money goes from your customer straight into your wallet.",
+          "imageUrl": "https://mycelium-wallet.s3.amazonaws.com/business-partners/mycelium/mycelium_gear.png",
+          "link": "https://gear.mycelium.com",
+          "isEnabled": true
+        }
+      ]
+    },
+    "zh": {
+      "header-title": "New to crypto?",
+      "header-text": "Please find here a selection of partner businesses",
+      "Partners": [
+        {
+          "parentId": "darxx",
+          "title": "Messenger for your bug out life",
+          "description": "Off-grid status ensured: to add a contact, you must see a person face-to-face.",
+          "imageUrl": "https://mycelium-wallet.s3.amazonaws.com/business-partners/darxx/darxx.png",
+          "link": "https://play.google.com/store/apps/details?id=me.proxx.android",
+          "isEnabled": true
+        },
+        {
+          "parentId":"bookmakereu",
+          "title": "Live betting on the madness",
+          "description": "Get up to $1000 CASH BONUS",
+          "imageUrl": "https://mycelium-wallet.s3.amazonaws.com/business-partners/bookmakereu/bookmakereu.png",
+          "link": "https://record.revshare.ag/_sZGna4oyLrGVAv0U_Fv2nWNd7ZgqdRLk/1/",
+          "isEnabled": true
+        },
+        {
+          "parentId": "giftbox",
+          "title": "Save on buying with BTC & ETH!",
+          "description": "Buy anything you want without exchanging crypto!\uD83C\uDF89",
+          "imageUrl": "https://mycelium-wallet.s3.amazonaws.com/business-partners/giftbox/giftbox_Logo.png",
+          "link": "mycelium://action.GIFTBOX",
+          "isEnabled": true
+        },
+        {
+          "parentId":"stormgain",
+          "title": "\uD83D\uDD255$ Your Bonus\uD83D\uDD25",
+          "description": "Simply use promo code MINER\nRegister and start mining crypto!",
+          "imageUrl": "https://mycelium-wallet.s3.amazonaws.com/business-partners/stormgain/stormgain-logo.png",
+          "link": "https://sg-tracking.com/click.php?key=ff7zhr96m2o1vkhyo15z",
+          "isEnabled": false
+        },
+        {
+          "title": "1xBit sportsbook and casino",
+          "description": "Welcome bonus up to 7 BTC!\nHigh odds, huge bonuses, fast payout",
+          "imageUrl": "https://mycelium-wallet.s3.amazonaws.com/business-partners/1xbit-icon.png",
+          "link": "https://refpaexhil.top/L?tag=d_33760m_1732c_mycelium&site=33760&ad=1732",
+          "isEnabled": false
+        },
+        {
+          "id":"aircraft",
+          "parentId":"aircraft",
+          "title": "Small aircraft. $570,000 (only for Mycelium users).",
+          "description": "Takes off and lands on water, soil or snow. Carrying capacity: 2000 kg. Carbon fiber. Parachute rescue system",
+          "imageUrl": "https://mycelium-wallet.s3.amazonaws.com/business-partners/aircraft/aircraft_logo.png",
+          "link": "https://www.notion.so/natzbitz/Small-Amphibious-Aircraft-a219db78754e414ca22111683658014f",
+          "isEnabled": true
+        },
+        {
+          "title": "NEFT Vodka",
+          "description": "Life is a story. Make it a good one",
+          "imageUrl": "https://mycelium-wallet.s3.amazonaws.com/business-partners/neftvodka-icon.png",
+          "link": "https://www.neftvodkaus.com/",
+          "isEnabled": true
+        },
+        {
+          "parentId": "mycelium-gear",
+          "title": "Start accepting BTC",
+          "description": "No middlemen. No KYC. Anonymous. Money goes from your customer straight into your wallet.",
+          "imageUrl": "https://mycelium-wallet.s3.amazonaws.com/business-partners/mycelium/mycelium_gear.png",
+          "link": "https://gear.mycelium.com",
+          "isEnabled": true
+        }
+      ]
+    },
+    "ja": {
+      "header-title": "New to crypto?",
+      "header-text": "Please find here a selection of partner businesses",
+      "Partners": [
+        {
+          "parentId": "darxx",
+          "title": "Messenger for your bug out life",
+          "description": "Off-grid status ensured: to add a contact, you must see a person face-to-face.",
+          "imageUrl": "https://mycelium-wallet.s3.amazonaws.com/business-partners/darxx/darxx.png",
+          "link": "https://play.google.com/store/apps/details?id=me.proxx.android",
+          "isEnabled": true
+        },
+        {
+          "parentId":"bookmakereu",
+          "title": "Live betting on the madness",
+          "description": "Get up to $1000 CASH BONUS",
+          "imageUrl": "https://mycelium-wallet.s3.amazonaws.com/business-partners/bookmakereu/bookmakereu.png",
+          "link": "https://record.revshare.ag/_sZGna4oyLrGVAv0U_Fv2nWNd7ZgqdRLk/1/",
+          "isEnabled": true
+        },
+        {
+          "parentId": "giftbox",
+          "title": "Save on buying with BTC & ETH!",
+          "description": "Buy anything you want without exchanging crypto!\uD83C\uDF89",
+          "imageUrl": "https://mycelium-wallet.s3.amazonaws.com/business-partners/giftbox/giftbox_Logo.png",
+          "link": "mycelium://action.GIFTBOX",
+          "isEnabled": true
+        },
+        {
+          "parentId":"stormgain",
+          "title": "\uD83D\uDD255$ Your Bonus\uD83D\uDD25",
+          "description": "Simply use promo code MINER\nRegister and start mining crypto!",
+          "imageUrl": "https://mycelium-wallet.s3.amazonaws.com/business-partners/stormgain/stormgain-logo.png",
+          "link": "https://sg-tracking.com/click.php?key=ff7zhr96m2o1vkhyo15z",
+          "isEnabled": false
+        },
+        {
+          "title": "1xBit sportsbook and casino",
+          "description": "Welcome bonus up to 7 BTC!\nHigh odds, huge bonuses, fast payout",
+          "imageUrl": "https://mycelium-wallet.s3.amazonaws.com/business-partners/1xbit-icon.png",
+          "link": "https://refpaexhil.top/L?tag=d_33760m_1732c_mycelium&site=33760&ad=1732",
+          "isEnabled": false
+        },
+        {
+          "id":"aircraft",
+          "parentId":"aircraft",
+          "title": "Small aircraft. $570,000 (only for Mycelium users).",
+          "description": "Takes off and lands on water, soil or snow. Carrying capacity: 2000 kg. Carbon fiber. Parachute rescue system",
+          "imageUrl": "https://mycelium-wallet.s3.amazonaws.com/business-partners/aircraft/aircraft_logo.png",
+          "link": "https://www.notion.so/natzbitz/Small-Amphibious-Aircraft-a219db78754e414ca22111683658014f",
+          "isEnabled": true
+        },
+        {
+          "title": "NEFT Vodka",
+          "description": "Life is a story. Make it a good one",
+          "imageUrl": "https://mycelium-wallet.s3.amazonaws.com/business-partners/neftvodka-icon.png",
+          "link": "https://www.neftvodkaus.com/",
+          "isEnabled": true
+        },
+        {
+          "parentId": "mycelium-gear",
+          "title": "Start accepting BTC",
+          "description": "No middlemen. No KYC. Anonymous. Money goes from your customer straight into your wallet.",
+          "imageUrl": "https://mycelium-wallet.s3.amazonaws.com/business-partners/mycelium/mycelium_gear.png",
+          "link": "https://gear.mycelium.com",
+          "isEnabled": true
+        }
+      ]
+    }
+  },
+  "BTC-mainnet": {
+    "coloredcoinsd": {
+      "primary": [
+        "https://coloredcoinsd.gear.mycelium.com"
+      ]
+    },
+    "coloredcoins-explorer": {
+      "primary": [
+        "https://coloredcoins.gear.mycelium.com"
+      ]
+    },
+    "WAPI": {
+      "primary": [
+        {
+          "url": "https://wapi.mycelium.com",
+          "cert-sha1": "1A:CF:C9:8A:87:00:68:4B:21:54:47:83:E5:36:B9:23:90:EB:39:16"
+        },
+        {
+          "url": "https://xrnvil3zn6wgtliinli7vrqgvz77osetux7szpe5l63bvqnpikwu7iqd.onion",
+          "cert-sha1": "1A:CF:C9:8A:87:00:68:4B:21:54:47:83:E5:36:B9:23:90:EB:39:16"
+        }
+      ]
+    },
+    "electrumx": {
+      "primary": [
+        {
+          "url": "tcp-tls://electrumx-btc-3a.mycelium.com:29130"
+        },
+        {
+          "url": "tcp-tls://electrumx-btc-3a0.mycelium.com:10000"
+        },
+        {
+          "url": "tcp-tls://electrumx-btc-3a1.mycelium.com:10000"
+        },
+        {
+          "url": "tcp-tls://electrumx-btc-3a2.mycelium.com:10000"
+        },
+        {
+          "url": "tcp-tls://electrumx-btc-3a3.mycelium.com:10000"
+        },
+        {
+          "url": "tcp-tls://electrumx-1a0.mycelium.com:10000"
+        },
+        {
+          "url": "tcp-tls://electrumx-1a0.mycelium.com:50002"
+        }
+      ],
+      "tor": [
+        {
+          "url": "2qdnpz2xxethkntfb5j3ibanho5qnnkljavze2j2eyj7nrjzesvj7tid.onion:50001"
+        },
+        {
+          "url": "x3qqkqcqvuxqxijhpg43qxb5pvf5mh6saty72edeyyq5clfwn7eaowid.onion:50001"
+        },
+        {
+          "url": "j32vgkmldeojh5hmkrcnyt7am7coi6dq2w2p5afbqcl6bz4sdvfvnryd.onion:50001"
+        },
+        {
+          "url": "sp26agismukhwhtpfwlau4dqitcfqssl2h7yvmmtvkm32jw42arhvbqd.onion:50001"
+        },
+        {
+          "url": "z4ckw7oioinyp2xn2obpnzn2xi3nwatokzaqefn4iysfxh6s4f7kf4qd.onion:50001"
+        }
+      ]
+    }
+  },
+  "BTC-testnet": {
+    "coloredcoinsd": {
+      "primary": [
+        "https://coloredcoinsd-test.gear.mycelium.com"
+      ]
+    },
+    "coloredcoins-explorer": {
+      "primary": [
+        "https://coloredcoins-test.gear.mycelium.com"
+      ]
+    },
+    "WAPI": {
+      "primary": [
+        {
+          "url": "https://mws30.mycelium.com/wapitestnet",
+          "cert-sha1": "ED:C2:82:16:65:8C:4E:E1:C7:F6:A2:2B:15:EC:30:F9:CD:48:F8:DB"
+        },
+        {
+          "url": "https://wmmkiveribaiii6ilfdihbdyaf4rwzgsresvnki3rva6hnd2ema4emqd.onion/wapitestnet",
+          "cert-sha1": "e5:70:76:b2:67:3a:89:44:7a:48:14:81:df:bd:a0:58:c8:82:72:4f"
+        }
+      ]
+    },
+    "electrumx": {
+      "primary": [
+        {
+          "url": "tcp-tls://electrumx-btc-3a.mycelium.com:29230"
+        }
+      ],
+      "tor" : [
+        {
+          "url": "f57zwybcthsxjwiq5rnnslaxvlev6axcbj6dv2rsqnay7xcm7p3v3aqd.onion:50001"
+        }
+      ]
+    }
+  },
+  "ETH-testnet": {
+    "servers": {
+      "primary": [
+        {
+          "url": "https://wallet-testnet.mycelium.com:8545"
+        }
+      ]
+    },
+    "blockbook-servers": {
+      "primary": [
+        {
+          "url": "https://bb-eth.mycelium.com:19126"
+        }
+      ]
+    }
+  },
+  "ETH-mainnet": {
+    "servers": {
+      "primary": [
+        {
+          "url": "https://parity-a.mycelium.com:8545"
+        },
+        {
+          "url": "https://parity-b.mycelium.com:8545"
+        }
+      ]
+    },
+    "blockbook-servers": {
+      "primary": [
+        {
+          "url": "https://bb-eth.mycelium.com:9136"
+        }
+      ]
+    }
+  },
+    "FIO-mainnet": {
+        "api-servers": {
+            "primary": [
+                {
+                    "url": "https://fio.eu.eosamsterdam.net/v1/"
+                },
+                {
+                    "url": "https://fio.eosdac.io/v1/"
+                },
+                {
+                    "url": "https://fio.eosphere.io/v1/"
+                },
+                {
+                    "url": "https://fio.eosrio.io/v1/"
+                },
+                {
+                    "url": "https://fio.acherontrading.com/v1/"
+                },
+                {
+                    "url": "https://fio.eos.barcelona/v1/"
+                },
+                {
+                    "url": "https://api.fio.alohaeos.com/v1/"
+                },
+                {
+                    "url": "https://fio.greymass.com/v1/"
+                },
+                {
+                    "url": "https://fio.genereos.io/v1/"
+                },
+                {
+                    "url": "https://fio.eosargentina.io/v1/"
+                },
+                {
+                    "url": "https://fio.cryptolions.io/v1/"
+                },
+                {
+                    "url": "https://fio-mainnet.eosblocksmith.io/v1/"
+                },
+                {
+                    "url": "https://api.fio.currencyhub.io/v1/"
+                },
+                {
+                    "url": "https://fio.eosdublin.io/v1/"
+                },
+                {
+                    "url": "https://api.fiosweden.org/v1/"
+                },
+                {
+                    "url": "https://api.fio.greeneosio.com/v1/"
+                },
+                {
+                    "url": "https://api.fio.services/v1/"
+                },
+                {
+                    "url": "https://fio.eostribe.io/v1/"
+                }
+            ]
+        },
+        "history-servers": {
+            "primary": [
+                {
+                    "url": "https://fio.greymass.com/v1/"
+                },
+                {
+                    "url": "https://fio.greymass.com/v1/"
+                },
+                {
+                    "url": "https://fio.eosphere.io/v1/"
+                },
+                {
+                    "url": "https://api.fiosweden.org/v1/"
+                },
+                {
+                    "url": "https://fio.eosphere.io/v1/"
+                }
+            ]
+        },
+        "tpid": "1@proxx"
+    },
+    "FIO-testnet": {
+        "api-servers": {
+            "primary": [
+                {
+                    "url": "https://fiotestnet.greymass.com/v1/"
+                }
+            ]
+        },
+        "history-servers": {
+            "primary": [
+                {
+                    "url": "https://fiotestnet.greymass.com/v1/"
+                }
+            ]
+        },
+        "tpid": "pay@mycelium"
+    }
+}
