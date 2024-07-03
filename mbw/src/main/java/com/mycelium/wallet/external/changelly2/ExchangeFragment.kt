@@ -363,13 +363,13 @@ class ExchangeFragment : Fragment(), BackListener {
                     is ViperStatusException -> showViperErrorDialog(
                         getString(R.string.vip_exchange_expired_title),
                         getString(R.string.vip_exchange_status_expired_alert_message),
-                        getString(R.string.proceed),
+                        getString(R.string.changelly2_proceed),
                         getString(R.string.cancel_transaction)
                     )
                     is ViperUnexpectedException -> showViperErrorDialog(
                         getString(R.string.vip_exchange_unexpected_alert_title),
                         getString(R.string.vip_exchange_unexpected_alert_message),
-                        getString(R.string.proceed),
+                        getString(R.string.changelly2_proceed),
                         getString(R.string.vip_alert_cancel)
                     )
                     else -> showErrorNotificationDialog(e.message)
