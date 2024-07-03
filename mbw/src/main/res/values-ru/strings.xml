@@ -192,6 +192,9 @@
     <string name="verify_backup_no_such_record">Закрытый ключ не соответствует ни одному из ваших  биткойн адресов.</string>
     <string name="wrong_seed">Отсканированный seed-ключ не совпадает с вашим мастер-ключом seed.</string>
     <string name="backup_missing">Отсутствует резервная  копия</string>
+    <string name="backup_later">Сделать позже</string>
+    <string name="backup_now">Сделать Backup</string>
+    <string name="i_understand_the_risks">Я понимаю риски</string>
     <string name="single_address_backup_missing">КОШЕЛЕК НЕ МОЖЕТ БЫТЬ ВОССТАНОВЛЕН БЕЗ РЕЗЕРВНОЙ КОПИИ! ЕСЛИ ВЫ ПОТЕРЯЕТЕ РЕЗЕРВНУЮ КОПИЮ, МЫ НЕ СМОЖЕМ ПОМОЧЬ ВАМ ВОССТАНОВИТЬ КОШЕЛЕК! НЕТ РЕЗЕРВНОЙ КОПИИ - НЕТ МОНЕТ!</string>
     <string name="wallet_backup_missing">КОШЕЛЕК НЕ МОЖЕТ БЫТЬ ВОССТАНОВЛЕН БЕЗ РЕЗЕРВНОЙ КОПИИ! ЕСЛИ ВЫ ПОТЕРЯЕТЕ РЕЗЕРВНУЮ КОПИЮ, МЫ НЕ СМОЖЕМ ПОМОЧЬ ВАМ ВОССТАНОВИТЬ КОШЕЛЕК! НЕТ РЕЗЕРВНОЙ КОПИИ - НЕТ МОНЕТ!</string>
     <string name="verify_backup_title">ВАЖНО !</string>
