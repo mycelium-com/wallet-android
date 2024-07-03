@@ -1120,8 +1120,8 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="bitcoin_cash_module"><![CDATA[Mycelium Bitcoin <font color="#f08c18">Cash</font> Module]]></string>
     <string name="bitcoin_cash_module_short">BCH</string>
     <string name="exchange_bch_to_btc">EXCHANGE BCH TO BTC</string>
-    <string name="single_address_backup_missing">No backup - no bitcoins! In order not to lose your bitcoins when your smartphone is lost or broken please make a backup of this address NOW and keep it in a safe place!</string>
-    <string name="wallet_backup_missing">No backup - no coins! In order not to lose your coins when your smartphone is lost or broken please make a wallet backup NOW and keep it in a safe place!</string>
+    <string name="single_address_backup_missing">A WALLET CAN\'T BE RESTORED WITHOUT A BACKUP! ALSO, IF YOU LOSE YOUR BACKUP, WE WILL NOT BE ABLE TO HELP YOU RECOVER YOUR WALLET! NO BACKUP - NO COINS!</string>
+    <string name="wallet_backup_missing">A WALLET CAN\'T BE RESTORED WITHOUT A BACKUP! ALSO, IF YOU LOSE YOUR BACKUP, WE WILL NOT BE ABLE TO HELP YOU RECOVER YOUR WALLET! NO BACKUP - NO COINS!</string>
     <string name="backup">BACKUP</string>
     <string name="backup_later">Backup later</string>
     <string name="backup_now">Backup now</string>
@@ -1760,7 +1760,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="gas_limit_error">Minimal gas limit for Ethereum network transactions is 21 000 units.</string>
     <string name="parent_eth_account">ETH %s:</string>
     <string name="connection_issues"><b>Connection issues.</b> Please make sure you\'re online.</string>
-    <string name="course_outdated">course is outdated</string>
+    <string name="course_outdated">Exchange rate is outdated</string>
     <string name="network_s">%s Network</string>
     <string name="changelly2_policy_text">Service is available through third-party API provider. By clicking Exchange you accept the <font color="#4583de">Terms of Use</font>.</string>
     <string name="changelly2_select_from">Select account:</string>
@@ -1878,4 +1878,5 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="vip_unexpected_alert_message">Please try again later</string>
     <string name="vip_alert_proceed">Yes, proceed</string>
     <string name="vip_alert_cancel">Cancel</string>
+    <string name="add_address">Add address</string>
 </resources>

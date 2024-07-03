@@ -100,6 +100,16 @@
                     tools:text="0.00 USD"
                     tools:visibility="visible" />
 
+                <View
+                    android:id="@+id/currencyClickArea"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    app:layout_constraintBottom_toBottomOf="@id/tvAlternateAmount"
+                    app:layout_constraintStart_toStartOf="@id/btCurrency"
+                    android:layout_marginStart="-56dp"
+                    app:layout_constraintEnd_toEndOf="@id/currency_dropdown_image_view"
+                    app:layout_constraintTop_toTopOf="@id/btCurrency"/>
+
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 

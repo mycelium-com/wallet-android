@@ -517,13 +517,12 @@ abstract class SendCoinsViewModel(application: Application) : AndroidViewModel(a
         model.outputList.value = newList
     }
 
-    var lastAdded = 0
     fun addEmptyOutput() {
+        val newId = (model.outputList.value?.maxByOrNull { it.id }?.id ?: -1) + 1
         model.outputList.postValue(
             model.outputList.value.orEmpty()
-                    + BatchItem(lastAdded, "Address ${lastAdded + 1}", null, null, null)
+                    + BatchItem(newId, "Address ${newId + 1}", null, null, null)
         )
-        lastAdded++
     }
 
     fun removeOutput(it: BatchItem) {
