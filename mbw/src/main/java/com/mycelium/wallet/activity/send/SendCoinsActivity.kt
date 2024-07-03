@@ -429,7 +429,7 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener, AmountLi
                                         getTransactionDataStatus().value = SendCoinsModel.TransactionDataStatus.READY
                                     }
                                 })
-                                spinner?.adapter = ArrayAdapter(context,
+                                spinner?.adapter = ArrayAdapter(this@SendCoinsActivity ,
                                                                 R.layout.layout_send_coin_transaction_replace, R.id.text, getTxItems()).apply {
                                     this.setDropDownViewResource(R.layout.layout_send_coin_transaction_replace_dropdown)
                                 }

@@ -12,7 +12,7 @@ public class ExponentialLowPrioAlgorithm implements FeeItemsAlgorithm {
 
     public ExponentialLowPrioAlgorithm(long minValue, long maxValue) {
         minPosition = 1;
-        algorithm = new ExponentialFeeItemsAlgorithm(minValue, 1, 140000, 15);
+        algorithm = new ExponentialFeeItemsAlgorithm(minValue, 1, maxValue, 15);
         maxPosition = minPosition;
         while (algorithm.computeValue(maxPosition + 1) < maxValue) {
             maxPosition++;
