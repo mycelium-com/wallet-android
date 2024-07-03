@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
+import androidx.appcompat.app.AlertDialog
 import androidx.core.view.isVisible
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
@@ -49,7 +50,7 @@ class VipFragment : Fragment() {
             binding.vipProgress.isVisible = state.progress
             updateButtons(state)
             handleError(state.error)
-            handleSuccess(state.success)
+            handleSuccess(state.isVip)
         }
     }
 
@@ -70,37 +71,57 @@ class VipFragment : Fragment() {
 
     private fun updateButtons(state: VipViewModel.State) {
         binding.vipApplyButton.apply {
-            isEnabled = state.text.isNotEmpty() && !state.progress && !state.error
+            isEnabled = state.text.isNotEmpty() && !state.progress && state.error == null
             text = if (state.progress) "" else getString(R.string.apply_vip_code)
             setOnClickListener { viewModel.applyCode() }
         }
     }
 
-    private fun handleError(error: Boolean) = binding.apply {
-        if (error) {
-            errorText.isVisible = true
-            vipCodeInput.setBackgroundResource(R.drawable.bg_input_text_filled_error)
-        } else {
-            errorText.isVisible = false
-            vipCodeInput.setBackgroundResource(R.drawable.bg_input_text_filled)
+    private fun handleError(error: VipViewModel.ErrorType?) = binding.apply {
+        when (error) {
+            null -> {
+                errorText.isVisible = false
+                vipCodeInput.setBackgroundResource(R.drawable.bg_input_text_filled)
+            }
+
+            VipViewModel.ErrorType.BAD_REQUEST -> {
+                errorText.isVisible = true
+                vipCodeInput.setBackgroundResource(R.drawable.bg_input_text_filled_error)
+            }
+
+            else -> {
+                hideKeyBoard()
+                showViperUnexpectedErrorDialog()
+            }
         }
     }
 
     private fun handleSuccess(success: Boolean) {
-        if (!success) return
         binding.apply {
-            vipApplyButton.isVisible = false
-            vipInputGroup.isVisible = false
-            vipSuccessGroup.isVisible = true
-            vipTitle.setText(R.string.vip_title_success)
-            vipCodeInput.apply {
-                hint = null
-                text = null
-                isFocusable = false
-                clearFocus()
+            vipApplyButton.isVisible = !success
+            vipInputGroup.isVisible = !success
+            vipSuccessGroup.isVisible = success
+            vipTitle.setText(if (success) R.string.vip_title_success else R.string.vip_title)
+            if (success) {
+                vipCodeInput.apply {
+                    hint = null
+                    text = null
+                    clearFocus()
+                }
+                hideKeyBoard()
+            } else {
+                vipCodeInput.hint = getString(R.string.vip_code_hint)
             }
-            hideKeyBoard()
         }
+    }
+
+    private fun showViperUnexpectedErrorDialog() {
+        AlertDialog.Builder(requireContext())
+            .setTitle(getString(R.string.vip_unexpected_alert_title))
+            .setMessage(getString(R.string.vip_unexpected_alert_message))
+            .setPositiveButton(R.string.button_ok, null)
+            .setOnDismissListener { viewModel.resetState() }
+            .show()
     }
 
     private fun hideKeyBoard() {

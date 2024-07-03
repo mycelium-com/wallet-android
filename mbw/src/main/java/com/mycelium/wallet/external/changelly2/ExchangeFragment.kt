@@ -22,7 +22,10 @@ import com.bumptech.glide.load.resource.bitmap.CircleCrop
 import com.bumptech.glide.request.RequestOptions
 import com.mrd.bitlib.model.BitcoinAddress
 import com.mycelium.view.RingDrawable
-import com.mycelium.wallet.*
+import com.mycelium.wallet.BuildConfig
+import com.mycelium.wallet.MbwManager
+import com.mycelium.wallet.R
+import com.mycelium.wallet.Utils
 import com.mycelium.wallet.activity.modern.ModernMain
 import com.mycelium.wallet.activity.modern.event.BackHandler
 import com.mycelium.wallet.activity.modern.event.BackListener
@@ -36,14 +39,20 @@ import com.mycelium.wallet.activity.util.toStringWithUnit
 import com.mycelium.wallet.activity.view.ValueKeyboard
 import com.mycelium.wallet.activity.view.loader
 import com.mycelium.wallet.databinding.FragmentChangelly2ExchangeBinding
-import com.mycelium.wallet.event.*
+import com.mycelium.wallet.event.ExchangeRatesRefreshed
+import com.mycelium.wallet.event.ExchangeSourceChanged
+import com.mycelium.wallet.event.PageSelectedEvent
+import com.mycelium.wallet.event.SelectedAccountChanged
+import com.mycelium.wallet.event.SelectedCurrencyChanged
+import com.mycelium.wallet.event.TransactionBroadcasted
 import com.mycelium.wallet.external.changelly.model.ChangellyResponse
 import com.mycelium.wallet.external.changelly.model.ChangellyTransactionOffer
-import com.mycelium.wallet.external.changelly.model.FixRate
-import com.mycelium.wallet.external.changelly.model.FixRateForAmount
 import com.mycelium.wallet.external.changelly2.remote.Changelly2Repository
+import com.mycelium.wallet.external.changelly2.remote.ViperStatusException
+import com.mycelium.wallet.external.changelly2.remote.ViperUnexpectedException
 import com.mycelium.wallet.external.changelly2.viewmodel.ExchangeViewModel
 import com.mycelium.wallet.external.partner.openLink
+import com.mycelium.wallet.startCoroutineTimer
 import com.mycelium.wapi.wallet.AesKeyCipher
 import com.mycelium.wapi.wallet.BroadcastResultType
 import com.mycelium.wapi.wallet.Transaction
@@ -59,6 +68,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import retrofit2.HttpException
 import java.math.BigDecimal
 import java.math.RoundingMode
 import java.util.concurrent.TimeUnit
@@ -183,7 +193,7 @@ class ExchangeFragment : Fragment(), BackListener {
                         val exchangeInfoResult = viewModel.exchangeInfo.value?.result
                         if (friendlyDigits == null || exchangeInfoResult == null) N_A
                         else amount.toBigDecimal().setScale(friendlyDigits, RoundingMode.HALF_UP)
-                                ?.div(viewModel.exchangeInfo.value!!.getExpectedValue())
+                                ?.div(exchangeInfoResult)
                                 ?.stripTrailingZeros()
                                 ?.toPlainString() ?: N_A
                     } catch (e: NumberFormatException) {
@@ -260,51 +270,7 @@ class ExchangeFragment : Fragment(), BackListener {
             }
         }
         binding?.exchangeButton?.setOnClickListener {
-            loader(true)
-            Changelly2Repository.createFixTransaction(lifecycleScope,
-                    viewModel.exchangeInfo.value?.id!!,
-                    Util.trimTestnetSymbolDecoration(viewModel.fromCurrency.value?.symbol!!),
-                    Util.trimTestnetSymbolDecoration(viewModel.toCurrency.value?.symbol!!),
-                    viewModel.sellValue.value!!,
-                    viewModel.toAddress.value!!,
-                    viewModel.fromAddress.value!!,
-                    { result ->
-                        if (result?.result != null) {
-                            viewLifecycleOwner.lifecycleScope.launch(Dispatchers.Default) {
-                                val unsignedTx = prepareTx(
-                                        if (BuildConfig.FLAVOR == "btctestnet")
-                                            viewModel.fromAddress.value!!
-                                        else
-                                            result.result!!.payinAddress!!,
-                                        result.result!!.amountExpectedFrom.toPlainString())
-                                if(unsignedTx != null) {
-                                    launch(Dispatchers.Main) {
-                                        loader(false)
-                                        acceptDialog(unsignedTx, result) {
-                                            sendTx(result.result!!.id!!, unsignedTx)
-                                        }
-                                    }
-                                }
-                            }
-                        } else {
-                            loader(false)
-                            AlertDialog.Builder(requireContext())
-                                    .setMessage(if (result?.error?.message?.startsWith("rateId was expired") == true)
-                                        getString(R.string.changelly_error_rate_expired)
-                                    else result?.error?.message)
-                                    .setPositiveButton(R.string.button_ok, null)
-                                    .setOnDismissListener { updateAmount() }
-                                    .show()
-                        }
-                    },
-                    { _, msg ->
-                        loader(false)
-                        AlertDialog.Builder(requireContext())
-                                .setMessage(msg)
-                                .setPositiveButton(R.string.button_ok, null)
-                                .setOnDismissListener { updateAmount() }
-                                .show()
-                    })
+            createFixTransaction()
         }
         viewModel.fromCurrency.observe(viewLifecycleOwner) { coin ->
             binding?.sellLayout?.coinIcon?.let {
@@ -356,15 +322,98 @@ class ExchangeFragment : Fragment(), BackListener {
         }
     }
 
+    private fun createFixTransaction(changellyOnly: Boolean = false){
+        loader(true)
+        lifecycleScope.launch {
+            try {
+                val response = Changelly2Repository.createFixTransaction(
+                    viewModel.exchangeInfo.value?.id!!,
+                    Util.trimTestnetSymbolDecoration(viewModel.fromCurrency.value?.symbol!!),
+                    Util.trimTestnetSymbolDecoration(viewModel.toCurrency.value?.symbol!!),
+                    viewModel.sellValue.value!!,
+                    viewModel.toAddress.value!!,
+                    viewModel.fromAddress.value!!,
+                    changellyOnly,
+                )
+                val result = response.result
+                if (result != null) {
+                    withContext(Dispatchers.Default) {
+                        val addressTo =
+                            if (BuildConfig.FLAVOR == "btctestnet") viewModel.fromAddress.value!!
+                            else result.payinAddress!!
+                        val amount = result.amountExpectedFrom.toPlainString()
+                        val unsignedTx = prepareTx(addressTo, amount)
+                        withContext(Dispatchers.Main) {
+                            loader(false)
+                            if (unsignedTx != null) {
+                                acceptDialog(unsignedTx, response) {
+                                    sendTx(result.id!!, unsignedTx)
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    loader(false)
+                    showErrorNotificationDialog(response.error?.message)
+                }
+            } catch (e: Exception) {
+                loader(false)
+                when (e) {
+                    is HttpException -> showErrorNotificationDialog(e.message())
+                    is ViperStatusException -> showViperErrorDialog(
+                        getString(R.string.vip_exchange_expired_title),
+                        getString(R.string.vip_exchange_status_expired_alert_message),
+                        getString(R.string.changelly2_proceed),
+                        getString(R.string.cancel_transaction)
+                    )
+                    is ViperUnexpectedException -> showViperErrorDialog(
+                        getString(R.string.vip_exchange_unexpected_alert_title),
+                        getString(R.string.vip_exchange_unexpected_alert_message),
+                        getString(R.string.changelly2_proceed),
+                        getString(R.string.vip_alert_cancel)
+                    )
+                    else -> showErrorNotificationDialog(e.message)
+                }
+            }
+        }
+    }
+    private fun showErrorNotificationDialog(message: String?) {
+        val localizedMessage = if (message?.startsWith("rateId was expired") == true) {
+            getString(R.string.changelly_error_rate_expired)
+        } else {
+            message ?: "Something went wrong."
+        }
+        AlertDialog.Builder(requireContext())
+            .setMessage(localizedMessage)
+            .setPositiveButton(R.string.button_ok, null)
+            .setOnDismissListener { updateAmount() }
+            .show()
+    }
+
+    private fun showViperErrorDialog(title: String, message: String, positive:String, negative:String) {
+        AlertDialog.Builder(requireContext())
+            .setTitle(title)
+            .setMessage(message)
+            .setPositiveButton(positive) { _, _ ->
+                updateAmount()
+                createFixTransaction(true)
+            }
+            .setNegativeButton(negative, null)
+            .show()
+    }
+
     private fun computeBuyValue() {
         val amount = viewModel.sellValue.value
-        viewModel.buyValue.value = if (amount?.isNotEmpty() == true
-                && viewModel.exchangeInfo.value?.result != null) {
+        val info = viewModel.exchangeInfo.value
+        val rate = info?.result
+        viewModel.buyValue.value = if (amount?.isNotEmpty() == true && rate != null) {
             try {
-                (amount.toBigDecimal() * viewModel.exchangeInfo.value?.getExpectedValue()!!)
-                        .setScale(viewModel.toCurrency.value?.friendlyDigits!!, RoundingMode.HALF_UP)
-                        .stripTrailingZeros()
-                        .toPlainString()
+                val result = amount.toBigDecimal() * rate
+                if (result <= BigDecimal.ZERO) null
+                else result
+                    .setScale(viewModel.toCurrency.value?.friendlyDigits!!, RoundingMode.HALF_UP)
+                    .stripTrailingZeros()
+                    .toPlainString()
             } catch (e: NumberFormatException) {
                 "N/A"
             }
@@ -439,7 +488,12 @@ class ExchangeFragment : Fragment(), BackListener {
                     { result ->
                         val data = result?.result?.firstOrNull()
                         if (data != null) {
-                            viewModel.exchangeInfo.value = data
+                            val info = viewModel.exchangeInfo.value
+                            viewModel.exchangeInfo.value = if (info == null) data else data.copy(
+                                amountFrom = info.amountFrom,
+                                amountTo = info.amountTo,
+                                networkFee = info.networkFee,
+                            )
                             viewModel.errorRemote.value = ""
                         } else {
                             viewModel.errorRemote.value = result?.error?.message ?: ""
@@ -485,8 +539,7 @@ class ExchangeFragment : Fragment(), BackListener {
                                 fromAmount,
                                 { result ->
                                     result?.result?.firstOrNull()?.let {
-                                        val info = viewModel.exchangeInfo.value
-                                        viewModel.exchangeInfo.postValue(it)
+                                        viewModel.exchangeInfo.value = it
                                         viewModel.errorRemote.value = ""
                                     } ?: run {
                                         viewModel.errorRemote.value = result?.error?.message ?: ""

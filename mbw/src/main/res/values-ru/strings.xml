@@ -975,6 +975,7 @@
     <string name="paid">Транзакция отправлена</string>
     <string name="connection_issues"><b>Проблемы с соединением.</b> Убедитесь, что вы онлайн.</string>
     <string name="changelly2_policy_text">Сервис предоставляется сторонним поставщиком API. Нажимая на кнопку Exchange, вы принимаете <font color="#4583de">Условия использования</font>.</string>
+    <string name="changelly2_proceed">Продолжить</string>
     <string name="course_outdated">курс устарел</string>
     <string name="unredeemed">Восстановить</string>
     <string name="changelly_error_rate_expired">Обменный курс устарел, пожалуйста, повторите попытку.</string>
@@ -996,4 +997,6 @@
     <string name="vip_title">Получите VIP-опыт</string>
     <string name="vip_menu_text">VIP</string>
     <string name="vip_title_success">Всё готово!</string>
+    <string name="vip_exchange_expired_title">Ваш SWAP обмен недоступен</string>
+    <string name="vip_exchange_status_expired_alert_message">Ваш VIP-статус истек, поэтому теперь применяются обычные (не VIP) тарифы.</string>
 </resources>

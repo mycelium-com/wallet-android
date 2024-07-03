@@ -14,7 +14,6 @@ import com.mycelium.wallet.WalletApplication
 import com.mycelium.wallet.activity.util.toStringFriendlyWithUnit
 import com.mycelium.wallet.activity.util.toStringWithUnit
 import com.mycelium.wallet.external.changelly.model.FixRate
-import com.mycelium.wallet.external.changelly.model.FixRateForAmount
 import com.mycelium.wapi.wallet.Address
 import com.mycelium.wapi.wallet.Transaction
 import com.mycelium.wapi.wallet.Util
@@ -35,7 +34,7 @@ class ExchangeViewModel(application: Application) : AndroidViewModel(application
     val mbwManager = MbwManager.getInstance(WalletApplication.getInstance())
     var currencies = setOf("BTC", "ETH")
     val fromAccount = MutableLiveData<WalletAccount<*>>()
-    val exchangeInfo = MutableLiveData<FixRateForAmount>()
+    val exchangeInfo = MutableLiveData<FixRate>()
     val sellValue = object : MutableLiveData<String>() {
         override fun setValue(value: String?) {
             if (this.value != value) {
@@ -59,7 +58,7 @@ class ExchangeViewModel(application: Application) : AndroidViewModel(application
             }
         }
     }
-    val swapEnableDelay = MutableLiveData<Boolean>(false)
+    val swapEnableDelay = MutableLiveData(false)
     val swapEnabled = MediatorLiveData<Boolean>().apply {
         value = false
         fun update() {
@@ -152,7 +151,7 @@ class ExchangeViewModel(application: Application) : AndroidViewModel(application
     }
 
     val exchangeRateToValue = Transformations.map(exchangeInfo) {
-        it.getExpectedValue().toPlainString()
+        it.result.toPlainString()
     }
 
     val exchangeRateToCurrency = Transformations.map(exchangeInfo) {

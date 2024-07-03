@@ -52,7 +52,7 @@ import com.mycelium.wallet.event.*
 import com.mycelium.wallet.external.changelly.ChangellyConstants
 import com.mycelium.wallet.external.changelly2.ExchangeFragment
 import com.mycelium.wallet.external.changelly2.HistoryFragment
-import com.mycelium.wallet.external.changelly2.remote.UserRepository
+import com.mycelium.wallet.external.changelly2.remote.Api
 import com.mycelium.wallet.external.mediaflow.NewsConstants
 import com.mycelium.wallet.fio.FioRequestNotificator
 import com.mycelium.wallet.modularisation.ModularisationVersionHelper
@@ -65,6 +65,7 @@ import com.mycelium.wapi.wallet.manager.State
 import com.squareup.otto.Subscribe
 import info.guardianproject.netcipher.proxy.OrbotHelper
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 import java.util.*
 import java.util.concurrent.TimeUnit
 
@@ -76,7 +77,7 @@ class ModernMain : AppCompatActivity(), BackHandler {
     private var mNewsTab: TabLayout.Tab? = null
     private var mAccountsTab: TabLayout.Tab? = null
     private var mTransactionsTab: TabLayout.Tab? = null
-//    private var mVipTab: TabLayout.Tab? = null
+    private var mVipTab: TabLayout.Tab? = null
     private var mRecommendationsTab: TabLayout.Tab? = null
     private var mFioRequestsTab: TabLayout.Tab? = null
     private var refreshItem: MenuItem? = null
@@ -92,7 +93,7 @@ class ModernMain : AppCompatActivity(), BackHandler {
 
     lateinit var binding: ModernMainBinding
 
-    private val userRepository = UserRepository()
+    private val userRepository = Api.statusRepository
 
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -124,8 +125,8 @@ class ModernMain : AppCompatActivity(), BackHandler {
         mTabsAdapter!!.addTab(mBalanceTab!!, BalanceMasterFragment::class.java, null, TAB_BALANCE)
         mTransactionsTab = binding.pagerTabs.newTab().setText(getString(R.string.tab_transactions))
         mTabsAdapter!!.addTab(mTransactionsTab!!, TransactionHistoryFragment::class.java, null, TAB_HISTORY)
-//        mVipTab = binding.pagerTabs.newTab().setText(getString(R.string.tab_vip))
-//        mTabsAdapter!!.addTab(mVipTab!!, VipFragment::class.java, null, TAB_VIP)
+        mVipTab = binding.pagerTabs.newTab().setText(getString(R.string.tab_vip))
+        mTabsAdapter!!.addTab(mVipTab!!, VipFragment::class.java, null, TAB_VIP)
 
         if (getPartnersLocalized()?.isActive() == true) {
             mRecommendationsTab =
@@ -167,15 +168,14 @@ class ModernMain : AppCompatActivity(), BackHandler {
         lifecycleScope.launchWhenResumed {
             ChangeLog.showIfNewVersion(this@ModernMain, supportFragmentManager)
         }
-//        lifecycleScope.launchWhenStarted {
-//            userRepository.identify()
-//            userRepository.userFlow.collect { user ->
-//                val icon =
-//                    if (user.status.isVIP()) R.drawable.action_bar_logo_vip
-//                    else R.drawable.action_bar_logo
-//                supportActionBar?.setIcon(icon)
-//            }
-//        }
+        lifecycleScope.launch {
+            userRepository.statusFlow.collect { status ->
+                val icon =
+                    if (status.isVIP()) R.drawable.action_bar_logo_vip
+                    else R.drawable.action_bar_logo
+                supportActionBar?.setIcon(icon)
+            }
+        }
     }
 
     fun selectTab(tabTag: String) {

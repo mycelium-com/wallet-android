@@ -18,8 +18,8 @@ data class ChangellyGetExchangeAmountResponse(
 ) {
     val receiveAmount: Double
         get() {
-            val fee = networkFee.toDoubleOrNull() ?: return .0
+//            val fee = networkFee.toDoubleOrNull() ?: return .0
             val to = amountTo.toDoubleOrNull() ?: return .0
-            return to - fee
+            return to// - fee
         }
 }

@@ -1,6 +1,5 @@
 package com.mycelium.bequant.remote.repositories
 
-import com.mycelium.wallet.external.changelly2.remote.UserRepository
 
 object Api {
     val accountRepository by lazy { AccountApiRepository() }
