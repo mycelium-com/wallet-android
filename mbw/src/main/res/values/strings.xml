@@ -1760,7 +1760,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="gas_limit_error">Minimal gas limit for Ethereum network transactions is 21 000 units.</string>
     <string name="parent_eth_account">ETH %s:</string>
     <string name="connection_issues"><b>Connection issues.</b> Please make sure you\'re online.</string>
-    <string name="course_outdated">course is outdated</string>
+    <string name="course_outdated">Exchange rate is outdated</string>
     <string name="network_s">%s Network</string>
     <string name="changelly2_policy_text">Service is available through third-party API provider. By clicking Exchange you accept the <font color="#4583de">Terms of Use</font>.</string>
     <string name="changelly2_select_from">Select account:</string>
@@ -1869,4 +1869,5 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="vip_title">Get the VIP experience</string>
     <string name="vip_menu_text">VIP</string>
     <string name="vip_title_success">You are all set!</string>
+    <string name="add_address">Add address</string>
 </resources>

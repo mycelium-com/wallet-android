@@ -180,7 +180,7 @@ class GetAmountActivity : AppCompatActivity(), NumberEntryListener {
         }
     }
 
-    @OnClick(R.id.btCurrency)
+    @OnClick(R.id.btCurrency, R.id.currencyClickArea)
     fun onSwitchCurrencyClick(view: View) {
         val currencyList = availableCurrencyList()
         if (currencyList.size > 1) {

@@ -18,7 +18,7 @@
     </data>
 
 
-    <ScrollView
+    <androidx.core.widget.NestedScrollView
         android:id="@+id/root"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -52,6 +52,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
+                android:nestedScrollingEnabled="false"
                 bind:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
                 android:visibility="@{viewModel.isBatch() ? View.VISIBLE : View.GONE}" />
 
@@ -70,7 +71,7 @@
                     android:layout_marginVertical="14dp"
                     android:drawableStart="@drawable/ic_plus_nofill"
                     android:drawablePadding="@dimen/size_x2"
-                    android:text="Add address"
+                    android:text="@string/add_address"
                     android:visibility="@{viewModel.isBatch() ? View.VISIBLE : View.GONE}" />
             </FrameLayout>
 
@@ -140,5 +141,5 @@
                 bind:activity="@{activity}"
                 bind:viewModel="@{viewModel}" />
         </LinearLayout>
-    </ScrollView>
+    </androidx.core.widget.NestedScrollView>
 </layout>

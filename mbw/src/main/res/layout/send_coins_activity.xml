@@ -20,7 +20,7 @@
     </data>
 
 
-    <ScrollView
+    <androidx.core.widget.NestedScrollView
         android:id="@+id/root"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -110,5 +110,5 @@
                 bind:activity="@{activity}"
                 bind:viewModel="@{viewModel}" />
         </LinearLayout>
-    </ScrollView>
+    </androidx.core.widget.NestedScrollView>
 </layout>
