@@ -347,6 +347,7 @@ public class MbwManager {
         // Preferences
         SharedPreferences preferences = getPreferences();
         configuration = new WalletConfiguration(preferences, getNetwork());
+        configuration.loadFromAssetsIfNeed();
 
         mainLoopHandler = new Handler(Looper.getMainLooper());
         _eventTranslator = new EventTranslator(mainLoopHandler, _eventBus);

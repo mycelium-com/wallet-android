@@ -1,6 +1,7 @@
 package com.mycelium.wallet
 
 import android.content.SharedPreferences
+import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.annotations.SerializedName
 import com.mrd.bitlib.model.NetworkParameters
@@ -24,6 +25,7 @@ import retrofit2.Call
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
+import java.io.InputStreamReader
 import java.util.logging.Level
 import java.util.logging.Logger
 
@@ -86,6 +88,16 @@ class WalletConfiguration(private val prefs: SharedPreferences,
 
     val gson = GsonBuilder().create()
 
+    fun loadFromAssetsIfNeed() {
+        if (!prefs.contains(PREFS_ELECTRUM_SERVERS)) {
+            val gson = GsonBuilder().setDateFormat("yyyy-MM-dd'T'HH:mm:ssZ").create()
+            val file = WalletApplication.getInstance().assets.open("nodes-b.json")
+            val myceliumNodesResponse =
+                gson.fromJson(InputStreamReader(file, "UTF-8"), MyceliumNodesResponse::class.java)
+            saveToPrefs(myceliumNodesResponse, gson)
+        }
+    }
+
     // Makes a request to S3 storage to retrieve nodes.json and parses it to extract electrum servers list
     fun updateConfig() {
         GlobalScope.launch(Dispatchers.Default, CoroutineStart.DEFAULT) {
@@ -111,101 +123,7 @@ class WalletConfiguration(private val prefs: SharedPreferences,
                 if (resp.isSuccessful) {
                     val myceliumNodesResponse = resp.body()
 
-                    val electrumXnodes = if (network.isTestnet) {
-                        myceliumNodesResponse?.btcTestnet
-                    } else {
-                        myceliumNodesResponse?.btcMainnet
-                    }?.electrumx?.primary?.map { it.url }?.toSet()
-
-                    val electrumXTorNodes = if (network.isTestnet) {
-                        myceliumNodesResponse?.btcTestnet
-                    } else {
-                        myceliumNodesResponse?.btcMainnet
-                    }?.electrumx?.tor?.map { it.url }?.toSet()
-
-                    val wapiNodes = if (network.isTestnet) {
-                        myceliumNodesResponse?.btcTestnet
-                    } else {
-                        myceliumNodesResponse?.btcMainnet
-                    }?.wapi?.primary
-
-                    val electrumXBTCVnodes = if (network.isTestnet) {
-                        myceliumNodesResponse?.btcVTestnet
-                    } else {
-                        myceliumNodesResponse?.btcVMainnet
-                    }?.electrumx?.primary?.map { it.url }?.toSet()
-
-                    val ethServersFromResponse = if (network.isTestnet) {
-                        myceliumNodesResponse?.ethTestnet
-                    } else {
-                        myceliumNodesResponse?.ethMainnet
-                    }?.ethBBServers?.primary?.map { it.url }?.toSet()
-
-                    val fioApiServersFromResponse = if (network.isTestnet) {
-                        myceliumNodesResponse?.fioTestnet
-                    } else {
-                        myceliumNodesResponse?.fioMainnet
-                    }?.fioApiServers?.primary?.map { it.url }?.toSet()
-
-                    val fioHistoryServersFromResponse = if (network.isTestnet) {
-                        myceliumNodesResponse?.fioTestnet
-                    } else {
-                        myceliumNodesResponse?.fioMainnet
-                    }?.fioHistoryServers?.primary?.map { it.url }?.toSet()
-
-                    val fioTpid = if (network.isTestnet) {
-                        myceliumNodesResponse?.fioTestnet
-                    } else {
-                        myceliumNodesResponse?.fioMainnet
-                    }?.tpid
-
-                    val prefEditor = prefs.edit()
-                    electrumXnodes?.let {
-                        prefEditor.putStringSet(PREFS_ELECTRUM_SERVERS, electrumXnodes)
-                    }
-                    electrumXTorNodes?.let {
-                        prefEditor.putStringSet(PREFS_ELECTRUM_TOR_SERVERS, electrumXTorNodes)
-                    }
-
-                    wapiNodes?.let {
-                        prefEditor.putString(PREFS_WAPI_SERVERS, gson.toJson(wapiNodes))
-                    }
-
-                    electrumXBTCVnodes?.let {
-                        prefEditor.putStringSet(PREFS_ELECTRUM_BTCV_SERVERS, electrumXBTCVnodes)
-                    }
-
-                    ethServersFromResponse?.let {
-                        prefEditor.putStringSet(PREFS_ETH_BB_SERVERS, ethServersFromResponse)
-                    }
-                    fioApiServersFromResponse?.let {
-                        prefEditor.putStringSet(PREFS_FIO_API_SERVERS, fioApiServersFromResponse)
-                    }
-                    fioHistoryServersFromResponse?.let {
-                        prefEditor.putStringSet(PREFS_FIO_HISTORY_SERVERS, fioHistoryServersFromResponse)
-                    }
-                    fioTpid?.let {
-                        prefEditor.putString(PREFS_FIO_TPID, it)
-                    }
-                    myceliumNodesResponse?.partnerInfos?.let {
-                        it.entries.forEach {
-                            prefEditor.putString("partner-info-${it.key}", gson.toJson(it.value))
-                        }
-                    }
-                    fun <E> Map<String, E>.store(key: String) {
-                        keys.forEach {
-                            prefEditor.putString("$key-$it", gson.toJson(get(it)))
-                        }
-                    }
-                    myceliumNodesResponse?.run {
-                        partners?.store("partners")
-                        mediaFlowSettings.store("mediaflow")
-                        accountsSettings.store("accounts")
-                        mainMenuSettings.store("mainmenu")
-                        balanceSettings.store("balance")
-                        buySellSettings.store("buysell")
-                    }
-                    prefEditor.apply()
+                    saveToPrefs(myceliumNodesResponse, gson)
 
                     if (oldElectrum != electrumServers) {
                         serverElectrumListChangedListener?.serverListChanged(getElectrumEndpoints())
@@ -241,6 +159,104 @@ class WalletConfiguration(private val prefs: SharedPreferences,
                 logger.log(Level.WARNING, "Error when read configuration: ${ex.localizedMessage}")
             }
         }
+    }
+
+    private fun saveToPrefs(myceliumNodesResponse: MyceliumNodesResponse?, gson: Gson) {
+        val electrumXnodes = if (network.isTestnet) {
+            myceliumNodesResponse?.btcTestnet
+        } else {
+            myceliumNodesResponse?.btcMainnet
+        }?.electrumx?.primary?.map { it.url }?.toSet()
+
+        val electrumXTorNodes = if (network.isTestnet) {
+            myceliumNodesResponse?.btcTestnet
+        } else {
+            myceliumNodesResponse?.btcMainnet
+        }?.electrumx?.tor?.map { it.url }?.toSet()
+
+        val wapiNodes = if (network.isTestnet) {
+            myceliumNodesResponse?.btcTestnet
+        } else {
+            myceliumNodesResponse?.btcMainnet
+        }?.wapi?.primary
+
+        val electrumXBTCVnodes = if (network.isTestnet) {
+            myceliumNodesResponse?.btcVTestnet
+        } else {
+            myceliumNodesResponse?.btcVMainnet
+        }?.electrumx?.primary?.map { it.url }?.toSet()
+
+        val ethServersFromResponse = if (network.isTestnet) {
+            myceliumNodesResponse?.ethTestnet
+        } else {
+            myceliumNodesResponse?.ethMainnet
+        }?.ethBBServers?.primary?.map { it.url }?.toSet()
+
+        val fioApiServersFromResponse = if (network.isTestnet) {
+            myceliumNodesResponse?.fioTestnet
+        } else {
+            myceliumNodesResponse?.fioMainnet
+        }?.fioApiServers?.primary?.map { it.url }?.toSet()
+
+        val fioHistoryServersFromResponse = if (network.isTestnet) {
+            myceliumNodesResponse?.fioTestnet
+        } else {
+            myceliumNodesResponse?.fioMainnet
+        }?.fioHistoryServers?.primary?.map { it.url }?.toSet()
+
+        val fioTpid = if (network.isTestnet) {
+            myceliumNodesResponse?.fioTestnet
+        } else {
+            myceliumNodesResponse?.fioMainnet
+        }?.tpid
+
+        val prefEditor = prefs.edit()
+        electrumXnodes?.let {
+            prefEditor.putStringSet(PREFS_ELECTRUM_SERVERS, electrumXnodes)
+        }
+        electrumXTorNodes?.let {
+            prefEditor.putStringSet(PREFS_ELECTRUM_TOR_SERVERS, electrumXTorNodes)
+        }
+
+        wapiNodes?.let {
+            prefEditor.putString(PREFS_WAPI_SERVERS, gson.toJson(wapiNodes))
+        }
+
+        electrumXBTCVnodes?.let {
+            prefEditor.putStringSet(PREFS_ELECTRUM_BTCV_SERVERS, electrumXBTCVnodes)
+        }
+
+        ethServersFromResponse?.let {
+            prefEditor.putStringSet(PREFS_ETH_BB_SERVERS, ethServersFromResponse)
+        }
+        fioApiServersFromResponse?.let {
+            prefEditor.putStringSet(PREFS_FIO_API_SERVERS, fioApiServersFromResponse)
+        }
+        fioHistoryServersFromResponse?.let {
+            prefEditor.putStringSet(PREFS_FIO_HISTORY_SERVERS, fioHistoryServersFromResponse)
+        }
+        fioTpid?.let {
+            prefEditor.putString(PREFS_FIO_TPID, it)
+        }
+        myceliumNodesResponse?.partnerInfos?.let {
+            it.entries.forEach {
+                prefEditor.putString("partner-info-${it.key}", gson.toJson(it.value))
+            }
+        }
+        fun <E> Map<String, E>.store(key: String) {
+            keys.forEach {
+                prefEditor.putString("$key-$it", gson.toJson(get(it)))
+            }
+        }
+        myceliumNodesResponse?.run {
+            partners?.store("partners")
+            mediaFlowSettings.store("mediaflow")
+            accountsSettings.store("accounts")
+            mainMenuSettings.store("mainmenu")
+            balanceSettings.store("balance")
+            buySellSettings.store("buysell")
+        }
+        prefEditor.apply()
     }
 
     // Returns the set of electrum servers
