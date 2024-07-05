@@ -1,17 +1,28 @@
 #!/bin/sh
 
-APIKEY=`cat ~/.mycelium_crowdin_api`
+set -euf
 
-cwd=`pwd`
+die () { echo "Error: $*"; exit 1; }
+
+APIKEY="$(cat ~/.mycelium_crowdin_api)"
+
+cwd="$(pwd)"
 dir=/tmp/translation
-rm -r ${dir}
-mkdir -p ${dir} || exit
-echo "    <string-array name=\"languages\">" > $dir/1.xml
-echo "    <string-array name=\"languages_desc\">" > $dir/2.xml
-cd ${dir} || exit
-rm -f mycelium-bitcoin-wallet.zip
-wget -O all.zip https://api.crowdin.com/api/project/mycelium-bitcoin-wallet/download/all.zip?key=$APIKEY || exit
-unzip -q all.zip -d ${dir} || exit
+rm -rf -- "$dir" || die "Cannot remove $dir"
+mkdir -p -- "$dir" || die "Cannot create directory $dir"
+echo "    <string-array name=\"languages\">" > "$dir/1.xml"
+echo "    <string-array name=\"languages_desc\">" > "$dir/2.xml"
+cd -- "$dir" || die "Cannot cd to $dir"
+rm -f mycelium-bitcoin-wallet.zip || die "Cannot remove mycelium-bitcoin-wallet.zip"
+url="https://api.crowdin.com/api/project/mycelium-bitcoin-wallet/download/all.zip?key=$APIKEY"
+if command -v curl; then
+curl -LfS --tlsv1.2 --output all.zip -- "$url" || die "Cannot curl url $url"
+elif command -v wget; then
+  wget --secure-protocol=TLSv1_2 -O all.zip -- "$url" || die "Cannot wget url $url"
+else
+  die "Please install either curl or wget."
+fi
+unzip -q all.zip -d "$dir" || die "Cannot unzip all.zip"
 
 UpdateOne () {
   # arg 1: source folder as in ../${1}/strings.xml
@@ -19,13 +30,16 @@ UpdateOne () {
   # arg 3: Language name in language itself
   echo "Updating language ${1}"
   if [ "$1" != "en" ]; then
-    mkdir -p ${cwd}/src/main/res/values-${2} && cp -f ${dir}/${1}/strings.xml ${cwd}/src/main/res/values-${2} || echo "Failed to update language ${1}"
+    if ! mkdir -p -- "${cwd}/src/main/res/values-${2}" ||
+       ! cp -f -- "${dir}/${1}/strings.xml" "${cwd}/src/main/res/values-${2}"; then
+      die "Failed to update language ${1}"
+    fi
   fi
-  echo "        <item>${2}</item>" >> $dir/1.xml
-  echo "        <item>${3}</item>" >> $dir/2.xml
+  echo "        <item>${2}</item>" >> "$dir/1.xml"
+  echo "        <item>${3}</item>" >> "$dir/2.xml"
 }
 
-mkdir -p ${cwd}/res/values || exit
+mkdir -p  -- "${cwd}/res/values" || die "Cannot create directory ${cwd}/res/values"
 
 UpdateOne bg bg        Български     Bulgarian-Bulgaria
 UpdateOne cs cs        čeština       Czech
@@ -54,8 +68,8 @@ UpdateOne vi vi        "Tiếng Việt"  Vietnamese-Vietnam
 UpdateOne zh-CN zh     简体中文       Chinese-China
 UpdateOne zh-TW zh-rTW 繁体中文       Chinese-Taiwan
 
-echo "    </string-array>" >> $dir/1.xml
-echo "    </string-array>" >> $dir/2.xml
+echo "    </string-array>" >> "$dir/1.xml"
+echo "    </string-array>" >> "$dir/2.xml"
 
 echo "Add or update the following in your strings_nolocale.xml. The zh-rTW might have to be zh-TW though:"
-cat $dir/1.xml $dir/2.xml
+cat -- "$dir/1.xml" "$dir/2.xml"
