@@ -2,12 +2,19 @@
 
 # this script helps wrap up the currently 8 apks into 2 zips, named containing the versionName
 
-releasefolder="/tmp/release_mbw/comp_"$(date +"%s")"/"
-mbwVersion=$( grep "versionName '" mbw/build.gradle | sed "s/.*versionName //g" | sed "s/'//g" )
-mkdir -p $releasefolder
-for f in $( find . -name *.apk ); do
-  echo $f
-  cp $f $releasefolder
-done
-zip $releasefolder"release_mbw_${mbwVersion}.zip" ${releasefolder}mbw*.apk >/dev/null 2>&1
-echo done
+set -euf
+
+releasefolder="/tmp/release_mbw/comp_$(date +%s)/"
+mbwVersion="$( grep "versionName '" mbw/build.gradle | sed "s/.*versionName //g" | sed "s/'//g" )"
+mkdir -p -- "$releasefolder"
+if ! find . -name "*.apk" -exec echo {} \; -exec cp -- {} "$releasefolder" \; ; then
+  printf "Error: Cannot copy a file (maybe no disk space?)"
+  exit 1
+fi
+
+if ! zip "${releasefolder}release_mbw_${mbwVersion}.zip" "${releasefolder}mbw*.apk" >/dev/null 2>&1; then
+  printf "Error: Cannot zip a file (maybe no disk space?)"
+  exit 1
+fi
+
+printf "Done\n"
