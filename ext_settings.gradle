@@ -1,7 +1,7 @@
 // keep that file in sync with ext_settings.gradle in the internal big repository
 ext {
     guavaVersion = '23.0-android'
-    gradleVersion = '4.1.1'
+    gradleVersion = '4.2.2'
     androidCompileSdkVersion = 33
     androidSdkBuildVersion = '30.0.3'
     androidMinSdkVersion = 19
