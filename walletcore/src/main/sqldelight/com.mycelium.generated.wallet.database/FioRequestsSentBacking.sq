@@ -15,7 +15,7 @@ CREATE TABLE IF NOT EXISTS FioRequestsSentBacking (
     content TEXT NOT NULL,
     deserialized_content TEXT AS FundsRequestContent,
     time_stamp TEXT NOT NULL,
-    status TEXT as FioRequestStatus
+    status TEXT AS FioRequestStatus
 );
 
 insertRequest:

@@ -37,7 +37,7 @@ class SquarePinField : PinField {
         }
     }
 
-    override fun onDraw(canvas: Canvas?) {
+    override fun onDraw(canvas: Canvas) {
 
         for (i in 0 until numberOfFields) {
 

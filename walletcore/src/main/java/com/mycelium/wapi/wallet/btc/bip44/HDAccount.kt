@@ -502,7 +502,7 @@ open class HDAccount(
                 ChangeAddressMode.PRIVACY -> {
                     val mostCommonOutputType = destinationAddresses.groupingBy {
                         BipDerivationType.getDerivationTypeByAddress(it)
-                    }.eachCount().maxBy { it.value }!!.key
+                    }.eachCount().maxByOrNull { it.value }!!.key
                     getChangeAddress(mostCommonOutputType)
                 }
                 ChangeAddressMode.NONE -> throw IllegalStateException()

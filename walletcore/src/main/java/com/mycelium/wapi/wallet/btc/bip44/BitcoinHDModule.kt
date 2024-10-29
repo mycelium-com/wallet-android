@@ -292,7 +292,7 @@ class BitcoinHDModule(internal val backing: BtcWalletManagerBacking<HDAccountCon
 
     fun getCurrentBip44Index() = accounts.values
         .filter { it.isDerivedFromInternalMasterseed() }
-        .maxBy { it.accountIndex }
+        .maxByOrNull { it.accountIndex }
         ?.accountIndex
         ?: -1
 
@@ -336,7 +336,7 @@ class BitcoinHDModule(internal val backing: BtcWalletManagerBacking<HDAccountCon
         val accountIndices = accounts.values
                 .filter { it.isDerivedFromInternalMasterseed() }
                 .map { it.accountIndex }
-        val allIndices = 0..(accountIndices.max() ?: 0)
+        val allIndices = 0..(accountIndices.maxOrNull() ?: 0)
         return allIndices.subtract(accountIndices)
     }
 
