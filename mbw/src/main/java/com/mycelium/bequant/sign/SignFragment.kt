@@ -84,7 +84,7 @@ class SignFragment : Fragment(R.layout.fragment_bequant_sign) {
         super.onCreateOptionsMenu(menu, inflater)
         inflater.inflate(R.menu.menu_bequant_sign, menu)
         menu.findItem(R.id.tryDemo).let { item ->
-            item.actionView.tryDemoButton.setOnClickListener {
+            item.actionView?.tryDemoButton?.setOnClickListener {
                 onOptionsItemSelected(item)
             }
         }
