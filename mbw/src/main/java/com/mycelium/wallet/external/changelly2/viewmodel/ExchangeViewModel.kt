@@ -4,7 +4,7 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Transformations
+import androidx.lifecycle.map
 import androidx.lifecycle.viewModelScope
 import com.mrd.bitlib.TransactionUtils
 import com.mycelium.wallet.MbwManager
@@ -109,33 +109,33 @@ class ExchangeViewModel(application: Application) : AndroidViewModel(application
     }
 
 
-    val fromCurrency = Transformations.map(fromAccount) {
+    val fromCurrency = fromAccount.map {
         it.coinType
     }
-    val fromAddress = Transformations.map(fromAccount) {
+    val fromAddress = fromAccount.map {
         it.receiveAddress.toString()
     }
-    val fromChain = Transformations.map(fromAccount) {
+    val fromChain = fromAccount.map {
         if (it.basedOnCoinType != it.coinType) it.basedOnCoinType.name else ""
     }
-    val fromFiatBalance = Transformations.map(fromAccount) {
+    val fromFiatBalance = fromAccount.map {
         mbwManager.exchangeRateManager
                 .get(it.accountBalance.spendable, mbwManager.getFiatCurrency(it.coinType))
                 ?.toStringFriendlyWithUnit()
     }
-    val toCurrency = Transformations.map(toAccount) {
+    val toCurrency = toAccount.map {
         it?.coinType ?: Utils.getBtcCoinType()
     }
-    val toAddress = Transformations.map(toAccount) {
+    val toAddress = toAccount.map {
         it?.receiveAddress?.toString()
     }
-    val toChain = Transformations.map(toAccount) {
+    val toChain = toAccount.map {
         if (it?.basedOnCoinType != it?.coinType) it?.basedOnCoinType?.name else ""
     }
-    val toBalance = Transformations.map(toAccount) {
+    val toBalance = toAccount.map {
         it?.accountBalance?.spendable?.toStringFriendlyWithUnit()
     }
-    val toFiatBalance = Transformations.map(toAccount) {
+    val toFiatBalance = toAccount.map {
         it?.accountBalance?.spendable?.let { value ->
             mbwManager.exchangeRateManager
                     .get(value, mbwManager.getFiatCurrency(it.coinType))
@@ -146,19 +146,19 @@ class ExchangeViewModel(application: Application) : AndroidViewModel(application
 //        "1 ${it.from.toUpperCase()} = ${it.result} ${it.to.toUpperCase()}"
 //    }
 
-    val exchangeRateFrom = Transformations.map(exchangeInfo) {
+    val exchangeRateFrom = exchangeInfo.map {
         "1 ${it.from.toUpperCase()} = "
     }
 
-    val exchangeRateToValue = Transformations.map(exchangeInfo) {
+    val exchangeRateToValue = exchangeInfo.map {
         it.result.toPlainString()
     }
 
-    val exchangeRateToCurrency = Transformations.map(exchangeInfo) {
+    val exchangeRateToCurrency = exchangeInfo.map {
         it.to.toUpperCase()
     }
 
-    val fiatSellValue = Transformations.map(sellValue) {
+    val fiatSellValue = sellValue.map {
         if (it?.isNotEmpty() == true) {
             try {
                 mbwManager.exchangeRateManager
@@ -171,7 +171,7 @@ class ExchangeViewModel(application: Application) : AndroidViewModel(application
             ""
         }
     }
-    val fiatBuyValue = Transformations.map(buyValue) {
+    val fiatBuyValue = buyValue.map {
         if (it?.isNotEmpty() == true) {
             try {
                 mbwManager.exchangeRateManager

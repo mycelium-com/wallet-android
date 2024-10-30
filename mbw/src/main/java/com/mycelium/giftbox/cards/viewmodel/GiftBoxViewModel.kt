@@ -4,7 +4,7 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Transformations
+import androidx.lifecycle.switchMap
 import com.mycelium.bequant.kyc.inputPhone.coutrySelector.CountryModel
 import com.mycelium.giftbox.GiftboxPreference
 import com.mycelium.wallet.R
@@ -20,7 +20,7 @@ class GiftBoxViewModel(application: Application) : AndroidViewModel(application)
     var reloadStore = false
 
     fun currentCountries(): LiveData<String> =
-            Transformations.switchMap(selectedCountries) {
+            selectedCountries.switchMap {
                 GiftboxPreference.setSelectedCountries(it)
                 return@switchMap MutableLiveData<String>(when (it.size) {
                     0 -> getApplication<Application>().getString(R.string.all_countries)

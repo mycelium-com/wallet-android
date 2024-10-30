@@ -36,10 +36,10 @@ class AddressFragmentModel(
     private var mbwManager: MbwManager = MbwManager.getInstance(context)
     val accountLabel: MutableLiveData<Spanned> = MutableLiveData()
     val isSyncError = MutableLiveData<Boolean>()
-    val accountAddress: MutableLiveData<Address> = MutableLiveData()
+    val accountAddress: MutableLiveData<Address?> = MutableLiveData()
     val addressPath: MutableLiveData<String> = MutableLiveData()
     val type: MutableLiveData<AddressType> = MutableLiveData()
-    private val bip32Path: MutableLiveData<HdKeyPath> = MutableLiveData()
+    private val bip32Path: MutableLiveData<HdKeyPath?> = MutableLiveData()
     var isCompressedKey: Boolean = true
     val accountAddressType: MutableLiveData<String> = MutableLiveData()
     val registeredFIONames: MutableLiveData<List<RegisteredFIOName>> = MutableLiveData()

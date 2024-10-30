@@ -2,12 +2,13 @@ package com.mycelium.giftbox.purchase.adapter.holder
 
 import android.view.View
 import androidx.recyclerview.widget.RecyclerView
-import kotlinx.android.synthetic.main.item_giftbox_select_account.view.*
+import com.mycelium.wallet.databinding.ItemGiftboxSelectAccountBinding
 
 
 class AccountItemViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-    val label = itemView.label
-    val coinType = itemView.coinType
-    val value2 = itemView.value2
-    val value = itemView.value
+    val binding = ItemGiftboxSelectAccountBinding.bind(itemView)
+    val label = binding.label
+    val coinType = binding.coinType
+    val value2 = binding.value2
+    val value = binding.value
 }

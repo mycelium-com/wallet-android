@@ -51,6 +51,7 @@ import com.mycelium.wallet.activity.send.SignTransactionActivity
 import com.mycelium.wallet.activity.util.MasterseedPasswordSetter
 import com.mycelium.wallet.activity.util.Pin
 import com.mycelium.wallet.activity.util.toString
+import com.mycelium.wallet.databinding.SignExtSigTransactionActivityBinding
 import com.mycelium.wallet.extsig.common.ExternalSignatureDeviceManager
 import com.mycelium.wallet.extsig.common.ExternalSignatureDeviceManager.OnStatusUpdate.CurrentStatus.*
 import com.mycelium.wallet.extsig.common.showChange
@@ -58,7 +59,6 @@ import com.mycelium.wapi.wallet.AccountScanManager
 import com.mycelium.wapi.wallet.btc.BtcTransaction
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount
 import com.squareup.otto.Subscribe
-import kotlinx.android.synthetic.main.sign_ext_sig_transaction_activity.*
 
 abstract class ExtSigSignTransactionActivity : SignTransactionActivity(), MasterseedPasswordSetter {
     protected abstract val extSigManager: ExternalSignatureDeviceManager
@@ -69,12 +69,13 @@ abstract class ExtSigSignTransactionActivity : SignTransactionActivity(), Master
     private var amountString = ""   // Sent to destination address
     private var changeString = ""
     private var amountSendingString = ""   // Sent from our wallet
+    lateinit var binding: SignExtSigTransactionActivityBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        status.movementMethod = LinkMovementMethod.getInstance()
-        summaryHeader.movementMethod = LinkMovementMethod.getInstance()
-        summaryTransactionValues.setOnClickListener {
+        binding.status.movementMethod = LinkMovementMethod.getInstance()
+        binding.summaryHeader.movementMethod = LinkMovementMethod.getInstance()
+        binding.summaryTransactionValues.setOnClickListener {
             val message = Html.fromHtml(getString(R.string.ext_sig_you_sending_message, amountString, feeString,
                     amountSendingString, changeString, totalString, extSigManager.modelName))
             AlertDialog.Builder(this@ExtSigSignTransactionActivity)
@@ -115,18 +116,18 @@ abstract class ExtSigSignTransactionActivity : SignTransactionActivity(), Master
 
     private fun updateUi() {
         if (extSigManager.currentState != AccountScanManager.Status.unableToScan) {
-            ivConnectExtSig.visibility = View.GONE
-            tvPluginDevice.visibility = View.GONE
+            binding.ivConnectExtSig.visibility = View.GONE
+            binding.tvPluginDevice.visibility = View.GONE
         } else {
-            ivConnectExtSig.visibility = View.VISIBLE
-            tvPluginDevice.visibility = View.VISIBLE
+            binding.ivConnectExtSig.visibility = View.VISIBLE
+            binding.tvPluginDevice.visibility = View.VISIBLE
         }
 
         val unsigned = (_transaction as BtcTransaction).unsignedTx
 
         if (showTx) {
-            ivConnectExtSig.visibility = View.GONE
-            llShowTx.visibility = View.VISIBLE
+            binding.ivConnectExtSig.visibility = View.GONE
+            binding.llShowTx.visibility = View.VISIBLE
 
             val toAddresses = ArrayList<String>(1)
             var changeAddress = ""
@@ -163,10 +164,10 @@ abstract class ExtSigSignTransactionActivity : SignTransactionActivity(), Master
                 showChangeProperties(changeAddress, amountSending, fee)
             }
 
-            tvAmount.text = amountString
-            tvToAddress.text = toAddress
-            tvFee.text = feeString
-            tvTotal.text = totalString
+            binding.tvAmount.text = amountString
+            binding.tvToAddress.text = toAddress
+            binding.tvFee.text = feeString
+            binding.tvTotal.text = totalString
         }
     }
 
@@ -176,18 +177,18 @@ abstract class ExtSigSignTransactionActivity : SignTransactionActivity(), Master
         when {
             listOf("K1-14AM", "1").contains(model) -> {
                 val accountIndex = (_account as HDAccount).accountIndex
-                changeToAddress.text = getString(R.string.transferToAccountN, accountIndex)
+                binding.changeToAddress.text = getString(R.string.transferToAccountN, accountIndex)
             }
-            model == "T" -> changeToAddress.text = changeAddress
+            model == "T" -> binding.changeToAddress.text = changeAddress
             else -> throw IllegalStateException("Device unsupported")
         }
-        changeToAddress.visibility = View.VISIBLE
-        sendingValue.visibility = View.VISIBLE
-        sendingValueLabel.visibility = View.VISIBLE
+        binding.changeToAddress.visibility = View.VISIBLE
+        binding.sendingValue.visibility = View.VISIBLE
+        binding.sendingValueLabel.visibility = View.VISIBLE
         amountSendingString = Utils.getBtcCoinType().value(amountSending + fee).toString(Denomination.UNIT)
-        sendingValue.text = amountSendingString
-        changeToAddressLabel.visibility = View.VISIBLE
-        summaryTransactionValues.visibility = View.VISIBLE
+        binding.sendingValue.text = amountSendingString
+        binding.changeToAddressLabel.visibility = View.VISIBLE
+        binding.summaryTransactionValues.visibility = View.VISIBLE
     }
 
     @Subscribe
@@ -262,15 +263,15 @@ abstract class ExtSigSignTransactionActivity : SignTransactionActivity(), Master
             }
             else -> throw IllegalStateException("This status is not supported")
         }
-        status.text = Html.fromHtml(statusText)
-        pbProgress.visibility = View.GONE
+        binding.status.text = Html.fromHtml(statusText)
+        binding.pbProgress.visibility = View.GONE
         showTx = true
         updateUi()
     }
 
     private fun setChangeTypeface(typeface: Int) {
-        changeToAddressLabel.setTypeface(null, typeface)
-        changeToAddress.setTypeface(null, typeface)
+        binding.changeToAddressLabel.setTypeface(null, typeface)
+        binding.changeToAddress.setTypeface(null, typeface)
     }
 
     @Subscribe

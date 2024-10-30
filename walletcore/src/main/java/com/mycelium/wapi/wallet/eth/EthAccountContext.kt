@@ -7,19 +7,21 @@ import com.mycelium.wapi.wallet.genericdb.AccountContextImpl
 import java.math.BigInteger
 import java.util.*
 
-class EthAccountContext(override val uuid: UUID,
+class EthAccountContext(uuid: UUID,
                         currency: CryptoCurrency,
                         accountName: String,
                         balance: Balance,
                         val listener: (EthAccountContext) -> Unit,
                         val loadListener: (UUID) -> EthAccountContext?,
-                        override val accountIndex: Int,
+                        val accountIndex: Int,
                         enabledTokens: List<String>? = null,
                         archived: Boolean = false,
                         blockHeight: Int = 0,
                         nonce: BigInteger = BigInteger.ZERO) :
-        EthContext by EthContext.Impl(uuid, nonce, enabledTokens, accountIndex),
         AccountContextImpl(uuid, currency, accountName, balance, archived, blockHeight) {
+
+    fun ethContext() = EthContext(uuid, nonce, enabledTokens, accountIndex)
+
     override fun onChange() {
         listener(this)
     }
@@ -28,12 +30,12 @@ class EthAccountContext(override val uuid: UUID,
         enabledTokens = loadListener(uuid)?.enabledTokens
     }
 
-    override var nonce = nonce
+    var nonce = nonce
         set(value) {
             field = value
             onChange()
         }
-    override var enabledTokens = enabledTokens
+    var enabledTokens = enabledTokens
         set(value) {
             field = value
             onChange()

@@ -9,7 +9,6 @@ import android.view.Window
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
-import androidx.lifecycle.ViewModelProviders
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.GetAmountActivity
@@ -24,11 +23,11 @@ import com.mycelium.wallet.databinding.FioRequestCreateNameBinding
 import com.mycelium.wapi.wallet.Address
 import com.mycelium.wapi.wallet.coins.Value
 import java.util.*
-
+import androidx.activity.viewModels
 
 class FioRequestCreateActivity : AppCompatActivity(), AmountListener {
 
-    private lateinit var viewModel: FioRequestCreateViewModel
+    private val viewModel: FioRequestCreateViewModel by viewModels()
 
     companion object {
         const val FIO_ADDRESS_FROM = "FIO_ADDRESS_FROM"
@@ -58,7 +57,6 @@ class FioRequestCreateActivity : AppCompatActivity(), AmountListener {
         val account = mbwManager.getWalletManager(isColdStorage).getAccount(accountId)
                 ?: throw IllegalStateException(crashHint)
 
-        viewModel = ViewModelProviders.of(this).get(FioRequestCreateViewModel::class.java)
         viewModel.activity = this
         if (!viewModel.isInitialized()) {
             viewModel.init(account, intent)

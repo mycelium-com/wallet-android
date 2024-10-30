@@ -22,7 +22,7 @@ class BitcoinVaultHDAccountBacking(private val walletDB: WalletDB,
 
     fun updateAccountContext(context: BitcoinVaultHDAccountContext) {
         walletDB.transaction {
-            contextQueries.update(context.accountName, context.balance, context.isArchived(), context.blockHeight, context.id)
+            contextQueries.update(context.accountName, context.balance, context.archived, context.blockHeight, context.id)
             btcvContextQueries.update(context.indexesMap, context.getLastDiscovery(),
                     context.accountType, context.accountSubId, context.defaultAddressType,
                     context.id)

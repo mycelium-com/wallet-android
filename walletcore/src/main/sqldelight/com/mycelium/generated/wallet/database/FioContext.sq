@@ -4,6 +4,7 @@ import com.mycelium.wapi.wallet.fio.FIODomain;
 import com.mycelium.wapi.wallet.fio.RegisteredFIOName;
 import java.math.BigInteger;
 import java.util.UUID;
+import kotlin.Int;
 import kotlin.collections.List;
 
 -- Creates table for generic account context storage

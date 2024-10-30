@@ -91,10 +91,10 @@ class BitcoinVaultHdAccount(protected var accountContext: BitcoinVaultHDAccountC
         get() = accountContext.id
 
     override val isArchived: Boolean
-        get() = accountContext.isArchived()
+        get() = accountContext.archived
 
     override val isActive: Boolean
-        get() = !accountContext.isArchived()
+        get() = !accountContext.archived
 
     override fun broadcastTx(tx: Transaction): BroadcastResult {
         val btcTx: BtcvTransaction = tx as BtcvTransaction
@@ -184,7 +184,6 @@ class BitcoinVaultHdAccount(protected var accountContext: BitcoinVaultHDAccountC
             accountContext.accountName = value
         }
 
-    @Synchronized
     override suspend fun doSynchronization(proposedMode: SyncMode): Boolean {
         if (!maySync) { return false }
         var mode = proposedMode
@@ -369,19 +368,19 @@ class BitcoinVaultHdAccount(protected var accountContext: BitcoinVaultHDAccountC
     override fun canSign(): Boolean = true
 
     override fun archiveAccount() {
-        accountContext.setArchived(true)
+        accountContext.archived = true
         clearInternalStateInt()
         accountListener?.onAccountActiveStateChanged(accountContext.id)
     }
 
     override fun activateAccount() {
-        accountContext.setArchived(false)
+        accountContext.archived = false
         clearInternalStateInt()
         accountListener?.onAccountActiveStateChanged(accountContext.id)
     }
 
     override fun dropCachedData() {
-        if (accountContext.isArchived()) {
+        if (accountContext.archived) {
             return
         }
         clearInternalStateInt()
@@ -390,7 +389,7 @@ class BitcoinVaultHdAccount(protected var accountContext: BitcoinVaultHDAccountC
 
     protected fun initContext() {
         accountContext = BitcoinVaultHDAccountContext(accountContext.id, accountContext.currency,
-                accountContext.accountIndex, accountContext.isArchived(), accountContext.accountName,
+                accountContext.accountIndex, accountContext.archived, accountContext.accountName,
                 Balance.getZeroBalance(accountContext.currency), backing::updateAccountContext,
                 accountType = accountContext.accountType, accountSubId = accountContext.accountSubId,
                 defaultAddressType = accountContext.defaultAddressType)

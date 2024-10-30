@@ -5,9 +5,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProviders
+import androidx.fragment.app.viewModels
 import com.mycelium.bequant.common.ErrorHandler
 import com.mycelium.bequant.common.loader
 import com.mycelium.bequant.receive.viewmodel.ReceiveCommonViewModel
@@ -15,20 +14,16 @@ import com.mycelium.bequant.receive.viewmodel.ShowQRViewModel
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
 import com.mycelium.wallet.databinding.FragmentBequantReceiveShowQrBinding
-import kotlinx.android.synthetic.main.fragment_bequant_receive_show_qr.*
 
 class ShowQRFragment : Fragment() {
-    lateinit var viewModel: ShowQRViewModel
+    val viewModel: ShowQRViewModel by viewModels()
     var parentViewModel: ReceiveCommonViewModel? = null
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        viewModel = ViewModelProviders.of(this).get(ShowQRViewModel::class.java)
-    }
+    var binding: FragmentBequantReceiveShowQrBinding? = null
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? =
-            DataBindingUtil.inflate<FragmentBequantReceiveShowQrBinding>(inflater, R.layout.fragment_bequant_receive_show_qr, container, false)
+            FragmentBequantReceiveShowQrBinding.inflate(inflater, container, false)
                     .apply {
+                        binding = this
                         viewModel = this@ShowQRFragment.viewModel
                         parentViewModel = this@ShowQRFragment.parentViewModel
                         lifecycleOwner = this@ShowQRFragment
@@ -36,13 +31,18 @@ class ShowQRFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        copyAddress.setOnClickListener {
+        binding?.copyAddress?.setOnClickListener {
             Utils.setClipboardString(parentViewModel?.address?.value, requireContext())
             Toast.makeText(requireContext(), getString(R.string.copied_to_clipboard), Toast.LENGTH_SHORT).show()
         }
-        createNewAddress.setOnClickListener {
+        binding?.createNewAddress?.setOnClickListener {
             createDepositAddress(parentViewModel?.currency?.value ?: "BTC")
         }
+    }
+
+    override fun onDestroyView() {
+        binding = null
+        super.onDestroyView()
     }
 
     private fun createDepositAddress(currency: String) {

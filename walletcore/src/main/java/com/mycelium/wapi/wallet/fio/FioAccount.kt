@@ -290,7 +290,6 @@ class FioAccount(private val fioBlockchainService: FioBlockchainService,
 
     override fun isSpendingUnconfirmed(tx: Transaction): Boolean = false
 
-    @Synchronized // need to avoid double call in one time
     override suspend fun synchronize(mode: SyncMode?): Boolean {
         syncing = true
         var syncResult = false

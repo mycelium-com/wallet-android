@@ -7,7 +7,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.mycelium.wallet.R
-import kotlinx.android.synthetic.main.item_country.view.*
+import com.mycelium.wallet.databinding.ItemCountryBinding
 
 
 class BuySellSelectCountryAdapter
@@ -19,13 +19,16 @@ class BuySellSelectCountryAdapter
             ViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.item_country, parent, false))
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        holder.itemView.country.text = getItem(position)
+        holder as ViewHolder
+        holder.binding.country.text = getItem(position)
         holder.itemView.setOnClickListener {
             clickListener?.invoke(getItem(holder.adapterPosition))
         }
     }
 
-    class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
+    class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        val binding = ItemCountryBinding.bind(itemView)
+    }
 
     class DiffCallback : DiffUtil.ItemCallback<String>() {
         override fun areItemsTheSame(oldItem: String, newItem: String): Boolean =

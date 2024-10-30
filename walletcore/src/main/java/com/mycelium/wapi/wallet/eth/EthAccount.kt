@@ -122,7 +122,6 @@ class EthAccount(private val chainId: Byte,
         accountContext.nonce = nonce
     }
 
-    @Synchronized
     override suspend fun doSynchronization(mode: SyncMode?): Boolean {
         val syncTx = syncTransactions()
         updateBalanceCache()

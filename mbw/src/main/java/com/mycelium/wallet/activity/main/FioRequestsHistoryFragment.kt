@@ -2,11 +2,13 @@ package com.mycelium.wallet.activity.main
 
 import android.content.Context
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import androidx.appcompat.view.ActionMode
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.fio.AboutFIOProtocolDialog
@@ -17,11 +19,11 @@ import com.mycelium.wallet.activity.main.adapter.FioRequestAdapter
 import com.mycelium.wallet.activity.main.adapter.FioRequestAdapterItem
 import com.mycelium.wallet.activity.main.adapter.Group
 import com.mycelium.wallet.activity.main.model.fiorequestshistory.FioRequestsHistoryViewModel
+import com.mycelium.wallet.databinding.FioRequestHistoryViewBinding
 import com.mycelium.wallet.event.*
 import com.mycelium.wallet.persistence.MetadataStorage
 import com.mycelium.wapi.wallet.fio.FioGroup
 import com.squareup.otto.Subscribe
-import kotlinx.android.synthetic.main.fio_request_history_view.*
 import java.util.concurrent.atomic.AtomicBoolean
 
 class FioRequestsHistoryFragment : Fragment(R.layout.fio_request_history_view) {
@@ -30,15 +32,25 @@ class FioRequestsHistoryFragment : Fragment(R.layout.fio_request_history_view) {
     private val currentActionMode: ActionMode? = null
     private val isLoadingPossible = AtomicBoolean(true)
     private val adapter = FioRequestAdapter()
-    private lateinit var viewModel: FioRequestsHistoryViewModel
+    val viewModel: FioRequestsHistoryViewModel by viewModels()
     private val preference by lazy { requireContext().getSharedPreferences("fio_request_fragment", Context.MODE_PRIVATE) }
+    private var binding: FioRequestHistoryViewBinding? = null
 
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View = FioRequestHistoryViewBinding.inflate(inflater, container, false)
+        .apply {
+            binding = this
+        }
+        .root
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        btAboutFioProtocol.setOnClickListener {
+        binding?.btAboutFioProtocol?.setOnClickListener {
             AboutFIOProtocolDialog().show(parentFragmentManager, "modal")
         }
-        lvTransactionHistory.itemAnimator = null
-        lvTransactionHistory.adapter = adapter
+        binding?.lvTransactionHistory?.itemAnimator = null
+        binding?.lvTransactionHistory?.adapter = adapter
         adapter.itemClickListener = { item, group ->
             if (group.status == FioGroup.Type.SENT) {
                 SentFioRequestStatusActivity.start(requireActivity(), item)
@@ -69,7 +81,6 @@ class FioRequestsHistoryFragment : Fragment(R.layout.fio_request_history_view) {
             }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        viewModel = ViewModelProviders.of(this).get(FioRequestsHistoryViewModel::class.java)
         setHasOptionsMenu(true)
         super.onCreate(savedInstanceState)
         // cache the addressbook for faster lookup
@@ -90,6 +101,11 @@ class FioRequestsHistoryFragment : Fragment(R.layout.fio_request_history_view) {
     override fun onPause() {
         MbwManager.getEventBus().unregister(this)
         super.onPause()
+    }
+
+    override fun onDestroyView() {
+        binding = null
+        super.onDestroyView()
     }
 
     @Subscribe
@@ -121,8 +137,8 @@ class FioRequestsHistoryFragment : Fragment(R.layout.fio_request_history_view) {
     }
 
     private fun showHistory(hasHistory: Boolean) {
-        llNoRecords.visibility = if (hasHistory) View.GONE else View.VISIBLE
-        lvTransactionHistory.visibility = if (hasHistory) View.VISIBLE else View.GONE
+        binding?.llNoRecords?.visibility = if (hasHistory) View.GONE else View.VISIBLE
+        binding?.lvTransactionHistory?.visibility = if (hasHistory) View.VISIBLE else View.GONE
     }
 
     override fun setUserVisibleHint(isVisibleToUser: Boolean) {

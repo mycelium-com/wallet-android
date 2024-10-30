@@ -7,30 +7,33 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.mycelium.wallet.R
-import kotlinx.android.synthetic.main.country_item.view.*
+import com.mycelium.wallet.databinding.CountryItemBinding
 
 class CountriesAdapter(val itemClickListener: ItemClickListener) : ListAdapter<CountryModel, RecyclerView.ViewHolder>(CountryDiffCallback()) {
     var showPhoneCode = true
     var nationality = false
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder =
-            ViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.country_item, parent, false).apply {
-                tvCountryCode.visibility = if (showPhoneCode) View.VISIBLE else View.GONE
-                tvAcronym.visibility = if (nationality) View.GONE else View.VISIBLE
-            })
+            ViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.country_item, parent, false)).apply {
+                binding.tvCountryCode.visibility = if (showPhoneCode) View.VISIBLE else View.GONE
+                binding.tvAcronym.visibility = if (nationality) View.GONE else View.VISIBLE
+            }
 
 
-    class ViewHolder(val itemView: View) : RecyclerView.ViewHolder(itemView)
+    class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        val binding = CountryItemBinding.bind(itemView)
+    }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         val item = getItem(position)
+        holder as ViewHolder
         if (nationality) {
-            holder.itemView.tvCountryName.text = item.nationality
+            holder.binding.tvCountryName.text = item.nationality
         } else {
-            holder.itemView.tvAcronym.text = item.acronym
-            holder.itemView.tvCountryName.text = item.name
+            holder.binding.tvAcronym.text = item.acronym
+            holder.binding.tvCountryName.text = item.name
         }
-        holder.itemView.tvCountryCode.text = "+${item.code}"
+        holder.binding.tvCountryCode.text = "+${item.code}"
         holder.itemView.setOnClickListener {
             itemClickListener.onItemClick(item)
         }

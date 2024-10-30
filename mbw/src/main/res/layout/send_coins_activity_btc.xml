@@ -115,17 +115,20 @@
 
             <!--Fee selector-->
             <include
+                android:id="@+id/layoutFeeBlock"
                 layout="@layout/send_coins_fee_block_btc"
                 bind:viewModel="@{viewModel}" />
 
             <!-- Sender -->
             <include
+                android:id="@+id/layoutSenderFio"
                 layout="@layout/send_coins_sender_fio"
                 bind:activity="@{activity}"
                 bind:viewModel="@{viewModel}" />
 
             <!--FIO Memo-->
             <include
+                android:id="@+id/layoutFioMemo"
                 layout="@layout/fio_memo_input"
                 bind:fioMemo="@{viewModel.fioMemo}"
                 bind:payeeFioName="@{viewModel.payeeFioName}" />

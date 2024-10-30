@@ -22,14 +22,14 @@ class GetAmountViewModel(application: Application) : AndroidViewModel(applicatio
     val currentCurrency = MutableLiveData<AssetInfo>()
 
     val maxAmount: LiveData<String> =
-            Transformations.switchMap(MediatorLiveData<Pair<Value?, AssetInfo?>>().apply {
+            MediatorLiveData<Pair<Value?, AssetInfo?>>().apply {
                 addSource(maxSpendableAmount) {
                     value = Pair(it, currentCurrency.value)
                 }
                 addSource(currentCurrency) {
                     value = Pair(maxSpendableAmount.value, it)
                 }
-            }) {
+            }.switchMap {
                 if (it.first != null && it.second != null) {
                     MutableLiveData(WalletApplication.getInstance().resources.getString(R.string.max_btc,
                             (convert(it.first!!, it.second!!) ?: Value.zeroValue(it.second!!))
@@ -40,13 +40,13 @@ class GetAmountViewModel(application: Application) : AndroidViewModel(applicatio
             }
 
     val currencyCurrencyText: LiveData<String> =
-            Transformations.switchMap(currentCurrency) {
+            currentCurrency.switchMap {
                 mbwManager.currencySwitcher.setCurrency(account!!.coinType, it)
                 MutableLiveData(mbwManager.currencySwitcher.getCurrentCurrencyIncludingDenomination(account!!.coinType))
             }
 
     val howMaxSpendableCalculated: LiveData<Boolean> =
-            Transformations.switchMap(maxAmount) {
+            maxAmount.switchMap {
                 MutableLiveData(account?.coinType == Utils.getBtcCoinType() && it.isNotEmpty())
             }
 

@@ -1,4 +1,5 @@
 import java.util.Date;
+import kotlin.Boolean;
 
 CREATE TABLE IF NOT EXISTS GiftboxCard(
     clientOrderId TEXT NOT NULL,

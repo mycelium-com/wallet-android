@@ -1,8 +1,6 @@
 package com.mycelium.wallet.external
 
-import android.content.ActivityNotFoundException
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
@@ -12,6 +10,7 @@ import com.mycelium.wallet.activity.modern.ModernMain
 import com.mycelium.wallet.activity.modern.Toaster
 import com.mycelium.wallet.activity.settings.SettingsPreference
 import com.mycelium.wallet.activity.settings.SettingsPreference.getBuySellContent
+import com.mycelium.wallet.databinding.BuySellServiceSelectorBinding
 import com.mycelium.wallet.external.adapter.BuySellSelectAdapter
 import com.mycelium.wallet.external.adapter.BuySellSelectItem
 import com.mycelium.wallet.external.partner.startContentLink
@@ -19,18 +18,18 @@ import com.mycelium.wapi.wallet.btc.WalletBtcAccount
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.erc20.ERC20Account
 import com.mycelium.wapi.wallet.eth.EthAccount
-import kotlinx.android.synthetic.main.buy_sell_service_selector.*
 
 class BuySellSelectActivity : AppCompatActivity() {
     private val adapter = BuySellSelectAdapter()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.buy_sell_service_selector)
+        val binding = BuySellServiceSelectorBinding.inflate(layoutInflater)
+        setContentView(binding.root)
         val currency = intent.getSerializableExtra("currency") as CryptoCurrency
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.title = getString(R.string.buysell_bitcoin_title, currency.name)
         val mbwManager = MbwManager.getInstance(this)
-        lvServices.adapter = adapter
+        binding.lvServices.adapter = adapter
         val items: List<BuySellSelectItem> = mbwManager.environmentSettings.buySellServices.filter { it.isEnabled(mbwManager) }
                 .map { buySellService ->
                     val account = mbwManager.selectedAccount

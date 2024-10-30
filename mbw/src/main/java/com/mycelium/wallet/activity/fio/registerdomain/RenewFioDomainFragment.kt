@@ -9,7 +9,6 @@ import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
@@ -24,17 +23,18 @@ import com.mycelium.wapi.wallet.fio.FIODomain
 import com.mycelium.wapi.wallet.fio.FioAccount
 import com.mycelium.wapi.wallet.fio.FioModule
 import fiofoundation.io.fiosdk.errors.FIOError
-import kotlinx.android.synthetic.main.fragment_renew_fio_name.*
 import java.text.SimpleDateFormat
 import java.util.logging.Level
 import java.util.logging.Logger
 
 class RenewFioDomainFragment : Fragment() {
     private val viewModel: RegisterFioDomainViewModel by activityViewModels()
+    private var binding: FragmentRenewFioDomainBinding? = null
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View =
-            DataBindingUtil.inflate<FragmentRenewFioDomainBinding>(inflater, R.layout.fragment_renew_fio_domain, container, false)
+            FragmentRenewFioDomainBinding.inflate(inflater, container, false)
                     .apply {
+                        binding = this
                         viewModel = this@RenewFioDomainFragment.viewModel.apply {
                             val fioAccounts = listOf(this.fioAccountToRegisterName.value!!)
                             spinnerPayFromAccounts.adapter = ArrayAdapter<String>(requireContext(),
@@ -57,19 +57,19 @@ class RenewFioDomainFragment : Fragment() {
         (requireActivity() as AppCompatActivity).supportActionBar?.run {
             title = "Renew FIO Domain"
         }
-        tvFioName.text = "@${viewModel.domain.value}"
-        tvNotEnoughFundsError.visibility = View.GONE
+        binding?.tvFioName?.text = "@${viewModel.domain.value}"
+        binding?.tvNotEnoughFundsError?.visibility = View.GONE
         viewModel.accountToPayFeeFrom.observe(viewLifecycleOwner, Observer {
             val isNotEnoughFunds = it.accountBalance.spendable < viewModel.registrationFee.value!!
-            tvNotEnoughFundsError.visibility = if (isNotEnoughFunds) View.VISIBLE else View.GONE
-            btNextButton.isEnabled = !isNotEnoughFunds
-            (spinnerPayFromAccounts.getChildAt(0) as? TextView)?.setTextColor(
+            binding?.tvNotEnoughFundsError?.visibility = if (isNotEnoughFunds) View.VISIBLE else View.GONE
+            binding?.btNextButton?.isEnabled = !isNotEnoughFunds
+            (binding?.spinnerPayFromAccounts?.getChildAt(0) as? TextView)?.setTextColor(
                     if (isNotEnoughFunds) resources.getColor(R.color.fio_red) else resources.getColor(R.color.white))
         })
         val fioModule = MbwManager.getInstance(requireContext()).getWalletManager(false).getModuleById(FioModule.ID) as FioModule
         val fioDomain: FIODomain = fioModule.getAllRegisteredFioDomains().first { it.domain == viewModel.domain.value }
-        tvRenewTill.text = SimpleDateFormat("LLLL dd, yyyy 'at' hh:mm a").format(getRenewTill(fioDomain.expireDate))
-        btNextButton.setOnClickListener {
+        binding?.tvRenewTill?.text = SimpleDateFormat("LLLL dd, yyyy 'at' hh:mm a").format(getRenewTill(fioDomain.expireDate))
+        binding?.btNextButton?.setOnClickListener {
             RenewDomainTask(viewModel.accountToPayFeeFrom.value!! as FioAccount, viewModel.domain.value!!, fioModule) { expiration ->
                 if (expiration != null) {
                     Toaster(this).toast("FIO Domain has been renewed", true)
@@ -79,6 +79,11 @@ class RenewFioDomainFragment : Fragment() {
                 activity?.finish()
             }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
         }
+    }
+
+    override fun onDestroyView() {
+        binding = null
+        super.onDestroyView()
     }
 
     class RenewDomainTask(

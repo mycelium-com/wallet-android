@@ -6,8 +6,10 @@
     android:orientation="vertical">
 
     <include
+        android:id="@+id/layoutCreate"
         layout="@layout/fio_protocol_banner_create"/>
 
     <include
+        android:id="@+id/layoutCreated"
         layout="@layout/fio_protocol_banner_created"/>
 </LinearLayout>

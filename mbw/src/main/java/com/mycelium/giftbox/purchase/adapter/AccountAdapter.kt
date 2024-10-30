@@ -52,6 +52,8 @@ open class AccountAdapter : ListAdapter<AccountListItem, RecyclerView.ViewHolder
                     groupClickListener?.invoke(group)
                 }
             }
+
+            else -> {}
         }
     }
 

@@ -285,5 +285,5 @@ class GiftboxBuyFragment : Fragment() {
 class ViewModelFactory(param: ProductInfo) :
     ViewModelProvider.Factory {
     private val mParam: ProductInfo = param
-    override fun <T : ViewModel?> create(modelClass: Class<T>): T = GiftboxBuyViewModel(mParam) as T
+    override fun <T : ViewModel> create(modelClass: Class<T>): T = GiftboxBuyViewModel(mParam) as T
 }

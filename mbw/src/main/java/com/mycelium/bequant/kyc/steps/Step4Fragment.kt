@@ -9,9 +9,8 @@ import android.provider.MediaStore
 import android.view.*
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProviders
+import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.mycelium.bequant.BequantPreference
@@ -23,20 +22,18 @@ import com.mycelium.bequant.remote.model.KYCRequest
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.news.NewsImageActivity
 import com.mycelium.wallet.databinding.FragmentBequantSteps4Binding
-import kotlinx.android.synthetic.main.fragment_bequant_steps_4.*
-import kotlinx.android.synthetic.main.part_bequant_step_header.*
-import kotlinx.android.synthetic.main.part_bequant_stepper_body.*
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
 
 
 class Step4Fragment : Fragment() {
-    lateinit var viewModel: DocumentViewModel
-    lateinit var headerViewModel: HeaderViewModel
+    val viewModel: DocumentViewModel by viewModels()
+    val headerViewModel: HeaderViewModel by viewModels()
     lateinit var kycRequest: KYCRequest
 
     val args: Step4FragmentArgs by navArgs()
+    var binding: FragmentBequantSteps4Binding? = null
 
     private val identityAdapter = DocumentAdapter()
     private val proofAddressAdapter = DocumentAdapter()
@@ -47,13 +44,12 @@ class Step4Fragment : Fragment() {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
         kycRequest = args.kycRequest
-        viewModel = ViewModelProviders.of(this).get(DocumentViewModel::class.java)
-        headerViewModel = ViewModelProviders.of(this).get(HeaderViewModel::class.java)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? =
-            DataBindingUtil.inflate<FragmentBequantSteps4Binding>(inflater, R.layout.fragment_bequant_steps_4, container, false)
+            FragmentBequantSteps4Binding.inflate(inflater, container, false)
                     .apply {
+                        binding = this
                         viewModel = this@Step4Fragment.viewModel
                         headerViewModel = this@Step4Fragment.headerViewModel
                         lifecycleOwner = this@Step4Fragment
@@ -66,17 +62,17 @@ class Step4Fragment : Fragment() {
             title = getString(R.string.identity_auth)
             setHomeAsUpIndicator(resources.getDrawable(R.drawable.ic_bequant_arrow_back))
         }
-        step.text = getString(R.string.step_n, 4)
-        stepProgress.progress = 4
+        binding?.stepHeader?.step?.text = getString(R.string.step_n, 4)
+        binding?.stepHeader?.stepProgress?.progress = 4
         val stepAdapter = StepAdapter()
-        stepper.adapter = stepAdapter
+        binding?.body?.stepper?.adapter = stepAdapter
         stepAdapter.submitList(listOf(
                 ItemStep(1, getString(R.string.personal_info), StepState.COMPLETE)
                 , ItemStep(2, getString(R.string.residential_address), StepState.COMPLETE)
                 , ItemStep(3, getString(R.string.phone_number), StepState.COMPLETE)
                 , ItemStep(4, getString(R.string.doc_selfie), StepState.CURRENT)))
 
-        identityList.adapter = identityAdapter
+        binding?.identityList?.adapter = identityAdapter
         identityAdapter.listChangeListener = {
             viewModel.identityCount.value = it.size
             viewModel.nextButton.value = viewModel.isValid()
@@ -92,7 +88,7 @@ class Step4Fragment : Fragment() {
             startActivity(Intent(requireContext(), NewsImageActivity::class.java)
                     .putExtra("url", it.url))
         }
-        proofAddressList.adapter = proofAddressAdapter
+        binding?.proofAddressList?.adapter = proofAddressAdapter
         proofAddressAdapter.listChangeListener = {
             viewModel.poaCount.value = it.size
             viewModel.nextButton.value = viewModel.isValid()
@@ -107,7 +103,7 @@ class Step4Fragment : Fragment() {
             startActivity(Intent(requireContext(), NewsImageActivity::class.java)
                     .putExtra("url", it.url))
         }
-        selfieList.adapter = selfieAdapter
+        binding?.selfieList?.adapter = selfieAdapter
         selfieAdapter.listChangeListener = {
             viewModel.selfieCount.value = it.size
             viewModel.nextButton.value = viewModel.isValid()
@@ -128,16 +124,16 @@ class Step4Fragment : Fragment() {
             }.show(parentFragmentManager, "upload_document")
         }
         val identityClick = uploadClick(REQUEST_CODE_IDENTITY)
-        uploadIdentity.setOnClickListener(identityClick)
-        addIdentity.setOnClickListener(identityClick)
+        binding?.uploadIdentity?.setOnClickListener(identityClick)
+        binding?.addIdentity?.setOnClickListener(identityClick)
         val poaClick = uploadClick(REQUEST_CODE_PROOF_ADDRESS)
-        uploadProofAddress.setOnClickListener(poaClick)
-        addProofAddress.setOnClickListener(poaClick)
+        binding?.uploadProofAddress?.setOnClickListener(poaClick)
+        binding?.addProofAddress?.setOnClickListener(poaClick)
         val selfieClick = uploadClick(REQUEST_CODE_SELFIE)
-        uploadSelfie.setOnClickListener(selfieClick)
-        addSelfie.setOnClickListener(selfieClick)
+        binding?.uploadSelfie?.setOnClickListener(selfieClick)
+        binding?.addSelfie?.setOnClickListener(selfieClick)
 
-        btFinish.setOnClickListener {
+        binding?.btFinish?.setOnClickListener {
             BequantPreference.setKYCRequest(kycRequest)
             findNavController().navigate(Step4FragmentDirections.actionNext(kycRequest))
         }
@@ -163,8 +159,8 @@ class Step4Fragment : Fragment() {
                     true
                 }
                 R.id.stepper -> {
-                    item.icon = resources.getDrawable(if (stepperLayout.visibility == View.VISIBLE) R.drawable.ic_chevron_down else R.drawable.ic_chevron_up)
-                    stepperLayout.visibility = if (stepperLayout.visibility == View.VISIBLE) View.GONE else View.VISIBLE
+                    item.icon = resources.getDrawable(if (binding?.body?.stepperLayout?.visibility == View.VISIBLE) R.drawable.ic_chevron_down else R.drawable.ic_chevron_up)
+                    binding?.body?.stepperLayout?.visibility = if (binding?.body?.stepperLayout?.visibility == View.VISIBLE) View.GONE else View.VISIBLE
                     true
                 }
                 else -> super.onOptionsItemSelected(item)
@@ -179,6 +175,11 @@ class Step4Fragment : Fragment() {
                 REQUEST_CODE_SELFIE -> uploadImage(data, selfieAdapter, KYCDocument.SELFIE, kycRequest.selfieList)
             }
         }
+    }
+
+    override fun onDestroyView() {
+        binding = null
+        super.onDestroyView()
     }
 
     private fun uploadImage(data: Intent?, adapter: DocumentAdapter, docType: KYCDocument, requestList: MutableList<String>) {

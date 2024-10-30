@@ -7,11 +7,9 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.text.Html
-import android.text.TextUtils
 import android.text.method.LinkMovementMethod
 import android.view.View
 import android.widget.TextView
-import android.widget.Toast
 import androidx.annotation.RawRes
 import androidx.appcompat.app.AppCompatActivity
 import com.google.common.base.Joiner
@@ -19,11 +17,9 @@ import com.mycelium.wallet.activity.modern.Toaster
 import com.google.common.io.ByteSource
 import com.mycelium.wallet.*
 import com.mycelium.wallet.activity.changelog.ChangeLog
+import com.mycelium.wallet.databinding.AboutActivityBinding
 import com.mycelium.wapi.api.WapiException
 import com.mycelium.wapi.api.response.VersionInfoExResponse
-import com.mycelium.wapi.wallet.SyncMode
-import com.mycelium.wapi.wallet.fio.FioModule
-import kotlinx.android.synthetic.main.about_activity.*
 import java.io.IOException
 import java.io.InputStream
 import java.nio.charset.StandardCharsets
@@ -32,18 +28,19 @@ import java.util.*
 class AboutActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.about_activity)
+        val binding = AboutActivityBinding.inflate(layoutInflater)
+        setContentView(binding.root)
         val mbwManager = MbwManager.getInstance(this)
         val versionManager = mbwManager.versionManager
-        tvVersionNumber.text = BuildConfig.VERSION_NAME + if (BuildConfig.DEBUG) "\nDebug Build" else ""
-        tvVersionCode.text = String.format(Locale.US, "(%d)", BuildConfig.VERSION_CODE)
-        setLicenseForButton(bt_tou_mycelium, R.raw.tou_mycelium)
-        setLicenseForButton(bt_license_mycelium, R.raw.license_mycelium)
-        setLicenseForButton(bt_license_zxing, R.raw.license_zxing)
-        setLicenseForButton(bt_license_pdfwriter, R.raw.license_pdfwriter)
-        setLicenseForButton(bt_special_thanks, R.raw.special_thanks)
-        bt_show_changelog.setOnClickListener { ChangeLog.show(supportFragmentManager) }
-        bt_check_update.setOnClickListener { v: View? ->
+        binding.tvVersionNumber.text = BuildConfig.VERSION_NAME + if (BuildConfig.DEBUG) "\nDebug Build" else ""
+        binding.tvVersionCode.text = String.format(Locale.US, "(%d)", BuildConfig.VERSION_CODE)
+        setLicenseForButton(binding.btTouMycelium, R.raw.tou_mycelium)
+        setLicenseForButton(binding.btLicenseMycelium, R.raw.license_mycelium)
+        setLicenseForButton(binding.btLicenseZxing, R.raw.license_zxing)
+        setLicenseForButton(binding.btLicensePdfwriter, R.raw.license_pdfwriter)
+        setLicenseForButton(binding.btSpecialThanks, R.raw.special_thanks)
+        binding.btShowChangelog.setOnClickListener { ChangeLog.show(supportFragmentManager) }
+        binding.btCheckUpdate.setOnClickListener { v: View? ->
             val progress = ProgressDialog.show(this, getString(R.string.update_check),
                     getString(R.string.please_wait), true)
             versionManager.checkForUpdateSync { response: VersionInfoExResponse?, exception: WapiException? ->
@@ -56,14 +53,14 @@ class AboutActivity : AppCompatActivity() {
                 }
             }
         }
-        setLinkTo(tvSourceUrl, R.string.source_url)
-        setLinkTo(tvHomepageUrl, R.string.homepage_url)
-        setMailTo(tvContactEmail)
+        setLinkTo(binding.tvSourceUrl, R.string.source_url)
+        setLinkTo(binding.tvHomepageUrl, R.string.homepage_url)
+        setMailTo(binding.tvContactEmail)
 
         //set playstore link to qr code
         val packageName = applicationContext.packageName
         val playstoreUrl = Constants.PLAYSTORE_BASE_URL + packageName
-        ivPlaystoreQR.apply {
+        binding.ivPlaystoreQR.apply {
             qrCode = playstoreUrl
             tapToCycleBrightness = false
             setOnClickListener {
@@ -73,7 +70,7 @@ class AboutActivity : AppCompatActivity() {
             }
         }
         // show direct apk link for the - very unlikely - case that google blocks our playstore entry
-        ivDirectApkQR.apply {
+        binding.ivDirectApkQR.apply {
             qrCode = Constants.DIRECT_APK_URL
             tapToCycleBrightness = false
             setOnClickListener {

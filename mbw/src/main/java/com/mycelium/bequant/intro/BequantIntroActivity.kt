@@ -9,22 +9,24 @@ import com.mycelium.bequant.BequantPreference
 import com.mycelium.bequant.market.BequantMarketActivity
 import com.mycelium.bequant.sign.SignActivity
 import com.mycelium.wallet.R
-import kotlinx.android.synthetic.main.activity_bequant_intro.*
+import com.mycelium.wallet.databinding.ActivityBequantIntroBinding
 
-class BequantIntroActivity : AppCompatActivity(R.layout.activity_bequant_intro) {
+class BequantIntroActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val binding = ActivityBequantIntroBinding.inflate(layoutInflater)
+        setContentView(binding.root)
         supportActionBar?.run {
             setDisplayHomeAsUpEnabled(true)
             setDisplayShowTitleEnabled(false)
             setHomeAsUpIndicator(resources.getDrawable(R.drawable.ic_bequant_clear))
         }
-        pager.adapter = IntroPagerAdapter(this)
-        TabLayoutMediator(tabs, pager) { _, _ ->
+        binding.pager.adapter = IntroPagerAdapter(this)
+        TabLayoutMediator(binding.tabs, binding.pager) { _, _ ->
         }.attach()
 
-        create.setOnClickListener {
+        binding.create.setOnClickListener {
             BequantPreference.setIntroShown()
             startActivity(Intent(this, SignActivity::class.java))
             finish()

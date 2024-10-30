@@ -2,9 +2,11 @@ package com.mycelium.giftbox.purchase
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
 import android.view.View.GONE
 import android.view.View.VISIBLE
+import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
@@ -26,21 +28,22 @@ import com.mycelium.wallet.activity.modern.model.accounts.AccountsListModel
 import com.mycelium.wallet.activity.util.toStringWithUnit
 import com.mycelium.wallet.activity.view.VerticalSpaceItemDecoration
 import com.mycelium.wallet.activity.view.loader
+import com.mycelium.wallet.databinding.FragmentGiftboxSelectAccountBinding
 import com.mycelium.wallet.event.AccountListChanged
 import com.mycelium.wapi.wallet.Util
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.erc20.coins.ERC20Token
 import com.mycelium.wapi.wallet.fiat.coins.FiatType
-import kotlinx.android.synthetic.main.fragment_giftbox_select_account.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 
-class SelectAccountFragment : Fragment(R.layout.fragment_giftbox_select_account), ExchangeRateManager.Observer {
+class SelectAccountFragment : Fragment(), ExchangeRateManager.Observer {
     val adapter = AccountAdapter()
     val args by navArgs<SelectAccountFragmentArgs>()
     private val listModel: AccountsListModel by activityViewModels()
     val mbwManager = MbwManager.getInstance(WalletApplication.getInstance())
+    var binding: FragmentGiftboxSelectAccountBinding? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -54,6 +57,16 @@ class SelectAccountFragment : Fragment(R.layout.fragment_giftbox_select_account)
         }
     }
 
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View = FragmentGiftboxSelectAccountBinding.inflate(inflater, container, false)
+        .apply {
+            binding = this
+        }
+        .root
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         listModel.accountsData.observe(viewLifecycleOwner, Observer {
@@ -61,9 +74,9 @@ class SelectAccountFragment : Fragment(R.layout.fragment_giftbox_select_account)
         })
         val accountsGroupsList = listModel.accountsData.value!!
         generateAccountList(accountsGroupsList)
-        list.adapter = adapter
-        list.addItemDecoration(VerticalSpaceItemDecoration(resources.getDimensionPixelOffset(R.dimen.fio_list_item_space)))
-        accounts.setOnClickListener {
+        binding?.list?.adapter = adapter
+        binding?.list?.addItemDecoration(VerticalSpaceItemDecoration(resources.getDimensionPixelOffset(R.dimen.fio_list_item_space)))
+        binding?.accounts?.setOnClickListener {
             requireActivity().finishAffinity()
             startActivity(Intent(requireContext(), ModernMain::class.java)
                     .apply { action = MainActions.ACTION_ACCOUNTS })
@@ -110,8 +123,8 @@ class SelectAccountFragment : Fragment(R.layout.fragment_giftbox_select_account)
                 }
             }
         }
-        emptyList.visibility = if (accountsList.isEmpty()) VISIBLE else GONE
-        selectAccountLabel.visibility = if (accountsList.isEmpty()) GONE else VISIBLE
+        binding?.emptyList?.visibility = if (accountsList.isEmpty()) VISIBLE else GONE
+        binding?.selectAccountLabel?.visibility = if (accountsList.isEmpty()) GONE else VISIBLE
         adapter.submitList(accountsList)
     }
 

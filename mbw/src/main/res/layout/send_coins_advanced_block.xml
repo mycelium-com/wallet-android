@@ -61,6 +61,7 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <include
+            android:id="@+id/layoutAdvEth"
             layout="@layout/send_coins_advanced_eth"
             bind:activity="@{activity}"
             bind:viewModel="@{viewModel}" />

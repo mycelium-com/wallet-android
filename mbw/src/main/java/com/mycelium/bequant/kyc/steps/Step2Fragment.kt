@@ -7,10 +7,9 @@ import android.content.IntentFilter
 import android.os.Bundle
 import android.view.*
 import androidx.appcompat.app.AppCompatActivity
-import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
 import androidx.lifecycle.viewModelScope
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.navigation.fragment.findNavController
@@ -30,14 +29,12 @@ import com.mycelium.bequant.remote.model.KYCRequest
 import com.mycelium.bequant.remote.repositories.Api
 import com.mycelium.wallet.R
 import com.mycelium.wallet.databinding.FragmentBequantSteps2Binding
-import kotlinx.android.synthetic.main.fragment_bequant_steps_2.*
-import kotlinx.android.synthetic.main.part_bequant_step_header.*
-import kotlinx.android.synthetic.main.part_bequant_stepper_body.*
 
 class Step2Fragment : Fragment() {
-    lateinit var viewModel: Step2ViewModel
-    lateinit var headerViewModel: HeaderViewModel
+    val viewModel: Step2ViewModel by viewModels()
+    val headerViewModel: HeaderViewModel by viewModels()
     lateinit var kycRequest: KYCRequest
+    private var binding: FragmentBequantSteps2Binding? = null
 
     val args: Step2FragmentArgs by navArgs()
 
@@ -54,15 +51,14 @@ class Step2Fragment : Fragment() {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
         kycRequest = args.kycRequest
-        viewModel = ViewModelProviders.of(this).get(Step2ViewModel::class.java)
         viewModel.fromModel(kycRequest)
-        headerViewModel = ViewModelProviders.of(this).get(HeaderViewModel::class.java)
         LocalBroadcastManager.getInstance(requireContext()).registerReceiver(receiver, IntentFilter(BequantConstants.ACTION_COUNTRY_SELECTED))
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? =
-            DataBindingUtil.inflate<FragmentBequantSteps2Binding>(inflater, R.layout.fragment_bequant_steps_2, container, false)
+            FragmentBequantSteps2Binding.inflate(inflater, container, false)
                     .apply {
+                        binding = this
                         viewModel = this@Step2Fragment.viewModel
                         headerViewModel = this@Step2Fragment.headerViewModel
                         lifecycleOwner = this@Step2Fragment
@@ -74,10 +70,10 @@ class Step2Fragment : Fragment() {
             title = getString(R.string.identity_auth)
             setHomeAsUpIndicator(resources.getDrawable(R.drawable.ic_bequant_arrow_back))
         }
-        step.text = getString(R.string.step_n, 2)
-        stepProgress.progress = 2
+        binding?.stepHeader?.step?.text = getString(R.string.step_n, 2)
+        binding?.stepHeader?.stepProgress?.progress = 2
         val stepAdapter = StepAdapter()
-        stepper.adapter = stepAdapter
+        binding?.body?.stepper?.adapter = stepAdapter
         stepAdapter.submitList(listOf(
                 ItemStep(1, getString(R.string.personal_info), StepState.COMPLETE_EDITABLE), ItemStep(2, getString(R.string.residential_address), StepState.CURRENT), ItemStep(3, getString(R.string.phone_number), StepState.FUTURE), ItemStep(4, getString(R.string.doc_selfie), StepState.FUTURE)))
 
@@ -87,10 +83,10 @@ class Step2Fragment : Fragment() {
             }
         }
 
-        tvCountry.setOnClickListener {
+        binding?.tvCountry?.setOnClickListener {
             findNavController().navigate(Step2FragmentDirections.actionSelectCountry())
         }
-        btNext.setOnClickListener {
+        binding?.btNext?.setOnClickListener {
             viewModel.fillModel(kycRequest)
             BequantPreference.setKYCRequest(kycRequest)
             sendData()
@@ -117,13 +113,17 @@ class Step2Fragment : Fragment() {
                     true
                 }
                 R.id.stepper -> {
-                    item.icon = resources.getDrawable(if (stepperLayout.visibility == View.VISIBLE) R.drawable.ic_chevron_down else R.drawable.ic_chevron_up)
-                    stepperLayout.visibility = if (stepperLayout.visibility == View.VISIBLE) View.GONE else View.VISIBLE
+                    item.icon = resources.getDrawable(if (binding?.body?.stepperLayout?.visibility == View.VISIBLE) R.drawable.ic_chevron_down else R.drawable.ic_chevron_up)
+                    binding?.body?.stepperLayout?.visibility = if (binding?.body?.stepperLayout?.visibility == View.VISIBLE) View.GONE else View.VISIBLE
                     true
                 }
                 else -> super.onOptionsItemSelected(item)
             }
 
+    override fun onDestroyView() {
+        binding = null
+        super.onDestroyView()
+    }
     override fun onDestroy() {
         LocalBroadcastManager.getInstance(requireContext()).unregisterReceiver(receiver)
         super.onDestroy()

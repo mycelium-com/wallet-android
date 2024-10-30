@@ -2,7 +2,9 @@ package com.mycelium.bequant.receive
 
 import android.os.Bundle
 import android.os.Parcelable
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
@@ -14,22 +16,32 @@ import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.util.getBTCSingleAddressAccounts
 import com.mycelium.wallet.activity.util.getSpendableBalance
+import com.mycelium.wallet.databinding.FragmentBequantSelectAccountBinding
 import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.btc.bip44.getBTCBip44Accounts
 import com.mycelium.wapi.wallet.eth.getEthAccounts
 import kotlinx.android.parcel.Parcelize
-import kotlinx.android.synthetic.main.fragment_bequant_select_account.*
 
 
 class SelectAccountFragment : Fragment(R.layout.fragment_bequant_select_account) {
     val adapter = AccountAdapter()
 
     val args by navArgs<SelectAccountFragmentArgs>()
+    var binding: FragmentBequantSelectAccountBinding? = null
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View = FragmentBequantSelectAccountBinding.inflate(inflater, container, false)
+        .apply {
+            binding = this
+        }
+        .root
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         generateAccountList()
-        list.adapter = adapter
-
+        binding?.list?.adapter = adapter
     }
 
     private fun generateAccountList() {

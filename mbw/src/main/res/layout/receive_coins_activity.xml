@@ -40,7 +40,9 @@
                     android:layout_height="wrap_content"
                     android:layout_marginHorizontal="20dp"
                     android:layout_marginVertical="10dp">
-                <include layout="@layout/receive_coins_activity_qr" />
+                <include
+                    android:id="@+id/layoutReceiveQr"
+                    layout="@layout/receive_coins_activity_qr" />
                 <include layout="@layout/receive_coins_activity_nfc"
                         bind:viewModel="@{viewModel}"
                         bind:activity="@{activity}" />
@@ -75,6 +77,7 @@
             <!-- Fio Name -->
 
             <include
+                android:id="@+id/layoutReceiveFioName"
                 layout="@layout/receive_coins_activity_fio_name"
                 bind:viewModel="@{viewModel}"/>
         </LinearLayout>

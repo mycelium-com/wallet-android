@@ -38,6 +38,7 @@
 
             <!--Request info-->
             <include
+                android:id="@+id/layoutFioSendInfo"
                 layout="@layout/fio_send_request_info"
                 bind:fioRequestViewModel="@{fioRequestViewModel}" />
 
@@ -49,6 +50,7 @@
 
             <!--Fee selector-->
             <include
+                android:id="@+id/layoutFeeBlock"
                 layout="@layout/send_coins_fee_block"
                 app:viewModel="@{sendViewModel}" />
 
@@ -68,6 +70,7 @@
                 android:layout_weight="1"/>
             <!-- Buttons -->
             <include
+                android:id="@+id/layoutFioSendButtons"
                 layout="@layout/fio_send_request_buttons"
                 bind:activity="@{activity}" />
         </LinearLayout>

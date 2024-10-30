@@ -13,7 +13,7 @@ import com.bumptech.glide.request.RequestOptions
 import com.mycelium.bequant.common.equalsValuesBy
 import com.mycelium.giftbox.client.models.ProductInfo
 import com.mycelium.wallet.R
-import kotlinx.android.synthetic.main.item_giftbox_store.view.*
+import com.mycelium.wallet.databinding.ItemGiftboxStoreBinding
 import java.math.BigDecimal
 
 
@@ -35,16 +35,17 @@ class StoresAdapter : ListAdapter<ProductInfo, RecyclerView.ViewHolder>(DiffCall
             return
         if (getItemViewType(position) == TYPE_CARD) {
             val item = getItem(bindingAdapterPosition)
-            Glide.with(holder.itemView.image)
+            holder as CardViewHolder
+            Glide.with(holder.binding.image)
                     .load(item?.cardImageUrl)
                     .apply(RequestOptions()
                             .transforms(CenterCrop(), RoundedCorners(holder.itemView.resources.getDimensionPixelSize(R.dimen.giftbox_small_corner))))
-                    .into(holder.itemView.image)
+                    .into(holder.binding.image)
 
-            holder.itemView.title.text = item.name
-            holder.itemView.description.text = item.categories
+            holder.binding.title.text = item.name
+            holder.binding.description.text = item.categories
                     ?.joinToString { it.replace("-", " ").capitalize() }
-            holder.itemView.additional.text = if (item?.denominationType == ProductInfo.DenominationType.fixed && item.availableDenominations?.size ?: 100 < 6) {
+            holder.binding.additional.text = if (item?.denominationType == ProductInfo.DenominationType.fixed && item.availableDenominations?.size ?: 100 < 6) {
                 item.availableDenominations?.joinToString { "${it.toPlainString()} ${item.currencyCode}" }
             } else {
                 "from ${item.minimumValue.stripTrailingZeros().toPlainString()} ${item.currencyCode}" +
@@ -66,7 +67,10 @@ class StoresAdapter : ListAdapter<ProductInfo, RecyclerView.ViewHolder>(DiffCall
                 else -> TYPE_CARD
             }
 
-    class CardViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
+    class CardViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        val binding = ItemGiftboxStoreBinding.bind(itemView)
+    }
+
     class LoadingViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
 
     class DiffCallback : DiffUtil.ItemCallback<ProductInfo>() {

@@ -138,13 +138,19 @@
             app:layout_constraintTop_toTopOf="@id/hideZeroBalance"
             app:srcCompat="@drawable/ic_search" />
 
-        <include
-            android:id="@+id/searchBar"
-            layout="@layout/item_bequant_search"
+        <FrameLayout
+            android:id="@+id/searchBarLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:visibility="@{viewModel.searchMode ? View.VISIBLE : View.GONE}"
-            app:layout_constraintTop_toBottomOf="@id/hideZeroBalance" />
+            app:layout_constraintTop_toBottomOf="@id/hideZeroBalance">
+
+            <include
+                android:id="@+id/searchBar"
+                layout="@layout/item_bequant_search"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+        </FrameLayout>
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/list"
@@ -154,7 +160,7 @@
             android:orientation="vertical"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/searchBar"
+            app:layout_constraintTop_toBottomOf="@id/searchBarLayout"
             tools:listitem="@layout/item_bequant_account" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>

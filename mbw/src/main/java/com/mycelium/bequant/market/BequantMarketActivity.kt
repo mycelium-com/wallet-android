@@ -12,9 +12,9 @@ import androidx.navigation.fragment.findNavController
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.modern.ModernMain
+import com.mycelium.wallet.databinding.ActivityBequantMarketBinding
 import com.mycelium.wallet.event.AccountListChanged
 import com.squareup.otto.Bus
-import kotlinx.android.synthetic.main.activity_bequant_market.*
 
 
 class BequantMarketActivity : AppCompatActivity(R.layout.activity_bequant_market) {
@@ -35,21 +35,23 @@ class BequantMarketActivity : AppCompatActivity(R.layout.activity_bequant_market
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val inflater = (nav_host_fragment as NavHostFragment).navController.navInflater
+        val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
+        val inflater = navHostFragment.navController.navInflater
         val graph = inflater.inflate(R.navigation.bequant_main)
-        nav_host_fragment.findNavController().setGraph(graph, intent.extras)
+        navHostFragment.findNavController().setGraph(graph, intent.extras)
 
-        setSupportActionBar(toolbar)
+        val binding = ActivityBequantMarketBinding.inflate(layoutInflater)
+        setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayShowTitleEnabled(false)
         val logoMenuClick = { _: View ->
-            val isOpened = logoMenu.visibility == VISIBLE
-            logoMenu.visibility = if (isOpened) GONE else VISIBLE
-            logoArrow.setImageDrawable(logoArrow.resources.getDrawable(
+            val isOpened = binding.logoMenu.visibility == VISIBLE
+            binding.logoMenu.visibility = if (isOpened) GONE else VISIBLE
+            binding.logoArrow.setImageDrawable(binding.logoArrow.resources.getDrawable(
                     if (isOpened) R.drawable.ic_arrow_drop_down else R.drawable.ic_arrow_drop_down_active))
         }
-        logoButton.setOnClickListener(logoMenuClick)
-        logoMenu.setOnClickListener(logoMenuClick)
-        myceliumWallet.setOnClickListener {
+        binding.logoButton.setOnClickListener(logoMenuClick)
+        binding.logoMenu.setOnClickListener(logoMenuClick)
+        binding.myceliumWallet.setOnClickListener {
             finish()
             startActivity(Intent(this, ModernMain::class.java))
         }

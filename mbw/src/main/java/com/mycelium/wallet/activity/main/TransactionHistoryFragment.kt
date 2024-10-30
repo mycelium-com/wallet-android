@@ -1,6 +1,5 @@
 package com.mycelium.wallet.activity.main
 
-import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.AlertDialog
 import android.content.Context

@@ -6,7 +6,6 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
 import com.mycelium.wallet.MbwManager
-import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.txdetails.TransactionDetailsActivity
 import com.mycelium.wallet.activity.fio.requests.ApproveFioRequestActivity.Companion.ACCOUNT
 import com.mycelium.wallet.activity.fio.requests.ApproveFioRequestActivity.Companion.AMOUNT
@@ -18,16 +17,16 @@ import com.mycelium.wallet.activity.fio.requests.ApproveFioRequestActivity.Compa
 import com.mycelium.wallet.activity.fio.requests.ApproveFioRequestActivity.Companion.TO
 import com.mycelium.wallet.activity.fio.requests.ApproveFioRequestActivity.Companion.TXID
 import com.mycelium.wallet.activity.util.toStringWithUnit
+import com.mycelium.wallet.databinding.FioSendRequestStatusActivityBinding
 import com.mycelium.wapi.wallet.WalletManager
 import com.mycelium.wapi.wallet.coins.Value
-import kotlinx.android.synthetic.main.fio_send_request_info.tvAmount
-import kotlinx.android.synthetic.main.fio_send_request_status_activity.*
 import java.text.DateFormat
 import java.util.*
 
 
 class ApproveFioRequestSuccessActivity : AppCompatActivity() {
     private lateinit var walletManager: WalletManager
+    lateinit var binding: FioSendRequestStatusActivityBinding
 
     companion object {
         fun start(activity: Activity, amount: Value,
@@ -55,33 +54,35 @@ class ApproveFioRequestSuccessActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.fio_send_request_status_activity)
+        setContentView(FioSendRequestStatusActivityBinding.inflate(layoutInflater).apply {
+            binding = this
+        }.root)
 
         supportActionBar?.run {
             title = "Success!"
         }
         walletManager = MbwManager.getInstance(this.application).getWalletManager(false)
-        tvAmount.text = (intent.getSerializableExtra(AMOUNT) as Value).toStringWithUnit()
-        tvConvertedAmount.text = " ~ ${intent.getStringExtra(CONVERTED_AMOUNT)}"
-        tvMinerFee.text = (intent.getSerializableExtra(FEE) as Value).toStringWithUnit()
-        tvFrom.text = intent.getStringExtra(FROM)
+        binding.tvAmount.text = (intent.getSerializableExtra(AMOUNT) as Value).toStringWithUnit()
+        binding.tvConvertedAmount.text = " ~ ${intent.getStringExtra(CONVERTED_AMOUNT)}"
+        binding.tvMinerFee.text = (intent.getSerializableExtra(FEE) as Value).toStringWithUnit()
+        binding.tvFrom.text = intent.getStringExtra(FROM)
         val date = intent.getLongExtra(DATE, -1)
-        tvTo.text = intent.getStringExtra(TO)
-        tvMemo.text = intent.getStringExtra(MEMO)
+        binding.tvTo.text = intent.getStringExtra(TO)
+        binding.tvMemo.text = intent.getStringExtra(MEMO)
         val accountId = intent.getSerializableExtra(ACCOUNT) as UUID
         val account = walletManager.getAccount(accountId)
         val txid = intent.getByteArrayExtra(TXID)
-        btNextButton.setOnClickListener { finish() }
+        binding.btNextButton.setOnClickListener { finish() }
         try {
             if (txid?.isNotEmpty() != true) {
                 if (date != -1L) {
-                    tvDate.text = getDateString(date)
+                    binding.tvDate.text = getDateString(date)
                 }
-                tvTxDetailsLink.isVisible = false
+                binding.tvTxDetailsLink.isVisible = false
             } else {
                 val txTimestamp = account!!.getTxSummary(txid)?.timestamp
-                tvDate.text = getDateString(txTimestamp!!)
-                tvTxDetailsLink.setOnClickListener {
+                binding.tvDate.text = getDateString(txTimestamp!!)
+                binding.tvTxDetailsLink.setOnClickListener {
                     val intent: Intent = Intent(this, TransactionDetailsActivity::class.java)
                             .putExtra(TransactionDetailsActivity.EXTRA_TXID, txid)
                             .putExtra(TransactionDetailsActivity.ACCOUNT_ID, accountId)

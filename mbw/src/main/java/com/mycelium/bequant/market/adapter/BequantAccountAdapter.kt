@@ -9,12 +9,10 @@ import androidx.recyclerview.widget.RecyclerView
 import com.mycelium.bequant.BequantConstants.TYPE_ITEM
 import com.mycelium.bequant.BequantConstants.TYPE_SEARCH
 import com.mycelium.bequant.common.equalsValuesBy
-import com.mycelium.bequant.common.holder.ItemViewHolder
+import com.mycelium.bequant.common.holder.ItemAccountViewHolder
 import com.mycelium.bequant.common.holder.SearchHolder
 import com.mycelium.bequant.common.holder.SpaceHolder
 import com.mycelium.wallet.R
-import kotlinx.android.synthetic.main.item_bequant_account.view.*
-import kotlinx.android.synthetic.main.item_bequant_search.view.*
 
 class AccountItem(val type: Int, val symbol: String = "", val name: String = "", val value: String = "")
 
@@ -26,23 +24,23 @@ class BequantAccountAdapter : ListAdapter<AccountItem, RecyclerView.ViewHolder>(
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder =
             when (viewType) {
                 TYPE_SEARCH -> SearchHolder(LayoutInflater.from(parent.context).inflate(R.layout.item_bequant_search, parent, false))
-                TYPE_ITEM -> ItemViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.item_bequant_account, parent, false))
+                TYPE_ITEM -> ItemAccountViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.item_bequant_account, parent, false))
                 else -> SpaceHolder(LayoutInflater.from(parent.context).inflate(R.layout.item_bequant_space, parent, false))
             }
 
     override fun onBindViewHolder(viewHolder: RecyclerView.ViewHolder, position: Int) {
         val item = getItem(position)
         when (item.type) {
-            TYPE_SEARCH -> viewHolder.itemView.run {
+            TYPE_SEARCH -> (viewHolder as SearchHolder).binding.run {
                 search.doOnTextChanged { text, _, _, _ ->
                     searchChangeListener?.invoke(text?.toString() ?: "")
                 }
                 clear.setOnClickListener {
-                    viewHolder.itemView.search.text = null
+                    viewHolder.binding.search.text = null
                     searchClearListener?.invoke()
                 }
             }
-            TYPE_ITEM -> viewHolder.itemView.run {
+            TYPE_ITEM -> (viewHolder as ItemAccountViewHolder).binding.run {
                 symbol.text = item.symbol
                 name.text = item.name
                 value.text = item.value

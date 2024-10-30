@@ -2,50 +2,40 @@ package com.mycelium.wallet.activity.export
 
 import android.app.Activity
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
 import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import androidx.databinding.DataBindingUtil
 import com.mycelium.wallet.MbwManager
-import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
 import com.mycelium.wallet.databinding.ExportAsQrActivityBinding
+import com.mycelium.wallet.databinding.ExportAsQrActivityQrBinding
 import com.mycelium.wallet.databinding.ExportAsQrBtcHdActivityBinding
 import com.mycelium.wallet.databinding.ExportAsQrBtcSaActivityBinding
 import com.mycelium.wapi.wallet.ExportableAccount
 import com.mycelium.wapi.wallet.WalletAccount
-import com.mycelium.wapi.wallet.btc.bip44.HDAccount
-import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount
-import kotlinx.android.synthetic.main.export_as_qr_activity_qr.*
 import java.util.*
+import androidx.activity.viewModels
+import com.mycelium.wallet.activity.export.viewmodel.ExportAsQrFactory
 
 class ExportAsQrActivity : AppCompatActivity() {
-    private lateinit var viewModel: ExportAsQrViewModel
+    private val viewModel: ExportAsQrViewModel by viewModels { ExportAsQrFactory(account, accountData) }
+    private var bindingQR: ExportAsQrActivityQrBinding? = null
 
+    lateinit var account: WalletAccount<*>
+    lateinit var accountData: ExportableAccount.Data
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val accountData = intent.getSerializableExtra(ACCOUNT_DATA) as ExportableAccount.Data
+        accountData = intent.getSerializableExtra(ACCOUNT_DATA) as ExportableAccount.Data
         val accountUUID = intent.getSerializableExtra(ACCOUNT_UUID) as UUID
-        val account = MbwManager.getInstance(this)
+        account = MbwManager.getInstance(this)
                 .getWalletManager(false)
-                .getAccount(accountUUID)
+            .getAccount(accountUUID) ?: throw IllegalStateException()
 
         if (accountData.publicDataMap?.size == 0 && !accountData.privateData.isPresent) {
             finish()
             return
         }
-
-        val viewModelProvider = ViewModelProviders.of(this)
-        viewModel = viewModelProvider.get(when {
-            account is HDAccount && (accountData.publicDataMap?.size ?: 0 > 1) ->
-                ExportAsQrBtcHDViewModel::class.java
-            account is SingleAddressAccount && accountData.publicDataMap!!.size > 1
-                    && account.availableAddressTypes.size > 1 ->
-                ExportAsQrBtcSAViewModel::class.java
-            else -> ExportAsQrViewModel::class.java
-        })
 
         if (!viewModel.isInitialized()) {
             viewModel.init(accountData)
@@ -54,20 +44,24 @@ class ExportAsQrActivity : AppCompatActivity() {
         // Inflate view and obtain an instance of the binding class.
 
         val binding = when(viewModel) {
-            is ExportAsQrBtcHDViewModel -> DataBindingUtil.setContentView<ExportAsQrBtcHdActivityBinding>(this, R.layout.export_as_qr_btc_hd_activity).also {
+            is ExportAsQrBtcHDViewModel -> ExportAsQrBtcHdActivityBinding.inflate(layoutInflater).also {
+                bindingQR = it.layoutQR
                 it.viewModel = viewModel as ExportAsQrMultiKeysViewModel
                 it.activity = this
             }
-            is ExportAsQrBtcSAViewModel -> DataBindingUtil.setContentView<ExportAsQrBtcSaActivityBinding>(this, R.layout.export_as_qr_btc_sa_activity).also {
+            is ExportAsQrBtcSAViewModel -> ExportAsQrBtcSaActivityBinding.inflate(layoutInflater).also {
+                bindingQR = it.layoutQR
                 it.viewModel = viewModel as ExportAsQrMultiKeysViewModel
                 it.activity = this
             }
-            else -> DataBindingUtil.setContentView<ExportAsQrActivityBinding>(this, R.layout.export_as_qr_activity).also {
+            else -> ExportAsQrActivityBinding.inflate(layoutInflater).also {
+                bindingQR = it.layoutQR
                 it.viewModel = viewModel
                 it.activity = this
             }
         }
         binding.lifecycleOwner = this
+        setContentView(binding.root)
 
         // Prevent the OS from taking screenshots of this activity
         Utils.preventScreenshots(this)
@@ -77,7 +71,9 @@ class ExportAsQrActivity : AppCompatActivity() {
 
     // sets key as qr and as textView
     private fun subscribeQR() =
-            viewModel.getAccountDataString().observe(this, Observer { accountData -> ivQrCode.qrCode = accountData })
+        viewModel.getAccountDataString().observe(this, Observer { accountData ->
+            bindingQR?.ivQrCode?.qrCode = accountData
+        })
 
     override fun onPause() {
         // This way we finish the activity when home is pressed, so you are forced

@@ -2,6 +2,7 @@ import com.mycelium.wapi.wallet.coins.Balance;
 import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 import java.math.BigInteger;
 import java.util.UUID;
+import kotlin.Int;
 
 -- Creates table for generic account context storage
 

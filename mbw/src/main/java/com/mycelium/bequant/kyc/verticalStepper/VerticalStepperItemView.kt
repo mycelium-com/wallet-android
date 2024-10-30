@@ -10,7 +10,7 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.res.ResourcesCompat
 import com.mycelium.bequant.kyc.steps.adapter.StepState
 import com.mycelium.wallet.R
-import kotlinx.android.synthetic.main.vertical_stepper_view_item.view.*
+import com.mycelium.wallet.databinding.VerticalStepperViewItemBinding
 
 class VerticalStepperItemView : ConstraintLayout {
     var showConnectorLine = true
@@ -27,47 +27,46 @@ class VerticalStepperItemView : ConstraintLayout {
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int, defStyleRes: Int) : super(context, attrs, defStyleAttr)
 
-    init {
-        LayoutInflater.from(context).inflate(R.layout.vertical_stepper_view_item, this, true)
-    }
+    private val binding =
+        VerticalStepperViewItemBinding.inflate(LayoutInflater.from(context), this)
 
     fun update() {
-        vertical_stepper_view_item_title?.text = title
-        vertical_stepper_view_item_circle?.setNumber(number)
+        binding.verticalStepperViewItemTitle?.text = title
+        binding.verticalStepperViewItemCircle?.setNumber(number)
         when (state) {
             StepState.COMPLETE -> {
-                vertical_stepper_view_item_circle?.setIconCheck()
-                vertical_stepper_view_item_circle?.setComplete()
+                binding.verticalStepperViewItemCircle?.setIconCheck()
+                binding.verticalStepperViewItemCircle?.setComplete()
                 setTitleColor(R.color.white)
                 if (showConnectorLine) {
                     setLineColor(R.color.bequant_green)
                 }
             }
             StepState.COMPLETE_EDITABLE -> {
-                vertical_stepper_view_item_circle?.setIconEdit()
-                vertical_stepper_view_item_circle?.setActive()
+                binding.verticalStepperViewItemCircle?.setIconEdit()
+                binding.verticalStepperViewItemCircle?.setActive()
                 setTitleColor(R.color.white)
                 if (showConnectorLine) {
                     setLineColor(R.color.bequant_yellow)
                 }
             }
             StepState.CURRENT -> {
-                vertical_stepper_view_item_circle?.setActive()
+                binding.verticalStepperViewItemCircle?.setActive()
                 setTitleColor(R.color.white)
                 if (showConnectorLine) {
                     setLineColor(R.color.bequant_yellow)
                 }
             }
             StepState.FUTURE -> {
-                vertical_stepper_view_item_circle?.setInactive()
+                binding.verticalStepperViewItemCircle?.setInactive()
                 setTitleColor(R.color.bequant_gray_6)
                 if (showConnectorLine) {
                     setLineColor(R.color.bequant_gray_6)
                 }
             }
             StepState.ERROR -> {
-                vertical_stepper_view_item_circle?.setError()
-                vertical_stepper_view_item_circle?.setIconError()
+                binding.verticalStepperViewItemCircle?.setError()
+                binding.verticalStepperViewItemCircle?.setIconError()
                 setTitleColor(R.color.white)
                 if (showConnectorLine) {
                     setLineColor(R.color.bequant_red)
@@ -77,10 +76,10 @@ class VerticalStepperItemView : ConstraintLayout {
     }
 
     private fun setTitleColor(@ColorRes color: Int) {
-        vertical_stepper_view_item_title?.setTextColor(ResourcesCompat.getColor(resources, color, null))
+        binding.verticalStepperViewItemTitle?.setTextColor(ResourcesCompat.getColor(resources, color, null))
     }
 
     private fun setLineColor(@ColorRes color: Int) {
-        line?.setBackgroundColor(ResourcesCompat.getColor(resources, color, null))
+        binding.line?.setBackgroundColor(ResourcesCompat.getColor(resources, color, null))
     }
 }

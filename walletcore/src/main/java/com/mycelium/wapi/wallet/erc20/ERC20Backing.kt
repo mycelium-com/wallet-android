@@ -42,12 +42,12 @@ open class ERC20Backing(walletDB: WalletDB, private val generalBacking: Backing<
                     .executeAsOneOrNull()
 
     override fun createAccountContext(context: ERC20AccountContext) {
-        generalBacking.createAccountContext(context)
+        generalBacking.createAccountContext(context.accountContext())
         erc20Queries.insert(context.uuid, context.nonce, context.contractAddress, context.unitExponent, context.symbol, context.ethAccountId)
     }
 
     override fun updateAccountContext(context: ERC20AccountContext) {
-        generalBacking.updateAccountContext(context)
+        generalBacking.updateAccountContext(context.accountContext())
         erc20Queries.update(context.nonce, context.uuid)
     }
 

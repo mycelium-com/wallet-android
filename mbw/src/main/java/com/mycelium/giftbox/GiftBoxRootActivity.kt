@@ -10,7 +10,6 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
 import com.mycelium.wallet.R
-import kotlinx.android.synthetic.main.activity_gift_box_root.*
 
 class GiftBoxRootActivity : AppCompatActivity(R.layout.activity_gift_box_root) {
 
@@ -21,10 +20,11 @@ class GiftBoxRootActivity : AppCompatActivity(R.layout.activity_gift_box_root) {
     }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val navController = (nav_host_fragment as NavHostFragment).navController
-        val inflater = (nav_host_fragment as NavHostFragment).navController.navInflater
+        val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
+        val navController = navHostFragment.navController
+        val inflater = navHostFragment.navController.navInflater
         val graph = inflater.inflate(R.navigation.giftbox)
-        nav_host_fragment.findNavController().setGraph(graph, intent.extras)
+        navHostFragment.findNavController().setGraph(graph, intent.extras)
         setupActionBarWithNavController(navController,
                 AppBarConfiguration
                 .Builder(R.id.giftBoxBuyResultFragment)

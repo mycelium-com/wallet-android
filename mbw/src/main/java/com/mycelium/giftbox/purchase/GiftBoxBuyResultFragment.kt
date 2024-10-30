@@ -286,6 +286,8 @@ class GiftBoxBuyResultFragment : Fragment() {
                 binding?.orderScheme?.successIcon?.setBackgroundResource(R.drawable.circle_dash_gray)
                 binding?.finish?.text = getString(R.string.return_to_payment)
             }
+
+            else -> {}
         }
         if (BuildConfig.DEBUG) {
             binding?.orderScheme?.paidTitle?.setOnClickListener {

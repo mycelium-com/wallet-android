@@ -36,6 +36,7 @@
                 android:orientation="vertical">
 
                 <include
+                    android:id="@+id/layoutLabel"
                     layout="@layout/address_fragment_label"
                     bind:viewModel="@{viewModel}" />
 
@@ -53,7 +54,9 @@
             </LinearLayout>
         </FrameLayout>
 
-        <include layout="@layout/address_fragment_qr_btc"
+        <include
+            android:id="@+id/layoutQR"
+            layout="@layout/address_fragment_qr_btc"
             bind:viewModel="@{viewModel}"
             bind:activity="@{activity}" />
     </RelativeLayout>

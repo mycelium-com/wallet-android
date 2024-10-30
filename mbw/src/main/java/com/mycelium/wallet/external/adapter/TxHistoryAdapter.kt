@@ -11,8 +11,8 @@ import com.bumptech.glide.load.resource.bitmap.CircleCrop
 import com.bumptech.glide.request.RequestOptions
 import com.mycelium.bequant.common.equalsValuesBy
 import com.mycelium.wallet.R
+import com.mycelium.wallet.databinding.ItemChangelly2HistoryBinding
 import com.mycelium.wallet.external.changelly2.ExchangeFragment
-import kotlinx.android.synthetic.main.item_changelly2_history.view.*
 
 data class TxItem(val id: String,
                   val amountFrom: String,
@@ -32,22 +32,22 @@ class TxHistoryAdapter : ListAdapter<TxItem, RecyclerView.ViewHolder>(DiffCallba
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         val h = holder as ViewHolder
         val item = getItem(position)
-        h.status.text = item.status.capitalize()
-        h.date.text = item.date
-        h.amountFrom.text = "${item.amountFrom} ${item.currencyFrom.toUpperCase()}"
-        h.amountTo.text = "${item.amountTo} ${item.currencyTo.toUpperCase()}"
+        h.binding.status.text = item.status.capitalize()
+        h.binding.date.text = item.date
+        h.binding.amountFrom.text = "${item.amountFrom} ${item.currencyFrom.toUpperCase()}"
+        h.binding.amountTo.text = "${item.amountTo} ${item.currencyTo.toUpperCase()}"
 
-        Glide.with(h.iconFrom).clear(h.iconFrom)
-        Glide.with(h.iconFrom)
+        Glide.with(h.binding.iconFrom).clear(h.binding.iconFrom)
+        Glide.with(h.binding.iconFrom)
                 .load(ExchangeFragment.iconPath(item.currencyFrom))
                 .apply(RequestOptions().transforms(CircleCrop()))
-                .into(h.iconFrom)
+                .into(h.binding.iconFrom)
 
-        Glide.with(h.iconTo).clear(h.iconTo)
-        Glide.with(h.iconTo)
+        Glide.with(h.binding.iconTo).clear(h.binding.iconTo)
+        Glide.with(h.binding.iconTo)
                 .load(ExchangeFragment.iconPath(item.currencyTo))
                 .apply(RequestOptions().transforms(CircleCrop()))
-                .into(h.iconTo)
+                .into(h.binding.iconTo)
 
         h.itemView.setOnClickListener {
             clickListener?.invoke(getItem(holder.absoluteAdapterPosition))
@@ -55,12 +55,7 @@ class TxHistoryAdapter : ListAdapter<TxItem, RecyclerView.ViewHolder>(DiffCallba
     }
 
     class ViewHolder(val view: View) : RecyclerView.ViewHolder(view) {
-        val status = view.status
-        val date = view.date
-        val amountFrom = view.amountFrom
-        val amountTo = view.amountTo
-        val iconFrom = view.iconFrom
-        val iconTo = view.iconTo
+        val binding = ItemChangelly2HistoryBinding.bind(view)
     }
 
     class DiffCallback : DiffUtil.ItemCallback<TxItem>() {

@@ -5,10 +5,17 @@ import android.content.res.Resources
 import android.graphics.drawable.Drawable
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewmodel.CreationExtras
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
+import com.mycelium.wallet.WalletApplication
 import com.mycelium.wallet.activity.modern.Toaster
+import com.mycelium.wapi.wallet.WalletAccount
+import com.mycelium.wapi.wallet.btc.AbstractBtcAccount
+import com.mycelium.wapi.wallet.btcvault.AbstractBtcvAccount
 
 abstract class AddressFragmentViewModel(val context: Application) : AndroidViewModel(context) {
     protected val mbwManager = MbwManager.getInstance(context)
@@ -33,7 +40,7 @@ abstract class AddressFragmentViewModel(val context: Application) : AndroidViewM
     fun getRegisteredFIONames() = model.registeredFIONames
 
     fun getDrawableForAccount(resources: Resources): Drawable? =
-            Utils.getDrawableForAccount(model.account, true, resources)
+        Utils.getDrawableForAccount(model.account, true, resources)
 
     override fun onCleared() {
         model.onCleared()
@@ -46,9 +53,27 @@ abstract class AddressFragmentViewModel(val context: Application) : AndroidViewM
 
     fun getAddressString(): String? = getAccountAddress().value?.toString()
 
-    fun isLabelNullOrEmpty() = (getAccountLabel().value == null || getAccountLabel().value!!.toString() == "")
+    fun isLabelNullOrEmpty() =
+        (getAccountLabel().value == null || getAccountLabel().value!!.toString() == "")
 
     abstract fun qrClickReaction(activity: FragmentActivity)
 
     fun isInitialized() = ::model.isInitialized
+
+    companion object {
+        private val mbwManager = MbwManager.getInstance(WalletApplication.getInstance())
+        val Factory: ViewModelProvider.Factory = object : ViewModelProvider.Factory {
+            override fun <T : ViewModel> create(modelClass: Class<T>): T =
+                if (accountSupportsMultipleBtcReceiveAddresses(mbwManager.selectedAccount)) {
+                    AddressFragmentBtcModel(WalletApplication.getInstance()) as T
+                } else {
+                    AddressFragmentCoinsModel(WalletApplication.getInstance()) as T
+                }
+        }
+
+        fun accountSupportsMultipleBtcReceiveAddresses(account: WalletAccount<*>): Boolean =
+            (account is AbstractBtcAccount && account.availableAddressTypes.size > 1)
+                    || (account is AbstractBtcvAccount && account.availableAddressTypes.size > 1)
+
+    }
 }

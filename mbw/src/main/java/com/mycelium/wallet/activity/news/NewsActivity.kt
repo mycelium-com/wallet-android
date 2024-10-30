@@ -29,13 +29,13 @@ import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.modern.NewsFragment
 import com.mycelium.wallet.activity.modern.adapter.NewsAdapter
 import com.mycelium.wallet.activity.settings.SettingsPreference
+import com.mycelium.wallet.databinding.ActivityNewsBinding
 import com.mycelium.wallet.external.mediaflow.GetMediaFlowTopicTask
 import com.mycelium.wallet.external.mediaflow.MediaFlowSyncWorker
 import com.mycelium.wallet.external.mediaflow.NewsConstants
 import com.mycelium.wallet.external.mediaflow.NewsSyncUtils
 import com.mycelium.wallet.external.mediaflow.database.NewsDatabase
 import com.mycelium.wallet.external.mediaflow.model.News
-import kotlinx.android.synthetic.main.activity_news.*
 import kotlin.math.abs
 import kotlin.math.exp
 
@@ -43,6 +43,7 @@ import kotlin.math.exp
 class NewsActivity : AppCompatActivity() {
     lateinit var news: News
     private lateinit var preference: SharedPreferences
+    lateinit var binding: ActivityNewsBinding
 
     private val updateReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
@@ -59,18 +60,20 @@ class NewsActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_news)
-        collapsing_toolbar.setStatusBarScrimColor(Color.parseColor("#1a1a1a"))
-        setSupportActionBar(toolbar)
+        setContentView(ActivityNewsBinding.inflate(layoutInflater).apply {
+
+        }.root)
+        binding.collapsingToolbar.setStatusBarScrimColor(Color.parseColor("#1a1a1a"))
+        setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayShowTitleEnabled(false)
 
-        app_bar_layout.addOnOffsetChangedListener(AppBarLayout.OnOffsetChangedListener { appBarLayout, verticalOffset ->
+        binding.appBarLayout.addOnOffsetChangedListener(AppBarLayout.OnOffsetChangedListener { appBarLayout, verticalOffset ->
             val scrollDelta = abs(verticalOffset * 1f / appBarLayout.totalScrollRange)
-            tvCategory.alpha = 1 - scrollDelta
-            toolbar_shadow.visibility = if (scrollDelta == 1f) VISIBLE else GONE
-            collapsing_toolbar.title = if (scrollDelta == 1f) Html.fromHtml(news.title.rendered) else ""
-            llRoot.clipChildren = scrollDelta == 1f
-            llRoot.clipToPadding = scrollDelta == 1f
+            binding.tvCategory.alpha = 1 - scrollDelta
+            binding.toolbarShadow.visibility = if (scrollDelta == 1f) VISIBLE else GONE
+            binding.collapsingToolbar.title = if (scrollDelta == 1f) Html.fromHtml(news.title.rendered) else ""
+            binding.llRoot.clipChildren = scrollDelta == 1f
+            binding.llRoot.clipToPadding = scrollDelta == 1f
         })
         news = intent.getSerializableExtra(NewsConstants.NEWS) as News
         if (!news.isFull) {
@@ -79,19 +82,19 @@ class NewsActivity : AppCompatActivity() {
                             OneTimeWorkRequest.Builder(MediaFlowSyncWorker::class.java).build())
         }
         NewsDatabase.markRead(news)
-        content.setBackgroundColor(Color.TRANSPARENT)
+        binding.content.setBackgroundColor(Color.TRANSPARENT)
         preference = getSharedPreferences(NewsConstants.NEWS_PREF, Context.MODE_PRIVATE)!!
         updateUI()
-        content.webViewClient = object : WebViewClient() {
+        binding.content.webViewClient = object : WebViewClient() {
             override fun onPageFinished(view: WebView?, url: String?) {
                 super.onPageFinished(view, url)
-                content.postDelayed({
-                    val params = content.layoutParams
+                binding.content.postDelayed({
+                    val params = binding.content.layoutParams
                     val widthMeasureSpec = MeasureSpec.makeMeasureSpec(0, MeasureSpec.EXACTLY)
                     val heightMeasureSpec = MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED)
-                    content.measure(widthMeasureSpec, heightMeasureSpec)
-                    params.height = content.measuredHeight
-                    content.layoutParams = params
+                    binding.content.measure(widthMeasureSpec, heightMeasureSpec)
+                    params.height = binding.content.measuredHeight
+                    binding.content.layoutParams = params
                 }, 500)
             }
 
@@ -112,28 +115,28 @@ class NewsActivity : AppCompatActivity() {
                 return false
             }
         }
-        content.imageClicklistener = { url ->
+        binding.content.imageClicklistener = { url ->
             startActivity(Intent(this, NewsImageActivity::class.java)
                     .putExtra("url", url))
         }
-        ivImage.setOnClickListener {
+        binding.ivImage.setOnClickListener {
             startActivity(Intent(this, NewsImageActivity::class.java)
                     .putExtra("url", news.image))
         }
-        scrollView.setOnScrollChangeListener(NestedScrollView.OnScrollChangeListener { v, _, scrollY, _, oldScrollY ->
-            val layoutParams = scrollBar.layoutParams
-            val scrollHeight = scrollView.getChildAt(0).measuredHeight - scrollView.measuredHeight
-            layoutParams.width = scrollView.measuredWidth * scrollY / scrollHeight
-            scrollBar.layoutParams = layoutParams
-            if (bottomButtonBanner.visibility == VISIBLE) {
+        binding.scrollView.setOnScrollChangeListener(NestedScrollView.OnScrollChangeListener { v, _, scrollY, _, oldScrollY ->
+            val layoutParams = binding.scrollBar.layoutParams
+            val scrollHeight = binding.scrollView.getChildAt(0).measuredHeight - binding.scrollView.measuredHeight
+            layoutParams.width = binding.scrollView.measuredWidth * scrollY / scrollHeight
+            binding.scrollBar.layoutParams = layoutParams
+            if (binding.bottomButtonBanner.visibility == VISIBLE) {
                 // sigmoid function for smooth change translationY of banner button
-                val contentHeight = content.height + headLayout.height + tvTitle.height +
+                val contentHeight = binding.content.height + binding.headLayout.height + binding.tvTitle.height +
                         resources.getDimensionPixelOffset(R.dimen.media_head_margin_sum)
-                val sigmoid = 1.0f / (1.0f + exp((contentHeight - scrollView.measuredHeight - scrollY).toDouble() / 100))
-                bottomButtonBanner.translationY = (sigmoid * bottomButtonBanner.height).toFloat()
+                val sigmoid = 1.0f / (1.0f + exp((contentHeight - binding.scrollView.measuredHeight - scrollY).toDouble() / 100))
+                binding.bottomButtonBanner.translationY = (sigmoid * binding.bottomButtonBanner.height).toFloat()
             }
         })
-        shareBtn2.setOnClickListener {
+        binding.shareBtn2.setOnClickListener {
             share()
         }
         val fragment = supportFragmentManager.findFragmentById(R.id.otherNews) as NewsFragment
@@ -148,11 +151,11 @@ class NewsActivity : AppCompatActivity() {
                     banner.isActive() && news.tags?.firstOrNull { it.name?.equals(banner.tag, true) ?: false } != null
                             && SettingsPreference.isContentEnabled(banner.parentId)
                 }?.let { banner ->
-                    bottomButtonBanner.visibility = VISIBLE
-                    Glide.with(bottomButtonBanner)
+                    binding.bottomButtonBanner.visibility = VISIBLE
+                    Glide.with(binding.bottomButtonBanner)
                             .load(banner.imageUrl)
-                            .into(bottomButtonBanner)
-                    bottomButtonBanner.setOnClickListener {
+                            .into(binding.bottomButtonBanner)
+                    binding.bottomButtonBanner.setOnClickListener {
                         openLink(banner.link)
                     }
                 }
@@ -169,7 +172,7 @@ class NewsActivity : AppCompatActivity() {
                     .replace("width=\".*?\"", "width=\"100%\"")
                     .replace("width: .*?px", "width: 100%")
                     .replace("height=\".*?\"", "")
-            content.settings.defaultFontSize = 14
+            binding.content.settings.defaultFontSize = 14
 
             val html = getString(R.string.media_flow_html_template
                     , resources.toWebViewPx(12f).toString()
@@ -178,23 +181,23 @@ class NewsActivity : AppCompatActivity() {
                     , resources.toWebViewPx(2f).toString()
                     , resources.toWebViewPx(8f).toString()
                     , contentText)
-            content.loadDataWithBaseURL("https://blog.mycelium.com", html, "text/html", "UTF-8", null)
+            binding.content.loadDataWithBaseURL("https://blog.mycelium.com", html, "text/html", "UTF-8", null)
         }
-        news_loading.visibility = if (news.isFull) INVISIBLE else VISIBLE
+        binding.newsLoading.visibility = if (news.isFull) INVISIBLE else VISIBLE
 
-        tvTitle.text = Html.fromHtml(news.title.rendered)
+        binding.tvTitle.text = Html.fromHtml(news.title.rendered)
         news.date?.let {
-            tvDate.text = NewsUtils.getDateString(this, news)
+            binding.tvDate.text = NewsUtils.getDateString(this, news)
         }
-        tvAuthor.text = news.author?.name
+        binding.tvAuthor.text = news.author?.name
 
         val categoryText = news.categories?.firstOrNull()?.name ?: ""
-        tvCategory.text = categoryText
+        binding.tvCategory.text = categoryText
         news.image?.let {
-            Glide.with(ivImage)
+            Glide.with(binding.ivImage)
                     .load(news.getFitImage(resources.displayMetrics.widthPixels))
                     .apply(RequestOptions().centerCrop().error(R.drawable.mediaflow_default_picture))
-                    .into(ivImage)
+                    .into(binding.ivImage)
         }
     }
 

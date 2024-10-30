@@ -8,24 +8,25 @@ import com.google.android.material.tabs.TabLayoutMediator
 import com.mycelium.bequant.market.ExchangeFragment
 import com.mycelium.bequant.market.adapter.SelectCoinFragmentAdapter
 import com.mycelium.wallet.R
+import com.mycelium.wallet.databinding.ActivityBequantExchangeSelectCoinBinding
 import com.mycelium.wapi.wallet.coins.AssetInfo
-import kotlinx.android.synthetic.main.activity_bequant_exchange_select_coin.*
 
 
-class SelectCoinActivity : AppCompatActivity(R.layout.activity_bequant_exchange_select_coin) {
+class SelectCoinActivity : AppCompatActivity() {
     val youSendYouGetPair = MutableLiveData<Pair<AssetInfo, AssetInfo>>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        pager.adapter = SelectCoinFragmentAdapter(this)
-        pager.offscreenPageLimit = 2
-        TabLayoutMediator(tabs, pager) { tab, position ->
+        val binding = ActivityBequantExchangeSelectCoinBinding.inflate(layoutInflater)
+        binding.pager.adapter = SelectCoinFragmentAdapter(this)
+        binding.pager.offscreenPageLimit = 2
+        TabLayoutMediator(binding.tabs, binding.pager) { tab, position ->
             when (position) {
                 0 -> tab.text = getString(R.string.bequant_you_send)
                 1 -> tab.text = getString(R.string.bequant_you_get)
             }
         }.attach()
-        pager.setCurrentItem(intent.getIntExtra(ExchangeFragment.PARENT, 0), true)
+        binding.pager.setCurrentItem(intent.getIntExtra(ExchangeFragment.PARENT, 0), true)
         youSendYouGetPair.value = intent.getSerializableExtra(ExchangeFragment.YOU_SEND_YOU_GET_PAIR) as Pair<AssetInfo, AssetInfo>
         supportActionBar?.run {
             setDisplayHomeAsUpEnabled(true)

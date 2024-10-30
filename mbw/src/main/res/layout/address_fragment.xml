@@ -38,6 +38,7 @@
                 android:orientation="vertical">
 
                 <include
+                    android:id="@+id/layoutLabel"
                     layout="@layout/address_fragment_label"
                     bind:viewModel="@{viewModel}" />
 

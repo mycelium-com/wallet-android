@@ -1,5 +1,6 @@
 import com.mrd.bitlib.util.Sha256Hash;
 import java.util.UUID;
+import kotlin.Int;
 
 CREATE TABLE IF NOT EXISTS BTCVTransaction(
         id BLOB AS Sha256Hash,

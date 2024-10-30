@@ -43,12 +43,12 @@ class BitcoinVaultHDBacking(walletDB: WalletDB,
             }).executeAsOne()
 
     override fun createAccountContext(context: BitcoinVaultHDAccountContext) {
-        generalBacking.createAccountContext(context)
+        generalBacking.createAccountContext(context.accountContext())
         btcvQueries.insert(context.id, context.accountIndex)
     }
 
     override fun updateAccountContext(context: BitcoinVaultHDAccountContext) {
-        generalBacking.updateAccountContext(context)
+        generalBacking.updateAccountContext(context.accountContext())
         btcvQueries.update(context.indexesMap, context.getLastDiscovery(), context.accountType, context.accountSubId, context.defaultAddressType, context.uuid)
     }
 

@@ -7,10 +7,10 @@ import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
@@ -18,41 +18,37 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import com.mycelium.bequant.BequantConstants.ACTION_COUNTRY_SELECTED
 import com.mycelium.bequant.BequantConstants.COUNTRY_MODEL_KEY
 import com.mycelium.bequant.kyc.BequantKycViewModel
-import com.mycelium.wallet.R
 import com.mycelium.wallet.databinding.ActivityBequantKycCountryOfResidenceBinding
-import kotlinx.android.synthetic.main.activity_bequant_kyc_country_of_residence.*
 
 class CountrySelectorFragment : Fragment() {
 
-    lateinit var viewModel: CountrySelectorViewModel
-    private lateinit var activityViewModel: BequantKycViewModel
+    val viewModel: CountrySelectorViewModel by viewModels()
+    val activityViewModel: BequantKycViewModel by activityViewModels()
 
     val args by navArgs<CountrySelectorFragmentArgs>()
     private var showPhoneCode = true
+    private var binding: ActivityBequantKycCountryOfResidenceBinding? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
-        viewModel = ViewModelProviders.of(this).get(CountrySelectorViewModel::class.java)
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        activity?.run {
-            activityViewModel = ViewModelProviders.of(this).get(BequantKycViewModel::class.java)
-        } ?: throw Throwable("invalid activity")
         activityViewModel.updateActionBarTitle("Country of Residence")
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? =
-            DataBindingUtil.inflate<ActivityBequantKycCountryOfResidenceBinding>(inflater, R.layout.activity_bequant_kyc_country_of_residence, container, false)
+            ActivityBequantKycCountryOfResidenceBinding.inflate(inflater, container, false)
                     .apply {
+                        binding = this
                         viewModel = this@CountrySelectorFragment.viewModel
                         lifecycleOwner = this@CountrySelectorFragment
                     }.root
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        rvCountries.addItemDecoration(DividerItemDecoration(rvCountries.context, DividerItemDecoration.VERTICAL))
+        binding?.rvCountries?.addItemDecoration(DividerItemDecoration(binding?.rvCountries?.context, DividerItemDecoration.VERTICAL))
         val countryModels = CountriesSource.countryModels
         val adapter = CountriesAdapter(object : CountriesAdapter.ItemClickListener {
             override fun onItemClick(countryModel: CountryModel) {
@@ -76,7 +72,7 @@ class CountrySelectorFragment : Fragment() {
         }
         adapter.nationality = args.nationality
         adapter.showPhoneCode = args.showPhoneCode
-        rvCountries.adapter = adapter
+        binding?.rvCountries?.adapter = adapter
         viewModel.search.observe(viewLifecycleOwner, Observer { text ->
             if (text.isNullOrEmpty()) {
                 adapter.submitList(countryModels)
@@ -100,4 +96,9 @@ class CountrySelectorFragment : Fragment() {
                 }
                 else -> super.onOptionsItemSelected(item)
             }
+
+    override fun onDestroyView() {
+        binding = null
+        super.onDestroyView()
+    }
 }

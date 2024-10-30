@@ -14,10 +14,9 @@ import android.view.View
 import android.view.View.GONE
 import android.view.View.VISIBLE
 import android.view.ViewGroup
-import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
 import androidx.lifecycle.lifecycleScope
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.navigation.fragment.findNavController
@@ -34,13 +33,12 @@ import com.mycelium.bequant.remote.repositories.Api
 import com.mycelium.bequant.sign.SignFragmentDirections
 import com.mycelium.bequant.signup.viewmodel.SignUpViewModel
 import com.mycelium.wallet.R
-import com.mycelium.wallet.databinding.FragmentBequantSignUpBindingImpl
-import kotlinx.android.synthetic.main.fragment_bequant_sign_up.*
-import kotlinx.android.synthetic.main.layout_password_registration.*
+import com.mycelium.wallet.databinding.FragmentBequantSignUpBinding
 
 
 class SignUpFragment : Fragment() {
-    lateinit var viewModel: SignUpViewModel
+    val viewModel: SignUpViewModel by viewModels()
+    private var binding: FragmentBequantSignUpBinding? = null
 
     private val countrySelectedReceiver = object : BroadcastReceiver() {
         override fun onReceive(p0: Context?, intent: Intent?) {
@@ -51,44 +49,48 @@ class SignUpFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
-        viewModel = ViewModelProviders.of(this).get(SignUpViewModel::class.java)
         LocalBroadcastManager.getInstance(requireContext()).registerReceiver(
                 countrySelectedReceiver,
                 IntentFilter(ACTION_COUNTRY_SELECTED))
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? =
-            DataBindingUtil.inflate<FragmentBequantSignUpBindingImpl>(inflater, R.layout.fragment_bequant_sign_up, container, false)
+            FragmentBequantSignUpBinding.inflate(inflater, container, false)
                     .apply {
+                        binding = this
                         this.viewModel = this@SignUpFragment.viewModel
                         lifecycleOwner = this@SignUpFragment
                     }.root
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        viewModel.email.observe(this, Observer {
-            emailLayout.error = null
+        viewModel.email.observe(viewLifecycleOwner, Observer {
+            binding?.emailLayout?.error = null
         })
-        viewModel.password.observe(this, Observer { value ->
-            passwordLayout.error = null
-            viewModel.calculatePasswordLevel(value, passwordLevel, passwordLevelLabel)
+        viewModel.password.observe(viewLifecycleOwner, Observer { value ->
+            binding?.layoutRegistration?.passwordLayout?.error = null
+            viewModel.calculatePasswordLevel(value,
+                binding?.layoutRegistration?.passwordLevel!!,
+                binding?.layoutRegistration?.passwordLevelLabel!!)
         })
-        viewModel.repeatPassword.observe(this, Observer {
-            repeatPasswordLayout.error = null
+        viewModel.repeatPassword.observe(viewLifecycleOwner, Observer {
+            binding?.layoutRegistration?.repeatPasswordLayout?.error = null
         })
-        password.setOnFocusChangeListener { _, focus ->
-            passwordNote.setTextColor(if (focus) Color.WHITE else Color.parseColor("#49505C"))
+        binding?.layoutRegistration?.password?.setOnFocusChangeListener { _, focus ->
+            binding?.layoutRegistration?.passwordNote?.setTextColor(if (focus) Color.WHITE else Color.parseColor("#49505C"))
             if (focus) {
                 viewModel.calculatePasswordLevel(viewModel.password.value
-                        ?: "", passwordLevel, passwordLevelLabel)
+                        ?: "",
+                    binding?.layoutRegistration?.passwordLevel!!,
+                    binding?.layoutRegistration?.passwordLevelLabel!!)
             } else {
                 viewModel.passwordLevelVisibility.value = GONE
             }
         }
-        countrySelector.setOnClickListener {
+        binding?.countrySelector?.setOnClickListener {
             findNavController().navigate(SignFragmentDirections.actionSelectCountry())
         }
-        register.setOnClickListener {
+        binding?.register?.setOnClickListener {
             if (validate()) {
                 loader(true)
                 val registerAccountRequest = RegisterAccountRequest(viewModel.email.value!!, viewModel.password.value!!)
@@ -102,16 +104,16 @@ class SignUpFragment : Fragment() {
                 })
             }
         }
-        termsOfUse.setOnClickListener {
+        binding?.termsOfUse?.setOnClickListener {
             startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(LINK_TERMS_OF_USE)))
         }
-        supportCenter.setOnClickListener {
+        binding?.supportCenter?.setOnClickListener {
             startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(LINK_SUPPORT_CENTER)))
         }
-        iHaveRefCode.setOnClickListener {
-            referralLayout.visibility = if (referralLayout.visibility == VISIBLE) GONE else VISIBLE
-            val chevron = if (referralLayout.visibility == VISIBLE) R.drawable.ic_chevron_up else R.drawable.ic_chevron_down
-            iHaveRefCode.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0, chevron, 0)
+        binding?.iHaveRefCode?.setOnClickListener {
+            binding?.referralLayout?.visibility = if (binding?.referralLayout?.visibility == VISIBLE) GONE else VISIBLE
+            val chevron = if (binding?.referralLayout?.visibility == VISIBLE) R.drawable.ic_chevron_up else R.drawable.ic_chevron_down
+            binding?.iHaveRefCode?.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0, chevron, 0)
         }
     }
 
@@ -132,19 +134,19 @@ class SignUpFragment : Fragment() {
 
     private fun validate(): Boolean {
         if (viewModel.email.value?.isEmpty() != false) {
-            emailLayout.error = "Can't be empty"
+            binding?.emailLayout?.error = "Can't be empty"
             return false
         }
         if (!Patterns.EMAIL_ADDRESS.matcher(viewModel.email.value ?: "").matches()) {
-            emailLayout.error = "Not email"
+            binding?.emailLayout?.error = "Not email"
             return false
         }
         if (viewModel.password.value?.isEmpty() != false) {
-            passwordLayout?.error = "Can't be empty"
+            binding?.layoutRegistration?.passwordLayout?.error = "Can't be empty"
             return false
         }
         if (viewModel.password.value != viewModel.repeatPassword.value) {
-            repeatPasswordLayout?.error = "Passwords don't match"
+            binding?.layoutRegistration?.repeatPasswordLayout?.error = "Passwords don't match"
             return false
         }
         return true

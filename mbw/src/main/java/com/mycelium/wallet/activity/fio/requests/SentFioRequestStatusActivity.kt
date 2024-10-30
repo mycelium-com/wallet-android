@@ -15,6 +15,7 @@ import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
 import com.mycelium.wallet.activity.util.toStringWithUnit
+import com.mycelium.wallet.databinding.FioSentRequestStatusActivityBinding
 import com.mycelium.wapi.wallet.Util
 import com.mycelium.wapi.wallet.Util.convertToDate
 import com.mycelium.wapi.wallet.coins.COINS
@@ -22,17 +23,19 @@ import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.fio.FioRequestStatus
 import fiofoundation.io.fiosdk.models.fionetworkprovider.FIORequestContent
 import fiofoundation.io.fiosdk.models.fionetworkprovider.SentFIORequestContent
-import kotlinx.android.synthetic.main.fio_sent_request_status_activity.*
 import java.text.DateFormat
 import java.util.*
 
 class SentFioRequestStatusActivity : AppCompatActivity() {
     private var fioRequestContent: SentFIORequestContent? = null
     private lateinit var mbwManager: MbwManager
+    lateinit var binding: FioSentRequestStatusActivityBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.fio_sent_request_status_activity)
+        setContentView(FioSentRequestStatusActivityBinding.inflate(layoutInflater).apply {
+            binding = this
+        }.root)
         supportActionBar?.run {
             title = if (intent.getStringExtra(CONTENT) != null) {
                 setHomeAsUpIndicator(R.drawable.ic_back_arrow)
@@ -51,24 +54,24 @@ class SentFioRequestStatusActivity : AppCompatActivity() {
         setStatus()
         setAmount()
 
-        tvFrom.text = fioRequestContent?.payeeFioAddress ?: intent.getStringExtra(ApproveFioRequestActivity.FROM)
-        tvTo.text = fioRequestContent?.payerFioAddress ?: intent.getStringExtra(ApproveFioRequestActivity.TO)
+        binding.tvFrom.text = fioRequestContent?.payeeFioAddress ?: intent.getStringExtra(ApproveFioRequestActivity.FROM)
+        binding.tvTo.text = fioRequestContent?.payerFioAddress ?: intent.getStringExtra(ApproveFioRequestActivity.TO)
         val memo = if (fioRequestContent != null) {
             fioRequestContent!!.deserializedContent!!.memo ?: ""
         } else {
             intent.getStringExtra(ApproveFioRequestActivity.MEMO)
         }
-        tvMemo.text = memo
-        llMemo.visibility = if (memo.isNullOrEmpty()) View.GONE else View.VISIBLE
+        binding.tvMemo.text = memo
+        binding.llMemo.visibility = if (memo.isNullOrEmpty()) View.GONE else View.VISIBLE
 
-        tvDate.text = getDateString(if (fioRequestContent != null) {
+        binding.tvDate.text = getDateString(if (fioRequestContent != null) {
             convertToDate(fioRequestContent!!.timeStamp)
         } else {
             Date()
         })
-        btNextButton.setOnClickListener { finish() }
-        tvRequestDetailsLink.visibility = if (fioRequestContent != null) View.GONE else View.VISIBLE
-        tvRequestDetailsLink.setOnClickListener {
+        binding.btNextButton.setOnClickListener { finish() }
+        binding.tvRequestDetailsLink.visibility = if (fioRequestContent != null) View.GONE else View.VISIBLE
+        binding.tvRequestDetailsLink.setOnClickListener {
             val txHash = this.intent.getStringExtra(ApproveFioRequestActivity.TXID)
             val blockExplorer = mbwManager._blockExplorerManager.getBEMByCurrency(Utils.getFIOCoinType().name)!!.blockExplorer
             val url = blockExplorer.getUrl(txHash, mbwManager.torMode == ServerEndpointType.Types.ONLY_TOR)
@@ -82,11 +85,11 @@ class SentFioRequestStatusActivity : AppCompatActivity() {
 
     private fun setTitles() {
         if (intent.getStringExtra(CONTENT) != null) {
-            tvFromTitle.text = "From:"
-            tvToTitle.text = "To:"
+            binding.tvFromTitle.text = "From:"
+            binding.tvToTitle.text = "To:"
         } else {
-            tvFromTitle.text = "Request from:"
-            tvToTitle.text = "Request sent to:"
+            binding.tvFromTitle.text = "Request from:"
+            binding.tvToTitle.text = "Request sent to:"
         }
     }
 
@@ -99,21 +102,21 @@ class SentFioRequestStatusActivity : AppCompatActivity() {
             if (requestedCurrency != null) {
                 val amount = Value.valueOf(requestedCurrency, Util.strToBigInteger(requestedCurrency,
                         fioRequestContent!!.deserializedContent!!.amount))
-                tvAmount.text = amount.toStringWithUnit()
+                binding.tvAmount.text = amount.toStringWithUnit()
                 mbwManager.exchangeRateManager.get(amount, mbwManager.getFiatCurrency(requestedCurrency))
                         ?.toStringWithUnit()?.let {
-                            tvConvertedAmount.text = " ~ $it"
+                            binding.tvConvertedAmount.text = " ~ $it"
                         }
             } else {
-                tvAmount.text = "${fioRequestContent!!.deserializedContent!!.amount} ${fioRequestContent!!.deserializedContent!!.tokenCode}"
+                binding.tvAmount.text = "${fioRequestContent!!.deserializedContent!!.amount} ${fioRequestContent!!.deserializedContent!!.tokenCode}"
             }
         } else {
             val amount = (intent.getSerializableExtra(ApproveFioRequestActivity.AMOUNT) as Value)
-            tvAmount.text = amount.toStringWithUnit()
+            binding.tvAmount.text = amount.toStringWithUnit()
             val fiatCurrency = mbwManager.getFiatCurrency(amount.type)
             val value = mbwManager.exchangeRateManager.get(amount, fiatCurrency) ?: Value.zeroValue(fiatCurrency)
             val convertedAmount = value.toStringWithUnit()
-            tvConvertedAmount.text = " ~ $convertedAmount"
+            binding.tvConvertedAmount.text = " ~ $convertedAmount"
         }
     }
 
@@ -128,8 +131,8 @@ class SentFioRequestStatusActivity : AppCompatActivity() {
             FioRequestStatus.REJECTED -> R.color.fio_red
             else -> R.color.fio_yellow
         }
-        tvStatus.setTextColor(ContextCompat.getColor(this, color))
-        tvStatus.text = when (status) {
+        binding.tvStatus.setTextColor(ContextCompat.getColor(this, color))
+        binding.tvStatus.text = when (status) {
             FioRequestStatus.REJECTED -> "Rejected"
             FioRequestStatus.REQUESTED -> "Not Paid"
             FioRequestStatus.SENT_TO_BLOCKCHAIN -> "Paid"

@@ -28,8 +28,6 @@ import com.mycelium.wapi.wallet.fio.FioModule
 import com.mycelium.wapi.wallet.fio.coins.FIOToken
 import fiofoundation.io.fiosdk.errors.FIOError
 import fiofoundation.io.fiosdk.models.fionetworkprovider.FIOApiEndPoints
-import kotlinx.android.synthetic.main.fragment_fio_account_mapping.list
-import kotlinx.android.synthetic.main.fragment_fio_domain_details.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -42,9 +40,11 @@ class FIODomainDetailsFragment : Fragment() {
     private lateinit var fioModule: FioModule
 
     val args: FIODomainDetailsFragmentArgs by navArgs()
+    var binding: FragmentFioDomainDetailsBinding? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
         walletManager = MbwManager.getInstance(requireContext()).getWalletManager(false)
         fioModule = walletManager.getModuleById(FioModule.ID) as FioModule
         fioModule.getFioAccountByFioDomain(args.domain.domain)?.run {
@@ -58,14 +58,13 @@ class FIODomainDetailsFragment : Fragment() {
         super.onResume()
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        setHasOptionsMenu(true)
-        return DataBindingUtil.inflate<FragmentFioDomainDetailsBinding>(inflater, R.layout.fragment_fio_domain_details, container, false)
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View =
+        FragmentFioDomainDetailsBinding.inflate(inflater, container, false)
                 .apply {
+                    binding = this
                     viewModel = this@FIODomainDetailsFragment.viewModel
                     lifecycleOwner = this@FIODomainDetailsFragment
                 }.root
-    }
 
     private fun setFioDomain() {
         viewModel.fioDomain.value = fioModule.getFIODomainInfo(args.domain.domain)
@@ -77,18 +76,18 @@ class FIODomainDetailsFragment : Fragment() {
             title = getString(R.string.domain_details)
         }
         setFioDomain()
-        list.addItemDecoration(VerticalSpaceItemDecoration(resources.getDimensionPixelOffset(R.dimen.fio_list_item_space)))
-        list.adapter = adapter
-        list.itemAnimator = null
+        binding?.list?.addItemDecoration(VerticalSpaceItemDecoration(resources.getDimensionPixelOffset(R.dimen.fio_list_item_space)))
+        binding?.list?.adapter = adapter
+        binding?.list?.itemAnimator = null
         adapter.fioNameClickListener = {
             findNavController().navigate(FIODomainDetailsFragmentDirections.actionName(it))
         }
         updateList()
-        createFIOName.setOnClickListener {
+        binding?.createFIOName?.setOnClickListener {
             RegisterFioNameActivity.start(requireContext(),
                     viewModel.fioAccount.value!!.id, viewModel.fioDomain.value!!)
         }
-        renewFIODomain.setOnClickListener {
+        binding?.renewFIODomain?.setOnClickListener {
             val fioDomain = viewModel.fioDomain.value!!.domain
             RegisterFIODomainActivity.startRenew(requireContext(), viewModel.fioAccount.value!!.id, fioDomain)
         }
@@ -99,7 +98,7 @@ class FIODomainDetailsFragment : Fragment() {
             adapter.submitList((walletManager.getModuleById(FioModule.ID) as FioModule)
                     .getFIONames(args.domain.domain).map { FIONameItem(it) })
         }
-        tvFioNamesDesc.text = if (adapter.itemCount > 0) {
+        binding?.tvFioNamesDesc?.text = if (adapter.itemCount > 0) {
             if (viewModel.fioAccount.value!!.canSpend()) {
                 getString(R.string.fio_names_registered)
             } else {

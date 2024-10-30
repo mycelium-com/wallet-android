@@ -7,30 +7,36 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.DialogFragment
 import com.mycelium.wallet.R
-import kotlinx.android.synthetic.main.dialog_bequant_modal.view.*
+import com.mycelium.wallet.databinding.DialogBequantModalBinding
 
 class ModalDialog(val title: String,
                   val message: String,
                   val actionText: String,
                   val action: () -> Unit) : DialogFragment() {
+
+    var binding: DialogBequantModalBinding? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setStyle(STYLE_NO_FRAME, R.style.Theme_D1NoTitleDim)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? =
-            inflater.inflate(R.layout.dialog_bequant_modal, container, false).apply {
-                titleView.text = title
-                messageView.text = message
-                actionButton.text = actionText
-                closeButton.setOnClickListener { dismissAllowingStateLoss() }
-                actionButton.setOnClickListener {
-                    dismissAllowingStateLoss()
-                    action.invoke()
-                }
-                requireActivity().let {
-                    root.setBackgroundDrawable(BitmapDrawable(it.resources, BlurBuilder.blur(it)))
-                }
-            }
+        DialogBequantModalBinding.inflate(inflater, container, false).apply {
+            binding = this
+        }.root
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        binding?.titleView?.text = title
+        binding?.messageView?.text = message
+        binding?.actionButton?.text = actionText
+        binding?.closeButton?.setOnClickListener { dismissAllowingStateLoss() }
+        binding?.actionButton?.setOnClickListener {
+            dismissAllowingStateLoss()
+            action.invoke()
+        }
+        requireActivity().let {
+            binding?.root?.setBackgroundDrawable(BitmapDrawable(it.resources, BlurBuilder.blur(it)))
+        }
+    }
 }

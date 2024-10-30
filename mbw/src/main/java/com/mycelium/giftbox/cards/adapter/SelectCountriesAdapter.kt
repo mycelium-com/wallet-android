@@ -10,7 +10,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.mycelium.bequant.kyc.inputPhone.coutrySelector.CountryModel
 import com.mycelium.wallet.R
 import com.mycelium.wallet.WalletApplication
-import kotlinx.android.synthetic.main.listview_item_with_radiobutton.view.*
+import com.mycelium.wallet.databinding.ListviewItemWithRadiobuttonBinding
 
 val ALL_COUNTRIES = CountryModel(WalletApplication.getInstance().getString(R.string.all_countries), "", "", 0)
 val RUSSIA =  CountryModel(WalletApplication.getInstance().getString(R.string.russia), "", "RUS", 0, null, "Coming soon", false)
@@ -24,12 +24,13 @@ class SelectCountriesAdapter : ListAdapter<CountryModel, RecyclerView.ViewHolder
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         val item = getItem(position)
-        holder.itemView.tv_currency_name.text = item.name
-        holder.itemView.tv_currency_short.text = item.acronym3
-        holder.itemView.checkbox_currency.isChecked = selected == item
-        holder.itemView.description.isVisible = item.description != null
-        holder.itemView.description.text = item.description
-        holder.itemView.checkbox_currency.isEnabled = item.enabled
+        holder as ViewHolder
+        holder.binding.tvCurrencyName.text = item.name
+        holder.binding.tvCurrencyShort.text = item.acronym3
+        holder.binding.checkboxCurrency.isChecked = selected == item
+        holder.binding.description.isVisible = item.description != null
+        holder.binding.description.text = item.description
+        holder.binding.checkboxCurrency.isEnabled = item.enabled
         if (item.enabled) {
             holder.itemView.setOnClickListener {
                 toggleChecked(getItem(holder.adapterPosition))
@@ -45,7 +46,9 @@ class SelectCountriesAdapter : ListAdapter<CountryModel, RecyclerView.ViewHolder
         notifyDataSetChanged()
     }
 
-    class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
+    class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        val binding = ListviewItemWithRadiobuttonBinding.bind(itemView)
+    }
 
     class DiffCallback : DiffUtil.ItemCallback<CountryModel>() {
         override fun areItemsTheSame(oldItem: CountryModel, newItem: CountryModel): Boolean =

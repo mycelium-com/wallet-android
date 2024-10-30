@@ -26,6 +26,8 @@ import com.mycelium.wallet.activity.news.NewsUtils
 import com.mycelium.wallet.activity.news.adapter.NewsSearchAdapter
 import com.mycelium.wallet.activity.news.adapter.PaginationScrollListener
 import com.mycelium.wallet.activity.settings.SettingsPreference
+import com.mycelium.wallet.databinding.FragmentNewsBinding
+import com.mycelium.wallet.databinding.MediaFlowTabItemBinding
 import com.mycelium.wallet.event.PageSelectedEvent
 import com.mycelium.wallet.external.mediaflow.*
 import com.mycelium.wallet.external.mediaflow.model.Category
@@ -33,9 +35,6 @@ import com.mycelium.wallet.external.mediaflow.model.News
 import com.mycelium.wallet.external.partner.startContentLink
 import com.mycelium.wallet.randomOrNull
 import com.squareup.otto.Subscribe
-import kotlinx.android.synthetic.main.fragment_news.*
-import kotlinx.android.synthetic.main.layout_top_banner.*
-import kotlinx.android.synthetic.main.media_flow_tab_item.view.*
 
 
 class NewsFragment : Fragment() {
@@ -48,6 +47,7 @@ class NewsFragment : Fragment() {
     var currentNews: News? = null
     private var loading = false
     private var isLastPage = false
+    var binding: FragmentNewsBinding? = null
     var newsClick: (News) -> Unit = {
         startActivity(Intent(activity, NewsActivity::class.java)
                 .putExtra(NewsConstants.NEWS, it))
@@ -84,12 +84,16 @@ class NewsFragment : Fragment() {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? =
-            inflater.inflate(R.layout.fragment_news, container, false)
+            FragmentNewsBinding.inflate(inflater, container, false)
+                .apply {
+                    binding = this
+                }
+                .root
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        newsList.setHasFixedSize(false)
-        newsList.addOnScrollListener(object : PaginationScrollListener(newsList.layoutManager as LinearLayoutManager) {
+        binding?.newsList?.setHasFixedSize(false)
+        binding?.newsList?.addOnScrollListener(object : PaginationScrollListener(binding!!.newsList.layoutManager as LinearLayoutManager) {
             override fun loadMoreItems() {
                 if (!searchActive) {
                     loadItems(adapter.itemCount)
@@ -101,7 +105,7 @@ class NewsFragment : Fragment() {
             override fun isLoading() = loading
         })
         adapter.categoryClickListener = {
-            val tab = getTab(it, tabs)
+            val tab = getTab(it, binding?.tabs!!)
             tab?.select()
         }
         adapter.turnOffListener = {
@@ -111,7 +115,7 @@ class NewsFragment : Fragment() {
         adapter.bannerClickListener = {
             startContentLink(it?.link)
         }
-        tabs.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
+        binding?.tabs?.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
             override fun onTabReselected(p0: TabLayout.Tab?) {
             }
 
@@ -123,25 +127,25 @@ class NewsFragment : Fragment() {
                 loadItems()
             }
         })
-        search_close.setOnClickListener {
-            if (search_input.text.isEmpty()) {
+        binding?.searchClose?.setOnClickListener {
+            if (binding?.searchInput?.text?.isEmpty() == true) {
                 searchActive = false
                 activity?.invalidateOptionsMenu()
                 updateUI()
                 val inputMethodManager = activity?.getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
-                inputMethodManager.hideSoftInputFromWindow(search_input.applicationWindowToken, 0)
+                inputMethodManager.hideSoftInputFromWindow(binding?.searchInput?.applicationWindowToken, 0)
             } else {
-                search_input.text = null
+                binding?.searchInput?.text = null
             }
         }
-        search_input.doOnTextChanged { text, start, count, after ->
-            startUpdateSearch(search_input.text.toString())
+        binding?.searchInput?.doOnTextChanged { text, start, count, after ->
+            startUpdateSearch(binding?.searchInput?.text.toString())
         }
-        retry.setOnClickListener {
+        binding?.retry?.setOnClickListener {
             WorkManager.getInstance(requireContext())
                     .enqueue(OneTimeWorkRequest.Builder(MediaFlowSyncWorker::class.java).build())
-        }   
-        media_flow_loading.text = getString(R.string.loading_media_flow_feed_please_wait, "")
+        }
+        binding?.mediaFlowLoading?.text = getString(R.string.loading_media_flow_feed_please_wait, "")
         updateUI()
     }
 
@@ -150,21 +154,21 @@ class NewsFragment : Fragment() {
             SettingsPreference.getMediaFlowContent()?.bannersTop
                     ?.filter { it.isActive() && preference.getBoolean(it.parentId, true)
                             && SettingsPreference.isContentEnabled(it.parentId)
-                    }?.randomOrNull()?.let { banner ->
-                        top_banner.visibility = VISIBLE
-                        Glide.with(banner_image)
-                                .load(banner.imageUrl)
-                                .into(banner_image)
-                        top_banner.setOnClickListener {
-                            startContentLink(banner.link)
-                        }
-                        banner_close.setOnClickListener {
-                            top_banner.visibility = GONE
-                            preference.edit().putBoolean(banner.parentId, false).apply()
-                        }
+                }?.randomOrNull()?.let { banner ->
+                    binding?.layoutTopBanner?.topBanner?.visibility = VISIBLE
+                    Glide.with(binding?.layoutTopBanner?.bannerImage!!)
+                        .load(banner.imageUrl)
+                        .into(binding?.layoutTopBanner?.bannerImage!!)
+                    binding?.layoutTopBanner?.topBanner?.setOnClickListener {
+                        startContentLink(banner.link)
                     }
+                    binding?.layoutTopBanner?.bannerClose?.setOnClickListener {
+                        binding?.layoutTopBanner?.topBanner?.visibility = GONE
+                        preference.edit().putBoolean(banner.parentId, false).apply()
+                    }
+                }
         } else {
-            top_banner.visibility = GONE
+            binding?.layoutTopBanner?.topBanner?.visibility = GONE
             adapter.showBanner = false
         }
     }
@@ -218,7 +222,7 @@ class NewsFragment : Fragment() {
             activity?.invalidateOptionsMenu()
             updateUI()
             val inputMethodManager = requireActivity().getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
-            inputMethodManager.showSoftInput(search_input, 0)
+            inputMethodManager.showSoftInput(binding?.searchInput, 0)
             return true
         } else if (item.itemId == R.id.action_favorite) {
             preference.edit()
@@ -230,20 +234,25 @@ class NewsFragment : Fragment() {
         return super.onOptionsItemSelected(item)
     }
 
+    override fun onDestroyView() {
+        binding = null
+        super.onDestroyView()
+    }
+
     private fun updateUI() {
         if (searchActive) {
-            newsList.adapter = adapterSearch
-            tabs.visibility = GONE
-            discover.visibility = VISIBLE
-            search.visibility = VISIBLE
-            unable_to_load.visibility = GONE
-            media_flow_loading.visibility = GONE
+            binding?.newsList?.adapter = adapterSearch
+            binding?.tabs?.visibility = GONE
+            binding?.discover?.visibility = VISIBLE
+            binding?.search?.visibility = VISIBLE
+            binding?.unableToLoad?.visibility = GONE
+            binding?.mediaFlowLoading?.visibility = GONE
             startUpdateSearch()
         } else {
-            newsList.adapter = adapter
-            tabs.visibility = VISIBLE
-            discover.visibility = GONE
-            search.visibility = GONE
+            binding?.newsList?.adapter = adapter
+            binding?.tabs?.visibility = VISIBLE
+            binding?.discover?.visibility = GONE
+            binding?.search?.visibility = GONE
             loadItems()
         }
     }
@@ -265,38 +274,39 @@ class NewsFragment : Fragment() {
                 val list = mutableListOf(Category("All"))
                 list.addAll(it)
                 NewsUtils.sort(list).forEach { category ->
-                    if (getTab(category, tabs) == null) {
-                        val view = layoutInflater.inflate(R.layout.media_flow_tab_item, tabs, false)
-                        view.text.text = category.name
-                        val tab = tabs.newTab().setCustomView(view)
+                    if (getTab(category, binding?.tabs!!) == null) {
+                        val itemBinding =
+                            MediaFlowTabItemBinding.inflate(layoutInflater, binding?.tabs!!, false)
+                        itemBinding.text.text = category.name
+                        val tab = binding?.tabs!!.newTab().setCustomView(itemBinding.root)
                         tab.tag = category
-                        tabs.addTab(tab)
+                        binding?.tabs!!.addTab(tab)
                     }
                 }
-                cleanTabs(list, tabs)
-                unable_to_load.visibility = GONE
-                media_flow_loading.visibility = GONE
+                cleanTabs(list, binding?.tabs!!)
+                binding?.unableToLoad?.visibility = GONE
+                binding?.mediaFlowLoading?.visibility = GONE
             } else {
                 when (preference.getString(NewsConstants.MEDIA_FLOW_LOAD_STATE, NewsConstants.MEDIA_FLOW_LOADING)) {
                     NewsConstants.MEDIA_FLOW_FAIL -> {
                         adapter.state = NewsAdapter.State.FAIL
-                        unable_to_load.visibility = VISIBLE
-                        media_flow_loading.visibility = GONE
+                        binding?.unableToLoad?.visibility = VISIBLE
+                        binding?.mediaFlowLoading?.visibility = GONE
                     }
                     NewsConstants.MEDIA_FLOW_LOADING -> {
                         adapter.state = NewsAdapter.State.LOADING
-                        unable_to_load.visibility = GONE
-                        media_flow_loading.visibility = VISIBLE
-                        media_flow_loading.postOnAnimationDelayed(object : Runnable {
+                        binding?.unableToLoad?.visibility = GONE
+                        binding?.mediaFlowLoading?.visibility = VISIBLE
+                        binding?.mediaFlowLoading?.postOnAnimationDelayed(object : Runnable {
                             var tick = 0
                             override fun run() {
-                                media_flow_loading?.text = getString(R.string.loading_media_flow_feed_please_wait,
+                                binding?.mediaFlowLoading?.text = getString(R.string.loading_media_flow_feed_please_wait,
                                         when (tick++ % 3) {
                                             0 -> ".  "
                                             1 -> ".. "
                                             else -> "..."
                                         })
-                                media_flow_loading?.postOnAnimationDelayed(this, 1000)
+                                binding?.mediaFlowLoading?.postOnAnimationDelayed(this, 1000)
                             }
                         }, 1000)
                     }

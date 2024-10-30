@@ -8,11 +8,13 @@ import android.view.ViewGroup
 import android.view.Window.FEATURE_NO_TITLE
 import androidx.fragment.app.DialogFragment
 import com.mycelium.wallet.R
+import com.mycelium.wallet.databinding.DialogAboutFioProtocolBinding
 import com.mycelium.wallet.external.partner.openLink
-import kotlinx.android.synthetic.main.dialog_about_fio_protocol.*
 
 
 class AboutFIOProtocolDialog : DialogFragment() {
+
+    var binding: DialogAboutFioProtocolBinding? = null
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog =
             super.onCreateDialog(savedInstanceState).apply {
                 window?.requestFeature(FEATURE_NO_TITLE)
@@ -23,17 +25,24 @@ class AboutFIOProtocolDialog : DialogFragment() {
         setStyle(STYLE_NORMAL, R.style.CustomDialog);
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? =
-            inflater.inflate(R.layout.dialog_about_fio_protocol, container, false)
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View =
+        DialogAboutFioProtocolBinding.inflate(inflater, container, false).apply {
+            binding = this
+        }.root
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        fioProtocolText.setOnClickListener {
+        binding?.fioProtocolText?.setOnClickListener {
             openLink("https://kb.fioprotocol.io/fio-protocol/fio-overview")
         }
-        toolbar.setNavigationOnClickListener {
+        binding?.toolbar?.setNavigationOnClickListener {
             dismissAllowingStateLoss()
         }
+    }
+
+    override fun onDestroyView() {
+        binding = null
+        super.onDestroyView()
     }
 
     override fun onStart() {

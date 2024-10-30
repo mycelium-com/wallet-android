@@ -18,23 +18,24 @@ import com.mycelium.wallet.external.partner.startContentLink
 
 class AdsFragment : Fragment() {
 
-    private var binding: FragmentMarginTradeBinding? = null
+    var binding: FragmentMarginTradeBinding? = null
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View = FragmentMarginTradeBinding.inflate(inflater, container, false).apply {
-        binding = this
-    }.root
+    ): View = FragmentMarginTradeBinding.inflate(inflater, container, false)
+        .apply {
+            binding = this
+        }.root
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val pageData = arguments?.get("page") as MainMenuPage?
-        binding?.banner?.run {
-            Glide.with(this)
+        binding?.banner?.let { banner ->
+            Glide.with(banner)
                 .load(pageData?.imageUrl)
-                .into(this)
-            setOnClickListener {
+                .into(banner)
+            banner.setOnClickListener {
                 startContentLink(pageData?.link)
             }
         }
@@ -42,8 +43,8 @@ class AdsFragment : Fragment() {
             AlertDialog.Builder(requireContext())
                 .setMessage(getString(R.string.hide_this_ad))
                 .setPositiveButton(getString(R.string.yes)) { _, _ ->
-                    SettingsPreference.setEnabled(pageData?.parentId.orEmpty(), false)
-                    MbwManager.getEventBus().post(RemoveTab(arguments?.getString("tag").orEmpty()))
+                    SettingsPreference.setEnabled(pageData?.parentId ?: "", false)
+                    MbwManager.getEventBus().post(RemoveTab(arguments?.getString("tag") ?: ""))
                 }
                 .setNegativeButton(R.string.no) { _, _ -> }
                 .show()

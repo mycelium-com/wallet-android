@@ -11,9 +11,9 @@ import androidx.recyclerview.widget.RecyclerView
 import com.mycelium.bequant.common.model.CoinListItem
 import com.mycelium.bequant.exchange.SelectCoinFragment.Companion.SEND
 import com.mycelium.wallet.R
+import com.mycelium.wallet.databinding.ItemBequantCoinExpandedBinding
+import com.mycelium.wallet.databinding.ItemBequantSearchBinding
 import com.mycelium.wapi.wallet.coins.AssetInfo
-import kotlinx.android.synthetic.main.item_bequant_coin_expanded.view.*
-import kotlinx.android.synthetic.main.item_bequant_search.view.*
 
 
 class CoinAdapter(private val role: String, private val listener: ClickListener,
@@ -40,29 +40,31 @@ class CoinAdapter(private val role: String, private val listener: ClickListener,
         val item = getItem(position)
         when (item.type) {
             TYPE_SEARCH -> {
-                holder.itemView.search.doOnTextChanged { text, _, _, _ ->
+                holder as SearchHolder
+                holder.binding.search.doOnTextChanged { text, _, _, _ ->
                     searchChangeListener?.invoke(text?.toString() ?: "")
                 }
-                holder.itemView.clear.setOnClickListener {
-                    holder.itemView.search.text = null
+                holder.binding.clear.setOnClickListener {
+                    holder.binding.search.text = null
                     searchClearListener?.invoke()
                 }
             }
             TYPE_ITEM -> {
-                holder.itemView.coinId.text = item.coin?.symbol
-                holder.itemView.coinFullName.text = item.coin?.name
+                holder as ItemViewHolder
+                holder.binding.coinId.text = item.coin?.symbol
+                holder.binding.coinFullName.text = item.coin?.name
                 when (item.coin?.symbol) {
                     youSendYouGetPair.value!!.first.symbol -> {
-                        holder.itemView.grayArrow.visibility = View.VISIBLE
-                        holder.itemView.yellowArrow.visibility = View.GONE
+                        holder.binding.grayArrow.visibility = View.VISIBLE
+                        holder.binding.yellowArrow.visibility = View.GONE
                     }
                     youSendYouGetPair.value!!.second.symbol -> {
-                        holder.itemView.grayArrow.visibility = View.GONE
-                        holder.itemView.yellowArrow.visibility = View.VISIBLE
+                        holder.binding.grayArrow.visibility = View.GONE
+                        holder.binding.yellowArrow.visibility = View.VISIBLE
                     }
                     else -> {
-                        holder.itemView.grayArrow.visibility = View.GONE
-                        holder.itemView.yellowArrow.visibility = View.GONE
+                        holder.binding.grayArrow.visibility = View.GONE
+                        holder.binding.yellowArrow.visibility = View.GONE
                     }
                 }
                 holder.itemView.setOnClickListener {
@@ -96,9 +98,13 @@ class CoinAdapter(private val role: String, private val listener: ClickListener,
                 p0.coin?.symbol == p1.coin?.symbol
     }
 
-    class ItemViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
+    class ItemViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        val binding = ItemBequantCoinExpandedBinding.bind(itemView)
+    }
 
-    class SearchHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
+    class SearchHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        val binding = ItemBequantSearchBinding.bind(itemView)
+    }
 
     class SpaceHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
 

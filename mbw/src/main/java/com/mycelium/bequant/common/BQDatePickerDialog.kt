@@ -8,7 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.DialogFragment
 import com.mycelium.wallet.R
-import kotlinx.android.synthetic.main.dialog_bequant_date_picker.view.*
+import com.mycelium.wallet.databinding.DialogBequantDatePickerBinding
 import java.util.*
 
 
@@ -16,6 +16,7 @@ class BQDatePickerDialog(val listener: (Int, Int, Int) -> Unit) : DialogFragment
     private var year = 1990
     private var month = 1
     private var day = 1
+    var binding: DialogBequantDatePickerBinding? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -30,19 +31,29 @@ class BQDatePickerDialog(val listener: (Int, Int, Int) -> Unit) : DialogFragment
             }
 
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? =
-            inflater.inflate(R.layout.dialog_bequant_date_picker, container, false).apply {
-                closeButton.setOnClickListener { dismissAllowingStateLoss() }
-                cancelButton.setOnClickListener { dismissAllowingStateLoss() }
-                datePicker.init(year, month, day) { _, y, m, d ->
-                    year = y
-                    month = m
-                    day = d
-                }
-                datePicker.maxDate = Date(2003, 1, 1).time
-                okButton.setOnClickListener {
-                    dismissAllowingStateLoss()
-                    listener.invoke(year, month, day)
-                }
-            }
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View =
+        DialogBequantDatePickerBinding.inflate(inflater, container, false).apply {
+            binding = this
+        }.root
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        binding?.closeButton?.setOnClickListener { dismissAllowingStateLoss() }
+        binding?.cancelButton?.setOnClickListener { dismissAllowingStateLoss() }
+        binding?.datePicker?.init(year, month, day) { _, y, m, d ->
+            year = y
+            month = m
+            day = d
+        }
+        binding?.datePicker?.maxDate = Date(2003, 1, 1).time
+        binding?.okButton?.setOnClickListener {
+            dismissAllowingStateLoss()
+            listener.invoke(year, month, day)
+        }
+    }
+
+    override fun onDestroyView() {
+        binding = null
+        super.onDestroyView()
+    }
 }

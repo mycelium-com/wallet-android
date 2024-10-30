@@ -8,7 +8,6 @@ import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.TextView
 import androidx.activity.addCallback
-import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
@@ -19,13 +18,13 @@ import com.mycelium.wallet.Utils
 import com.mycelium.wallet.activity.fio.registername.viewmodel.RegisterFioNameViewModel
 import com.mycelium.wallet.activity.util.toStringWithUnit
 import com.mycelium.wallet.activity.view.loader
-import com.mycelium.wallet.databinding.FragmentRegisterFioNameStep2BindingImpl
+import com.mycelium.wallet.databinding.FragmentRegisterFioNameStep2Binding
 import com.mycelium.wapi.wallet.fio.*
-import kotlinx.android.synthetic.main.fragment_register_fio_name_step2.*
 
 
 class RegisterFioNameStep2Fragment : Fragment() {
     private val viewModel: RegisterFioNameViewModel by activityViewModels()
+    var binding: FragmentRegisterFioNameStep2Binding? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -37,8 +36,9 @@ class RegisterFioNameStep2Fragment : Fragment() {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? =
-            DataBindingUtil.inflate<FragmentRegisterFioNameStep2BindingImpl>(inflater, R.layout.fragment_register_fio_name_step2, container, false)
+            FragmentRegisterFioNameStep2Binding.inflate(inflater, container, false)
                     .apply {
+                        binding = this
                         viewModel = this@RegisterFioNameStep2Fragment.viewModel.apply {
                             val fioAccounts = getFioAccountsToRegisterTo(this.domain.value!!)
                             spinnerFioAccounts?.adapter = ArrayAdapter<String>(requireContext(),
@@ -90,8 +90,8 @@ class RegisterFioNameStep2Fragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        tvNotEnoughFundsError.visibility = View.GONE
-        btNextButton.setOnClickListener {
+        binding?.tvNotEnoughFundsError?.visibility = View.GONE
+        binding?.btNextButton?.setOnClickListener {
             loader(true)
             val fioModule = MbwManager.getInstance(context).getWalletManager(false).getModuleById(FioModule.ID) as FioModule
             viewModel.registerName(fioModule, { expiration ->
@@ -109,16 +109,16 @@ class RegisterFioNameStep2Fragment : Fragment() {
             })
         }
         viewModel.registrationFee.observe(viewLifecycleOwner, Observer {
-            tvFeeInfo.text = resources.getString(R.string.fio_annual_fee, it.toStringWithUnit())
+            binding?.tvFeeInfo?.text = resources.getString(R.string.fio_annual_fee, it.toStringWithUnit())
         })
         viewModel.accountToPayFeeFrom.observe(viewLifecycleOwner, Observer {
             val isNotEnoughFunds = it.accountBalance.spendable < viewModel.registrationFee.value!!
-            tvNotEnoughFundsError.visibility = if (isNotEnoughFunds) View.VISIBLE else View.GONE
-            btNextButton.isEnabled = !isNotEnoughFunds
-            (spinnerPayFromAccounts.getChildAt(0) as? TextView)?.setTextColor(
+            binding?.tvNotEnoughFundsError?.visibility = if (isNotEnoughFunds) View.VISIBLE else View.GONE
+            binding?.btNextButton?.isEnabled = !isNotEnoughFunds
+            (binding?.spinnerPayFromAccounts?.getChildAt(0) as? TextView)?.setTextColor(
                     if (isNotEnoughFunds) resources.getColor(R.color.fio_red) else resources.getColor(R.color.white))
         })
-        icEdit.setOnClickListener {
+        binding?.icEdit?.setOnClickListener {
             findNavController().navigate(R.id.actionNext)
         }
     }

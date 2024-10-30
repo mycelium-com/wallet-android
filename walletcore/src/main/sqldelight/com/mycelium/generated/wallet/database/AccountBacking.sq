@@ -1,6 +1,7 @@
 import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 import com.mycelium.wapi.wallet.coins.Value;
 import java.util.UUID;
+import kotlin.Int;
 
 -- Creates table for transactions
 

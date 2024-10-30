@@ -9,19 +9,24 @@ import android.widget.TextView
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.util.AddressLabel
 import com.mycelium.wallet.activity.util.EthFeeFormatter
+import com.mycelium.wallet.databinding.TransactionDetailsEthBinding
 import com.mycelium.wapi.wallet.EthTransactionSummary
 import com.mycelium.wapi.wallet.TransactionSummary
-import kotlinx.android.synthetic.main.transaction_details_eth.*
 import java.math.BigDecimal
 import java.math.RoundingMode
 
 class EthDetailsFragment : DetailsFragment() {
+    private var binding: TransactionDetailsEthBinding? = null
     private val tx: EthTransactionSummary by lazy {
         arguments!!.getSerializable("tx") as EthTransactionSummary
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? =
-            inflater.inflate(R.layout.transaction_details_eth, container, false)
+        TransactionDetailsEthBinding.inflate(inflater, container, false)
+            .apply {
+                binding = this
+            }
+            .root
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -29,35 +34,38 @@ class EthDetailsFragment : DetailsFragment() {
     }
 
     private fun updateUi() {
-        if (specific_table == null) {
-            return
+        binding?.run {
+            alignTables(specificTable)
+
+            val fromAddress = AddressLabel(requireContext())
+            fromAddress.address = tx.sender
+            llFrom.addView(fromAddress)
+
+            val toAddress = AddressLabel(requireContext())
+            toAddress.address = tx.receiver
+            llTo.addView(toAddress)
+
+            llValue.addView(getValue(tx.value, null))
+            if (tx.internalValue?.isZero() == false) {
+                llValue.addView(TextView(requireContext()).apply {
+                    layoutParams = TransactionDetailsActivity.WCWC
+                    setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f)
+                    text = getString(R.string.eth_internal_transfer, tx.internalValue)
+                })
+            }
+            llFee.addView(getValue(tx.fee!!, null))
+
+            tvGasLimit.text = tx.gasLimit.toString()
+            val percent = BigDecimal(tx.gasUsed.toDouble() / tx.gasLimit.toDouble() * 100).setScale(
+                2,
+                RoundingMode.UP
+            ).toDouble()
+            val percentString =
+                if (isWholeNumber(percent)) "%.0f".format(percent) else percent.toString()
+            tvGasUsed.text = "${tx.gasUsed} ($percentString%)"
+            tvGasPrice.text = EthFeeFormatter().getFeePerUnit(tx.gasPrice.toLong())
+            tvNonce.text = tx.nonce.toString()
         }
-        alignTables(specific_table)
-
-        val fromAddress = AddressLabel(requireContext())
-        fromAddress.address = tx.sender
-        llFrom.addView(fromAddress)
-
-        val toAddress = AddressLabel(requireContext())
-        toAddress.address = tx.receiver
-        llTo.addView(toAddress)
-
-        llValue.addView(getValue(tx.value, null))
-        if (tx.internalValue?.isZero() == false) {
-            llValue.addView(TextView(requireContext()).apply {
-                layoutParams = TransactionDetailsActivity.WCWC
-                setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f)
-                text = getString(R.string.eth_internal_transfer, tx.internalValue)
-            })
-        }
-        llFee.addView(getValue(tx.fee!!, null))
-
-        tvGasLimit.text = tx.gasLimit.toString()
-        val percent = BigDecimal(tx.gasUsed.toDouble() / tx.gasLimit.toDouble() * 100).setScale(2, RoundingMode.UP).toDouble()
-        val percentString = if (isWholeNumber(percent)) "%.0f".format(percent) else percent.toString()
-        tvGasUsed.text = "${tx.gasUsed} ($percentString%)"
-        tvGasPrice.text = EthFeeFormatter().getFeePerUnit(tx.gasPrice.toLong())
-        tvNonce.text = tx.nonce.toString()
     }
 
     companion object {

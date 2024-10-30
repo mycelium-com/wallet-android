@@ -15,8 +15,8 @@ import com.mycelium.bequant.common.equalsValuesBy
 import com.mycelium.giftbox.getDateString
 import com.mycelium.giftbox.model.Card
 import com.mycelium.wallet.R
-import kotlinx.android.synthetic.main.item_giftbox_purchaced.view.*
-import kotlinx.android.synthetic.main.item_giftbox_purchaced_group.view.*
+import com.mycelium.wallet.databinding.ItemGiftboxPurchacedBinding
+import com.mycelium.wallet.databinding.ItemGiftboxPurchacedGroupBinding
 
 abstract class CardListItem(val type: Int)
 data class CardItem(val card: Card, val redeemed: Boolean = false) : CardListItem(OrderAdapter.TYPE_CARD)
@@ -47,19 +47,20 @@ class CardAdapter : ListAdapter<CardListItem, RecyclerView.ViewHolder>(DiffCallb
             TYPE_CARD -> {
                 val purchasedItem = getItem(bindingAdapterPosition) as CardItem
                 val item = purchasedItem.card
-                holder.itemView.title.text = item.productName
-                holder.itemView.description.text = "${item.amount} ${item.currencyCode}"
-                holder.itemView.additional.text = item.timestamp?.getDateString(holder.itemView.resources)
-                holder.itemView.redeemLayer.visibility = if (purchasedItem.redeemed) View.VISIBLE else View.GONE
-                Glide.with(holder.itemView.image)
+                holder as CardViewHolder
+                holder.binding.title.text = item.productName
+                holder.binding.description.text = "${item.amount} ${item.currencyCode}"
+                holder.binding.additional.text = item.timestamp?.getDateString(holder.itemView.resources)
+                holder.binding.redeemLayer.visibility = if (purchasedItem.redeemed) View.VISIBLE else View.GONE
+                Glide.with(holder.binding.image)
                         .load(item.productImg)
                         .apply(RequestOptions()
                                 .transforms(CenterCrop(), RoundedCorners(holder.itemView.resources.getDimensionPixelSize(R.dimen.giftbox_small_corner)), ))
-                        .into(holder.itemView.image)
+                        .into(holder.binding.image)
                 holder.itemView.setOnClickListener {
                     itemClickListener?.invoke((getItem(bindingAdapterPosition) as CardItem).card)
                 }
-                holder.itemView.more.setOnClickListener { view ->
+                holder.binding.more.setOnClickListener { view ->
                     PopupMenu(view.context, view).apply {
                         menuInflater.inflate(R.menu.giftbox_purchased_list, menu)
                         menu.findItem(R.id.redeem).isVisible = !purchasedItem.redeemed
@@ -86,8 +87,9 @@ class CardAdapter : ListAdapter<CardListItem, RecyclerView.ViewHolder>(DiffCallb
             }
             TYPE_GROUP -> {
                 val item = getItem(bindingAdapterPosition) as GroupItem
-                holder.itemView.groupTitle.text = item.title
-                holder.itemView.expand.rotation = if (item.isOpened) 180f else 0f
+                holder as GroupViewHolder
+                holder.binding.groupTitle.text = item.title
+                holder.binding.expand.rotation = if (item.isOpened) 180f else 0f
                 holder.itemView.setOnClickListener {
                     groupListener?.invoke((getItem(bindingAdapterPosition) as GroupItem).title)
                 }
@@ -97,8 +99,12 @@ class CardAdapter : ListAdapter<CardListItem, RecyclerView.ViewHolder>(DiffCallb
 
     override fun getItemViewType(position: Int): Int = getItem(position).type
 
-    class CardViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
-    class GroupViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
+    class CardViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        val binding = ItemGiftboxPurchacedBinding.bind(itemView)
+    }
+    class GroupViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        val binding = ItemGiftboxPurchacedGroupBinding.bind(itemView)
+    }
 
     class DiffCallback : DiffUtil.ItemCallback<CardListItem>() {
         override fun areItemsTheSame(oldItem: CardListItem, newItem: CardListItem): Boolean =

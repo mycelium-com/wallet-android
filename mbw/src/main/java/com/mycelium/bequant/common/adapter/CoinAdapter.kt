@@ -16,8 +16,6 @@ import com.mycelium.bequant.common.model.CoinListItem
 import com.mycelium.bequant.exchange.CoinAdapter
 import com.mycelium.wallet.R
 import com.mycelium.wapi.wallet.coins.AssetInfo
-import kotlinx.android.synthetic.main.item_bequant_coin_expanded.view.*
-import kotlinx.android.synthetic.main.item_bequant_search.view.*
 
 
 class CoinAdapter : ListAdapter<CoinListItem, RecyclerView.ViewHolder>(DiffCallback()) {
@@ -42,13 +40,15 @@ class CoinAdapter : ListAdapter<CoinListItem, RecyclerView.ViewHolder>(DiffCallb
         val item = getItem(position)
         when (item.type) {
             TYPE_SEARCH -> {
-                holder.itemView.search.doOnTextChanged { text, start, count, after ->
+                holder as SearchHolder
+                holder.binding.search.doOnTextChanged { text, start, count, after ->
                     searchChangeListener?.invoke(text?.toString() ?: "")
                 }
             }
             TYPE_ITEM -> {
-                holder.itemView.coinId.text = item.coin?.symbol
-                holder.itemView.coinFullName.text = item.coin?.name
+                holder as ItemViewHolder
+                holder.binding.coinId.text = item.coin?.symbol
+                holder.binding.coinFullName.text = item.coin?.name
                 holder.itemView.setOnClickListener {
                     coinClickListener?.invoke(getItem(holder.adapterPosition).coin!!)
                 }

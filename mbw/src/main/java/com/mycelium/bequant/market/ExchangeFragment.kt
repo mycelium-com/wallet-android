@@ -20,10 +20,9 @@ import android.widget.RadioGroup
 import androidx.appcompat.app.AlertDialog
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.databinding.BindingAdapter
-import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
 import androidx.lifecycle.coroutineScope
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.navigation.fragment.findNavController
@@ -46,13 +45,11 @@ import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.util.toString
 import com.mycelium.wallet.activity.util.toStringWithUnit
+import com.mycelium.wallet.databinding.DialogBequantExchangeSummaryBinding
 import com.mycelium.wallet.databinding.FragmentBequantExchangeBinding
 import com.mycelium.wapi.wallet.coins.AssetInfo
 import com.mycelium.wapi.wallet.coins.Value
 import com.squareup.otto.Subscribe
-import kotlinx.android.synthetic.main.dialog_bequant_exchange_summary.*
-import kotlinx.android.synthetic.main.dialog_bequant_exchange_summary.view.*
-import kotlinx.android.synthetic.main.fragment_bequant_exchange.*
 import java.math.BigDecimal
 import java.math.BigInteger
 import java.math.RoundingMode
@@ -62,9 +59,10 @@ import kotlin.math.pow
 
 
 class ExchangeFragment : Fragment() {
-    private lateinit var viewModel: ExchangeViewModel
+    private val viewModel: ExchangeViewModel by viewModels()
     private var isDemo = false
     var getViewActive = false
+    var binding: FragmentBequantExchangeBinding? = null
 
     val receiver = object : BroadcastReceiver() {
         override fun onReceive(p0: Context?, intent: Intent?) {
@@ -78,7 +76,7 @@ class ExchangeFragment : Fragment() {
                 }
                 updateAvailable()
                 // check RadioButton with default "100%" value
-                send_percent.check(send_percent.findViewWithTag<RadioButton>(100).id)
+                binding?.sendPercent?.check(binding!!.sendPercent.findViewWithTag<RadioButton>(100).id)
             })
         }
     }
@@ -86,14 +84,14 @@ class ExchangeFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         BQExchangeRateManager.requestOptionalRefresh()
-        viewModel = ViewModelProviders.of(this).get(ExchangeViewModel::class.java)
         LocalBroadcastManager.getInstance(requireContext()).registerReceiver(receiver, IntentFilter(BequantConstants.ACTION_EXCHANGE))
         MbwManager.getEventBus().register(this)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? =
-            DataBindingUtil.inflate<FragmentBequantExchangeBinding>(inflater, R.layout.fragment_bequant_exchange, container, false)
+            FragmentBequantExchangeBinding.inflate(inflater,  container, false)
                     .apply {
+                        binding = this
                         viewModel = this@ExchangeFragment.viewModel
                         lifecycleOwner = this@ExchangeFragment
                     }.root
@@ -102,12 +100,12 @@ class ExchangeFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         isDemo = activity?.intent?.getBooleanExtra(BequantMarketActivity.IS_DEMO_KEY, false)!!
         createPercentageRadioButtons()
-        sendView.setOnFocusChangeListener { _, hasFocus ->
+        binding?.sendView?.setOnFocusChangeListener { _, hasFocus ->
             if (hasFocus) {
                 getViewActive = false
             }
         }
-        getView.setOnFocusChangeListener { _, hasFocus ->
+        binding?.getView?.setOnFocusChangeListener { _, hasFocus ->
             getViewActive = hasFocus
         }
         viewModel.youSend.observe(viewLifecycleOwner, Observer {
@@ -167,19 +165,19 @@ class ExchangeFragment : Fragment() {
         viewModel.available.observe(viewLifecycleOwner, Observer {
             updateYouSend(100)
         })
-        sendSymbolLayout.setOnClickListener {
+        binding?.sendSymbolLayout?.setOnClickListener {
             val youSendYouGetPair = Pair(viewModel.youSend.value!!.type, viewModel.youGet.value!!.type)
             startActivityForResult(Intent(requireContext(), SelectCoinActivity::class.java)
                     .putExtra(PARENT, YOU_SEND)
                     .putExtra(YOU_SEND_YOU_GET_PAIR, youSendYouGetPair), REQUEST_CODE_EXCHANGE_COINS)
         }
-        getSymbolLayout.setOnClickListener {
+        binding?.getSymbolLayout?.setOnClickListener {
             val youSendYouGetPair = Pair(viewModel.youSend.value!!.type, viewModel.youGet.value!!.type)
             startActivityForResult(Intent(requireContext(), SelectCoinActivity::class.java)
                     .putExtra(PARENT, YOU_GET)
                     .putExtra(YOU_SEND_YOU_GET_PAIR, youSendYouGetPair), REQUEST_CODE_EXCHANGE_COINS)
         }
-        exchange.setOnClickListener {
+        binding?.exchange?.setOnClickListener {
             if (isDemo) {
                 startActivity(Intent(requireActivity(), SignActivity::class.java))
             } else if (!BequantPreference.hasKeys()) {
@@ -195,13 +193,13 @@ class ExchangeFragment : Fragment() {
             }
         }
 
-        icExchange.setOnClickListener {
+        binding?.icExchange?.setOnClickListener {
             val tempValue = viewModel.youSend.value
             viewModel.youSend.value = viewModel.youGet.value
             viewModel.youGet.value = tempValue
             updateAvailable()
         }
-        deposit.setOnClickListener {
+        binding?.deposit?.setOnClickListener {
             if (isDemo) {
                 startActivity(Intent(requireActivity(), SignActivity::class.java))
             } else if (!BequantPreference.hasKeys()) {
@@ -212,7 +210,7 @@ class ExchangeFragment : Fragment() {
                 findNavController().navigate(ChoseCoinFragmentDirections.actionDeposit(viewModel.available.value!!.currencySymbol))
             }
         }
-        btContactSupport.setOnClickListener {
+        binding?.btContactSupport?.setOnClickListener {
             startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(BequantConstants.LINK_SUPPORT_CENTER)))
         }
     }
@@ -233,16 +231,16 @@ class ExchangeFragment : Fragment() {
         }.show(childFragmentManager, "modal_dialog")
     }
 
-    private fun hideKeyboard(view: View) {
+    private fun View.hideKeyboard() {
         (requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager)
-                .hideSoftInputFromWindow(view.windowToken, InputMethodManager.HIDE_NOT_ALWAYS)
+                .hideSoftInputFromWindow(windowToken, InputMethodManager.HIDE_NOT_ALWAYS)
     }
 
     override fun onPause() {
-        sendView.clearFocus()
-        hideKeyboard(sendView)
-        getView.clearFocus()
-        hideKeyboard(getView)
+        binding?.sendView?.clearFocus()
+        binding?.sendView?.hideKeyboard()
+        binding?.getView?.clearFocus()
+        binding?.getView?.hideKeyboard()
         super.onPause()
     }
 
@@ -263,9 +261,9 @@ class ExchangeFragment : Fragment() {
                 }
             }
             rb.layoutParams = params
-            send_percent.addView(rb)
+            binding?.sendPercent?.addView(rb)
         }
-        send_percent.apply {
+        binding?.sendPercent?.apply {
             (getChildAt(childCount - 1) as RadioButton).isChecked = true
         }
     }
@@ -284,6 +282,11 @@ class ExchangeFragment : Fragment() {
         val rateExists = viewModel.rate.value!!.isNotBlank();
         val moreThanZero = viewModel.youSend.value?.isPositive() ?: false
         viewModel.isExchangeEnabled.value = rateExists && isEnoughFundsIncludingFees() && moreThanZero;
+    }
+
+    override fun onDestroyView() {
+        binding = null
+        super.onDestroyView()
     }
 
     override fun onDestroy() {
@@ -318,7 +321,7 @@ class ExchangeFragment : Fragment() {
         val youSend = viewModel.youSend.value ?: return
         val youGet = viewModel.youGet.value ?: return
 
-        clOrderRejected.visibility = View.GONE
+        binding?.clOrderRejected?.visibility = View.GONE
 
         val currency = youSend.currencySymbol
         BQExchangeRateManager.findSymbol(youGet.currencySymbol,
@@ -349,7 +352,7 @@ class ExchangeFragment : Fragment() {
                         }, { _, error ->
                             ErrorHandler(requireContext()).handle(error)
                             requireActivity().runOnUiThread {
-                                clOrderRejected.visibility = View.VISIBLE
+                                binding?.clOrderRejected?.visibility = View.VISIBLE
                             }
                         }, {})
                     }
@@ -369,7 +372,7 @@ class ExchangeFragment : Fragment() {
                 }, { _, error ->
                     ErrorHandler(requireContext()).handle(error)
                     requireActivity().runOnUiThread {
-                        clOrderRejected.visibility = View.VISIBLE
+                        binding?.clOrderRejected?.visibility = View.VISIBLE
                     }
                 }, {
                     loader(false)
@@ -390,7 +393,7 @@ class ExchangeFragment : Fragment() {
         val destPrice = BQExchangeRateManager.get(singleCoin, youGet.type)
 
         val dialogBuilder = AlertDialog.Builder(requireContext(), R.style.Theme_D1NoTitleDim)
-        layoutInflater.inflate(R.layout.dialog_bequant_exchange_summary, null).apply {
+        val dialogBinding = DialogBequantExchangeSummaryBinding.inflate(layoutInflater).apply {
             amountSend.text = youSend.toStringWithUnit()
             oldAmountSend.text = available.toStringWithUnit()
             oldAmountSend.paintFlags = oldAmountSend.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
@@ -402,7 +405,7 @@ class ExchangeFragment : Fragment() {
             exchangeRate.text = destPrice?.let {
                 "${singleCoin.toStringWithUnit(Denomination.UNIT)} ~ ${it.toStringWithUnit(Denomination.UNIT)}"
             } ?: ""
-            dialogBuilder.setView(this)
+            dialogBuilder.setView(root)
             val youGetEstimated = getString(R.string.bequant_exchange_summary_you_get_estimated)
             val youGetEstimatedSpanned = SpannableString(youGetEstimated).apply {
                 setSpan(ForegroundColorSpan(resources.getColor(R.color.bequant_gray_6)),
@@ -415,7 +418,7 @@ class ExchangeFragment : Fragment() {
         val blurredBg = BitmapDrawable(resources, BlurBuilder.blur(requireActivity()))
         dialog.window!!.setBackgroundDrawable(blurredBg)
         dialog.show()
-        dialog.btDone.setOnClickListener { dialog.cancel() }
+        dialogBinding.btDone.setOnClickListener { dialog.cancel() }
     }
 
     private fun equals(value: Value?, text: String?) = ((value?.valueAsBigDecimal

@@ -7,7 +7,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.mycelium.wallet.R
-import kotlinx.android.synthetic.main.item_gift_box_tag.view.*
+import com.mycelium.wallet.databinding.ItemGiftBoxTagBinding
 
 
 class SearchTagAdapter : ListAdapter<String, RecyclerView.ViewHolder>(DiffCallback()) {
@@ -18,13 +18,16 @@ class SearchTagAdapter : ListAdapter<String, RecyclerView.ViewHolder>(DiffCallba
             ViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.item_gift_box_tag, parent, false))
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        holder.itemView.text.text = getItem(position)
+        holder as ViewHolder
+        holder.binding.text.text = getItem(position)
         holder.itemView.setOnClickListener {
             clickListener?.invoke(getItem(holder.adapterPosition))
         }
     }
 
-    class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
+    class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        val binding = ItemGiftBoxTagBinding.bind(itemView)
+    }
 
     class DiffCallback : DiffUtil.ItemCallback<String>() {
         override fun areItemsTheSame(oldItem: String, newItem: String): Boolean =

@@ -35,7 +35,7 @@ class EthFeeProvider(testnet: Boolean, private val feeBacking: FeeEstimationsBac
         estimation = withContext(Dispatchers.IO) {
             try {
                 val newEstimation = getGasPriceEstimates()
-                feeBacking.updateFeeEstimation(newEstimation)
+                feeBacking.updateFeeEstimation(newEstimation.feeEstimation())
                 return@withContext newEstimation
             } catch (e: Exception) {
                 return@withContext estimation

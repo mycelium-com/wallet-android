@@ -1,8 +1,8 @@
 package com.mycelium.giftbox.purchase.viewmodel
 
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.map
 import com.mycelium.bequant.kyc.inputPhone.coutrySelector.CountriesSource
 import com.mycelium.giftbox.client.models.OrderResponse
 import com.mycelium.giftbox.client.models.ProductInfo
@@ -21,7 +21,7 @@ class GiftboxBuyResultViewModel : ViewModel(), OrderHeaderViewModel {
     val minerFeeFiat = MutableLiveData("")
     val minerFeeCrypto = MutableLiveData("")
     val more = MutableLiveData(true)
-    val moreText = Transformations.map(more) {
+    val moreText = more.map {
         WalletApplication.getInstance().getString(
                 if (it) {
                     R.string.show_transaction_details

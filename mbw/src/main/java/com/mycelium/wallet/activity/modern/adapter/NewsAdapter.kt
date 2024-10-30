@@ -19,8 +19,6 @@ import com.mycelium.wallet.activity.settings.SettingsPreference
 import com.mycelium.wallet.external.mediaflow.model.Category
 import com.mycelium.wallet.external.mediaflow.model.News
 import com.mycelium.wallet.external.partner.model.MediaFlowBannerInList
-import kotlinx.android.synthetic.main.item_mediaflow_banner.view.*
-import kotlinx.android.synthetic.main.item_mediaflow_turn_off.view.*
 
 
 class NewsAdapter(val preferences: SharedPreferences)
@@ -136,11 +134,12 @@ class NewsAdapter(val preferences: SharedPreferences)
         val item = getItem(position)
         when (item.type) {
             TYPE_TURN_OFF -> {
-                holder.itemView.yesButton.setOnClickListener {
+                holder as NewsTurnOff
+                holder.binding.yesButton.setOnClickListener {
                     preferences.edit().putBoolean(PREF_KEEP_MF, true).apply()
                     updateData()
                 }
-                holder.itemView.noButton.setOnClickListener {
+                holder.binding.noButton.setOnClickListener {
                     AlertDialog.Builder(holder.itemView.context, R.style.MyceliumModern_Dialog_BlueButtons)
                             .setTitle(R.string.you_about_turn_off_mf)
                             .setMessage(R.string.you_about_turn_off_mf_text)
@@ -187,12 +186,13 @@ class NewsAdapter(val preferences: SharedPreferences)
                 }
             }
             TYPE_BIG_BANNER -> {
-                Glide.with(holder.itemView.image)
+                holder as CurrencycomBannerHolder
+                Glide.with(holder.binding.image)
                         .load(item.banner?.imageUrl)
                         .apply(RequestOptions()
                                 .placeholder(R.drawable.mediaflow_default_picture)
                                 .error(R.drawable.mediaflow_default_picture))
-                        .into(holder.itemView.image)
+                        .into(holder.binding.image)
                 holder.itemView.setOnClickListener {
                     bannerClickListener?.invoke(getItem(holder.adapterPosition).banner)
                 }

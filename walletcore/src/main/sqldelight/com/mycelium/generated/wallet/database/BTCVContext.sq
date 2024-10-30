@@ -1,12 +1,13 @@
+import com.mrd.bitlib.crypto.BipDerivationType;
+import com.mrd.bitlib.model.AddressType;
+import com.mycelium.wapi.wallet.AccountIndexesContext;
 import com.mycelium.wapi.wallet.coins.Balance;
 import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 import java.math.BigInteger;
 import java.util.UUID;
+import kotlin.Int;
 import kotlin.collections.List;
-import com.mrd.bitlib.model.AddressType;
 import kotlin.collections.Map;
-import com.mrd.bitlib.crypto.BipDerivationType;
-import com.mycelium.wapi.wallet.AccountIndexesContext;
 
 CREATE TABLE IF NOT EXISTS BTCVContext(
     uuid TEXT AS UUID PRIMARY KEY NOT NULL,

@@ -12,12 +12,15 @@ import androidx.fragment.app.Fragment
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.fio.registername.RegisterFioNameActivity
+import com.mycelium.wallet.databinding.FragmentRegisterFioDomainCompletedBinding
 import com.mycelium.wapi.wallet.Util.transformExpirationDate
 import com.mycelium.wapi.wallet.fio.FioModule
-import kotlinx.android.synthetic.main.fragment_register_fio_domain_completed.*
 import java.util.*
 
 class RegisterFioDomainCompletedFragment : Fragment() {
+
+    var binding: FragmentRegisterFioDomainCompletedBinding? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         // without this the navigation through back button would return to previous fragment (name registration and the payment)
@@ -40,8 +43,10 @@ class RegisterFioDomainCompletedFragment : Fragment() {
         requireArguments().getSerializable("expirationDate") as String
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? =
-            inflater.inflate(R.layout.fragment_register_fio_domain_completed, container, false)
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View =
+            FragmentRegisterFioDomainCompletedBinding.inflate(inflater, container, false).apply {
+                binding = this
+            }.root
 
     @SuppressLint("SetTextI18n")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -50,20 +55,25 @@ class RegisterFioDomainCompletedFragment : Fragment() {
             title = getString(R.string.fio_registration_complete)
             setDisplayHomeAsUpEnabled(false)
         }
-        btFinish.setOnClickListener {
+        binding?.btFinish?.setOnClickListener {
             requireActivity().finish()
         }
-        btRegisterFioName.setOnClickListener {
+        binding?.btRegisterFioName?.setOnClickListener {
             val walletManager = MbwManager.getInstance(requireContext()).getWalletManager(false)
             val fioModule = walletManager.getModuleById(FioModule.ID) as FioModule
             RegisterFioNameActivity.start(requireContext(), accountId, fioModule.getFIODomainInfo(domain))
             requireActivity().finish()
         }
-        tvFioDomain.text = "@$domain"
-        tvRegisterFioNameDesc.text = HtmlCompat.fromHtml(resources.getString(R.string.fio_create_name_desc, "@$domain"),
+        binding?.tvFioDomain?.text = "@$domain"
+        binding?.tvRegisterFioNameDesc?.text = HtmlCompat.fromHtml(resources.getString(R.string.fio_create_name_desc, "@$domain"),
                 HtmlCompat.FROM_HTML_MODE_COMPACT)
-        tvConnectedFioAccount.text = fioAccountLabel
-        tvExpirationDate.text = transformExpirationDate(expirationDate)
+        binding?.tvConnectedFioAccount?.text = fioAccountLabel
+        binding?.tvExpirationDate?.text = transformExpirationDate(expirationDate)
+    }
+
+    override fun onDestroyView() {
+        binding = null
+        super.onDestroyView()
     }
 
     companion object {

@@ -13,6 +13,7 @@ import androidx.fragment.app.Fragment
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.fio.mapaccount.AccountMappingActivity
+import com.mycelium.wallet.databinding.FragmentRegisterFioNameCompletedBinding
 import com.mycelium.wapi.wallet.Util.convertToDate
 import com.mycelium.wapi.wallet.Util.transformExpirationDate
 import com.mycelium.wapi.wallet.fio.FioBlockchainService
@@ -20,11 +21,13 @@ import com.mycelium.wapi.wallet.fio.FioEndpoints
 import com.mycelium.wapi.wallet.fio.FioModule
 import com.mycelium.wapi.wallet.fio.RegisteredFIOName
 import fiofoundation.io.fiosdk.errors.FIOError
-import kotlinx.android.synthetic.main.fragment_register_fio_name_completed.*
 import java.util.logging.Level
 import java.util.logging.Logger
 
 class RegisterFioNameCompletedFragment : Fragment() {
+
+    private var binding: FragmentRegisterFioNameCompletedBinding? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         // without this the navigation through back button would return to previous fragment (name registration and the payment)
@@ -44,8 +47,10 @@ class RegisterFioNameCompletedFragment : Fragment() {
         requireArguments().getSerializable("expirationDate") as String
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? =
-            inflater.inflate(R.layout.fragment_register_fio_name_completed, container, false)
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View =
+        FragmentRegisterFioNameCompletedBinding.inflate(inflater, container, false).apply {
+            binding = this
+        }.root
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -53,10 +58,10 @@ class RegisterFioNameCompletedFragment : Fragment() {
             title = getString(R.string.fio_registration_complete)
             setDisplayHomeAsUpEnabled(false)
         }
-        btFinish.setOnClickListener {
+        binding?.btFinish?.setOnClickListener {
             requireActivity().finish()
         }
-        btConnectAccounts.setOnClickListener {
+        binding?.btConnectAccounts?.setOnClickListener {
             val fioModule = MbwManager.getInstance(context).getWalletManager(false).getModuleById(FioModule.ID) as FioModule
             GetBundledTxsNumberTask(MbwManager.getInstance(requireContext()).fioEndpoints, fioName, fioModule) { bundledTxsNum ->
                 startActivity(Intent(context, AccountMappingActivity::class.java)
@@ -64,11 +69,11 @@ class RegisterFioNameCompletedFragment : Fragment() {
                 activity?.finish()
             }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
         }
-        tvFioName.text = fioName
-        tvConnectAccountsDesc.text = HtmlCompat.fromHtml(resources.getString(R.string.fio_connect_accounts_desc, fioName),
+        binding?.tvFioName?.text = fioName
+        binding?.tvConnectAccountsDesc?.text = HtmlCompat.fromHtml(resources.getString(R.string.fio_connect_accounts_desc, fioName),
                 HtmlCompat.FROM_HTML_MODE_COMPACT)
-        tvConnectedFioAccount.text = fioAccountLabel
-        tvExpirationDate.text = transformExpirationDate(expirationDate)
+        binding?.tvConnectedFioAccount?.text = fioAccountLabel
+        binding?.tvExpirationDate?.text = transformExpirationDate(expirationDate)
     }
 
     companion object {

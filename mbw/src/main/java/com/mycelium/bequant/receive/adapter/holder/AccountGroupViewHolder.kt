@@ -2,10 +2,11 @@ package com.mycelium.bequant.receive.adapter.holder
 
 import android.view.View
 import androidx.recyclerview.widget.RecyclerView
-import kotlinx.android.synthetic.main.item_bequant_select_account.view.*
+import com.mycelium.wallet.databinding.ItemBequantSelectAccountBinding
 
 
 class AccountGroupViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-    val label = itemView.label
-    val value = itemView.value
+    val binding = ItemBequantSelectAccountBinding.bind(itemView)
+    val label = binding.label
+    val value = binding.value
 }

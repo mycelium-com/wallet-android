@@ -1,5 +1,7 @@
 import com.mycelium.wapi.wallet.coins.AssetInfo;
 import com.mycelium.wapi.wallet.coins.Value;
+import kotlin.Int;
+import kotlin.Long;
 
 -- Creates table for generic account context storage
 

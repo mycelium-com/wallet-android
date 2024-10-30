@@ -47,7 +47,7 @@ open class FioBacking(walletDB: WalletDB, private val generalBacking: Backing<Ac
             .executeAsOneOrNull()
 
     override fun createAccountContext(context: FioAccountContext) {
-        generalBacking.createAccountContext(context)
+        generalBacking.createAccountContext(context.accountContext())
         fioQueries.insert(context.uuid, context.accountIndex, context.accountType, context.actionSequenceNumber, context.registeredFIONames,
                 context.registeredFIODomains)
     }
@@ -57,7 +57,7 @@ open class FioBacking(walletDB: WalletDB, private val generalBacking: Backing<Ac
     }
 
     override fun updateAccountContext(context: FioAccountContext) {
-        generalBacking.updateAccountContext(context)
+        generalBacking.updateAccountContext(context.accountContext())
         fioQueries.update(context.actionSequenceNumber, context.registeredFIONames, context.registeredFIODomains, context.uuid)
     }
 }

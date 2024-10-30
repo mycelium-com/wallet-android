@@ -28,7 +28,9 @@
             android:text="@string/from"
             android:textSize="16sp" />
 
-        <include layout="@layout/item_bequant_withdraw_pager_accounts" />
+        <include
+            android:id="@+id/withdraw"
+            layout="@layout/item_bequant_withdraw_pager_accounts" />
 
         <TextView
             android:id="@+id/oneCoinFiatRate"

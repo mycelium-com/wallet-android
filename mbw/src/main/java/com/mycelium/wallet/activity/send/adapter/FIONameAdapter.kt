@@ -7,7 +7,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.mycelium.wallet.R
-import kotlinx.android.synthetic.main.fio_address_item.view.*
+import com.mycelium.wallet.databinding.FioAddressItemBinding
 
 
 class FIONameAdapter : ListAdapter<String, RecyclerView.ViewHolder>(DiffCallback()) {
@@ -24,7 +24,7 @@ class FIONameAdapter : ListAdapter<String, RecyclerView.ViewHolder>(DiffCallback
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         when (holder) {
             is ViewHolder -> {
-                holder.itemView.text.text = getItem(position)
+                holder.binding.text.text = getItem(position)
                 holder.itemView.setOnClickListener {
                     clickListener?.invoke(getItem(holder.adapterPosition))
                 }
@@ -35,7 +35,9 @@ class FIONameAdapter : ListAdapter<String, RecyclerView.ViewHolder>(DiffCallback
     override fun getItemViewType(position: Int): Int =
             if (getItem(position) == HEADER_ITEM) HEADER else ITEM
 
-    class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
+    class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        val binding = FioAddressItemBinding.bind(itemView)
+    }
     class HeaderViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
 
     class DiffCallback : DiffUtil.ItemCallback<String>() {

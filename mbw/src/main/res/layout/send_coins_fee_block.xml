@@ -20,7 +20,9 @@
             layout="@layout/send_coins_fee_heap"
             bind:viewModel="@{viewModel}" />
 
-        <include layout="@layout/send_coins_fee_selector" />
+        <include
+            android:id="@+id/layoutFeeSelector"
+            layout="@layout/send_coins_fee_selector" />
 
         <include layout="@layout/send_coins_fee_description" />
     </LinearLayout>

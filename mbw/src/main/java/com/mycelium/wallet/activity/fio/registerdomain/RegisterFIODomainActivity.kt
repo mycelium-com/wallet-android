@@ -8,7 +8,6 @@ import android.util.Log
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
@@ -20,9 +19,11 @@ import com.mycelium.wapi.wallet.fio.FioModule
 import com.mycelium.wapi.wallet.fio.coins.isFioDomain
 import fiofoundation.io.fiosdk.models.fionetworkprovider.FIOApiEndPoints
 import java.util.*
+import androidx.activity.viewModels
+
 
 class RegisterFIODomainActivity : AppCompatActivity(R.layout.activity_register_fio_domain) {
-    private lateinit var viewModel: RegisterFioDomainViewModel
+    private val viewModel: RegisterFioDomainViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -32,8 +33,6 @@ class RegisterFIODomainActivity : AppCompatActivity(R.layout.activity_register_f
             setDisplayShowTitleEnabled(true)
             title = "Register FIO Domain"
         }
-
-        viewModel = ViewModelProviders.of(this).get(RegisterFioDomainViewModel::class.java)
 
         // set default fee at first, it will be updated in async task
         viewModel.registrationFee.value = Value.valueOf(Utils.getFIOCoinType(), DEFAULT_FEE)

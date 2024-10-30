@@ -103,6 +103,8 @@ class InstantWalletActivity : AppCompatActivity() {
                         val share = intent.getShare()
                         BipSsImportActivity.callMe(this, share, StringHandlerActivity.IMPORT_SSS_CONTENT_CODE)
                     }
+
+                    else -> {}
                 }
             }
         } else if (requestCode == StringHandlerActivity.SEND_INITIALIZATION_CODE) {

@@ -36,12 +36,12 @@ open class EthBacking(walletDB: WalletDB, private val generalBacking: Backing<Ac
             .executeAsOneOrNull()
 
     override fun createAccountContext(context: EthAccountContext) {
-        generalBacking.createAccountContext(context)
+        generalBacking.createAccountContext(context.accountContext())
         ethQueries.insert(context.uuid, context.nonce, context.enabledTokens, context.accountIndex)
     }
 
     override fun updateAccountContext(context: EthAccountContext) {
-        generalBacking.updateAccountContext(context)
+        generalBacking.updateAccountContext(context.accountContext())
         ethQueries.update(context.nonce, context.enabledTokens, context.uuid)
     }
 

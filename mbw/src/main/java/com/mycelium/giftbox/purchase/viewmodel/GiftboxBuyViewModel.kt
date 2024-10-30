@@ -74,7 +74,7 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel(), OrderHead
     override val quantity = MutableLiveData(0)
 
     val sendTransactionAction = MutableLiveData<Unit>()
-    val sendTransaction = Transformations.switchMap(sendTransactionAction) {
+    val sendTransaction = sendTransactionAction.switchMap {
         callbackFlow {
             try {
                 val address = when (account) {
@@ -96,10 +96,10 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel(), OrderHead
                         FeePerKbFee(feeEstimation.normal), null
                 )
                 account.signTx(createTx, AesKeyCipher.defaultKeyCipher())
-                offer(createTx!! to account.broadcastTx(createTx))
+                trySend(createTx!! to account.broadcastTx(createTx))
                 close()
             } catch (ex: Exception) {
-                offer(null to BroadcastResult(ex.localizedMessage, BroadcastResultType.REJECTED))
+                trySend(null to BroadcastResult(ex.localizedMessage, BroadcastResultType.REJECTED))
                 cancel(CancellationException("Tx", ex))
             }
         }.asLiveData(Dispatchers.IO)
@@ -107,7 +107,7 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel(), OrderHead
 
     val hasDenominations = productInfo.availableDenominations.isNullOrEmpty().not()
     val quantityString: MutableLiveData<String> = MutableLiveData("1")
-    val quantityInt = Transformations.map(quantityString) {
+    val quantityInt = quantityString.map {
         if (it.isDigitsOnly() && !it.isNullOrBlank()) it.toInt() else 1
     }
 
@@ -120,17 +120,17 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel(), OrderHead
     }
 
     val totalAmountFiatSingle = MutableLiveData<Value>(zeroFiatValue)
-    val totalAmountFiatSingleString = Transformations.map(totalAmountFiatSingle) {
+    val totalAmountFiatSingleString = totalAmountFiatSingle.map {
         it.toStringFriendlyWithUnit()
     }
 
     val totalAmountCrypto: LiveData<Value> = totalAmountCrypto()
-    val totalAmountCryptoSingleString = Transformations.map(totalAmountCrypto) {
+    val totalAmountCryptoSingleString = totalAmountCrypto.map {
         it.div(quantityInt.value?.toBigInteger() ?: BigInteger.ONE).toStringFriendlyWithUnit()
     }
     val txValid =  MutableLiveData<AmountValidation?>()
 
-    private fun totalAmountCrypto(forSingleItem: Boolean = false) = Transformations.switchMap(
+    private fun totalAmountCrypto(forSingleItem: Boolean = false) =
             zip2(
                     totalAmountFiatSingle,
                     quantityInt
@@ -139,12 +139,12 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel(), OrderHead
                         amount,
                         quantity
                 )
-            }) {
+            }.switchMap {
         callbackFlow {
             txValid.value = null
             val (amount, quantity) = it
             if (quantity == 0 || amount.isZero()) {
-                offer(zeroCryptoValue!!)
+                trySend(zeroCryptoValue!!)
             } else {
                 if (!forSingleItem) {
                     totalAmountFiat.value = amount.times(quantity.toLong())
@@ -181,13 +181,13 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel(), OrderHead
 //                                        txValid.postValue(checkValidTransaction.state)
                                         if (checkValidTransaction.state == AmountValidation.Ok) {
                                             tempTransaction.postValue(transaction)
-                                            offer(cryptoAmount)
+                                            trySend(cryptoAmount)
                                         } else {
                                             warningQuantityMessage.postValue(checkValidTransaction.message)
                                         }
                                     }
                                 } else {
-                                    offer(cryptoAmount)
+                                    trySend(cryptoAmount)
                                 }
                             },
                             error = { _, error ->
@@ -203,12 +203,12 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel(), OrderHead
         }.onStart { emit(zeroCryptoValue) }.asLiveData()
     }
 
-    val errorAmountMessage: LiveData<String> = Transformations.map(totalAmountCrypto) {
+    val errorAmountMessage: LiveData<String> = totalAmountCrypto.map {
         val enough = it.lessOrEqualThan(getMaxSpendable())
         return@map if (enough) "" else WalletApplication.getInstance()
                 .getString(R.string.insufficient_funds)
     }
-    val errorErrorMessage: LiveData<String> = Transformations.map(txValid) {
+    val errorErrorMessage: LiveData<String> = txValid.map {
         when(it) {
             AmountValidation.Invalid -> "Invalid"
             AmountValidation.ValueTooSmall -> "Value to small"
@@ -218,11 +218,11 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel(), OrderHead
     }
 
     val totalAmountFiat = MutableLiveData(zeroFiatValue)
-    val totalAmountFiatString = Transformations.map(totalAmountFiat) {
+    val totalAmountFiatString = totalAmountFiat.map {
         return@map it?.toStringFriendlyWithUnit()
     }
 
-    val totalAmountCryptoString = Transformations.map(totalAmountCrypto) {
+    val totalAmountCryptoString = totalAmountCrypto.map {
         return@map "~" + it.toStringFriendlyWithUnit()
     }
 
@@ -239,16 +239,16 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel(), OrderHead
     fun getAssetInfo() = Utils.getTypeByName(productInfo.currencyCode)!!
 
 
-    val minerFeeCrypto = Transformations.map(tempTransaction) {
+    val minerFeeCrypto = tempTransaction.map {
         it.totalFee()
     }
-    val minerFeeCryptoString = Transformations.map(minerFeeCrypto) {
+    val minerFeeCryptoString = minerFeeCrypto.map {
         "~" + it.toStringFriendlyWithUnit()
     }
-    val minerFeeFiat = Transformations.map(minerFeeCrypto) {
+    val minerFeeFiat = minerFeeCrypto.map {
         mbwManager.exchangeRateManager.get(it, Utils.getTypeByName(productInfo.currencyCode)) ?: zeroFiatValue
     }
-    val minerFeeFiatString = Transformations.map(minerFeeFiat) {
+    val minerFeeFiatString = minerFeeFiat.map {
         if (it.lessThan(Value(it.type, 1.toBigInteger()))) {
             "<0.01 " + it.type.symbol
         } else it.toStringFriendlyWithUnit()
@@ -265,42 +265,41 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel(), OrderHead
 
 
     val isGrantedPlus =
-            Transformations.map(
+
                     zip3(
                             totalAmountCrypto,
                             warningQuantityMessage,
                             totalProgress
                     ) { total: Value, quantityError: String, progress: Boolean ->
                         Triple(total, quantityError, progress)
-                    }
-            ) {
+                    }.map {
                 val (total, quantityError, progress) = it
                 total.plus(total.div(quantityInt.value?.toBigInteger() ?: BigInteger.ONE))
                         .lessOrEqualThan(getAccountBalance()) && quantityError.isEmpty() && !progress
             }
 
-    val isGrantedMinus = Transformations.map(quantityInt.debounce(300)) {
+    val isGrantedMinus = quantityInt.debounce(300).map {
         return@map it > 1
     }
 
-    val isGranted = Transformations.map(
+    val isGranted =
             zip3(
                     totalAmountCrypto,
                     totalProgress,
                     quantityInt
-            ) { total: Value, progress: Boolean, quantity: Int -> Triple(total, progress, quantity) }) {
+            ) { total: Value, progress: Boolean, quantity: Int -> Triple(total, progress, quantity) }.map {
         val (total, progress, quantity) = it
         return@map total.lessOrEqualThan(getAccountBalance()) && total.moreThanZero() && quantity <= MAX_QUANTITY && !progress
     }
 
-    val plusBackground = Transformations.map(isGrantedPlus) {
+    val plusBackground = isGrantedPlus.map {
         ContextCompat.getDrawable(
                 WalletApplication.getInstance(),
                 if (!it) R.drawable.ic_plus_disabled else R.drawable.ic_plus
         )
     }
 
-    val minusBackground = Transformations.map(isGrantedMinus) {
+    val minusBackground = isGrantedMinus.map {
         ContextCompat.getDrawable(
                 WalletApplication.getInstance(),
                 if (!it) R.drawable.ic_minus_disabled else R.drawable.ic_minus
@@ -320,29 +319,29 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel(), OrderHead
     }
 
     //colors
-    val totalAmountSingleCryptoColor = Transformations.map(totalAmountCrypto) {
+    val totalAmountSingleCryptoColor = totalAmountCrypto.map {
         getColorByCryptoValue(it)
     }
 
-    val totalAmountCryptoColor = Transformations.map(totalAmountCrypto) {
+    val totalAmountCryptoColor = totalAmountCrypto.map {
         getColorByCryptoValue(it)
     }
 
-    val minerFeeCryptoColor = Transformations.map(minerFeeCrypto) {
+    val minerFeeCryptoColor = minerFeeCrypto.map {
         MutableLiveData(
                 getColorByCryptoValue(it)
         )
     }
 
-    val totalAmountFiatColor = Transformations.map(totalAmountFiat) {
+    val totalAmountFiatColor = totalAmountFiat.map {
         getColorByFiatValue(it)
     }
 
-    val totalAmountFiatSingleColor = Transformations.map(totalAmountFiatSingle) {
+    val totalAmountFiatSingleColor = totalAmountFiatSingle.map {
         getColorByFiatValue(it)
     }
 
-    val minerFeeFiatColor = Transformations.map(minerFeeFiat) {
+    val minerFeeFiatColor = minerFeeFiat.map {
         ContextCompat.getColor(
                 WalletApplication.getInstance(),
                 if (it.moreOrEqualThanZero()) R.color.white else R.color.darkgrey

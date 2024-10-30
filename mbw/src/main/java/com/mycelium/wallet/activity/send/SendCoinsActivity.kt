@@ -22,11 +22,9 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.children
 import androidx.core.widget.doOnTextChanged
 import androidx.databinding.BindingAdapter
-import androidx.databinding.DataBindingUtil
 import androidx.databinding.InverseBindingAdapter
 import androidx.databinding.InverseBindingListener
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
 import com.google.common.base.Strings
 import com.mrd.bitlib.crypto.HdKeyNode
 import com.mrd.bitlib.util.HexUtils
@@ -45,44 +43,37 @@ import com.mycelium.wallet.activity.util.expand
 import com.mycelium.wallet.activity.util.toStringFriendlyWithUnit
 import com.mycelium.wallet.activity.view.VerticalSpaceItemDecoration
 import com.mycelium.wallet.content.HandleConfigFactory
-import com.mycelium.wallet.databinding.SendCoinsActivityBinding
-import com.mycelium.wallet.databinding.SendCoinsActivityBtcBinding
-import com.mycelium.wallet.databinding.SendCoinsActivityEthBinding
-import com.mycelium.wallet.databinding.SendCoinsActivityFioBinding
+import com.mycelium.wallet.databinding.*
 import com.mycelium.wapi.content.AssetUri
 import com.mycelium.wapi.content.WithCallback
 import com.mycelium.wapi.content.btc.BitcoinUri
 import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount
-import com.mycelium.wapi.wallet.btcvault.hd.BitcoinVaultHdAccount
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.coins.Value.Companion.zeroValue
-import com.mycelium.wapi.wallet.colu.ColuAccount
 import com.mycelium.wapi.wallet.erc20.ERC20Account
 import com.mycelium.wapi.wallet.erc20.ERC20Account.Companion.AVG_TOKEN_TRANSFER_GAS
 import com.mycelium.wapi.wallet.eth.EthAccount
 import com.mycelium.wapi.wallet.fio.FioAccount
 import com.mycelium.wapi.wallet.fio.FioModule
-import kotlinx.android.synthetic.main.fio_memo_input.*
-import kotlinx.android.synthetic.main.send_coins_activity.root
-import kotlinx.android.synthetic.main.send_coins_activity_eth.*
-import kotlinx.android.synthetic.main.send_coins_advanced_block.*
-import kotlinx.android.synthetic.main.send_coins_advanced_eth.*
-import kotlinx.android.synthetic.main.send_coins_fee_description.*
-import kotlinx.android.synthetic.main.send_coins_fee_selector.*
-import kotlinx.android.synthetic.main.send_coins_fee_title.*
-import kotlinx.android.synthetic.main.send_coins_fee_title_eth.*
-import kotlinx.android.synthetic.main.send_coins_sender_fio.*
 import org.web3j.utils.Convert
 import java.math.BigInteger
 import java.util.*
 import java.util.concurrent.TimeUnit
 
 class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener, AmountListener {
-    private lateinit var viewModel: SendCoinsViewModel
+    private val viewModel: SendCoinsViewModel by viewModels { SendCoinsFactory(account) }
     private lateinit var mbwManager: MbwManager
     private lateinit var senderFioNamesMenu: PopupMenu
+    private var bindingFioMemo: FioMemoInputBinding? = null
+    private var bindingFeeSelector: SendCoinsFeeSelectorBinding? = null
+    private var bindingAdvEth: SendCoinsAdvancedEthBinding? = null
+    private var bindingFeeTitleEth: SendCoinsFeeTitleEthBinding? = null
+    private var bindingSenderFio: SendCoinsSenderFioBinding? = null
+    private var bindingAdvBlock: SendCoinsAdvancedBlockBinding? = null
+    private lateinit var account: WalletAccount<*>
+
     private val batchAdapter = BatchAdapter().apply {
         clipboardListener = { position, item ->
             viewModel.onClickClipboard(item)
@@ -124,18 +115,9 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener, AmountLi
         val rawPaymentRequest = intent.getByteArrayExtra(RAW_PAYMENT_REQUEST)
         val crashHint = intent.extras!!.keySet().joinToString() + " (account id was $accountId)"
         val isColdStorage = intent.getBooleanExtra(IS_COLD_STORAGE, false)
-        val account = mbwManager.getWalletManager(isColdStorage).getAccount(accountId)
+        account = mbwManager.getWalletManager(isColdStorage).getAccount(accountId)
                 ?: throw IllegalStateException(crashHint)
 
-        val viewModelProvider = ViewModelProviders.of(this)
-
-        viewModel = when (account) {
-            is ColuAccount -> viewModelProvider.get(SendColuViewModel::class.java)
-            is SingleAddressAccount, is HDAccount, is BitcoinVaultHdAccount -> viewModelProvider.get(SendBtcViewModel::class.java)
-            is EthAccount, is ERC20Account -> viewModelProvider.get(SendEthViewModel::class.java)
-            is FioAccount -> viewModelProvider.get(SendFioViewModel::class.java)
-            else -> throw NotImplementedError()
-        }
         viewModel.activity = this
         if (!viewModel.isInitialized()) {
             viewModel.init(account, intent)
@@ -187,8 +169,9 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener, AmountLi
             updateMemoVisibility()
         })
         updateMemoVisibility()
-        et_fio_memo.setOnFocusChangeListener { view, b ->
+        bindingFioMemo?.etFioMemo?.setOnFocusChangeListener { view, b ->
             if(b) {
+                val root = findViewById<ScrollView>(R.id.root)
                 root.postDelayed({ root.smoothScrollBy(0, root.maxScrollAmount) }, 500)
             }
         }
@@ -198,7 +181,7 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener, AmountLi
     }
 
     private fun updateMemoVisibility() {
-        ll_fio_memo.visibility = if (viewModel.payeeFioName.value?.isNotEmpty() == true
+        bindingFioMemo?.llFioMemo?.visibility = if (viewModel.payeeFioName.value?.isNotEmpty() == true
                 && viewModel.payerFioName.value?.isNotEmpty() == true)
             View.VISIBLE
         else
@@ -252,8 +235,11 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener, AmountLi
         //Data binding, should be called after everything else
         val sendCoinsActivityBinding = when (account) {
             is HDAccount, is SingleAddressAccount -> {
-                DataBindingUtil.setContentView<SendCoinsActivityBtcBinding>(this, R.layout.send_coins_activity_btc)
+                SendCoinsActivityBtcBinding.inflate(layoutInflater)
                         .also {
+                            bindingFioMemo = it.layoutFioMemo
+                            bindingFeeSelector = it.layoutFeeBlock.layoutFeeSelector
+                            bindingSenderFio = it.layoutSenderFio
                             it.viewModel = viewModel as SendBtcViewModel
                             it.activity = this
                             it.batch.adapter = batchAdapter
@@ -264,78 +250,86 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener, AmountLi
                         }
             }
             is EthAccount, is ERC20Account -> {
-                DataBindingUtil.setContentView<SendCoinsActivityEthBinding>(this, R.layout.send_coins_activity_eth)
-                        .also {
-                            it.viewModel = (viewModel as SendEthViewModel).apply {
+                SendCoinsActivityEthBinding.inflate(layoutInflater)
+                        .also { binding ->
+                            bindingFioMemo = binding.layoutFioMemo
+                            bindingFeeSelector = binding.layoutFeeBlock.layoutFeeSelector
+                            bindingSenderFio = binding.layoutSenderFio
+                            bindingAdvEth = binding.layoutSendAdvBlock.layoutAdvEth
+                            bindingFeeTitleEth = binding.layoutFeeBlock.layoutFeeHeap.layoutFeeTitle
+                            bindingAdvBlock = binding.layoutSendAdvBlock
+
+                            binding.viewModel = (viewModel as SendEthViewModel).apply {
                                 getGasLimitStatus().observe(this@SendCoinsActivity, Observer { status ->
-                                    etGasLimit.setTextColor(resources.getColor(R.color.white))
+                                    bindingAdvEth?.etGasLimit?.setTextColor(resources.getColor(R.color.white))
                                     when (status) {
                                         SendEthModel.GasLimitStatus.ERROR -> {
-                                            tvGasLimitHelper.visibility = View.GONE
-                                            tvGasLimitWarning.visibility = View.GONE
-                                            tvGasLimitError.visibility = View.VISIBLE
-                                            etGasLimit.setTextColor(resources.getColor(R.color.fio_red))
+                                            bindingAdvEth?.tvGasLimitHelper?.visibility = View.GONE
+                                            bindingAdvEth?.tvGasLimitWarning?.visibility = View.GONE
+                                            bindingAdvEth?.tvGasLimitError?.visibility = View.VISIBLE
+                                            bindingAdvEth?.etGasLimit?.setTextColor(resources.getColor(R.color.fio_red))
                                         }
                                         SendEthModel.GasLimitStatus.WARNING -> {
-                                            tvGasLimitHelper.visibility = View.GONE
-                                            tvGasLimitWarning.visibility = View.VISIBLE
-                                            tvGasLimitError.visibility = View.GONE
+                                            bindingAdvEth?.tvGasLimitHelper?.visibility = View.GONE
+                                            bindingAdvEth?.tvGasLimitWarning?.visibility = View.VISIBLE
+                                            bindingAdvEth?.tvGasLimitError?.visibility = View.GONE
                                         }
                                         else -> {
-                                            tvGasLimitHelper.visibility = View.VISIBLE
-                                            tvGasLimitWarning.visibility = View.GONE
-                                            tvGasLimitError.visibility = View.GONE
+                                            bindingAdvEth?.tvGasLimitHelper?.visibility = View.VISIBLE
+                                            bindingAdvEth?.tvGasLimitWarning?.visibility = View.GONE
+                                            bindingAdvEth?.tvGasLimitError?.visibility = View.GONE
                                         }
                                     }
-                                    advancedBlock.layoutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT
-                                    advancedBlock.requestLayout()
+                                    bindingAdvEth?.advancedBlock?.layoutParams?.height = ViewGroup.LayoutParams.WRAP_CONTENT
+                                    bindingAdvEth?.advancedBlock?.requestLayout()
                                 })
-                                etGasLimit.doOnTextChanged { _, _, _, _ ->
+                                bindingAdvEth?.etGasLimit?.doOnTextChanged { _, _, _, _ ->
                                         // reset gas limit and therefore UI state
                                         getGasLimit().value = null
                                         getTransactionDataStatus().value = SendCoinsModel.TransactionDataStatus.TYPING
                                 }
-                                etGasLimit.setOnEditorActionListener { textView, actionId, keyEvent ->
+                                bindingAdvEth?.etGasLimit?.setOnEditorActionListener { textView, actionId, keyEvent ->
                                     if (actionId == EditorInfo.IME_ACTION_DONE) {
                                         textView.clearFocus()
                                     }
                                     false
                                 }
-                                etGasLimit.setOnFocusChangeListener { _, hasFocus ->
+                                bindingAdvEth?.etGasLimit?.setOnFocusChangeListener { _, hasFocus ->
                                     if (!hasFocus) {
-                                        val gasLimit = etGasLimit.text.toString()
+                                        val gasLimit = bindingAdvEth?.etGasLimit?.text.toString()
                                         getGasLimit().value = if (gasLimit.isEmpty()) null else BigInteger(gasLimit)
                                         getTransactionDataStatus().value = SendCoinsModel.TransactionDataStatus.READY
                                     }
                                 }
-                                gasPrice.doOnTextChanged { _, _, _, _ ->
+                                bindingAdvEth?.gasPrice?.doOnTextChanged { _, _, _, _ ->
                                     getGasPrice().value = null
                                     getTransactionDataStatus().value = SendCoinsModel.TransactionDataStatus.TYPING
                                 }
-                                gasPrice.setOnEditorActionListener { textView, actionId, keyEvent ->
+                                bindingAdvEth?.gasPrice?.setOnEditorActionListener { textView, actionId, keyEvent ->
                                     if (actionId == EditorInfo.IME_ACTION_DONE) {
                                         textView.clearFocus()
                                     }
                                     false
                                 }
-                                gasPrice.setOnFocusChangeListener { _, hasFocus ->
+                                bindingAdvEth?.gasPrice?.setOnFocusChangeListener { _, hasFocus ->
                                     if (!hasFocus) {
-                                        val gasPrice = gasPrice.text.toString()
+                                        val gasPrice = bindingAdvEth?.gasPrice?.text.toString()
                                         getGasPrice().value = if (gasPrice.isEmpty()) null else Convert.toWei(gasPrice, Convert.Unit.GWEI).toBigInteger()
                                         if (getGasLimit().value == null) {
                                             val limit = getDefaultGasLimit()
-                                            etGasLimit.setText(limit.toString())
+                                            bindingAdvEth?.etGasLimit?.setText(limit.toString())
                                             getGasLimit().value = limit
                                         }
                                         getTransactionDataStatus().value = SendCoinsModel.TransactionDataStatus.READY
                                     }
                                 }
+                                val tvSatFeeValue = findViewById<TextView>(R.id.tvSatFeeValue)
                                 getGasPrice().observe(this@SendCoinsActivity, Observer { gp ->
                                     if (gp == null) {
                                         tvSatFeeValue.visibility = View.GONE
-                                        feeLvlList.visibility = View.VISIBLE
-                                        feeValueList.visibility = View.VISIBLE
-                                        tvFeeUpdatesTimer.visibility = View.VISIBLE
+                                        bindingFeeSelector?.feeLvlList?.visibility = View.VISIBLE
+                                        bindingFeeSelector?.feeValueList?.visibility = View.VISIBLE
+                                        bindingFeeTitleEth?.tvFeeUpdatesTimer?.visibility = View.VISIBLE
                                     } else {
                                         val gasLimit =
                                             if (getGasLimitStatus().value != SendEthModel.GasLimitStatus.ERROR) {
@@ -349,23 +343,23 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener, AmountLi
                                             "${totalFee.toStringFriendlyWithUnit(getDenomination())} ${convert(totalFee)}"
 
                                         tvSatFeeValue.visibility = View.VISIBLE
-                                        feeLvlList.visibility = View.GONE
-                                        feeValueList.visibility = View.GONE
-                                        tvFeeUpdatesTimer.visibility = View.GONE
+                                        bindingFeeSelector?.feeLvlList?.visibility = View.GONE
+                                        bindingFeeSelector?.feeValueList?.visibility = View.GONE
+                                        bindingFeeTitleEth?.tvFeeUpdatesTimer?.visibility = View.GONE
                                     }
                                 })
                                 getGasLimit().observe(this@SendCoinsActivity, Observer { gl ->
                                     if (account is ERC20Account) {
                                         var gasLimit = gl
                                         if (gl == null || getGasLimitStatus().value == SendEthModel.GasLimitStatus.ERROR) {
-                                            tvThisIsUpdatedFee.visibility = View.GONE
-                                            tvHighestPossibleFeeInfo.visibility = View.VISIBLE
-                                            llNotEnoughEth.visibility = View.GONE
+                                            binding.tvThisIsUpdatedFee.visibility = View.GONE
+                                            binding.tvHighestPossibleFeeInfo.visibility = View.VISIBLE
+                                            binding.llNotEnoughEth.visibility = View.GONE
                                             gasLimit = BigInteger.valueOf(ERC20Account.TOKEN_TRANSFER_GAS_LIMIT)
                                         } else {
-                                            tvThisIsUpdatedFee.visibility = View.VISIBLE
-                                            tvHighestPossibleFeeInfo.visibility = View.GONE
-                                            llNotEnoughEth.visibility = View.GONE
+                                            binding.tvThisIsUpdatedFee.visibility = View.VISIBLE
+                                            binding.tvHighestPossibleFeeInfo.visibility = View.GONE
+                                            binding.llNotEnoughEth.visibility = View.GONE
                                         }
                                         val selectedFee = getSelectedFee().value!!
                                         getTotalFee().value = Value.valueOf(selectedFee.type, gasLimit!! * selectedFee.value)
@@ -390,7 +384,7 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener, AmountLi
                                         getTotalFee().value = Value.valueOf(selectedFee.type, gasLimit * selectedFee.value)
                                     })
                                     getEstimatedFee().observe(this@SendCoinsActivity, Observer { estimatedFee ->
-                                        tvHighestPossibleFeeInfo.text =
+                                        binding.tvHighestPossibleFeeInfo.text =
                                             Html.fromHtml(getString(R.string.erc20_highest_possible_fee_info, getParentAccount()!!.label,
                                                                     estimatedFee.toStringFriendlyWithUnit(getDenomination()), convert(estimatedFee)))
                                     })
@@ -398,38 +392,38 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener, AmountLi
                                         val parentAccountBalance = getParentAccount()!!.accountBalance.spendable
                                         if (parentAccountBalance.lessThan(totalFee)) {
                                             val diff = totalFee - parentAccountBalance
-                                            tvPleaseTopUp.text =
+                                            binding.tvPleaseTopUp.text =
                                                 Html.fromHtml(getString(R.string.please_top_up_your_eth_account,
                                                                         getParentAccount()!!.label, diff.toStringFriendlyWithUnit(getDenomination()), convert(diff)))
-                                            tvThisIsUpdatedFee.visibility = View.GONE
-                                            tvHighestPossibleFeeInfo.visibility = View.GONE
-                                            llNotEnoughEth.visibility = View.VISIBLE
+                                            binding.tvThisIsUpdatedFee.visibility = View.GONE
+                                            binding.tvHighestPossibleFeeInfo.visibility = View.GONE
+                                            binding.llNotEnoughEth.visibility = View.VISIBLE
                                         }
                                     })
-                                    tvParentEthAccountBalanceLabel.text = getString(R.string.parent_eth_account, getParentAccount()!!.label)
-                                    tvParentEthAccountBalance.text = " ${getParentAccount()!!.accountBalance.spendable.toStringFriendlyWithUnit(getDenomination())}"
-                                    tvPleaseTopUp.setOnClickListener {
+                                    binding.tvParentEthAccountBalanceLabel.text = getString(R.string.parent_eth_account, getParentAccount()!!.label)
+                                    binding.tvParentEthAccountBalance.text = " ${getParentAccount()!!.accountBalance.spendable.toStringFriendlyWithUnit(getDenomination())}"
+                                    binding.tvPleaseTopUp.setOnClickListener {
                                         mbwManager.setSelectedAccount(getParentAccount()!!.id)
                                         setResult(RESULT_CANCELED)
                                         finish()
                                     }
-                                    tvTxOptionsLabel.text = Html.fromHtml(getString(R.string.edit_gas_limit_advanced_users))
-                                    icEditGasInfo.visibility = View.VISIBLE
+                                    bindingAdvBlock?.tvTxOptionsLabel?.text = Html.fromHtml(getString(R.string.edit_gas_limit_advanced_users))
+                                    bindingAdvBlock?.icEditGasInfo?.visibility = View.VISIBLE
                                 } else {
-                                    tvTxOptionsLabel.text = Html.fromHtml(getString(R.string.transaction_options_advanced_users))
-                                    ic_info_gas_limit.visibility = View.VISIBLE
+                                    bindingAdvBlock?.tvTxOptionsLabel?.text = Html.fromHtml(getString(R.string.transaction_options_advanced_users))
+                                    bindingAdvEth?.icInfoGasLimit?.visibility = View.VISIBLE
                                 }
                                 isAdvancedBlockExpanded.observe(this@SendCoinsActivity, Observer { isExpanded ->
                                     if (!isExpanded) {
-                                        etGasLimit.setText("")
+                                        bindingAdvEth?.etGasLimit?.setText("")
                                         getGasLimit().value = null
-                                        gasPrice.setText("")
+                                        bindingAdvEth?.gasPrice?.setText("")
                                         getGasPrice().value = null
-                                        spinner.setSelection(0)
+                                        bindingAdvEth?.spinner?.setSelection(0)
                                         getTransactionDataStatus().value = SendCoinsModel.TransactionDataStatus.READY
                                     }
                                 })
-                                spinner?.adapter = ArrayAdapter(this@SendCoinsActivity ,
+                                bindingAdvEth?.spinner?.adapter = ArrayAdapter(context,
                                                                 R.layout.layout_send_coin_transaction_replace, R.id.text, getTxItems()).apply {
                                     this.setDropDownViewResource(R.layout.layout_send_coin_transaction_replace_dropdown)
                                 }
@@ -438,8 +432,11 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener, AmountLi
                         }
             }
             is FioAccount -> {
-                DataBindingUtil.setContentView<SendCoinsActivityFioBinding>(this, R.layout.send_coins_activity_fio)
+                SendCoinsActivityFioBinding.inflate(layoutInflater)
                         .also {
+                            bindingFioMemo = it.layoutFioMemo
+                            bindingSenderFio = it.layoutSenderFio
+
                             it.viewModel = viewModel as SendFioViewModel
                             it.activity = this
                         }
@@ -447,6 +444,7 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener, AmountLi
             else -> getDefaultBinding()
         }
         sendCoinsActivityBinding.lifecycleOwner = this
+        setContentView(sendCoinsActivityBinding.root)
     }
 
     override fun dispatchTouchEvent(event: MotionEvent): Boolean {
@@ -466,14 +464,18 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener, AmountLi
     }
 
     private fun getDefaultBinding(): SendCoinsActivityBinding =
-            DataBindingUtil.setContentView<SendCoinsActivityBinding>(this, R.layout.send_coins_activity)
+            SendCoinsActivityBinding.inflate(layoutInflater)
                     .also {
+                        bindingFioMemo = it.layoutFioMemo
+                        bindingFeeSelector = it.layoutFeeBlock.layoutFeeSelector
+                        bindingSenderFio = it.layoutSenderFio
+
                         it.viewModel = viewModel
                         it.activity = this
                     }
 
     private fun initFeeView() {
-        feeValueList?.setHasFixedSize(true)
+        bindingFeeSelector?.feeValueList?.setHasFixedSize(true)
 
         val displaySize = Point()
         windowManager.defaultDisplay.getSize(displaySize)
@@ -482,21 +484,21 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener, AmountLi
         val feeViewAdapter = FeeViewAdapter(feeFirstItemWidth)
         feeViewAdapter.setFormatter(viewModel.getFeeFormatter())
 
-        feeValueList?.adapter = feeViewAdapter
+        bindingFeeSelector?.feeValueList?.adapter = feeViewAdapter
         feeViewAdapter.setDataset(viewModel.getFeeDataset().value)
         viewModel.getFeeDataset().observe(this, Observer { feeItems ->
             feeViewAdapter.setDataset(feeItems)
             val selectedFee = viewModel.getSelectedFee().value!!
             if (feeViewAdapter.selectedItem >= feeViewAdapter.itemCount ||
                     feeViewAdapter.getItem(feeViewAdapter.selectedItem).feePerKb != selectedFee.valueAsLong) {
-                feeValueList?.setSelectedItem(selectedFee)
+                bindingFeeSelector?.feeValueList?.setSelectedItem(selectedFee)
             }
         })
 
-        feeValueList?.setSelectListener { adapter, position ->
+        bindingFeeSelector?.feeValueList?.setSelectListener { adapter, position ->
             val item = (adapter as FeeViewAdapter).getItem(position)
             viewModel.getSelectedFee().value = Value.valueOf(item.value.type, item.feePerKb)
-
+            val root = findViewById<ScrollView>(R.id.root)
             if (viewModel.isSendScrollDefault() && root.maxScrollAmount - root.scaleY > 0) {
                 root.smoothScrollBy(0, root.maxScrollAmount)
                 viewModel.setSendScrollDefault(false)
@@ -505,19 +507,19 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener, AmountLi
     }
 
     private fun initFeeLvlView() {
-        feeLvlList?.setHasFixedSize(true)
+        bindingFeeSelector?.feeLvlList?.setHasFixedSize(true)
         val feeLvlItems = viewModel.getFeeLvlItems()
 
         val displaySize = Point()
         windowManager.defaultDisplay.getSize(displaySize)
         val feeFirstItemWidth = (displaySize.x - resources.getDimensionPixelSize(R.dimen.item_dob_width)) / 2
-        feeLvlList?.adapter = FeeLvlViewAdapter(feeLvlItems, feeFirstItemWidth)
-        feeLvlList?.setSelectListener { adapter, position ->
+        bindingFeeSelector?.feeLvlList?.adapter = FeeLvlViewAdapter(feeLvlItems, feeFirstItemWidth)
+        bindingFeeSelector?.feeLvlList?.setSelectListener { adapter, position ->
             val item = (adapter as FeeLvlViewAdapter).getItem(position)
             viewModel.getFeeLvl().value = item.minerFee
-            feeValueList?.setSelectedItem(viewModel.getSelectedFee().value)
+            bindingFeeSelector?.feeValueList?.setSelectedItem(viewModel.getSelectedFee().value)
         }
-        feeLvlList?.setSelectedItem(viewModel.getFeeLvl().value)
+        bindingFeeSelector?.feeLvlList?.setSelectedItem(viewModel.getFeeLvl().value)
     }
 
     fun onClickUnconfirmedWarning() {
@@ -579,15 +581,15 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener, AmountLi
         val now = Date()
         val fioNames = fioModule.getFIONames(viewModel.getAccount()).filter { it.expireDate.after(now) }
         if (fioNames.isEmpty()) {
-            sender.visibility = View.GONE
+            bindingSenderFio?.sender?.visibility = View.GONE
         } else {
-            senderFioNamesMenu = PopupMenu(this, iv_from_fio_name).apply {
+            senderFioNamesMenu = PopupMenu(this, bindingSenderFio?.ivFromFioName).apply {
                 fioNames.forEach {
                     menu.add(it.name)
                 }
                 setOnMenuItemClickListener { item ->
                     // btcViewModel.setAddressType(AddressType.values()[item.itemId])
-                    tv_from.text = item.title
+                    bindingSenderFio?.tvFrom?.text = item.title
                     getSharedPreferences(Constants.SETTINGS_NAME, MODE_PRIVATE)
                             .edit()
                             .putString(Constants.LAST_FIO_SENDER, "${item.title}")
@@ -604,7 +606,7 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener, AmountLi
     }
 
     fun onClickSend() {
-        viewModel.fioMemo.value = et_fio_memo.text.toString()
+        viewModel.fioMemo.value = bindingFioMemo?.etFioMemo?.text.toString()
         if (isPossibleDuplicateSending()) {
             AlertDialog.Builder(this)
                     .setTitle(R.string.possible_duplicate_warning_title)
@@ -790,7 +792,11 @@ fun setVisibilityAnimated(target: TextView, error: CharSequence) {
 @BindingAdapter(value = ["animatedVisibility", "activity"], requireAll = false)
 fun setVisibilityAnimated(target: View, visible: Boolean, activity: SendCoinsActivity?) {
     if (visible) {
-        target.expand { activity?.root?.smoothScrollTo(0, activity.root.measuredHeight) }
+        target.expand {
+            activity?.findViewById<ScrollView>(R.id.root)?.let {
+                it.smoothScrollTo(0, it.measuredHeight)
+            }
+        }
     } else {
         target.collapse()
     }
