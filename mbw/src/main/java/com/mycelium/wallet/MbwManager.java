@@ -203,7 +203,7 @@ import com.mycelium.wapi.wallet.masterseed.MasterSeedManager;
 import com.mycelium.wapi.wallet.providers.FeeProvider;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
-import app.cash.sqldelight.android.AndroidSqliteDriver;
+import app.cash.sqldelight.driver.android.AndroidSqliteDriver;
 import app.cash.sqldelight.db.SqlDriver;
 
 import org.jetbrains.annotations.NotNull;

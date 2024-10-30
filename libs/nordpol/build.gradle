@@ -12,7 +12,8 @@ buildscript {
 }
 
 android {
-    compileSdkVersion androidCompileSdkVersion
+    namespace 'nordpol.android'
+    compileSdk androidCompileSdkVersion
     buildToolsVersion androidSdkBuildVersion
 
     defaultConfig {

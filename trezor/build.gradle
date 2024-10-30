@@ -24,7 +24,8 @@ dependencies {
 }
 
 android {
-    compileSdkVersion androidCompileSdkVersion
+    namespace 'com.satoshilabs.trezor'
+    compileSdk androidCompileSdkVersion
     buildToolsVersion androidSdkBuildVersion
 
     defaultConfig {

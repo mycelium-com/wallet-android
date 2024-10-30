@@ -1,10 +1,10 @@
 // keep that file in sync with ext_settings.gradle in the internal big repository
 ext {
     guavaVersion = '23.0-android'
-    gradleVersion = '7.4.0-rc03'
+    gradleVersion = '8.7.1'
     androidCompileSdkVersion = 34
     androidSdkBuildVersion = '30.0.3'
-    androidMinSdkVersion = 19
+    androidMinSdkVersion = 21
     androidTargetSdkVersion = 34
     junitVersion = '4.12'
     kotlin_version = '2.0.21'
@@ -28,7 +28,7 @@ ext {
     // 2.9.9. was downgraded to 2.9.6 due to runtime crash "NoSuchMethodError" on android api 23
     // the solution got from https://github.com/FasterXML/jackson-module-kotlin/issues/218#issuecomment-470900330
     jacksonDatabindVersion = '2.9.6'
-    nav_version = '2.4.1'
+    nav_version = '2.5.0'
     // latest version is 1.4.3 but that changes the api somehow
     sqldelight_version = '2.0.0'
 

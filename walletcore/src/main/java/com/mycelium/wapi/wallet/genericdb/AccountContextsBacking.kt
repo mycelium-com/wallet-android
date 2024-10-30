@@ -13,11 +13,11 @@ open class AccountContextsBacking(walletDB: WalletDB) : Backing<AccountContext> 
     override fun loadAccountContext(accountId: UUID) = queries.selectByUUID(accountId)
             .executeAsOneOrNull()
 
-    override fun createAccountContext(context: AccountContext) {
+    override fun createAccountContext(accountId: UUID, context: AccountContext) {
         queries.insertFullObject(context)
     }
 
-    override fun updateAccountContext(context: AccountContext) {
+    override fun updateAccountContext(accountId: UUID, context: AccountContext) {
         queries.update(context.accountName, context.balance, context.archived, context.blockHeight, context.uuid)
     }
 

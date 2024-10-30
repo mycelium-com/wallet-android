@@ -61,6 +61,7 @@ import org.web3j.utils.Convert
 import java.math.BigInteger
 import java.util.*
 import java.util.concurrent.TimeUnit
+import androidx.activity.viewModels
 
 class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener, AmountListener {
     private val viewModel: SendCoinsViewModel by viewModels { SendCoinsFactory(account) }
@@ -428,7 +429,7 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener, AmountLi
                                     this.setDropDownViewResource(R.layout.layout_send_coin_transaction_replace_dropdown)
                                 }
                             }
-                            it.activity = this
+//                            it.activity = this
                         }
             }
             is FioAccount -> {

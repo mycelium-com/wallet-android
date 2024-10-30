@@ -59,6 +59,7 @@
                     bind:viewModel="@{viewModel}" />
 
                 <include
+                    android:id="@+id/layoutFioName"
                     layout="@layout/address_fragment_fioname"
                     bind:viewModel="@{viewModel}"
                     bind:activity="@{activity}"/>

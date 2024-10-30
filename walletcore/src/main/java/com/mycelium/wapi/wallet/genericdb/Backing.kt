@@ -7,9 +7,9 @@ interface Backing<Context> {
 
     fun loadAccountContext(accountId: UUID): Context?
 
-    fun createAccountContext(context: Context)
+    fun createAccountContext(accountId: UUID, context: Context)
 
-    fun updateAccountContext(context: Context)
+    fun updateAccountContext(accountId: UUID, context: Context)
 
     fun deleteAccountContext(uuid: UUID)
 }

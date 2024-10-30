@@ -2,12 +2,8 @@ package com.mycelium.wallet
 
 import android.util.Log
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.mycelium.wallet.external.changelly.ChangellyAPIService.Companion.retrofit
-import kotlinx.coroutines.runBlocking
-import org.junit.Assert
 import org.junit.Test
 import org.junit.runner.RunWith
-import java.math.BigDecimal
 
 @RunWith(AndroidJUnit4::class)
 class TokensTest {

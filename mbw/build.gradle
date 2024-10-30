@@ -36,6 +36,7 @@ configurations.all {
     }
 }
 kapt {
+    correctErrorTypes true
     useBuildCache = true
     javacOptions {
         option("-Xmaxerrs", 500)
@@ -151,7 +152,7 @@ dependencies {
     implementation "info.guardianproject.netcipher:netcipher:2.1.0"
     implementation "com.airbnb.android:lottie:3.4.0"
 
-    androidTestImplementation 'androidx.test:core:1.2.0'
+    androidTestImplementation 'androidx.test:core:1.4.0'
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
     androidTestImplementation 'androidx.test.espresso:espresso-contrib:3.2.0'
@@ -180,6 +181,7 @@ sqldelight {
 }
 
 android {
+    namespace 'com.mycelium.wallet'
     buildFeatures {
         viewBinding true
         dataBinding true
@@ -217,7 +219,7 @@ android {
         targetCompatibility = 'VERSION_1_8'
     }
 
-    compileSdkVersion androidCompileSdkVersion
+    compileSdk androidCompileSdkVersion
     buildToolsVersion androidSdkBuildVersion
 
     defaultConfig {

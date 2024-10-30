@@ -1,7 +1,8 @@
 apply plugin: 'com.android.library'
 
 android {
-    compileSdkVersion androidCompileSdkVersion
+    namespace 'com.google.android.vending.licensing'
+    compileSdk androidCompileSdkVersion
     buildToolsVersion androidSdkBuildVersion
     defaultConfig {
         versionCode 2

@@ -69,7 +69,7 @@ class EthereumModule(
                 val credentials = deriveKey()
 
                 val accountContext = createAccountContext(credentials.ecKeyPair.toUUID())
-                backing.createAccountContext(accountContext)
+                backing.createAccountContext(accountContext.uuid, accountContext)
                 baseLabel = accountContext.accountName
                 val ethAccountBacking = EthAccountBacking(walletDB, accountContext.uuid, coinType)
                 result = EthAccount(chainId, accountContext, credentials, ethAccountBacking, accountListener, blockchainService)
@@ -79,7 +79,7 @@ class EthereumModule(
                 secureStore.storePlaintextValue(uuid.toString().toByteArray(),
                         config.address.addressString.toByteArray())
                 val accountContext = createAccountContext(uuid)
-                backing.createAccountContext(accountContext)
+                backing.createAccountContext(accountContext.uuid, accountContext)
                 baseLabel = accountContext.accountName
                 val ethAccountBacking = EthAccountBacking(walletDB, accountContext.uuid, coinType)
                 result = EthAccount(chainId, accountContext, address = config.address, backing = ethAccountBacking,
@@ -151,7 +151,7 @@ class EthereumModule(
                     accountContextInDB.currency,
                     accountContextInDB.accountName,
                     accountContextInDB.balance,
-                    backing::updateAccountContext,
+                { backing.updateAccountContext(it.uuid, it) },
                     backing::loadAccountContext,
                     accountContextInDB.accountIndex,
                     accountContextInDB.enabledTokens,
@@ -164,7 +164,7 @@ class EthereumModule(
                     coinType,
                     "Ethereum ${getCurrentBip44Index() + 2}",
                     Balance.getZeroBalance(coinType),
-                    backing::updateAccountContext,
+                { backing.updateAccountContext(it.uuid, it) },
                     backing::loadAccountContext,
                     getCurrentBip44Index() + 1)
         }
@@ -172,7 +172,7 @@ class EthereumModule(
 
     private fun getCurrentBip44Index() = accounts.values
             .filter { it.isDerivedFromInternalMasterseed() }
-            .maxBy { it.accountIndex }
+            .maxByOrNull { it.accountIndex }
             ?.accountIndex
             ?: -1
 

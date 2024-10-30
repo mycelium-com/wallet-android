@@ -200,7 +200,7 @@ class FioModule(
         serverFioEventsPublisher.setFioTpidChangedListener(fioBlockchainService)
         val fioServerLogsListWrapper = FioServerLogsListWrapper(fioServerLogsList)
         if (!isRestore) {
-            backing.createAccountContext(accountContext)
+            backing.createAccountContext(accountContext.uuid, accountContext)
         }
         val fioAccountBacking = FioAccountBacking(walletDB, accountContext.uuid, coinType)
         return FioAccount(fioBlockchainService, fioEndpoints, accountContext = accountContext, backing = fioAccountBacking,
@@ -276,7 +276,7 @@ class FioModule(
 
     private fun getCurrentBip44Index() = accounts.values
             .filter { it.isDerivedFromInternalMasterseed() }
-            .maxBy { it.accountIndex }
+            .maxByOrNull { it.accountIndex }
             ?.accountIndex
             ?: -1
 
@@ -313,7 +313,7 @@ class FioModule(
                     accountContextInDB.currency,
                     accountContextInDB.accountName,
                     accountContextInDB.balance,
-                    backing::updateAccountContext,
+                { backing.updateAccountContext(it.uuid, it) },
                     accountContextInDB.accountIndex,
                     accountContextInDB.registeredFIONames,
                     accountContextInDB.registeredFIODomains,
@@ -328,7 +328,7 @@ class FioModule(
                     if (isReadOnly) DateFormat.getDateInstance(DateFormat.MEDIUM, Locale.getDefault()).format(Date())
                     else "FIO ${getCurrentBip44Index() + 2}",
                     Balance.getZeroBalance(coinType),
-                    backing::updateAccountContext,
+                { backing.updateAccountContext(it.uuid, it) },
                     if (isReadOnly) 0 else getCurrentBip44Index() + 1,
                     accountType = accountType)
         }
