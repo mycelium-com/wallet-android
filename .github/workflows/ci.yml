@@ -37,7 +37,7 @@ jobs:
     - name: Check Target SDK
       run: |
         target_sdk=$(/usr/local/lib/android/sdk/cmdline-tools/latest/bin/apkanalyzer manifest target-sdk mbw/build/outputs/apk/btctestnet/release/mbw-btctestnet-release.apk)
-        echo "$target_sdk" | grep "^34$"
+        echo "$target_sdk" | grep "^35$"
 
     - run: mv mbw/build/outputs/apk /tmp/buildA
 
