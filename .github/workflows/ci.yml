@@ -12,10 +12,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
 
-    - uses: maxim-lobanov/setup-android-tools@v1
-      with:
-        packages: cmdline-tools;latest
-
     - name: Install deps
       run: sudo apt-get install -y unzip diffutils
 
@@ -29,7 +25,10 @@ jobs:
       with:
         submodules: recursive
 
-    - run: ./gradlew clean test mbw:assembleProdnetDebug mbw:assembleBtctestnetDebug mbw:assembleBtctestnetRelease
+    - name: Setup Android SDK
+      uses: android-actions/setup-android@v3
+
+    - run: ./gradlew clean test mbw::assembleProdnetDebug mbw::assembleBtctestnetDebug mbw::assembleBtctestnetRelease
 
     - uses: actions/upload-artifact@v3
       with:
