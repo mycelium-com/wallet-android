@@ -562,7 +562,7 @@ class TransactionHistoryFragment : Fragment() {
                     requireActivity().getFileStreamPath(fileName))
             val packageManager = Preconditions.checkNotNull(requireActivity().packageManager)
             packageManager.getPackageInfo(requireActivity().packageName, PackageManager.GET_PROVIDERS)
-                    .providers.find { it.name == "androidx.core.content.FileProvider" }?.authority?.let { authority ->
+                    .providers?.find { it.name == "androidx.core.content.FileProvider" }?.authority?.let { authority ->
                         val uri = FileProvider.getUriForFile(requireContext(), authority, historyData)
                         val intent = ShareCompat.IntentBuilder.from(requireActivity())
                                 .setStream(uri) // uri from FileProvider
