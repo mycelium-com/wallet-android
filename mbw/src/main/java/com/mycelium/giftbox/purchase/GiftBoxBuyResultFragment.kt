@@ -19,6 +19,9 @@ import com.bumptech.glide.request.RequestOptions
 import com.mycelium.giftbox.cards.GiftBoxFragment
 import com.mycelium.giftbox.cards.viewmodel.GiftBoxViewModel
 import com.mycelium.giftbox.client.GitboxAPI
+import com.mycelium.giftbox.client.model.MCOrderCommon
+import com.mycelium.giftbox.client.model.MCOrderResponse
+import com.mycelium.giftbox.client.model.MCOrderStatusResponse
 import com.mycelium.giftbox.client.models.OrderResponse
 import com.mycelium.giftbox.client.models.Status
 import com.mycelium.giftbox.loadImage
@@ -161,25 +164,26 @@ class GiftBoxBuyResultFragment : Fragment() {
                     RequestOptions().transforms(CenterCrop(),
                             RoundedCorners(resources.getDimensionPixelSize(R.dimen.giftbox_small_corner))))
             viewModel.setProduct(it)
-        } ?: GitboxAPI.giftRepository.getProduct(lifecycleScope, args.orderResponse.productCode!!, {
-            binding?.detailsHeader?.ivImage?.loadImage(it?.product?.cardImageUrl,
-                    RequestOptions().transforms(CenterCrop(),
-                            RoundedCorners(resources.getDimensionPixelSize(R.dimen.giftbox_small_corner))))
-            viewModel.setProduct(it?.product!!)
-        }, { _, msg ->
-            Toaster(this).toast(msg, true)
-        })
+        }
+//            ?: GitboxAPI.giftRepository.getProduct(lifecycleScope, args.orderResponse.productCode!!, {
+//            binding?.detailsHeader?.ivImage?.loadImage(it?.product?.cardImageUrl,
+//                    RequestOptions().transforms(CenterCrop(),
+//                            RoundedCorners(resources.getDimensionPixelSize(R.dimen.giftbox_small_corner))))
+//            viewModel.setProduct(it?.product!!)
+//        }, { _, msg ->
+//            Toaster(this).toast(msg, true)
+//        })
     }
 
-    private fun loadOrder(withLoader: Boolean = true, updateFromRemote:Boolean = false) {
-        if (args.orderResponse is OrderResponse && !updateFromRemote) {
-            updateOrder(args.orderResponse as OrderResponse)
+    private fun loadOrder(withLoader: Boolean = true, updateFromRemote: Boolean = false) {
+        if (args.orderResponse is MCOrderResponse && !updateFromRemote) {
+            updateOrder(args.orderResponse)
         } else {
             if (withLoader) {
                 loader(true)
             }
             showRefresh()
-            GitboxAPI.giftRepository.getOrder(lifecycleScope, args.orderResponse.clientOrderId!!, {
+            GitboxAPI.mcGiftRepository.getOrder(lifecycleScope, args.orderResponse.orderId, {
                 updateOrder(it!!)
             }, { _, msg ->
                 Toaster(this).toast(msg, true)
@@ -192,8 +196,10 @@ class GiftBoxBuyResultFragment : Fragment() {
         }
     }
 
-    private fun updateOrder(order: OrderResponse) {
-        viewModel.setOrder(order)
+    private fun updateOrder(order: MCOrderCommon) {
+        if (order is MCOrderStatusResponse) {
+            viewModel.setOrder(order as MCOrderResponse)
+        }
         var paymentText = getString(R.string.gift_card_after_confirmed)
         if (args.accountId == null) {
             paymentText = paymentText.replace("<[^>]*>".toRegex(), "")

@@ -3,7 +3,7 @@ ext {
     guavaVersion = '23.0-android'
     gradleVersion = '8.7.1'
     androidCompileSdkVersion = 35
-    androidSdkBuildVersion = '30.0.3'
+    androidSdkBuildVersion = '34.0.0'
     androidMinSdkVersion = 21
     androidTargetSdkVersion = 35
     junitVersion = '4.12'

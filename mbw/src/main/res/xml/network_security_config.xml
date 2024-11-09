@@ -9,5 +9,6 @@
         <domain includeSubdomains="true">fioprotocol.io</domain>
         <domain includeSubdomains="true">greymass.com</domain>
         <domain includeSubdomains="true">reg.bequant.io</domain>
+        <domain includeSubdomains="true">boatarde.xyz</domain>
     </domain-config>
 </network-security-config>

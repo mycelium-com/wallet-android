@@ -3,6 +3,7 @@ package com.mycelium.giftbox.details.viewmodel
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.mycelium.bequant.kyc.inputPhone.coutrySelector.CountriesSource
+import com.mycelium.giftbox.client.model.MCProductInfo
 import com.mycelium.giftbox.client.models.CurrencyInfo
 import com.mycelium.giftbox.client.models.ProductInfo
 import com.mycelium.giftbox.client.models.getCardValue
@@ -20,19 +21,19 @@ class GiftBoxStoreDetailsViewModel : ViewModel(), DescriptionViewModel {
     val country = MutableLiveData<String>()
     val currency = MutableLiveData<String?>()
     val expire = MutableLiveData<String>()
-    val productInfo = MutableLiveData<ProductInfo?>()
+    val productInfo = MutableLiveData<MCProductInfo?>()
     var currencies: Array<CurrencyInfo>? = null
 
-    fun setProduct(product: ProductInfo?) {
+    fun setProduct(product: MCProductInfo?) {
         productInfo.value = product
-        description.value = product?.description
-        currency.value = product?.currencyCode
-        termsLink.value = product?.termsAndConditionsPdfUrl
-        redeemInstruction.value = product?.redeemInstructionsHtml
+//        description.value = product?.description
+        currency.value = product?.currency
+//        termsLink.value = product?.termsAndConditionsPdfUrl
+//        redeemInstruction.value = product?.redeemInstructionsHtml
         country.value = product?.countries?.mapNotNull {
             CountriesSource.countryModels.find { model -> model.acronym.equals(it, true) }
         }?.joinToString { it.name }
-        amount.value = product?.getCardValue()
-        expire.value = if (product?.expiryInMonths != null) "${product.expiryDatePolicy} (${product.expiryInMonths} months)" else "Does not expire"
+        amount.value = product?.minFaceValue.toString()
+//        expire.value = if (product?.expiryInMonths != null) "${product.expiryDatePolicy} (${product.expiryInMonths} months)" else "Does not expire"
     }
 }

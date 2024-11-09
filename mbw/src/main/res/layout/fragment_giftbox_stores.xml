@@ -101,6 +101,7 @@
             android:text="@{activityViewModel.currentCountries()}"
             android:textColor="#60B687"
             android:textSize="14sp"
+            android:visibility="@{activityViewModel.countries.isEmpty() ? View.GONE : View.VISIBLE }"
             app:drawableStartCompat="@drawable/ic_glyph"
             app:layout_constraintBaseline_toBaselineOf="@id/giftCardLabel"
             app:layout_constraintRight_toRightOf="parent" />

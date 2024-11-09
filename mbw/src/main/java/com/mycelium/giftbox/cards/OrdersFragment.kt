@@ -72,7 +72,7 @@ class OrdersFragment : Fragment() {
             override fun isLoading() = viewModel.state.value == ListState.LOADING
         })
         adapter.itemClickListener = {
-            findNavController().navigate(GiftBoxFragmentDirections.actionOrderDetails(null, null, null, null, null, null, null, it))
+//            findNavController().navigate(GiftBoxFragmentDirections.actionOrderDetails(null, null, null, null, null, null, null, it))
         }
         adapter.groupListener = { group ->
             GiftboxPreference.setGroupOpen(group, !GiftboxPreference.isGroupOpen(group))
@@ -102,7 +102,7 @@ class OrdersFragment : Fragment() {
             }
         }
         viewModel.state.value = ListState.LOADING
-        GitboxAPI.giftRepository.getOrders(lifecycleScope, offset, success = {
+        GitboxAPI.mcGiftRepository.getOrders(lifecycleScope, offset, success = {
             viewModel.setOrdersResponse(it, offset != 0L)
             adapter.submitList(generateList(viewModel.orders.value ?: emptyList()))
             MbwManager.getEventBus().post(OrdersUpdate())

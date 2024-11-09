@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import com.mycelium.bequant.remote.NullOnEmptyConverterFactory
+import com.mycelium.giftbox.client.GiftboxConstants.MC_API_KEY
 import com.mycelium.wallet.BuildConfig
 import okhttp3.Call
 import okhttp3.OkHttpClient
@@ -28,6 +29,7 @@ object RetrofitFactory {
             .addInterceptor {
                 it.proceed(it.request().newBuilder().apply {
                     addHeader("Content-Type", "application/json")
+                    addHeader("x-api-key", MC_API_KEY)
 //                    addHeader("Authorization", "Basic ${GiftboxPreference.getAccessToken()}")
                 }.build())
             }

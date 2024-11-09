@@ -11,15 +11,16 @@ import com.bumptech.glide.load.resource.bitmap.CenterCrop
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import com.bumptech.glide.request.RequestOptions
 import com.mycelium.bequant.common.equalsValuesBy
+import com.mycelium.giftbox.client.model.MCProductInfo
 import com.mycelium.giftbox.client.models.ProductInfo
 import com.mycelium.wallet.R
 import com.mycelium.wallet.databinding.ItemGiftboxStoreBinding
 import java.math.BigDecimal
 
 
-class StoresAdapter : ListAdapter<ProductInfo, RecyclerView.ViewHolder>(DiffCallback()) {
+class StoresAdapter : ListAdapter<MCProductInfo, RecyclerView.ViewHolder>(DiffCallback()) {
 
-    var itemClickListener: ((ProductInfo) -> Unit)? = null
+    var itemClickListener: ((MCProductInfo) -> Unit)? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder =
             when (viewType) {
@@ -37,24 +38,24 @@ class StoresAdapter : ListAdapter<ProductInfo, RecyclerView.ViewHolder>(DiffCall
             val item = getItem(bindingAdapterPosition)
             holder as CardViewHolder
             Glide.with(holder.binding.image)
-                    .load(item?.cardImageUrl)
+                    .load(item?.logoUrl)
                     .apply(RequestOptions()
                             .transforms(CenterCrop(), RoundedCorners(holder.itemView.resources.getDimensionPixelSize(R.dimen.giftbox_small_corner))))
                     .into(holder.binding.image)
 
             holder.binding.title.text = item.name
-            holder.binding.description.text = item.categories
-                    ?.joinToString { it.replace("-", " ").capitalize() }
-            holder.binding.additional.text = if (item?.denominationType == ProductInfo.DenominationType.fixed && item.availableDenominations?.size ?: 100 < 6) {
-                item.availableDenominations?.joinToString { "${it.toPlainString()} ${item.currencyCode}" }
-            } else {
-                "from ${item.minimumValue.stripTrailingZeros().toPlainString()} ${item.currencyCode}" +
-                        if (item.maximumValue != BigDecimal.ZERO) {
-                            " to ${item.maximumValue.stripTrailingZeros().toPlainString()} ${item.currencyCode}"
-                        } else {
-                            ""
-                        }
-            }
+//            holder.binding.description.text = item.categories
+//                    ?.joinToString { it.replace("-", " ").capitalize() }
+//            holder.binding.additional.text = if (item?.denominationType == ProductInfo.DenominationType.fixed && item.availableDenominations?.size ?: 100 < 6) {
+//                item.availableDenominations?.joinToString { "${it.toPlainString()} ${item.currencyCode}" }
+//            } else {
+//                "from ${item.minimumValue.stripTrailingZeros().toPlainString()} ${item.currencyCode}" +
+//                        if (item.maximumValue != BigDecimal.ZERO) {
+//                            " to ${item.maximumValue.stripTrailingZeros().toPlainString()} ${item.currencyCode}"
+//                        } else {
+//                            ""
+//                        }
+//            }
             holder.itemView.setOnClickListener {
                 itemClickListener?.invoke(getItem(bindingAdapterPosition))
             }
@@ -73,20 +74,20 @@ class StoresAdapter : ListAdapter<ProductInfo, RecyclerView.ViewHolder>(DiffCall
 
     class LoadingViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
 
-    class DiffCallback : DiffUtil.ItemCallback<ProductInfo>() {
-        override fun areItemsTheSame(oldItem: ProductInfo, newItem: ProductInfo): Boolean =
-                oldItem.code == newItem.code
+    class DiffCallback : DiffUtil.ItemCallback<MCProductInfo>() {
+        override fun areItemsTheSame(oldItem: MCProductInfo, newItem: MCProductInfo): Boolean =
+                oldItem.id == newItem.id
 
 
-        override fun areContentsTheSame(oldItem: ProductInfo, newItem: ProductInfo): Boolean =
+        override fun areContentsTheSame(oldItem: MCProductInfo, newItem: MCProductInfo): Boolean =
                 equalsValuesBy(oldItem, newItem,
-                        { it.cardImageUrl }, { it.name }, { it.description })
+                        { it.cardImageUrl }, { it.name }/*, { it.description }*/)
     }
 
     companion object {
         const val TYPE_CARD = 0
         const val TYPE_LOADING = 1
 
-        val LOADING_ITEM = ProductInfo()
+        val LOADING_ITEM = MCProductInfo()
     }
 }

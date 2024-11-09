@@ -4,6 +4,7 @@ import android.content.Context
 import android.os.Bundle
 import android.view.*
 import android.view.inputmethod.InputMethodManager
+import androidx.core.view.isVisible
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -54,6 +55,7 @@ class StoresFragment : Fragment() {
         viewModel.category?.let {
             getTab(it, binding?.tags!!)?.select()
         }
+        binding?.tags?.isVisible = viewModel.category?.isNotEmpty() == true
         binding?.tags?.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
             override fun onTabReselected(p0: TabLayout.Tab?) {
             }
@@ -136,18 +138,19 @@ class StoresFragment : Fragment() {
         }
         activityViewModel.reloadStore = false
         viewModel.state.value = ListState.LOADING
-        productsJob = GitboxAPI.giftRepository.getProducts(lifecycleScope,
+        productsJob = GitboxAPI.mcGiftRepository.getProducts(lifecycleScope,
                 search = viewModel.search.value,
                 category = viewModel.category,
                 country = activityViewModel.selectedCountries.value,
                 offset = if (offset == -1L) 0 else offset, limit = 30,
                 success = {
-                    activityViewModel.categories.value = listOf("All") + (it?.categories
-                            ?: emptyList())
-                    activityViewModel.countries.value = it?.countries?.mapNotNull {
-                        CountriesSource.countryModels.find { model -> model.acronym.equals(it, true) }
-                    }
-                    viewModel.setProductsResponse(it, offset != -1L)
+//                    activityViewModel.categories.value = listOf("All") + (it?.categories
+//                            ?: emptyList())
+                    activityViewModel.countries.value = emptyList()
+//                    it?.countries?.mapNotNull {
+//                        CountriesSource.countryModels.find { model -> model.acronym.equals(it, true) }
+//                    }
+                    viewModel.setProducts(it.orEmpty())
                     adapter.submitList(viewModel.products)
                 },
                 error = { code, msg ->

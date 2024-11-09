@@ -4,6 +4,9 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.map
 import com.mycelium.bequant.kyc.inputPhone.coutrySelector.CountriesSource
+import com.mycelium.giftbox.client.model.MCOrderResponse
+import com.mycelium.giftbox.client.model.MCOrderStatusResponse
+import com.mycelium.giftbox.client.model.MCProductInfo
 import com.mycelium.giftbox.client.models.OrderResponse
 import com.mycelium.giftbox.client.models.ProductInfo
 import com.mycelium.giftbox.common.OrderHeaderViewModel
@@ -35,9 +38,9 @@ class GiftboxBuyResultViewModel : ViewModel(), OrderHeaderViewModel {
     override val expire = MutableLiveData("")
     override val country = MutableLiveData("")
 
-    fun setProduct(product: ProductInfo) {
+    fun setProduct(product: MCProductInfo) {
         productName.value = product.name
-        expire.value = if (product.expiryInMonths != null) "${product.expiryDatePolicy} (${product.expiryInMonths} months)" else "Does not expire"
+//        expire.value = if (product.expiryInMonths != null) "${product.expiryDatePolicy} (${product.expiryInMonths} months)" else "Does not expire"
         country.value = product.countries?.mapNotNull {
             CountriesSource.countryModels.find { model -> model.acronym.equals(it, true) }
         }?.joinToString { it.name }
@@ -46,17 +49,17 @@ class GiftboxBuyResultViewModel : ViewModel(), OrderHeaderViewModel {
     override val cardValue = MutableLiveData("")
     override val quantity = MutableLiveData(0)
 
-    fun setOrder(orderResponse: OrderResponse) {
-        val cardAmount = (orderResponse.amount?.toBigDecimal() ?: BigDecimal.ZERO)
-        cardValue.value = "${cardAmount.stripTrailingZeros().toPlainString()} ${orderResponse.currencyCode}"
-        quantity.value = orderResponse.quantity?.toInt() ?: 0
-        totalAmountFiatString.value = "${orderResponse.amount?.toBigDecimal()?.times(orderResponse.quantity!!)} ${orderResponse.currencyCode}"
-        var asset = orderResponse.currencyFromInfo?.name?.toAssetInfo()
-        if (asset == null) {
-            asset = MbwManager.getInstance(WalletApplication.getInstance()).getWalletManager(false).getAssetTypes()
-                    .find { it.getCurrencyId().equals(orderResponse.currencyFromInfo?.name, true) }
-        }
-        totalAmountCryptoString.value =
-                asset?.value(orderResponse.amountExpectedFrom ?: "")?.toStringFriendlyWithUnit()
+    fun setOrder(orderResponse: MCOrderResponse) {
+        val cardAmount = (orderResponse.paymentData?.paymentAmount ?: BigDecimal.ZERO)
+        cardValue.value = "${cardAmount.stripTrailingZeros().toPlainString()} ${orderResponse.paymentData?.paymentCurrency}"
+//        quantity.value = orderResponse.quantity?.toInt() ?: 0
+        totalAmountFiatString.value = "${orderResponse.paymentData?.paymentAmount?.times(orderResponse.quantity!!)} ${orderResponse.paymentData?.paymentCurrency}"
+//        var asset = orderResponse.pacurrencyFromInfo?.name?.toAssetInfo()
+//        if (asset == null) {
+//            asset = MbwManager.getInstance(WalletApplication.getInstance()).getWalletManager(false).getAssetTypes()
+//                    .find { it.getCurrencyId().equals(orderResponse.currencyFromInfo?.name, true) }
+//        }
+//        totalAmountCryptoString.value =
+//                asset?.value(orderResponse.amountExpectedFrom ?: "")?.toStringFriendlyWithUnit()
     }
 }
