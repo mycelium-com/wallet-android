@@ -144,13 +144,10 @@ class StoresFragment : Fragment() {
                 country = activityViewModel.selectedCountries.value,
                 offset = if (offset == -1L) 0 else offset, limit = 30,
                 success = {
-                    val categories = it?.flatMap { it.categories?.split(",").orEmpty() }
-                        ?.toSet().orEmpty().filter { it.isNotEmpty() }
+                    val categories = it?.categories.orEmpty()
                     activityViewModel.categories.value = listOf("All") + categories
-                    activityViewModel.countries.value = it?.flatMap { it.countries.orEmpty() }?.toSet()?.mapNotNull {
-                        CountriesSource.countryModels.find { model -> model.acronym.equals(it, true) }
-                    }
-                    viewModel.setProducts(it.orEmpty())
+                    activityViewModel.countries.value = it?.countries
+                    viewModel.setProducts(it?.products.orEmpty())
                     adapter.submitList(viewModel.products)
                 },
                 error = { code, msg ->

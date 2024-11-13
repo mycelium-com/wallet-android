@@ -4,13 +4,14 @@ import com.mycelium.bequant.kyc.inputPhone.coutrySelector.CountryModel
 import com.mycelium.bequant.remote.doRequest
 import com.mycelium.generated.giftbox.database.GiftboxCard
 import com.mycelium.generated.giftbox.database.GiftboxDB
-import com.mycelium.giftbox.client.models.*
 import com.mycelium.giftbox.dateAdapter
 import com.mycelium.giftbox.model.Card
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.WalletApplication
 import com.mycelium.wapi.wallet.AesKeyCipher
 import app.cash.sqldelight.driver.android.AndroidSqliteDriver
+import com.mycelium.bequant.kyc.inputPhone.coutrySelector.CountriesSource
+import com.mycelium.bequant.remote.doRequestModify
 import com.mycelium.giftbox.client.model.MCCreateOrderRequest
 import com.mycelium.giftbox.client.model.MCOrderResponse
 import com.mycelium.giftbox.client.model.MCOrderStatusRequest
@@ -18,10 +19,13 @@ import com.mycelium.giftbox.client.model.MCOrderStatusResponse
 import com.mycelium.giftbox.client.model.MCPrice
 import com.mycelium.giftbox.client.model.MCProductInfo
 import com.mycelium.giftbox.client.model.OrderList
+import com.mycelium.giftbox.client.model.Products
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import retrofit2.Response
 import java.util.*
+import kotlin.collections.orEmpty
+import kotlin.text.orEmpty
 
 class MCGiftboxApiRepository {
 
@@ -90,6 +94,8 @@ class MCGiftboxApiRepository {
 //        }, successBlock = success, errorBlock = error, finallyBlock = finally)
 //    }
 
+    var cacheProducts: Pair<Long, Response<List<MCProductInfo>>>? = null
+
     fun getProducts(
         scope: CoroutineScope,
         search: String? = null,
@@ -97,13 +103,41 @@ class MCGiftboxApiRepository {
         category: String? = null,
         offset: Long = 0,
         limit: Long = 100,
-        success: (List<MCProductInfo>?) -> Unit,
+        success: (Products?) -> Unit,
         error: (Int, String) -> Unit,
         finally: (() -> Unit)? = null
     ): Job =
-        doRequest(scope, {
-            api.products()
-        }, successBlock = success, errorBlock = error, finallyBlock = finally)
+        doRequestModify<List<MCProductInfo>, Products>(scope, {
+            val result = if (System.currentTimeMillis() - (cacheProducts?.first ?: 0) < 5000
+                && cacheProducts?.second != null
+            ) {
+                cacheProducts?.second
+            } else {
+                api.products().apply {
+                    cacheProducts = System.currentTimeMillis() to this
+                }
+            }
+            result!!
+        }, successBlock = success, errorBlock = error, finallyBlock = finally,
+            responseModifier = {
+                val products = it?.filter {
+                    if (search?.isNotEmpty() == true)
+                        it.name?.contains(search, true) == true else true
+                }?.filter {
+                    if (country?.isNotEmpty() == true) {
+                        it.countries?.intersect(country.map { it.acronym })?.isNotEmpty() == true
+                    } else true
+                }?.filter {
+                    if (category?.isNotEmpty() == true) it.categories?.contains(category) == true else true
+                }
+                val categories = it?.flatMap { it.categories?.split(",").orEmpty() }
+                    ?.toSet().orEmpty().filter { it.isNotEmpty() }
+
+                val countries = it?.flatMap { it.countries.orEmpty() }?.toSet()?.mapNotNull {
+                    CountriesSource.countryModels.find { model -> model.acronym.equals(it, true) }
+                }
+                Products(products, categories, countries)
+            })
 
 
     fun createOrder(
@@ -186,19 +220,30 @@ class MCGiftboxApiRepository {
             (it.cardUrl?.isNotEmpty() == true) or (it.cardCode?.isNotEmpty() == true)
         }?.forEach { order ->
             giftbxDB.giftboxCardQueries.updateCard(
-                order.product?.id, order.product?.name, order.product?.cardImageUrl,
-                order.product?.currency, order.faceValue.toString(), null/*order.product.expiryDate*/,
+                order.product?.id,
+                order.product?.name,
+                order.product?.cardImageUrl,
+                order.product?.currency,
+                order.faceValue.toString(),
+                null/*order.product.expiryDate*/,
                 order.createdDate,
-                order.orderId, order.cardCode.orEmpty(),
-                order.cardUrl.orEmpty(), ""
+                order.orderId,
+                order.cardCode.orEmpty(),
+                order.cardUrl.orEmpty(),
+                ""
             )
             if (giftbxDB.giftboxCardQueries.isCardUpdated().executeAsOne() == 0L) {
                 giftbxDB.giftboxCardQueries.insertCard(
                     order.orderId,
-                    order.product?.id, order.product?.name, order.product?.cardImageUrl,
-                    order.product?.currency, order.faceValue.toString(), null/*order.product.expiryDate*/,
+                    order.product?.id,
+                    order.product?.name,
+                    order.product?.cardImageUrl,
+                    order.product?.currency,
+                    order.faceValue.toString(),
+                    null/*order.product.expiryDate*/,
                     order.cardCode.orEmpty(),
-                    order.cardUrl.orEmpty(), "",
+                    order.cardUrl.orEmpty(),
+                    "",
                     order.createdDate
                 )
             }

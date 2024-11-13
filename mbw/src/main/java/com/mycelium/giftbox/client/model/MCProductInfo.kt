@@ -5,7 +5,7 @@ import android.os.Parcelable
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.mycelium.wallet.R
 import com.mycelium.wallet.WalletApplication
-import kotlinx.android.parcel.Parcelize
+import kotlinx.parcelize.Parcelize
 import java.math.BigDecimal
 
 // "identifier": "b-and-m",

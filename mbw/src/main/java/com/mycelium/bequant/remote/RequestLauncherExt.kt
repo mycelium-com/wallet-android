@@ -8,20 +8,21 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import retrofit2.Response
 
-fun <T> doRequest(
-    coroutineScope: CoroutineScope, request: suspend () -> Response<T>,
-    successBlock: (T?) -> Unit,
+fun <T, R> doRequestModify(
+    coroutineScope: CoroutineScope,
+    request: suspend () -> Response<T>,
+    successBlock: (R?) -> Unit,
     errorBlock: ((Int, String) -> Unit)? = null,
     finallyBlock: (() -> Unit)? = null,
-    responseModifier: ((T?) -> T?)? = null
-) : Job =
+    responseModifier: ((T?) -> R?)?
+): Job =
     coroutineScope.launch {
         withContext(Dispatchers.IO) {
             try {
                 val response = request()
                 withContext(Dispatchers.Main) {
                     if (response.isSuccessful) {
-                        successBlock(responseModifier?.invoke(response.body()) ?: response.body())
+                        successBlock(responseModifier?.invoke(response.body()))
                     } else {
                         @Suppress("BlockingMethodInNonBlockingContext")
                         errorBlock?.invoke(response.code(), response.errorBody()?.string() ?: "")
@@ -39,3 +40,13 @@ fun <T> doRequest(
             finallyBlock?.invoke()
         }
     }
+
+fun <T> doRequest(
+    coroutineScope: CoroutineScope,
+    request: suspend () -> Response<T>,
+    successBlock: (T?) -> Unit,
+    errorBlock: ((Int, String) -> Unit)? = null,
+    finallyBlock: (() -> Unit)? = null,
+    responseModifier: ((T?) -> T?)? = { it }
+): Job =
+    doRequestModify(coroutineScope, request, successBlock, errorBlock, finallyBlock, responseModifier)
