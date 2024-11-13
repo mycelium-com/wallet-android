@@ -60,15 +60,17 @@ class MCGiftboxApiRepository {
         finally: () -> Unit
     ) {
         doRequest(scope, {
-            api.getPrice(MCCreateOrderRequest(
-                userId,
-                code,
-                amount.toString(),
-                "BTC",
-                currencyId,
-                walletAddress,
-                walletSignature
-                ))
+            api.getPrice(
+                MCCreateOrderRequest(
+                    userId,
+                    code,
+                    amount.toString(),
+                    "BTC",
+                    currencyId,
+                    walletAddress,
+                    walletSignature
+                )
+            )
         }, successBlock = success, errorBlock = error, finallyBlock = finally)
     }
 
@@ -142,14 +144,14 @@ class MCGiftboxApiRepository {
     ) {
         doRequest(scope, {
             api.getOrders(userId)
-//                .apply {
-//                if (this.isSuccessful) {
-//                    updateCards(this.body()?.items)
+                .apply {
+                    if (this.isSuccessful) {
+                        updateCards(this.body()?.list)
 //                    if (offset == 0L) {
 //                        fetchAllOrders(scope, limit, this.body()?.size ?: 0)
 //                    }
-//                }
-//            }
+                    }
+                }
         }, successBlock = success, errorBlock = error, finallyBlock = finally)
     }
 
@@ -161,12 +163,14 @@ class MCGiftboxApiRepository {
         finally: (() -> Unit)? = null
     ) {
         doRequest(scope, {
-            api.orderStatus(MCOrderStatusRequest(
-                userId,
-                orderId,
-                walletAddress,
-                walletSignature
-            ))
+            api.orderStatus(
+                MCOrderStatusRequest(
+                    userId,
+                    orderId,
+                    walletAddress,
+                    walletSignature
+                )
+            )
         }, successBlock = success, errorBlock = error, finallyBlock = finally)
     }
 
@@ -177,24 +181,28 @@ class MCGiftboxApiRepository {
 //        }
 //    }
 
-    private fun updateCards(orders: List<Order>?) {
-        orders?.forEach { order ->
-            order.items?.forEach {
-                giftbxDB.giftboxCardQueries.updateCard(
-                    order.productCode, order.productName, order.productImg,
-                    order.currencyCode, it.amount, it.expiryDate, order.timestamp,
-                    order.clientOrderId ?: "", it.code ?: "",
-                    it.deliveryUrl ?: "", it.pin ?: ""
+    private fun updateCards(orders: List<MCOrderResponse>?) {
+        orders?.filter {
+            (it.cardUrl?.isNotEmpty() == true) or (it.cardCode?.isNotEmpty() == true)
+        }?.forEach { order ->
+            giftbxDB.giftboxCardQueries.updateCard(
+                order.product?.id, order.product?.name, order.product?.cardImageUrl,
+                order.product?.currency, order.faceValue.toString(), null/*order.product.expiryDate*/,
+                order.createdDate,
+                order.orderId, order.cardCode.orEmpty(),
+                order.cardUrl.orEmpty(), ""
+            )
+            if (giftbxDB.giftboxCardQueries.isCardUpdated().executeAsOne() == 0L) {
+                giftbxDB.giftboxCardQueries.insertCard(
+                    order.orderId,
+                    order.product?.id, order.product?.name, order.product?.cardImageUrl,
+                    order.product?.currency, order.faceValue.toString(), null/*order.product.expiryDate*/,
+                    order.cardCode.orEmpty(),
+                    order.cardUrl.orEmpty(), "",
+                    order.createdDate
                 )
-                if (giftbxDB.giftboxCardQueries.isCardUpdated().executeAsOne() == 0L) {
-                    giftbxDB.giftboxCardQueries.insertCard(
-                        order.clientOrderId ?: "",
-                        order.productCode, order.productName, order.productImg, order.currencyCode,
-                        it.amount, it.expiryDate, it.code ?: "", it.deliveryUrl ?: "",
-                        it.pin ?: "", order.timestamp
-                    )
-                }
             }
+
         }
     }
 
