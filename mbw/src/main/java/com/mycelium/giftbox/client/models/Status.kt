@@ -10,7 +10,7 @@ import com.fasterxml.jackson.annotation.JsonProperty
 enum class Status(val value: String) {
     @JsonProperty(value = "pending")
     PENDING("pending"),
-    @JsonProperty(value = "SUCCESS")
+    @JsonProperty(value = "payment_confirmed")
     sUCCESS("SUCCESS"),
     @JsonProperty(value = "ERROR")
     eRROR("ERROR"),
