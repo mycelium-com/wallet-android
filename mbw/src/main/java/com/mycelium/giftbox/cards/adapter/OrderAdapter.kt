@@ -14,6 +14,7 @@ import com.bumptech.glide.load.resource.bitmap.CenterCrop
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import com.bumptech.glide.request.RequestOptions
 import com.mycelium.bequant.common.equalsValuesBy
+import com.mycelium.giftbox.client.model.MCOrderResponse
 import com.mycelium.giftbox.client.models.Order
 import com.mycelium.giftbox.client.models.Status
 import com.mycelium.giftbox.getDateString
@@ -23,13 +24,13 @@ import com.mycelium.wallet.databinding.ItemGiftboxPurchacedGroupBinding
 import java.math.BigDecimal
 
 abstract class PurchasedItem(val type: Int)
-data class PurchasedOrderItem(val order: Order, val redeemed: Boolean = false) : PurchasedItem(OrderAdapter.TYPE_CARD)
+data class PurchasedOrderItem(val order: MCOrderResponse, val redeemed: Boolean = false) : PurchasedItem(OrderAdapter.TYPE_CARD)
 data class PurchasedGroupItem(val title: String, val isOpened: Boolean = true) : PurchasedItem(OrderAdapter.TYPE_GROUP)
 object PurchasedLoadingItem : PurchasedItem(OrderAdapter.TYPE_LOADING)
 
 class OrderAdapter : ListAdapter<PurchasedItem, RecyclerView.ViewHolder>(DiffCallback()) {
 
-    var itemClickListener: ((Order) -> Unit)? = null
+    var itemClickListener: ((MCOrderResponse) -> Unit)? = null
     var groupListener: ((String) -> Unit)? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder =
@@ -53,12 +54,11 @@ class OrderAdapter : ListAdapter<PurchasedItem, RecyclerView.ViewHolder>(DiffCal
                 val purchasedItem = getItem(bindingAdapterPosition) as PurchasedOrderItem
                 val item = purchasedItem.order
                 holder as CardViewHolder
-                holder.binding.title.text = item.productName
-                val amount = (item.amount?.toBigDecimal() ?: BigDecimal.ZERO) *
-                        (item.quantity ?: BigDecimal.ZERO)
-                holder.binding.description.text = "${amount.stripTrailingZeros().toPlainString()} ${item.currencyCode}"
+                holder.binding.title.text = item.product?.name
+                val amount = (item.faceValue ?: BigDecimal.ZERO) * item.quantity
+                holder.binding.description.text = "${amount.stripTrailingZeros().toPlainString()} ${item.product?.currency}"
                 holder.binding.additional.text = when (item.status) {
-                    Status.pROCESSING -> {
+                    Status.pROCESSING, Status.PENDING -> {
                         holder.binding.additionalLabel.visibility = GONE
                         holder.binding.additional.setCompoundDrawablesRelativeWithIntrinsicBounds(R.drawable.ic_history, 0, 0, 0)
                         val color = holder.itemView.context.resources.getColor(R.color.giftbox_yellow)
@@ -82,12 +82,12 @@ class OrderAdapter : ListAdapter<PurchasedItem, RecyclerView.ViewHolder>(DiffCal
                         holder.binding.additionalLabel.visibility = View.VISIBLE
                         holder.binding.additional.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0, 0, 0)
                         holder.binding.additional.setTextColor(holder.itemView.context.resources.getColor(R.color.giftbox_green))
-                        item.timestamp?.getDateString(holder.itemView.resources)
+                        item.createdDate?.getDateString(holder.itemView.resources)
                     }
                 }
                 holder.itemView.isEnabled = !purchasedItem.redeemed
                 Glide.with(holder.binding.image)
-                        .load(item.productImg)
+                        .load(item.product?.logoUrl)
                         .apply(RequestOptions()
                                 .transforms(CenterCrop(), RoundedCorners(holder.itemView.resources.getDimensionPixelSize(R.dimen.giftbox_small_corner))))
                         .into(holder.binding.image)
@@ -127,7 +127,7 @@ class OrderAdapter : ListAdapter<PurchasedItem, RecyclerView.ViewHolder>(DiffCal
                         when (oldItem.type) {
                             TYPE_CARD ->
                                 equalsValuesBy(oldItem as PurchasedOrderItem, newItem as PurchasedOrderItem,
-                                        { it.order.clientOrderId })
+                                        { it.order.orderId })
                             TYPE_GROUP -> equalsValuesBy(oldItem as PurchasedGroupItem, newItem as PurchasedGroupItem,
                                     { it.title })
                             else -> true
@@ -138,8 +138,8 @@ class OrderAdapter : ListAdapter<PurchasedItem, RecyclerView.ViewHolder>(DiffCal
                 when (oldItem.type) {
                     TYPE_CARD ->
                         equalsValuesBy(oldItem as PurchasedOrderItem, newItem as PurchasedOrderItem,
-                                { it.order.productImg }, { it.order.productName },
-                                { it.order.amount }, { it.order.timestamp })
+                                { it.order.product?.logoUrl }, { it.order.product?.name },
+                                { it.order.faceValue }, { it.order.createdDate })
                     TYPE_GROUP -> equalsValuesBy(oldItem as PurchasedGroupItem, newItem as PurchasedGroupItem,
                             { it.title }, { it.isOpened })
                     else -> true

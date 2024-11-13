@@ -21,6 +21,7 @@ import com.mycelium.giftbox.cards.event.RefreshOrdersRequest
 import com.mycelium.giftbox.cards.viewmodel.GiftBoxViewModel
 import com.mycelium.giftbox.cards.viewmodel.PurchasedViewModel
 import com.mycelium.giftbox.client.GitboxAPI
+import com.mycelium.giftbox.client.model.MCOrderResponse
 import com.mycelium.giftbox.client.models.Order
 import com.mycelium.giftbox.common.ListState
 import com.mycelium.wallet.MbwManager
@@ -72,7 +73,7 @@ class OrdersFragment : Fragment() {
             override fun isLoading() = viewModel.state.value == ListState.LOADING
         })
         adapter.itemClickListener = {
-//            findNavController().navigate(GiftBoxFragmentDirections.actionOrderDetails(null, null, null, null, null, null, null, it))
+            findNavController().navigate(GiftBoxFragmentDirections.actionOrderDetails(null, null, null, null, null, null, null, it))
         }
         adapter.groupListener = { group ->
             GiftboxPreference.setGroupOpen(group, !GiftboxPreference.isGroupOpen(group))
@@ -103,7 +104,7 @@ class OrdersFragment : Fragment() {
         }
         viewModel.state.value = ListState.LOADING
         GitboxAPI.mcGiftRepository.getOrders(lifecycleScope, offset, success = {
-            viewModel.setOrdersResponse(it, offset != 0L)
+            viewModel.setOrdersResponse(it?.list, offset != 0L)
             adapter.submitList(generateList(viewModel.orders.value ?: emptyList()))
             MbwManager.getEventBus().post(OrdersUpdate())
         }, error = { code, msg ->
@@ -117,7 +118,7 @@ class OrdersFragment : Fragment() {
         })
     }
 
-    private fun generateList(data: List<Order>) = data.map { PurchasedOrderItem(it) }
+    private fun generateList(data: List<MCOrderResponse>) = data.map { PurchasedOrderItem(it) }
 
     override fun onDestroyView() {
         MbwManager.getEventBus().unregister(this)

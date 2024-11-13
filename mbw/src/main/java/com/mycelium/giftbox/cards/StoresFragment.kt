@@ -55,7 +55,6 @@ class StoresFragment : Fragment() {
         viewModel.category?.let {
             getTab(it, binding?.tags!!)?.select()
         }
-        binding?.tags?.isVisible = viewModel.category?.isNotEmpty() == true
         binding?.tags?.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
             override fun onTabReselected(p0: TabLayout.Tab?) {
             }
@@ -106,6 +105,7 @@ class StoresFragment : Fragment() {
     }
 
     private fun updateCategories(categories: List<String>) {
+        binding?.tags?.isVisible = categories.isNotEmpty() == true
         binding?.tags?.let { tags ->
             categories.forEach {
                 if (getTab(it, tags) == null) {
@@ -144,12 +144,12 @@ class StoresFragment : Fragment() {
                 country = activityViewModel.selectedCountries.value,
                 offset = if (offset == -1L) 0 else offset, limit = 30,
                 success = {
-//                    activityViewModel.categories.value = listOf("All") + (it?.categories
-//                            ?: emptyList())
-                    activityViewModel.countries.value = emptyList()
-//                    it?.countries?.mapNotNull {
-//                        CountriesSource.countryModels.find { model -> model.acronym.equals(it, true) }
-//                    }
+                    val categories = it?.flatMap { it.categories?.split(",").orEmpty() }
+                        ?.toSet().orEmpty().filter { it.isNotEmpty() }
+                    activityViewModel.categories.value = listOf("All") + categories
+                    activityViewModel.countries.value = it?.flatMap { it.countries.orEmpty() }?.toSet()?.mapNotNull {
+                        CountriesSource.countryModels.find { model -> model.acronym.equals(it, true) }
+                    }
                     viewModel.setProducts(it.orEmpty())
                     adapter.submitList(viewModel.products)
                 },

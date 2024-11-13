@@ -26,11 +26,17 @@ data class MCProductInfo(
     @JsonProperty("name")
     var name: String? = null,
 
+    @JsonProperty("description")
+    var description: String? = null,
+
     @JsonProperty("currency")
     var currency: String? = null,
 
     @JsonProperty("countries_served")
     var countries: List<String>? = null,
+
+    @JsonProperty("categories")
+    var categories: String? = null,
 
     @JsonProperty("min_face_value")
     var minFaceValue: BigDecimal = BigDecimal.ZERO,
@@ -45,7 +51,10 @@ data class MCProductInfo(
     var logoUrl: String? = null,
 
     @JsonProperty("gift_card_url")
-    var cardImageUrl: String? = null
+    var cardImageUrl: String? = null,
+
+    @JsonProperty("expiry")
+    var expiryData:String? = null
 
 ) : Parcelable
 

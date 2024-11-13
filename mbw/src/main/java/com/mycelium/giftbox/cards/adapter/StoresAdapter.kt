@@ -44,17 +44,17 @@ class StoresAdapter : ListAdapter<MCProductInfo, RecyclerView.ViewHolder>(DiffCa
                     .into(holder.binding.image)
 
             holder.binding.title.text = item.name
-//            holder.binding.description.text = item.categories
-//                    ?.joinToString { it.replace("-", " ").capitalize() }
-//            holder.binding.additional.text = if (item?.denominationType == ProductInfo.DenominationType.fixed && item.availableDenominations?.size ?: 100 < 6) {
+            holder.binding.description.text = item.categories?.capitalize()
+            holder.binding.additional.text =
+//            if (item?.denominationType == ProductInfo.DenominationType.fixed && item.availableDenominations?.size ?: 100 < 6) {
 //                item.availableDenominations?.joinToString { "${it.toPlainString()} ${item.currencyCode}" }
 //            } else {
-//                "from ${item.minimumValue.stripTrailingZeros().toPlainString()} ${item.currencyCode}" +
-//                        if (item.maximumValue != BigDecimal.ZERO) {
-//                            " to ${item.maximumValue.stripTrailingZeros().toPlainString()} ${item.currencyCode}"
-//                        } else {
-//                            ""
-//                        }
+                "from ${item.minFaceValue.stripTrailingZeros().toPlainString()} ${item.currency}" +
+                        if (item.maxFaceValue != BigDecimal.ZERO) {
+                            " to ${item.maxFaceValue.stripTrailingZeros().toPlainString()} ${item.currency}"
+                        } else {
+                            ""
+                        }
 //            }
             holder.itemView.setOnClickListener {
                 itemClickListener?.invoke(getItem(bindingAdapterPosition))

@@ -15,13 +15,19 @@ import com.mycelium.giftbox.client.model.MCCreateOrderRequest
 import com.mycelium.giftbox.client.model.MCOrderResponse
 import com.mycelium.giftbox.client.model.MCOrderStatusRequest
 import com.mycelium.giftbox.client.model.MCOrderStatusResponse
+import com.mycelium.giftbox.client.model.MCPrice
 import com.mycelium.giftbox.client.model.MCProductInfo
+import com.mycelium.giftbox.client.model.OrderList
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import retrofit2.Response
 import java.util.*
 
 class MCGiftboxApiRepository {
+
+    val walletAddress = "111113333"
+    val walletSignature = "222222222234"
+
     private var lastOrderId = updateOrderId()
 
     private val api = McGiftboxApi.create()
@@ -36,6 +42,7 @@ class MCGiftboxApiRepository {
             .getPrivateKeyForWebsite(GiftboxConstants.MC_WEBSITE, AesKeyCipher.defaultKeyCipher())
             .publicKey
     }
+    val userId get() = "12354812386"
 
     private fun updateOrderId(): String {
         lastOrderId = UUID.randomUUID().toString()
@@ -48,19 +55,19 @@ class MCGiftboxApiRepository {
 //        quantity: Int,
         amount: Int,
         currencyId: String,
-        success: (MCOrderResponse?) -> Unit,
+        success: (MCPrice?) -> Unit,
         error: (Int, String) -> Unit,
         finally: () -> Unit
     ) {
         doRequest(scope, {
-            api.createOrder(MCCreateOrderRequest(
-                clientUserIdFromMasterSeed.toString(),
+            api.getPrice(MCCreateOrderRequest(
+                userId,
                 code,
                 amount.toString(),
                 "BTC",
                 currencyId,
-                "1F4ENQ9VHub6utxTsaxRhz7poqVWbqFqdd",
-                "H/UEFHqmig/vlyXneGNIkxOUOTklkHb1pLfoQo/OBlStFAZtpuxMV5ulY0u5022ukrW0ez2KR9ZKzvHArBRs7mw="
+                walletAddress,
+                walletSignature
                 ))
         }, successBlock = success, errorBlock = error, finallyBlock = finally)
     }
@@ -112,11 +119,13 @@ class MCGiftboxApiRepository {
         doRequest(scope, {
             api.createOrder(
                 MCCreateOrderRequest(
-                    clientUserIdFromMasterSeed.toString(),
+                    userId,
                     code,
                     amount.toString(),
                     cryptoCurrency,
-                    amountCurrency
+                    amountCurrency,
+                    walletAddress,
+                    walletSignature
                 )
             )
         }, successBlock = success, errorBlock = error, finallyBlock = finally)
@@ -127,12 +136,13 @@ class MCGiftboxApiRepository {
         scope: CoroutineScope,
         offset: Long = 0,
         limit: Long = 100,
-        success: (OrdersHistoryResponse?) -> Unit,
+        success: (OrderList?) -> Unit,
         error: ((Int, String) -> Unit)? = null,
         finally: (() -> Unit)? = null
     ) {
-//        doRequest(scope, {
-//            api.orders(clientUserIdFromMasterSeed, offset, limit).apply {
+        doRequest(scope, {
+            api.getOrders(userId)
+//                .apply {
 //                if (this.isSuccessful) {
 //                    updateCards(this.body()?.items)
 //                    if (offset == 0L) {
@@ -140,7 +150,7 @@ class MCGiftboxApiRepository {
 //                    }
 //                }
 //            }
-//        }, successBlock = success, errorBlock = error, finallyBlock = finally)
+        }, successBlock = success, errorBlock = error, finallyBlock = finally)
     }
 
     fun getOrder(
@@ -152,8 +162,10 @@ class MCGiftboxApiRepository {
     ) {
         doRequest(scope, {
             api.orderStatus(MCOrderStatusRequest(
-                clientUserIdFromMasterSeed.toString(),
-                orderId
+                userId,
+                orderId,
+                walletAddress,
+                walletSignature
             ))
         }, successBlock = success, errorBlock = error, finallyBlock = finally)
     }

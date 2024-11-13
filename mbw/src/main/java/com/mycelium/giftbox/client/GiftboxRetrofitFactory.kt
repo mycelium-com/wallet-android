@@ -21,6 +21,7 @@ object RetrofitFactory {
         .registerKotlinModule()
         .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
         .configure(DeserializationFeature.ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT, true)
+        .configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true)
         .configure(JsonParser.Feature.AUTO_CLOSE_SOURCE, true)
         .setDateFormat(SimpleDateFormat("yyyy-MM-dd", Locale.US))
 
@@ -28,7 +29,7 @@ object RetrofitFactory {
         OkHttpClient().newBuilder()
             .addInterceptor {
                 it.proceed(it.request().newBuilder().apply {
-                    addHeader("Content-Type", "application/json")
+//                    addHeader("Content-Type", "application/json")
                     addHeader("x-api-key", MC_API_KEY)
 //                    addHeader("Authorization", "Basic ${GiftboxPreference.getAccessToken()}")
                 }.build())

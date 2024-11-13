@@ -2,10 +2,12 @@ package com.mycelium.giftbox.client.model
 
 import android.os.Parcelable
 import com.fasterxml.jackson.annotation.JsonProperty
+import com.mycelium.giftbox.client.model.MCOrderResponse
 import com.mycelium.giftbox.client.models.Status
 import kotlinx.parcelize.Parcelize
 import java.math.BigDecimal
 import java.math.BigInteger
+import java.util.Date
 
 //"order_id": "12345",
 //"status": "pending",
@@ -25,11 +27,22 @@ data class MCOrderResponse(
     override var status: Status,
     @JsonProperty("payment_data")
     var paymentData: PaymentData? = null,
+
     @JsonProperty("card_url")
     var cardUrl: String? = null,
     @JsonProperty("card_code")
     var cardCode: String? = null,
-    var quantity: BigDecimal = BigDecimal.ONE
+    @JsonProperty("expiration_time")
+    var quantity: BigDecimal = BigDecimal.ONE,
+    @JsonProperty("brand_info")
+    var product: MCProductInfo? = null,
+
+
+    @JsonProperty("order_date")
+    var createdDate: Date? = null,
+    @JsonProperty("fiat_amount")
+    var faceValue: BigDecimal? = null
+
 ) : MCOrderCommon, Parcelable
 
 @Parcelize
@@ -41,5 +54,9 @@ data class PaymentData(
     var paymentAmount: BigDecimal? = null,
 
     @JsonProperty("payment_currency")
-    var paymentCurrency: String? = null
+    var paymentCurrency: String? = null,
+
+    @JsonProperty("expiration_time")
+    val expireTime:Int
+
 ) : Parcelable

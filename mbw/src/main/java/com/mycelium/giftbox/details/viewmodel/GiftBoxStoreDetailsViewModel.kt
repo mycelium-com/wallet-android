@@ -26,7 +26,7 @@ class GiftBoxStoreDetailsViewModel : ViewModel(), DescriptionViewModel {
 
     fun setProduct(product: MCProductInfo?) {
         productInfo.value = product
-//        description.value = product?.description
+        description.value = product?.description.orEmpty()
         currency.value = product?.currency
 //        termsLink.value = product?.termsAndConditionsPdfUrl
 //        redeemInstruction.value = product?.redeemInstructionsHtml
@@ -34,6 +34,6 @@ class GiftBoxStoreDetailsViewModel : ViewModel(), DescriptionViewModel {
             CountriesSource.countryModels.find { model -> model.acronym.equals(it, true) }
         }?.joinToString { it.name }
         amount.value = product?.minFaceValue.toString()
-//        expire.value = if (product?.expiryInMonths != null) "${product.expiryDatePolicy} (${product.expiryInMonths} months)" else "Does not expire"
+        expire.value = if (product?.expiryData != null) "${product.expiryData}" else "Does not expire"
     }
 }

@@ -15,6 +15,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.mycelium.giftbox.client.GitboxAPI
 import com.mycelium.giftbox.client.model.MCOrderResponse
+import com.mycelium.giftbox.client.model.MCPrice
 import com.mycelium.giftbox.client.model.getCardValue
 import com.mycelium.giftbox.client.models.PriceResponse
 import com.mycelium.giftbox.purchase.viewmodel.getCurrencyId
@@ -66,9 +67,7 @@ class AmountInputFragment : Fragment(), NumberEntry.NumberEntryListener {
             field = value
             lifecycleScope.launch(IO) {
                 getPriceResponse(value!!).collect { response ->
-                    val exchangeRate =
-                        response?.paymentData?.paymentAmount?.divide(value?.valueAsBigDecimal)
-                            ?: BigDecimal.valueOf(-1)
+                    val exchangeRate = response?.rate ?: BigDecimal.ZERO
                     if (/*it?.status != PriceResponse.Status.sUCCESS ||*/ exchangeRate <= BigDecimal.ZERO) {
                         withContext(Dispatchers.Main) {
                             AlertDialog.Builder(requireActivity())
@@ -93,7 +92,7 @@ class AmountInputFragment : Fragment(), NumberEntry.NumberEntryListener {
                         val cryptoAmountValue =
                             valueOf(
                                 account?.coinType!!,
-                                toUnits(account?.coinType!!, response?.paymentData?.paymentAmount!!)
+                                toUnits(account?.coinType!!, response?.amount!!)
                             )
                         binding.tvCryptoAmount.isVisible = true
                         binding.tvCryptoAmount.text = cryptoAmountValue.toStringFriendlyWithUnit()
@@ -293,17 +292,14 @@ class AmountInputFragment : Fragment(), NumberEntry.NumberEntryListener {
         binding.btOk.isEnabled = isValid
     }
 
-    private fun convertToFiat(response: MCOrderResponse?, value: Value): Value? {
-        val exchangeRate =
-            response?.paymentData?.paymentAmount?.divide(value?.valueAsBigDecimal)
-                ?: BigDecimal.valueOf(-1)
-        return exchangeRate?.let {
+    private fun convertToFiat(response: MCPrice?, value: Value): Value? =
+        (response?.rate ?: BigDecimal.ZERO)?.let {
             val fiat = value.valueAsBigDecimal.multiply(it)
-            Value.valueOf(zeroFiatValue.type, toUnits(zeroFiatValue.type, fiat))
+            valueOf(zeroFiatValue.type, toUnits(zeroFiatValue.type, fiat))
         }
-    }
 
-    private fun getPriceResponse(value: Value): Flow<MCOrderResponse?> {
+
+    private fun getPriceResponse(value: Value): Flow<MCPrice?> {
         return callbackFlow {
             GitboxAPI.mcGiftRepository.getPrice(lifecycleScope,
                 code = args.mcproduct.id!!,
