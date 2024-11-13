@@ -62,6 +62,7 @@ import java.math.BigInteger
 import java.util.*
 import java.util.concurrent.TimeUnit
 import androidx.activity.viewModels
+import androidx.core.widget.NestedScrollView
 
 class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener, AmountListener {
     private val viewModel: SendCoinsViewModel by viewModels { SendCoinsFactory(account) }
@@ -499,7 +500,7 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener, AmountLi
         bindingFeeSelector?.feeValueList?.setSelectListener { adapter, position ->
             val item = (adapter as FeeViewAdapter).getItem(position)
             viewModel.getSelectedFee().value = Value.valueOf(item.value.type, item.feePerKb)
-            val root = findViewById<ScrollView>(R.id.root)
+            val root = findViewById<NestedScrollView>(R.id.root)
             if (viewModel.isSendScrollDefault() && root.maxScrollAmount - root.scaleY > 0) {
                 root.smoothScrollBy(0, root.maxScrollAmount)
                 viewModel.setSendScrollDefault(false)
