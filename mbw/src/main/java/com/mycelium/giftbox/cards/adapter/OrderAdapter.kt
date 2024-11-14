@@ -58,7 +58,7 @@ class OrderAdapter : ListAdapter<PurchasedItem, RecyclerView.ViewHolder>(DiffCal
                 val amount = (item.faceValue ?: BigDecimal.ZERO) * item.quantity
                 holder.binding.description.text = "${amount.stripTrailingZeros().toPlainString()} ${item.product?.currency}"
                 holder.binding.additional.text = when (item.status) {
-                    Status.pROCESSING, Status.PENDING -> {
+                     Status.PENDING -> {
                         holder.binding.additionalLabel.visibility = GONE
                         holder.binding.additional.setCompoundDrawablesRelativeWithIntrinsicBounds(R.drawable.ic_history, 0, 0, 0)
                         val color = holder.itemView.context.resources.getColor(R.color.giftbox_yellow)

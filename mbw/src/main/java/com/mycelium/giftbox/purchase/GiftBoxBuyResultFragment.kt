@@ -206,7 +206,7 @@ class GiftBoxBuyResultFragment : Fragment() {
         }
         binding?.orderScheme?.paymentText?.setOnClickListener(null)
         when (order.status) {
-            Status.pROCESSING, Status.PENDING -> {
+            Status.PENDING -> {
                 binding?.orderScheme?.paidIcon?.setImageResource(R.drawable.ic_vertical_stepper_done)
                 binding?.orderScheme?.paidIcon?.setBackgroundResource(R.drawable.vertical_stepper_view_item_circle_completed)
                 binding?.orderScheme?.line1?.setBackgroundResource(R.drawable.line_dash_green)
