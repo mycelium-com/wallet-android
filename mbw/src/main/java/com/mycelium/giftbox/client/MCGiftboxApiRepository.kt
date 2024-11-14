@@ -1,5 +1,6 @@
 package com.mycelium.giftbox.client
 
+import android.util.Log
 import com.mycelium.bequant.kyc.inputPhone.coutrySelector.CountryModel
 import com.mycelium.bequant.remote.doRequest
 import com.mycelium.generated.giftbox.database.GiftboxCard
@@ -24,6 +25,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import retrofit2.Response
 import java.util.*
+import java.util.concurrent.TimeUnit
 import kotlin.collections.orEmpty
 import kotlin.text.orEmpty
 
@@ -108,7 +110,7 @@ class MCGiftboxApiRepository {
         finally: (() -> Unit)? = null
     ): Job =
         doRequestModify<List<MCProductInfo>, Products>(scope, {
-            val result = if (System.currentTimeMillis() - (cacheProducts?.first ?: 0) < 5000
+            if (System.currentTimeMillis() - (cacheProducts?.first ?: 0) < TimeUnit.MINUTES.toMillis(5)
                 && cacheProducts?.second != null
             ) {
                 cacheProducts?.second
@@ -116,8 +118,7 @@ class MCGiftboxApiRepository {
                 api.products().apply {
                     cacheProducts = System.currentTimeMillis() to this
                 }
-            }
-            result!!
+            }!!
         }, successBlock = success, errorBlock = error, finallyBlock = finally,
             responseModifier = {
                 val products = it?.filter {

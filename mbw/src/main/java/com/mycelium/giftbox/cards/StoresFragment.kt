@@ -2,6 +2,7 @@ package com.mycelium.giftbox.cards
 
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.view.*
 import android.view.inputmethod.InputMethodManager
 import androidx.core.view.isVisible
@@ -148,7 +149,7 @@ class StoresFragment : Fragment() {
                     activityViewModel.categories.value = listOf("All") + categories
                     activityViewModel.countries.value = it?.countries
                     viewModel.setProducts(it?.products.orEmpty())
-                    adapter.submitList(viewModel.products)
+                    adapter.submitList(viewModel.products.toList())
                 },
                 error = { code, msg ->
                     adapter.submitList(listOf())
