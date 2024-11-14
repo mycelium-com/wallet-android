@@ -10,11 +10,9 @@ import com.mycelium.giftbox.client.GitboxAPI
 import com.mycelium.giftbox.client.model.MCOrderResponse
 import com.mycelium.giftbox.client.model.MCPrice
 import com.mycelium.giftbox.client.model.MCProductInfo
-import com.mycelium.giftbox.client.models.OrderResponse
-import com.mycelium.giftbox.client.models.PriceResponse
-import com.mycelium.giftbox.client.models.ProductInfo
 import com.mycelium.giftbox.common.OrderHeaderViewModel
 import com.mycelium.giftbox.purchase.debounce
+import com.mycelium.wallet.BuildConfig
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
@@ -96,7 +94,7 @@ class GiftboxBuyViewModel(val productInfo: MCProductInfo) : ViewModel(), OrderHe
 
                 val createTx = account.createTx(
                         address, getCryptoAmount(price.toPlainString()),
-                        FeePerKbFee(feeEstimation.normal), null
+                        FeePerKbFee(minerFee), null
                 )
                 account.signTx(createTx, AesKeyCipher.defaultKeyCipher())
                 trySend(createTx!! to account.broadcastTx(createTx))
@@ -116,6 +114,9 @@ class GiftboxBuyViewModel(val productInfo: MCProductInfo) : ViewModel(), OrderHe
     private val feeEstimation by lazy {
         mbwManager.getFeeProvider(account.basedOnCoinType).estimation
     }
+
+    private val minerFee
+        get() = if (BuildConfig.DEBUG) feeEstimation.low else feeEstimation.normal
 
     fun zeroFiatValue(product: MCProductInfo): Value {
         return Value.zeroValue(Utils.getTypeByName(product.currency)!!)
@@ -262,7 +263,7 @@ class GiftboxBuyViewModel(val productInfo: MCProductInfo) : ViewModel(), OrderHe
     private fun getMaxSpendable() =
             mbwManager.getWalletManager(false)
                     .getAccount(accountId.value!!)
-                    ?.calculateMaxSpendableAmount(feeEstimation.normal, null, null)!!
+                    ?.calculateMaxSpendableAmount(minerFee, null, null)!!
 
 
     val isGrantedPlus =
@@ -377,7 +378,7 @@ class GiftboxBuyViewModel(val productInfo: MCProductInfo) : ViewModel(), OrderHe
             Status(AmountValidation.Ok) to account.createTx(
                     account.dummyAddress,
                     value,
-                    FeePerKbFee(feeEstimation.normal),
+                    FeePerKbFee(minerFee),
                     null
             )
         } catch (e: OutputTooSmallException) {
@@ -385,7 +386,7 @@ class GiftboxBuyViewModel(val productInfo: MCProductInfo) : ViewModel(), OrderHe
                     Value.valueOf(account.coinType, TransactionUtils.MINIMUM_OUTPUT_VALUE).toStringWithUnit())) to null
         } catch (e: InsufficientFundsForFeeException) {
             if (account is ERC20Account) {
-                val totalFee = feeEstimation.normal.times(account.typicalEstimatedTransactionSize.toBigInteger())
+                val totalFee = minerFee.times(account.typicalEstimatedTransactionSize.toBigInteger())
                 val parentAccountBalance = account.ethAcc.accountBalance.spendable
                 val fee = totalFee - parentAccountBalance
                 Status(AmountValidation.NotEnoughFunds, res.getString(R.string.please_top_up_your_eth_account,
