@@ -31,8 +31,12 @@ abstract class WapiFeeProvider(private val wapi: Wapi, private val feeBacking: F
                     return Value.valueOf(coinType, estimate.longValue)
                 }
 
-                val newEstimation = FeeEstimationsGeneric(convert(20), convert(10), convert(3), convert(1),
-                        System.currentTimeMillis(), BTC_ELECTRUMX_FEE_ESTIMATIONS_SCALE
+                val newEstimation = FeeEstimationsGeneric(
+                    if (coinType.symbol == "tBTC") Value.valueOf(coinType, 1000) else convert(20),
+                    convert(10),
+                    convert(3),
+                    convert(1),
+                    System.currentTimeMillis(), BTC_ELECTRUMX_FEE_ESTIMATIONS_SCALE
                 )
                 //if all ok we return requested new fee estimation
                 feeBacking.updateFeeEstimation(newEstimation.feeEstimation())

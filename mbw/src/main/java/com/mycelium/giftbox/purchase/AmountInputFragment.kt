@@ -19,6 +19,7 @@ import com.mycelium.giftbox.client.model.MCPrice
 import com.mycelium.giftbox.client.model.getCardValue
 import com.mycelium.giftbox.client.models.PriceResponse
 import com.mycelium.giftbox.purchase.viewmodel.getCurrencyId
+import com.mycelium.wallet.BuildConfig
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.NumberEntry
 import com.mycelium.wallet.R
@@ -160,11 +161,14 @@ class AmountInputFragment : Fragment(), NumberEntry.NumberEntryListener {
     }
 
     private fun getMaxSpendable() =
-        account?.calculateMaxSpendableAmount(feeEstimation.normal, null, null)!!
+        account?.calculateMaxSpendableAmount(minerFee, null, null)!!
 
     private val feeEstimation by lazy {
         mbwManager.getFeeProvider(account?.basedOnCoinType).estimation
     }
+
+    private val minerFee
+        get() = if (BuildConfig.DEBUG) feeEstimation.low else feeEstimation.normal
 
     private fun getMaxDecimal(assetInfo: AssetInfo): Int =
             (assetInfo as? FiatType)?.unitExponent

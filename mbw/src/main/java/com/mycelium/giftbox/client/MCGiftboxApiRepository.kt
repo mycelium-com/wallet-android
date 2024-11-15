@@ -1,6 +1,5 @@
 package com.mycelium.giftbox.client
 
-import android.util.Log
 import com.mycelium.bequant.kyc.inputPhone.coutrySelector.CountryModel
 import com.mycelium.bequant.remote.doRequest
 import com.mycelium.generated.giftbox.database.GiftboxCard
@@ -11,6 +10,7 @@ import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.WalletApplication
 import com.mycelium.wapi.wallet.AesKeyCipher
 import app.cash.sqldelight.driver.android.AndroidSqliteDriver
+import com.mrd.bitlib.model.AddressType
 import com.mycelium.bequant.kyc.inputPhone.coutrySelector.CountriesSource
 import com.mycelium.bequant.remote.doRequestModify
 import com.mycelium.giftbox.client.model.MCCreateOrderRequest
@@ -27,12 +27,10 @@ import retrofit2.Response
 import java.util.*
 import java.util.concurrent.TimeUnit
 import kotlin.collections.orEmpty
+import kotlin.math.abs
 import kotlin.text.orEmpty
 
 class MCGiftboxApiRepository {
-
-    val walletAddress = "111113333"
-    val walletSignature = "222222222234"
 
     private var lastOrderId = updateOrderId()
 
@@ -48,7 +46,17 @@ class MCGiftboxApiRepository {
             .getPrivateKeyForWebsite(GiftboxConstants.MC_WEBSITE, AesKeyCipher.defaultKeyCipher())
             .publicKey
     }
-    val userId get() = "12354812386"
+    val userId get() = abs(clientUserIdFromMasterSeed.hashCode()).toString()
+    val walletAddress
+        get() = clientUserIdFromMasterSeed.toAddress(
+            MbwManager.getInstance(WalletApplication.getInstance()).network,
+            AddressType.P2PKH
+        )
+    fun walletSignature(data: String) =
+        MbwManager.getInstance(WalletApplication.getInstance())
+            .masterSeedManager.getIdentityAccountKeyManager(AesKeyCipher.defaultKeyCipher())
+            .getPrivateKeyForWebsite(GiftboxConstants.MC_WEBSITE, AesKeyCipher.defaultKeyCipher())
+            .signMessage(data)
 
     private fun updateOrderId(): String {
         lastOrderId = UUID.randomUUID().toString()
@@ -73,8 +81,8 @@ class MCGiftboxApiRepository {
                     amount.toString(),
                     "BTC",
                     currencyId,
-                    walletAddress,
-                    walletSignature
+                    walletAddress.toString(),
+                    walletSignature("").base64Signature
                 )
             )
         }, successBlock = success, errorBlock = error, finallyBlock = finally)
@@ -161,8 +169,8 @@ class MCGiftboxApiRepository {
                     amount.toString(),
                     cryptoCurrency,
                     amountCurrency,
-                    walletAddress,
-                    walletSignature
+                    walletAddress.toString(),
+                    walletSignature("").base64Signature
                 )
             )
         }, successBlock = success, errorBlock = error, finallyBlock = finally)
@@ -202,8 +210,8 @@ class MCGiftboxApiRepository {
                 MCOrderStatusRequest(
                     userId,
                     orderId,
-                    walletAddress,
-                    walletSignature
+                    walletAddress.toString(),
+                    walletSignature("").base64Signature
                 )
             )
         }, successBlock = success, errorBlock = error, finallyBlock = finally)
