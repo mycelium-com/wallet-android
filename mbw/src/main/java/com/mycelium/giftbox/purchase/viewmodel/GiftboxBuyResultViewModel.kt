@@ -50,10 +50,12 @@ class GiftboxBuyResultViewModel : ViewModel(), OrderHeaderViewModel {
     override val quantity = MutableLiveData(0)
 
     fun setOrder(orderResponse: MCOrderResponse) {
-        val cardAmount = (orderResponse.paymentData?.paymentAmount ?: BigDecimal.ZERO)
-        cardValue.value = "${cardAmount.stripTrailingZeros().toPlainString()} ${orderResponse.paymentData?.paymentCurrency}"
+        cardValue.value = "${orderResponse.faceValue?.stripTrailingZeros()?.toPlainString()} ${orderResponse.product?.currency}"
 //        quantity.value = orderResponse.quantity?.toInt() ?: 0
-        totalAmountFiatString.value = "${orderResponse.paymentData?.paymentAmount?.times(orderResponse.quantity!!)} ${orderResponse.paymentData?.paymentCurrency}"
+        orderResponse.paymentData?.let {
+            totalAmountFiatString.value =
+                "${orderResponse.paymentData?.paymentAmount?.times(orderResponse.quantity)} ${orderResponse.paymentData?.paymentCurrency}"
+        }
 //        var asset = orderResponse.pacurrencyFromInfo?.name?.toAssetInfo()
 //        if (asset == null) {
 //            asset = MbwManager.getInstance(WalletApplication.getInstance()).getWalletManager(false).getAssetTypes()

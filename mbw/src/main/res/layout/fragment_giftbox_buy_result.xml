@@ -41,6 +41,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
+                    android:visibility="@{vm.totalAmountFiatString.isEmpty() ? View.GONE : View.VISIBLE}"
                     android:layout_marginTop="16dp">
 
                     <TextView

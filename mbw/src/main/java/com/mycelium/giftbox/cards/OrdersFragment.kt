@@ -73,7 +73,7 @@ class OrdersFragment : Fragment() {
             override fun isLoading() = viewModel.state.value == ListState.LOADING
         })
         adapter.itemClickListener = {
-            findNavController().navigate(GiftBoxFragmentDirections.actionOrderDetails(null, null, null, null, null, null, null, it))
+            findNavController().navigate(GiftBoxFragmentDirections.actionOrderDetails(null, null, it.product, null, null, null, null, it))
         }
         adapter.groupListener = { group ->
             GiftboxPreference.setGroupOpen(group, !GiftboxPreference.isGroupOpen(group))
