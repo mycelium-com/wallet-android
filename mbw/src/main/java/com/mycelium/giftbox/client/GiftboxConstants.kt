@@ -6,6 +6,6 @@ object GiftboxConstants {
     const val WEBSITE = "giftbox.tech"
 
     const val MC_ENDPOINT = "https://boatarde.xyz/api/mycelium/"
-    const val MC_API_KEY = "fc48484ba1c1d0634aa602996061f826ecb8aebafc2525f39a978ec4d75f4c67"
+    const val MC_API_KEY = "7918bf4720090ae54d8df5baebf2aea5e54effc7e0e1bf9b4c74047b77c8fe5e"
     const val MC_WEBSITE = "giftbox.mycelium"
 }

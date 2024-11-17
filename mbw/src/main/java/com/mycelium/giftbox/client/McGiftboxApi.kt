@@ -19,7 +19,10 @@ interface McGiftboxApi {
     suspend fun products(): Response<List<MCProductInfo>>
 
     @GET("get-order-history")
-    suspend fun getOrders(@Query("user_id") userId: String): Response<OrderList>
+    suspend fun getOrders(
+        @Query("user_id") userId: String,
+        @Query("wallet_address") walletAddress: String
+    ): Response<OrderList>
 
     @POST("get-price")
     suspend fun getPrice(@Body body: MCCreateOrderRequest): Response<MCPrice>

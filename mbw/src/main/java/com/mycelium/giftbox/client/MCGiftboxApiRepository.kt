@@ -82,7 +82,7 @@ class MCGiftboxApiRepository {
                     "BTC",
                     currencyId,
                     walletAddress.toString(),
-                    walletSignature("").base64Signature
+                    walletSignature("123").base64Signature
                 )
             )
         }, successBlock = success, errorBlock = error, finallyBlock = finally)
@@ -170,7 +170,7 @@ class MCGiftboxApiRepository {
                     cryptoCurrency,
                     amountCurrency,
                     walletAddress.toString(),
-                    walletSignature("").base64Signature
+                    walletSignature("234").base64Signature
                 )
             )
         }, successBlock = success, errorBlock = error, finallyBlock = finally)
@@ -186,7 +186,7 @@ class MCGiftboxApiRepository {
         finally: (() -> Unit)? = null
     ) {
         doRequest(scope, {
-            api.getOrders(userId)
+            api.getOrders(userId, walletAddress.toString())
                 .apply {
                     if (this.isSuccessful) {
                         updateCards(this.body()?.list)
@@ -211,7 +211,7 @@ class MCGiftboxApiRepository {
                     userId,
                     orderId,
                     walletAddress.toString(),
-                    walletSignature("").base64Signature
+                    walletSignature("567").base64Signature
                 )
             )
         }, successBlock = success, errorBlock = error, finallyBlock = finally)
