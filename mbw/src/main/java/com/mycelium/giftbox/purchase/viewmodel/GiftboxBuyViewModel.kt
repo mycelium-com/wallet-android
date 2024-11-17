@@ -6,6 +6,7 @@ import androidx.lifecycle.*
 import com.google.gson.Gson
 import com.mrd.bitlib.TransactionUtils
 import com.mrd.bitlib.model.BitcoinAddress
+import com.mycelium.bequant.kyc.inputPhone.coutrySelector.CountriesSource
 import com.mycelium.giftbox.client.GitboxAPI
 import com.mycelium.giftbox.client.model.MCOrderResponse
 import com.mycelium.giftbox.client.model.MCPrice
@@ -70,7 +71,9 @@ class GiftboxBuyViewModel(val productInfo: MCProductInfo) : ViewModel(), OrderHe
 
     override val productName = MutableLiveData(productInfo.name.orEmpty())
     override val expire = MutableLiveData(productInfo.expiryData.orEmpty())
-    override val country = MutableLiveData(productInfo.countries?.joinToString().orEmpty())
+    override val country = MutableLiveData(productInfo.countries?.mapNotNull {
+        CountriesSource.countryModels.find { model -> model.acronym.equals(it, true) }
+    }?.joinToString { it.name }.orEmpty())
     override val cardValue = MutableLiveData("")
     override val quantity = MutableLiveData(0)
 

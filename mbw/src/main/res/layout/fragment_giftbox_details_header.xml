@@ -84,6 +84,7 @@
                 android:text="@string/card_value2"
                 android:textColor="@color/fio_white_alpha_0_6"
                 android:textSize="14sp"
+                android:visibility="@{viewModel.cardValue.isEmpty() ? View.GONE : View.VISIBLE}"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
@@ -95,6 +96,7 @@
                 android:layout_marginTop="4dp"
                 android:maxLines="2"
                 android:text="@{viewModel.cardValue}"
+                android:visibility="@{viewModel.cardValue.isEmpty() ? View.GONE : View.VISIBLE}"
                 android:textSize="14sp"
                 app:layout_constraintBaseline_toBaselineOf="@id/tvCardValueHeaderTitle"
                 app:layout_constraintEnd_toEndOf="parent"
