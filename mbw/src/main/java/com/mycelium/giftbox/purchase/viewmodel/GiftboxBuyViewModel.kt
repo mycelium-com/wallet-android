@@ -163,7 +163,7 @@ class GiftboxBuyViewModel(val productInfo: MCProductInfo) : ViewModel(), OrderHe
                     GitboxAPI.mcGiftRepository.getPrice(viewModelScope,
                             code = productInfo.id ?: "",
 //                            quantity = quantity,
-                            amount = amount.valueAsBigDecimal.toInt(),
+                            amount = amount.valueAsBigDecimal,
                             currencyId = productInfo.currency!!,
                             success = { priceResponse ->
 //                                if (priceResponse!!.status == PriceResponse.Status.eRROR) {

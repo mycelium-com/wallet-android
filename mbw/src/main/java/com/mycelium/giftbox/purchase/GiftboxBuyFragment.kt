@@ -194,7 +194,7 @@ class GiftboxBuyFragment : Fragment() {
                 GitboxAPI.mcGiftRepository.createOrder(
                         viewModel.viewModelScope,
                         code = args.mcproduct.id!!,
-                        amount = (viewModel.totalAmountFiatSingle.value?.valueAsLong?.div(100))?.toInt()!!,
+                        amount = viewModel.totalAmountFiatSingle.value?.valueAsBigDecimal!!,
                         quantity = viewModel.quantityString.value?.toInt()!!,
                         amountCurrency = args.mcproduct.currency!!,
                         cryptoCurrency = "BTC",

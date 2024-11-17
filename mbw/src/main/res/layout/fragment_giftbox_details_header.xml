@@ -108,6 +108,7 @@
                 android:layout_marginTop="8dp"
                 android:text="@string/quantity"
                 android:textColor="@color/fio_white_alpha_0_6"
+                android:visibility="gone"
                 android:textSize="14sp"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/tvCardValueHeader" />
@@ -121,6 +122,7 @@
                 android:maxLines="2"
                 android:text="@{viewModel.quantity != null ? @plurals/cards(viewModel.quantity, viewModel.quantity) : 0}"
                 android:textSize="14sp"
+                android:visibility="gone"
                 app:layout_constraintBaseline_toBaselineOf="@id/tvQuantityLabel"
                 app:layout_constraintStart_toEndOf="@id/tvQuantityLabel"
                 tools:text="5 cards" />

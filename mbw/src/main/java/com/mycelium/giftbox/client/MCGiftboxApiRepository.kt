@@ -24,6 +24,7 @@ import com.mycelium.giftbox.client.model.Products
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import retrofit2.Response
+import java.math.BigDecimal
 import java.util.*
 import java.util.concurrent.TimeUnit
 import kotlin.collections.orEmpty
@@ -67,7 +68,7 @@ class MCGiftboxApiRepository {
         scope: CoroutineScope,
         code: String,
 //        quantity: Int,
-        amount: Int,
+        amount: BigDecimal,
         currencyId: String,
         success: (MCPrice?) -> Unit,
         error: (Int, String) -> Unit,
@@ -78,7 +79,7 @@ class MCGiftboxApiRepository {
                 MCCreateOrderRequest(
                     userId,
                     code,
-                    amount.toString(),
+                    amount,
                     "BTC",
                     currencyId,
                     walletAddress.toString(),
@@ -153,7 +154,7 @@ class MCGiftboxApiRepository {
         scope: CoroutineScope,
         code: String,
         quantity: Int,
-        amount: Int,
+        amount: BigDecimal,
         amountCurrency: String,
         cryptoCurrency: String,
         success: (MCOrderResponse?) -> Unit,
@@ -166,7 +167,7 @@ class MCGiftboxApiRepository {
                 MCCreateOrderRequest(
                     userId,
                     code,
-                    amount.toString(),
+                    amount,
                     cryptoCurrency,
                     amountCurrency,
                     walletAddress.toString(),

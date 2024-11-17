@@ -4,6 +4,7 @@ package com.mycelium.giftbox.client.model
 import android.os.Parcelable
 import com.fasterxml.jackson.annotation.JsonProperty
 import kotlinx.parcelize.Parcelize
+import java.math.BigDecimal
 
 /**
  * Parameters to create new order
@@ -23,7 +24,7 @@ data class MCCreateOrderRequest(
     @JsonProperty("store_identifier")
     var storeIdentifier: String,
     @JsonProperty("face_value")
-    var faceValue: String,
+    var faceValue: BigDecimal,
     @JsonProperty("payment_currency")
     var paymentCurrency: String,
     @JsonProperty("fiat_currency")

@@ -233,7 +233,7 @@ class AmountInputFragment : Fragment(), NumberEntry.NumberEntryListener {
         GitboxAPI.mcGiftRepository.getPrice(lifecycleScope,
             code = args.mcproduct.id ?: "",
 //            quantity = 1,
-            amount = _amount?.valueAsLong?.div(100)?.toInt()!!,
+            amount = _amount?.valueAsBigDecimal!!,
             currencyId = args.mcproduct.currency!!,
             success = { priceResponse ->
 //                val conversionError = priceResponse!!.status == PriceResponse.Status.eRROR
@@ -308,7 +308,7 @@ class AmountInputFragment : Fragment(), NumberEntry.NumberEntryListener {
             GitboxAPI.mcGiftRepository.getPrice(lifecycleScope,
                 code = args.mcproduct.id!!,
 //                quantity = args.quantity,
-                amount = value.valueAsBigDecimal.toInt(),
+                amount = value.valueAsBigDecimal,
                 currencyId = args.mcproduct.currency!!,
                 success = { response ->
 //                    if (response!!.status == PriceResponse.Status.eRROR) {
