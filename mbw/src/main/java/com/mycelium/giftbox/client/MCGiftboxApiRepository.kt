@@ -35,7 +35,7 @@ class MCGiftboxApiRepository {
 
     private var lastOrderId = updateOrderId()
 
-    val signatureProvider = object : SignatureProvider {
+    private val signatureProvider = object : SignatureProvider {
         override fun address(): String = clientUserIdFromMasterSeed.toAddress(
             MbwManager.getInstance(WalletApplication.getInstance()).network,
             AddressType.P2PKH
@@ -87,9 +87,7 @@ class MCGiftboxApiRepository {
                     code,
                     amount,
                     "BTC",
-                    currencyId,
-                    signatureProvider.address(),
-                    signatureProvider.signature("123")
+                    currencyId
                 )
             )
         }, successBlock = success, errorBlock = error, finallyBlock = finally)
@@ -176,9 +174,7 @@ class MCGiftboxApiRepository {
                     code,
                     amount,
                     cryptoCurrency,
-                    amountCurrency,
-                    signatureProvider.address(),
-                    signatureProvider.signature("234")
+                    amountCurrency
                 )
             )
         }, successBlock = success, errorBlock = error, finallyBlock = finally)
@@ -194,7 +190,7 @@ class MCGiftboxApiRepository {
         finally: (() -> Unit)? = null
     ) {
         doRequest(scope, {
-            api.getOrders(userId, signatureProvider.address())
+            api.getOrders(userId)
                 .apply {
                     if (this.isSuccessful) {
                         updateCards(this.body()?.list)
@@ -217,9 +213,7 @@ class MCGiftboxApiRepository {
             api.orderStatus(
                 MCOrderStatusRequest(
                     userId,
-                    orderId,
-                    signatureProvider.address(),
-                    signatureProvider.signature("234")
+                    orderId
                 )
             )
         }, successBlock = success, errorBlock = error, finallyBlock = finally)

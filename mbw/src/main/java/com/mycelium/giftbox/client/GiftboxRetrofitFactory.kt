@@ -41,15 +41,17 @@ object RetrofitFactory {
                     addHeader("x-api-key", MC_API_KEY)
 //                    addHeader("Authorization", "Basic ${GiftboxPreference.getAccessToken()}")
                     signatureProvider?.run {
-                        addHeader("wallet_address", signatureProvider.address())
-                        try {
-                            val body = Buffer().apply {
+                        addHeader("wallet-address", signatureProvider.address())
+                        val body = try {
+                            Buffer().apply {
                                 it.request().body()?.writeTo(this)
                             }.readUtf8()
-                            addHeader("wallet_signature", signatureProvider.signature(body))
                         } catch (e: Exception) {
                             Log.e("Giftbox", "Error getting signature", e)
+                            ""
                         }
+                        Log.e("!!!!", "body: $body")
+                        addHeader("wallet-signature", signatureProvider.signature(body))
                     }
                 }.build())
             }

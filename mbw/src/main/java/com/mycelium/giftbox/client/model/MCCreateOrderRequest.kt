@@ -15,9 +15,6 @@ import java.math.BigDecimal
 //"face_value": 1.0,
 //"payment_currency": "BTC",
 //"fiat_currency": "USD",
-//"wallet_address": "1F4ENQ9VHub6utxTsaxRhz7poqVWbqFqdd",
-//"wallet_signature": "H/UEFHqmig/vlyXneGNIkxOUOTklkHb1pLfoQo/
-//OBlStFAZtpuxMV5ulY0u5022ukrW0ez2KR9ZKzvHArBRs7mw="
 data class MCCreateOrderRequest(
     @JsonProperty("user_id")
     var userId: String,
@@ -28,10 +25,6 @@ data class MCCreateOrderRequest(
     @JsonProperty("payment_currency")
     var paymentCurrency: String,
     @JsonProperty("fiat_currency")
-    var fiatCurrency: String,
-    @JsonProperty("wallet_address")
-    var walletAddress: String? = null,
-    @JsonProperty("wallet_signature")
-    var walletSignature: String? = null
+    var fiatCurrency: String
 )
 

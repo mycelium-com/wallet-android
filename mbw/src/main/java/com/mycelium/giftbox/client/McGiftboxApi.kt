@@ -20,8 +20,7 @@ interface McGiftboxApi {
 
     @GET("get-order-history")
     suspend fun getOrders(
-        @Query("user_id") userId: String,
-        @Query("wallet_address") walletAddress: String
+        @Query("user_id") userId: String
     ): Response<OrderList>
 
     @POST("get-price")
