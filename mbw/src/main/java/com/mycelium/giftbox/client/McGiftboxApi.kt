@@ -81,6 +81,7 @@ interface McGiftboxApi {
 
 
     companion object {
-        fun create(): McGiftboxApi = createApi(GiftboxConstants.MC_ENDPOINT)
+        fun create(signatureProvider: SignatureProvider): McGiftboxApi =
+            createApi(GiftboxConstants.MC_ENDPOINT, signatureProvider)
     }
 }

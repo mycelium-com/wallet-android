@@ -35,7 +35,23 @@ class MCGiftboxApiRepository {
 
     private var lastOrderId = updateOrderId()
 
-    private val api = McGiftboxApi.create()
+    val signatureProvider = object : SignatureProvider {
+        override fun address(): String = clientUserIdFromMasterSeed.toAddress(
+            MbwManager.getInstance(WalletApplication.getInstance()).network,
+            AddressType.P2PKH
+        ).toString()
+
+        override fun signature(data: String): String =
+            MbwManager.getInstance(WalletApplication.getInstance())
+                .masterSeedManager.getIdentityAccountKeyManager(AesKeyCipher.defaultKeyCipher())
+                .getPrivateKeyForWebsite(
+                    GiftboxConstants.MC_WEBSITE,
+                    AesKeyCipher.defaultKeyCipher()
+                )
+                .signMessage(data).base64Signature
+    }
+    private val api = McGiftboxApi.create(signatureProvider)
+
     private val giftbxDB = GiftboxDB.invoke(
         AndroidSqliteDriver(GiftboxDB.Schema, WalletApplication.getInstance(), "giftbox.db"),
         GiftboxCard.Adapter(dateAdapter)
@@ -48,18 +64,8 @@ class MCGiftboxApiRepository {
             .publicKey
     }
     val userId get() = abs(clientUserIdFromMasterSeed.hashCode()).toString()
-    val walletAddress
-        get() = clientUserIdFromMasterSeed.toAddress(
-            MbwManager.getInstance(WalletApplication.getInstance()).network,
-            AddressType.P2PKH
-        )
-    fun walletSignature(data: String) =
-        MbwManager.getInstance(WalletApplication.getInstance())
-            .masterSeedManager.getIdentityAccountKeyManager(AesKeyCipher.defaultKeyCipher())
-            .getPrivateKeyForWebsite(GiftboxConstants.MC_WEBSITE, AesKeyCipher.defaultKeyCipher())
-            .signMessage(data)
 
-    private fun updateOrderId(): String {
+    fun updateOrderId(): String {
         lastOrderId = UUID.randomUUID().toString()
         return lastOrderId
     }
@@ -82,8 +88,8 @@ class MCGiftboxApiRepository {
                     amount,
                     "BTC",
                     currencyId,
-                    walletAddress.toString(),
-                    walletSignature("123").base64Signature
+                    signatureProvider.address(),
+                    signatureProvider.signature("123")
                 )
             )
         }, successBlock = success, errorBlock = error, finallyBlock = finally)
@@ -119,7 +125,8 @@ class MCGiftboxApiRepository {
         finally: (() -> Unit)? = null
     ): Job =
         doRequestModify<List<MCProductInfo>, Products>(scope, {
-            if (System.currentTimeMillis() - (cacheProducts?.first ?: 0) < TimeUnit.MINUTES.toMillis(5)
+            if (System.currentTimeMillis() - (cacheProducts?.first
+                    ?: 0) < TimeUnit.MINUTES.toMillis(5)
                 && cacheProducts?.second != null
             ) {
                 cacheProducts?.second
@@ -170,8 +177,8 @@ class MCGiftboxApiRepository {
                     amount,
                     cryptoCurrency,
                     amountCurrency,
-                    walletAddress.toString(),
-                    walletSignature("234").base64Signature
+                    signatureProvider.address(),
+                    signatureProvider.signature("234")
                 )
             )
         }, successBlock = success, errorBlock = error, finallyBlock = finally)
@@ -187,7 +194,7 @@ class MCGiftboxApiRepository {
         finally: (() -> Unit)? = null
     ) {
         doRequest(scope, {
-            api.getOrders(userId, walletAddress.toString())
+            api.getOrders(userId, signatureProvider.address())
                 .apply {
                     if (this.isSuccessful) {
                         updateCards(this.body()?.list)
@@ -211,8 +218,8 @@ class MCGiftboxApiRepository {
                 MCOrderStatusRequest(
                     userId,
                     orderId,
-                    walletAddress.toString(),
-                    walletSignature("234").base64Signature
+                    signatureProvider.address(),
+                    signatureProvider.signature("234")
                 )
             )
         }, successBlock = success, errorBlock = error, finallyBlock = finally)
@@ -235,7 +242,7 @@ class MCGiftboxApiRepository {
                 order.product?.cardImageUrl,
                 order.product?.currency,
                 order.faceValue.toString(),
-                null/*order.product.expiryDate*/,
+                order.product?.expiryData,
                 order.createdDate,
                 order.orderId,
                 order.cardCode.orEmpty(),
@@ -250,7 +257,7 @@ class MCGiftboxApiRepository {
                     order.product?.cardImageUrl,
                     order.product?.currency,
                     order.faceValue.toString(),
-                    null/*order.product.expiryDate*/,
+                    order.product?.expiryData,
                     order.cardCode.orEmpty(),
                     order.cardUrl.orEmpty(),
                     "",

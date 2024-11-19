@@ -83,7 +83,8 @@ class StoresFragment : Fragment() {
                 loadData(viewModel.products.size.toLong())
             }
 
-            override fun isLastPage() = viewModel.productsSize.value ?: 0 <= viewModel.products.size
+            override fun isLastPage() =
+                (viewModel.productsSize.value ?: 0) <= viewModel.products.size
 
             override fun isLoading() = viewModel.state.value == ListState.LOADING
         })
