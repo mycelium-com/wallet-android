@@ -212,7 +212,7 @@ class MCGiftboxApiRepository {
                     userId,
                     orderId,
                     walletAddress.toString(),
-                    walletSignature("567").base64Signature
+                    walletSignature("234").base64Signature
                 )
             )
         }, successBlock = success, errorBlock = error, finallyBlock = finally)
