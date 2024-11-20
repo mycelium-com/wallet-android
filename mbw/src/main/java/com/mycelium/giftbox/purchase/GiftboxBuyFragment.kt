@@ -85,7 +85,7 @@ class GiftboxBuyFragment : Fragment() {
         }.root
 
     val preselectedClickListener: (View) -> Unit = {
-//        showChoicePreselectedValuesDialog()
+        showChoicePreselectedValuesDialog()
     }
 
     val defaultClickListener: (View) -> Unit = {
@@ -104,19 +104,19 @@ class GiftboxBuyFragment : Fragment() {
         binding?.btSend?.isEnabled = viewModel.totalAmountFiatSingle.value != null
         viewModel.totalAmountFiatSingle.value = viewModel.totalAmountFiatSingle.value
 
-//        if (args.product.availableDenominations != null) {
-//            binding?.btEnterAmount?.isVisible = false
-//            binding?.btEnterAmountPreselected?.isVisible = true
-//            binding?.btEnterAmountPreselected?.background = null
-//            val isNotSetYet =
-//                    viewModel.totalAmountFiatSingle.value == null || viewModel.totalAmountFiatSingle.value?.isZero() ?: true
-//            if (isNotSetYet && viewModel.getPreselectedValues().isNotEmpty()) {
-//                viewModel.totalAmountFiatSingle.value = viewModel.getPreselectedValues()[0]
-//            }
-//            binding?.btEnterAmountPreselected?.setOnClickListener(preselectedClickListener)
-//        } else {
+        if (args.mcproduct.denominations?.isNotEmpty() == true) {
+            binding?.btEnterAmount?.isVisible = false
+            binding?.btEnterAmountPreselected?.isVisible = true
+            binding?.btEnterAmountPreselected?.background = null
+            val isNotSetYet =
+                viewModel.totalAmountFiatSingle.value == null || viewModel.totalAmountFiatSingle.value?.isZero() ?: true
+            if (isNotSetYet && viewModel.getPreselectedValues().isNotEmpty()) {
+                viewModel.totalAmountFiatSingle.value = viewModel.getPreselectedValues()[0]
+            }
+            binding?.btEnterAmountPreselected?.setOnClickListener(preselectedClickListener)
+        } else {
             binding?.btEnterAmountPreselected?.isVisible = false
-//        }
+        }
 
         viewModel.warningQuantityMessage.observe(viewLifecycleOwner) {
             binding?.tlQuanity?.error = Html.fromHtml(it)
@@ -229,31 +229,31 @@ class GiftboxBuyFragment : Fragment() {
         }
     }
 
-//    private fun showChoicePreselectedValuesDialog() {
-//        val preselectedList = viewModel.getPreselectedValues()
-//        val preselectedValue = viewModel.totalAmountFiatSingle.value
-//        val selectedIndex = if (preselectedValue != null) {
-//            preselectedList.indexOfFirst { it.equalsTo(preselectedValue) }
-//        } else -1
-//        val valueAndEnableMap =
-//            preselectedList.associateWith { it.lessOrEqualThan(viewModel.maxSpendableAmount.value!!) }
-//        AlertDialog.Builder(requireContext())
-//            .setTitle(R.string.select_card_value_dialog)
-//            .setSingleChoiceItems(
-//                CustomSimpleAdapter(requireContext(), valueAndEnableMap),
-//                selectedIndex
-//            )
-//            { dialog, which ->
-//                val candidateToSelectIsOk = valueAndEnableMap[preselectedList[which]]
-//                if (candidateToSelectIsOk == true) {
-//                    viewModel.totalAmountFiatSingle.value = preselectedList[which]
-//                    dialog.dismiss()
-//                } else {
-//                    Toaster(requireContext()).toast(R.string.insufficient_funds, true)
-//                }
-//            }
-//            .create().show()
-//    }
+    private fun showChoicePreselectedValuesDialog() {
+        val preselectedList = viewModel.getPreselectedValues()
+        val preselectedValue = viewModel.totalAmountFiatSingle.value
+        val selectedIndex = if (preselectedValue != null) {
+            preselectedList.indexOfFirst { it.equalsTo(preselectedValue) }
+        } else -1
+        val valueAndEnableMap =
+            preselectedList.associateWith { it.lessOrEqualThan(viewModel.maxSpendableAmount.value!!) }
+        AlertDialog.Builder(requireContext())
+            .setTitle(R.string.select_card_value_dialog)
+            .setSingleChoiceItems(
+                CustomSimpleAdapter(requireContext(), valueAndEnableMap),
+                selectedIndex
+            )
+            { dialog, which ->
+                val candidateToSelectIsOk = valueAndEnableMap[preselectedList[which]]
+                if (candidateToSelectIsOk == true) {
+                    viewModel.totalAmountFiatSingle.value = preselectedList[which]
+                    dialog.dismiss()
+                } else {
+                    Toaster(requireContext()).toast(R.string.insufficient_funds, true)
+                }
+            }
+            .create().show()
+    }
 
     override fun onDestroyView() {
         binding = null

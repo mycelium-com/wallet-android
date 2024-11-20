@@ -38,7 +38,7 @@ class MCGiftboxApiRepository {
     private val signatureProvider = object : SignatureProvider {
         override fun address(): String = clientUserIdFromMasterSeed.toAddress(
             MbwManager.getInstance(WalletApplication.getInstance()).network,
-            AddressType.P2PKH
+            AddressType.P2WPKH
         ).toString()
 
         override fun signature(data: String): String =

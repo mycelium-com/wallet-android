@@ -49,16 +49,16 @@ class StoresAdapter : ListAdapter<MCProductInfo, RecyclerView.ViewHolder>(DiffCa
                 ?.replace(",([^ ])".toRegex(), ", $1")
                 ?.capitalize()
             holder.binding.additional.text =
-//            if (item?.denominationType == ProductInfo.DenominationType.fixed && item.availableDenominations?.size ?: 100 < 6) {
-//                item.availableDenominations?.joinToString { "${it.toPlainString()} ${item.currencyCode}" }
-//            } else {
+            if (item?.denominations?.isNotEmpty() == true && (item.denominations?.size ?: 100) < 6) {
+                item.denominations?.joinToString { "${it.toPlainString()} ${item.currency}" }
+            } else {
                 "from ${item.minFaceValue.stripTrailingZeros().toPlainString()} ${item.currency}" +
                         if (item.maxFaceValue != BigDecimal.ZERO) {
                             " to ${item.maxFaceValue.stripTrailingZeros().toPlainString()} ${item.currency}"
                         } else {
                             ""
                         }
-//            }
+            }
             holder.itemView.setOnClickListener {
                 itemClickListener?.invoke(getItem(bindingAdapterPosition))
             }

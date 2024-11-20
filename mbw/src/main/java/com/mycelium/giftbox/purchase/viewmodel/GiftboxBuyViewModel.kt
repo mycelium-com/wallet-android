@@ -63,11 +63,11 @@ class GiftboxBuyViewModel(val productInfo: MCProductInfo) : ViewModel(), OrderHe
         account.coinType.value(0)
     }
 
-//    fun getPreselectedValues(): List<Value> {
-//        return productInfo.availableDenominations?.map {
-//            Value.valueOf(getAssetInfo(), toUnits(zeroFiatValue.type, it))
-//        }?.sortedBy { it.value } ?: listOf()
-//    }
+    fun getPreselectedValues(): List<Value> {
+        return productInfo.denominations?.map {
+            Value.valueOf(getAssetInfo(), toUnits(zeroFiatValue.type, it))
+        }?.sortedBy { it.value } ?: listOf()
+    }
 
     override val productName = MutableLiveData(productInfo.name.orEmpty())
     override val expire = MutableLiveData(productInfo.expiryData.orEmpty())

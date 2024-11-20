@@ -44,6 +44,9 @@ data class MCProductInfo(
     @JsonProperty("max_face_value")
     var maxFaceValue: BigDecimal = BigDecimal.TEN.pow(10),
 
+    @JsonProperty("denominations")
+    var denominations: List<BigDecimal>? = null,
+
     @JsonProperty("stock_status")
     var stockStatus: String? = null,
 
