@@ -16,6 +16,7 @@ import com.mycelium.giftbox.client.models.ProductInfo
 import com.mycelium.wallet.R
 import com.mycelium.wallet.databinding.ItemGiftboxStoreBinding
 import java.math.BigDecimal
+import java.util.Locale
 
 
 class StoresAdapter : ListAdapter<MCProductInfo, RecyclerView.ViewHolder>(DiffCallback()) {
@@ -44,10 +45,10 @@ class StoresAdapter : ListAdapter<MCProductInfo, RecyclerView.ViewHolder>(DiffCa
                     .into(holder.binding.image)
 
             holder.binding.title.text = item.name
-            holder.binding.description.text = item.categories
-                ?.replace("-", " ")
-                ?.replace(",([^ ])".toRegex(), ", $1")
-                ?.capitalize()
+            holder.binding.description.text = item.categories?.map {
+                it.replace("-", " ").capitalize(Locale.ROOT)
+            }?.joinToString()
+
             holder.binding.additional.text =
             if (item?.denominations?.isNotEmpty() == true && (item.denominations?.size ?: 100) < 6) {
                 item.denominations?.joinToString { "${it.toPlainString()} ${item.currency}" }

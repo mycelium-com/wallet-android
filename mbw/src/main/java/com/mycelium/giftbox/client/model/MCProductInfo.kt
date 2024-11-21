@@ -36,7 +36,7 @@ data class MCProductInfo(
     var countries: List<String>? = null,
 
     @JsonProperty("categories")
-    var categories: String? = null,
+    var categories: List<String>? = null,
 
     @JsonProperty("min_face_value")
     var minFaceValue: BigDecimal = BigDecimal.ZERO,

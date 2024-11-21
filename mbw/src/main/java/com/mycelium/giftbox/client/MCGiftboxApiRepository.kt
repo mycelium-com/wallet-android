@@ -38,7 +38,7 @@ class MCGiftboxApiRepository {
     private val signatureProvider = object : SignatureProvider {
         override fun address(): String = clientUserIdFromMasterSeed.toAddress(
             MbwManager.getInstance(WalletApplication.getInstance()).network,
-            AddressType.P2WPKH
+            AddressType.P2PKH
         ).toString()
 
         override fun signature(data: String): String =
@@ -145,7 +145,7 @@ class MCGiftboxApiRepository {
                 }?.filter {
                     if (category?.isNotEmpty() == true) it.categories?.contains(category) == true else true
                 }
-                val categories = it?.flatMap { it.categories?.split(",").orEmpty() }
+                val categories = it?.flatMap { it.categories.orEmpty() }
                     ?.toSet().orEmpty().filter { it.isNotEmpty() }
 
                 val countries = it?.flatMap { it.countries.orEmpty() }?.toSet()?.mapNotNull {
