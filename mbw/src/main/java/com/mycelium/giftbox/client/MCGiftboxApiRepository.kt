@@ -63,7 +63,7 @@ class MCGiftboxApiRepository {
             .getPrivateKeyForWebsite(GiftboxConstants.MC_WEBSITE, AesKeyCipher.defaultKeyCipher())
             .publicKey
     }
-    val userId get() = abs(clientUserIdFromMasterSeed.hashCode()).toString()
+    val userId get() = clientUserIdFromMasterSeed.toString()
 
     fun updateOrderId(): String {
         lastOrderId = UUID.randomUUID().toString()
