@@ -52,9 +52,9 @@ class GiftboxBuyResultViewModel : ViewModel(), OrderHeaderViewModel {
     fun setOrder(orderResponse: MCOrderResponse) {
         cardValue.value = "${orderResponse.faceValue?.stripTrailingZeros()?.toPlainString()} ${orderResponse.product?.currency}"
 //        quantity.value = orderResponse.quantity?.toInt() ?: 0
-        orderResponse.paymentData?.let {
+        orderResponse?.let {
             totalAmountFiatString.value =
-                "${orderResponse.paymentData?.paymentAmount?.times(orderResponse.quantity)} ${orderResponse.paymentData?.paymentCurrency}"
+                "${orderResponse.paymentAmount?.times(orderResponse.quantity)} ${orderResponse.paymentCurrency}"
         }
 //        var asset = orderResponse.pacurrencyFromInfo?.name?.toAssetInfo()
 //        if (asset == null) {

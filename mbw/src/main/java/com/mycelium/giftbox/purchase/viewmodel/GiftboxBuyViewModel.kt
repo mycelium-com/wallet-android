@@ -83,17 +83,17 @@ class GiftboxBuyViewModel(val productInfo: MCProductInfo) : ViewModel(), OrderHe
             try {
                 val address = when (account) {
                     is AbstractEthERC20Account -> {
-                        EthAddress(Utils.getEthCoinType(), orderResponse.value!!.paymentData?.paymentAddress!!)
+                        EthAddress(Utils.getEthCoinType(), orderResponse.value!!.paymentAddress!!)
                     }
                     is AbstractBtcAccount -> {
                         BtcAddress(
                                 Utils.getBtcCoinType(),
-                                BitcoinAddress.fromString(orderResponse.value!!.paymentData?.paymentAddress!!)
+                                BitcoinAddress.fromString(orderResponse.value!!.paymentAddress!!)
                         )
                     }
                     else -> TODO("Account not supported yet")
                 }
-                val price = orderResponse.value?.paymentData?.paymentAmount!!
+                val price = orderResponse.value?.paymentAmount!!
 
                 val createTx = account.createTx(
                         address, getCryptoAmount(price.toPlainString()),

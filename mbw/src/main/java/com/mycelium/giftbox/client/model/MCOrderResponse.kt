@@ -25,41 +25,29 @@ data class MCOrderResponse(
     override var orderId: String,
     @JsonProperty("status")
     override var status: Status,
-    @JsonProperty("payment_data")
-    var paymentData: PaymentData? = null,
 
     @JsonProperty("card_url")
     var cardUrl: String? = null,
     @JsonProperty("card_code")
     var cardCode: String? = null,
-    @JsonProperty("expiration_time")
-    var quantity: BigDecimal = BigDecimal.ONE,
+
     @JsonProperty("brand_info")
     var product: MCProductInfo? = null,
-
 
     @JsonProperty("order_date")
     var createdDate: Date? = null,
     @JsonProperty("fiat_amount")
-    var faceValue: BigDecimal? = null
+    var faceValue: BigDecimal? = null,
 
-) : MCOrderCommon, Parcelable
-
-@Parcelize
-data class PaymentData(
     @JsonProperty("payment_address")
     var paymentAddress: String? = null,
-
     @JsonProperty("payment_amount")
     var paymentAmount: BigDecimal? = null,
-
     @JsonProperty("payment_currency")
     var paymentCurrency: String? = null,
 
-    @JsonProperty("order_id")
-    var orderId: String? = null,
-
     @JsonProperty("expiration_time")
-    val expireTime: Int
+    val expireTime: Int,
 
-) : Parcelable
+    var quantity: BigDecimal = BigDecimal.ONE
+) : MCOrderCommon, Parcelable
