@@ -190,7 +190,7 @@ class GiftBoxBuyResultFragment : Fragment() {
                 loader(true)
             }
             showRefresh()
-            GitboxAPI.mcGiftRepository.getOrder(lifecycleScope, args.orderResponse.orderId, {
+            GitboxAPI.mcGiftRepository.getOrder(lifecycleScope, args.orderResponse.paymentData?.orderId!!, {
                 updateOrder(it!!)
             }, { _, msg ->
                 Toaster(this).toast(msg, true)

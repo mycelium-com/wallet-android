@@ -56,7 +56,10 @@ data class PaymentData(
     @JsonProperty("payment_currency")
     var paymentCurrency: String? = null,
 
+    @JsonProperty("order_id")
+    var orderId: String? = null,
+
     @JsonProperty("expiration_time")
-    val expireTime:Int
+    val expireTime: Int
 
 ) : Parcelable
