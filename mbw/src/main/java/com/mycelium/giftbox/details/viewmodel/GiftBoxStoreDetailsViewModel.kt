@@ -33,7 +33,15 @@ class GiftBoxStoreDetailsViewModel : ViewModel(), DescriptionViewModel {
         country.value = product?.countries?.mapNotNull {
             CountriesSource.countryModels.find { model -> model.acronym.equals(it, true) }
         }?.joinToString { it.name }
-        amount.value = product?.minFaceValue.toString()
-        expire.value = if (product?.expiryData != null) "${product.expiryData}" else "Does not expire"
+        amount.value =
+            if (product?.denominations.orEmpty().isNotEmpty())
+                product?.denominations.orEmpty().joinToString {
+                    "${
+                        it.stripTrailingZeros().toPlainString()
+                    } ${product?.currency}"
+                }
+            else product?.minFaceValue.toString()
+        expire.value =
+            if (product?.expiryData != null) "${product.expiryData}" else "Does not expire"
     }
 }

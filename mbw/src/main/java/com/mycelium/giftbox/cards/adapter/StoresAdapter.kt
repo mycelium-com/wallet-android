@@ -51,7 +51,7 @@ class StoresAdapter : ListAdapter<MCProductInfo, RecyclerView.ViewHolder>(DiffCa
 
             holder.binding.additional.text =
             if (item?.denominations?.isNotEmpty() == true && (item.denominations?.size ?: 100) < 6) {
-                item.denominations?.joinToString { "${it.toPlainString()} ${item.currency}" }
+                item.denominations?.joinToString { "${it.stripTrailingZeros().toPlainString()} ${item.currency}" }
             } else {
                 "from ${item.minFaceValue.stripTrailingZeros().toPlainString()} ${item.currency}" +
                         if (item.maxFaceValue != BigDecimal.ZERO) {
