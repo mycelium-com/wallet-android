@@ -168,7 +168,7 @@ class AmountInputFragment : Fragment(), NumberEntry.NumberEntryListener {
     }
 
     private val minerFee
-        get() = if (BuildConfig.DEBUG) feeEstimation.low else feeEstimation.normal
+        get() = feeEstimation.normal
 
     private fun getMaxDecimal(assetInfo: AssetInfo): Int =
             (assetInfo as? FiatType)?.unitExponent

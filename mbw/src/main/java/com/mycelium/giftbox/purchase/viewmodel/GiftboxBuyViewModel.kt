@@ -119,7 +119,7 @@ class GiftboxBuyViewModel(val productInfo: MCProductInfo) : ViewModel(), OrderHe
     }
 
     private val minerFee
-        get() = if (BuildConfig.DEBUG) feeEstimation.low else feeEstimation.normal
+        get() = feeEstimation.normal
 
     fun zeroFiatValue(product: MCProductInfo): Value {
         return Value.zeroValue(Utils.getTypeByName(product.currency)!!)
