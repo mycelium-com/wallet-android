@@ -18,6 +18,7 @@ import org.junit.Test
 //https://github.com/bitcoin/bips/blob/master/bip-0341.mediawiki
 //https://github.com/bitcoin/bips/blob/master/bip-0350.mediawiki
 //https://github.com/bitcoin/bips/blob/master/bip-0386.mediawiki
+//https://bitcoiner.guide/seed/ taproot address generator
 
 class TaprootTransactionTest {
 

@@ -42,8 +42,10 @@ import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.crypto.PublicKey;
 import com.mrd.bitlib.model.BitcoinAddress;
 import com.mrd.bitlib.model.AddressType;
+import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.model.OutPoint;
 import com.mrd.bitlib.model.ScriptOutputP2PKH;
+import com.mrd.bitlib.model.ScriptOutputP2TR;
 import com.mrd.bitlib.model.TransactionOutput;
 import com.mrd.bitlib.model.UnspentTransactionOutput;
 import com.mrd.bitlib.util.HashUtils;
@@ -62,11 +64,13 @@ import java.util.List;
 
 import static com.megiontechnologies.Bitcoins.SATOSHIS_PER_BITCOIN;
 import static com.mrd.bitlib.TransactionUtils.MINIMUM_OUTPUT_VALUE;
+import static com.mrd.bitlib.model.NetworkParameters.productionNetwork;
 import static com.mrd.bitlib.model.NetworkParameters.testNetwork;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public class StandardTransactionBuilderTest {
+    private static NetworkParameters network = productionNetwork;
     private StandardTransactionBuilder testme;
 
     private static final int COUNT = 9;
@@ -80,7 +84,11 @@ public class StandardTransactionBuilderTest {
             PRIVATE_KEYS[i] = getPrivKey("1" + i);
             PUBLIC_KEYS[i] = PRIVATE_KEYS[i].getPublicKey();
             // their addresses and 2 UTXOs each,
-            ADDRS[i] = PUBLIC_KEYS[i].toAddress(testNetwork, AddressType.P2PKH);
+            if (i == 0) {
+                ADDRS[i] = PUBLIC_KEYS[i].toAddress(network, AddressType.P2TR);
+            } else {
+                ADDRS[i] = PUBLIC_KEYS[i].toAddress(network, AddressType.P2PKH);
+            }
             // with values 1/3, 3/5, 7/9 and 15/17.
             UTXOS[i][0] = getUtxo(ADDRS[i], (long) Math.pow(2, 1 + i) - 1 + MINIMUM_OUTPUT_VALUE);
             UTXOS[i][1] = getUtxo(ADDRS[i], (long) Math.pow(2, 1 + i) + 1 + MINIMUM_OUTPUT_VALUE);
@@ -112,7 +120,7 @@ public class StandardTransactionBuilderTest {
 
     @Before
     public void setUp() throws Exception {
-        testme = new StandardTransactionBuilder(testNetwork);
+        testme = new StandardTransactionBuilder(network);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -123,6 +131,7 @@ public class StandardTransactionBuilderTest {
     @Test
     public void testSingleList() throws Exception {
         for (int i = 0; i < COUNT; i++) {
+            System.out.println(ADDRS[i].toString());
             testRichest(ImmutableList.of(UTXOS[i][0]), ADDRS[i]);
         }
     }
@@ -147,7 +156,7 @@ public class StandardTransactionBuilderTest {
     }
 
     private void testRichest(Collection<UnspentTransactionOutput> utxos, BitcoinAddress winner) {
-        BitcoinAddress address = testme.getRichest(utxos, testNetwork);
+        BitcoinAddress address = testme.getRichest(utxos, network);
         assertEquals(winner, address);
     }
 
@@ -169,7 +178,7 @@ public class StandardTransactionBuilderTest {
         );
         testme.addOutput(ADDRS[2], 2 * SATOSHIS_PER_BITCOIN);
         UnsignedTransaction tx = testme.createUnsignedTransaction(inventory, ADDRS[3], KEY_RING,
-            testNetwork, 200000);
+            network, 200000);
         UnspentTransactionOutput[] inputs = tx.getFundingOutputs();
         assertEquals(1, inputs.length);
         assertEquals(utxoAvailable, inputs[0].value);
@@ -178,7 +187,7 @@ public class StandardTransactionBuilderTest {
         assertEquals(1, outputs.length);
         assertTrue(tx.calculateFee() < feeExpected + MINIMUM_OUTPUT_VALUE);
         assertTrue(tx.calculateFee() > feeExpected);
-        assertEquals(ADDRS[2], outputs[0].script.getAddress(testNetwork));
+        assertEquals(ADDRS[2], outputs[0].script.getAddress(network));
     }
 
     @Test
@@ -195,7 +204,7 @@ public class StandardTransactionBuilderTest {
                 .estimateFee();
 
         UnsignedTransaction tx = testme.createUnsignedTransaction(inventory, ADDRS[2], KEY_RING,
-            testNetwork, 200000); // miner fees to use = 200 satoshis per bytes.
+            network, 200000); // miner fees to use = 200 satoshis per bytes.
         UnspentTransactionOutput[] inputs = tx.getFundingOutputs();
         assertEquals(1, inputs.length);
         TransactionOutput[] outputs = tx.getOutputs();
@@ -211,16 +220,21 @@ public class StandardTransactionBuilderTest {
                 UTXOS[0][0], UTXOS[0][1]
         );
         testme.addOutput(ADDRS[1], MINIMUM_OUTPUT_VALUE);
-        UnsignedTransaction tx = testme.createUnsignedTransaction(inventory, ADDRS[2], KEY_RING, testNetwork, 1000);
+        UnsignedTransaction tx = testme.createUnsignedTransaction(inventory, ADDRS[2], KEY_RING, network, 1000);
         UnspentTransactionOutput[] inputs = tx.getFundingOutputs();
         assertEquals(2, inputs.length);
         TransactionOutput[] outputs = tx.getOutputs();
         assertEquals(1, outputs.length);
-        assertEquals(ADDRS[1], outputs[0].script.getAddress(testNetwork));
+        assertEquals(ADDRS[1], outputs[0].script.getAddress(network));
     }
 
+
     private static UnspentTransactionOutput getUtxo(BitcoinAddress address, long value) {
-        return new UnspentTransactionOutput(new OutPoint(Sha256Hash.ZERO_HASH, 0), 0, value, new ScriptOutputP2PKH(address.getTypeSpecificBytes()));
+        if (address.getType() == AddressType.P2TR) {
+            return new UnspentTransactionOutput(new OutPoint(Sha256Hash.ZERO_HASH, 0), 0, value, new ScriptOutputP2TR(address.getTypeSpecificBytes()));
+        } else {
+            return new UnspentTransactionOutput(new OutPoint(Sha256Hash.ZERO_HASH, 0), 0, value, new ScriptOutputP2PKH(address.getTypeSpecificBytes()));
+        }
     }
 
     /**
