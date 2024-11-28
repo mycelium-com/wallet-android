@@ -45,7 +45,6 @@ import com.mrd.bitlib.model.AddressType;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.model.OutPoint;
 import com.mrd.bitlib.model.ScriptOutputP2PKH;
-import com.mrd.bitlib.model.ScriptOutputP2TR;
 import com.mrd.bitlib.model.TransactionOutput;
 import com.mrd.bitlib.model.UnspentTransactionOutput;
 import com.mrd.bitlib.util.HashUtils;
@@ -84,11 +83,7 @@ public class StandardTransactionBuilderTest {
             PRIVATE_KEYS[i] = getPrivKey("1" + i);
             PUBLIC_KEYS[i] = PRIVATE_KEYS[i].getPublicKey();
             // their addresses and 2 UTXOs each,
-            if (i == 0) {
-                ADDRS[i] = PUBLIC_KEYS[i].toAddress(network, AddressType.P2TR);
-            } else {
-                ADDRS[i] = PUBLIC_KEYS[i].toAddress(network, AddressType.P2PKH);
-            }
+            ADDRS[i] = PUBLIC_KEYS[i].toAddress(network, AddressType.P2PKH);
             // with values 1/3, 3/5, 7/9 and 15/17.
             UTXOS[i][0] = getUtxo(ADDRS[i], (long) Math.pow(2, 1 + i) - 1 + MINIMUM_OUTPUT_VALUE);
             UTXOS[i][1] = getUtxo(ADDRS[i], (long) Math.pow(2, 1 + i) + 1 + MINIMUM_OUTPUT_VALUE);
@@ -99,7 +94,7 @@ public class StandardTransactionBuilderTest {
         @Override
         public BitcoinSigner findSignerByPublicKey(PublicKey publicKey) {
             int i = Arrays.asList(PUBLIC_KEYS).lastIndexOf(publicKey);
-            if(i>=0) {
+            if (i >= 0) {
                 return PRIVATE_KEYS[i];
             }
             return null;
@@ -174,11 +169,11 @@ public class StandardTransactionBuilderTest {
         // MINIMUM_OUTPUT_VALUE - 10 satoshis will be
         // left out because it is inferior of the MINIMUM_OUTPUT_VALUE.
         Collection<UnspentTransactionOutput> inventory = ImmutableList.of(
-            getUtxo(ADDRS[0], utxoAvailable)
+                getUtxo(ADDRS[0], utxoAvailable)
         );
         testme.addOutput(ADDRS[2], 2 * SATOSHIS_PER_BITCOIN);
         UnsignedTransaction tx = testme.createUnsignedTransaction(inventory, ADDRS[3], KEY_RING,
-            network, 200000);
+                network, 200000);
         UnspentTransactionOutput[] inputs = tx.getFundingOutputs();
         assertEquals(1, inputs.length);
         assertEquals(utxoAvailable, inputs[0].value);
@@ -204,7 +199,7 @@ public class StandardTransactionBuilderTest {
                 .estimateFee();
 
         UnsignedTransaction tx = testme.createUnsignedTransaction(inventory, ADDRS[2], KEY_RING,
-            network, 200000); // miner fees to use = 200 satoshis per bytes.
+                network, 200000); // miner fees to use = 200 satoshis per bytes.
         UnspentTransactionOutput[] inputs = tx.getFundingOutputs();
         assertEquals(1, inputs.length);
         TransactionOutput[] outputs = tx.getOutputs();
@@ -230,11 +225,7 @@ public class StandardTransactionBuilderTest {
 
 
     private static UnspentTransactionOutput getUtxo(BitcoinAddress address, long value) {
-        if (address.getType() == AddressType.P2TR) {
-            return new UnspentTransactionOutput(new OutPoint(Sha256Hash.ZERO_HASH, 0), 0, value, new ScriptOutputP2TR(address.getTypeSpecificBytes()));
-        } else {
-            return new UnspentTransactionOutput(new OutPoint(Sha256Hash.ZERO_HASH, 0), 0, value, new ScriptOutputP2PKH(address.getTypeSpecificBytes()));
-        }
+        return new UnspentTransactionOutput(new OutPoint(Sha256Hash.ZERO_HASH, 0), 0, value, new ScriptOutputP2PKH(address.getTypeSpecificBytes()));
     }
 
     /**
@@ -248,12 +239,12 @@ public class StandardTransactionBuilderTest {
 
     // timing out after 50 * 10 ms. 50 is the signature count, to average a bit,
     // 10ms is what it may take at max in the test per sig.
-    @Test(timeout=500)
+    @Test(timeout = 500)
     @Ignore("This is not really a requirement but was meant to show the supperior performance of bitcoinJ")
     public void generateSignaturesBitlib() throws Exception {
         // bitlib is slow to sign. 6ms per signature. figure out how to replace that with bitcoinJ and whether that is faster.
         List<SigningRequest> requests = new ArrayList<>();
-        for(int i = 0; i<30; i++) {
+        for (int i = 0; i < 30; i++) {
             requests.add(new SigningRequest(PUBLIC_KEYS[i % COUNT], HashUtils.sha256(("bla" + i).getBytes())));
         }
         StandardTransactionBuilder.generateSignatures(requests.toArray(new SigningRequest[]{}), PRIVATE_KEY_RING);
