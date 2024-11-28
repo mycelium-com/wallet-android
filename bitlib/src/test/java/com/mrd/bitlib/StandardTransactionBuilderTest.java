@@ -63,13 +63,12 @@ import java.util.List;
 
 import static com.megiontechnologies.Bitcoins.SATOSHIS_PER_BITCOIN;
 import static com.mrd.bitlib.TransactionUtils.MINIMUM_OUTPUT_VALUE;
-import static com.mrd.bitlib.model.NetworkParameters.productionNetwork;
 import static com.mrd.bitlib.model.NetworkParameters.testNetwork;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public class StandardTransactionBuilderTest {
-    private static NetworkParameters network = productionNetwork;
+    private static NetworkParameters network = testNetwork;
     private StandardTransactionBuilder testme;
 
     private static final int COUNT = 9;

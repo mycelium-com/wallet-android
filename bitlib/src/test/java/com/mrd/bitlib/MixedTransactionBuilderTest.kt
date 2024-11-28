@@ -174,7 +174,7 @@ class MixedTransactionBuilderTest {
     }
 
     companion object {
-        private val network: NetworkParameters = NetworkParameters.productionNetwork
+        private val network: NetworkParameters = NetworkParameters.testNetwork
         private const val COUNT = 9
         private val PRIVATE_KEYS = mutableListOf<InMemoryPrivateKey>()
         private val PUBLIC_KEYS = mutableListOf<PublicKey>()
