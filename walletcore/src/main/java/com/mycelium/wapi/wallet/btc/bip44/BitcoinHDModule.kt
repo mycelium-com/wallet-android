@@ -189,7 +189,7 @@ class BitcoinHDModule(internal val backing: BtcWalletManagerBacking<HDAccountCon
                 // Create the base keys for the account
                 val keyManagerMap = HashMap<BipDerivationType, HDAccountKeyManager>()
                 // TODO remove filter { it != BipDerivationType.BIP86 } after full taproot implementation
-                for (derivationType in BipDerivationType.values().filter { it != BipDerivationType.BIP86 }) {
+                for (derivationType in BipDerivationType.values()/*.filter { it != BipDerivationType.BIP86 }*/) {
                     // Generate the root private key
                     val root = HdKeyNode.fromSeed(masterSeed.bip32Seed, derivationType)
                     keyManagerMap[derivationType] = HDAccountKeyManager.createNew(root, networkParameters, accountIndex,

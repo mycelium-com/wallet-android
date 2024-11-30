@@ -303,8 +303,17 @@ public class BitcoinTransaction implements Serializable {
     }
 
     public Sha256Hash getTxDigestHash(int i) {
+        byte[] rawTx = getRawInput(i);
+        // Note that this is NOT reversed to ensure it will be signed
+        // correctly. If it were to be printed out
+        // however then we would expect that it is IS reversed.
+        return HashUtils.doubleSha256(rawTx);
+    }
+
+    public byte[] getRawInput(int i) {
         ByteWriter writer = new ByteWriter(1024);
-        if (inputs[i].script instanceof ScriptInputP2WSH || inputs[i].script instanceof  ScriptInputP2WPKH) {
+        if (inputs[i].script instanceof ScriptInputP2WSH
+                || inputs[i].script instanceof ScriptInputP2WPKH) {
             writer.putIntLE(version);
             writer.putSha256Hash(getPrevOutsHash());
             writer.putSha256Hash(getSequenceHash());
@@ -316,16 +325,19 @@ public class BitcoinTransaction implements Serializable {
             writer.putIntLE(inputs[i].sequence);
             writer.putSha256Hash(getOutputsHash());
             writer.putIntLE(lockTime);
+        } else if (inputs[i].script instanceof ScriptInputP2TR) {
+            writer.putIntLE(version);
+
+            writer.putSha256Hash(getPrevOutsHash());
+            writer.putSha256Hash(getSequenceHash());
+
         } else {
             toByteWriter(writer, false);
         }
         // We also have to write a hash type.
         int hashType = 1;
         writer.putIntLE(hashType);
-        // Note that this is NOT reversed to ensure it will be signed
-        // correctly. If it were to be printed out
-        // however then we would expect that it is IS reversed.
-        return HashUtils.doubleSha256(writer.toBytes());
+        return writer.toBytes();
     }
 
     private Sha256Hash getPrevOutsHash() {

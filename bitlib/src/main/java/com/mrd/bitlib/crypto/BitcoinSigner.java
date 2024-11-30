@@ -19,7 +19,7 @@ package com.mrd.bitlib.crypto;
 import com.mrd.bitlib.util.Sha256Hash;
 
 public interface BitcoinSigner {
-   byte[] makeStandardBitcoinSignature(Sha256Hash transactionSigningHash);
+    byte[] makeStandardBitcoinSignature(Sha256Hash transactionSigningHash);
 
-   byte[] makeSchnorrBitcoinSignature(Sha256Hash transactionSigningHash);
+    byte[] makeSchnorrBitcoinSignature(Sha256Hash transactionSigningHash, byte[] message);
 }

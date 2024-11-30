@@ -81,7 +81,7 @@ open class UnsignedTransaction constructor(
                 inputs[i] = TransactionInput(fundingOutputs[i].outPoint, ScriptInput.EMPTY, NO_SEQUENCE, fundingOutputs[i].value)
             }
 
-            signingRequests[i] = SigningRequest(publicKey, hash, signAlgorithm)
+            signingRequests[i] = SigningRequest(publicKey, hash, transaction.getRawInput(i), signAlgorithm)
         }
     }
 

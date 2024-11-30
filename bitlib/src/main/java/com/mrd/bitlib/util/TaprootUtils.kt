@@ -1,5 +1,6 @@
 package com.mrd.bitlib.util
 
+import com.mrd.bitlib.crypto.ec.FieldElement
 import com.mrd.bitlib.crypto.ec.Parameters
 import com.mrd.bitlib.crypto.ec.Point
 import java.math.BigInteger
@@ -34,23 +35,19 @@ class TaprootUtils {
         fun hashTapTweak(msg: ByteArray): ByteArray =
             taggedHash("TapTweak", msg)
 
+        fun hashAux(msg: ByteArray): ByteArray =
+            taggedHash("BIP0340/aux", msg)
+
+        fun hashNonce(msg: ByteArray): ByteArray =
+            taggedHash("BIP0340/nonce", msg)
+
+        fun hashChallenge(msg: ByteArray): ByteArray =
+            taggedHash("BIP0340/challenge", msg)
+
         fun outputKey(internalKey: Point): ByteArray {
             val HTT = hashTapTweak(internalKey.x.toBigInteger().toByteArray(32))
             return internalKey.add(Parameters.G.multiply(BigInteger(1, HTT))).x.toBigInteger()
                 .toByteArray(32)
-        }
-
-        private fun BigInteger.toByteArray(destSize: Int): ByteArray {
-            val source = toByteArray()
-            checkFirstZero(source, destSize)
-            val destOffset = if (destSize > source.size) destSize - source.size else 0
-            val sourceOffset = if (source.size > destSize) source.size - destSize else 0
-            return source.copyInto(ByteArray(destSize), destOffset, sourceOffset)
-        }
-
-        private fun checkFirstZero(source: ByteArray, destSize: Int) {
-            if (source.size > destSize && source[0] != 0.toByte())
-                throw RuntimeException("Wrong calculation")
         }
 
 
@@ -59,3 +56,20 @@ class TaprootUtils {
 
     }
 }
+
+fun FieldElement.toByteArray(destSize: Int): ByteArray =
+    this.toBigInteger().toByteArray(destSize)
+
+fun BigInteger.toByteArray(destSize: Int): ByteArray {
+    val source = toByteArray()
+    checkFirstZero(source, destSize)
+    val destOffset = if (destSize > source.size) destSize - source.size else 0
+    val sourceOffset = if (source.size > destSize) source.size - destSize else 0
+    return source.copyInto(ByteArray(destSize), destOffset, sourceOffset)
+}
+
+private fun checkFirstZero(source: ByteArray, destSize: Int) {
+    if (source.size > destSize && source[0] != 0.toByte())
+        throw RuntimeException("Wrong calculation")
+}
+

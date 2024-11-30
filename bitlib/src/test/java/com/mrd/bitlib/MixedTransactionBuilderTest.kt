@@ -163,12 +163,8 @@ class MixedTransactionBuilderTest {
         // bitlib is slow to sign. 6ms per signature. figure out how to replace that with bitcoinJ and whether that is faster.
         val requests = mutableListOf<SigningRequest>()
         for (i in 0..29) {
-            requests.add(
-                SigningRequest(
-                    PUBLIC_KEYS[i % COUNT],
-                    HashUtils.sha256(("bla" + i).toByteArray())
-                )
-            )
+            val msg = ("bla" + i).toByteArray()
+            requests.add(SigningRequest(PUBLIC_KEYS[i % COUNT], HashUtils.sha256(msg), msg))
         }
         StandardTransactionBuilder.generateSignatures(requests.toTypedArray(), PRIVATE_KEY_RING)
     }

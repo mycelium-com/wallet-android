@@ -1,25 +1,24 @@
 package com.mrd.bitlib.crypto.schnorr
 
+import com.mrd.bitlib.crypto.PublicKey
+import com.mrd.bitlib.crypto.ec.Curve
+import com.mrd.bitlib.crypto.ec.EcTools
+import com.mrd.bitlib.crypto.ec.Parameters
+import com.mrd.bitlib.crypto.ec.Point
+import com.mrd.bitlib.util.HashUtils
+import com.mrd.bitlib.util.TaprootUtils
+import com.mrd.bitlib.util.toByteArray
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 
+open class SchnorrVerify(val publicKey: Point) {
 
-open class SchnorrVerify(val publicKey: BigInteger) {
+    constructor(publicKeyBytes: ByteArray) : this(lift_x(BigInteger(1, publicKeyBytes)))
 
+    constructor(publicKey: PublicKey) : this(lift_x(BigInteger(1, publicKey.publicKeyBytes)))
 
-//    fun SchnorrVerify(publicKey: ByteArray?) {
-//        this.publicKey = BigInteger(Util.positiveIntToTwosCompliment(publicKey))
-//    }
-
-    /**
-     * Provide a big-Endian signed integer representation of the public key.
-     *
-     */
-    fun getPublicKey(): ByteArray? {
-        return Util.twosComplimentToPositiveInt(publicKey.toByteArray())
-    }
 
     /**
      * Returns `true` iff `sig` verifies.
@@ -28,33 +27,50 @@ open class SchnorrVerify(val publicKey: BigInteger) {
      * @throws NoSuchAlgorithmException if `DIGEST_ALGORITHM` is not available.
      */
 
-    fun verify(sig: SchnorrSignature): Boolean {
+    fun verify(signature: ByteArray, message: ByteArray): Boolean {
 
-        //r = (pow(self.g, s, self.p) * pow(self.publicKey, e, self.p)) % self.p
-        val e = BigInteger(Util.positiveIntToTwosCompliment(sig.e))
-        val s = BigInteger(Util.positiveIntToTwosCompliment(sig.s))
-        val r: BigInteger = G.modPow(s, P).multiply(publicKey.modPow(e, P)).mod(P)
-        val message: ByteArray = sig.message
-        val rAsBytes: ByteArray = Util.twosComplimentToPositiveInt(r.toByteArray())
-        val messageAndR = ByteArray(message.size + rAsBytes.size)
-        System.arraycopy(message, 0, messageAndR, 0, message.size)
-        System.arraycopy(rAsBytes, 0, messageAndR, message.size, rAsBytes.size)
-        val m: MessageDigest = MessageDigest.getInstance(DIGEST_ALGORITHM)
-        m.update(messageAndR)
-        val newE: ByteArray = m.digest()
+        val P = publicKey //TaprootUtils.lift_x()
 
-        //TODO(beresford): when validating the signature on the server for authentication, need
-        //to check that the contents of the message is the one which is received.
-        return e.equals(BigInteger(Util.positiveIntToTwosCompliment(newE)))
+        val r = BigInteger(1, signature.copyOfRange(0, 32))
+        val s = BigInteger(1, signature.copyOfRange(32, 64))
+        if (r >= Parameters.n || s >= Parameters.n) return false
+
+        val e = BigInteger(
+            1,
+            TaprootUtils.hashChallenge(r.toByteArray(32) + publicKey.x.toByteArray(32) + message)
+        ).mod(Parameters.n)
+
+        val point1 = EcTools.multiply(Parameters.G, s)
+        val point2 = EcTools.multiply(P, Parameters.n - e)
+        val R = point1.add(point2)
+
+        if (R.y.toBigInteger().testBit(0))
+            throw Exception("calculated R during signature verification has an odd y value (it should be even)")
+
+        return R.x.toBigInteger() == r
     }
 
     companion object {
-        //Parameters cribbed from OpenSSL's J-PAKE implementation
-        val P: BigInteger = BigInteger("fd7f53811d75122952df4a9c2eece4e7f611b7523cef4400c31e3f80b6512669455d402251fb593d8d58fabfc5f5ba30f6cb9b556cd7813b801d346ff26660b76b9950a5a49f9fe8047b1022c24fbba9d7feb7c61bf83b57e7c6a8a6150f04fb83f6d3c51ec3023554135a169132f675f3ae2b61d72aeff22203199dd14801c7", 16)
-        val Q: BigInteger = BigInteger("9760508f15230bccb292b982a2eb840bf0581cf5", 16)
-        val G: BigInteger = BigInteger("f7e1a085d69b3ddecbbcab5c36b857b97994afbbfa3aea82f9574c0b3d0782675159578ebad4594fe67107108180b449167123e84c281613b7cf09328cc8a6e13c167a8b547c8d28e0a3ae1e2bb3a675916ea37f0bfa213562f1fb627a01243bcca4f1bea8519089a883dfe15ae59f06928b665e807b552564014c3bfecf492a", 16)
+        fun lift_x(x: BigInteger): Point {
+            //# use the elliptic curve equation (y² = x³+ax+b) to work out the value of y from x
+            val y_sq = (x.pow(3) + 7.toBigInteger()).mod(Parameters.p)
+            //# secp256k1 is chosen in a special way so that the square root of y is y^((p+1)/4)
+            var y = y_sq.modPow(
+                (Parameters.p + BigInteger.ONE).divide(4.toBigInteger()),
+                Parameters.p
+            )
 
-        val DIGEST_ALGORITHM: String = "SHA-256"
+//        # check that x coordinate is less than the field size
+            if (x >= Parameters.p)
+                throw Exception("x value in public key is not a valid coordinate because it is not less than the elliptic curve field size")
 
+//        # verify that the computed y value is the square root of y_sq (otherwise the public key was not a valid x coordinate on the curve)
+            if (y_sq != y.pow(2).mod(Parameters.p))
+                throw Exception("public key is not a valid x coordinate on the curve")
+
+//        # if the calculated y value is odd, negate it to get the even y value instead (for this x-coordinate)
+            y = if (y.testBit(0)) Parameters.p - y else y
+            return Parameters.curve.createPoint(x, y, false)
+        }
     }
 }

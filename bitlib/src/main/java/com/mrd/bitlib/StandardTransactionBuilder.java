@@ -174,7 +174,7 @@ public class StandardTransactionBuilder {
             byte[] signature = signer.makeStandardBitcoinSignature(request.getToSign());
             signatures.add(signature);
          } else if (request.getSignAlgo() == SignAlgorithm.Schnorr) {
-            byte[] signature = signer.makeSchnorrBitcoinSignature(request.getToSign());
+            byte[] signature = signer.makeSchnorrBitcoinSignature(request.getToSign(), request.getMessage());
             signatures.add(signature);
          }
       }
@@ -370,9 +370,9 @@ public class StandardTransactionBuilder {
             inputs[i].setWitness(witness);
          } else if (isScriptInputP2TR(unsigned, i)) {
             inputs[i] = new TransactionInput(funding[i].outPoint, ScriptInput.EMPTY);
-            InputWitness witness = new InputWitness(2);
+            InputWitness witness = new InputWitness(1);
             witness.setStack(0, signatures.get(i));
-            witness.setStack(1, unsigned.getSigningRequests()[i].getPublicKey().getPublicKeyBytes());
+//            witness.setStack(1, unsigned.getSigningRequests()[i].getPublicKey().getPublicKeyBytes());
             inputs[i].setWitness(witness);
          } else {
             // Create script from signature and public key

@@ -33,7 +33,9 @@ class HDAccountContext @JvmOverloads constructor(
         private var lastDiscovery: Long = 0,
         // TODO remove filter { it != BipDerivationType.BIP86 } after full taproot implementation
         val indexesMap: MutableMap<BipDerivationType, AccountIndexesContext> = createNewIndexesContexts(BipDerivationType.values()
-            .asIterable().filter { it != BipDerivationType.BIP86 }),
+            .asIterable()
+//            .filter { it != BipDerivationType.BIP86 }
+        ),
         val accountType: Int = ACCOUNT_TYPE_FROM_MASTERSEED,
         val accountSubId: Int = 0,
         defaultAddressType: AddressType = AddressType.P2SH_P2WPKH

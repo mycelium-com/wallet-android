@@ -62,9 +62,9 @@ class ReceiveCoinsActivity : AppCompatActivity() {
 
         // TODO remove after full taproot implementation
         var addressTypes = (account as? AddressContainer)?.availableAddressTypes
-        if (addressTypes != null) {
-            addressTypes = addressTypes - AddressType.P2TR
-        }
+//        if (addressTypes != null) {
+//            addressTypes = addressTypes - AddressType.P2TR
+//        }
         if (viewModel is ReceiveBtcViewModel && (addressTypes?.size ?: 0) > 1) {
             createAddressDropdown(addressTypes!!)
         }

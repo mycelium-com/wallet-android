@@ -17,6 +17,7 @@ package com.mrd.bitlib.crypto;
 
 import static com.google.common.base.Preconditions.checkState;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Optional;
 import com.mrd.bitlib.bitcoinj.Base58;
 import com.mrd.bitlib.crypto.ec.EcTools;
@@ -361,6 +362,11 @@ public class InMemoryPrivateKey extends PrivateKey implements KeyExporter, Seria
       return result;
    }
 
+   @VisibleForTesting
+   BigInteger getPrivateKey() {
+      return _privateKey;
+   }
+
    @Override
    public String getBase58EncodedPrivateKey(NetworkParameters network) {
       if (getPublicKey().isCompressed()) {
@@ -401,9 +407,8 @@ public class InMemoryPrivateKey extends PrivateKey implements KeyExporter, Seria
    }
 
    @Override
-   public byte[] makeSchnorrBitcoinSignature(Sha256Hash transactionSigningHash) {
+   public byte[] makeSchnorrBitcoinSignature(Sha256Hash transactionSigningHash, byte[] message) {
       return new SchnorrSign(this.getPrivateKeyBytes())
-              .sign(transactionSigningHash.getBytes())
-              .getSignatureBytes();
+              .sign(message);
    }
 }
