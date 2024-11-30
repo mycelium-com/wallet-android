@@ -14,7 +14,6 @@ class SchnorrSignTest {
         getPrivKey("10").run {
             val message = "hell".toByteArray()
             val signature = SchnorrSign(this.privateKey).sign(message)
-            println("signature size" + signature.size)
             Assert.assertEquals(64, signature.size)
             val result = SchnorrVerify(this.publicKey).verify(signature, message)
             Assert.assertEquals(true, result)

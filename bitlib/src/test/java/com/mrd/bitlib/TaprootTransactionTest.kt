@@ -10,6 +10,7 @@ import com.mrd.bitlib.model.NetworkParameters
 import com.mrd.bitlib.model.SegwitAddress
 import com.mrd.bitlib.util.HexUtils
 import com.mrd.bitlib.util.TaprootUtils
+import com.mrd.bitlib.util.toByteArray
 import org.junit.Assert
 import org.junit.Test
 
@@ -130,8 +131,8 @@ class TaprootTransactionTest {
                 it.publicKey.Q.x.toBigInteger()
             )
 
-            val internalKey = TaprootUtils.lift_x(it.publicKey.Q)
-            val k = internalKey!!.x.toBigInteger().toByteArray().let {
+            val internalKey = TaprootUtils.liftX(it.publicKey.Q)
+            val k = internalKey.x.toByteArray(32).let {
                 if (it[0] == 0.toByte()) it.copyOfRange(1, it.size) else it
             }
 //            Logger.getLogger("!!!!").log(Level.SEVERE, "internalKey" + HexUtils.toHex(k))

@@ -82,8 +82,8 @@ class PublicKey(val publicKeyBytes: ByteArray) : Serializable {
             }
 
     private fun toP2TRAddress(networkParameters: NetworkParameters): SegwitAddress {
-        val internalKey = TaprootUtils.lift_x(Q)
-        val outputKey = TaprootUtils.outputKey(internalKey!!)
+        val internalKey = TaprootUtils.liftX(Q)
+        val outputKey = TaprootUtils.outputKey(internalKey)
         return SegwitAddress(networkParameters, 0x01, outputKey)
     }
 

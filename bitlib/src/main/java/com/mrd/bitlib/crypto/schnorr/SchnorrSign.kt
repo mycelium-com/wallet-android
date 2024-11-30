@@ -1,16 +1,16 @@
 package com.mrd.bitlib.crypto.schnorr
 
-import com.mrd.bitlib.crypto.InMemoryPrivateKey
-import com.mrd.bitlib.crypto.PrivateKey
 import com.mrd.bitlib.crypto.ec.EcTools
 import com.mrd.bitlib.crypto.ec.Parameters
 import com.mrd.bitlib.util.TaprootUtils
+import com.mrd.bitlib.util.TaprootUtils.Companion.hashNonce
 import com.mrd.bitlib.util.toByteArray
 import java.math.BigInteger
 import java.security.SecureRandom
 
 //https://learnmeabitcoin.com/technical/cryptography/elliptic-curve/schnorr/
-class SchnorrSign(val privateKey: BigInteger) {
+class SchnorrSign(val privateKey: BigInteger) :
+    SchnorrVerify(EcTools.multiply(Parameters.G, privateKey).x.toByteArray(32)) {
 
     constructor(privateKeyArray: ByteArray) :
             this(BigInteger(1, privateKeyArray))
@@ -30,17 +30,14 @@ class SchnorrSign(val privateKey: BigInteger) {
             if (randomBytes == null) ByteArray(32).apply { random.nextBytes(this) }
             else randomBytes
 
-        val publicKeyPoint =
-            EcTools.multiply(Parameters.G, privateKey)
+        val publicKeyPoint = EcTools.multiply(Parameters.G, privateKey)
 
         val d = if (publicKeyPoint.y.toBigInteger().testBit(0))
             Parameters.n - privateKey else privateKey
         val auxRandHash = TaprootUtils.hashAux(rand)
         val t = d xor BigInteger(1, auxRandHash)
-        val k0 = BigInteger(
-            1,
-            TaprootUtils.hashNonce(t.toByteArray(32) + publicKeyPoint.x.toByteArray(32) + message)
-        ).mod(Parameters.n)
+        val nonce = hashNonce(t.toByteArray(32) + publicKeyPoint.x.toByteArray(32) + message)
+        val k0 = BigInteger(1, nonce).mod(Parameters.n)
         if (k0 == BigInteger.ZERO) throw Exception("nonce must not be zero (this is almost impossible, but checking anyway)")
 
         val R = EcTools.multiply(Parameters.G, k0)
@@ -57,7 +54,7 @@ class SchnorrSign(val privateKey: BigInteger) {
 
         // Signature is (r || s)
         val result = R.x.toByteArray(32) + s.toByteArray(32)
-        if (!SchnorrVerify(publicKeyPoint.x.toByteArray(32)).verify(result, message))
+        if (!verify(result, message))
             throw Exception("verification failed")
 
         return result

@@ -10,7 +10,7 @@ class SchnorrVerifyTest {
     @Test
     fun testNumber1() {
         val publicKey =
-            HexUtils.toBytes("6c7711c517ee9d48b4183b56a4a62e8eec48fd997c053dd6358488db6264a520")
+            PublicKey(HexUtils.toBytes("6c7711c517ee9d48b4183b56a4a62e8eec48fd997c053dd6358488db6264a520"))
         val message =
             HexUtils.toBytes("ca9642c5cb262877cb2d3fe87a2346e1a7507d96b84bae7b2dfb4b65282597da")
         val signature =
