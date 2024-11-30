@@ -11,6 +11,7 @@ import com.bumptech.glide.load.resource.bitmap.CenterCrop
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import com.bumptech.glide.request.RequestOptions
 import com.mycelium.bequant.common.equalsValuesBy
+import com.mycelium.giftbox.cardValues
 import com.mycelium.giftbox.client.model.MCProductInfo
 import com.mycelium.giftbox.client.models.ProductInfo
 import com.mycelium.wallet.R
@@ -49,17 +50,7 @@ class StoresAdapter : ListAdapter<MCProductInfo, RecyclerView.ViewHolder>(DiffCa
                 it.replace("-", " ").capitalize(Locale.ROOT)
             }?.joinToString()
 
-            holder.binding.additional.text =
-            if (item?.denominations?.isNotEmpty() == true && (item.denominations?.size ?: 100) < 6) {
-                item.denominations?.joinToString { "${it.stripTrailingZeros().toPlainString()} ${item.currency}" }
-            } else {
-                "from ${item.minFaceValue.stripTrailingZeros().toPlainString()} ${item.currency}" +
-                        if (item.maxFaceValue != BigDecimal.ZERO) {
-                            " to ${item.maxFaceValue.stripTrailingZeros().toPlainString()} ${item.currency}"
-                        } else {
-                            ""
-                        }
-            }
+            holder.binding.additional.text = item?.cardValues()
             holder.itemView.setOnClickListener {
                 itemClickListener?.invoke(getItem(bindingAdapterPosition))
             }

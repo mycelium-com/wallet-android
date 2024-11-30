@@ -3,6 +3,7 @@ package com.mycelium.giftbox.details.viewmodel
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.mycelium.bequant.kyc.inputPhone.coutrySelector.CountriesSource
+import com.mycelium.giftbox.cardValues
 import com.mycelium.giftbox.client.model.MCProductInfo
 import com.mycelium.giftbox.client.models.CurrencyInfo
 import com.mycelium.giftbox.client.models.ProductInfo
@@ -33,14 +34,7 @@ class GiftBoxStoreDetailsViewModel : ViewModel(), DescriptionViewModel {
         country.value = product?.countries?.mapNotNull {
             CountriesSource.countryModels.find { model -> model.acronym.equals(it, true) }
         }?.joinToString { it.name }
-        amount.value =
-            if (product?.denominations.orEmpty().isNotEmpty())
-                product?.denominations.orEmpty().joinToString {
-                    "${
-                        it.stripTrailingZeros().toPlainString()
-                    } ${product?.currency}"
-                }
-            else product?.minFaceValue.toString()
+        amount.value = product?.cardValues()
         expire.value =
             if (product?.expiryData != null) "${product.expiryData}" else "Does not expire"
     }
