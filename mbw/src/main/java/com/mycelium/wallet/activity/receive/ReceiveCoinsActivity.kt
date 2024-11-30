@@ -92,7 +92,6 @@ class ReceiveCoinsActivity : AppCompatActivity() {
         }
         registerReceiver(nfcReceiver, IntentFilter(NfcAdapter.ACTION_ADAPTER_STATE_CHANGED))
         viewModel.getReceivingAddress().observe(this) {
-            Log.e("!!!!", "bindingReceiveQr" + viewModel.getPaymentUri())
             bindingReceiveQr?.ivQrCode?.qrCode = viewModel.getPaymentUri()
         }
         bindingReceiveFioName?.btCreateFioRequest?.setOnClickListener {

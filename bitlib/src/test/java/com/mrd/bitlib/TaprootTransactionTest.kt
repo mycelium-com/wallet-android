@@ -98,7 +98,6 @@ class TaprootTransactionTest {
             val k = internalKey!!.x.toBigInteger().toByteArray().let {
                 if (it[0] == 0.toByte()) it.copyOfRange(1, it.size) else it
             }
-//            Logger.getLogger("!!!!").log(Level.SEVERE, "internalKey" + HexUtils.toHex(k))
             Assert.assertArrayEquals(it.internalKey, k)
 
             val outputKey = TaprootUtils.outputKey(internalKey)

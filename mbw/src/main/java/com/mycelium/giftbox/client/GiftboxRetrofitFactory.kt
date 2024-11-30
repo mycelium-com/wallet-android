@@ -50,7 +50,6 @@ object RetrofitFactory {
                             Log.e("Giftbox", "Error getting signature", e)
                             ""
                         }
-                        Log.e("!!!!", "body: $body")
                         addHeader("wallet-signature", signatureProvider.signature(body))
                     }
                 }.build())
