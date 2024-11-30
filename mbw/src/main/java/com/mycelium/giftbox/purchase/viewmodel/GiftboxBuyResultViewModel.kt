@@ -26,11 +26,12 @@ class GiftboxBuyResultViewModel : ViewModel(), OrderHeaderViewModel {
     val more = MutableLiveData(true)
     val moreText = more.map {
         WalletApplication.getInstance().getString(
-                if (it) {
-                    R.string.show_transaction_details
-                } else {
-                    R.string.show_transaction_details_hide
-                })
+            if (it) {
+                R.string.show_transaction_details
+            } else {
+                R.string.show_transaction_details_hide
+            }
+        )
     }
 
 
@@ -52,10 +53,13 @@ class GiftboxBuyResultViewModel : ViewModel(), OrderHeaderViewModel {
     fun setOrder(orderResponse: MCOrderResponse) {
         cardValue.value = "${orderResponse.faceValue?.stripTrailingZeros()?.toPlainString()} ${orderResponse.product?.currency}"
 //        quantity.value = orderResponse.quantity?.toInt() ?: 0
-        orderResponse?.let {
+        if (orderResponse.paymentAmount != null) {
             totalAmountFiatString.value =
                 "${orderResponse.paymentAmount?.times(orderResponse.quantity)} ${orderResponse.paymentCurrency}"
+        } else {
+            totalAmountFiatString.value = cardValue.value
         }
+
 //        var asset = orderResponse.pacurrencyFromInfo?.name?.toAssetInfo()
 //        if (asset == null) {
 //            asset = MbwManager.getInstance(WalletApplication.getInstance()).getWalletManager(false).getAssetTypes()
