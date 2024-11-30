@@ -13,7 +13,7 @@ class SchnorrSignTest {
     fun testNumber1() {
         getPrivKey("10").run {
             val message = "hell".toByteArray()
-            val signature = SchnorrSign(this.privateKey).sign(message)
+            val signature = SchnorrSign(this.privateKeyBytes).sign(message)
             Assert.assertEquals(64, signature.size)
             val result = SchnorrVerify(this.publicKey).verify(signature, message)
             Assert.assertEquals(true, result)
@@ -60,7 +60,7 @@ class SchnorrSignTest {
         val sign = HexUtils.toBytes(
             "E907831F80848D1069A5371B402410364BDF1C5F8307B0084C55F1CE2DCA821525F66A4A85EA8B71E482A74F382D2CE5EBEEE8FDB2172F477DF4900D310536C0"
         )
-        val signGen = SchnorrSign(secretKey.privateKey).sign(message, auxRand)
+        val signGen = SchnorrSign(secretKey.privateKeyBytes).sign(message, auxRand)
 
         Assert.assertArrayEquals(sign, signGen)
 

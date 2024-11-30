@@ -17,7 +17,6 @@ package com.mrd.bitlib.crypto;
 
 import static com.google.common.base.Preconditions.checkState;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Optional;
 import com.mrd.bitlib.bitcoinj.Base58;
 import com.mrd.bitlib.crypto.ec.EcTools;
@@ -360,11 +359,6 @@ public class InMemoryPrivateKey extends PrivateKey implements KeyExporter, Seria
          System.arraycopy(bytes, 1, result, 0, bytes.length - 1);
       }
       return result;
-   }
-
-   @VisibleForTesting
-   BigInteger getPrivateKey() {
-      return _privateKey;
    }
 
    @Override

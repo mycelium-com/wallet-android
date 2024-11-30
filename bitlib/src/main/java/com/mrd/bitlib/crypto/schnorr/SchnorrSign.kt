@@ -3,6 +3,7 @@ package com.mrd.bitlib.crypto.schnorr
 import com.mrd.bitlib.crypto.ec.EcTools
 import com.mrd.bitlib.crypto.ec.Parameters
 import com.mrd.bitlib.util.TaprootUtils
+import com.mrd.bitlib.util.TaprootUtils.Companion.hashChallenge
 import com.mrd.bitlib.util.TaprootUtils.Companion.hashNonce
 import com.mrd.bitlib.util.toByteArray
 import java.math.BigInteger
@@ -30,24 +31,21 @@ class SchnorrSign(val privateKey: BigInteger) :
             if (randomBytes == null) ByteArray(32).apply { random.nextBytes(this) }
             else randomBytes
 
-        val publicKeyPoint = EcTools.multiply(Parameters.G, privateKey)
+        val P = EcTools.multiply(Parameters.G, privateKey)
 
-        val d = if (publicKeyPoint.y.toBigInteger().testBit(0))
+        val d = if (P.y.toBigInteger().testBit(0))
             Parameters.n - privateKey else privateKey
         val auxRandHash = TaprootUtils.hashAux(rand)
         val t = d xor BigInteger(1, auxRandHash)
-        val nonce = hashNonce(t.toByteArray(32) + publicKeyPoint.x.toByteArray(32) + message)
+        val nonce = hashNonce(t.toByteArray(32) + P.x.toByteArray(32) + message)
         val k0 = BigInteger(1, nonce).mod(Parameters.n)
         if (k0 == BigInteger.ZERO) throw Exception("nonce must not be zero (this is almost impossible, but checking anyway)")
 
         val R = EcTools.multiply(Parameters.G, k0)
 
         val k = if (R.y.toBigInteger().testBit(0)) Parameters.n - k0 else k0
-        val e = BigInteger(
-            1, TaprootUtils.hashChallenge(
-                R.x.toByteArray(32) + publicKeyPoint.x.toByteArray(32) + message
-            )
-        ).mod(Parameters.n)
+        val challenge = hashChallenge(R.x.toByteArray(32) + P.x.toByteArray(32) + message)
+        val e = BigInteger(1, challenge).mod(Parameters.n)
 
 //        // Calculate s
         val s = (k + e * d).mod(Parameters.n)
