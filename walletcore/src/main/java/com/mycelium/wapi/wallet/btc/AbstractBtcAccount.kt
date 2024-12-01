@@ -781,7 +781,7 @@ abstract class AbstractBtcAccount protected constructor(backing: BtcAccountBacki
         }
         // Make all signatures, this is the CPU intensive part
         val signatures = StandardTransactionBuilder.generateSignatures(
-            unsigned.signingRequests,
+            unsigned.signingRequests.filterNotNull().toTypedArray(),
             PrivateKeyRing(cipher)
         )
 

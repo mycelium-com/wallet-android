@@ -89,14 +89,11 @@ public class TransactionInput implements Serializable {
          byteWriter.put((byte) Script.OP_EQUALVERIFY);
          byteWriter.put((byte) Script.OP_CHECKSIG);
       } else if(script instanceof ScriptInputP2TR) {
-         byteWriter.put((byte) Script.OP_DUP);
-         byteWriter.put((byte) Script.OP_HASH160);
+         byteWriter.put((byte) Script.OP_1);
+         byteWriter.put((byte) Script.OP_PUSHBYTES_32);
          byte[] witnessProgram;
          witnessProgram = ScriptInput.getWitnessProgram(ScriptInput.depush(script.getScriptBytes()));
-         byteWriter.put((byte) (0xFF & witnessProgram.length));
          byteWriter.putBytes(witnessProgram);
-         byteWriter.put((byte) Script.OP_EQUALVERIFY);
-         byteWriter.put((byte) Script.OP_CHECKSIG);
       } else {
          throw new IllegalArgumentException("No scriptcode for " + script.getClass().getCanonicalName());
       }

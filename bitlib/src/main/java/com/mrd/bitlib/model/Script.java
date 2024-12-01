@@ -84,6 +84,14 @@ public abstract class Script implements Serializable {
    public static final int OP_NOP1 = 176;
    public static final int OP_NOP2 = 177;
 
+   public static final int OP_PUSHBYTES_32 = 32;
+
+   public static final int SIGHASH_DEFAULT = 0x00; // equal to SIGHASH_ALL
+   public static final int SIGHASH_ALL = 0x01;    //Sign all inputs and outputs
+   public static final int SIGHASH_NONE = 0x02;    //Sign all inputs only
+   public static final int SIGHASH_SINGLE = 0x03;    //Sign all inputs and one corresponding output
+   public static final int SIGHASH_ANYONECANPAY = 0x80;
+
    public static final Map<Integer, String> OP_CODE_MAP;
    static {
       OP_CODE_MAP = new HashMap<Integer, String>();

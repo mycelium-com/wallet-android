@@ -89,7 +89,7 @@ class MixedTransactionBuilderTest {
         // UTXOs worth utxoAvailable satoshis, should result in 1 in 1 out.
         // MINIMUM_OUTPUT_VALUE - 10 satoshis will be
         // left out because it is inferior of the MINIMUM_OUTPUT_VALUE.
-        val inventory = listOf<UnspentTransactionOutput?>(getUtxo(ADDRS[0], utxoAvailable))
+        val inventory = listOf<UnspentTransactionOutput>(getUtxo(ADDRS[0], utxoAvailable))
         testme!!.addOutput(ADDRS[2], 2 * Bitcoins.SATOSHIS_PER_BITCOIN)
         val tx = testme!!.createUnsignedTransaction(
             inventory, ADDRS[3], KEY_RING,
@@ -110,7 +110,7 @@ class MixedTransactionBuilderTest {
     @Throws(Exception::class)
     fun testCreateUnsignedTransactionWithChange() {
         // UTXOs worth 10BTC, spending 1BTC should result in 1 in 2 out, spending 1 and 9-fee
-        val inventory = listOf<UnspentTransactionOutput?>(
+        val inventory = listOf<UnspentTransactionOutput>(
             getUtxo(ADDRS[0], 10 * Bitcoins.SATOSHIS_PER_BITCOIN)
         )
         testme!!.addOutput(ADDRS[1], Bitcoins.SATOSHIS_PER_BITCOIN)
@@ -139,10 +139,9 @@ class MixedTransactionBuilderTest {
     @Throws(Exception::class)
     fun testCreateUnsignedTransactionMinToFee() {
         // UTXOs worth 2MIN + 1 + 3, spending MIN should result in just one output
-        val inventory: MutableCollection<UnspentTransactionOutput?>? =
-            ImmutableList.of<UnspentTransactionOutput?>(
-                UTXOS[0][0], UTXOS[0][1]
-            )
+        val inventory = ImmutableList.of<UnspentTransactionOutput>(
+            UTXOS[0][0], UTXOS[0][1]
+        )
         testme!!.addOutput(ADDRS[1], TransactionUtils.MINIMUM_OUTPUT_VALUE)
         val tx =
             testme!!.createUnsignedTransaction(inventory, ADDRS[2], KEY_RING, network, 1000)

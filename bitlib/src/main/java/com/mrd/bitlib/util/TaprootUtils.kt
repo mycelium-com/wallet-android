@@ -1,5 +1,7 @@
 package com.mrd.bitlib.util
 
+import com.mrd.bitlib.crypto.PublicKey
+import com.mrd.bitlib.crypto.ec.EcTools
 import com.mrd.bitlib.crypto.ec.FieldElement
 import com.mrd.bitlib.crypto.ec.Parameters
 import com.mrd.bitlib.crypto.ec.Point
@@ -47,9 +49,33 @@ class TaprootUtils {
             taggedHash("BIP0340/challenge", msg)
 
         fun outputKey(internalKey: Point): ByteArray {
-            val HTT = hashTapTweak(internalKey.x.toBigInteger().toByteArray(32))
-            return internalKey.add(Parameters.G.multiply(BigInteger(1, HTT))).x.toBigInteger()
-                .toByteArray(32)
+            val HTT = hashTapTweak(internalKey.x.toByteArray(32))
+            return internalKey.add(Parameters.G.multiply(BigInteger(1, HTT))).x.toByteArray(32)
+        }
+
+        fun tweakPrivateKey(privateKey: ByteArray, merkle: ByteArray = ByteArray(0)): ByteArray {
+            val privateKeyNegated = Parameters.n - BigInteger(1, privateKey)
+            val tweak = BigInteger(1, merkle)
+            return ((privateKeyNegated + tweak).mod(Parameters.n)).toByteArray(32)
+        }
+
+        fun sigHash(message: ByteArray): ByteArray =
+            taggedHash("TapSighash", HexUtils.toBytes("00") + message)
+
+        fun tweak(publicKey: PublicKey, merkle: ByteArray = ByteArray(0)): ByteArray =
+            tweak(publicKey.pubKeyCompressed.cutStartByteArray(32), merkle)
+
+        fun tweak(publicKey: ByteArray, merkle: ByteArray = ByteArray(0)): ByteArray =
+            hashTapTweak(publicKey + merkle)
+
+        fun tweakPublicKey(publicKey: PublicKey, merkle: ByteArray = ByteArray(0)): ByteArray =
+            tweakPublicKey(publicKey.pubKeyCompressed.cutStartByteArray(32), merkle)
+
+        fun tweakPublicKey(publicKey: ByteArray, merkle: ByteArray = ByteArray(0)): ByteArray {
+            val tweak = tweak(publicKey, merkle)
+            val l = liftX(BigInteger(1, publicKey))
+            val result = EcTools.multiply(Parameters.G, BigInteger(1, tweak)).add(l)
+            return result.x.toByteArray(32)
         }
 
 

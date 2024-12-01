@@ -6,6 +6,7 @@ import com.mrd.bitlib.crypto.PublicKey
 import com.mrd.bitlib.model.*
 import com.mrd.bitlib.util.BitUtils
 import com.mrd.bitlib.util.CoinUtil
+import com.mrd.bitlib.util.TaprootUtils
 import java.io.Serializable
 
 open class UnsignedTransaction constructor(
@@ -81,13 +82,15 @@ open class UnsignedTransaction constructor(
                 inputs[i] = TransactionInput(fundingOutputs[i].outPoint, ScriptInput.EMPTY, NO_SEQUENCE, fundingOutputs[i].value)
             }
 
-            signingRequests[i] = SigningRequest(publicKey, hash, transaction.getRawInput(i), signAlgorithm)
+            signingRequests[i] = SigningRequest(publicKey, hash, transaction.getRawDataForInputSign(i), signAlgorithm)
         }
     }
 
     private fun getInputScriptP2TR(publicKey: PublicKey, transaction: BitcoinTransaction, i: Int) {
-        val inpScriptBytes = BitUtils.concatenate(byteArrayOf(Script.OP_1.toByte(), publicKey.pubKeyHashCompressed.size.toByte()), publicKey.pubKeyHashCompressed)
-        val inputScript = ScriptInput.fromScriptBytes(BitUtils.concatenate(byteArrayOf((inpScriptBytes.size and 0xFF).toByte()), inpScriptBytes))
+        val scriptPubKey = ByteArray(0) +
+                Script.OP_1.toByte() + Script.OP_PUSHBYTES_32.toByte() +
+                TaprootUtils.tweakPublicKey(publicKey)
+        val inputScript = ScriptInput.fromScriptBytes(scriptPubKey)
         transaction.inputs[i].script = inputScript
         inputs[i].script = inputScript
     }
