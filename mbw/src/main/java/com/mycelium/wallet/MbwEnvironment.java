@@ -38,7 +38,6 @@ import com.mrd.bitlib.model.NetworkParameters;
 import com.mycelium.net.ServerEndpoints;
 import com.mycelium.wallet.activity.util.BlockExplorer;
 import com.mycelium.wallet.external.BuySellServiceDescriptor;
-import com.mycelium.wapi.wallet.CommonNetworkParameters;
 import com.mycelium.wapi.wallet.btcvault.BTCVNetworkParameters;
 
 import java.util.List;
@@ -49,7 +48,7 @@ public abstract class MbwEnvironment {
       // TODO: move configuration to build.gradle
       switch(BuildConfig.FLAVOR) {
          case "btctestnet":
-            return new MbwTestEnvironment();
+            return new MbwTestnet4Environment();
          case "prodnet":
             return new MbwProdEnvironment();
          // case "regtest": return new MbwRegTestEnvironment();

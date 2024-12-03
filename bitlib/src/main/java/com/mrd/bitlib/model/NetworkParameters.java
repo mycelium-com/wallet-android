@@ -31,6 +31,7 @@ public class NetworkParameters implements Serializable {
    public static final NetworkParameters testNetwork;
    public static final NetworkParameters productionNetwork;
    public static final NetworkParameters regtestNetwork;
+   private static final byte[] TESTNET4_GENESIS_BLOCK;
    private static final byte[] TESTNET_GENESIS_BLOCK;
    private static final byte[] PRODNET_GENESIS_BLOCK;
    private static final byte[] REGTEST_GENESIS_BLOCK;
@@ -41,6 +42,15 @@ public class NetworkParameters implements Serializable {
       // get it via RPC:
       // getblockhash 0
       // getblock "<hash>" false
+      TESTNET4_GENESIS_BLOCK = HexUtils.toBytes("0100000000000000000000000000000000000000000000000000000000000000" +
+              "000000004e7b2b9128fe0291db0693af2ae418b767e657cd407e80cb1434221e" +
+              "aea7a07a046f3566ffff001dbb0c781701010000000100000000000000000000" +
+              "00000000000000000000000000000000000000000000ffffffff5504ffff001d" +
+              "01044c4c30332f4d61792f323032342030303030303030303030303030303030" +
+              "3030303031656264353863323434393730623361613964373833626230303130" +
+              "31316662653865613865393865303065ffffffff0100f2052a01000000232100" +
+              "0000000000000000000000000000000000000000000000000000000000000000" +
+              "ac00000000");
       TESTNET_GENESIS_BLOCK = HexUtils.toBytes("0100000043497fd7f826957108f4a30fd9cec3aeba79972084e90ead01ea3309"
             + "00000000bac8b0fa927c0ac8234287e33c5f74d38d354820e24756ad709d7038"
             + "fc5f31f020e7494dffff001d03e4b67201010000000100000000000000000000"
@@ -108,12 +118,22 @@ public class NetworkParameters implements Serializable {
          case TESTNET:
             _standardAddressHeader = 0x6F;
             _multisigAddressHeader = 0xC4;
-            _genesisBlock = TESTNET_GENESIS_BLOCK;
+            _genesisBlock = TESTNET4_GENESIS_BLOCK;
             _port = 18333;
             _packetMagic = 0x0b110907;
-            _packetMagicBytes = new byte[]{(byte) 0x0b, (byte) 0x11, (byte) 0x09, (byte) 0x07};
+            _packetMagicBytes = HexUtils.toBytes("1c163f28");
             _bip44_coin_type = 1;
             break;
+
+//         case TESTNET:
+//            _standardAddressHeader = 0x6F;
+//            _multisigAddressHeader = 0xC4;
+//            _genesisBlock = TESTNET_GENESIS_BLOCK;
+//            _port = 18333;
+//            _packetMagic = 0x0b110907;
+//            _packetMagicBytes = new byte[]{(byte) 0x0b, (byte) 0x11, (byte) 0x09, (byte) 0x07};
+//            _bip44_coin_type = 1;
+//            break;
          case REGTEST:
             _standardAddressHeader = 0x6F;
             _multisigAddressHeader = 0xC4;
