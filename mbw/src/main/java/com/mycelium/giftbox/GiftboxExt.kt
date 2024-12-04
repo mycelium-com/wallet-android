@@ -36,14 +36,16 @@ fun ImageView.loadImage(url: String?, options: RequestOptions?) {
 }
 
 fun MCProductInfo.cardValues() =
-    if (this.denominations?.isNotEmpty() == true && (this.denominations?.size ?: 100) < 6) {
-        this.denominations?.joinToString {
+    if (denominations?.isNotEmpty() == true && (denominations?.size ?: 100) < 6) {
+        denominations?.joinToString {
             "${it.stripTrailingZeros().toPlainString()} ${this.currency}"
         }
+    } else if (this.denominations?.isNotEmpty() == true && (this.denominations?.size ?: 100) >= 6) {
+        "from ${denominations?.first()} ${currency} to ${denominations?.last()} ${currency}"
     } else {
-        "from ${this.minFaceValue.stripTrailingZeros().toPlainString()} ${this.currency}" +
-                if (this.maxFaceValue != BigDecimal.ZERO) {
-                    " to ${this.maxFaceValue.stripTrailingZeros().toPlainString()} ${this.currency}"
+        "from ${minFaceValue.stripTrailingZeros().toPlainString()} ${currency}" +
+                if (maxFaceValue != BigDecimal.ZERO) {
+                    " to ${maxFaceValue.stripTrailingZeros().toPlainString()} ${currency}"
                 } else {
                     ""
                 }
