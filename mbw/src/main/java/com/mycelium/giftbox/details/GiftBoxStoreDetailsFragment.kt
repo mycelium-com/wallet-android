@@ -74,7 +74,7 @@ class GiftBoxStoreDetailsFragment : Fragment() {
         viewModel.description.observe(viewLifecycleOwner) {
             binding?.layoutDescription?.tvDescription?.setupDescription(it,
                     viewModel.more.value ?: false) {
-                viewModel.moreVisible.value = true
+                viewModel.moreVisible.value = it
             }
         }
         loadData()
