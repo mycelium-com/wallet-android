@@ -7,6 +7,7 @@ import com.mrd.bitlib.model.*
 import com.mrd.bitlib.util.BitUtils
 import com.mrd.bitlib.util.CoinUtil
 import com.mrd.bitlib.util.TaprootUtils
+import com.mrd.bitlib.util.TaprootUtils.Companion.sigHash
 import java.io.Serializable
 
 open class UnsignedTransaction constructor(
@@ -72,8 +73,12 @@ open class UnsignedTransaction constructor(
                 inputs[i].script = ScriptInput.fromOutputScript(fundingOutputs[i].script)
             }
 
-            // Calculate the transaction hash that has to be signed
-            val hash = transaction.getTxDigestHash(i)
+            val sigHash = if (signAlgorithm == SignAlgorithm.Schnorr) {
+                sigHash(transaction.commonSignatureMessage(i))
+            } else {
+                // Calculate the transaction hash that has to be signed
+                transaction.getTxDigestHash(i)
+            }
             // Set the input to the empty script again
             if (!isSegWitOutput(i)) {
                 inputs.forEachIndexed { index, it ->
@@ -82,7 +87,7 @@ open class UnsignedTransaction constructor(
                 inputs[i] = TransactionInput(fundingOutputs[i].outPoint, ScriptInput.EMPTY, NO_SEQUENCE, fundingOutputs[i].value)
             }
 
-            signingRequests[i] = SigningRequest(publicKey, hash, transaction.getRawDataForInputSign(i), signAlgorithm)
+            signingRequests[i] = SigningRequest(publicKey, sigHash, signAlgorithm)
         }
     }
 

@@ -89,11 +89,7 @@ public class TransactionInput implements Serializable {
          byteWriter.put((byte) Script.OP_EQUALVERIFY);
          byteWriter.put((byte) Script.OP_CHECKSIG);
       } else if(script instanceof ScriptInputP2TR) {
-         byteWriter.put((byte) Script.OP_1);
-         byteWriter.put((byte) Script.OP_PUSHBYTES_32);
-         byte[] witnessProgram;
-         witnessProgram = ScriptInput.getWitnessProgram(ScriptInput.depush(script.getScriptBytes()));
-         byteWriter.putBytes(witnessProgram);
+         throw new IllegalArgumentException("No scriptcode for Taproot, look in TaprootCommonSignatureMessageBuilder");
       } else {
          throw new IllegalArgumentException("No scriptcode for " + script.getClass().getCanonicalName());
       }
@@ -113,26 +109,24 @@ public class TransactionInput implements Serializable {
    }
 
    public void toByteWriter(ByteWriter writer) {
-      writer.putSha256Hash(outPoint.txid, true);
-      writer.putIntLE(outPoint.index);
+      outPoint.hashPrev(writer);
       byte[] script = getScript().getScriptBytes();
       writer.putCompactInt(script.length);
       writer.putBytes(script);
       writer.putIntLE(sequence);
    }
 
-   public byte[] getUnmalleableBytes() {
-      byte[] scriptBytes = script.getUnmalleableBytes();
-      if (scriptBytes == null) {
-         return null;
-      }
-      ByteWriter writer = new ByteWriter(32 + 4 + scriptBytes.length + 4);
-      writer.putSha256Hash(outPoint.txid, true);
-      writer.putIntLE(outPoint.index);
-      writer.putBytes(scriptBytes);
-      writer.putIntLE(sequence);
-      return writer.toBytes();
-   }
+//   public byte[] getUnmalleableBytes() {
+//      byte[] scriptBytes = script.getUnmalleableBytes();
+//      if (scriptBytes == null) {
+//         return null;
+//      }
+//      ByteWriter writer = new ByteWriter(32 + 4 + scriptBytes.length + 4);
+//      outPoint.hashPrev(writer);
+//      writer.putBytes(scriptBytes);
+//      writer.putIntLE(sequence);
+//      return writer.toBytes();
+//   }
 
    @Override
    public String toString() {

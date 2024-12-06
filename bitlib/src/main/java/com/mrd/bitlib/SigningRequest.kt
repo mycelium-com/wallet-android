@@ -12,7 +12,6 @@ import java.io.Serializable
 data class SigningRequest @JvmOverloads constructor(
     var publicKey: PublicKey,
     var toSign: Sha256Hash,
-    val message: ByteArray = ByteArray(0),
     val signAlgo: SignAlgorithm = SignAlgorithm.Standard
 ) : Serializable
 

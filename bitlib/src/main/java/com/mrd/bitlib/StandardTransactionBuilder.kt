@@ -402,26 +402,20 @@ open class StandardTransactionBuilder(val network: NetworkParameters) {
         fun generateSignatures(
             requests: Array<SigningRequest>,
             keyRing: IPrivateKeyRing
-        ): List<ByteArray> {
-            val signatures = LinkedList<ByteArray>()
-            requests.forEach { request ->
+        ): List<ByteArray> =
+            requests.map { request ->
                 val signer = keyRing.findSignerByPublicKey(request.publicKey)
                 if (signer == null) {
                     // This should not happen as we only work on outputs that we have
                     // keys for
                     throw RuntimeException("Private key not found")
                 }
-                if (request.signAlgo == SignAlgorithm.Standard) {
-                    val signature = signer.makeStandardBitcoinSignature(request.toSign)
-                    signatures.add(signature)
-                } else if (request.signAlgo == SignAlgorithm.Schnorr) {
-                    val sigHash = sigHash(request.message)
-                    val signature = signer.makeSchnorrBitcoinSignature(sigHash, ByteArray(0))
-                    signatures.add(signature)
+                if (request.signAlgo == SignAlgorithm.Schnorr) {
+                    signer.makeSchnorrBitcoinSignature(request.toSign.bytes, ByteArray(0))
+                } else {
+                    signer.makeStandardBitcoinSignature(request.toSign)
                 }
             }
-            return signatures
-        }
 
         @JvmStatic
         fun finalizeTransaction(
@@ -431,9 +425,13 @@ open class StandardTransactionBuilder(val network: NetworkParameters) {
             // Create finalized transaction inputs
             val funding = unsigned.fundingOutputs
             val inputs = arrayOfNulls<TransactionInput>(funding.size)
-            var version = 1
             for (i in funding.indices) {
-                if (isScriptInputSegWit(unsigned, i)) {
+                if (isScriptInputP2TR(unsigned, i)) {
+                    inputs[i] = TransactionInput(funding[i].outPoint, ScriptInput.EMPTY)
+                    val witness = InputWitness(1)
+                    witness.setStack(0, signatures[i] + HexUtils.toBytes("01"))
+                    inputs[i]!!.witness = witness
+                } else if (isScriptInputSegWit(unsigned, i)) {
                     inputs[i] = unsigned.inputs[i]
                     if (inputs[i]!!.script is ScriptInputP2WPKH && !(inputs[i]!!.script as ScriptInputP2WPKH).isNested) {
                         inputs[i]!!.script = ScriptInput.EMPTY
@@ -442,12 +440,6 @@ open class StandardTransactionBuilder(val network: NetworkParameters) {
                     witness.setStack(0, signatures.get(i))
                     witness.setStack(1, unsigned.signingRequests[i]!!.publicKey.publicKeyBytes)
                     inputs[i]!!.witness = witness
-                } else if (isScriptInputP2TR(unsigned, i)) {
-                    inputs[i] = TransactionInput(funding[i].outPoint, ScriptInput.EMPTY)
-                    val witness = InputWitness(1)
-                    witness.setStack(0, signatures[i] + HexUtils.toBytes("01"))
-                    inputs[i]!!.witness = witness
-                    version = 2
                 } else {
                     // Create script from signature and public key
                     val script = ScriptInputStandard(
@@ -462,10 +454,14 @@ open class StandardTransactionBuilder(val network: NetworkParameters) {
                     )
                 }
             }
-
+            var version = unsigned.getTxVersion()
             // Create transaction with valid outputs and empty inputs
             return BitcoinTransaction(version, inputs, unsigned.outputs, unsigned.lockTime)
         }
+
+        private fun UnsignedTransaction.getTxVersion() =
+            if (inputs.mapIndexed { i, input -> isScriptInputP2TR(this, i) }
+                    .any { it == true }) 2 else 1
 
         private fun isScriptInputSegWit(unsigned: UnsignedTransaction, i: Int): Boolean =
             unsigned.inputs[i].script is ScriptInputP2WPKH || unsigned.inputs[i].script is ScriptInputP2WSH

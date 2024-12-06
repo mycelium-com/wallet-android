@@ -31,48 +31,48 @@ class TaprootUtils {
             return Parameters.curve.createPoint(x, y, false)
         }
 
-        fun taggedHash(tag: String, msg: ByteArray): ByteArray {
+        fun taggedHash(tag: String, msg: ByteArray): Sha256Hash {
             val tagHash = HashUtils.sha256(tag.toByteArray()).bytes
-            return HashUtils.sha256(tagHash + tagHash + msg).bytes
+            return HashUtils.sha256(tagHash + tagHash + msg)
         }
 
-        fun hashTapTweak(msg: ByteArray): ByteArray =
+        fun hashTapTweak(msg: ByteArray): Sha256Hash =
             taggedHash("TapTweak", msg)
 
-        fun hashAux(msg: ByteArray): ByteArray =
+        fun hashAux(msg: ByteArray): Sha256Hash =
             taggedHash("BIP0340/aux", msg)
 
-        fun hashNonce(msg: ByteArray): ByteArray =
+        fun hashNonce(msg: ByteArray): Sha256Hash =
             taggedHash("BIP0340/nonce", msg)
 
-        fun hashChallenge(msg: ByteArray): ByteArray =
+        fun hashChallenge(msg: ByteArray): Sha256Hash =
             taggedHash("BIP0340/challenge", msg)
 
         fun outputKey(internalKey: Point): ByteArray {
-            val HTT = hashTapTweak(internalKey.x.toByteArray(32))
+            val HTT = hashTapTweak(internalKey.x.toByteArray(32)).bytes
             return internalKey.add(Parameters.G.multiply(BigInteger(1, HTT))).x.toByteArray(32)
         }
 
-        fun tweakPrivateKey(privateKey: ByteArray, merkle: ByteArray = ByteArray(0)): ByteArray {
+        fun tweakPrivateKey(privateKey: ByteArray, tweak: ByteArray = ByteArray(0)): ByteArray {
             val privateKeyNegated = Parameters.n - BigInteger(1, privateKey)
-            val tweak = BigInteger(1, merkle)
+            val tweak = BigInteger(1, tweak)
             return ((privateKeyNegated + tweak).mod(Parameters.n)).toByteArray(32)
         }
 
-        fun sigHash(message: ByteArray): ByteArray =
+        fun sigHash(message: ByteArray): Sha256Hash =
             taggedHash("TapSighash", HexUtils.toBytes("00") + message)
 
-        fun tweak(publicKey: PublicKey, merkle: ByteArray = ByteArray(0)): ByteArray =
+        fun tweak(publicKey: PublicKey, merkle: ByteArray = ByteArray(0)): Sha256Hash =
             tweak(publicKey.pubKeyCompressed.cutStartByteArray(32), merkle)
 
-        fun tweak(publicKey: ByteArray, merkle: ByteArray = ByteArray(0)): ByteArray =
+        fun tweak(publicKey: ByteArray, merkle: ByteArray = ByteArray(0)): Sha256Hash =
             hashTapTweak(publicKey + merkle)
 
         fun tweakPublicKey(publicKey: PublicKey, merkle: ByteArray = ByteArray(0)): ByteArray =
             tweakPublicKey(publicKey.pubKeyCompressed.cutStartByteArray(32), merkle)
 
         fun tweakPublicKey(publicKey: ByteArray, merkle: ByteArray = ByteArray(0)): ByteArray {
-            val tweak = tweak(publicKey, merkle)
+            val tweak = tweak(publicKey, merkle).bytes
             val l = liftX(BigInteger(1, publicKey))
             val result = EcTools.multiply(Parameters.G, BigInteger(1, tweak)).add(l)
             return result.x.toByteArray(32)

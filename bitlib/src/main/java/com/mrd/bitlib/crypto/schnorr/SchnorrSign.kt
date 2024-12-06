@@ -36,16 +36,16 @@ class SchnorrSign(val privateKey: BigInteger) :
         val d = if (P.y.toBigInteger().testBit(0))
             Parameters.n - privateKey else privateKey
         val auxRandHash = TaprootUtils.hashAux(rand)
-        val t = d xor BigInteger(1, auxRandHash)
+        val t = d xor auxRandHash.toPositiveBigInteger()
         val nonce = hashNonce(t.toByteArray(32) + P.x.toByteArray(32) + message)
-        val k0 = BigInteger(1, nonce).mod(Parameters.n)
+        val k0 = nonce.toPositiveBigInteger().mod(Parameters.n)
         if (k0 == BigInteger.ZERO) throw Exception("nonce must not be zero (this is almost impossible, but checking anyway)")
 
         val R = EcTools.multiply(Parameters.G, k0)
 
         val k = if (R.y.toBigInteger().testBit(0)) Parameters.n - k0 else k0
         val challenge = hashChallenge(R.x.toByteArray(32) + P.x.toByteArray(32) + message)
-        val e = BigInteger(1, challenge).mod(Parameters.n)
+        val e = challenge.toPositiveBigInteger().mod(Parameters.n)
 
 //        // Calculate s
         val s = (k + e * d).mod(Parameters.n)

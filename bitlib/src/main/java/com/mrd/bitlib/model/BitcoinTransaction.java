@@ -53,7 +53,7 @@ public class BitcoinTransaction implements Serializable {
 
     private Sha256Hash _hash;
     private Sha256Hash id;
-    private Sha256Hash _unmalleableHash;
+//    private Sha256Hash _unmalleableHash;
 
     // cache for some getters that need to do some work and might get called often
     private transient Boolean _rbfAble = null;
@@ -274,7 +274,7 @@ public class BitcoinTransaction implements Serializable {
         this._txSize = copyFrom._txSize;
         this._hash = copyFrom._hash;
         this.id = copyFrom.id;
-        this._unmalleableHash = copyFrom._unmalleableHash;
+//        this._unmalleableHash = copyFrom._unmalleableHash;
     }
 
     // we already know the hash of this transaction, dont recompute it
@@ -303,50 +303,32 @@ public class BitcoinTransaction implements Serializable {
     }
 
     public Sha256Hash getTxDigestHash(int i) {
-        byte[] rawTx = getRawDataForInputSign(i);
+        ByteWriter writer = new ByteWriter(1024);
+        if (inputs[i].script instanceof ScriptInputP2WSH
+                || inputs[i].script instanceof ScriptInputP2WPKH) {
+            new WitnessSignatureMessageBuilder(this, i, version).build(writer);
+        } else if (inputs[i].script instanceof ScriptInputP2TR) {
+            throw new RuntimeException("T2TR use commonSignatureMessage");
+        } else {
+            toByteWriter(writer, false);
+        }
+        // We also have to write a hash type.
+        int hashType = 1;
+        writer.putIntLE(hashType);
         // Note that this is NOT reversed to ensure it will be signed
         // correctly. If it were to be printed out
         // however then we would expect that it is IS reversed.
-        return HashUtils.doubleSha256(rawTx);
+        return HashUtils.doubleSha256(writer.toBytes());
     }
 
-    public byte[] getRawDataForInputSign(int i) {
-        ByteWriter writer = new ByteWriter(1024);
-        int hashType = 1;
-        if (inputs[i].script instanceof ScriptInputP2WSH
-                || inputs[i].script instanceof ScriptInputP2WPKH) {
-            writer.putIntLE(version);
-            writer.putSha256Hash(getPrevOutsHash());
-            writer.putSha256Hash(getSequenceHash());
-            inputs[i].outPoint.hashPrev(writer);
-            byte[] scriptCode = inputs[i].getScriptCode();
-            writer.put((byte) (scriptCode.length & 0xFF));
-            writer.putBytes(scriptCode);
-            writer.putLongLE(inputs[i].getValue());
-            writer.putIntLE(inputs[i].sequence);
-            writer.putSha256Hash(getOutputsHash());
-            writer.putIntLE(lockTime);
-            writer.putIntLE(hashType);
-        } else if (inputs[i].script instanceof ScriptInputP2TR) {
-            writer.putCompactInt(Script.SIGHASH_ALL);   //hash type byte
-            writer.putIntLE(2);                   //version
-            writer.putIntLE(lockTime);                  //locktime
-            writer.putSha256Hash(getPrevOutsHashTaproot());    //hash prevouts
-            writer.putSha256Hash(getInputAmountsHashTaproot());//hash amounts
-            writer.putSha256Hash(getScriptPubKeysHashTaproot()); //hash scriptpubkeys
-            writer.putSha256Hash(getSequenceHashTaproot());    //hash sequences
-            writer.putSha256Hash(getOutputsHashTaproot());     //hash outputs
-            writer.putCompactInt(0);              //spend type 0 - key 1 - taproot script
-            writer.putIntLE(i);                         //input index
+    public byte[] commonSignatureMessage(int i) {
+        if (inputs[i].script instanceof ScriptInputP2TR) {
+            ByteWriter writer = new ByteWriter(1024);
+            new TaprootCommonSignatureMessageBuilder(this, i, version).build(writer);
+            return writer.toBytes();
         } else {
-            toByteWriter(writer, false);
-            writer.putIntLE(hashType);
+            throw new RuntimeException("commonSignatureMessage only for P2TR, vin " + i);
         }
-        return writer.toBytes();
-    }
-
-    private Sha256Hash hash(byte[] data) {
-        return HashUtils.sha256(data);
     }
 
     private Sha256Hash getPrevOutsHash() {
@@ -355,14 +337,6 @@ public class BitcoinTransaction implements Serializable {
             input.outPoint.hashPrev(writer);
         }
         return HashUtils.doubleSha256(writer.toBytes());
-    }
-
-    private Sha256Hash getPrevOutsHashTaproot() {
-        ByteWriter writer = new ByteWriter(1024);
-        for (TransactionInput input : inputs) {
-            input.outPoint.hashPrev(writer);
-        }
-        return hash(writer.toBytes());
     }
 
     private Sha256Hash getOutputsHash() {
@@ -375,47 +349,12 @@ public class BitcoinTransaction implements Serializable {
         return HashUtils.doubleSha256(writer.toBytes());
     }
 
-    private Sha256Hash getOutputsHashTaproot() {
-        ByteWriter writer = new ByteWriter(1024);
-        for (TransactionOutput output : outputs) {
-            writer.putLongLE(output.value);
-            writer.put((byte) (output.script.getScriptBytes().length & 0xFF));
-            writer.putBytes(output.script.getScriptBytes());
-        }
-        return hash(writer.toBytes());
-    }
-
-    private Sha256Hash getScriptPubKeysHashTaproot() {
-        ByteWriter writer = new ByteWriter(1024);
-        for (TransactionInput input : inputs) {
-            writer.put((byte) (input.script.getScriptBytes().length & 0xFF));
-            writer.putBytes(input.script.getScriptBytes());
-        }
-        return hash(writer.toBytes());
-    }
-
     private Sha256Hash getSequenceHash()  {
         ByteWriter writer = new ByteWriter(1024);
         for (TransactionInput input : inputs) {
             writer.putIntLE(input.sequence);
         }
         return HashUtils.doubleSha256(writer.toBytes());
-    }
-
-    private Sha256Hash getSequenceHashTaproot() {
-        ByteWriter writer = new ByteWriter(1024);
-        for (TransactionInput input : inputs) {
-            writer.putIntLE(input.sequence);
-        }
-        return hash(writer.toBytes());
-    }
-
-    private Sha256Hash getInputAmountsHashTaproot() {
-        ByteWriter writer = new ByteWriter(1024);
-        for (TransactionInput input : inputs) {
-            writer.putLongLE(input.getValue());
-        }
-        return hash(writer.toBytes());
     }
 
     /**
@@ -468,20 +407,20 @@ public class BitcoinTransaction implements Serializable {
      * Calculate the unmalleable hash of this transaction. If the signature bytes
      * for an input cannot be determined the result is null
      */
-    public Sha256Hash getUnmalleableHash() {
-        if (_unmalleableHash == null) {
-            ByteWriter writer = new ByteWriter(2000);
-            for (TransactionInput i : inputs) {
-                byte[] bytes = i.getUnmalleableBytes();
-                if (bytes == null) {
-                    return null;
-                }
-                writer.putBytes(bytes);
-            }
-            _unmalleableHash = HashUtils.doubleSha256(writer.toBytes()).reverse();
-        }
-        return _unmalleableHash;
-    }
+//    public Sha256Hash getUnmalleableHash() {
+//        if (_unmalleableHash == null) {
+//            ByteWriter writer = new ByteWriter(2000);
+//            for (TransactionInput i : inputs) {
+//                byte[] bytes = i.getUnmalleableBytes();
+//                if (bytes == null) {
+//                    return null;
+//                }
+//                writer.putBytes(bytes);
+//            }
+//            _unmalleableHash = HashUtils.doubleSha256(writer.toBytes()).reverse();
+//        }
+//        return _unmalleableHash;
+//    }
 
     @Override
     public String toString() {

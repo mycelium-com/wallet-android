@@ -342,8 +342,8 @@ class InMemoryPrivateKey() : PrivateKey(), KeyExporter, Serializable {
         auxRand: ByteArray?
     ): ByteArray {
         val tweak = TaprootUtils.tweak(publicKey, merkle)
-        return SchnorrSign(TaprootUtils.tweakPrivateKey(this.getPrivateKeyBytes(), tweak))
-            .sign(message, auxRand) + HexUtils.toBytes("01")
+        return SchnorrSign(TaprootUtils.tweakPrivateKey(this.getPrivateKeyBytes(), tweak.bytes))
+            .sign(message, auxRand)
     }
 
     companion object {

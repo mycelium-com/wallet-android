@@ -28,7 +28,7 @@ open class SchnorrVerify(val publicKey: Point) {
         }
 
         val challenge = hashChallenge(r.toByteArray(32) + P.x.toByteArray(32) + message)
-        val e = BigInteger(1, challenge).mod(Parameters.n)
+        val e = challenge.toPositiveBigInteger().mod(Parameters.n)
 
         val point1 = EcTools.multiply(Parameters.G, s)
         val point2 = EcTools.multiply(P, Parameters.n - e)
