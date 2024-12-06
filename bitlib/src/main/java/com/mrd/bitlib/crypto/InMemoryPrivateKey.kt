@@ -12,6 +12,7 @@ import com.mrd.bitlib.crypto.schnorr.SchnorrSign
 import com.mrd.bitlib.model.NetworkParameters
 import com.mrd.bitlib.util.ByteWriter
 import com.mrd.bitlib.util.HashUtils
+import com.mrd.bitlib.util.HexUtils
 import com.mrd.bitlib.util.Sha256Hash
 import com.mrd.bitlib.util.TaprootUtils
 import com.mrd.bitlib.util.cutStartByteArray
@@ -342,7 +343,7 @@ class InMemoryPrivateKey() : PrivateKey(), KeyExporter, Serializable {
     ): ByteArray {
         val tweak = TaprootUtils.tweak(publicKey, merkle)
         return SchnorrSign(TaprootUtils.tweakPrivateKey(this.getPrivateKeyBytes(), tweak))
-            .sign(message, auxRand)
+            .sign(message, auxRand) + HexUtils.toBytes("01")
     }
 
     companion object {

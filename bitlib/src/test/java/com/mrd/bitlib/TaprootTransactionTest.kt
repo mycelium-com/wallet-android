@@ -1,6 +1,5 @@
 package com.mrd.bitlib
 
-import com.mrd.bitlib.crypto.IPublicKeyRing
 import com.mrd.bitlib.crypto.InMemoryPrivateKey
 import com.mrd.bitlib.crypto.PrivateKey
 import com.mrd.bitlib.crypto.PublicKey
@@ -9,12 +8,8 @@ import com.mrd.bitlib.crypto.schnorr.SchnorrSign
 import com.mrd.bitlib.model.AddressType
 import com.mrd.bitlib.model.BitcoinAddress
 import com.mrd.bitlib.model.NetworkParameters
-import com.mrd.bitlib.model.OutPoint
-import com.mrd.bitlib.model.ScriptOutputP2TR
 import com.mrd.bitlib.model.SegwitAddress
-import com.mrd.bitlib.model.UnspentTransactionOutput
 import com.mrd.bitlib.util.HexUtils
-import com.mrd.bitlib.util.Sha256Hash
 import com.mrd.bitlib.util.TaprootUtils
 import com.mrd.bitlib.util.cutStartByteArray
 import com.mrd.bitlib.util.toByteArray
@@ -142,7 +137,6 @@ class TaprootTransactionTest {
             val k = internalKey.x.toByteArray(32).let {
                 if (it[0] == 0.toByte()) it.copyOfRange(1, it.size) else it
             }
-//            Logger.getLogger("!!!!").log(Level.SEVERE, "internalKey" + HexUtils.toHex(k))
             Assert.assertArrayEquals(it.internalKey, k)
 
             val outputKey = TaprootUtils.outputKey(internalKey)
@@ -257,7 +251,7 @@ class TaprootTransactionTest {
         val auxRand =
             HexUtils.toBytes("0000000000000000000000000000000000000000000000000000000000000000")
         val signature =
-            HexUtils.toBytes("b693a0797b24bae12ed0516a2f5ba765618dca89b75e498ba5b745b71644362298a45ca39230d10a02ee6290a91cebf9839600f7e35158a447ea182ea0e022ae")
+            "b693a0797b24bae12ed0516a2f5ba765618dca89b75e498ba5b745b71644362298a45ca39230d10a02ee6290a91cebf9839600f7e35158a447ea182ea0e022ae"
         val tweak =
             HexUtils.toBytes("8dc8b9030225e044083511759b58328b46dffcc78b920b4b97169f9d7b43d3b5")
 
@@ -274,11 +268,10 @@ class TaprootTransactionTest {
 
         val tweakedPrivateKey = TaprootUtils.tweakPrivateKey(privateKey, tweak)
         val signature1 = SchnorrSign(tweakedPrivateKey).sign(sighash, auxRand)
-        Assert.assertEquals(HexUtils.toHex(signature), HexUtils.toHex(signature1))
+        Assert.assertEquals(signature, HexUtils.toHex(signature1))
 
 
         val signature2 = pK.makeSchnorrBitcoinSignature(sighash, ByteArray(0), auxRand)
-        Assert.assertEquals(HexUtils.toHex(signature), HexUtils.toHex(signature2))
+        Assert.assertEquals(signature, HexUtils.toHex(signature2).substring(0, 128))
     }
 }
-

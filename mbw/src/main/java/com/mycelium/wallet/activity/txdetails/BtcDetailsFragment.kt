@@ -126,6 +126,7 @@ class BtcDetailsFragment : DetailsFragment() {
                     }
                 }
             }
+            binding?.txSize?.text = "${tx?.rawSize} vB"
         }
     }
 
