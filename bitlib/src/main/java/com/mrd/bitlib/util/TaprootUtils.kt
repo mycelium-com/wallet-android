@@ -37,7 +37,10 @@ class TaprootUtils {
         }
 
         fun hashTapTweak(msg: ByteArray): Sha256Hash =
-            taggedHash("TapTweak", msg)
+            taggedHash("TapTweak", msg).apply {
+                if (toPositiveBigInteger() >= Parameters.n)
+                    throw RuntimeException("Tap Tweak >= Parameters.n")
+            }
 
         fun hashAux(msg: ByteArray): Sha256Hash =
             taggedHash("BIP0340/aux", msg)
@@ -53,10 +56,14 @@ class TaprootUtils {
             return internalKey.add(Parameters.G.multiply(BigInteger(1, HTT))).x.toByteArray(32)
         }
 
-        fun tweakedPrivateKey(privateKey: ByteArray, tweak: ByteArray = ByteArray(0)): ByteArray {
-            val privateKeyNegated = Parameters.n - BigInteger(1, privateKey)
-            val tweak = BigInteger(1, tweak)
-            return ((privateKeyNegated + tweak).mod(Parameters.n)).toByteArray(32)
+        fun tweakedPrivateKey(privateKey: ByteArray, tweak: Sha256Hash): ByteArray {
+//             seckey = seckey0 if has_even_y(P) else SECP256K1_ORDER - seckey0
+            val privateKeyInt = BigInteger(1, privateKey)
+            val P = EcTools.multiply(Parameters.G, privateKeyInt)
+            val privateKeyNegated =
+                if (P.y.toBigInteger().testBit(0)) Parameters.n - privateKeyInt else privateKeyInt
+            return ((privateKeyNegated + tweak.toPositiveBigInteger()).mod(Parameters.n))
+                .toByteArray(32)
         }
 
         fun sigHash(message: ByteArray): Sha256Hash =

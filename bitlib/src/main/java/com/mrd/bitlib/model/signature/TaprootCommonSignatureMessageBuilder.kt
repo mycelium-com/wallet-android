@@ -1,5 +1,7 @@
-package com.mrd.bitlib.model
+package com.mrd.bitlib.model.signature
 
+import com.mrd.bitlib.model.BitcoinTransaction
+import com.mrd.bitlib.model.Script
 import com.mrd.bitlib.model.Script.SIGHASH_ANYONECANPAY
 import com.mrd.bitlib.model.Script.SIGHASH_SINGLE
 import com.mrd.bitlib.util.ByteWriter
@@ -104,22 +106,27 @@ class TaprootCommonSignatureMessageBuilder(
         val isAnyOneCanPay = isAnyOneCanPay()
         val isSingle = isSingle()
         if (!isAnyOneCanPay) {
-            writer.putSha256Hash(prevOutputsHash().apply { println("prevOutputsHash " + HexUtils.toHex(this.bytes)) })     //hash prevouts
-            writer.putSha256Hash(inputAmountsHash().apply { println("inputAmountsHash " + HexUtils.toHex(this.bytes)) })    //hash amounts
-            writer.putSha256Hash(scriptPubKeysHash().apply { println("scriptPubKeysHash " + HexUtils.toHex(this.bytes)) })   //hash scriptpubkeys
-            writer.putSha256Hash(sequenceHash().apply { println("sequenceHash " + HexUtils.toHex(this.bytes)) })        //hash sequences
+            println("!!!! step 1")
+            writer.putSha256Hash(prevOutputsHash().apply { println("!!!! prevOutputsHash " + HexUtils.toHex(this.bytes)) })     //hash prevouts
+            writer.putSha256Hash(inputAmountsHash().apply { println("!!!! inputAmountsHash " + HexUtils.toHex(this.bytes)) })    //hash amounts
+            writer.putSha256Hash(scriptPubKeysHash().apply { println("!!!! scriptPubKeysHash " + HexUtils.toHex(this.bytes)) })   //hash scriptpubkeys
+            writer.putSha256Hash(sequenceHash().apply { println("!!!! sequenceHash " + HexUtils.toHex(this.bytes)) })        //hash sequences
         }
         if (!isSingle) {
+            println("!!!! step 2")
             writer.putSha256Hash(outputsHash())         //hash outputs
         }
         writer.put(0)                     //spend type 0 - key 1 - taproot script
         if (!isAnyOneCanPay) {
+            println("!!!! step 3")
             writer.putIntLE(index)                  //input index
         }
         if (isAnyOneCanPay) {
+            println("!!!! no need")
             // TODO implement SIGHASH_ANYONECANPAY
         }
         if (isSingle) {
+            println("!!!! no need")
             writer.putSha256Hash(outputHash(0)) // TODO need to get index
         }
         return writer
@@ -128,54 +135,4 @@ class TaprootCommonSignatureMessageBuilder(
     private fun isAnyOneCanPay(): Boolean = hashType and SIGHASH_ANYONECANPAY != 0
 
     private fun isSingle(): Boolean = hashType and 3 == SIGHASH_SINGLE
-}
-
-class WitnessSignatureMessageBuilder(
-    val tx: BitcoinTransaction,
-    val index: Int,
-    val version: Int
-) {
-    val inputs = tx.inputs
-    val outputs = tx.outputs
-    val lockTime = tx.lockTime
-
-    private fun getPrevOutsHash(): Sha256Hash {
-        val writer = ByteWriter(1024)
-        inputs.forEach { input ->
-            input.outPoint.hashPrev(writer)
-        }
-        return HashUtils.doubleSha256(writer.toBytes());
-    }
-
-    private fun getSequenceHash(): Sha256Hash {
-        val writer = ByteWriter(1024)
-        inputs.forEach { input ->
-            writer.putIntLE(input.sequence);
-        }
-        return HashUtils.doubleSha256(writer.toBytes());
-    }
-
-    private fun getOutputsHash(): Sha256Hash {
-        val writer = ByteWriter(1024)
-        outputs.forEach { output ->
-            writer.putLongLE(output.value);
-            writer.put((output.script.scriptBytes.size and 0xFF).toByte())
-            writer.putBytes(output.script.scriptBytes);
-        }
-        return HashUtils.doubleSha256(writer.toBytes());
-    }
-
-    fun build(writer: ByteWriter) {
-        writer.putIntLE(version)
-        writer.putSha256Hash(getPrevOutsHash())
-        writer.putSha256Hash(getSequenceHash())
-        inputs[index].outPoint.hashPrev(writer)
-        val scriptCode = inputs[index].getScriptCode()
-        writer.put((scriptCode.size and 0xFF).toByte())
-        writer.putBytes(scriptCode)
-        writer.putLongLE(inputs[index].getValue())
-        writer.putIntLE(inputs[index].sequence)
-        writer.putSha256Hash(getOutputsHash())
-        writer.putIntLE(lockTime)
-    }
 }

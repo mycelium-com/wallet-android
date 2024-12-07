@@ -31,71 +31,87 @@
  * change. To the extent permitted under your local laws, the Licensor excludes the implied warranties of merchantability,
  * fitness for a particular purpose and non-infringement.
  */
+package com.mycelium.wallet.activity.modern
 
-package com.mycelium.wallet.activity.modern;
+import android.os.Bundle
+import androidx.appcompat.app.AppCompatActivity
+import androidx.viewpager.widget.ViewPager
+import com.mycelium.wallet.MbwManager
+import com.mycelium.wallet.R
+import com.mycelium.wallet.activity.modern.adapter.TabsAdapter
+import com.mycelium.wallet.activity.send.SendCoinsActivity
+import com.mycelium.wallet.databinding.ActivityGetFromAddressbookBinding
 
-import android.os.Bundle;
+class GetFromAddressBookActivity : AppCompatActivity() {
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.viewpager.widget.ViewPager;
+    lateinit var binding: ActivityGetFromAddressbookBinding
 
-import com.google.android.material.tabs.TabLayout;
-import com.mycelium.wallet.MbwManager;
-import com.mycelium.wallet.R;
-import com.mycelium.wallet.activity.modern.adapter.TabsAdapter;
-import com.mycelium.wallet.activity.send.SendCoinsActivity;
+    public override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(ActivityGetFromAddressbookBinding.inflate(layoutInflater).apply {
+            binding = this
+        }.root)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        supportActionBar?.setDisplayShowHomeEnabled(true)
+        binding.pagerTabs.setupWithViewPager(binding.pager)
+        val mbwManager = MbwManager.getInstance(this)
+        val mTabsAdapter = TabsAdapter(this, binding.pager, mbwManager)
 
-public class GetFromAddressBookActivity extends AppCompatActivity {
-   private static final String TAB_MY_ADDRESSES = "tab_my_addresses";
-   private static final String TAB_CONTACTS = "tab_contacts";
+        val myAddressesTab =
+            binding.pagerTabs.newTab().setText(getResources().getString(R.string.my_accounts))
+        mTabsAdapter.addTab(
+            myAddressesTab, AddressBookFragment::class.java,
+            addressBookBundle(true, false), TAB_MY_ADDRESSES
+        )
+        val contactsTab =
+            binding.pagerTabs.newTab().setText(getResources().getString(R.string.sending_addresses))
+        mTabsAdapter.addTab(
+            contactsTab, AddressBookFragment::class.java,
+            addressBookBundle(false, true), TAB_CONTACTS
+        )
 
-   ViewPager mViewPager;
-   TabsAdapter mTabsAdapter;
+        val countContactsEntries = mbwManager.metadataStorage.allAddressLabels.size
 
-   @Override
-   public void onCreate(Bundle savedInstanceState) {
-      super.onCreate(savedInstanceState);
-      MbwManager _mbwManager = MbwManager.getInstance(this);
-      setContentView(R.layout.activity_get_from_addressbook);
-      mViewPager = findViewById(R.id.pager);
-      TabLayout tabLayout = findViewById(R.id.pager_tabs);
-      tabLayout.setupWithViewPager(mViewPager);
+        if (countContactsEntries > 0) {
+            contactsTab.select()
+            binding.pager.setCurrentItem(mTabsAdapter.indexOf(TAB_CONTACTS))
+        } else {
+            myAddressesTab.select()
+            binding.pager.setCurrentItem(mTabsAdapter.indexOf(TAB_MY_ADDRESSES))
+        }
+    }
 
-      mTabsAdapter = new TabsAdapter(this, mViewPager, _mbwManager);
+    /**
+     * Method for creating address book configuration which used in Send Activity
+     * @param own need for definition necessary configuration - print addresses from our wallet or not
+     * @param availableForSending need for definition necessary configuration - print only addresses available for sending or all addresses
+     * @return Bundle for address book
+     */
+    private fun addressBookBundle(own: Boolean, availableForSending: Boolean): Bundle {
+        val ownBundle = Bundle()
+        ownBundle.putBoolean(AddressBookFragment.OWN, own)
+        ownBundle.putBoolean(AddressBookFragment.SELECT_ONLY, true)
+        ownBundle.putBoolean(AddressBookFragment.AVAILABLE_FOR_SENDING, availableForSending)
+        if (intent.hasExtra(SendCoinsActivity.ACCOUNT)) {
+            ownBundle.putSerializable(
+                SendCoinsActivity.ACCOUNT,
+                intent.getSerializableExtra(SendCoinsActivity.ACCOUNT)
+            )
+            ownBundle.putBoolean(
+                SendCoinsActivity.IS_COLD_STORAGE,
+                intent.getBooleanExtra(SendCoinsActivity.IS_COLD_STORAGE, false)
+            )
+        }
+        return ownBundle
+    }
 
-      TabLayout.Tab myAddressesTab = tabLayout.newTab().setText(getResources().getString(R.string.my_accounts));
-      mTabsAdapter.addTab(myAddressesTab, AddressBookFragment.class,
-              addressBookBundle(true, false), TAB_MY_ADDRESSES);
-      TabLayout.Tab contactsTab = tabLayout.newTab().setText(getResources().getString(R.string.sending_addresses));
-      mTabsAdapter.addTab(contactsTab, AddressBookFragment.class,
-              addressBookBundle(false, true), TAB_CONTACTS);
+    override fun onSupportNavigateUp(): Boolean {
+        onBackPressed()
+        return true
+    }
 
-      int countContactsEntries = _mbwManager.getMetadataStorage().getAllAddressLabels().size();
-
-      if (countContactsEntries > 0) {
-         contactsTab.select();
-         mViewPager.setCurrentItem(mTabsAdapter.indexOf(TAB_CONTACTS));
-      } else {
-         myAddressesTab.select();
-         mViewPager.setCurrentItem(mTabsAdapter.indexOf(TAB_MY_ADDRESSES));
-      }
-   }
-
-   /**
-    * Method for creating address book configuration which used in Send Activity
-    * @param own need for definition necessary configuration - print addresses from our wallet or not
-    * @param availableForSending need for definition necessary configuration - print only addresses available for sending or all addresses
-    * @return Bundle for address book
-    */
-   private Bundle addressBookBundle(boolean own, boolean availableForSending) {
-      final Bundle ownBundle = new Bundle();
-      ownBundle.putBoolean(AddressBookFragment.OWN, own);
-      ownBundle.putBoolean(AddressBookFragment.SELECT_ONLY, true);
-      ownBundle.putBoolean(AddressBookFragment.AVAILABLE_FOR_SENDING, availableForSending);
-      if (getIntent().hasExtra(SendCoinsActivity.ACCOUNT)) {
-         ownBundle.putSerializable(SendCoinsActivity.ACCOUNT, getIntent().getSerializableExtra(SendCoinsActivity.ACCOUNT));
-         ownBundle.putBoolean(SendCoinsActivity.IS_COLD_STORAGE, getIntent().getBooleanExtra(SendCoinsActivity.IS_COLD_STORAGE, false));
-      }
-      return ownBundle;
-   }
+    companion object {
+        private const val TAB_MY_ADDRESSES = "tab_my_addresses"
+        private const val TAB_CONTACTS = "tab_contacts"
+    }
 }

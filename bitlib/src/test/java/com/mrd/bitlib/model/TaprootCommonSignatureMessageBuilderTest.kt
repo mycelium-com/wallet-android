@@ -1,11 +1,13 @@
 package com.mrd.bitlib.model
 
 import com.mrd.bitlib.crypto.InMemoryPrivateKey
+import com.mrd.bitlib.model.signature.TaprootCommonSignatureMessageBuilder
 import com.mrd.bitlib.util.ByteWriter
 import com.mrd.bitlib.util.HexUtils
 import com.mrd.bitlib.util.Sha256Hash
 import com.mrd.bitlib.util.TaprootUtils
 import com.mrd.bitlib.util.cutStartByteArray
+import org.bouncycastle.util.encoders.Hex
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
@@ -24,15 +26,53 @@ class TaprootCommonSignatureMessageBuilderTest {
     }
 
     @Test
-    fun test1() {
+    fun test() {
+        val privateKeys =
+            mapOf(
+                0 to InMemoryPrivateKey(HexUtils.toBytes("6b973d88838f27366ed61c9ad6367663045cb456e28335c109e30717ae0c6baa")),
+                1 to InMemoryPrivateKey(HexUtils.toBytes("1e4da49f6aaf4e5cd175fe08a32bb5cb4863d963921255f33d3bc31e1343907f")),
+                3 to InMemoryPrivateKey(HexUtils.toBytes("d3c7af07da2d54f7a7735d3d0fc4f0a73164db638b2f2f7c43f711f6d4aa7e64")),
+                4 to InMemoryPrivateKey(HexUtils.toBytes("f36bb07a11e469ce941d16b63b11b9b9120a84d9d87cff2c84a8d4affb438f4e")),
+                6 to InMemoryPrivateKey(HexUtils.toBytes("415cfe9c15d9cea27d8104d5517c06e9de48e2f986b695e4f5ffebf230e725d8")),
+                7 to InMemoryPrivateKey(HexUtils.toBytes("c7b0e81f0a9a0b0499e112279d718cca98e79a12e2f137c72ae5b213aad0d103")),
+                8 to InMemoryPrivateKey(HexUtils.toBytes("77863416be0d0665e517e1c375fd6f75839544eca553675ef7fdf4949518ebaa")),
+            )
+
+
+    }
+
+    @Test
+    fun test0() {
         val privateKey =
             InMemoryPrivateKey(HexUtils.toBytes("6b973d88838f27366ed61c9ad6367663045cb456e28335c109e30717ae0c6baa"))
-        val publicKey =
-            HexUtils.toBytes("d6889cb081036e0faefa3a35157ad71086b123b2b144b649798b494c300a961d")
+
+        val merkleRoot = ByteArray(0)
+
 
         Assert.assertEquals(
-            HexUtils.toHex(publicKey),
+            "d6889cb081036e0faefa3a35157ad71086b123b2b144b649798b494c300a961d",
             HexUtils.toHex(privateKey.publicKey.pubKeyCompressed.cutStartByteArray(32))
+        )
+
+        val tweak = TaprootUtils.tweak(privateKey.publicKey, merkleRoot)
+        Assert.assertEquals(
+            "b86e7be8f39bab32a6f2c0443abbc210f0edac0e2c53d501b36b64437d9c6c70",
+            tweak.toHex()
+        )
+
+        Assert.assertEquals(
+            "2405b971772ad26915c8dcdf10f238753a9b837e5f8e6a86fd7c0cce5b7296d9",
+            HexUtils.toHex(
+                TaprootUtils.tweakedPrivateKey(
+                    HexUtils.toBytes("6b973d88838f27366ed61c9ad6367663045cb456e28335c109e30717ae0c6baa"),
+                    tweak
+                )
+            )
+        )
+
+        Assert.assertEquals(
+            "2405b971772ad26915c8dcdf10f238753a9b837e5f8e6a86fd7c0cce5b7296d9",
+            HexUtils.toHex(TaprootUtils.tweakedPrivateKey(privateKey.privateKeyBytes, tweak))
         )
 
         val hashAmounts = "58a6964a4f5f8f0b642ded0a8a553be7622a719da71d1f5befcefcdee8e0fde6"
@@ -89,17 +129,12 @@ class TaprootCommonSignatureMessageBuilderTest {
             sigHash.toHex()
         )
 
-//        Assert.assertEquals(
-//            "ed7c1647cb97379e76892be0cacff57ec4a7102aa24296ca39af7541246d8ff14d38958d4cc1e2e478e4d4a764bbfd835b16d4e314b72937b29833060b87276c",
-//            HexUtils.toHex(
-//                privateKey.makeSchnorrBitcoinSignature(
-//                    sigHash,
-//                    ByteArray(0),
-//                    HexUtils.toBytes("")
-//                )
-//            )
-//        )
-
+        Assert.assertEquals(
+            "ed7c1647cb97379e76892be0cacff57ec4a7102aa24296ca39af7541246d8ff14d38958d4cc1e2e478e4d4a764bbfd835b16d4e314b72937b29833060b87276c",
+            HexUtils.toHex(
+                privateKey.makeSchnorrBitcoinSignature(sigHash.bytes, ByteArray(0), auxRand)
+            )
+        )
     }
 
     @Test
@@ -176,6 +211,12 @@ class TaprootCommonSignatureMessageBuilderTest {
             "93478e9488f956df2396be2ce6c5cced75f900dfa18e7dabd2428aae78451820",
             HexUtils.toHex(privateKey.publicKey.pubKeyCompressed.cutStartByteArray(32))
         )
+
+        Assert.assertEquals(
+            "6af9e28dbf9d6aaf027696e2598a5b3d056f5fd2355a7fd5a37a0e5008132d30",
+            TaprootUtils.tweak(privateKey.publicKey, merkleRoot).toHex()
+        )
+
 
         val builder = TaprootCommonSignatureMessageBuilder(tx, 3, 2)
         setupAmount(builder)

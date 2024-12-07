@@ -22,6 +22,8 @@ import com.google.common.primitives.UnsignedInteger;
 import com.mrd.bitlib.UnsignedTransaction;
 import com.mrd.bitlib.model.TransactionInput.TransactionInputParsingException;
 import com.mrd.bitlib.model.TransactionOutput.TransactionOutputParsingException;
+import com.mrd.bitlib.model.signature.TaprootCommonSignatureMessageBuilder;
+import com.mrd.bitlib.model.signature.WitnessSignatureMessageBuilder;
 import com.mrd.bitlib.util.ByteReader;
 import com.mrd.bitlib.util.ByteReader.InsufficientBytesException;
 import com.mrd.bitlib.util.ByteWriter;

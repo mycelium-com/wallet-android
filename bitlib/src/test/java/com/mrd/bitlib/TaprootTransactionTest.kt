@@ -10,6 +10,7 @@ import com.mrd.bitlib.model.BitcoinAddress
 import com.mrd.bitlib.model.NetworkParameters
 import com.mrd.bitlib.model.SegwitAddress
 import com.mrd.bitlib.util.HexUtils
+import com.mrd.bitlib.util.Sha256Hash
 import com.mrd.bitlib.util.TaprootUtils
 import com.mrd.bitlib.util.cutStartByteArray
 import com.mrd.bitlib.util.toByteArray
@@ -24,6 +25,10 @@ import org.junit.Test
 //https://bitcoiner.guide/seed/ taproot address generator
 
 class TaprootTransactionTest {
+
+    val auxRand =
+        HexUtils.toBytes("0000000000000000000000000000000000000000000000000000000000000000")
+
 
     //mnemonic = abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about
     // Account 0, first receiving address = m/84'/0'/0'/0/0
@@ -228,15 +233,13 @@ class TaprootTransactionTest {
     fun testTweakPrivateKey() {
         val privateKey =
             HexUtils.toBytes("ce1fc7baa9db31c4ef9c6564f70d551f41fc479bb23fa844d50848220edaaf91")
-        val tweakedPrivateKey =
-            HexUtils.toBytes("f0e0cd303d3074b940035e5fc111b26c0945ada0a5db448c80e32db753619e8e")
 
         val tweak =
             HexUtils.toBytes("bf0094eae70ba67e2f9fc3c4b81f078c90931855a8d24c959619174c92060cde")
 
         Assert.assertEquals(
-            HexUtils.toHex(TaprootUtils.tweakedPrivateKey(privateKey, tweak)),
-            HexUtils.toHex(tweakedPrivateKey)
+            "f0e0cd303d3074b940035e5fc111b26c0945ada0a5db448c80e32db753619e8e",
+            HexUtils.toHex(TaprootUtils.tweakedPrivateKey(privateKey, Sha256Hash.of(tweak))),
         )
     }
 
@@ -247,12 +250,6 @@ class TaprootTransactionTest {
 
         val sighash =
             HexUtils.toBytes("a7b390196945d71549a2454f0185ece1b47c56873cf41789d78926852c355132")
-        val auxRand =
-            HexUtils.toBytes("0000000000000000000000000000000000000000000000000000000000000000")
-        val signature =
-            "b693a0797b24bae12ed0516a2f5ba765618dca89b75e498ba5b745b71644362298a45ca39230d10a02ee6290a91cebf9839600f7e35158a447ea182ea0e022ae"
-        val tweak =
-            HexUtils.toBytes("8dc8b9030225e044083511759b58328b46dffcc78b920b4b97169f9d7b43d3b5")
 
         val merkle = ByteArray(0)
 
@@ -263,14 +260,23 @@ class TaprootTransactionTest {
         )
 
         val tweak1 = TaprootUtils.tweak(publicKey, merkle)
-        Assert.assertEquals(HexUtils.toHex(tweak), tweak1.toHex())
+        Assert.assertEquals(
+            "8dc8b9030225e044083511759b58328b46dffcc78b920b4b97169f9d7b43d3b5",
+            tweak1.toHex()
+        )
 
-        val tweakedPrivateKey = TaprootUtils.tweakedPrivateKey(privateKey, tweak)
+        val tweakedPrivateKey = TaprootUtils.tweakedPrivateKey(privateKey, tweak1)
         val signature1 = SchnorrSign(tweakedPrivateKey).sign(sighash, auxRand)
-        Assert.assertEquals(signature, HexUtils.toHex(signature1))
+        Assert.assertEquals(
+            "b693a0797b24bae12ed0516a2f5ba765618dca89b75e498ba5b745b71644362298a45ca39230d10a02ee6290a91cebf9839600f7e35158a447ea182ea0e022ae",
+            HexUtils.toHex(signature1)
+        )
 
 
         val signature2 = pK.makeSchnorrBitcoinSignature(sighash, ByteArray(0), auxRand)
-        Assert.assertEquals(signature, HexUtils.toHex(signature2).substring(0, 128))
+        Assert.assertEquals(
+            "b693a0797b24bae12ed0516a2f5ba765618dca89b75e498ba5b745b71644362298a45ca39230d10a02ee6290a91cebf9839600f7e35158a447ea182ea0e022ae",
+            HexUtils.toHex(signature2).substring(0, 128)
+        )
     }
 }

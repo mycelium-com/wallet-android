@@ -340,7 +340,7 @@ class InMemoryPrivateKey() : PrivateKey(), KeyExporter, Serializable {
         auxRand: ByteArray?
     ): ByteArray {
         val tweak = TaprootUtils.tweak(publicKey, merkle)
-        return SchnorrSign(TaprootUtils.tweakedPrivateKey(this.getPrivateKeyBytes(), tweak.bytes))
+        return SchnorrSign(TaprootUtils.tweakedPrivateKey(this.getPrivateKeyBytes(), tweak))
             .sign(message, auxRand)
     }
 
