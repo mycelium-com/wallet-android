@@ -16,7 +16,6 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.observe
 import androidx.lifecycle.viewModelScope
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.navigation.fragment.findNavController
@@ -24,24 +23,19 @@ import androidx.navigation.fragment.navArgs
 import com.bumptech.glide.load.resource.bitmap.CenterCrop
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import com.bumptech.glide.request.RequestOptions
-import com.mycelium.bequant.common.ErrorHandler
 import com.mycelium.bequant.common.loader
 import com.mycelium.bequant.kyc.inputPhone.coutrySelector.CountriesSource
 import com.mycelium.giftbox.client.GitboxAPI
 import com.mycelium.giftbox.client.model.MCProductInfo
 import com.mycelium.giftbox.client.model.getCardValue
-import com.mycelium.giftbox.client.models.ProductInfo
-import com.mycelium.giftbox.client.models.getCardValue
 import com.mycelium.giftbox.loadImage
 import com.mycelium.giftbox.purchase.adapter.CustomSimpleAdapter
 import com.mycelium.giftbox.purchase.viewmodel.GiftboxBuyViewModel
-import com.mycelium.giftbox.purchase.viewmodel.getCurrencyId
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.WalletApplication
 import com.mycelium.wallet.activity.modern.ModernMain
 import com.mycelium.wallet.activity.modern.Toaster
-import com.mycelium.wallet.activity.modern.event.SelectTab
 import com.mycelium.wallet.activity.modern.helper.MainActions
 import com.mycelium.wallet.databinding.FragmentGiftboxBuyBinding
 import com.mycelium.wallet.external.changelly2.viewmodel.ExchangeViewModel
@@ -178,8 +172,9 @@ class GiftboxBuyFragment : Fragment() {
                     }
                 }
             }
-//            binding?.amountRoot?.setOnClickListener(if (args.product.availableDenominations == null) defaultClickListener else preselectedClickListener)
-            binding?.amountRoot?.setOnClickListener(defaultClickListener)
+        binding?.amountRoot?.setOnClickListener(
+            if (args.mcproduct.denominations?.isNotEmpty() == true) preselectedClickListener else defaultClickListener
+        )
 //        },
 //                error = { _, error ->
 //                    ErrorHandler(requireContext()).handle(error)
