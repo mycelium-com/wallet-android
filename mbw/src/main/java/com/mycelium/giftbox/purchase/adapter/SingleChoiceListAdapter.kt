@@ -15,13 +15,9 @@ class CustomSimpleAdapter(
     private val context: Context,
     val data: Map<Value, Boolean>
 ) : BaseAdapter() {
-    override fun getCount(): Int {
-        return data.size
-    }
+    override fun getCount(): Int = data.size
 
-    override fun getItem(position: Int): Value {
-        return data.keys.toTypedArray()[position]
-    }
+    override fun getItem(position: Int): Value = data.keys.toTypedArray()[position]
 
     override fun getItemId(position: Int): Long {
         return position.toLong()
