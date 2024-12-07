@@ -104,11 +104,11 @@ open class StandardTransactionBuilder(val network: NetworkParameters) {
 
     @Throws(BtcOutputTooSmallException::class)
     fun addOutputs(outputs: OutputList) {
-        for (output in outputs) {
-            if (output.value > 0) {
+        outputs
+            .filter { it.value > 0 }
+            .forEach { output ->
                 addOutput(output)
             }
-        }
     }
 
     /**
@@ -147,7 +147,7 @@ open class StandardTransactionBuilder(val network: NetworkParameters) {
             .setArrayOfOutputs(outputs)
             .setMinerFeePerKb(minerFeeToUse)
         if (needChangeOutputInEstimation) {
-            feeEstimatorBuilder.addOutput(changeAddress.getType())
+            feeEstimatorBuilder.addOutput(changeAddress.type)
         }
         fee = feeEstimatorBuilder.createFeeEstimator()
             .estimateFee()
@@ -427,10 +427,11 @@ open class StandardTransactionBuilder(val network: NetworkParameters) {
             val inputs = arrayOfNulls<TransactionInput>(funding.size)
             for (i in funding.indices) {
                 if (isScriptInputP2TR(unsigned, i)) {
-                    inputs[i] = TransactionInput(funding[i].outPoint, ScriptInput.EMPTY)
-                    val witness = InputWitness(1)
-                    witness.setStack(0, signatures[i] + HexUtils.toBytes("01"))
-                    inputs[i]!!.witness = witness
+                    inputs[i] = TransactionInput(funding[i].outPoint, ScriptInput.EMPTY).apply {
+                        witness = InputWitness(1).apply {
+                            setStack(0, signatures[i] + HexUtils.toBytes("01"))
+                        }
+                    }
                 } else if (isScriptInputSegWit(unsigned, i)) {
                     inputs[i] = unsigned.inputs[i]
                     if (inputs[i]!!.script is ScriptInputP2WPKH && !(inputs[i]!!.script as ScriptInputP2WPKH).isNested) {

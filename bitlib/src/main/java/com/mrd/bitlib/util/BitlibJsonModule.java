@@ -66,8 +66,7 @@ public class BitlibJsonModule extends SimpleModule {
          JsonNode node = oc.readTree(jp);
          Sha256Hash hash = Sha256Hash.fromString(node.asText());
          if (hash == null) {
-            throw new JsonParseException("Failed to convert string '" + node.asText() + "' into a Sha256 hash",
-                  JsonLocation.NA);
+            throw new JsonParseException(jp, "Failed to convert string '" + node.asText() + "' into a Sha256 hash");
          }
          return hash;
       }
@@ -96,8 +95,7 @@ public class BitlibJsonModule extends SimpleModule {
          JsonNode node = oc.readTree(jp);
          BitcoinAddress address = BitcoinAddress.fromString(node.asText());
          if (address == null) {
-            throw new JsonParseException("Failed to convert string '" + node.asText() + "' into an address",
-                  JsonLocation.NA);
+            throw new JsonParseException(jp, "Failed to convert string '" + node.asText() + "' into an address");
          }
          return address;
       }
@@ -128,8 +126,7 @@ public class BitlibJsonModule extends SimpleModule {
          try {
             pubKeyBytes = HexUtils.toBytes(node.asText());
          } catch (RuntimeException e) {
-            throw new JsonParseException("Failed to convert string '" + node.asText() + "' into an public key bytes",
-                  JsonLocation.NA);
+            throw new JsonParseException(jp, "Failed to convert string '" + node.asText() + "' into an public key bytes");
          }
          return new PublicKey(pubKeyBytes);
       }

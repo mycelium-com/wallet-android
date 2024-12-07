@@ -13,6 +13,8 @@ import java.lang.reflect.Method
 
 class TaprootCommonSignatureMessageBuilderTest {
     lateinit var tx: BitcoinTransaction
+    val auxRand =
+        HexUtils.toBytes("0000000000000000000000000000000000000000000000000000000000000000")
 
     @Before
     fun setUp() {
@@ -84,7 +86,7 @@ class TaprootCommonSignatureMessageBuilderTest {
         val sigHash = TaprootUtils.sigHash(signMsg)
         Assert.assertEquals(
             "2514a6272f85cfa0f45eb907fcb0d121b808ed37c6ea160a5a9046ed5526d555",
-            HexUtils.toHex(sigHash)
+            sigHash.toHex()
         )
 
 //        Assert.assertEquals(
@@ -193,13 +195,59 @@ class TaprootCommonSignatureMessageBuilderTest {
         val sigHash = TaprootUtils.sigHash(signMsg)
         Assert.assertEquals(
             "bf013ea93474aa67815b1b6cc441d23b64fa310911d991e713cd34c7f5d46669",
-            HexUtils.toHex(sigHash)
+            sigHash.toHex()
         )
         Assert.assertEquals(
             "6af9e28dbf9d6aaf027696e2598a5b3d056f5fd2355a7fd5a37a0e5008132d30",
-            HexUtils.toHex(TaprootUtils.tweak(privateKey.publicKey, merkleRoot))
+            TaprootUtils.tweak(privateKey.publicKey, merkleRoot).toHex()
         )
     }
+
+
+    @Test
+    fun test4() {
+        val rawUnsignedTx =
+            HexUtils.toBytes("02000000000101ec9016580d98a93909faf9d2f431e74f781b438d81372bb6aab4db67725c11a70000000000ffffffff0110270000000000001600144e44ca792ce545acba99d41304460dd1f53be3840000000000")
+        val unsignedTransaction = BitcoinTransaction.fromBytes(rawUnsignedTx)
+
+        val builder = TaprootCommonSignatureMessageBuilder(unsignedTransaction, 0, 2)
+
+        setValue(builder.inputs[0], 20000)
+        builder.inputs[0].script =
+            ScriptInput.fromScriptBytes(HexUtils.toBytes("51200f0c8db753acbd17343a39c2f3f4e35e4be6da749f9e35137ab220e7b238a667"))
+
+        val writer = ByteWriter(1024)
+        builder.build(writer)
+        val signMsg = writer.toBytes()
+
+        Assert.assertEquals(
+            "010200000000000000eaff979f4771d11a857e48550a28c4d3503cf2a966182c94010fd21d5b700700a" + "e9475d31b535bec000c9bfc7abc79b6a07db9eea2dd0e5066adddfb349bb53b4cd686f794463476c6fc24b4a43e0abc7b58a0ea78a998d2be39cdb73f8d9cc2" + "ad95131bc0b799c0b1af477fb14fcf26a6a9f76079e48bf090acb7e8367bfd0ec3a3f98ac2310126a614269e5715b0cabf38ce62232dd9ed8a878bdc0addea750000000000",
+            HexUtils.toHex(signMsg),
+        )
+
+        val sighash = TaprootUtils.sigHash(signMsg)
+        Assert.assertEquals(
+            "a7b390196945d71549a2454f0185ece1b47c56873cf41789d78926852c355132",
+            sighash.toHex(),
+        )
+
+        val privateKey =
+            InMemoryPrivateKey(HexUtils.toBytes("55d7c5a9ce3d2b15a62434d01205f3e59077d51316f5c20628b3a4b8b2a76f4c"))
+
+
+        Assert.assertEquals(
+            "b693a0797b24bae12ed0516a2f5ba765618dca89b75e498ba5b745b71644362298a45ca39230d10a02ee6290a91cebf9839600f7e35158a447ea182ea0e022ae",
+            HexUtils.toHex(
+                privateKey.makeSchnorrBitcoinSignature(
+                    sighash.bytes,
+                    ByteArray(0),
+                    auxRand
+                )
+            )
+        )
+
+    }
+
 
     private fun setValue(input: TransactionInput, value: Long) {
         val field = TransactionInput::class.java.getDeclaredField("value")

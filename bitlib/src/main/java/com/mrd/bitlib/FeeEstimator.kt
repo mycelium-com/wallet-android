@@ -57,7 +57,7 @@ class FeeEstimator(private val legacyInputs: Int, private val p2shSegwitInputs: 
         // BECH32 utxos does not contain scriptSig and scriptPubKey is 3 bytes smaller
         private const val MAX_BECH32_INPUT_SIZE = 32 + 4 + 1 + 107 + 4 - 23
 
-        private const val MAX_BECH32M_INPUT_SIZE = 32 + 4 + 1 + 107 + 4 - 23
+        private const val MAX_BECH32M_INPUT_SIZE = 32 + 4 + 1 + 64 + 4
 
         // output value 8B + script length 1B + script 25B (always)
         private const val OUTPUT_SIZE = 8 + 1 + 25

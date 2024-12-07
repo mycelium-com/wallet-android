@@ -163,7 +163,7 @@ class MixedTransactionBuilderTest {
         val requests = mutableListOf<SigningRequest>()
         for (i in 0..29) {
             val msg = ("bla" + i).toByteArray()
-            requests.add(SigningRequest(PUBLIC_KEYS[i % COUNT], HashUtils.sha256(msg), msg))
+            requests.add(SigningRequest(PUBLIC_KEYS[i % COUNT], HashUtils.sha256(msg)))
         }
         StandardTransactionBuilder.generateSignatures(requests.toTypedArray(), PRIVATE_KEY_RING)
     }

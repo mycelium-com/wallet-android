@@ -4,6 +4,7 @@ import com.mrd.bitlib.model.Script.SIGHASH_ANYONECANPAY
 import com.mrd.bitlib.model.Script.SIGHASH_SINGLE
 import com.mrd.bitlib.util.ByteWriter
 import com.mrd.bitlib.util.HashUtils
+import com.mrd.bitlib.util.HexUtils
 import com.mrd.bitlib.util.Sha256Hash
 
 class TaprootCommonSignatureMessageBuilder(
@@ -103,10 +104,10 @@ class TaprootCommonSignatureMessageBuilder(
         val isAnyOneCanPay = isAnyOneCanPay()
         val isSingle = isSingle()
         if (!isAnyOneCanPay) {
-            writer.putSha256Hash(prevOutputsHash())     //hash prevouts
-            writer.putSha256Hash(inputAmountsHash())    //hash amounts
-            writer.putSha256Hash(scriptPubKeysHash())   //hash scriptpubkeys
-            writer.putSha256Hash(sequenceHash())        //hash sequences
+            writer.putSha256Hash(prevOutputsHash().apply { println("prevOutputsHash " + HexUtils.toHex(this.bytes)) })     //hash prevouts
+            writer.putSha256Hash(inputAmountsHash().apply { println("inputAmountsHash " + HexUtils.toHex(this.bytes)) })    //hash amounts
+            writer.putSha256Hash(scriptPubKeysHash().apply { println("scriptPubKeysHash " + HexUtils.toHex(this.bytes)) })   //hash scriptpubkeys
+            writer.putSha256Hash(sequenceHash().apply { println("sequenceHash " + HexUtils.toHex(this.bytes)) })        //hash sequences
         }
         if (!isSingle) {
             writer.putSha256Hash(outputsHash())         //hash outputs

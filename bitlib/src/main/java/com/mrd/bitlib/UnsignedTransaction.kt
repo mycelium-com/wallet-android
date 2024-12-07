@@ -5,6 +5,7 @@ import com.mrd.bitlib.crypto.IPublicKeyRing
 import com.mrd.bitlib.crypto.PublicKey
 import com.mrd.bitlib.model.*
 import com.mrd.bitlib.util.BitUtils
+import com.mrd.bitlib.util.ByteWriter
 import com.mrd.bitlib.util.CoinUtil
 import com.mrd.bitlib.util.TaprootUtils
 import com.mrd.bitlib.util.TaprootUtils.Companion.sigHash
@@ -92,17 +93,19 @@ open class UnsignedTransaction constructor(
     }
 
     private fun getInputScriptP2TR(publicKey: PublicKey, transaction: BitcoinTransaction, i: Int) {
-        val scriptPubKey = ByteArray(0) +
+        val inputScript = ScriptInputP2TR(ByteArray(0) +
                 Script.OP_1.toByte() + Script.OP_PUSHBYTES_32.toByte() +
-                TaprootUtils.tweakPublicKey(publicKey)
-        val inputScript = ScriptInput.fromScriptBytes(scriptPubKey)
+                TaprootUtils.tweakedPublicKey(publicKey))
         transaction.inputs[i].script = inputScript
         inputs[i].script = inputScript
     }
 
     private fun getInputScript(publicKey: PublicKey, transaction: BitcoinTransaction, i: Int, isNested: Boolean) {
-        val inpScriptBytes = BitUtils.concatenate(byteArrayOf(Script.OP_0.toByte(), publicKey.pubKeyHashCompressed.size.toByte()), publicKey.pubKeyHashCompressed)
-        val inputScript = ScriptInput.fromScriptBytes(BitUtils.concatenate(byteArrayOf((inpScriptBytes.size and 0xFF).toByte()), inpScriptBytes))
+        val inpScriptBytes = ByteArray(0) +
+                Script.OP_0.toByte() + publicKey.pubKeyHashCompressed.size.toByte() +
+                publicKey.pubKeyHashCompressed
+        val inputScript = ScriptInput.fromScriptBytes(ByteArray(0) +
+                (inpScriptBytes.size and 0xFF).toByte() + inpScriptBytes)
         (inputScript as ScriptInputP2WPKH).isNested = isNested
         transaction.inputs[i].script = inputScript
         inputs[i].script = inputScript

@@ -53,7 +53,7 @@ class TaprootUtils {
             return internalKey.add(Parameters.G.multiply(BigInteger(1, HTT))).x.toByteArray(32)
         }
 
-        fun tweakPrivateKey(privateKey: ByteArray, tweak: ByteArray = ByteArray(0)): ByteArray {
+        fun tweakedPrivateKey(privateKey: ByteArray, tweak: ByteArray = ByteArray(0)): ByteArray {
             val privateKeyNegated = Parameters.n - BigInteger(1, privateKey)
             val tweak = BigInteger(1, tweak)
             return ((privateKeyNegated + tweak).mod(Parameters.n)).toByteArray(32)
@@ -68,13 +68,13 @@ class TaprootUtils {
         fun tweak(publicKey: ByteArray, merkle: ByteArray = ByteArray(0)): Sha256Hash =
             hashTapTweak(publicKey + merkle)
 
-        fun tweakPublicKey(publicKey: PublicKey, merkle: ByteArray = ByteArray(0)): ByteArray =
-            tweakPublicKey(publicKey.pubKeyCompressed.cutStartByteArray(32), merkle)
+        fun tweakedPublicKey(publicKey: PublicKey, merkle: ByteArray = ByteArray(0)): ByteArray =
+            tweakedPublicKey(publicKey.pubKeyCompressed.cutStartByteArray(32), merkle)
 
-        fun tweakPublicKey(publicKey: ByteArray, merkle: ByteArray = ByteArray(0)): ByteArray {
-            val tweak = tweak(publicKey, merkle).bytes
+        fun tweakedPublicKey(publicKey: ByteArray, merkle: ByteArray = ByteArray(0)): ByteArray {
+            val tweak = tweak(publicKey, merkle)
             val l = liftX(BigInteger(1, publicKey))
-            val result = EcTools.multiply(Parameters.G, BigInteger(1, tweak)).add(l)
+            val result = l.add(EcTools.multiply(Parameters.G, tweak.toPositiveBigInteger()))
             return result.x.toByteArray(32)
         }
 

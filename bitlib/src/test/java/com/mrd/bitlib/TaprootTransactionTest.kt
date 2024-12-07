@@ -104,7 +104,7 @@ class TaprootTransactionTest {
         val hash = TaprootUtils.taggedHash("SampleTagName", "Input data".toByteArray())
         Assert.assertEquals(
             "4c55df56134d7f37d3295850659f2e3729128c969b3386ec661feb7dfe29a99c",
-            HexUtils.toHex(hash)
+            hash.toHex()
         )
     }
 
@@ -174,10 +174,9 @@ class TaprootTransactionTest {
     fun testTapTweak() {
         val testData =
             HexUtils.toBytes("6afea324cbe1d2d8ee051267e9fb869941a53b59e8ba27978e181d3344f46dbc")
-        val testResult =
-            HexUtils.toBytes("0e6bd305b819c2d779bbd91eb965f02ec639c3f2ae488270e3ce868df1fb9aec")
+        val testResult = "0e6bd305b819c2d779bbd91eb965f02ec639c3f2ae488270e3ce868df1fb9aec"
         val tapTweak = TaprootUtils.hashTapTweak(testData)
-        Assert.assertArrayEquals(tapTweak, testResult)
+        Assert.assertEquals(tapTweak.toHex(), testResult)
     }
 
     val PRIVATE_KEY =
@@ -189,7 +188,7 @@ class TaprootTransactionTest {
     fun testTapTweakedPublic() {
         val publicKey =
             PublicKey(HexUtils.toBytes("03") + PUBLIC_KEY)
-        val tPK = TaprootUtils.tweakPublicKey(publicKey, ByteArray(0))
+        val tPK = TaprootUtils.tweakedPublicKey(publicKey, ByteArray(0))
         Assert.assertEquals(
             HexUtils.toHex(tPK),
             "0f0c8db753acbd17343a39c2f3f4e35e4be6da749f9e35137ab220e7b238a667"
@@ -206,7 +205,7 @@ class TaprootTransactionTest {
         val publicKey = PublicKey(HexUtils.toBytes("03") + pubKey)
 
 
-        println("tweak pub key = ${HexUtils.toHex(TaprootUtils.hashTapTweak(pubKey))}")
+        println("tweak pub key = ${TaprootUtils.hashTapTweak(pubKey).toHex()}")
 
         Assert.assertEquals(
             privateKey.publicKey.toAddress(NetworkParameters.testNetwork, AddressType.P2TR),
@@ -236,7 +235,7 @@ class TaprootTransactionTest {
             HexUtils.toBytes("bf0094eae70ba67e2f9fc3c4b81f078c90931855a8d24c959619174c92060cde")
 
         Assert.assertEquals(
-            HexUtils.toHex(TaprootUtils.tweakPrivateKey(privateKey, tweak)),
+            HexUtils.toHex(TaprootUtils.tweakedPrivateKey(privateKey, tweak)),
             HexUtils.toHex(tweakedPrivateKey)
         )
     }
@@ -264,9 +263,9 @@ class TaprootTransactionTest {
         )
 
         val tweak1 = TaprootUtils.tweak(publicKey, merkle)
-        Assert.assertEquals(HexUtils.toHex(tweak), HexUtils.toHex(tweak1))
+        Assert.assertEquals(HexUtils.toHex(tweak), tweak1.toHex())
 
-        val tweakedPrivateKey = TaprootUtils.tweakPrivateKey(privateKey, tweak)
+        val tweakedPrivateKey = TaprootUtils.tweakedPrivateKey(privateKey, tweak)
         val signature1 = SchnorrSign(tweakedPrivateKey).sign(sighash, auxRand)
         Assert.assertEquals(signature, HexUtils.toHex(signature1))
 
