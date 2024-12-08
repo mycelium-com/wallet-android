@@ -98,7 +98,7 @@
                 android:id="@+id/tvFee"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:paddingStart="4dp"
+                android:layout_marginStart="@dimen/size_x1"
                 android:paddingEnd="1dp"
                 android:textSize="18sp"
                 tools:text="123123 Loading..." />
@@ -129,7 +129,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="200 vB"
+            tools:text="100 vB"
+            android:layout_marginStart="@dimen/size_x1"
             android:textSize="18sp" />
     </TableRow>
 

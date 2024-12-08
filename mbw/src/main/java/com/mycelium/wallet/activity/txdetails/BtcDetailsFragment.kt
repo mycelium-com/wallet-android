@@ -127,7 +127,7 @@ class BtcDetailsFragment : DetailsFragment() {
                 }
             }
             binding?.txSize?.text =
-                "${tx?.rawSize} B" + if (tx?.vSize != 0) " ${tx?.vSize} vB" else ""
+                "${tx?.rawSize} Bytes" + if (tx?.vSize != 0 && tx?.vSize != tx?.rawSize) " ${tx?.vSize} vBytes" else ""
         }
     }
 
