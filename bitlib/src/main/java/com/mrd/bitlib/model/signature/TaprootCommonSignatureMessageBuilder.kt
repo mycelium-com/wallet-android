@@ -106,27 +106,22 @@ class TaprootCommonSignatureMessageBuilder(
         val isAnyOneCanPay = isAnyOneCanPay()
         val isSingle = isSingle()
         if (!isAnyOneCanPay) {
-            println("!!!! step 1")
-            writer.putSha256Hash(prevOutputsHash().apply { println("!!!! prevOutputsHash " + HexUtils.toHex(this.bytes)) })     //hash prevouts
-            writer.putSha256Hash(inputAmountsHash().apply { println("!!!! inputAmountsHash " + HexUtils.toHex(this.bytes)) })    //hash amounts
-            writer.putSha256Hash(scriptPubKeysHash().apply { println("!!!! scriptPubKeysHash " + HexUtils.toHex(this.bytes)) })   //hash scriptpubkeys
-            writer.putSha256Hash(sequenceHash().apply { println("!!!! sequenceHash " + HexUtils.toHex(this.bytes)) })        //hash sequences
+            writer.putSha256Hash(prevOutputsHash())     //hash prevouts
+            writer.putSha256Hash(inputAmountsHash())    //hash amounts
+            writer.putSha256Hash(scriptPubKeysHash())   //hash scriptpubkeys
+            writer.putSha256Hash(sequenceHash())        //hash sequences
         }
         if (!isSingle) {
-            println("!!!! step 2")
             writer.putSha256Hash(outputsHash())         //hash outputs
         }
         writer.put(0)                     //spend type 0 - key 1 - taproot script
         if (!isAnyOneCanPay) {
-            println("!!!! step 3")
             writer.putIntLE(index)                  //input index
         }
         if (isAnyOneCanPay) {
-            println("!!!! no need")
             // TODO implement SIGHASH_ANYONECANPAY
         }
         if (isSingle) {
-            println("!!!! no need")
             writer.putSha256Hash(outputHash(0)) // TODO need to get index
         }
         return writer

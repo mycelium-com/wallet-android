@@ -692,9 +692,8 @@ abstract class AbstractBtcAccount protected constructor(backing: BtcAccountBacki
         return true
     }
 
-    override fun getTransaction(txid: Sha256Hash): TransactionEx {
-        return accountBacking.getTransaction(txid)
-    }
+    override fun getTransaction(txid: Sha256Hash): TransactionEx =
+        accountBacking.getTransaction(txid)
 
     @Synchronized
     override fun broadcastTransaction(transaction: BitcoinTransaction): BroadcastResult {
@@ -761,16 +760,9 @@ abstract class AbstractBtcAccount protected constructor(backing: BtcAccountBacki
     override fun getTransactionHistory(offset: Int, limit: Int): List<TransactionSummary> {
         // Note that this method is not synchronized, and we might fetch the transaction history while synchronizing
         // accounts. That should be ok as we write to the DB in a sane order.
-        val history: MutableList<TransactionSummary> = ArrayList()
         checkNotArchived()
-        val list = accountBacking.getTransactionHistory(offset, limit)
-        for (tex in list) {
-            val item = transform(tex, getBlockChainHeight())
-            if (item != null) {
-                history.add(item)
-            }
-        }
-        return history
+        return accountBacking.getTransactionHistory(offset, limit)
+            .mapNotNull { transform(it, getBlockChainHeight()) }
     }
 
     abstract override fun getBlockChainHeight(): Int
@@ -825,9 +817,8 @@ abstract class AbstractBtcAccount protected constructor(backing: BtcAccountBacki
     }
 
     override fun removeAllQueuedTransactions() {
-        val outgoingTransactions = accountBacking.outgoingTransactions
-        for (key in outgoingTransactions.keys) {
-            cancelQueuedTransaction(key)
+        accountBacking.outgoingTransactions.forEach {
+            cancelQueuedTransaction(it.key)
         }
     }
 
@@ -931,9 +922,7 @@ abstract class AbstractBtcAccount protected constructor(backing: BtcAccountBacki
     }
 
     protected abstract fun persistContextIfNecessary()
-    override fun getNetwork(): NetworkParameters {
-        return _network
-    }
+    override fun getNetwork(): NetworkParameters = _network
 
     //Retrieves indexes of colu outputs if the transaction is determined to be colu transaction
     //In the case of non-colu transaction returns empty list
@@ -960,17 +949,16 @@ abstract class AbstractBtcAccount protected constructor(backing: BtcAccountBacki
                 return indexesList
             }
         }
-        return ArrayList()
+        return emptyList()
     }
 
-    private fun isColuTransaction(tx: BitcoinTransaction): Boolean {
-        return try {
+    private fun isColuTransaction(tx: BitcoinTransaction): Boolean =
+        try {
             getColuOutputIndexes(tx).isNotEmpty()
         } catch (e: ParseException) {
             // the current only use case is safe to be treated as not colored-coin even though we might misinterpret a colored-coin script.
             false
         }
-    }
 
     private fun isColuDustOutput(output: TransactionOutputEx): Boolean {
         val transaction =
@@ -992,9 +980,8 @@ abstract class AbstractBtcAccount protected constructor(backing: BtcAccountBacki
         return false
     }
 
-    protected fun getSpendableOutputs(minerFeePerKbToUse: Long): Collection<TransactionOutputEx> {
-        return getSpendableOutputs(minerFeePerKbToUse, false)
-    }
+    protected fun getSpendableOutputs(minerFeePerKbToUse: Long): Collection<TransactionOutputEx> =
+        getSpendableOutputs(minerFeePerKbToUse, false)
 
     /**
      * @param minerFeePerKbToUse Determines the dust level, at which including a UTXO costs more than it is worth.
@@ -1531,31 +1518,17 @@ abstract class AbstractBtcAccount protected constructor(backing: BtcAccountBacki
     }
 
     override fun getTransactionsSince(receivingSince: Long): List<com.mycelium.wapi.wallet.TransactionSummary> {
-        val history: MutableList<com.mycelium.wapi.wallet.TransactionSummary> = ArrayList()
         checkNotArchived()
-        val list = accountBacking.getTransactionsSince(receivingSince)
-        for (tex in list) {
-            val tx = getTxSummary(tex.txid.bytes)
-            if (tx != null) {
-                history.add(tx)
-            }
-        }
-        return history
+        return accountBacking.getTransactionsSince(receivingSince)
+            .mapNotNull { getTxSummary(it.txid.bytes) }
     }
 
     override fun getTransactionSummaries(offset: Int, limit: Int): List<com.mycelium.wapi.wallet.TransactionSummary> {
         // Note that this method is not synchronized, and we might fetch the transaction history while synchronizing
         // accounts. That should be ok as we write to the DB in a sane order.
         checkNotArchived()
-        val list = accountBacking.getTransactionHistory(offset, limit)
-        val history: MutableList<com.mycelium.wapi.wallet.TransactionSummary> = ArrayList()
-        for (tex in list) {
-            val tx = getTxSummary(tex.txid.bytes)
-            if (tx != null) {
-                history.add(tx)
-            }
-        }
-        return history
+        return accountBacking.getTransactionHistory(offset, limit)
+            .mapNotNull { getTxSummary(it.txid.bytes) }
     }
 
     override fun getTxSummary(transactionId: ByteArray): com.mycelium.wapi.wallet.TransactionSummary? {
