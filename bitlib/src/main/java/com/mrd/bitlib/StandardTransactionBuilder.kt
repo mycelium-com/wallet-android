@@ -423,41 +423,39 @@ open class StandardTransactionBuilder(val network: NetworkParameters) {
             signatures: List<ByteArray>
         ): BitcoinTransaction {
             // Create finalized transaction inputs
-            val funding = unsigned.fundingOutputs
-            val inputs = arrayOfNulls<TransactionInput>(funding.size)
-            for (i in funding.indices) {
+            val inputs = unsigned.fundingOutputs.mapIndexed { i, fund ->
                 if (isScriptInputP2TR(unsigned, i)) {
-                    inputs[i] = TransactionInput(funding[i].outPoint, ScriptInput.EMPTY).apply {
+                    TransactionInput(fund.outPoint, ScriptInput.EMPTY).apply {
                         witness = InputWitness(1).apply {
                             setStack(0, signatures[i] + HexUtils.toBytes("01"))
                         }
                     }
                 } else if (isScriptInputSegWit(unsigned, i)) {
-                    inputs[i] = unsigned.inputs[i]
-                    if (inputs[i]!!.script is ScriptInputP2WPKH && !(inputs[i]!!.script as ScriptInputP2WPKH).isNested) {
-                        inputs[i]!!.script = ScriptInput.EMPTY
+                    unsigned.inputs[i].apply {
+                        if (script is ScriptInputP2WPKH && !(script as ScriptInputP2WPKH).isNested) {
+                            script = ScriptInput.EMPTY
+                        }
+                        witness = InputWitness(2).apply {
+                            setStack(0, signatures[i])
+                            setStack(1, unsigned.signingRequests[i]!!.publicKey.publicKeyBytes)
+                        }
                     }
-                    val witness = InputWitness(2)
-                    witness.setStack(0, signatures.get(i))
-                    witness.setStack(1, unsigned.signingRequests[i]!!.publicKey.publicKeyBytes)
-                    inputs[i]!!.witness = witness
                 } else {
-                    // Create script from signature and public key
-                    val script = ScriptInputStandard(
-                        signatures.get(i),
-                        unsigned.signingRequests[i]!!.publicKey.publicKeyBytes
-                    )
-                    inputs[i] = TransactionInput(
-                        funding[i].outPoint,
-                        script,
+                    TransactionInput(
+                        fund.outPoint,
+                        // Create script from signature and public key
+                        ScriptInputStandard(
+                            signatures[i],
+                            unsigned.signingRequests[i]!!.publicKey.publicKeyBytes
+                        ),
                         unsigned.defaultSequenceNumber,
-                        funding[i].value
+                        fund.value
                     )
                 }
             }
             var version = unsigned.getTxVersion()
             // Create transaction with valid outputs and empty inputs
-            return BitcoinTransaction(version, inputs, unsigned.outputs, unsigned.lockTime)
+            return BitcoinTransaction(version, inputs.toTypedArray(), unsigned.outputs, unsigned.lockTime)
         }
 
         private fun UnsignedTransaction.getTxVersion() =

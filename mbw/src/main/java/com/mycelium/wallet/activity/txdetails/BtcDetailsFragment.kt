@@ -26,13 +26,13 @@ import java.util.logging.Logger
 class BtcDetailsFragment : DetailsFragment() {
     private var tx: TransactionSummary? = null
     private var job: Job? = null
-    
+
     private val coluMode: Boolean by lazy {
         requireArguments().getBoolean("coluMode")
     }
     private val account: AbstractBtcAccount by lazy {
         mbwManager!!.getWalletManager(false)
-                .getAccount(requireArguments().getSerializable("accountId") as UUID) as AbstractBtcAccount
+            .getAccount(requireArguments().getSerializable("accountId") as UUID) as AbstractBtcAccount
     }
     private var binding: TransactionDetailsBtcBinding? = null
 
@@ -68,7 +68,7 @@ class BtcDetailsFragment : DetailsFragment() {
 
             // Set Inputs
             llInputs.removeAllViews()
-            if (tx!!.inputs != null) {
+            if (tx?.inputs != null) {
                 var sum = zeroValue(tx!!.type)
                 for (input in tx!!.inputs) {
                     sum = sum.plus(input.value)
@@ -83,7 +83,7 @@ class BtcDetailsFragment : DetailsFragment() {
 
             // Set Outputs
             llOutputs.removeAllViews()
-            if (tx!!.outputs != null) {
+            if (tx?.outputs != null) {
                 for (item in tx!!.outputs) {
                     llOutputs.addView(getItemView(item))
                 }
@@ -96,8 +96,8 @@ class BtcDetailsFragment : DetailsFragment() {
                 tvInputsLabel.visibility = View.VISIBLE
                 var fee =
                     tx!!.fee!!.toStringWithUnit(mbwManager!!.getDenomination(account.coinType)) + "\n"
-                if (tx!!.rawSize > 0) {
-                    fee += BtcFeeFormatter().getFeePerUnitInBytes(txFeeTotal / tx!!.rawSize)
+                if (tx!!.vSize > 0) {
+                    fee += BtcFeeFormatter().getFeePerUnitInBytes(txFeeTotal / tx!!.vSize)
                 }
                 tvFee.text = fee
                 tvFee.visibility = View.VISIBLE
@@ -126,7 +126,8 @@ class BtcDetailsFragment : DetailsFragment() {
                     }
                 }
             }
-            binding?.txSize?.text = "${tx?.rawSize} vB"
+            binding?.txSize?.text =
+                "${tx?.rawSize} B" + if (tx?.vSize != 0) " ${tx?.vSize} vB" else ""
         }
     }
 
@@ -200,15 +201,17 @@ class BtcDetailsFragment : DetailsFragment() {
 
     companion object {
         @JvmStatic
-        fun newInstance(tx: TransactionSummary, coluMode: Boolean, accountId: UUID): BtcDetailsFragment {
-            val f = BtcDetailsFragment()
-            val args = Bundle()
-
-            args.putSerializable("tx", tx)
-            args.putBoolean("coluMode", coluMode)
-            args.putSerializable("accountId", accountId)
-            f.arguments = args
-            return f
-        }
+        fun newInstance(
+            tx: TransactionSummary,
+            coluMode: Boolean,
+            accountId: UUID
+        ): BtcDetailsFragment =
+            BtcDetailsFragment().apply {
+                arguments = Bundle().apply {
+                    putSerializable("tx", tx)
+                    putBoolean("coluMode", coluMode)
+                    putSerializable("accountId", accountId)
+                }
+            }
     }
 }

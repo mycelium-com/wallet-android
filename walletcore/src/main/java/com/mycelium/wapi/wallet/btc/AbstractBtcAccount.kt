@@ -67,6 +67,8 @@ import java.util.concurrent.TimeUnit
 import java.util.logging.Level
 import java.util.logging.Logger
 import kotlin.IllegalStateException
+import kotlin.math.abs
+import kotlin.math.max
 
 abstract class AbstractBtcAccount protected constructor(backing: BtcAccountBacking, protected val _network: NetworkParameters, wapi: Wapi) :
     SynchronizeAbleWalletBtcAccount(), AddressContainer, PrivateKeyProvider {
@@ -1603,12 +1605,14 @@ abstract class AbstractBtcAccount protected constructor(backing: BtcAccountBacki
         val confirmations: Int = if (tex.height == -1) {
             0
         } else {
-            Math.max(0, getBlockChainHeight() - tex.height + 1)
+            max(0, getBlockChainHeight() - tex.height + 1)
         }
         val isQueuedOutgoing = accountBacking.isOutgoingTransaction(tx.id)
-        return TransactionSummary(coinType, tx.id.bytes, tx.hash.bytes, valueOf(coinType, satoshisTransferred), tex.time.toLong(), tex.height,
-                                  confirmations, isQueuedOutgoing, inputs, outputs, destinationAddresses, riskAssessmentForUnconfirmedTx[tx.id],
-                                  tx.vsize(), valueOf(coinType, Math.abs(satoshisReceived - satoshisSent)))
+        return com.mycelium.wapi.wallet.TransactionSummary(coinType, tx.id.bytes, tx.hash.bytes,
+            valueOf(coinType, satoshisTransferred), tex.time.toLong(), tex.height,
+            confirmations, isQueuedOutgoing, inputs, outputs, destinationAddresses,
+            riskAssessmentForUnconfirmedTx[tx.id], tx.txRawSize,
+            valueOf(coinType, abs(satoshisReceived - satoshisSent)), tx.vsize())
     }
 
     private fun createPopOutput(txidToProve: Sha256Hash, nonce: ByteArray?): TransactionOutput {
