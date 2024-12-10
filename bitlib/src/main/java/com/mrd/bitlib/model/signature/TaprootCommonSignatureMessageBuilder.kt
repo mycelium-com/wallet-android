@@ -3,12 +3,15 @@ package com.mrd.bitlib.model.signature
 import com.mrd.bitlib.model.BitcoinTransaction
 import com.mrd.bitlib.model.Script
 import com.mrd.bitlib.model.Script.SIGHASH_ANYONECANPAY
+import com.mrd.bitlib.model.UnspentTransactionOutput
 import com.mrd.bitlib.util.ByteWriter
 import com.mrd.bitlib.util.HashUtils
+import com.mrd.bitlib.util.HexUtils
 import com.mrd.bitlib.util.Sha256Hash
 
 class TaprootCommonSignatureMessageBuilder(
     val tx: BitcoinTransaction,
+    val utxos: Array<UnspentTransactionOutput>,
     val index: Int,
     val version: Int
 ) {
@@ -24,7 +27,9 @@ class TaprootCommonSignatureMessageBuilder(
         val writer = ByteWriter(1024)
         inputs.forEach { input ->
             input.outPoint.hashPrev(writer)
+
         }
+        println("!!!! prevOutputsHash=${HexUtils.toHex(writer.toBytes())}")
         return hash(writer.toBytes())
     }
 
@@ -36,6 +41,7 @@ class TaprootCommonSignatureMessageBuilder(
         inputs.forEach { input ->
             writer.putLongLE(input.value)
         }
+        println("!!!! inputAmountsHash=${HexUtils.toHex(writer.toBytes())}")
         return hash(writer.toBytes())
     }
 
@@ -45,9 +51,12 @@ class TaprootCommonSignatureMessageBuilder(
     private fun scriptPubKeysHash(): Sha256Hash {
         val writer = ByteWriter(1024)
         inputs.forEach { input ->
-            writer.put((input.script.scriptBytes.size and 0xFF).toByte())
-            writer.putBytes(input.script.scriptBytes)
+            val utxo = utxos.find { it.outPoint == input.outPoint }
+            val scriptBytes = utxo?.script?.scriptBytes ?: throw RuntimeException("Script is null")
+            writer.put((scriptBytes.size and 0xFF).toByte())
+            writer.putBytes(scriptBytes)
         }
+        println("!!!! scriptPubKeysHash=${HexUtils.toHex(writer.toBytes())}")
         return hash(writer.toBytes())
     }
 
@@ -60,6 +69,7 @@ class TaprootCommonSignatureMessageBuilder(
         inputs.forEach { input ->
             writer.putIntLE(input.sequence)
         }
+        println("!!!! sequenceHash=${HexUtils.toHex(writer.toBytes())}")
         return hash(writer.toBytes())
     }
 
@@ -73,6 +83,7 @@ class TaprootCommonSignatureMessageBuilder(
             writer.put((output.script.scriptBytes.size and 0xFF).toByte())
             writer.putBytes(output.script.scriptBytes)
         }
+        println("!!!! outputsHash=${HexUtils.toHex(writer.toBytes())}")
         return hash(writer.toBytes());
     }
 
@@ -96,7 +107,7 @@ class TaprootCommonSignatureMessageBuilder(
 
     fun build(writer: ByteWriter = ByteWriter(1024)): ByteWriter {
         writer.put(hashType.toByte())     //hash type byte
-        writer.putIntLE(2)                    //version
+        writer.putIntLE(version)                    //tx version
         writer.putIntLE(lockTime)                   //locktime
         val isAnyOneCanPay = isAnyOneCanPay()
         if (!isAnyOneCanPay) {

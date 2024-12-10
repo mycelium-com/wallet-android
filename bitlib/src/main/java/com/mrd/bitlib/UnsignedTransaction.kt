@@ -4,8 +4,6 @@ import com.google.common.base.Strings
 import com.mrd.bitlib.crypto.IPublicKeyRing
 import com.mrd.bitlib.crypto.PublicKey
 import com.mrd.bitlib.model.*
-import com.mrd.bitlib.util.BitUtils
-import com.mrd.bitlib.util.ByteWriter
 import com.mrd.bitlib.util.CoinUtil
 import com.mrd.bitlib.util.TaprootUtils
 import com.mrd.bitlib.util.TaprootUtils.Companion.sigHash
@@ -75,7 +73,7 @@ open class UnsignedTransaction constructor(
             }
 
             val sigHash = if (signAlgorithm == SignAlgorithm.Schnorr) {
-                sigHash(transaction.commonSignatureMessage(i))
+                sigHash(transaction.commonSignatureMessage(i, fundingOutputs))
             } else {
                 // Calculate the transaction hash that has to be signed
                 transaction.getTxDigestHash(i)

@@ -1,7 +1,10 @@
 package com.mrd.bitlib.crypto.schnorr
 
+import com.mrd.bitlib.crypto.InMemoryPrivateKey
 import com.mrd.bitlib.crypto.ec.EcTools
 import com.mrd.bitlib.crypto.ec.Parameters
+import com.mrd.bitlib.model.AddressType
+import com.mrd.bitlib.model.NetworkParameters
 import com.mrd.bitlib.util.TaprootUtils
 import com.mrd.bitlib.util.TaprootUtils.Companion.hashChallenge
 import com.mrd.bitlib.util.TaprootUtils.Companion.hashNonce
@@ -52,7 +55,14 @@ class SchnorrSign(val privateKey: BigInteger) :
         // Signature is (r || s)
         val result = R.x.toByteArray(32) + s.toByteArray(32)
         if (!verify(result, message))
-            throw Exception("verification failed")
+            throw Exception(
+                "verification failed " +
+                        "${
+                            InMemoryPrivateKey(privateKey.toByteArray(32)).publicKey.toAddress(
+                                NetworkParameters.testNetwork, AddressType.P2TR
+                            )
+                        }"
+            )
 
         return result
     }

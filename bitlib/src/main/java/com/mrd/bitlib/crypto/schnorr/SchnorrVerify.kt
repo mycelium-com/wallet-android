@@ -20,18 +20,19 @@ open class SchnorrVerify(val publicKey: Point) {
     fun verify(signature: ByteArray, message: ByteArray): Boolean {
         val P = publicKey
 
-        val r = BigInteger(1, signature.copyOfRange(0, 32))
+        val rByteArray = signature.copyOfRange(0, 32)
+        val r = BigInteger(1, rByteArray)
         val s = BigInteger(1, signature.copyOfRange(32, 64))
 
         if (r >= Parameters.n || s >= Parameters.n) {
             return false
         }
 
-        val challenge = hashChallenge(r.toByteArray(32) + P.x.toByteArray(32) + message)
+        val challenge = hashChallenge(rByteArray + P.x.toByteArray(32) + message)
         val e = challenge.toPositiveBigInteger().mod(Parameters.n)
 
-        val point1 = EcTools.multiply(Parameters.G, s)
-        val point2 = EcTools.multiply(P, Parameters.n - e)
+        val point1 = Parameters.G.multiply(s)
+        val point2 = P.multiply(Parameters.n - e)
         val R = point1.add(point2)
 
         if (R.y.toBigInteger().testBit(0)) {

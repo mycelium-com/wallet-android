@@ -48,7 +48,7 @@ class WitnessSignatureMessageBuilder(
         val scriptCode = inputs[index].getScriptCode()
         writer.put((scriptCode.size and 0xFF).toByte())
         writer.putBytes(scriptCode)
-        writer.putLongLE(inputs[index].getValue())
+        writer.putLongLE(inputs[index].value)
         writer.putIntLE(inputs[index].sequence)
         writer.putSha256Hash(getOutputsHash())
         writer.putIntLE(lockTime)

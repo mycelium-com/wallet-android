@@ -1,384 +1,185 @@
-/*
- * Copyright 2013, 2014 Megion Research & Development GmbH
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+package com.mrd.bitlib.model
 
-package com.mrd.bitlib.model;
-
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
-import com.google.common.primitives.UnsignedInteger;
-import com.mrd.bitlib.UnsignedTransaction;
-import com.mrd.bitlib.model.TransactionInput.TransactionInputParsingException;
-import com.mrd.bitlib.model.TransactionOutput.TransactionOutputParsingException;
-import com.mrd.bitlib.model.signature.TaprootCommonSignatureMessageBuilder;
-import com.mrd.bitlib.model.signature.WitnessSignatureMessageBuilder;
-import com.mrd.bitlib.util.ByteReader;
-import com.mrd.bitlib.util.ByteReader.InsufficientBytesException;
-import com.mrd.bitlib.util.ByteWriter;
-import com.mrd.bitlib.util.HashUtils;
-import com.mrd.bitlib.util.Sha256Hash;
-import javax.annotation.Nullable;
-
-import java.io.Serializable;
-import java.util.Arrays;
+import com.google.common.primitives.UnsignedInteger
+import com.mrd.bitlib.UnsignedTransaction
+import com.mrd.bitlib.model.BitcoinTransaction.TransactionParsingException
+import com.mrd.bitlib.model.Script.ScriptParsingException
+import com.mrd.bitlib.model.TransactionInput.TransactionInputParsingException
+import com.mrd.bitlib.model.TransactionOutput.TransactionOutputParsingException
+import com.mrd.bitlib.model.signature.TaprootCommonSignatureMessageBuilder
+import com.mrd.bitlib.model.signature.WitnessSignatureMessageBuilder
+import com.mrd.bitlib.util.ByteReader
+import com.mrd.bitlib.util.ByteReader.InsufficientBytesException
+import com.mrd.bitlib.util.ByteWriter
+import com.mrd.bitlib.util.HashUtils
+import com.mrd.bitlib.util.Sha256Hash
+import java.io.Serializable
+import java.lang.Error
+import java.lang.Exception
+import java.lang.IllegalStateException
+import java.lang.RuntimeException
 
 /**
  * Transaction represents a raw Bitcoin transaction. In other words, it contains only the information found in the
  * byte string representing a Bitcoin transaction. It contains no contextual information, such as the height
  * of the transaction in the block chain or the outputs that its inputs redeem.
- * <p>
+ *
+ *
  * Implements Serializable and is inserted directly in and out of the database. Therefore it cannot be changed
  * without messing with the database.
  */
-public class BitcoinTransaction implements Serializable {
-    private static final long serialVersionUID = 1L;
-    private static final long ONE_uBTC_IN_SATOSHIS = 100;
-    private static final long ONE_mBTC_IN_SATOSHIS = 1000 * ONE_uBTC_IN_SATOSHIS;
-    public static final long MAX_MINER_FEE_PER_KB = 200L * ONE_mBTC_IN_SATOSHIS; // 20000sat/B
+class BitcoinTransaction(
+    val version: Int,
+    @JvmField
+    val inputs: Array<TransactionInput>,
+    @JvmField
+    val outputs: Array<TransactionOutput>,
+    val lockTime: Int,
+    @Transient
+    var txSize: Int = -1,
+    // we already know the hash of this transaction, dont recompute it
+    _hash: Sha256Hash? = null,
+    _id: Sha256Hash? = null
+) : Serializable {
 
-    public int version;
-    public final TransactionInput[] inputs;
-    public final TransactionOutput[] outputs;
-    public int lockTime;
+    val id: Sha256Hash by lazy {
+        if (_id == null)
+            HashUtils.doubleSha256(ByteWriter(2000).apply {
+                toByteWriter(this, false)
+            }.toBytes()).reverse()
+        else _id
+    }
 
-    private Sha256Hash _hash;
-    private Sha256Hash id;
-//    private Sha256Hash _unmalleableHash;
+    val hash: Sha256Hash by lazy {
+        if (_hash == null)
+            HashUtils.doubleSha256(ByteWriter(2000).apply { toByteWriter(this) }.toBytes())
+                .reverse()
+        else _hash
+    }
 
+    //    private Sha256Hash _unmalleableHash;
     // cache for some getters that need to do some work and might get called often
-    private transient Boolean _rbfAble = null;
-    private transient int _txSize = -1;
+    @Transient
+    private var _rbfAble: Boolean? = null
 
-    public static BitcoinTransaction fromUnsignedTransaction(UnsignedTransaction unsignedTransaction) {
-        UnspentTransactionOutput[] fundingOutputs = unsignedTransaction.getFundingOutputs();
-        TransactionInput[] inputs = new TransactionInput[fundingOutputs.length];
-        for (int idx = 0; idx < fundingOutputs.length; idx++) {
-            UnspentTransactionOutput u = fundingOutputs[idx];
-            ScriptInput script;
-            if (unsignedTransaction.isSegWitOutput(idx)) {
-                byte[] segWitScriptBytes = unsignedTransaction.getInputs()[idx].script.getScriptBytes();
-                try {
-                    script = ScriptInput.fromScriptBytes(segWitScriptBytes);
-                } catch (Script.ScriptParsingException e) {
-                    //Should never happen
-                    throw new Error("Parsing segWitScriptBytes failed");
-                }
-            } else {
-                script = new ScriptInput(u.script.getScriptBytes());
-            }
-            inputs[idx] = new TransactionInput(u.outPoint, script, unsignedTransaction.getDefaultSequenceNumber(), u.value);
-        }
-        return new BitcoinTransaction(1, inputs, unsignedTransaction.getOutputs(), unsignedTransaction.getLockTime());
-    }
+    constructor(copyFrom: BitcoinTransaction) : this(
+        copyFrom.version, copyFrom.inputs, copyFrom.outputs, copyFrom.lockTime, copyFrom.txSize,
+        copyFrom.hash, copyFrom.id
+    )
 
-    public static BitcoinTransaction fromBytes(byte[] transaction) throws TransactionParsingException {
-        return fromByteReader(new ByteReader(transaction));
-    }
-
-    public static BitcoinTransaction fromByteReader(ByteReader reader) throws TransactionParsingException {
-        return fromByteReader(reader, null);
-    }
-
-    // use this builder if you already know the resulting transaction hash to speed up computation
-    public static BitcoinTransaction fromByteReader(ByteReader reader, Sha256Hash knownTransactionHash)
-            throws TransactionParsingException {
-        int size = reader.available();
+    fun copy(): BitcoinTransaction =
         try {
-            int version = reader.getIntLE();
-            boolean useSegwit = false;
-            byte marker = peekByte(reader);
-            if (marker == 0) {
-                //segwit possible
-                reader.get();
-                byte flag = peekByte(reader);
-                if (flag == 1) {
-                    //it's segwit
-                    reader.get();
-                    useSegwit = true;
-                } else {
-                    throw new TransactionParsingException("Unable to parse segwit transaction. Flag must be 0x01");
-                }
-            }
-
-            TransactionInput[] inputs = parseTransactionInputs(reader);
-            TransactionOutput[] outputs = parseTransactionOutputs(reader);
-
-            if (useSegwit) {
-                parseWitness(reader, inputs);
-            }
-
-            int lockTime = reader.getIntLE();
-            return new BitcoinTransaction(version, inputs, outputs, lockTime, size, knownTransactionHash);
-        } catch (InsufficientBytesException e) {
-            throw new TransactionParsingException(e.getMessage());
-        }
-    }
-
-    private static void parseWitness(ByteReader reader, TransactionInput[] inputs) throws InsufficientBytesException {
-        for (TransactionInput input : inputs) {
-            long stackSize = reader.getCompactInt();
-            InputWitness witness = new InputWitness((int) stackSize);
-            input.setWitness(witness);
-            for (int y = 0; y < stackSize; y++) {
-                long pushSize = reader.getCompactInt();
-                byte[] push = reader.getBytes((int) pushSize);
-                witness.setStack(y, push);
-            }
-        }
-    }
-
-    private static TransactionOutput[] parseTransactionOutputs(ByteReader reader) throws InsufficientBytesException, TransactionParsingException {
-        int numOutputs = (int) reader.getCompactInt();
-        TransactionOutput[] outputs = new TransactionOutput[numOutputs];
-        for (int i = 0; i < numOutputs; i++) {
-            try {
-                outputs[i] = TransactionOutput.fromByteReader(reader);
-            } catch (TransactionOutputParsingException e) {
-                throw new TransactionParsingException("Unable to parse transaction output at index " + i + ": "
-                        + e.getMessage());
-            }
-        }
-        return outputs;
-    }
-
-    private static TransactionInput[] parseTransactionInputs(ByteReader reader) throws InsufficientBytesException, TransactionParsingException {
-        int numInputs = (int) reader.getCompactInt();
-        TransactionInput[] inputs = new TransactionInput[numInputs];
-        for (int i = 0; i < numInputs; i++) {
-            try {
-                inputs[i] = TransactionInput.fromByteReader(reader);
-            } catch (TransactionInputParsingException e) {
-                throw new TransactionParsingException("Unable to parse transaction input at index " + i + ": "
-                        + e.getMessage(), e);
-            } catch (IllegalStateException e) {
-                throw new TransactionParsingException("ISE - Unable to parse transaction input at index " + i + ": "
-                        + e.getMessage(), e);
-            }
-        }
-        return inputs;
-    }
-
-    private static byte peekByte(ByteReader reader) throws InsufficientBytesException {
-        byte b = reader.get();
-        reader.setPosition(reader.getPosition() - 1);
-        return b;
-    }
-
-    public BitcoinTransaction copy() {
-        try {
-            return BitcoinTransaction.fromByteReader(new ByteReader(toBytes()));
-        } catch (TransactionParsingException e) {
+            fromByteReader(ByteReader(toBytes()))
+        } catch (e: TransactionParsingException) {
             // This should never happen
-            throw new RuntimeException(e);
+            throw RuntimeException(e)
         }
-    }
 
-    public byte[] toBytes() {
-        return toBytes(true);
-    }
+    @JvmOverloads
+    fun toBytes(asSegwit: Boolean = true): ByteArray? =
+        ByteWriter(1024).apply { toByteWriter(this, asSegwit) }.toBytes()
 
-    public byte[] toBytes(boolean asSegwit) {
-        ByteWriter writer = new ByteWriter(1024);
-        toByteWriter(writer, asSegwit);
-        return writer.toBytes();
-    }
-
-    public int getTxRawSize() {
-        if (_txSize == -1) {
-            _txSize = toBytes().length;
+    val txRawSize: Int
+        get() {
+            if (txSize == -1) {
+                txSize = toBytes()!!.size
+            }
+            return txSize
         }
-        return _txSize;
-    }
 
     /**
-     * This method serializes transaction according to <a href="https://github.com/bitcoin/bips/blob/master/bip-0144.mediawiki">BIP144</a>
-     */
-    public void toByteWriter(ByteWriter writer) {
-        toByteWriter(writer, true);
-    }
-
-    /**
-     * Same as {@link #toByteWriter(ByteWriter)}, but allows to enforce SegWit tx serialization to classic format.
+     * Same as [.toByteWriter], but allows to enforce SegWit tx serialization to classic format.
      *
      * @param asSegwit if true tx would be serialized according bip144 standard.
      */
-    public void toByteWriter(ByteWriter writer, boolean asSegwit) {
-        System.out.println("!!!! toByteWriter" + super.hashCode());
-        writer.putIntLE(version);
-        boolean isSegwit = isSegwit();
-        boolean isSegWitMode = asSegwit && (isSegwit);
-        int segwitPart = 0;
+    /**
+     * This method serializes transaction according to [BIP144](https://github.com/bitcoin/bips/blob/master/bip-0144.mediawiki)
+     */
+    @JvmOverloads
+    fun toByteWriter(writer: ByteWriter, asSegwit: Boolean = true) {
+        writer.putIntLE(version)
+        val isSegwit = isSegwit()
+        val isSegWitMode = asSegwit && (isSegwit)
+        var segwitPart = 0
         if (isSegWitMode) {
-            segwitPart -= writer.length();
-            writer.putCompactInt(0); //marker
-            writer.putCompactInt(1); //flag
-            segwitPart += writer.length();
+            segwitPart -= writer.length()
+            writer.putCompactInt(0) //marker
+            writer.putCompactInt(1) //flag
+            segwitPart += writer.length()
         }
-        writeInputs(writer);
-        writeOutputs(writer);
+        writeInputs(writer)
+        writeOutputs(writer)
         if (isSegWitMode) {
-            segwitPart -= writer.length();
-            writeWitness(writer);
-            segwitPart += writer.length();
+            segwitPart -= writer.length()
+            writeWitness(writer)
+            segwitPart += writer.length()
         }
-        writer.putIntLE(lockTime);
-        vSizeTotal = writer.length();
+        writer.putIntLE(lockTime)
+        vSizeTotal = writer.length()
         if (asSegwit) {
             if (isSegwit) {
-                vSizeBase = vSizeTotal - segwitPart;
+                vSizeBase = vSizeTotal - segwitPart
             } else {
-                vSizeBase = writer.length();
+                vSizeBase = writer.length()
             }
         }
     }
 
     // cash size calculation for speed up working with txs
-    private int vSizeBase = 0;
-    private int vSizeTotal = 0;
+    private var vSizeBase = 0
+    private var vSizeTotal = 0
 
-    public int vsize() {
+    fun vsize(): Int {
         if (vSizeBase == 0) {
-            toBytes(true);
+            toBytes(true)
         }
         // vsize calculations are from https://github.com/bitcoin/bips/blob/master/bip-0141.mediawiki#transaction-size-calculations
         // ... + 3 ) / 4 deals with the int cast rounding down but us needing to round up.
-        return (vSizeBase * 3 + vSizeTotal + 3) / 4;
+        return (vSizeBase * 3 + vSizeTotal + 3) / 4
     }
 
-    private void writeWitness(ByteWriter writer) {
-        for (TransactionInput input : inputs) {
-            input.getWitness().toByteWriter(writer);
+    private fun writeWitness(writer: ByteWriter) {
+        inputs.forEach { input ->
+            input.witness.toByteWriter(writer)
         }
     }
 
-    private void writeInputs(ByteWriter writer) {
-        writer.putCompactInt(inputs.length);
-        for (TransactionInput input : inputs) {
-            input.toByteWriter(writer);
+    private fun writeInputs(writer: ByteWriter) {
+        writer.putCompactInt(inputs.size.toLong())
+        inputs.forEach { input ->
+            input.toByteWriter(writer)
         }
     }
 
-    private void writeOutputs(ByteWriter writer) {
-        writer.putCompactInt(outputs.length);
-        for (TransactionOutput output : outputs) {
-            output.toByteWriter(writer);
+    private fun writeOutputs(writer: ByteWriter) {
+        writer.putCompactInt(outputs.size.toLong())
+        outputs.forEach { output ->
+            output.toByteWriter(writer)
         }
     }
 
-    public BitcoinTransaction(int version, TransactionInput[] inputs, TransactionOutput[] outputs, int lockTime) {
-        this(version, inputs, outputs, lockTime, -1);
-    }
+    fun getTxDigestHash(i: Int): Sha256Hash =
+        HashUtils.doubleSha256(ByteWriter(1024).apply {
+            if (inputs[i].script is ScriptInputP2WSH || inputs[i].script is ScriptInputP2WPKH) {
+                WitnessSignatureMessageBuilder(this@BitcoinTransaction, i, version).build(this)
+            } else if (inputs[i].script is ScriptInputP2TR) {
+                throw RuntimeException("T2TR use commonSignatureMessage")
+            } else {
+                toByteWriter(this, false)
+            }
+            // We also have to write a hash type.
+            val hashType = 1
+            putIntLE(hashType)
+        }.toBytes())
 
-    private BitcoinTransaction(int version, TransactionInput[] inputs, TransactionOutput[] outputs, int lockTime, int txSize) {
-        this.version = version;
-        this.inputs = inputs;
-        this.outputs = outputs;
-        this.lockTime = lockTime;
-        this._txSize = txSize;
-    }
-
-    public BitcoinTransaction(BitcoinTransaction copyFrom) {
-        this.version = copyFrom.version;
-        this.inputs = copyFrom.inputs;
-        this.outputs = copyFrom.outputs;
-        this.lockTime = copyFrom.lockTime;
-        this._txSize = copyFrom._txSize;
-        this._hash = copyFrom._hash;
-        this.id = copyFrom.id;
-//        this._unmalleableHash = copyFrom._unmalleableHash;
-    }
-
-    // we already know the hash of this transaction, dont recompute it
-    protected BitcoinTransaction(int version, TransactionInput[] inputs, TransactionOutput[] outputs, int lockTime,
-                                 int txSize, Sha256Hash knownTransactionHash) {
-        this(version, inputs, outputs, lockTime, txSize);
-        this._hash = knownTransactionHash;
-    }
-
-    public Sha256Hash getId() {
-        if (id == null) {
-            ByteWriter writer = new ByteWriter(2000);
-            toByteWriter(writer, false);
-            id = HashUtils.doubleSha256(writer.toBytes()).reverse();
-        }
-        return id;
-    }
-
-    public Sha256Hash getHash() {
-        if (_hash == null) {
-            ByteWriter writer = new ByteWriter(2000);
-            toByteWriter(writer);
-            _hash = HashUtils.doubleSha256(writer.toBytes()).reverse();
-        }
-        return _hash;
-    }
-
-    public Sha256Hash getTxDigestHash(int i) {
-        ByteWriter writer = new ByteWriter(1024);
-        if (inputs[i].script instanceof ScriptInputP2WSH
-                || inputs[i].script instanceof ScriptInputP2WPKH) {
-            new WitnessSignatureMessageBuilder(this, i, version).build(writer);
-        } else if (inputs[i].script instanceof ScriptInputP2TR) {
-            throw new RuntimeException("T2TR use commonSignatureMessage");
+    fun commonSignatureMessage(i: Int, utxos: Array<UnspentTransactionOutput>): ByteArray =
+        if (inputs[i].script is ScriptInputP2TR) {
+            ByteWriter(1024).apply {
+                TaprootCommonSignatureMessageBuilder(this@BitcoinTransaction, utxos, i, version).build(this)
+            }.toBytes()
         } else {
-            toByteWriter(writer, false);
+            throw RuntimeException("commonSignatureMessage only for P2TR, vin $i")
         }
-        // We also have to write a hash type.
-        int hashType = 1;
-        writer.putIntLE(hashType);
-        // Note that this is NOT reversed to ensure it will be signed
-        // correctly. If it were to be printed out
-        // however then we would expect that it is IS reversed.
-        return HashUtils.doubleSha256(writer.toBytes());
-    }
-
-    public byte[] commonSignatureMessage(int i) {
-        if (inputs[i].script instanceof ScriptInputP2TR) {
-            ByteWriter writer = new ByteWriter(1024);
-            new TaprootCommonSignatureMessageBuilder(this, i, version).build(writer);
-            return writer.toBytes();
-        } else {
-            throw new RuntimeException("commonSignatureMessage only for P2TR, vin " + i);
-        }
-    }
-
-    private Sha256Hash getPrevOutsHash() {
-        ByteWriter writer = new ByteWriter(1024);
-        for (TransactionInput input : inputs) {
-            input.outPoint.hashPrev(writer);
-        }
-        return HashUtils.doubleSha256(writer.toBytes());
-    }
-
-    private Sha256Hash getOutputsHash() {
-        ByteWriter writer = new ByteWriter(1024);
-        for (TransactionOutput output : outputs) {
-            writer.putLongLE(output.value);
-            writer.put((byte) (output.script.getScriptBytes().length & 0xFF));
-            writer.putBytes(output.script.getScriptBytes());
-        }
-        return HashUtils.doubleSha256(writer.toBytes());
-    }
-
-    private Sha256Hash getSequenceHash()  {
-        ByteWriter writer = new ByteWriter(1024);
-        for (TransactionInput input : inputs) {
-            writer.putIntLE(input.sequence);
-        }
-        return HashUtils.doubleSha256(writer.toBytes());
-    }
 
     /**
      * Returns the minimum nSequence number of all inputs
@@ -388,16 +189,8 @@ public class BitcoinTransaction implements Serializable {
      *
      * @return the min nSequence of all inputs of that transaction
      */
-    public UnsignedInteger getMinSequenceNumber() {
-        UnsignedInteger minVal = UnsignedInteger.MAX_VALUE;
-        for (TransactionInput input : inputs) {
-            UnsignedInteger nSequence = UnsignedInteger.fromIntBits(input.sequence);
-            if (nSequence.compareTo(minVal) < 0) {
-                minVal = nSequence;
-            }
-        }
-        return minVal;
-    }
+    fun getMinSequenceNumber(): UnsignedInteger =
+        inputs.minOf { UnsignedInteger.fromIntBits(it.sequence) } ?: UnsignedInteger.MAX_VALUE
 
     /**
      * Returns true if this transaction is marked for RBF and thus can easily get replaced by a
@@ -405,85 +198,187 @@ public class BitcoinTransaction implements Serializable {
      *
      * @return true if any of its inputs has a nSequence < MAX_INT-1
      */
-    public boolean isRbfAble() {
+    fun isRbfAble(): Boolean {
         if (_rbfAble == null) {
-            _rbfAble = (getMinSequenceNumber().compareTo(UnsignedInteger.MAX_VALUE.minus(UnsignedInteger.ONE)) < 0);
+            _rbfAble =
+                (getMinSequenceNumber() < UnsignedInteger.MAX_VALUE.minus(UnsignedInteger.ONE))
         }
-        return _rbfAble;
+        return _rbfAble!!
     }
-
-
 
     /**
      * @return true if transaction is SegWit, else false
      */
-    public boolean isSegwit() {
-        return Iterables.any(Arrays.asList(inputs), new Predicate<TransactionInput>() {
-            @Override
-            public boolean apply(@Nullable TransactionInput transactionInput) {
-                return transactionInput != null && transactionInput.hasWitness();
+    fun isSegwit(): Boolean =
+        inputs.any { it.hasWitness() }
+
+    override fun toString(): String =
+        id.toString() + " in: " + inputs.size + " out: " + outputs.size
+
+    override fun hashCode(): Int = hash.hashCode()
+
+    override fun equals(other: Any?): Boolean {
+        if (other === this) {
+            return true
+        }
+        if (other !is BitcoinTransaction) {
+            return false
+        }
+        return hash == other.hash
+    }
+
+    val isCoinbase: Boolean
+        get() = inputs.any { it.script is ScriptInputCoinbase }
+
+    class TransactionParsingException : Exception {
+        constructor(message: String?) : super(message)
+
+        constructor(message: String?, e: Exception?) : super(message, e)
+
+        companion object {
+            private const val serialVersionUID = 1L
+        }
+    }
+
+    companion object {
+        private const val serialVersionUID = 1L
+        private const val ONE_uBTC_IN_SATOSHIS: Long = 100
+        private val ONE_mBTC_IN_SATOSHIS: Long = 1000 * ONE_uBTC_IN_SATOSHIS
+
+        @JvmField
+        val MAX_MINER_FEE_PER_KB: Long = 200L * ONE_mBTC_IN_SATOSHIS // 20000sat/B
+
+        @JvmStatic
+        fun fromUnsignedTransaction(unsignedTransaction: UnsignedTransaction): BitcoinTransaction {
+            val inputs = unsignedTransaction.fundingOutputs.mapIndexed { idx, fundingOutput ->
+                val script = if (unsignedTransaction.isSegWitOutput(idx)) {
+                    val segWitScriptBytes = unsignedTransaction.inputs[idx].script.scriptBytes
+                    try {
+                        ScriptInput.fromScriptBytes(segWitScriptBytes)
+                    } catch (e: ScriptParsingException) {
+                        //Should never happen
+                        throw Error("Parsing segWitScriptBytes failed")
+                    }
+                } else {
+                    ScriptInput(fundingOutput.script.getScriptBytes())
+                }
+                TransactionInput(
+                    fundingOutput.outPoint,
+                    script,
+                    unsignedTransaction.defaultSequenceNumber,
+                    fundingOutput.value
+                )
             }
-        });
-    }
-
-    /**
-     * Calculate the unmalleable hash of this transaction. If the signature bytes
-     * for an input cannot be determined the result is null
-     */
-//    public Sha256Hash getUnmalleableHash() {
-//        if (_unmalleableHash == null) {
-//            ByteWriter writer = new ByteWriter(2000);
-//            for (TransactionInput i : inputs) {
-//                byte[] bytes = i.getUnmalleableBytes();
-//                if (bytes == null) {
-//                    return null;
-//                }
-//                writer.putBytes(bytes);
-//            }
-//            _unmalleableHash = HashUtils.doubleSha256(writer.toBytes()).reverse();
-//        }
-//        return _unmalleableHash;
-//    }
-
-    @Override
-    public String toString() {
-        return String.valueOf(getId()) + " in: " + inputs.length + " out: " + outputs.length;
-    }
-
-    @Override
-    public int hashCode() {
-        return getHash().hashCode();
-    }
-
-    @Override
-    public boolean equals(Object other) {
-        if (other == this) {
-            return true;
+            return BitcoinTransaction(
+                1,
+                inputs.toTypedArray(),
+                unsignedTransaction.outputs,
+                unsignedTransaction.lockTime
+            )
         }
-        if (!(other instanceof BitcoinTransaction)) {
-            return false;
-        }
-        return getHash().equals(((BitcoinTransaction) other).getHash());
-    }
 
-    public boolean isCoinbase() {
-        for (TransactionInput in : inputs) {
-            if (in.script instanceof ScriptInputCoinbase) {
-                return true;
+        @JvmStatic
+        @Throws(TransactionParsingException::class)
+        fun fromBytes(transaction: ByteArray?): BitcoinTransaction =
+            fromByteReader(ByteReader(transaction))
+
+        // use this builder if you already know the resulting transaction hash to speed up computation
+        @JvmStatic
+        @JvmOverloads
+        @Throws(TransactionParsingException::class)
+        fun fromByteReader(
+            reader: ByteReader,
+            knownTransactionHash: Sha256Hash? = null
+        ): BitcoinTransaction {
+            val size = reader.available()
+            try {
+                val version = reader.getIntLE()
+                var useSegwit = false
+                val marker = peekByte(reader)
+                if (marker.toInt() == 0) {
+                    //segwit possible
+                    reader.get()
+                    val flag: Byte = peekByte(reader)
+                    if (flag.toInt() == 1) {
+                        //it's segwit
+                        reader.get()
+                        useSegwit = true
+                    } else {
+                        throw TransactionParsingException("Unable to parse segwit transaction. Flag must be 0x01")
+                    }
+                }
+
+                val inputs = parseTransactionInputs(reader)
+                val outputs = parseTransactionOutputs(reader)
+
+                if (useSegwit) {
+                    parseWitness(reader, inputs)
+                }
+
+                val lockTime = reader.getIntLE()
+                return BitcoinTransaction(
+                    version,
+                    inputs,
+                    outputs,
+                    lockTime,
+                    size,
+                    knownTransactionHash
+                )
+            } catch (e: InsufficientBytesException) {
+                throw TransactionParsingException(e.message)
             }
         }
-        return false;
-    }
 
-    public static class TransactionParsingException extends Exception {
-        private static final long serialVersionUID = 1L;
-
-        public TransactionParsingException(String message) {
-            super(message);
+        @Throws(InsufficientBytesException::class)
+        private fun parseWitness(reader: ByteReader, inputs: Array<TransactionInput>) {
+            inputs.forEach { input ->
+                val stackSize = reader.compactInt.toInt()
+                input.witness = InputWitness(stackSize).apply {
+                    (0..stackSize - 1).map { y ->
+                        val pushSize = reader.compactInt
+                        val push = reader.getBytes(pushSize.toInt())
+                        setStack(y, push)
+                    }
+                }
+            }
         }
 
-        public TransactionParsingException(String message, Exception e) {
-            super(message, e);
+        @Throws(InsufficientBytesException::class, TransactionParsingException::class)
+        private fun parseTransactionOutputs(reader: ByteReader): Array<TransactionOutput> =
+            (0..reader.compactInt.toInt() - 1).map { i ->
+                try {
+                    TransactionOutput.fromByteReader(reader)
+                } catch (e: TransactionOutputParsingException) {
+                    throw TransactionParsingException(
+                        ("Unable to parse transaction output at index " + i + ": "
+                                + e.message)
+                    )
+                }
+            }.toTypedArray()
+
+        @Throws(InsufficientBytesException::class, TransactionParsingException::class)
+        private fun parseTransactionInputs(reader: ByteReader): Array<TransactionInput> =
+            (0..reader.compactInt.toInt() - 1).map { i ->
+                try {
+                    TransactionInput.fromByteReader(reader)
+                } catch (e: TransactionInputParsingException) {
+                    throw TransactionParsingException(
+                        ("Unable to parse transaction input at index " + i + ": "
+                                + e.message), e
+                    )
+                } catch (e: IllegalStateException) {
+                    throw TransactionParsingException(
+                        ("ISE - Unable to parse transaction input at index " + i + ": "
+                                + e.message), e
+                    )
+                }
+            }.toTypedArray()
+
+        @Throws(InsufficientBytesException::class)
+        private fun peekByte(reader: ByteReader): Byte {
+            val b = reader.get()
+            reader.position = reader.position - 1
+            return b
         }
     }
 }

@@ -453,9 +453,9 @@ open class StandardTransactionBuilder(val network: NetworkParameters) {
                     )
                 }
             }
-            var version = unsigned.getTxVersion()
+//            var version = unsigned.getTxVersion()
             // Create transaction with valid outputs and empty inputs
-            return BitcoinTransaction(version, inputs.toTypedArray(), unsigned.outputs, unsigned.lockTime)
+            return BitcoinTransaction(1, inputs.toTypedArray(), unsigned.outputs, unsigned.lockTime)
         }
 
         private fun UnsignedTransaction.getTxVersion() =
