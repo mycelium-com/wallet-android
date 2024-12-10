@@ -57,7 +57,6 @@ class TaprootUtils {
         }
 
         fun tweakedPrivateKey(privateKey: ByteArray, tweak: Sha256Hash): ByteArray {
-//             seckey = seckey0 if has_even_y(P) else SECP256K1_ORDER - seckey0
             val privateKeyInt = BigInteger(1, privateKey)
             val P = EcTools.multiply(Parameters.G, privateKeyInt)
             val privateKeyNegated =
@@ -84,11 +83,6 @@ class TaprootUtils {
             val result = l.add(EcTools.multiply(Parameters.G, tweak.toPositiveBigInteger()))
             return result.x.toByteArray(32)
         }
-
-
-//        fun scriptPubKey(internalKey: Point): ByteArray =
-//                HexUtils.toBytes("5120") + outputKey(internalKey)
-
     }
 }
 

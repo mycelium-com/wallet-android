@@ -215,25 +215,46 @@ public class BitcoinTransaction implements Serializable {
      * @param asSegwit if true tx would be serialized according bip144 standard.
      */
     public void toByteWriter(ByteWriter writer, boolean asSegwit) {
+        System.out.println("!!!! toByteWriter" + super.hashCode());
         writer.putIntLE(version);
         boolean isSegwit = isSegwit();
         boolean isSegWitMode = asSegwit && (isSegwit);
+        int segwitPart = 0;
         if (isSegWitMode) {
+            segwitPart -= writer.length();
             writer.putCompactInt(0); //marker
             writer.putCompactInt(1); //flag
+            segwitPart += writer.length();
         }
         writeInputs(writer);
         writeOutputs(writer);
         if (isSegWitMode) {
+            segwitPart -= writer.length();
             writeWitness(writer);
+            segwitPart += writer.length();
         }
         writer.putIntLE(lockTime);
+        vSizeTotal = writer.length();
+        if (asSegwit) {
+            if (isSegwit) {
+                vSizeBase = vSizeTotal - segwitPart;
+            } else {
+                vSizeBase = writer.length();
+            }
+        }
     }
 
+    // cash size calculation for speed up working with txs
+    private int vSizeBase = 0;
+    private int vSizeTotal = 0;
+
     public int vsize() {
+        if (vSizeBase == 0) {
+            toBytes(true);
+        }
         // vsize calculations are from https://github.com/bitcoin/bips/blob/master/bip-0141.mediawiki#transaction-size-calculations
         // ... + 3 ) / 4 deals with the int cast rounding down but us needing to round up.
-        return (toBytes(false).length * 3 + toBytes(true).length + 3) / 4;
+        return (vSizeBase * 3 + vSizeTotal + 3) / 4;
     }
 
     private void writeWitness(ByteWriter writer) {

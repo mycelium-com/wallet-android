@@ -33,8 +33,7 @@ class SchnorrSign(val privateKey: BigInteger) :
 
         val P = EcTools.multiply(Parameters.G, privateKey)
 
-        val d = if (P.y.toBigInteger().testBit(0))
-            Parameters.n - privateKey else privateKey
+        val d = if (P.y.toBigInteger().testBit(0)) Parameters.n - privateKey else privateKey
         val auxRandHash = TaprootUtils.hashAux(rand)
         val t = d xor auxRandHash.toPositiveBigInteger()
         val nonce = hashNonce(t.toByteArray(32) + P.x.toByteArray(32) + message)

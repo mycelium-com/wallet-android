@@ -28,16 +28,15 @@ class SchnorrSignTest {
             HexUtils.toBytes("6dfb9c259dc3b79f03470418af01cb1e064692dacc353f0f656cad0bfec583a7") //, an ephemeral random value (supposed to change for every signature)
         val msg =
             HexUtils.toBytes("21fbd20b359eee7bfea88e837108be44a1a421e33a05a45bc832d3e1a7aa713a") // , the message being signed, aka the sighash
-        val signResult =
-            HexUtils.toBytes("42cbaa49d55d54b88e426a844d4f14b82f1969f78047edbcbcf67d24ac60005f7ee88356cc872f239b4add26a92d5e500b26430bc39037d18d63ad09506d6bfa")
 
 
         val signature = SchnorrSign(x)
             .sign(msg, rand)
-        println(HexUtils.toHex(signature))
-        println(HexUtils.toHex(signResult))
 
-        Assert.assertArrayEquals(signature, signResult)
+        Assert.assertEquals(
+            "42cbaa49d55d54b88e426a844d4f14b82f1969f78047edbcbcf67d24ac60005f7ee88356cc872f239b4add26a92d5e500b26430bc39037d18d63ad09506d6bfa",
+            HexUtils.toHex(signature)
+        )
     }
 
     data class Case(
@@ -124,20 +123,18 @@ class SchnorrSignTest {
 
     fun testVector(testCase: Case) {
         val secretKey = InMemoryPrivateKey(testCase.secretKey)
-        val publicKey = testCase.publicKey
 
         Assert.assertArrayEquals(
-            PublicKey(HexUtils.toBytes("02") + publicKey).pubKeyCompressed,
+            PublicKey(HexUtils.toBytes("02") + testCase.publicKey).pubKeyCompressed,
             secretKey.publicKey.pubKeyCompressed
         )
 
         val auxRand = testCase.auxRand
         val message = testCase.message
-        val sign = testCase.signature
 
         val signGen = SchnorrSign(secretKey.privateKeyBytes).sign(message, auxRand)
-        Assert.assertArrayEquals(sign, signGen)
-        Assert.assertEquals(true, SchnorrVerify(publicKey).verify(signGen, message))
+        Assert.assertArrayEquals(testCase.signature, signGen)
+        Assert.assertEquals(true, SchnorrVerify(testCase.publicKey).verify(signGen, message))
     }
 
     companion object {

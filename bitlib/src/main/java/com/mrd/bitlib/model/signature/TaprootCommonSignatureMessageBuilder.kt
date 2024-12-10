@@ -3,10 +3,8 @@ package com.mrd.bitlib.model.signature
 import com.mrd.bitlib.model.BitcoinTransaction
 import com.mrd.bitlib.model.Script
 import com.mrd.bitlib.model.Script.SIGHASH_ANYONECANPAY
-import com.mrd.bitlib.model.Script.SIGHASH_SINGLE
 import com.mrd.bitlib.util.ByteWriter
 import com.mrd.bitlib.util.HashUtils
-import com.mrd.bitlib.util.HexUtils
 import com.mrd.bitlib.util.Sha256Hash
 
 class TaprootCommonSignatureMessageBuilder(
@@ -96,22 +94,18 @@ class TaprootCommonSignatureMessageBuilder(
 
     private fun hash(data: ByteArray): Sha256Hash = HashUtils.sha256(data)
 
-    fun build(writer: ByteWriter = ByteWriter(1024)): ByteWriter =
-        buildV2(writer)
-
-    private fun buildV2(writer: ByteWriter): ByteWriter {
+    fun build(writer: ByteWriter = ByteWriter(1024)): ByteWriter {
         writer.put(hashType.toByte())     //hash type byte
         writer.putIntLE(2)                    //version
         writer.putIntLE(lockTime)                   //locktime
         val isAnyOneCanPay = isAnyOneCanPay()
-        val isSingle = isSingle()
         if (!isAnyOneCanPay) {
             writer.putSha256Hash(prevOutputsHash())     //hash prevouts
             writer.putSha256Hash(inputAmountsHash())    //hash amounts
             writer.putSha256Hash(scriptPubKeysHash())   //hash scriptpubkeys
             writer.putSha256Hash(sequenceHash())        //hash sequences
         }
-        if (!isSingle) {
+        if (hashType and 3 < 2) {
             writer.putSha256Hash(outputsHash())         //hash outputs
         }
         writer.put(0)                     //spend type 0 - key 1 - taproot script
@@ -119,15 +113,17 @@ class TaprootCommonSignatureMessageBuilder(
             writer.putIntLE(index)                  //input index
         }
         if (isAnyOneCanPay) {
-            // TODO implement SIGHASH_ANYONECANPAY
+            inputs[index].outPoint.hashPrev(writer)
+            writer.putLongLE(inputs[index].value)
+            writer.put((inputs[index].script.scriptBytes.size and 0xFF).toByte())
+            writer.putBytes(inputs[index].script.scriptBytes)
+            writer.putIntLE(inputs[index].sequence)
         }
-        if (isSingle) {
-            writer.putSha256Hash(outputHash(0)) // TODO need to get index
+        if (hashType and 3 == 3) {
+            writer.putSha256Hash(outputHash(index))
         }
         return writer
     }
 
     private fun isAnyOneCanPay(): Boolean = hashType and SIGHASH_ANYONECANPAY != 0
-
-    private fun isSingle(): Boolean = hashType and 3 == SIGHASH_SINGLE
 }

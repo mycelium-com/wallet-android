@@ -657,7 +657,7 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener, AmountLi
         // we could have used getTransactionsSince here instead of getTransactionSummaries
         // but for accounts with large number of transactions (>500) it would introduce quite delay
         // so we take last 25 transactions as a sort of heuristic
-        val summaries: List<TransactionSummary> = viewModel.getAccount().getTransactionSummaries(0, 25)
+        val summaries = viewModel.getAccount().getTransactionSummaries(0, 25)
         if (summaries.isEmpty()) {
             return false // user has no transactions
         }
@@ -665,25 +665,17 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener, AmountLi
             return false // latest transaction is too old
         }
         // find latest outgoing transaction
-        var outgoingTx: TransactionSummary? = null
-        for (summary in summaries) {
-            if (!summary.isIncoming) {
-                outgoingTx = summary
-                break
-            }
-        }
+        var outgoingTx = summaries.find { !it.isIncoming }
         if (outgoingTx == null) {
             return false // no outgoing transactions
         }
         // extract sent amount from the transaction
         var outgoingTxAmount = zeroValue(viewModel.getAccount().coinType)
-        for (output in outgoingTx.outputs) {
-            if (output.address == viewModel.getReceivingAddress().value) {
-                outgoingTxAmount = output.value
-            }
-        }
-        return outgoingTx.destinationAddresses.size > 0 && outgoingTx.destinationAddresses[0] == viewModel.getReceivingAddress().value &&
-                outgoingTxAmount == viewModel.getAmount().value
+        outgoingTx.outputs.find { it.address == viewModel.getReceivingAddress().value }
+            ?.let { outgoingTxAmount = it.value }
+        return outgoingTx.destinationAddresses.isNotEmpty()
+                && outgoingTx.destinationAddresses[0] == viewModel.getReceivingAddress().value
+                && outgoingTxAmount == viewModel.getAmount().value
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
