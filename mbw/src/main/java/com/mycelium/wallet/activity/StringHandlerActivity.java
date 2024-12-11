@@ -108,11 +108,11 @@ public class StringHandlerActivity extends AppCompatActivity {
 
    public enum ParseAbility {YES, MAYBE, NO}
 
-   public static final int IMPORT_ENCRYPTED_PRIVATE_KEY_CODE = 1;
-   public static final int IMPORT_ENCRYPTED_MASTER_SEED_CODE = 2;
-   public static final int IMPORT_ENCRYPTED_BIP38_PRIVATE_KEY_CODE = 3;
-   public static final int IMPORT_SSS_CONTENT_CODE = 4;
-   public static final int SEND_INITIALIZATION_CODE = 5;
+   public static final int IMPORT_ENCRYPTED_PRIVATE_KEY_CODE = 11;
+   public static final int IMPORT_ENCRYPTED_MASTER_SEED_CODE = 12;
+   public static final int IMPORT_ENCRYPTED_BIP38_PRIVATE_KEY_CODE = 13;
+   public static final int IMPORT_SSS_CONTENT_CODE = 14;
+   public static final int SEND_INITIALIZATION_CODE = 15;
 
    private MbwManager mbwManager;
    private StringHandleConfig stringHandleConfig = null;
