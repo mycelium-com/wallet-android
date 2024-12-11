@@ -49,3 +49,7 @@ unredeemCard:
 UPDATE GiftboxCard
 SET redeemed = 0
 WHERE clientOrderId = (?) AND code = (?) AND deliveryUrl = (?) AND pin = (?);
+
+
+deleteAllCard:
+DELETE FROM GiftboxCard;

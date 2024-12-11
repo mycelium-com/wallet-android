@@ -1879,4 +1879,6 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="vip_alert_proceed">Yes, proceed</string>
     <string name="vip_alert_cancel">Cancel</string>
     <string name="add_address">Add address</string>
+    <string name="message_verified_to_be_from">Message verified to be from %1$s</string>
+    <string name="message_failed_to_verify">"Message failed to verify! "</string>
 </resources>

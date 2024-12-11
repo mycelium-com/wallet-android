@@ -10,7 +10,9 @@ import android.nfc.NdefRecord
 import android.nfc.NfcAdapter
 import android.nfc.tech.Ndef
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
+import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.widget.AdapterView
@@ -18,6 +20,7 @@ import android.widget.ArrayAdapter
 import android.widget.PopupMenu
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.MenuProvider
 import androidx.databinding.ViewDataBinding
 import asStringRes
 import com.mrd.bitlib.model.AddressType
@@ -94,22 +97,13 @@ class ReceiveCoinsActivity : AppCompatActivity() {
         bindingReceiveFioName?.btCreateFioRequest?.setOnClickListener {
             viewModel.createFioRequest(this@ReceiveCoinsActivity)
         }
+        addMenuProvider(MenuImpl())
     }
-
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         viewModel.processReceivedResults(requestCode, resultCode, data, this)
         super.onActivityResult(requestCode, resultCode, data)
     }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean =
-            when (item.itemId) {
-                android.R.id.home -> {
-                    onBackPressed()
-                    true
-                }
-                else -> super.onOptionsItemSelected(item)
-            }
 
     private fun createAddressDropdown(addressTypes: List<AddressType>) {
         val btcViewModel = viewModel as ReceiveBtcViewModel
@@ -229,6 +223,21 @@ class ReceiveCoinsActivity : AppCompatActivity() {
         override fun onReceive(context: Context?, intent: Intent?) {
             activateNfc()
         }
+    }
+
+    internal inner class MenuImpl : MenuProvider {
+        override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+        }
+
+        override fun onMenuItemSelected(menuItem: MenuItem): Boolean =
+            when (menuItem.itemId) {
+                android.R.id.home -> {
+                    onBackPressed()
+                    true
+                }
+
+                else -> false
+            }
     }
 
     companion object {

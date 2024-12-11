@@ -14,9 +14,12 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.mycelium.giftbox.client.GitboxAPI
+import com.mycelium.giftbox.client.model.MCOrderResponse
+import com.mycelium.giftbox.client.model.MCPrice
+import com.mycelium.giftbox.client.model.getCardValue
 import com.mycelium.giftbox.client.models.PriceResponse
-import com.mycelium.giftbox.client.models.getCardValue
 import com.mycelium.giftbox.purchase.viewmodel.getCurrencyId
+import com.mycelium.wallet.BuildConfig
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.NumberEntry
 import com.mycelium.wallet.R
@@ -49,7 +52,7 @@ class AmountInputFragment : Fragment(), NumberEntry.NumberEntryListener {
     val args by navArgs<AmountInputFragmentArgs>()
 
     val zeroFiatValue by lazy {
-        Value.zeroValue(Utils.getTypeByName(args.product.currencyCode)!!)
+        Value.zeroValue(Utils.getTypeByName(args.mcproduct.currency)!!)
     }
     private val zeroCryptoValue by lazy {
         account?.coinType?.value(0)
@@ -64,9 +67,9 @@ class AmountInputFragment : Fragment(), NumberEntry.NumberEntryListener {
         set(value) {
             field = value
             lifecycleScope.launch(IO) {
-                getPriceResponse(value!!).collect {
-                    val exchangeRate = BigDecimal(it?.exchangeRate ?: "-1")
-                    if (it?.status != PriceResponse.Status.sUCCESS || exchangeRate <= BigDecimal.ZERO) {
+                getPriceResponse(value!!).collect { response ->
+                    val exchangeRate = response?.rate ?: BigDecimal.ZERO
+                    if (/*it?.status != PriceResponse.Status.sUCCESS ||*/ exchangeRate <= BigDecimal.ZERO) {
                         withContext(Dispatchers.Main) {
                             AlertDialog.Builder(requireActivity())
                                     .setTitle(R.string.error)
@@ -80,12 +83,17 @@ class AmountInputFragment : Fragment(), NumberEntry.NumberEntryListener {
                     }
                     withContext(Dispatchers.Main) {
                         //update crypto amount
-                        val cryptoAmountFromFiat = value.valueAsLong.toBigDecimal().setScale(account?.coinType?.unitExponent!!) /
-                                        exchangeRate.movePointRight(Utils.getTypeByName(args.product.currencyCode!!)!!.unitExponent)
+//                        val cryptoAmountFromFiat = value.valueAsLong.toBigDecimal().setScale(account?.coinType?.unitExponent!!) /
+//                                        exchangeRate.movePointRight(Utils.getTypeByName(args.mcproduct.currency!!)!!.unitExponent)
+//                        val cryptoAmountValue =
+//                            valueOf(
+//                                account?.coinType!!,
+//                                toUnits(account?.coinType!!, cryptoAmountFromFiat)
+//                            )
                         val cryptoAmountValue =
                             valueOf(
                                 account?.coinType!!,
-                                toUnits(account?.coinType!!, cryptoAmountFromFiat)
+                                toUnits(account?.coinType!!, response?.amount!!)
                             )
                         binding.tvCryptoAmount.isVisible = true
                         binding.tvCryptoAmount.text = cryptoAmountValue.toStringFriendlyWithUnit()
@@ -126,10 +134,10 @@ class AmountInputFragment : Fragment(), NumberEntry.NumberEntryListener {
                 findNavController().navigateUp()
             }
             btMax.setOnClickListener {
-                setEnteredAmount(args.product.maximumValue.toPlainString()!!)
-                numberEntry!!.setEntry(args.product.maximumValue, getMaxDecimal(_amount?.type!!))
+                setEnteredAmount(args.mcproduct.maxFaceValue.toPlainString()!!)
+                numberEntry!!.setEntry(args.mcproduct.maxFaceValue, getMaxDecimal(_amount?.type!!))
             }
-            tvCardValue.text = args.product.getCardValue()
+            tvCardValue.text = args.mcproduct.getCardValue()
             if(account is ERC20Account) {
                 binding.parentAccountLayout.isVisible = true
                 binding.erc20Tips.isVisible = true
@@ -153,20 +161,23 @@ class AmountInputFragment : Fragment(), NumberEntry.NumberEntryListener {
     }
 
     private fun getMaxSpendable() =
-        account?.calculateMaxSpendableAmount(feeEstimation.normal, null, null)!!
+        account?.calculateMaxSpendableAmount(minerFee, null, null)!!
 
     private val feeEstimation by lazy {
         mbwManager.getFeeProvider(account?.basedOnCoinType).estimation
     }
 
+    private val minerFee
+        get() = feeEstimation.normal
+
     private fun getMaxDecimal(assetInfo: AssetInfo): Int =
             (assetInfo as? FiatType)?.unitExponent
                     ?: assetInfo.unitExponent - mbwManager.getDenomination(_amount?.type).scale
 
-    fun zeroValue(): Value = Value.zeroValue(Utils.getTypeByName(args.product.currencyCode)!!)
+    fun zeroValue(): Value = Value.zeroValue(Utils.getTypeByName(args.mcproduct.currency)!!)
 
     private fun toUnits(assetInfo: String, amount: BigDecimal): BigInteger =
-        toUnits(Utils.getTypeByName(args.product.currencyCode)!!, amount)
+        toUnits(Utils.getTypeByName(args.mcproduct.currency)!!, amount)
 
     private fun toUnits(assetInfo: AssetInfo, amount: BigDecimal): BigInteger =
         amount.movePointRight(assetInfo.unitExponent).setScale(0, RoundingMode.HALF_UP)
@@ -219,24 +230,24 @@ class AmountInputFragment : Fragment(), NumberEntry.NumberEntryListener {
             _amount?.type?.value(value)
         }
         binding.btOk.isEnabled = false
-        GitboxAPI.giftRepository.getPrice(lifecycleScope,
-            code = args.product.code ?: "",
-            quantity = 1,
-            amount = _amount?.valueAsLong?.div(100)?.toInt()!!,
-            currencyId = zeroCryptoValue!!.getCurrencyId(),
+        GitboxAPI.mcGiftRepository.getPrice(lifecycleScope,
+            code = args.mcproduct.id ?: "",
+//            quantity = 1,
+            amount = _amount?.valueAsBigDecimal!!,
+            currencyId = args.mcproduct.currency!!,
             success = { priceResponse ->
-                val conversionError = priceResponse!!.status == PriceResponse.Status.eRROR
+//                val conversionError = priceResponse!!.status == PriceResponse.Status.eRROR
                 val maxSpendableFiat = convertToFiat(priceResponse, getMaxSpendable())
                 val insufficientFunds = _amount!!.moreThan(maxSpendableFiat!!)
                 val exceedCardPrice = _amount!!.moreThan(
                     valueOf(
                         _amount!!.type,
-                        toUnits(args.product.currencyCode!!, args.product.maximumValue)
+                        toUnits(args.mcproduct.currency!!, args.mcproduct.maxFaceValue)
                     )
                 )
                 val minimumPrice = valueOf(
                     _amount!!.type,
-                    toUnits(args.product.currencyCode!!, args.product.minimumValue)
+                    toUnits(args.mcproduct.currency!!, args.mcproduct.minFaceValue)
                 )
                 val lessMinimumCardPrice = _amount!!.lessThan(
                     minimumPrice
@@ -253,12 +264,12 @@ class AmountInputFragment : Fragment(), NumberEntry.NumberEntryListener {
                 binding.tvAmount.setTextColor(
                     ResourcesCompat.getColor(
                         resources,
-                        if (conversionError || insufficientFunds || exceedCardPrice || lessMinimumCardPrice) R.color.red_error else R.color.white,
+                        if (/*conversionError ||*/ insufficientFunds || exceedCardPrice || lessMinimumCardPrice) R.color.red_error else R.color.white,
                         null
                     )
                 )
-                binding.btOk.isEnabled = !(conversionError || insufficientFunds || exceedCardPrice || lessMinimumCardPrice)
-                if (insufficientFunds && !conversionError) {
+                binding.btOk.isEnabled = !(/*conversionError ||*/ insufficientFunds || exceedCardPrice || lessMinimumCardPrice)
+                if (insufficientFunds /*&& !conversionError*/) {
                     Toaster(requireContext()).toast("Insufficient funds", true)
                 }
             }, error = { _, error ->
@@ -273,36 +284,37 @@ class AmountInputFragment : Fragment(), NumberEntry.NumberEntryListener {
                 && _amount!!.moreOrEqualThan(
             valueOf(
                 _amount!!.type,
-                toUnits(args.product.currencyCode!!, args.product.minimumValue)
+                toUnits(args.mcproduct.currency!!, args.mcproduct.minFaceValue)
             )
         )
                 && _amount!!.lessOrEqualThan(
             valueOf(
                 _amount!!.type,
-                toUnits(args.product.currencyCode!!, args.product.maximumValue)
+                toUnits(args.mcproduct.currency!!, args.mcproduct.maxFaceValue)
             )
         )
         binding.btOk.isEnabled = isValid
     }
 
-    private fun convertToFiat(priceResponse: PriceResponse, value: Value): Value? =
-        priceResponse.exchangeRate?.let {
-            val fiat = value.valueAsBigDecimal.multiply(BigDecimal(it))
-            Value.valueOf(zeroFiatValue.type, toUnits(zeroFiatValue.type, fiat))
+    private fun convertToFiat(response: MCPrice?, value: Value): Value? =
+        (response?.rate ?: BigDecimal.ZERO)?.let {
+            val fiat = value.valueAsBigDecimal.multiply(it)
+            valueOf(zeroFiatValue.type, toUnits(zeroFiatValue.type, fiat))
         }
 
-    private fun getPriceResponse(value: Value): Flow<PriceResponse?> {
+
+    private fun getPriceResponse(value: Value): Flow<MCPrice?> {
         return callbackFlow {
-            GitboxAPI.giftRepository.getPrice(lifecycleScope,
-                code = args.product.code!!,
-                quantity = args.quantity,
-                amount = value.valueAsBigDecimal.toInt(),
-                currencyId = account?.coinType?.symbol?.removePrefix("t") ?: "",
-                success = { priceResponse ->
-                    if (priceResponse!!.status == PriceResponse.Status.eRROR) {
-                        return@getPrice
-                    }
-                    trySend(priceResponse)
+            GitboxAPI.mcGiftRepository.getPrice(lifecycleScope,
+                code = args.mcproduct.id!!,
+//                quantity = args.quantity,
+                amount = value.valueAsBigDecimal,
+                currencyId = args.mcproduct.currency!!,
+                success = { response ->
+//                    if (response!!.status == PriceResponse.Status.eRROR) {
+//                        return@getPrice
+//                    }
+                    trySend(response)
                 },
                 error = { _, error ->
                     close()

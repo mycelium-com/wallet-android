@@ -18,6 +18,7 @@ import com.mycelium.giftbox.purchase.adapter.AccountAdapter
 import com.mycelium.wallet.ExchangeRateManager
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
+import com.mycelium.wallet.Utils
 import com.mycelium.wallet.WalletApplication
 import com.mycelium.wallet.activity.modern.ModernMain
 import com.mycelium.wallet.activity.modern.helper.MainActions
@@ -48,7 +49,7 @@ class SelectAccountFragment : Fragment(), ExchangeRateManager.Observer {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val currencyList = mbwManager.exchangeRateManager.currencyList
-        val fiatType = FiatType(args.product.currencyCode)
+        val fiatType = FiatType(args.mcproduct.currency)
         if (!currencyList.contains(fiatType)) {
             mbwManager.exchangeRateManager.setCurrencyList((currencyList + listOf(fiatType)).toSet())
             mbwManager.exchangeRateManager.subscribe(this)
@@ -82,7 +83,7 @@ class SelectAccountFragment : Fragment(), ExchangeRateManager.Observer {
                     .apply { action = MainActions.ACTION_ACCOUNTS })
         }
         adapter.accountClickListener = { accountItem ->
-            findNavController().navigate(SelectAccountFragmentDirections.actionNext(accountItem.accountId, args.product))
+            findNavController().navigate(SelectAccountFragmentDirections.actionNext(accountItem.accountId, args.mcproduct))
         }
         adapter.groupClickListener = {
             val title = it.getTitle(requireContext())
@@ -92,8 +93,10 @@ class SelectAccountFragment : Fragment(), ExchangeRateManager.Observer {
     }
     
     private fun generateAccountList(accountView: List<AccountsGroupModel>) {
-        val currenciesByName = args.currencies.mapNotNull { it.name }
-        val currenciesByAddress = args.currencies.mapNotNull { it.contractAddress }
+        val currenciesByName =
+            listOf("BTC")//args.currencies.mapNotNull { it.name }
+        val currenciesByAddress =
+            listOf<String>() // args.currencies.mapNotNull { it.contractAddress }
         val accountsList = mutableListOf<AccountListItem>()
         accountView.forEach { accountsGroup->
             if (accountsGroup.getType() == AccountListItem.Type.GROUP_ARCHIVED_TITLE_TYPE) {
@@ -113,7 +116,7 @@ class SelectAccountFragment : Fragment(), ExchangeRateManager.Observer {
                 group.isCollapsed = !GiftboxPreference.isGroupOpen(accountsGroup.getTitle(requireContext()))
                 accountsList.add(group)
                 if (!group.isCollapsed) {
-                    val fiatType = FiatType(args.product.currencyCode)
+                    val fiatType = FiatType(args.mcproduct.currency)
                     accounts.forEach { model ->
                         mbwManager.exchangeRateManager.get(model.balance?.spendable, fiatType)?.let {
                             model.additional["fiat"] = it.toStringWithUnit()

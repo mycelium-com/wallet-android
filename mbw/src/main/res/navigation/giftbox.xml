@@ -35,8 +35,8 @@
         android:label="@string/giftbox_amount_title"
         tools:layout="@layout/fragment_giftbox_store_details">
         <argument
-            android:name="product"
-            app:argType="com.mycelium.giftbox.client.models.ProductInfo" />
+            android:name="mcproduct"
+            app:argType="com.mycelium.giftbox.client.model.MCProductInfo" />
         <action
             android:id="@+id/actionNext"
             app:destination="@id/selectAccountFragment2" />
@@ -55,9 +55,12 @@
             android:name="accountId"
             app:argType="java.util.UUID" />
 
+<!--        <argument-->
+<!--            android:name="product"-->
+<!--            app:argType="com.mycelium.giftbox.client.models.ProductInfo" />-->
         <argument
-            android:name="product"
-            app:argType="com.mycelium.giftbox.client.models.ProductInfo" />
+            android:name="mcproduct"
+            app:argType="com.mycelium.giftbox.client.model.MCProductInfo" />
         <action
             android:id="@+id/toResult"
             app:destination="@id/giftBoxBuyResultFragment"
@@ -84,12 +87,12 @@
         android:label="@string/buy_gift_card"
         tools:layout="@layout/fragment_bequant_select_account">
         <argument
-            android:name="product"
-            app:argType="com.mycelium.giftbox.client.models.ProductInfo" />
+            android:name="mcproduct"
+            app:argType="com.mycelium.giftbox.client.model.MCProductInfo" />
 
-        <argument
-            android:name="currencies"
-            app:argType="com.mycelium.giftbox.client.models.CurrencyInfos" />
+<!--        <argument-->
+<!--            android:name="currencies"-->
+<!--            app:argType="com.mycelium.giftbox.client.models.CurrencyInfos" />-->
 
         <action
             android:id="@+id/actionNext"
@@ -101,8 +104,8 @@
         android:label="@string/card_value1"
         tools:layout="@layout/fragment_giftbox_amount">
         <argument
-            android:name="product"
-            app:argType="com.mycelium.giftbox.client.models.ProductInfo" />
+            android:name="mcproduct"
+            app:argType="com.mycelium.giftbox.client.model.MCProductInfo" />
         <argument
             android:name="amount"
             app:argType="com.mycelium.wapi.wallet.coins.Value"
@@ -141,7 +144,7 @@
             app:nullable="true"/>
         <argument
             android:name="productResponse"
-            app:argType="com.mycelium.giftbox.client.models.ProductInfo"
+            app:argType="com.mycelium.giftbox.client.model.MCProductInfo"
             app:nullable="true"/>
         <argument
             android:name="totalFiat"
@@ -161,7 +164,7 @@
             app:nullable="true"/>
         <argument
             android:name="orderResponse"
-            app:argType="com.mycelium.giftbox.client.models.Order" />
+            app:argType="com.mycelium.giftbox.client.model.MCOrderResponse" />
         <action
             android:id="@+id/actionMyGiftCards"
             app:destination="@id/giftboxFragment"

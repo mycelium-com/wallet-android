@@ -425,7 +425,7 @@ class ModernMain : AppCompatActivity(), BackHandler {
         Preconditions.checkNotNull(menu.findItem(R.id.miRescanTransactions)).isVisible = isHistoryTab
         val isAddressBook = TAB_ADDRESS_BOOK == tabTag
         Preconditions.checkNotNull(menu.findItem(R.id.miAddAddress)).isVisible = isAddressBook
-        Preconditions.checkNotNull(menu.findItem(R.id.miGiftBox)).isVisible = isContentEnabled(GiftboxConstants.PARTNER_ID)
+        Preconditions.checkNotNull(menu.findItem(R.id.miGiftBox)).isVisible = true // isContentEnabled(GiftboxConstants.PARTNER_ID)
         Preconditions.checkNotNull(menu.findItem(R.id.history)).isVisible = isContentEnabled(ChangellyConstants.PARTNER_ID_CHANGELLY)
         return super.onPrepareOptionsMenu(menu)
     }
