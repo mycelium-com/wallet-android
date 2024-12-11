@@ -128,7 +128,7 @@ class TaprootCommonSignatureMessageBuilderTest {
         ),
     )
 
-    private val utxos = listOf(
+    private val inputData = listOf(
         TransactionOutput(
             420000000,
             ScriptOutput.fromScriptBytes("512053a1f6e454df1aa2776a2814a721372d6258050de330b3c6d10ee8f4e0dda343".toBytes())
@@ -167,15 +167,20 @@ class TaprootCommonSignatureMessageBuilderTest {
         )
     )
 
+    lateinit var utxos: Array<UnspentTransactionOutput>
+
     @Before
     fun setUp() {
         val rawUnsignedTx =
             HexUtils.toBytes("02000000097de20cbff686da83a54981d2b9bab3586f4ca7e48f57f5b55963115f3b334e9c010000000000000000d7b7cab57b1393ace2d064f4d4a2cb8af6def61273e127517d44759b6dafdd990000000000fffffffff8e1f583384333689228c5d28eac13366be082dc57441760d957275419a418420000000000fffffffff0689180aa63b30cb162a73c6d2a38b7eeda2a83ece74310fda0843ad604853b0100000000feffffffaa5202bdf6d8ccd2ee0f0202afbbb7461d9264a25e5bfd3c5a52ee1239e0ba6c0000000000feffffff956149bdc66faa968eb2be2d2faa29718acbfe3941215893a2a3446d32acd050000000000000000000e664b9773b88c09c32cb70a2a3e4da0ced63b7ba3b22f848531bbb1d5d5f4c94010000000000000000e9aa6b8e6c9de67619e6a3924ae25696bb7b694bb677a632a74ef7eadfd4eabf0000000000ffffffffa778eb6a263dc090464cd125c466b5a99667720b1c110468831d058aa1b82af10100000000ffffffff0200ca9a3b000000001976a91406afd46bcdfd22ef94ac122aa11f241244a37ecc88ac807840cb0000000020ac9a87f5594be208f8532db38cff670c450ed2fea8fcdefcc9a663f78bab962b0065cd1d")
         tx = BitcoinTransaction.fromBytes(rawUnsignedTx)
         tx.inputs.forEachIndexed { i, ti ->
-            setValue(ti, utxos[i].value)
-            ti.script = ScriptInput.fromScriptBytes(utxos[i].script.scriptBytes)
+            setValue(ti, inputData[i].value)
+            ti.script = ScriptInput.fromScriptBytes(inputData[i].script.scriptBytes)
         }
+        utxos = tx.inputs.mapIndexed { i, input ->
+            UnspentTransactionOutput(input.outPoint, -1, inputData[i].value, inputData[i].script)
+        }.toTypedArray()
     }
 
     @Test
@@ -202,7 +207,7 @@ class TaprootCommonSignatureMessageBuilderTest {
                 tweakedPrivkey.toHex()
             )
 
-            val builder = TaprootCommonSignatureMessageBuilder(tx, i, 2)
+            val builder = TaprootCommonSignatureMessageBuilder(tx, utxos, i, 2)
             builder.hashType = vector.hashType
 
             val writer = ByteWriter(1024)
@@ -286,7 +291,7 @@ class TaprootCommonSignatureMessageBuilderTest {
         )
 
 
-        val builder = TaprootCommonSignatureMessageBuilder(tx, 0, 2)
+        val builder = TaprootCommonSignatureMessageBuilder(tx, utxos, 0, 2)
         builder.hashType = Script.SIGHASH_SINGLE
         Assert.assertEquals(
             "test sequence hash",
@@ -343,7 +348,7 @@ class TaprootCommonSignatureMessageBuilderTest {
 
     @Test
     fun testAmounts() {
-        val builder = TaprootCommonSignatureMessageBuilder(tx, 0, 2)
+        val builder = TaprootCommonSignatureMessageBuilder(tx, utxos, 0, 2)
         Assert.assertEquals(
             "58a6964a4f5f8f0b642ded0a8a553be7622a719da71d1f5befcefcdee8e0fde6",
             (inputAmountsHash().invoke(builder) as Sha256Hash).toHex()
@@ -388,7 +393,7 @@ class TaprootCommonSignatureMessageBuilderTest {
     fun testScriptPubkeys() {
         val hashScriptPubkeys = "23ad0f61ad2bca5ba6a7693f50fce988e17c3780bf2b1e720cfbb38fbdd52e21"
 
-        val builder = TaprootCommonSignatureMessageBuilder(tx, 0, 2)
+        val builder = TaprootCommonSignatureMessageBuilder(tx, utxos, 0, 2)
 
         Assert.assertEquals(
             hashScriptPubkeys,
@@ -415,7 +420,7 @@ class TaprootCommonSignatureMessageBuilderTest {
         )
 
 
-        val builder = TaprootCommonSignatureMessageBuilder(tx, 3, 2)
+        val builder = TaprootCommonSignatureMessageBuilder(tx, utxos, 3, 2)
         builder.hashType = Script.SIGHASH_ALL
 
 
@@ -446,7 +451,7 @@ class TaprootCommonSignatureMessageBuilderTest {
             HexUtils.toBytes("02000000000101ec9016580d98a93909faf9d2f431e74f781b438d81372bb6aab4db67725c11a70000000000ffffffff0110270000000000001600144e44ca792ce545acba99d41304460dd1f53be3840000000000")
         val unsignedTransaction = BitcoinTransaction.fromBytes(rawUnsignedTx)
 
-        val builder = TaprootCommonSignatureMessageBuilder(unsignedTransaction, 0, 2)
+        val builder = TaprootCommonSignatureMessageBuilder(unsignedTransaction, utxos, 0, 2)
 
         setValue(builder.inputs[0], 20000)
         builder.inputs[0].script =

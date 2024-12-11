@@ -35,7 +35,7 @@ class ExportAsQrBtcSAViewModel(context: Application) : ExportAsQrMultiKeysViewMo
 
     private fun publicData(privateData: String, toggleNum: Int): String {
         val network = MbwManager.getInstance(context).network
-        val privateKey = InMemoryPrivateKey.fromBase58String(privateData, network).get()
+        val privateKey = InMemoryPrivateKey.fromBase58String(privateData, network)
         val publicKey = privateKey?.publicKey
         val addressType = when (toggleNum) {
             1 -> AddressType.P2PKH

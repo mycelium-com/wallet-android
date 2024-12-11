@@ -326,10 +326,10 @@ public class AddAdvancedAccountActivity extends AppCompatActivity implements Imp
          }
       } else if (requestCode == CREATE_RESULT_CODE && resultCode == Activity.RESULT_OK) {
          String base58Key = intent.getStringExtra("base58key");
-         Optional<InMemoryPrivateKey> key = InMemoryPrivateKey.fromBase58String(base58Key, _network);
-         if (key.isPresent()) {
+         InMemoryPrivateKey key = InMemoryPrivateKey.fromBase58String(base58Key, _network);
+         if (key != null) {
             // This is a new key - there is no existing backup
-            returnAccount(key.get(), MetadataStorage.BackupState.UNKNOWN, AccountType.SA);
+            returnAccount(key, MetadataStorage.BackupState.UNKNOWN, AccountType.SA);
          } else {
             throw new RuntimeException("Creating private key from string unexpectedly failed.");
          }

@@ -351,36 +351,33 @@ class InMemoryPrivateKey() : PrivateKey(), KeyExporter, Serializable {
         fun fromBase58String(
             base58: String?,
             network: NetworkParameters
-        ): Optional<InMemoryPrivateKey?> {
+        ): InMemoryPrivateKey? =
             try {
-                val key = InMemoryPrivateKey(base58, network)
-                return Optional.of<InMemoryPrivateKey?>(key)
+                InMemoryPrivateKey(base58, network)
             } catch (e: IllegalArgumentException) {
-                return Optional.absent<InMemoryPrivateKey?>()
+                null
             }
-        }
 
         fun fromBase58MiniFormat(
             base58: String?,
             network: NetworkParameters?
-        ): Optional<InMemoryPrivateKey?> {
+        ): InMemoryPrivateKey? {
             // Is it a mini private key on the format proposed by Casascius?
             if (base58 == null || base58.length < 2 || !base58.startsWith("S")) {
-                return Optional.absent<InMemoryPrivateKey?>()
+                return null
             }
             // Check that the string has a valid checksum
             val withQuestionMark = base58 + "?"
             val checkHash = HashUtils.sha256(withQuestionMark.toByteArray()).firstFourBytes()
             if (checkHash[0].toInt() != 0x00) {
-                return Optional.absent<InMemoryPrivateKey?>()
+                return null
             }
             // Now get the Sha256 hash and use it as the private key
             val privateKeyBytes = HashUtils.sha256(base58.toByteArray())
-            try {
-                val key = InMemoryPrivateKey(privateKeyBytes, false)
-                return Optional.of<InMemoryPrivateKey?>(key)
+            return try {
+                InMemoryPrivateKey(privateKeyBytes, false)
             } catch (e: IllegalArgumentException) {
-                return Optional.absent<InMemoryPrivateKey?>()
+                null
             }
         }
     }

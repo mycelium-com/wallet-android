@@ -44,7 +44,7 @@ class SendMainActivityTest {
 
     @Test
     fun whenScanWifPrivkeyThenNoMultiAddressView() {
-        val privkey = InMemoryPrivateKey.fromBase58String(wifPrivkey, NetworkParameters.testNetwork).get()
+        val privkey = InMemoryPrivateKey.fromBase58String(wifPrivkey, NetworkParameters.testNetwork)
         // mock up an ActivityResult
         val dataIntent = Intent()
                 .putExtra(StringHandlerActivity.RESULT_TYPE_KEY, ResultType.PRIVATE_KEY)
@@ -63,8 +63,8 @@ class SendMainActivityTest {
 
     @Test
     fun whenScanWifCompressedPrivkeyThenMultiAddressViewWithAllSupportedAddresses() {
-        val privkey = InMemoryPrivateKey.fromBase58String(wifCompressedPrivkey, NetworkParameters.testNetwork).get()
-        val supportedAddressesNumber = privkey.publicKey.getAllSupportedAddresses(NetworkParameters.testNetwork).size
+        val privkey = InMemoryPrivateKey.fromBase58String(wifCompressedPrivkey, NetworkParameters.testNetwork)
+        val supportedAddressesNumber = privkey?.publicKey?.getAllSupportedAddresses(NetworkParameters.testNetwork)?.size
         // mock up an ActivityResult
         val dataIntent = Intent()
                 .putExtra(StringHandlerActivity.RESULT_TYPE_KEY, ResultType.PRIVATE_KEY)

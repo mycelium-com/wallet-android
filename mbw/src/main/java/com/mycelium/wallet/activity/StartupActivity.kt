@@ -31,601 +31,598 @@
  * change. To the extent permitted under your local laws, the Licensor excludes the implied warranties of merchantability,
  * fitness for a particular purpose and non-infringement.
  */
+package com.mycelium.wallet.activity
 
-package com.mycelium.wallet.activity;
+import android.app.AlertDialog
+import android.app.ProgressDialog
+import android.content.DialogInterface
+import android.content.Intent
+import android.content.SharedPreferences
+import android.content.pm.ActivityInfo
+import android.net.Uri
+import android.nfc.NfcAdapter
+import android.os.AsyncTask
+import android.os.Bundle
+import android.os.Handler
+import android.preference.PreferenceManager
+import android.view.View
+import android.view.Window
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.isVisible
+import com.google.common.base.Preconditions
+import com.google.common.base.Strings
+import com.google.common.io.ByteStreams
+import com.mrd.bitlib.crypto.Bip39
+import com.mrd.bitlib.crypto.HdKeyNode
+import com.mrd.bitlib.crypto.HdKeyNode.KeyGenerationException
+import com.mrd.bitlib.crypto.InMemoryPrivateKey.Companion.fromBase58String
+import com.mrd.bitlib.model.NetworkParameters
+import com.mycelium.wallet.Constants
+import com.mycelium.wallet.MbwManager
+import com.mycelium.wallet.PinDialog
+import com.mycelium.wallet.R
+import com.mycelium.wallet.Utils
+import com.mycelium.wallet.activity.AccountCreatorHelper.AccountCreationObserver
+import com.mycelium.wallet.activity.AccountCreatorHelper.CreateAccountAsyncTask
+import com.mycelium.wallet.activity.StartupActivity.ConfigureSeedAsyncTask
+import com.mycelium.wallet.activity.export.DecryptBip38PrivateKeyActivity
+import com.mycelium.wallet.activity.modern.ModernMain
+import com.mycelium.wallet.activity.modern.Toaster
+import com.mycelium.wallet.activity.news.NewsUtils
+import com.mycelium.wallet.activity.pop.PopActivity
+import com.mycelium.wallet.activity.send.GetSpendingRecordActivity
+import com.mycelium.wallet.activity.send.SendInitializationActivity.Companion.callMe
+import com.mycelium.wallet.activity.send.SendInitializationActivity.Companion.callMeWithResult
+import com.mycelium.wallet.bitid.BitIDAuthenticationActivity
+import com.mycelium.wallet.bitid.BitIDSignRequest
+import com.mycelium.wallet.content.actions.HdNodeAction.Companion.isKeyNode
+import com.mycelium.wallet.content.actions.PrivateKeyAction.Companion.getPrivateKey
+import com.mycelium.wallet.databinding.StartupActivityBinding
+import com.mycelium.wallet.event.AccountChanged
+import com.mycelium.wallet.event.AccountCreated
+import com.mycelium.wallet.event.MigrationPercentChanged
+import com.mycelium.wallet.event.MigrationStatusChanged
+import com.mycelium.wallet.fio.FioRequestNotificator
+import com.mycelium.wallet.pop.PopRequest
+import com.mycelium.wapi.content.PrivateKeyUri
+import com.mycelium.wapi.content.WithCallback
+import com.mycelium.wapi.wallet.AesKeyCipher
+import com.mycelium.wapi.wallet.KeyCipher.InvalidKeyCipher
+import com.mycelium.wapi.wallet.btc.bip44.AdditionalHDAccountConfig
+import com.mycelium.wapi.wallet.eth.EthereumMasterseedConfig
+import com.mycelium.wapi.wallet.fio.FIOMasterseedConfig
+import com.mycelium.wapi.wallet.manager.Config
+import com.squareup.otto.Bus
+import com.squareup.otto.Subscribe
+import java.io.FileNotFoundException
+import java.io.IOException
+import java.lang.RuntimeException
+import java.lang.ref.WeakReference
+import java.util.UUID
+import java.util.concurrent.TimeUnit
 
-import android.app.Activity;
-import android.app.AlertDialog;
-import android.app.ProgressDialog;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.pm.ActivityInfo;
-import android.net.Uri;
-import android.nfc.NfcAdapter;
-import android.os.AsyncTask;
-import android.os.Bundle;
-import android.os.Handler;
-import android.preference.PreferenceManager;
-import android.view.View;
-import android.view.Window;
-import android.widget.ProgressBar;
-import android.widget.TextView;
-import androidx.appcompat.app.AppCompatActivity;
+class StartupActivity : AppCompatActivity(), AccountCreationObserver {
+    private var _mbwManager: MbwManager? = null
+    private var _alertDialog: AlertDialog? = null
+    private var _pinDialog: PinDialog? = null
+    private var _progress: ProgressDialog? = null
+    private var eventBus: Bus = MbwManager.getEventBus()
 
-import androidx.appcompat.app.AppCompatActivity;
+    lateinit var binding: StartupActivityBinding
 
-import com.google.common.base.Optional;
-import com.google.common.base.Preconditions;
-import com.google.common.base.Strings;
-import com.google.common.io.ByteStreams;
-import com.mrd.bitlib.crypto.Bip39;
-import com.mrd.bitlib.crypto.HdKeyNode;
-import com.mrd.bitlib.crypto.InMemoryPrivateKey;
-import com.mrd.bitlib.model.NetworkParameters;
-import com.mycelium.wallet.Constants;
-import com.mycelium.wallet.MbwManager;
-import com.mycelium.wallet.PinDialog;
-import com.mycelium.wallet.R;
-import com.mycelium.wallet.Utils;
-import com.mycelium.wallet.activity.export.DecryptBip38PrivateKeyActivity;
-import com.mycelium.wallet.activity.modern.ModernMain;
-import com.mycelium.wallet.activity.modern.Toaster;
-import com.mycelium.wallet.activity.news.NewsUtils;
-import com.mycelium.wallet.activity.pop.PopActivity;
-import com.mycelium.wallet.activity.send.GetSpendingRecordActivity;
-import com.mycelium.wallet.activity.send.SendInitializationActivity;
-import com.mycelium.wallet.bitid.BitIDAuthenticationActivity;
-import com.mycelium.wallet.bitid.BitIDSignRequest;
-import com.mycelium.wallet.content.actions.HdNodeAction;
-import com.mycelium.wallet.content.actions.PrivateKeyAction;
-import com.mycelium.wallet.event.AccountChanged;
-import com.mycelium.wallet.event.AccountCreated;
-import com.mycelium.wallet.event.MigrationPercentChanged;
-import com.mycelium.wallet.event.MigrationStatusChanged;
-import com.mycelium.wallet.fio.FioRequestNotificator;
-import com.mycelium.wallet.pop.PopRequest;
-import com.mycelium.wapi.content.AssetUri;
-import com.mycelium.wapi.content.PrivateKeyUri;
-import com.mycelium.wapi.content.WithCallback;
-import com.mycelium.wapi.wallet.AesKeyCipher;
-import com.mycelium.wapi.wallet.KeyCipher;
-import com.mycelium.wapi.wallet.WalletAccount;
-import com.mycelium.wapi.wallet.btc.bip44.AdditionalHDAccountConfig;
-import com.mycelium.wapi.wallet.eth.EthereumMasterseedConfig;
-import com.mycelium.wapi.wallet.fio.FIOMasterseedConfig;
-import com.mycelium.wapi.wallet.manager.Config;
-import com.squareup.otto.Bus;
-import com.squareup.otto.Subscribe;
+    private lateinit var sharedPreferences: SharedPreferences
+    private var lastStartupTime: Long = 0
+    private var isFirstRun = false
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.lang.ref.WeakReference;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
+    override fun onCreate(savedInstanceState: Bundle?) {
+        requestWindowFeature(Window.FEATURE_NO_TITLE)
+        super.onCreate(savedInstanceState)
+        supportActionBar?.hide()
+        sharedPreferences =
+            applicationContext.getSharedPreferences(Constants.SETTINGS_NAME, MODE_PRIVATE)
+        isFirstRun = (PreferenceManager.getDefaultSharedPreferences(
+            applicationContext
+        ).getInt("ckChangeLog_last_version_code", -1) == -1)
+        lastStartupTime =
+            sharedPreferences.getLong(LAST_STARTUP_TIME, TimeUnit.SECONDS.toMillis(10))
+        _progress = ProgressDialog(this)
+        setContentView(StartupActivityBinding.inflate(layoutInflater).apply { binding = this }.root)
+        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_NOSENSOR
+    }
 
-public class StartupActivity extends AppCompatActivity implements AccountCreatorHelper.AccountCreationObserver {
-   private static final int MINIMUM_SPLASH_TIME = 500;
-   private static final int REQUEST_FROM_URI = 2;
-   private static final int IMPORT_WORDLIST = 0;
+    override fun onStart() {
+        super.onStart()
+        eventBus.register(this)
+        Thread(delayedInitialization).start()
+    }
 
-   public static final List<Config> mainAccounts = new ArrayList<>(
-           Arrays.asList(new AdditionalHDAccountConfig(), new EthereumMasterseedConfig(), new FIOMasterseedConfig()));
+    public override fun onStop() {
+        _progress?.dismiss()
+        _pinDialog?.dismiss()
+        eventBus.unregister(this)
+        super.onStop()
+    }
 
-   private static final String LAST_STARTUP_TIME = "startupTme";
+    override fun onDestroy() {
+        if (_alertDialog?.isShowing == true) {
+            _alertDialog?.dismiss()
+        }
+        super.onDestroy()
+    }
 
-   private MbwManager _mbwManager;
-   private AlertDialog _alertDialog;
-   private PinDialog _pinDialog;
-   private ProgressDialog _progress;
-   private Bus eventBus;
-   @BindView(R.id.progressBar)
-   ProgressBar progressBar;
-   @BindView(R.id.status)
-   TextView status;
-   private SharedPreferences sharedPreferences;
-   private long lastStartupTime;
-   private boolean isFirstRun;
+    @Subscribe
+    fun onMigrationProgressChanged(migrationPercent: MigrationPercentChanged) {
+        binding.layoutProgress.progressBar.progress = migrationPercent.percent
+    }
 
-   @Override
-   protected void onCreate(Bundle savedInstanceState) {
-      requestWindowFeature(Window.FEATURE_NO_TITLE);
-      super.onCreate(savedInstanceState);
-      getSupportActionBar().hide();
-      sharedPreferences = getApplicationContext().getSharedPreferences(Constants.SETTINGS_NAME, Activity.MODE_PRIVATE);
-      isFirstRun = (PreferenceManager.getDefaultSharedPreferences(
-              getApplicationContext()).getInt("ckChangeLog_last_version_code", -1) == -1);
-      lastStartupTime = sharedPreferences.getLong(LAST_STARTUP_TIME, TimeUnit.SECONDS.toMillis(10));
-      _progress = new ProgressDialog(this);
-      setContentView(R.layout.startup_activity);
-      ButterKnife.bind(this);
-      setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_NOSENSOR);
-   }
+    @Subscribe
+    fun onMigrationCommentChanged(migrationStatusChanged: MigrationStatusChanged) {
+        binding.layoutProgress.status.text =
+            migrationStatusChanged.newStatus.format(applicationContext)
+    }
 
-   @Override
-   protected void onStart() {
-      super.onStart();
-      eventBus = MbwManager.getEventBus();
-      eventBus.register(this);
-      new Thread(delayedInitialization).start();
-   }
-
-   @Override
-   public void onStop() {
-      _progress.dismiss();
-      if (_pinDialog != null) {
-         _pinDialog.dismiss();
-      }
-      eventBus.unregister(this);
-      super.onStop();
-   }
-
-   @Override
-   protected void onDestroy() {
-      if (_alertDialog != null && _alertDialog.isShowing()) {
-         _alertDialog.dismiss();
-      }
-      super.onDestroy();
-   }
-
-   @Subscribe
-   public void onMigrationProgressChanged(MigrationPercentChanged migrationPercent) {
-      progressBar.setProgress(migrationPercent.getPercent());
-   }
-
-   @Subscribe
-   public void onMigrationCommentChanged(MigrationStatusChanged migrationStatusChanged) {
-      status.setText(StartupActivityHelperKt.format(migrationStatusChanged.getNewStatus(), getApplicationContext()));
-   }
-
-   private Runnable delayedInitialization = new Runnable() {
-      @Override
-      public void run() {
-         if (lastStartupTime > TimeUnit.SECONDS.toMillis(5) && !isFirstRun) {
-            new Handler(getMainLooper()).post(new Runnable() {
-               @Override
-               public void run() {
-                  progressBar.setVisibility(View.VISIBLE);
-                  status.setVisibility(View.VISIBLE);
-               }
-            });
-         }
-         long startTime = System.currentTimeMillis();
-         _mbwManager = MbwManager.getInstance(StartupActivity.this.getApplication());
-
-         // in case this is a fresh startup, import backup or create new seed
-         if (!_mbwManager.getMasterSeedManager().hasBip32MasterSeed()) {
-            new Handler(getMainLooper()).post(new Runnable() {
-               @Override
-               public void run() {
-                  initMasterSeed();
-               }
-            });
-            return;
-         }
-
-         // in case the masterSeed was created but account does not exist yet (rotation problem)
-         if (_mbwManager.getWalletManager(false).getActiveSpendingAccounts().isEmpty()) {
-            new AccountCreatorHelper.CreateAccountAsyncTask(StartupActivity.this, StartupActivity.this, mainAccounts).execute();
-            return;
-         }
-
-         List<Config> needsToBeCreatedMasterSeedAccounts = _mbwManager.checkMainAccountsCreated();
-         if (needsToBeCreatedMasterSeedAccounts.size() != 0) {
-            new AccountCreatorHelper.CreateAccountAsyncTask(StartupActivity.this,
-                    StartupActivity.this, needsToBeCreatedMasterSeedAccounts).execute();
-            return;
-         }
-
-         // Calculate how much time we spent initializing, and do a delayed
-         // finish so we display the splash a minimum amount of time
-         long timeSpent = System.currentTimeMillis() - startTime;
-         long remainingTime = MINIMUM_SPLASH_TIME - timeSpent;
-         if (remainingTime < 0) {
-            remainingTime = 0;
-         }
-
-         new Handler(getMainLooper()).postDelayed(delayedFinish, remainingTime);
-         sharedPreferences.edit()
-                 .putLong(LAST_STARTUP_TIME, timeSpent)
-                 .apply();
-      }
-   };
-
-   private void initMasterSeed() {
-      new AlertDialog
-              .Builder(this)
-              .setCancelable(false)
-              .setTitle(R.string.master_seed_configuration_title)
-              .setMessage(getString(R.string.master_seed_configuration_description))
-              .setNegativeButton(R.string.master_seed_restore_backup_button, new DialogInterface.OnClickListener() {
-                 //import master seed from wordlist
-                 public void onClick(DialogInterface arg0, int arg1) {
-                    EnterWordListActivity.callMe(StartupActivity.this, IMPORT_WORDLIST);
-                 }
-              })
-              .setPositiveButton(R.string.master_seed_create_new_button, new DialogInterface.OnClickListener() {
-                 //configure new random seed
-                 public void onClick(DialogInterface arg0, int arg1) {
-                    startMasterSeedTask();
-                 }
-              })
-              .show();
-   }
-
-   private void startMasterSeedTask() {
-      _progress.setCancelable(false);
-      _progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-      _progress.setMessage(getString(R.string.preparing_wallet_on_first_startup_info));
-      _progress.show();
-      new ConfigureSeedAsyncTask(new WeakReference<>(this)).execute();
-   }
-
-   private static class ConfigureSeedAsyncTask extends AsyncTask<Void, Integer, UUID> {
-      private WeakReference<StartupActivity> startupActivity;
-
-      ConfigureSeedAsyncTask(WeakReference<StartupActivity> startupActivity) {
-         this.startupActivity = startupActivity;
-      }
-
-      @Override
-      protected UUID doInBackground(Void... params) {
-         StartupActivity activity = this.startupActivity.get();
-         if (activity == null) {
-            return null;
-         }
-         Bip39.MasterSeed masterSeed = Bip39.createRandomMasterSeed(activity._mbwManager.getRandomSource());
-         try {
-            activity._mbwManager.getMasterSeedManager().configureBip32MasterSeed(masterSeed, AesKeyCipher.defaultKeyCipher());
-            return activity._mbwManager.createAdditionalBip44AccountsUninterruptedly(mainAccounts).get(0);
-         } catch (KeyCipher.InvalidKeyCipher e) {
-            throw new RuntimeException(e);
-         }
-      }
-
-      @Override
-      protected void onPostExecute(UUID accountId) {
-         StartupActivity activity = this.startupActivity.get();
-         if (accountId == null || activity == null) {
-            return;
-         }
-         activity._progress.dismiss();
-         MbwManager.getEventBus().post(new AccountCreated(accountId));
-         MbwManager.getEventBus().post(new AccountChanged(accountId));
-         //finish initialization
-         activity.delayedFinish.run();
-      }
-   }
-
-   @Override
-   public void onAccountCreated(UUID accountId) {
-      MbwManager.getEventBus().post(new AccountCreated(accountId));
-      MbwManager.getEventBus().post(new AccountChanged(accountId));
-      delayedFinish.run();
-   }
-
-   private final Runnable delayedFinish = new Runnable() {
-      @Override
-      public void run() {
-         final MbwManager manager = _mbwManager;
-         final boolean isUnlockPinRequired = manager != null && manager.isUnlockPinRequired();
-         if (isUnlockPinRequired) {
-
-            // set a click handler to the background, so that
-            // if the PIN-Pad closes, you can reopen it by touching the background
-            getWindow().getDecorView().findViewById(android.R.id.content).setOnClickListener(new View.OnClickListener() {
-               @Override
-               public void onClick(View view) {
-                  delayedFinish.run();
-               }
-            });
-
-            Runnable start = new Runnable() {
-               @Override
-               public void run() {
-                  _mbwManager.setStartUpPinUnlocked(true);
-                  start();
-               }
-            };
-
-            // set the pin dialog to not cancelable
-            _pinDialog = _mbwManager.runPinProtectedFunction(StartupActivity.this, start, false);
-         } else {
-            start();
-         }
-      }
-
-      private void start() {
-         // Check whether we should handle this intent in a special way if it
-         // has a bitcoin URI in it
-         if (handleIntent()) {
-            return;
-         }
-
-         // Check if we have lingering exported private keys, we want to warn
-         // the user if that is the case
-         boolean _hasClipboardExportedPrivateKeys = hasPrivateKeyOnClipboard(_mbwManager.getNetwork());
-         boolean hasClipboardExportedPublicKeys = hasPublicKeyOnClipboard(_mbwManager.getNetwork());
-
-         if(hasClipboardExportedPublicKeys){
-            warnUserOnClipboardKeys(false);
-         }
-         else if (_hasClipboardExportedPrivateKeys) {
-            warnUserOnClipboardKeys(true);
-         }
-         else {
-            normalStartup();
-         }
-      }
-
-      private boolean hasPrivateKeyOnClipboard(NetworkParameters network) {
-         // do we have a private key on the clipboard?
-         try {
-            InMemoryPrivateKey key = PrivateKeyAction.getPrivateKey(network, Utils.getClipboardString(StartupActivity.this));
-            if (key != null) {
-               return true;
+    private val delayedInitialization: Runnable = object : Runnable {
+        override fun run() {
+            if (lastStartupTime > TimeUnit.SECONDS.toMillis(5) && !isFirstRun) {
+                Handler(mainLooper).post(object : Runnable {
+                    override fun run() {
+                        binding.layoutProgress.progressBar.isVisible = true
+                        binding.layoutProgress.status.isVisible = true
+                    }
+                })
             }
-            HdKeyNode.parse(Utils.getClipboardString(StartupActivity.this), network);
-            return true;
-         } catch (HdKeyNode.KeyGenerationException ex) {
-            return false;
-         }
-      }
+            val startTime = System.currentTimeMillis()
+            _mbwManager = MbwManager.getInstance(this@StartupActivity.getApplication())
 
-      private boolean hasPublicKeyOnClipboard(NetworkParameters network) {
-         // do we have a public key on the clipboard?
-         try {
-            if (HdNodeAction.Companion.isKeyNode(network, Utils.getClipboardString(StartupActivity.this))) {
-               return true;
+            // in case this is a fresh startup, import backup or create new seed
+            if (!_mbwManager!!.masterSeedManager.hasBip32MasterSeed()) {
+                Handler(mainLooper).post(object : Runnable {
+                    override fun run() {
+                        initMasterSeed()
+                    }
+                })
+                return
             }
-            HdKeyNode.parse(Utils.getClipboardString(StartupActivity.this), network);
-            return true;
-         } catch (HdKeyNode.KeyGenerationException ex) {
-            return false;
-         }
-      }
-   };
 
-   private void warnUserOnClipboardKeys(boolean isPrivate) {
-      _alertDialog = new AlertDialog.Builder(this)
-              // Set title
-              .setTitle(isPrivate ? R.string.found_clipboard_private_key_title
-                      : R.string.found_clipboard_public_key_title)
-              // Set dialog message
-              .setMessage(isPrivate ? R.string.found_clipboard_private_keys_message
-                      : R.string.found_clipboard_public_keys_message)
-              // Yes action
-              .setCancelable(false).setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-                 public void onClick(DialogInterface dialog, int id) {
-                    Utils.clearClipboardString(StartupActivity.this);
-                    normalStartup();
-                    dialog.dismiss();
-                 }
-              })
-              // No action
-              .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
-                 public void onClick(DialogInterface dialog, int id) {
-                    normalStartup();
-                    dialog.cancel();
-                 }
-              })
-              .create();
-      _alertDialog.show();
-   }
-
-   private void normalStartup() {
-       // Normal startup, show the selected account in the BalanceActivity
-       Intent intent = new Intent(StartupActivity.this, ModernMain.class);
-       if (Objects.equals(getIntent().getAction(), NewsUtils.MEDIA_FLOW_ACTION)) {
-           intent.setAction(NewsUtils.MEDIA_FLOW_ACTION);
-           if(getIntent().getExtras() != null) {
-              intent.putExtras(getIntent().getExtras());
-           }
-       } else if (Objects.equals(getIntent().getAction(), FioRequestNotificator.FIO_REQUEST_ACTION)) {
-          intent.setAction(FioRequestNotificator.FIO_REQUEST_ACTION);
-          if (getIntent().getExtras() != null) {
-             intent.putExtras(getIntent().getExtras());
-          }
-       } else if(getIntent().hasExtra("action")) {
-          if (getIntent().getExtras() != null) {
-             intent.putExtras(getIntent().getExtras());
-          }
-       }
-       startActivity(intent);
-       finish();
-   }
-
-   private boolean handleIntent() {
-      Intent intent = getIntent();
-      final String action = intent.getAction();
-
-      if ("application/bitcoin-paymentrequest".equals(intent.getType())) {
-         // called via paymentrequest-file
-         final Uri paymentRequest = intent.getData();
-         handlePaymentRequest(paymentRequest);
-         return true;
-      } else {
-         final Uri intentUri = intent.getData();
-         final String scheme = intentUri != null ? intentUri.getScheme() : null;
-
-         if (intentUri != null && (Intent.ACTION_VIEW.equals(action) || NfcAdapter.ACTION_NDEF_DISCOVERED.equals(action))) {
-            switch (scheme) {
-               case "bitcoin":
-                  handleUri(intentUri);
-                  break;
-               case "bitid":
-                  handleBitIdUri(intentUri);
-                  break;
-               case "btcpop":
-                  handlePopUri(intentUri);
-                  break;
-               case "mycelium":
-                  handleMyceliumUri(intentUri);
-                  break;
-               default:
-                  return false;
+            // in case the masterSeed was created but account does not exist yet (rotation problem)
+            if (_mbwManager!!.getWalletManager(false).getActiveSpendingAccounts().isEmpty()) {
+                CreateAccountAsyncTask(
+                    this@StartupActivity,
+                    this@StartupActivity,
+                    mainAccounts
+                ).execute()
+                return
             }
-            return true;
-         }
-      }
-      return false;
-   }
 
-   private void handlePaymentRequest(Uri paymentRequest) {
-      try {
-         InputStream inputStream = getContentResolver().openInputStream(paymentRequest);
-         byte[] bytes = ByteStreams.toByteArray(inputStream);
-
-         MbwManager mbwManager = MbwManager.getInstance(StartupActivity.this.getApplication());
-
-         List<WalletAccount<?>> spendingAccounts = mbwManager.getWalletManager(false).getSpendingAccountsWithBalance();
-         if (spendingAccounts.isEmpty()) {
-            //if we dont have an account which can spend and has a balance, we fetch all accounts with priv keys
-            spendingAccounts = mbwManager.getWalletManager(false).getSpendingAccounts();
-         }
-         if (spendingAccounts.size() == 1) {
-            SendInitializationActivity.callMeWithResult(this, spendingAccounts.get(0).getId(), bytes, false, REQUEST_FROM_URI);
-         } else {
-            GetSpendingRecordActivity.callMeWithResult(this, bytes, REQUEST_FROM_URI);
-         }
-      } catch (FileNotFoundException e) {
-         new Toaster(this).toast(R.string.file_not_found, false);
-         finish();
-      } catch (IOException e) {
-         new Toaster(this).toast(R.string.payment_request_unable_to_read_payment_request, false);
-         finish();
-      }
-   }
-
-   private void handleMyceliumUri(Uri intentUri) {
-      final String host = intentUri.getHost();
-      // If we dont understand the url, just call the balance screen
-      Intent balanceIntent = new Intent(this, ModernMain.class);
-      startActivity(balanceIntent);
-      // close the startup activity to not pollute the backstack
-      finish();
-   }
-
-   private void handleBitIdUri(Uri intentUri) {
-      //We have been launched by a bitid authentication request
-      Optional<BitIDSignRequest> bitid = BitIDSignRequest.parse(intentUri);
-      if (!bitid.isPresent()) {
-         //Invalid bitid URI
-         new Toaster(this).toast(R.string.invalid_bitid_uri, false);
-         finish();
-         return;
-      }
-      Intent bitIdIntent = new Intent(this, BitIDAuthenticationActivity.class)
-              .putExtra("request", bitid.get());
-      startActivity(bitIdIntent);
-
-      finish();
-   }
-
-   private void handlePopUri(Uri intentUri) {
-      // a proof of payment request
-      PopRequest popRequest = new PopRequest(intentUri.toString());
-      Intent popIntent = new Intent(this, PopActivity.class)
-              .putExtra("popRequest", popRequest);
-      startActivity(popIntent);
-      finish();
-   }
-
-   private void handleUri(Uri intentUri) {
-      // We have been launched by a Bitcoin URI
-      MbwManager mbwManager = MbwManager.getInstance(getApplication());
-      AssetUri uri = mbwManager.getContentResolver().resolveUri(intentUri.toString());
-      if (uri == null) {
-         // Invalid Bitcoin URI
-         new Toaster(this).toast(R.string.invalid_bitcoin_uri, false);
-         finish();
-         return;
-      }
-
-      // the bitcoin uri might actually be encrypted private key, where the user wants to spend funds from
-      if (uri instanceof PrivateKeyUri) {
-         final PrivateKeyUri privateKeyUri = (PrivateKeyUri) uri;
-         DecryptBip38PrivateKeyActivity.callMe(this, privateKeyUri.getKeyString(), StringHandlerActivity.IMPORT_ENCRYPTED_BIP38_PRIVATE_KEY_CODE);
-      } else {
-         if (uri.getAddress() == null && uri instanceof WithCallback && Strings.isNullOrEmpty(((WithCallback) uri).getCallbackURL())) {
-            // Invalid Bitcoin URI
-            new Toaster(this).toast(R.string.invalid_bitcoin_uri, false);
-            finish();
-            return;
-         }
-
-         List<WalletAccount<?>> spendingAccounts = mbwManager.getWalletManager(false).getSpendingAccountsWithBalance();
-         if (spendingAccounts.isEmpty()) {
-            //if we dont have an account which can spend and has a balance, we fetch all accounts with priv keys
-            spendingAccounts = mbwManager.getWalletManager(false).getSpendingAccounts();
-         }
-         if (spendingAccounts.size() == 1) {
-            SendInitializationActivity.callMeWithResult(this, spendingAccounts.get(0).getId(), uri, false, REQUEST_FROM_URI);
-         } else {
-            GetSpendingRecordActivity.callMeWithResult(this, uri, REQUEST_FROM_URI);
-         }
-         //don't finish just yet we want to stay on the stack and observe that we emit a txid correctly.
-      }
-   }
-
-   @Override
-   protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-      //todo make sure delayed init has finished (ev mit countdownlatch)
-      switch (requestCode) {
-         case IMPORT_WORDLIST:
-            if (resultCode != RESULT_OK) {
-               //user cancelled the import, so just ask what he wants again
-               initMasterSeed();
-               return;
+            val needsToBeCreatedMasterSeedAccounts = _mbwManager!!.checkMainAccountsCreated()
+            if (needsToBeCreatedMasterSeedAccounts.isNotEmpty()) {
+                CreateAccountAsyncTask(
+                    this@StartupActivity,
+                    this@StartupActivity, needsToBeCreatedMasterSeedAccounts
+                ).execute()
+                return
             }
+
+            // Calculate how much time we spent initializing, and do a delayed
+            // finish so we display the splash a minimum amount of time
+            val timeSpent = System.currentTimeMillis() - startTime
+            var remainingTime = MINIMUM_SPLASH_TIME - timeSpent
+            if (remainingTime < 0) {
+                remainingTime = 0
+            }
+
+            Handler(mainLooper).postDelayed(delayedFinish, remainingTime)
+            sharedPreferences.edit()
+                .putLong(LAST_STARTUP_TIME, timeSpent)
+                .apply()
+        }
+    }
+
+    private fun initMasterSeed() {
+        AlertDialog.Builder(this)
+            .setCancelable(false)
+            .setTitle(R.string.master_seed_configuration_title)
+            .setMessage(getString(R.string.master_seed_configuration_description))
+            .setNegativeButton(
+                R.string.master_seed_restore_backup_button,
+                object : DialogInterface.OnClickListener {
+                    //import master seed from wordlist
+                    override fun onClick(arg0: DialogInterface?, arg1: Int) {
+                        EnterWordListActivity.callMe(this@StartupActivity, IMPORT_WORDLIST)
+                    }
+                })
+            .setPositiveButton(
+                R.string.master_seed_create_new_button,
+                object : DialogInterface.OnClickListener {
+                    //configure new random seed
+                    override fun onClick(arg0: DialogInterface?, arg1: Int) {
+                        startMasterSeedTask()
+                    }
+                })
+            .show()
+    }
+
+    private fun startMasterSeedTask() {
+        _progress!!.setCancelable(false)
+        _progress!!.setProgressStyle(ProgressDialog.STYLE_SPINNER)
+        _progress!!.setMessage(getString(R.string.preparing_wallet_on_first_startup_info))
+        _progress!!.show()
+        ConfigureSeedAsyncTask(WeakReference<StartupActivity?>(this)).execute()
+    }
+
+    private class ConfigureSeedAsyncTask(private val startupActivity: WeakReference<StartupActivity?>) :
+        AsyncTask<Void?, Int?, UUID?>() {
+
+        override fun doInBackground(vararg params: Void?): UUID? {
+            val activity = this.startupActivity.get()
+            if (activity == null) {
+                return null
+            }
+            val masterSeed = Bip39.createRandomMasterSeed(activity._mbwManager!!.getRandomSource())
+            try {
+                activity._mbwManager!!.masterSeedManager
+                    .configureBip32MasterSeed(masterSeed, AesKeyCipher.defaultKeyCipher())
+                return activity._mbwManager!!.createAdditionalBip44AccountsUninterruptedly(
+                    mainAccounts
+                )[0]
+            } catch (e: InvalidKeyCipher) {
+                throw RuntimeException(e)
+            }
+        }
+
+        override fun onPostExecute(accountId: UUID?) {
+            val activity = this.startupActivity.get()
+            if (accountId == null || activity == null) {
+                return
+            }
+            activity._progress!!.dismiss()
+            MbwManager.getEventBus().post(AccountCreated(accountId))
+            MbwManager.getEventBus().post(AccountChanged(accountId))
             //finish initialization
-            delayedFinish.run();
-            return;
-         case StringHandlerActivity.IMPORT_ENCRYPTED_BIP38_PRIVATE_KEY_CODE:
-            String content = data.getStringExtra("base58Key");
-            if (content != null) {
-               final Optional<InMemoryPrivateKey> optionalKey = InMemoryPrivateKey.fromBase58String(
-                       content,
-                       _mbwManager.getNetwork()
-               );
-               if (optionalKey.isPresent()) {
-                  final InMemoryPrivateKey key = optionalKey.get();
-                  final UUID onTheFlyAccount = MbwManager.getInstance(this).createOnTheFlyAccount(
-                          key,
-                          Utils.getBtcCoinType()
-                  );
-                  SendInitializationActivity.callMe(this, onTheFlyAccount, true);
-                  finish();
-               }
-               return;
-            }
-         case REQUEST_FROM_URI:
-            // double-check result data, in case some downstream code messes up.
-            if (resultCode == RESULT_OK) {
-               Bundle extras = Preconditions.checkNotNull(data.getExtras());
-               for(String key: extras.keySet()) {
-                  // make sure we only share TRANSACTION_ID_INTENT_KEY with external caller
-                  if(!key.equals(Constants.TRANSACTION_ID_INTENT_KEY)) {
-                     data.removeExtra(key);
-                  }
-               }
-               // return the tx hash to our external caller, if he cares...
-               setResult(RESULT_OK, data);
+            activity.delayedFinish.run()
+        }
+    }
+
+    override fun onAccountCreated(accountId: UUID?) {
+        MbwManager.getEventBus().post(AccountCreated(accountId))
+        MbwManager.getEventBus().post(AccountChanged(accountId))
+        delayedFinish.run()
+    }
+
+    private val delayedFinish: Runnable = object : Runnable {
+        override fun run() {
+            val manager = _mbwManager
+            val isUnlockPinRequired = manager != null && manager.isUnlockPinRequired
+            if (isUnlockPinRequired) {
+                // set a click handler to the background, so that
+                // if the PIN-Pad closes, you can reopen it by touching the background
+
+                window.decorView.findViewById<View?>(android.R.id.content)
+                    .setOnClickListener(object : View.OnClickListener {
+                        override fun onClick(view: View?) {
+                            delayedFinish.run()
+                        }
+                    })
+
+                val start = object : Runnable {
+                    override fun run() {
+                        _mbwManager!!.setStartUpPinUnlocked(true)
+                        start()
+                    }
+                }
+
+                // set the pin dialog to not cancelable
+                _pinDialog =
+                    _mbwManager!!.runPinProtectedFunction(this@StartupActivity, start, false)
             } else {
-               setResult(RESULT_CANCELED);
+                start()
             }
-            break;
-         default:
-            setResult(RESULT_CANCELED);
-      }
-      finish();
-   }
+        }
+
+        private fun start() {
+            // Check whether we should handle this intent in a special way if it
+            // has a bitcoin URI in it
+            if (handleIntent()) {
+                return
+            }
+
+            // Check if we have lingering exported private keys, we want to warn
+            // the user if that is the case
+            val hasClipboardExportedPrivateKeys = hasPrivateKeyOnClipboard(_mbwManager!!.network)
+            val hasClipboardExportedPublicKeys = hasPublicKeyOnClipboard(_mbwManager!!.network)
+
+            if (hasClipboardExportedPublicKeys) {
+                warnUserOnClipboardKeys(false)
+            } else if (hasClipboardExportedPrivateKeys) {
+                warnUserOnClipboardKeys(true)
+            } else {
+                normalStartup()
+            }
+        }
+
+        private fun hasPrivateKeyOnClipboard(network: NetworkParameters): Boolean {
+            // do we have a private key on the clipboard?
+            try {
+                val key = getPrivateKey(network, Utils.getClipboardString(this@StartupActivity))
+                if (key != null) {
+                    return true
+                }
+                HdKeyNode.parse(Utils.getClipboardString(this@StartupActivity), network)
+                return true
+            } catch (ex: KeyGenerationException) {
+                return false
+            }
+        }
+
+        private fun hasPublicKeyOnClipboard(network: NetworkParameters): Boolean {
+            // do we have a public key on the clipboard?
+            try {
+                if (isKeyNode(network, Utils.getClipboardString(this@StartupActivity))) {
+                    return true
+                }
+                HdKeyNode.parse(Utils.getClipboardString(this@StartupActivity), network)
+                return true
+            } catch (ex: KeyGenerationException) {
+                return false
+            }
+        }
+    }
+
+    private fun warnUserOnClipboardKeys(isPrivate: Boolean) {
+        _alertDialog = AlertDialog.Builder(this) // Set title
+            .setTitle(
+                if (isPrivate)
+                    R.string.found_clipboard_private_key_title
+                else
+                    R.string.found_clipboard_public_key_title
+            ) // Set dialog message
+            .setMessage(
+                if (isPrivate)
+                    R.string.found_clipboard_private_keys_message
+                else
+                    R.string.found_clipboard_public_keys_message
+            ) // Yes action
+            .setCancelable(false)
+            .setPositiveButton(R.string.yes, object : DialogInterface.OnClickListener {
+                override fun onClick(dialog: DialogInterface, id: Int) {
+                    Utils.clearClipboardString(this@StartupActivity)
+                    normalStartup()
+                    dialog.dismiss()
+                }
+            }) // No action
+            .setNegativeButton(R.string.no, object : DialogInterface.OnClickListener {
+                override fun onClick(dialog: DialogInterface, id: Int) {
+                    normalStartup()
+                    dialog.cancel()
+                }
+            })
+            .create()
+        _alertDialog!!.show()
+    }
+
+    private fun normalStartup() {
+        // Normal startup, show the selected account in the BalanceActivity
+        val intent = Intent(this@StartupActivity, ModernMain::class.java)
+        if (getIntent().action == NewsUtils.MEDIA_FLOW_ACTION) {
+            intent.action = NewsUtils.MEDIA_FLOW_ACTION
+            getIntent().extras?.let { intent.putExtras(it) }
+        } else if (getIntent().action == FioRequestNotificator.FIO_REQUEST_ACTION) {
+            intent.action = FioRequestNotificator.FIO_REQUEST_ACTION
+            if (getIntent().extras != null) {
+                intent.putExtras(getIntent().extras!!)
+            }
+        } else if (getIntent().hasExtra("action")) {
+            getIntent().extras?.let { intent.putExtras(it) }
+        }
+        startActivity(intent)
+        finish()
+    }
+
+    private fun handleIntent(): Boolean {
+        val intent = getIntent()
+        val action = intent.getAction()
+
+        if ("application/bitcoin-paymentrequest" == intent.type) {
+            // called via paymentrequest-file
+            handlePaymentRequest(intent.data!!)
+            return true
+        } else {
+            val intentUri = intent.data
+            val scheme = intentUri?.scheme
+
+            if (intentUri != null && (Intent.ACTION_VIEW == action || NfcAdapter.ACTION_NDEF_DISCOVERED == action)) {
+                when (scheme) {
+                    "bitcoin" -> handleUri(intentUri)
+                    "bitid" -> handleBitIdUri(intentUri)
+                    "btcpop" -> handlePopUri(intentUri)
+                    "mycelium" -> handleMyceliumUri(intentUri)
+                    else -> return false
+                }
+                return true
+            }
+        }
+        return false
+    }
+
+    private fun handlePaymentRequest(paymentRequest: Uri) {
+        try {
+            val inputStream = contentResolver.openInputStream(paymentRequest)
+            val bytes = ByteStreams.toByteArray(inputStream)
+
+            val mbwManager = MbwManager.getInstance(this@StartupActivity.application)
+
+            var spendingAccounts =
+                mbwManager.getWalletManager(false).getSpendingAccountsWithBalance()
+            if (spendingAccounts.isEmpty()) {
+                //if we dont have an account which can spend and has a balance, we fetch all accounts with priv keys
+                spendingAccounts = mbwManager.getWalletManager(false).getSpendingAccounts()
+            }
+            if (spendingAccounts.size == 1) {
+                callMeWithResult(this, spendingAccounts[0].id, bytes, false, REQUEST_FROM_URI)
+            } else {
+                GetSpendingRecordActivity.callMeWithResult(this, bytes, REQUEST_FROM_URI)
+            }
+        } catch (e: FileNotFoundException) {
+            Toaster(this).toast(R.string.file_not_found, false)
+            finish()
+        } catch (e: IOException) {
+            Toaster(this).toast(R.string.payment_request_unable_to_read_payment_request, false)
+            finish()
+        }
+    }
+
+    private fun handleMyceliumUri(intentUri: Uri) {
+        val host = intentUri.getHost()
+        // If we dont understand the url, just call the balance screen
+        val balanceIntent = Intent(this, ModernMain::class.java)
+        startActivity(balanceIntent)
+        // close the startup activity to not pollute the backstack
+        finish()
+    }
+
+    private fun handleBitIdUri(intentUri: Uri) {
+        //We have been launched by a bitid authentication request
+        val bitid = BitIDSignRequest.parse(intentUri)
+        if (!bitid.isPresent()) {
+            //Invalid bitid URI
+            Toaster(this).toast(R.string.invalid_bitid_uri, false)
+            finish()
+            return
+        }
+        val bitIdIntent = Intent(this, BitIDAuthenticationActivity::class.java)
+            .putExtra("request", bitid.get())
+        startActivity(bitIdIntent)
+
+        finish()
+    }
+
+    private fun handlePopUri(intentUri: Uri) {
+        // a proof of payment request
+        val popRequest = PopRequest(intentUri.toString())
+        val popIntent = Intent(this, PopActivity::class.java)
+            .putExtra("popRequest", popRequest)
+        startActivity(popIntent)
+        finish()
+    }
+
+    private fun handleUri(intentUri: Uri) {
+        // We have been launched by a Bitcoin URI
+        val mbwManager = MbwManager.getInstance(application)
+        val uri = mbwManager.contentResolver.resolveUri(intentUri.toString())
+        if (uri == null) {
+            // Invalid Bitcoin URI
+            Toaster(this).toast(R.string.invalid_bitcoin_uri, false)
+            finish()
+            return
+        }
+
+        // the bitcoin uri might actually be encrypted private key, where the user wants to spend funds from
+        if (uri is PrivateKeyUri) {
+            val privateKeyUri = uri
+            DecryptBip38PrivateKeyActivity.callMe(
+                this,
+                privateKeyUri.keyString,
+                StringHandlerActivity.IMPORT_ENCRYPTED_BIP38_PRIVATE_KEY_CODE
+            )
+        } else {
+            if (uri.address == null && uri is WithCallback && Strings.isNullOrEmpty((uri as WithCallback).callbackURL)) {
+                // Invalid Bitcoin URI
+                Toaster(this).toast(R.string.invalid_bitcoin_uri, false)
+                finish()
+                return
+            }
+
+            var spendingAccounts =
+                mbwManager.getWalletManager(false).getSpendingAccountsWithBalance()
+            if (spendingAccounts.isEmpty()) {
+                //if we dont have an account which can spend and has a balance, we fetch all accounts with priv keys
+                spendingAccounts = mbwManager.getWalletManager(false).getSpendingAccounts()
+            }
+            if (spendingAccounts.size == 1) {
+                callMeWithResult(this, spendingAccounts[0].id, uri, false, REQUEST_FROM_URI)
+            } else {
+                GetSpendingRecordActivity.callMeWithResult(this, uri, REQUEST_FROM_URI)
+            }
+            //don't finish just yet we want to stay on the stack and observe that we emit a txid correctly.
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        //todo make sure delayed init has finished (ev mit countdownlatch)
+        when (requestCode) {
+            IMPORT_WORDLIST -> {
+                if (resultCode != RESULT_OK) {
+                    //user cancelled the import, so just ask what he wants again
+                    initMasterSeed()
+                    return
+                }
+                //finish initialization
+                delayedFinish.run()
+                return
+            }
+
+            StringHandlerActivity.IMPORT_ENCRYPTED_BIP38_PRIVATE_KEY_CODE -> {
+                val content = data?.getStringExtra("base58Key")
+                if (content != null) {
+                    val optionalKey = fromBase58String(content, _mbwManager!!.network)
+                    if (optionalKey != null) {
+                        val onTheFlyAccount = MbwManager.getInstance(this).createOnTheFlyAccount(
+                            optionalKey,
+                            Utils.getBtcCoinType()
+                        )
+                        callMe(this, onTheFlyAccount, true)
+                        finish()
+                    }
+                    return
+                }
+                // double-check result data, in case some downstream code messes up.
+                if (resultCode == RESULT_OK) {
+                    val extras = Preconditions.checkNotNull<Bundle>(data?.extras)
+                    extras.keySet().forEach { key ->
+                        // make sure we only share TRANSACTION_ID_INTENT_KEY with external caller
+                        if (key != Constants.TRANSACTION_ID_INTENT_KEY) {
+                            data?.removeExtra(key)
+                        }
+                    }
+                    // return the tx hash to our external caller, if he cares...
+                    setResult(RESULT_OK, data)
+                } else {
+                    setResult(RESULT_CANCELED)
+                }
+            }
+
+            REQUEST_FROM_URI ->
+                if (resultCode == RESULT_OK) {
+                    val extras = Preconditions.checkNotNull<Bundle>(data?.extras)
+                    extras.keySet().forEach { key ->
+                        if (key != Constants.TRANSACTION_ID_INTENT_KEY) {
+                            data?.removeExtra(key)
+                        }
+                    }
+                    setResult(RESULT_OK, data)
+                } else {
+                    setResult(RESULT_CANCELED)
+                }
+
+            else -> setResult(RESULT_CANCELED)
+        }
+        finish()
+    }
+
+    companion object {
+        private const val MINIMUM_SPLASH_TIME = 100
+        private const val REQUEST_FROM_URI = 2
+        private const val IMPORT_WORDLIST = 0
+
+        @JvmField
+        val mainAccounts = listOf<Config>(
+            AdditionalHDAccountConfig(),
+            EthereumMasterseedConfig(),
+            FIOMasterseedConfig()
+        )
+
+        private const val LAST_STARTUP_TIME = "startupTme"
+    }
 }
