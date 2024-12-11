@@ -1159,7 +1159,6 @@ public class Utils {
       return hasPermission;
    }
 
-   @Nullable
    public static AssetInfo getTypeByName(String name) {
       for (CurrencyCode currencyCode : CurrencyCode.values()) {
          if (name.equals(currencyCode.getShortString())) {
@@ -1172,6 +1171,8 @@ public class Utils {
             return coin;
          }
       }
-      return null;
+      // Never set to null. The currentCurrencyMap assumes non-null keys,
+      // which can lead to an exception in CurrencySwitcher.setCurrency
+      return getBtcCoinType();
    }
 }
