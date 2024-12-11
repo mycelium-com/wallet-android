@@ -34,6 +34,7 @@ import com.mrd.bitlib.model.InputWitness;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.model.OutputList;
 import com.mrd.bitlib.model.ScriptInput;
+import com.mrd.bitlib.model.ScriptInputP2TR;
 import com.mrd.bitlib.model.ScriptInputP2WPKH;
 import com.mrd.bitlib.model.ScriptInputP2WSH;
 import com.mrd.bitlib.model.ScriptInputStandard;
@@ -367,6 +368,12 @@ public class StandardTransactionBuilder {
             witness.setStack(0, signatures.get(i));
             witness.setStack(1, unsigned.getSigningRequests()[i].getPublicKey().getPublicKeyBytes());
             inputs[i].setWitness(witness);
+         } else if (isScriptInputP2TR(unsigned, i)) {
+            inputs[i] = new TransactionInput(funding[i].outPoint, ScriptInput.EMPTY);
+            InputWitness witness = new InputWitness(2);
+            witness.setStack(0, signatures.get(i));
+            witness.setStack(1, unsigned.getSigningRequests()[i].getPublicKey().getPublicKeyBytes());
+            inputs[i].setWitness(witness);
          } else {
             // Create script from signature and public key
             ScriptInputStandard script = new ScriptInputStandard(signatures.get(i),
@@ -381,6 +388,10 @@ public class StandardTransactionBuilder {
 
    private static boolean isScriptInputSegWit(UnsignedTransaction unsigned, int i) {
       return unsigned.getInputs()[i].script instanceof ScriptInputP2WPKH || unsigned.getInputs()[i].script instanceof ScriptInputP2WSH;
+   }
+
+   private static boolean isScriptInputP2TR(UnsignedTransaction unsigned, int i) {
+      return unsigned.getInputs()[i].script instanceof ScriptInputP2TR;
    }
 
    private long outputSum() {
