@@ -9,10 +9,9 @@ import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import androidx.core.widget.doOnTextChanged
-import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView.VERTICAL
 import com.mycelium.bequant.BequantPreference
@@ -36,27 +35,26 @@ import com.mycelium.wallet.activity.view.DividerItemDecoration
 import com.mycelium.wallet.databinding.FragmentBequantAccountBinding
 import com.mycelium.wapi.wallet.fiat.coins.FiatType
 import com.squareup.otto.Subscribe
-import kotlinx.android.synthetic.main.fragment_bequant_account.*
-import kotlinx.android.synthetic.main.item_bequant_search.*
 import java.math.BigDecimal
 
 class AccountFragment : Fragment() {
     private lateinit var mbwManager: MbwManager
     val adapter = BequantAccountAdapter()
     private var balancesData = mutableListOf<Balance>()
-    lateinit var viewModel: AccountViewModel
+    val viewModel: AccountViewModel by viewModels()
+    private var binding: FragmentBequantAccountBinding? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         mbwManager = MbwManager.getInstance(requireContext())
-        viewModel = ViewModelProviders.of(this).get(AccountViewModel::class.java)
         MbwManager.getEventBus().register(this)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? =
-            DataBindingUtil.inflate<FragmentBequantAccountBinding>(inflater, R.layout.fragment_bequant_account, container, false)
+            FragmentBequantAccountBinding.inflate(inflater, container, false)
                     .apply {
+                        binding = this
                         viewModel = this@AccountFragment.viewModel
                         lifecycleOwner = this@AccountFragment
                     }.root
@@ -79,7 +77,7 @@ class AccountFragment : Fragment() {
                 startActivity(Intent(requireActivity(), BequantKycActivity::class.java))
             }.show(childFragmentManager, "modal_dialog")
         }
-        deposit.setOnClickListener {
+        binding?.deposit?.setOnClickListener {
             if (isDemo) {
                 startActivity(Intent(requireActivity(), SignActivity::class.java))
             } else if (!BequantPreference.hasKeys()) {
@@ -90,7 +88,7 @@ class AccountFragment : Fragment() {
                 findNavController().navigate(MarketFragmentDirections.actionSelectCoin("deposit"))
             }
         }
-        withdraw.setOnClickListener {
+        binding?.withdraw?.setOnClickListener {
             if (isDemo) {
                 startActivity(Intent(requireActivity(), SignActivity::class.java))
             } else if (!BequantPreference.hasKeys()) {
@@ -102,14 +100,14 @@ class AccountFragment : Fragment() {
             }
         }
 
-        estBalanceCurrency.text = BequantPreference.getLastKnownBalance().currencySymbol
-        hideZeroBalance.isChecked = BequantPreference.hideZeroBalance()
-        hideZeroBalance.setOnCheckedChangeListener { _, checked ->
+        binding?.estBalanceCurrency?.text = BequantPreference.getLastKnownBalance().currencySymbol
+        binding?.hideZeroBalance?.isChecked = BequantPreference.hideZeroBalance()
+        binding?.hideZeroBalance?.setOnCheckedChangeListener { _, checked ->
             BequantPreference.setHideZeroBalance(checked)
             updateList()
         }
-        list.addItemDecoration(DividerItemDecoration(resources.getDrawable(R.drawable.divider_bequant), VERTICAL))
-        list.adapter = adapter
+        binding?.list?.addItemDecoration(DividerItemDecoration(resources.getDrawable(R.drawable.divider_bequant), VERTICAL))
+        binding?.list?.adapter = adapter
         adapter.addCoinListener = {
             if (BequantPreference.getKYCStatus() != KYCStatus.VERIFIED) {
                 askDoKyc()
@@ -126,7 +124,7 @@ class AccountFragment : Fragment() {
             }
         }
         viewModel.privateMode.observe(viewLifecycleOwner, Observer {
-            privateModeButton.setImageDrawable(ContextCompat.getDrawable(requireContext(),
+            binding?.privateModeButton?.setImageDrawable(ContextCompat.getDrawable(requireContext(),
                     if (it) R.drawable.ic_bequant_visibility_off
                     else R.drawable.ic_bequant_visibility))
             if (it) {
@@ -150,18 +148,18 @@ class AccountFragment : Fragment() {
             updateBalances()
         })
 
-        privateModeButton.setOnClickListener {
+        binding?.privateModeButton?.setOnClickListener {
             viewModel.privateMode.value = !(viewModel.privateMode.value ?: false)
         }
-        search.doOnTextChanged { text, _, _, _ ->
+        binding?.searchBar?.search?.doOnTextChanged { text, _, _, _ ->
             updateList(text?.toString() ?: "")
         }
-        clear.setOnClickListener {
+        binding?.searchBar?.clear?.setOnClickListener {
             viewModel.searchMode.value = false
-            search.text = null
+            binding?.searchBar?.search?.text = null
             updateList()
         }
-        searchButton.setOnClickListener {
+        binding?.searchButton?.setOnClickListener {
             viewModel.searchMode.value = true
             updateList()
         }
@@ -221,7 +219,8 @@ class AccountFragment : Fragment() {
     }
 
     override fun onDestroyView() {
-        list.adapter = null
+        binding?.list?.adapter = null
+        binding = null
         super.onDestroyView()
     }
 

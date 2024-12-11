@@ -8,11 +8,11 @@ import android.widget.TextView
 import androidx.core.text.HtmlCompat
 import androidx.databinding.BindingAdapter
 import androidx.fragment.app.Fragment
+import app.cash.sqldelight.ColumnAdapter
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.mycelium.giftbox.model.Card
 import com.mycelium.wallet.R
-import com.squareup.sqldelight.ColumnAdapter
 import java.text.DateFormat
 import java.text.ParseException
 import java.text.SimpleDateFormat

@@ -7,6 +7,7 @@ import android.view.MenuItem
 import android.view.View
 import android.view.View.GONE
 import android.view.View.VISIBLE
+import android.view.ViewGroup
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
@@ -17,19 +18,30 @@ import com.mycelium.bequant.common.loader
 import com.mycelium.bequant.remote.client.models.TotpCreateResponse
 import com.mycelium.bequant.remote.repositories.Api
 import com.mycelium.wallet.R
+import com.mycelium.wallet.databinding.FragmentBequantBackupCodeBinding
+import com.mycelium.wallet.databinding.LayoutDialogViewMsgBinding
 import com.mycelium.wallet.external.partner.openLink
-import kotlinx.android.synthetic.main.fragment_bequant_backup_code.*
-import kotlinx.android.synthetic.main.layout_dialog_view_msg.view.*
 
 
 class BackupCodeFragment : Fragment(R.layout.fragment_bequant_backup_code) {
 
     private var response: TotpCreateResponse? = null
+    private var binding: FragmentBequantBackupCodeBinding? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
     }
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View = FragmentBequantBackupCodeBinding.inflate(inflater, container, false)
+        .apply {
+            binding = this
+        }
+        .root
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -37,11 +49,11 @@ class BackupCodeFragment : Fragment(R.layout.fragment_bequant_backup_code) {
             title = getString(R.string.bequant_page_title_backup_code)
             setHomeAsUpIndicator(resources.getDrawable(R.drawable.ic_bequant_arrow_back))
         }
-        next.isEnabled = false
-        backupCodeWritten.setOnCheckedChangeListener { _, checked ->
+        binding?.next?.isEnabled = false
+        binding?.backupCodeWritten?.setOnCheckedChangeListener { _, checked ->
             updateUI()
         }
-        next.setOnClickListener {
+        binding?.next?.setOnClickListener {
             findNavController().navigate(BackupCodeFragmentDirections.actionNext(response!!))
         }
 
@@ -53,19 +65,20 @@ class BackupCodeFragment : Fragment(R.layout.fragment_bequant_backup_code) {
         Api.signRepository.totpCreate(lifecycleScope, {
             response = it
             val (backupPassword, otpId, otpLink) = it!!
-            backupCodeView.text = backupPassword.substring(0, backupPassword.length / 2 + 1) + "\n" + backupPassword.substring(backupPassword.length / 2 + 1)
+            binding?.backupCodeView?.text = backupPassword.substring(0, backupPassword.length / 2 + 1) + "\n" + backupPassword.substring(backupPassword.length / 2 + 1)
         }, error = { _, _ ->
+            val dialogBinding = LayoutDialogViewMsgBinding.inflate(LayoutInflater.from(requireContext()))
             AlertDialog.Builder(requireContext())
                     .setTitle(getString(R.string.backup_not_generated))
-                    .setView(LayoutInflater.from(requireContext()).inflate(R.layout.layout_dialog_view_msg, null, false).apply {
+                    .setView(dialogBinding.apply {
                         this.message?.let {
-                            it.text = Html.fromHtml(context.getString(R.string.try_request_backup_again))
+                            it.text = Html.fromHtml(context?.getString(R.string.try_request_backup_again))
                             it.setOnClickListener {
                                 openLink(BequantConstants.LINK_SUPPORT_CENTER)
                             }
                         }
                         this.message
-                    })
+                    }.root)
                     .setCancelable(false)
                     .setPositiveButton(R.string.close) { _, _ -> requireActivity().finish() }
                     .setNegativeButton(R.string.retry) { _, _ ->
@@ -78,9 +91,9 @@ class BackupCodeFragment : Fragment(R.layout.fragment_bequant_backup_code) {
     }
 
     private fun updateUI() {
-        val checked = backupCodeWritten.isChecked && response != null
-        backupCodeNote.visibility = if (checked) GONE else VISIBLE
-        next.isEnabled = checked
+        val checked = binding?.backupCodeWritten?.isChecked == true && response != null
+        binding?.backupCodeNote?.visibility = if (checked) GONE else VISIBLE
+        binding?.next?.isEnabled = checked
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean =

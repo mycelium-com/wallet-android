@@ -4,14 +4,14 @@ import com.mycelium.generated.wallet.database.FeeEstimation
 import com.mycelium.wapi.wallet.coins.Value
 
 // Holds fee estimations per unit
-class FeeEstimationsGeneric(low: Value,
-                            economy: Value,
-                            normal: Value,
-                            high: Value,
-                            lastCheck: Long,
-                            scale: Int = 1):
-        FeeEstimation by FeeEstimation.Impl(low.type, low, economy, normal, high, lastCheck, scale) {
+class FeeEstimationsGeneric(val low: Value,
+                            val economy: Value,
+                            val normal: Value,
+                            val high: Value,
+                            val lastCheck: Long,
+                            val scale: Int = 1) {
 
+    fun feeEstimation() = FeeEstimation(low.type, low, economy, normal, high, lastCheck, scale)
     override fun toString(): String {
         return "FeeEstimationsGeneric(" +
                 "low=${low.toUnitsString()}," +

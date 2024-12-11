@@ -41,6 +41,7 @@
                 android:textColor="@color/white" />
 
             <include
+                android:id="@+id/layoutQR"
                 layout="@layout/export_as_qr_activity_qr"
                 bind:viewModel="@{viewModel}" />
 
@@ -49,6 +50,7 @@
                 bind:viewModel="@{viewModel}" />
 
             <include
+                android:id="@+id/layoutShare"
                 layout="@layout/export_as_qr_activity_share"
                 bind:activity="@{activity}"
                 bind:viewModel="@{viewModel}" />

@@ -55,7 +55,7 @@ open class SingleAddressAccount @JvmOverloads constructor(private var _context: 
         try {
             getPrivateKey(AesKeyCipher.defaultKeyCipher())?.let { privateKey ->
                 val allPossibleAddresses: Map<AddressType, BitcoinAddress> =
-                        privateKey?.publicKey?.getAllSupportedAddresses(_network, true)
+                        privateKey?.publicKey?.getAllSupportedAddresses(_network, true).orEmpty()
                 if (allPossibleAddresses.size != _context.addresses.size) {
                     for (address in allPossibleAddresses.values) {
                         if (address != _context.addresses[address.type]) {
@@ -132,7 +132,6 @@ open class SingleAddressAccount @JvmOverloads constructor(private var _context: 
         }
     }
 
-    @Synchronized
     override suspend fun doSynchronization(mode: SyncMode): Boolean {
         if (!maySync) {
             return false

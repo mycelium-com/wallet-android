@@ -4,9 +4,8 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProviders
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.coroutineScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
@@ -21,27 +20,24 @@ import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.databinding.FragmentBequantWithdrawBinding
 import com.mycelium.wapi.wallet.SyncMode
-import kotlinx.android.synthetic.main.fragment_bequant_withdraw.*
-import kotlinx.android.synthetic.main.layout_bequant_amount.*
 import java.math.BigDecimal
 import java.util.*
 
 
 class WithdrawFragment : Fragment() {
-    lateinit var viewModel: WithdrawViewModel
+    val viewModel: WithdrawViewModel by viewModels()
     val args by navArgs<WithdrawFragmentArgs>()
+    var binding: FragmentBequantWithdrawBinding? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        viewModel = ViewModelProviders.of(this).get(WithdrawViewModel::class.java).apply {
-            currency.value = args.currency
-        }
+        viewModel.currency.value = args.currency
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? =
-            DataBindingUtil.inflate<FragmentBequantWithdrawBinding>(inflater,
-                    R.layout.fragment_bequant_withdraw, container, false)
+            FragmentBequantWithdrawBinding.inflate(inflater, container, false)
                     .apply {
+                        binding = this
                         viewModel = this@WithdrawFragment.viewModel
                         lifecycleOwner = this@WithdrawFragment
                     }.root
@@ -49,20 +45,20 @@ class WithdrawFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         loadBalance()
-        pager.adapter = WithdrawFragmentAdapter(this, viewModel, getSupportedByMycelium(args.currency
+        binding?.pager?.adapter = WithdrawFragmentAdapter(this, viewModel, getSupportedByMycelium(args.currency
                 ?: "btc"))
-        tabs.setupWithViewPager(pager)
-        pager.offscreenPageLimit = 2
-        send.isEnabled = false
+        binding?.tabs?.setupWithViewPager(binding?.pager)
+        binding?.pager?.offscreenPageLimit = 2
+        binding?.send?.isEnabled = false
         viewModel.amount.observe(viewLifecycleOwner, androidx.lifecycle.Observer {
             val amount = it.toBigDecimalOrNull() ?: BigDecimal.ZERO
             val custodialBalance = viewModel.custodialBalance.value?.toBigDecimalOrNull()
                     ?: BigDecimal.ZERO
             val hasSufficientFunds = amount <= custodialBalance
-            edAmount.error = if (hasSufficientFunds) null else getString(R.string.insufficient_funds)
-            send.isEnabled = hasSufficientFunds && amount > 0.toBigDecimal()
+            binding?.layoutBequantAmount?.edAmount?.error = if (hasSufficientFunds) null else getString(R.string.insufficient_funds)
+            binding?.send?.isEnabled = hasSufficientFunds && amount > 0.toBigDecimal()
         })
-        send.setOnClickListener { withdraw() }
+        binding?.send?.setOnClickListener { withdraw() }
     }
 
     private fun getSupportedByMycelium(currency: String): Boolean =

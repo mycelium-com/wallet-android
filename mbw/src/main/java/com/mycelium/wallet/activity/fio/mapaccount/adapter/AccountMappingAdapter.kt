@@ -11,8 +11,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.fio.mapaccount.adapter.viewholder.GroupViewHolder
 import com.mycelium.wallet.activity.fio.mapaccount.adapter.viewholder.SubGroupViewHolder
+import com.mycelium.wallet.databinding.ItemFioAccountMappingAccountBinding
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
-import kotlinx.android.synthetic.main.item_fio_account_mapping_account.view.*
 import java.util.*
 
 open class Item(val type: Int)
@@ -69,19 +69,20 @@ class AccountMappingAdapter : ListAdapter<Item, RecyclerView.ViewHolder>(DiffCal
             }
             TYPE_ACCOUNT -> {
                 val item = getItem(position) as ItemAccount
-                holder.itemView.title.text = Html.fromHtml(item.label)
-                holder.itemView.summary.text = item.summary
-                holder.itemView.checkbox.setOnCheckedChangeListener(null)
-                holder.itemView.checkbox.isChecked = item.isEnabled
+                holder as AccountViewHolder
+                holder.binding.title.text = Html.fromHtml(item.label)
+                holder.binding.summary.text = item.summary
+                holder.binding.checkbox.setOnCheckedChangeListener(null)
+                holder.binding.checkbox.isChecked = item.isEnabled
                 item.icon?.let {
-                    holder.itemView.icon.setImageDrawable(it)
+                    holder.binding.icon.setImageDrawable(it)
                 }
-                holder.itemView.checkbox.setOnCheckedChangeListener { _, isChecked ->
+                holder.binding.checkbox.setOnCheckedChangeListener { _, isChecked ->
                     (getItem(holder.adapterPosition) as ItemAccount).isEnabled = isChecked
                     selectChangeListener?.invoke(getItem(holder.adapterPosition) as ItemAccount)
                 }
                 holder.itemView.setOnClickListener {
-                    holder.itemView.checkbox.isChecked = !holder.itemView.checkbox.isChecked
+                    holder.binding.checkbox.isChecked = !holder.binding.checkbox.isChecked
                 }
             }
             TYPE_DIVIDER -> {
@@ -94,7 +95,9 @@ class AccountMappingAdapter : ListAdapter<Item, RecyclerView.ViewHolder>(DiffCal
 
     override fun getItemViewType(position: Int): Int = getItem(position).type
 
-    class AccountViewHolder(val itemView: View) : RecyclerView.ViewHolder(itemView)
+    class AccountViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        val binding = ItemFioAccountMappingAccountBinding.bind(itemView)
+    }
     class DividerViewHolder(val itemView: View) : RecyclerView.ViewHolder(itemView)
 
     class DiffCallback : DiffUtil.ItemCallback<Item>() {

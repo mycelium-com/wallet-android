@@ -294,7 +294,6 @@ open class HDAccount(
         return ret
     }
 
-    @Synchronized
     override suspend fun doSynchronization(proposedMode: SyncMode): Boolean {
         if (!maySync) {
             return false
@@ -326,7 +325,6 @@ open class HDAccount(
     private fun needsDiscovery() = !isArchived &&
             context.getLastDiscovery() + FORCED_DISCOVERY_INTERVAL_MS < System.currentTimeMillis()
 
-    @Synchronized
     private suspend fun discovery(): Boolean {
         try {
             // discovered as in "discovered maybe something. further exploration is needed."
@@ -502,7 +500,7 @@ open class HDAccount(
                 ChangeAddressMode.PRIVACY -> {
                     val mostCommonOutputType = destinationAddresses.groupingBy {
                         BipDerivationType.getDerivationTypeByAddress(it)
-                    }.eachCount().maxBy { it.value }!!.key
+                    }.eachCount().maxByOrNull { it.value }!!.key
                     getChangeAddress(mostCommonOutputType)
                 }
                 ChangeAddressMode.NONE -> throw IllegalStateException()

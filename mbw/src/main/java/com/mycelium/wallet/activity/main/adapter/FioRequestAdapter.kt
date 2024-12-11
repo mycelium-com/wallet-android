@@ -4,7 +4,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.CheckBox
-import android.widget.ImageView
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DiffUtil
@@ -14,6 +13,7 @@ import com.mycelium.bequant.common.equalsValuesBy
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.util.toStringWithUnit
+import com.mycelium.wallet.databinding.FioRequestRowBinding
 import com.mycelium.wapi.wallet.Util
 import com.mycelium.wapi.wallet.coins.COINS
 import com.mycelium.wapi.wallet.coins.Value
@@ -21,7 +21,6 @@ import com.mycelium.wapi.wallet.fio.FioGroup
 import com.mycelium.wapi.wallet.fio.FioRequestStatus
 import fiofoundation.io.fiosdk.models.fionetworkprovider.FIORequestContent
 import fiofoundation.io.fiosdk.models.fionetworkprovider.SentFIORequestContent
-import kotlinx.android.synthetic.main.fio_request_row.view.*
 import java.text.SimpleDateFormat
 
 open class FioRequestAdapterItem(val type: Int)
@@ -59,54 +58,49 @@ class FioRequestAdapter : ListAdapter<FioRequestAdapterItem, RecyclerView.ViewHo
                 val fioRequest = item as FioRequest
                 val group = fioRequest.group
                 val fioRequestContent = fioRequest.request
-
-                val fioRequestView = holder.itemView
+                holder as FioRequestViewHolder
                 val content = fioRequestContent.deserializedContent
-                fioRequestView.setOnClickListener {
+                holder.itemView.setOnClickListener {
                     itemClickListener?.invoke(fioRequestContent, group)
                 }
-                val direction = fioRequestView.findViewById<TextView>(R.id.tvDirection)
-                val address = fioRequestView.findViewById<TextView>(R.id.tvAddress)
-                direction?.text = when (group.status) {
+
+                holder.binding.tvDirection.text = when (group.status) {
                     FioGroup.Type.SENT -> "To:"
                     FioGroup.Type.PENDING -> "From:"
                 }
-                address?.text = when (group.status) {
+                holder.binding.tvAddress.text = when (group.status) {
                     FioGroup.Type.SENT -> fioRequestContent.payerFioAddress
                     FioGroup.Type.PENDING -> fioRequestContent.payeeFioAddress
                 }
 
                 var hasStatus = false;
-                val ivStatus = fioRequestView.findViewById<ImageView>(R.id.ivStatus)
-                val tvStatus = fioRequestView.findViewById<TextView>(R.id.tvStatus)
-                val amount = fioRequestView.findViewById<TextView>(R.id.tvAmount)
                 if (group.status == FioGroup.Type.SENT) {
                     val status = FioRequestStatus.getStatus((fioRequestContent as SentFIORequestContent).status)
                     if (status != FioRequestStatus.NONE) {
                         hasStatus = true
-                        val color = ContextCompat.getColor(tvStatus.context,
+                        val color = ContextCompat.getColor(holder.binding.tvStatus.context,
                                 when (status) {
                                     FioRequestStatus.REQUESTED -> R.color.fio_yellow
                                     FioRequestStatus.REJECTED -> R.color.red
                                     FioRequestStatus.SENT_TO_BLOCKCHAIN -> R.color.green
                                     FioRequestStatus.NONE -> R.color.green
                                 })
-                        tvStatus.text = when (status) {
+                        holder.binding.tvStatus.text = when (status) {
                             FioRequestStatus.REQUESTED -> "Requested"
                             FioRequestStatus.REJECTED -> "Rejected"
                             FioRequestStatus.SENT_TO_BLOCKCHAIN -> "Received"
                             FioRequestStatus.NONE -> ""
                         }
-                        tvStatus.setTextColor(color)
-                        amount?.setTextColor(color)
-                        ivStatus.setBackgroundResource(
+                        holder.binding.tvStatus.setTextColor(color)
+                        holder.binding.tvAmount.setTextColor(color)
+                        holder.binding.ivStatus.setBackgroundResource(
                                 when (status) {
                                     FioRequestStatus.REQUESTED -> R.drawable.ic_request_pending
                                     FioRequestStatus.REJECTED -> R.drawable.ic_request_error
                                     FioRequestStatus.SENT_TO_BLOCKCHAIN -> R.drawable.ic_request_good_to_go
                                     FioRequestStatus.NONE -> R.drawable.ic_request_item_circle_gray
                                 })
-                        ivStatus.setImageResource(
+                        holder.binding.ivStatus.setImageResource(
                                 when (status) {
                                     FioRequestStatus.REQUESTED -> R.drawable.ic_history
                                     FioRequestStatus.REJECTED -> R.drawable.ic_close
@@ -115,40 +109,36 @@ class FioRequestAdapter : ListAdapter<FioRequestAdapterItem, RecyclerView.ViewHo
                                 })
                     }
                 } else {
-                    amount?.setTextColor(ContextCompat.getColor(tvStatus.context, R.color.white))
-                    tvStatus.text = ""
-                    tvStatus.setTextColor(ContextCompat.getColor(tvStatus.context, R.color.white))
-                    ivStatus.setBackgroundResource(R.drawable.ic_request_item_circle_gray)
-                    ivStatus.setImageResource(R.drawable.ic_history)
+                    holder.binding.tvAmount.setTextColor(ContextCompat.getColor(holder.binding.tvStatus.context, R.color.white))
+                    holder.binding.tvStatus.text = ""
+                    holder.binding.tvStatus.setTextColor(ContextCompat.getColor(holder.binding.tvStatus.context, R.color.white))
+                    holder.binding.ivStatus.setBackgroundResource(R.drawable.ic_request_item_circle_gray)
+                    holder.binding.ivStatus.setImageResource(R.drawable.ic_history)
                 }
 
-                val tvDate = fioRequestView.findViewById<TextView>(R.id.tvDate)
 
                 val date = inDate.parse(fioRequestContent.timeStamp)
-                tvDate.text = """${outDate.format(date)}${if (hasStatus) ", " else ""}"""
+                holder.binding.tvDate.text = """${outDate.format(date)}${if (hasStatus) ", " else ""}"""
 
-                val memo = fioRequestView.findViewById<TextView>(R.id.tvTransactionLabel)
-                memo?.text = content?.memo
-                val mbwManager = MbwManager.getInstance(fioRequestView.context)
+                val mbwManager = MbwManager.getInstance(holder.binding.root.context)
                 val requestedCurrency = (COINS.values + mbwManager.getWalletManager(false).getAssetTypes()).firstOrNull {
                     it.symbol.equals(content?.tokenCode ?: "", true)
                             && if(mbwManager.network.isTestnet) it.name.contains("test", true) else true
                 }
-                val tvFiatAmount = fioRequestView.findViewById<TextView>(R.id.tvFiatAmount)
                 if(requestedCurrency != null) {
                     val amountValue = Value.valueOf(requestedCurrency, Util.strToBigInteger(requestedCurrency, content!!.amount))
-                    amount?.text = amountValue.toStringWithUnit()
+                    holder.binding.tvAmount.text = amountValue.toStringWithUnit()
                     val convert = mbwManager.exchangeRateManager.get(amountValue, mbwManager.getFiatCurrency(requestedCurrency))
-                    tvFiatAmount?.text = convert?.toStringWithUnit()
+                    holder.binding.tvFiatAmount.text = convert?.toStringWithUnit()
                 } else {
-                    amount?.text = "${content?.amount} ${content?.tokenCode}"
-                    tvFiatAmount?.text = ""
+                    holder.binding.tvAmount.text = "${content?.amount} ${content?.tokenCode}"
+                    holder.binding.tvFiatAmount?.text = ""
                 }
                 if (content?.memo?.isNotEmpty() == true) {
-                    fioRequestView.tvMemo.text = content.memo
-                    fioRequestView.tvMemo.visibility = View.VISIBLE
+                    holder.binding.tvMemo.text = content.memo
+                    holder.binding.tvMemo.visibility = View.VISIBLE
                 } else {
-                    fioRequestView.tvMemo.visibility = View.GONE
+                    holder.binding.tvMemo.visibility = View.GONE
                 }
             }
         }
@@ -156,7 +146,9 @@ class FioRequestAdapter : ListAdapter<FioRequestAdapterItem, RecyclerView.ViewHo
 
     override fun getItemViewType(position: Int): Int = getItem(position).type
 
-    class FioRequestViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
+    class FioRequestViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        val binding = FioRequestRowBinding.bind(itemView)
+    }
     class FioGroupViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
 
     class ItemListDiffCallback : DiffUtil.ItemCallback<FioRequestAdapterItem>() {

@@ -35,8 +35,7 @@ import com.mycelium.wapi.wallet.genericdb.AdaptersKt;
 import com.mycelium.wapi.wallet.masterseed.MasterSeedManager;
 import com.mycelium.wapi.wallet.metadata.IMetaDataStorage;
 import com.mycelium.wapi.wallet.metadata.MetadataKeyCategory;
-import com.squareup.sqldelight.db.SqlDriver;
-import com.squareup.sqldelight.sqlite.driver.JdbcSqliteDriver;
+import app.cash.sqldelight.db.SqlDriver;
 
 import java.security.SecureRandom;
 import java.util.HashMap;

@@ -3,7 +3,9 @@ package com.mycelium.wallet.activity.fio.mapaccount
 import android.content.Context
 import android.content.SharedPreferences
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -15,10 +17,10 @@ import com.mycelium.wallet.activity.fio.mapaccount.viewmodel.FIOMapPubAddressVie
 import com.mycelium.wallet.activity.fio.registerdomain.RegisterFIODomainActivity
 import com.mycelium.wallet.activity.fio.registername.RegisterFioNameActivity
 import com.mycelium.wallet.activity.view.VerticalSpaceItemDecoration
+import com.mycelium.wallet.databinding.FragmentFioNameDetailsBinding
 import com.mycelium.wapi.wallet.WalletManager
 import com.mycelium.wapi.wallet.fio.RegisteredFIOName
 import com.mycelium.wapi.wallet.fio.getFioAccounts
-import kotlinx.android.synthetic.main.fragment_fio_name_details.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -29,6 +31,7 @@ class FIONameListFragment : Fragment(R.layout.fragment_fio_name_details) {
     private val viewModel: FIOMapPubAddressViewModel by activityViewModels()
     private lateinit var preference: SharedPreferences
     private lateinit var walletManager: WalletManager
+    var binding: FragmentFioNameDetailsBinding? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -38,6 +41,14 @@ class FIONameListFragment : Fragment(R.layout.fragment_fio_name_details) {
             findNavController().navigate(FIONameListFragmentDirections.actionName(requireArguments().getSerializable("fioName") as RegisteredFIOName))
         }
     }
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View = FragmentFioNameDetailsBinding.inflate(inflater, container, false).apply {
+        binding = this
+    }.root
 
     override fun onResume() {
         updateList(preference, walletManager)
@@ -49,15 +60,15 @@ class FIONameListFragment : Fragment(R.layout.fragment_fio_name_details) {
         (requireActivity() as AppCompatActivity).supportActionBar?.run {
             title = getString(R.string.my_fio_names)
         }
-        list.adapter = adapter
-        list.itemAnimator = null
-        list.addItemDecoration(VerticalSpaceItemDecoration(resources.getDimensionPixelOffset(R.dimen.fio_list_item_space)))
+        binding?.list?.adapter = adapter
+        binding?.list?.itemAnimator = null
+        binding?.list?.addItemDecoration(VerticalSpaceItemDecoration(resources.getDimensionPixelOffset(R.dimen.fio_list_item_space)))
         when (viewModel.mode.value) {
             Mode.NEED_FIO_NAME_MAPPING -> {
-                registeredOn.text = getString(R.string.fio_manage_name_need_mapping_s, viewModel.extraAccount.value?.label)
+                binding?.registeredOn?.text = getString(R.string.fio_manage_name_need_mapping_s, viewModel.extraAccount.value?.label)
             }
             else -> {
-                registeredOn.text = getString(R.string.fio_manage_name_and_domain)
+                binding?.registeredOn?.text = getString(R.string.fio_manage_name_and_domain)
             }
         }
         adapter.fioNameClickListener = {

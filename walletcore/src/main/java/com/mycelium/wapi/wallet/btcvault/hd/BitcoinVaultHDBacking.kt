@@ -22,7 +22,7 @@ class BitcoinVaultHDBacking(walletDB: WalletDB,
                                                 accountSubId: Int?,
                                                 addressType: AddressType? ->
                 BitcoinVaultHDAccountContext(uuid, currency, accountIndex, archived, accountName,
-                        balance, this::updateAccountContext, blockHeight,
+                    balance, { updateAccountContext(it.uuid, it) }, blockHeight,
                         lastDiscovery ?: 0,
                         indexContexts ?: mapOf(), accountType ?: 0,
                         accountSubId ?: 0, addressType ?: AddressType.P2SH_P2WPKH)
@@ -36,19 +36,19 @@ class BitcoinVaultHDBacking(walletDB: WalletDB,
                                                                       accountSubId: Int?,
                                                                       addressType: AddressType? ->
                 BitcoinVaultHDAccountContext(uuid, currency, accountIndex, archived, accountName,
-                        balance, this::updateAccountContext, blockHeight,
+                    balance, { updateAccountContext(it.uuid, it) }, blockHeight,
                         lastDiscovery ?: 0,
                         indexContexts ?: mapOf(), accountType ?: 0,
                         accountSubId ?: 0, addressType ?: AddressType.P2SH_P2WPKH)
             }).executeAsOne()
 
-    override fun createAccountContext(context: BitcoinVaultHDAccountContext) {
-        generalBacking.createAccountContext(context)
+    override fun createAccountContext(accountId: UUID, context: BitcoinVaultHDAccountContext) {
+        generalBacking.createAccountContext(accountId, context.accountContext())
         btcvQueries.insert(context.id, context.accountIndex)
     }
 
-    override fun updateAccountContext(context: BitcoinVaultHDAccountContext) {
-        generalBacking.updateAccountContext(context)
+    override fun updateAccountContext(accountId: UUID,context: BitcoinVaultHDAccountContext) {
+        generalBacking.updateAccountContext(accountId, context.accountContext())
         btcvQueries.update(context.indexesMap, context.getLastDiscovery(), context.accountType, context.accountSubId, context.defaultAddressType, context.uuid)
     }
 

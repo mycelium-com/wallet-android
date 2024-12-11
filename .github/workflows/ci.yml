@@ -19,7 +19,7 @@ jobs:
       uses: actions/setup-java@v3
       with:
         distribution: 'zulu'
-        java-version: '11'
+        java-version: '17'
 
     - uses: actions/checkout@v3
       with:
@@ -27,11 +27,8 @@ jobs:
 
     - name: Setup Android SDK
       uses: android-actions/setup-android@v3
-      with:
-        #need for java 11, latest version work only with jav 17
-        cmdline-tools-version: 8512546
 
-    - run: ./gradlew clean test mbw::assembleProdnetDebug mbw::assembleBtctestnetDebug mbw::assembleBtctestnetRelease
+    - run: ./gradlew clean test mbw:assembleProdnetDebug mbw:assembleBtctestnetDebug mbw:assembleBtctestnetRelease
 
     - uses: actions/upload-artifact@v3
       with:
@@ -40,7 +37,7 @@ jobs:
     - name: Check Target SDK
       run: |
         target_sdk=$(/usr/local/lib/android/sdk/cmdline-tools/latest/bin/apkanalyzer manifest target-sdk mbw/build/outputs/apk/btctestnet/release/mbw-btctestnet-release.apk)
-        echo "$target_sdk" | grep "^33$"
+        echo "$target_sdk" | grep "^35$"
 
     - run: mv mbw/build/outputs/apk /tmp/buildA
 
@@ -58,7 +55,7 @@ jobs:
         git clean -dfx
 
         cd ..
-        ./gradlew clean mbw::assembleBtctestnetRelease
+        ./gradlew clean mbw:assembleBtctestnetRelease
 
     - name: Unzip buildA
       run: unzip -d buildA -qq /tmp/buildA/btctestnet/release/mbw-btctestnet-release.apk

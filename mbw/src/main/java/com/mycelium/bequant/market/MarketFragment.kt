@@ -7,10 +7,12 @@ import android.content.IntentFilter
 import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
+import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
+import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
@@ -30,18 +32,19 @@ import com.mycelium.bequant.sign.SignActivity
 import com.mycelium.bequant.signup.TwoFactorActivity
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
+import com.mycelium.wallet.databinding.FragmentBequantMainBinding
 import com.mycelium.wallet.event.AccountListChanged
 import com.mycelium.wapi.wallet.SyncMode
 import com.squareup.otto.Subscribe
-import kotlinx.android.synthetic.main.fragment_bequant_main.*
 import kotlinx.coroutines.GlobalScope
 
 
-class MarketFragment : Fragment(R.layout.fragment_bequant_main) {
+class MarketFragment : Fragment() {
     var mediator: TabLayoutMediator? = null
+    var binding: FragmentBequantMainBinding? = null
     val receiver = object : BroadcastReceiver() {
         override fun onReceive(p0: Context?, intent: Intent?) {
-            pager.setCurrentItem(1, true)
+            binding?.pager?.setCurrentItem(1, true)
         }
     }
 
@@ -89,6 +92,16 @@ class MarketFragment : Fragment(R.layout.fragment_bequant_main) {
         }, 1000)
     }
 
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View = FragmentBequantMainBinding.inflate(inflater, container, false)
+        .apply {
+
+        }
+        .root
+
     @Subscribe
     fun requestBalance(request: RequestBalance) {
         requestBalances()
@@ -135,9 +148,9 @@ class MarketFragment : Fragment(R.layout.fragment_bequant_main) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        pager.adapter = MarketFragmentAdapter(childFragmentManager, viewLifecycleOwner.lifecycle)
-        pager.offscreenPageLimit = 2
-        mediator = TabLayoutMediator(tabs, pager) { tab, position ->
+        binding?.pager?.adapter = MarketFragmentAdapter(childFragmentManager, viewLifecycleOwner.lifecycle)
+        binding?.pager?.offscreenPageLimit = 2
+        mediator = TabLayoutMediator(binding!!.tabs, binding!!.pager) { tab, position ->
             when (position) {
                 0 -> tab.text = "Markets"
                 1 -> tab.text = "Exchange"
@@ -184,7 +197,8 @@ class MarketFragment : Fragment(R.layout.fragment_bequant_main) {
     override fun onDestroyView() {
         mediator?.detach()
         mediator = null
-        pager.adapter = null
+        binding?.pager?.adapter = null
+        binding = null
         super.onDestroyView()
     }
 

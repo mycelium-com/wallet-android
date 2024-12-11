@@ -10,10 +10,9 @@ import android.view.*
 import android.view.View.GONE
 import android.view.View.VISIBLE
 import androidx.appcompat.app.AppCompatActivity
-import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
 import androidx.lifecycle.viewModelScope
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.navigation.fragment.findNavController
@@ -34,18 +33,16 @@ import com.mycelium.bequant.remote.model.KYCRequest
 import com.mycelium.bequant.remote.repositories.Api
 import com.mycelium.wallet.R
 import com.mycelium.wallet.databinding.FragmentBequantSteps1Binding
-import kotlinx.android.synthetic.main.fragment_bequant_steps_1.*
-import kotlinx.android.synthetic.main.part_bequant_step_header.*
-import kotlinx.android.synthetic.main.part_bequant_stepper_body.*
 import java.util.*
 
 
 class Step1Fragment : Fragment() {
-    lateinit var viewModel: Step1ViewModel
-    lateinit var headerViewModel: HeaderViewModel
+    val viewModel: Step1ViewModel by viewModels()
+    val headerViewModel: HeaderViewModel by viewModels()
     lateinit var kycRequest: KYCRequest
 
     val args: Step1FragmentArgs by navArgs()
+    var binding: FragmentBequantSteps1Binding? = null
 
     val receiver = object : BroadcastReceiver() {
         override fun onReceive(p0: Context?, intent: Intent?) {
@@ -60,15 +57,14 @@ class Step1Fragment : Fragment() {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
         kycRequest = args.kycRequest ?: KYCRequest()
-        viewModel = ViewModelProviders.of(this).get(Step1ViewModel::class.java)
         viewModel.fromModel(kycRequest)
-        headerViewModel = ViewModelProviders.of(this).get(HeaderViewModel::class.java)
         LocalBroadcastManager.getInstance(requireContext()).registerReceiver(receiver, IntentFilter(BequantConstants.ACTION_COUNTRY_SELECTED))
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? =
-            DataBindingUtil.inflate<FragmentBequantSteps1Binding>(inflater, R.layout.fragment_bequant_steps_1, container, false)
+            FragmentBequantSteps1Binding.inflate(inflater, container, false)
                     .apply {
+                        binding = this
                         viewModel = this@Step1Fragment.viewModel
                         headerViewModel = this@Step1Fragment.headerViewModel
                         lifecycleOwner = this@Step1Fragment
@@ -80,35 +76,35 @@ class Step1Fragment : Fragment() {
             title = getString(R.string.identity_auth)
             setHomeAsUpIndicator(resources.getDrawable(R.drawable.ic_bequant_arrow_back))
         }
-        step.text = getString(R.string.step_n, 1)
-        stepProgress.progress = 1
+        binding?.stepHeader?.step?.text = getString(R.string.step_n, 1)
+        binding?.stepHeader?.stepProgress?.progress = 1
         val stepAdapter = StepAdapter()
-        stepper.adapter = stepAdapter
+        binding?.body?.stepper?.adapter = stepAdapter
         stepAdapter.submitList(listOf(
                 ItemStep(1, getString(R.string.personal_info), StepState.CURRENT), ItemStep(2, getString(R.string.residential_address), StepState.FUTURE), ItemStep(3, getString(R.string.phone_number), StepState.FUTURE), ItemStep(4, getString(R.string.doc_selfie), StepState.FUTURE)))
 
-        tvDateOfBirth.setOnClickListener {
+        binding?.tvDateOfBirth?.setOnClickListener {
             BQDatePickerDialog { year, month, day ->
                 val calendar = Calendar.getInstance()
                 calendar.set(year, month, day)
                 viewModel.birthday.value = calendar.time
             }.show(childFragmentManager, "picker_dialog")
         }
-        tvNationality.setOnClickListener {
+        binding?.tvNationality?.setOnClickListener {
             findNavController().navigate(Step1FragmentDirections.actionSelectCountry())
         }
 
-        btNext.setOnClickListener {
-            if (underFatca.isChecked) {
+        binding?.btNext?.setOnClickListener {
+            if (binding?.underFatca?.isChecked == true) {
                 findNavController().navigate(Step1FragmentDirections.actionFatca())
             } else {
-                kycRequest.fatca = underFatca.isChecked
+                kycRequest.fatca = binding?.underFatca?.isChecked ?: false
                 viewModel.fillModel(kycRequest)
                 BequantPreference.setKYCRequest(kycRequest)
                 sendData()
             }
         }
-        termsOfUse.setOnClickListener {
+        binding?.termsOfUse?.setOnClickListener {
             startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(BequantConstants.LINK_TERMS_OF_USE)))
         }
         viewModel.firstName.observe(viewLifecycleOwner, Observer {
@@ -137,12 +133,17 @@ class Step1Fragment : Fragment() {
                     true
                 }
                 R.id.stepper -> {
-                    item.icon = resources.getDrawable(if (stepperLayout.visibility == VISIBLE) R.drawable.ic_chevron_down else R.drawable.ic_chevron_up)
-                    stepperLayout.visibility = if (stepperLayout.visibility == VISIBLE) GONE else VISIBLE
+                    item.icon = resources.getDrawable(if (binding?.body?.stepperLayout?.visibility == VISIBLE) R.drawable.ic_chevron_down else R.drawable.ic_chevron_up)
+                    binding?.body?.stepperLayout?.visibility = if (binding?.body?.stepperLayout?.visibility == VISIBLE) GONE else VISIBLE
                     true
                 }
                 else -> super.onOptionsItemSelected(item)
             }
+
+    override fun onDestroyView() {
+        binding = null
+        super.onDestroyView()
+    }
 
     override fun onDestroy() {
         LocalBroadcastManager.getInstance(requireContext()).unregisterReceiver(receiver)

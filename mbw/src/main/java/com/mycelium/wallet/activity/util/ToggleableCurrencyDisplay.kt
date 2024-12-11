@@ -44,6 +44,7 @@ import android.widget.LinearLayout
 import com.google.common.base.Preconditions
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
+import com.mycelium.wallet.databinding.ToggleableCurrencyDisplayBinding
 import com.mycelium.wallet.event.ExchangeRatesRefreshed
 import com.mycelium.wallet.event.SelectedCurrencyChanged
 import com.mycelium.wallet.exchange.ValueSum
@@ -53,7 +54,6 @@ import com.mycelium.wapi.wallet.eth.coins.EthCoin
 import com.mycelium.wapi.wallet.fiat.coins.FiatType
 import com.squareup.otto.Bus
 import com.squareup.otto.Subscribe
-import kotlinx.android.synthetic.main.toggleable_currency_display.view.*
 
 
 open class ToggleableCurrencyDisplay : LinearLayout {
@@ -70,6 +70,7 @@ open class ToggleableCurrencyDisplay : LinearLayout {
 
     private var isAddedToBus = false
     var coinType: AssetInfo? = null
+    private lateinit var binding: ToggleableCurrencyDisplayBinding
 
     constructor(context: Context, attrs: AttributeSet) : super(context, attrs) {
         init(context)
@@ -106,18 +107,17 @@ open class ToggleableCurrencyDisplay : LinearLayout {
 
     protected fun init(context: Context) {
         val mInflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
-
-        mInflater.inflate(R.layout.toggleable_currency_display, this, true)
+        binding = ToggleableCurrencyDisplayBinding.inflate(mInflater, this, true)
     }
 
     private fun setTextSize(size: Int) {
-        tvCurrency.setTextSize(TypedValue.COMPLEX_UNIT_PX, size.toFloat())
-        tvDisplayValue.setTextSize(TypedValue.COMPLEX_UNIT_PX, size.toFloat())
+        binding.tvCurrency.setTextSize(TypedValue.COMPLEX_UNIT_PX, size.toFloat())
+        binding.tvDisplayValue.setTextSize(TypedValue.COMPLEX_UNIT_PX, size.toFloat())
     }
 
     private fun setTextColor(color: Int) {
-        tvCurrency.setTextColor(color)
-        tvDisplayValue.setTextColor(color)
+        binding.tvCurrency.setTextColor(color)
+        binding.tvDisplayValue.setTextColor(color)
     }
 
     protected open fun updateUi() {
@@ -135,12 +135,12 @@ open class ToggleableCurrencyDisplay : LinearLayout {
 
             visibility = View.VISIBLE
             val displayValue = currentValue?.toString(currencySwitcher.getDenomination(coinType!!)!!)
-            tvDisplayValue.text = if (currentValue?.type is EthCoin)
+            binding.tvDisplayValue.text = if (currentValue?.type is EthCoin)
                 makeNDigitsAfterComma(displayValue, 4)
             else
                 displayValue
             val currentCurrency = currencySwitcher.getCurrentCurrencyIncludingDenomination(coinType!!)
-            tvCurrency.text = currentCurrency
+            binding.tvCurrency.text = currentCurrency
         }
     }
 
@@ -162,11 +162,11 @@ open class ToggleableCurrencyDisplay : LinearLayout {
         } else {
             val value = currencySwitcher.getAsFiatValue(currentValue)
             if (coinType == null) { // then it's a total TCB
-                tvCurrency.text = currencySwitcher.currentTotalCurrency!!.symbol
-                tvDisplayValue.text = value?.toPlainString()
+                binding.tvCurrency.text = currencySwitcher.currentTotalCurrency!!.symbol
+                binding.tvDisplayValue.text = value?.toPlainString()
             } else {
-                tvCurrency.text = currencySwitcher.currentFiatCurrencyMap[coinType!!]!!.symbol
-                tvDisplayValue.text = value?.toString(currencySwitcher.getDenomination(coinType!!)!!)
+                binding.tvCurrency.text = currencySwitcher.currentFiatCurrencyMap[coinType!!]!!.symbol
+                binding.tvDisplayValue.text = value?.toString(currencySwitcher.getDenomination(coinType!!)!!)
             }
             View.VISIBLE
         }

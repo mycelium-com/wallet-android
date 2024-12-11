@@ -38,6 +38,7 @@
 
             <!--Request info-->
             <include
+                android:id="@+id/layoutFioSendInfo"
                 layout="@layout/fio_send_request_info"
                 bind:fioRequestViewModel="@{fioRequestViewModel}" />
 
@@ -62,6 +63,7 @@
                 android:layout_weight="1"/>
             <!-- Buttons -->
             <include
+                android:id="@+id/layoutFioSendButtons"
                 layout="@layout/fio_send_request_buttons"
                 bind:activity="@{activity}" />
         </LinearLayout>

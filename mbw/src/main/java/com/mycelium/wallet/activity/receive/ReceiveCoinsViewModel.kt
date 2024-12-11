@@ -10,7 +10,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Transformations
+import androidx.lifecycle.map
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
@@ -35,6 +35,7 @@ abstract class ReceiveCoinsViewModel(application: Application) : AndroidViewMode
     protected val context: Context = application
     var hasPrivateKey: Boolean = false
     val isNfcAvailable = MutableLiveData<Boolean>()
+    val toaster = Toaster(context)
 
     open fun init(account: WalletAccount<*>, hasPrivateKey: Boolean, showIncomingUtxo: Boolean = false) {
         if (::model.isInitialized) {
@@ -69,7 +70,7 @@ abstract class ReceiveCoinsViewModel(application: Application) : AndroidViewMode
 
     fun isReceivingAmountWrong() = model.receivingAmountWrong
 
-    fun getCurrentlyReceivingFormatted() = Transformations.map(model.receivingAmount) {
+    fun getCurrentlyReceivingFormatted() = model.receivingAmount.map {
         getFormattedValue(it ?: Value.zeroValue(mbwManager.selectedAccount.coinType))
     }
 
@@ -81,7 +82,7 @@ abstract class ReceiveCoinsViewModel(application: Application) : AndroidViewMode
 
     fun getFioNameList() = model.fioNameList
 
-    fun getRequestedAmountFormatted() = Transformations.map(model.amount) {
+    fun getRequestedAmountFormatted() = model.amount.map {
         if (!Value.isNullOrZero(it)) {
             it?.toStringWithUnit(mbwManager.getDenomination(account.coinType))
         } else {
@@ -93,7 +94,7 @@ abstract class ReceiveCoinsViewModel(application: Application) : AndroidViewMode
 
     fun getCourseOutdated() = model.alternativeAmountWarning
 
-    fun getRequestedAmountAlternativeFormatted() = Transformations.map(model.alternativeAmountData) {
+    fun getRequestedAmountAlternativeFormatted() = model.alternativeAmountData.map {
         if (!Value.isNullOrZero(it)) {
             "~ " + it?.toStringWithUnit(mbwManager.getDenomination(account.coinType))
         } else {

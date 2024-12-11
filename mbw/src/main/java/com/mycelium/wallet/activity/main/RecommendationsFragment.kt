@@ -1,9 +1,6 @@
 package com.mycelium.wallet.activity.main
 
 import android.app.AlertDialog
-import android.content.ActivityNotFoundException
-import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -16,25 +13,28 @@ import com.mycelium.wallet.activity.main.adapter.RecommendationAdapter
 import com.mycelium.wallet.activity.main.model.*
 import com.mycelium.wallet.activity.settings.SettingsPreference
 import com.mycelium.wallet.activity.view.DividerItemDecoration
+import com.mycelium.wallet.databinding.MainRecommendationsViewBinding
 import com.mycelium.wallet.external.Ads
 import com.mycelium.wallet.external.partner.model.Partner
 import com.mycelium.wallet.external.partner.startContentLink
-import kotlinx.android.synthetic.main.main_recommendations_view.*
 
 class RecommendationsFragment : Fragment() {
     private var alertDialog: AlertDialog? = null
+    private var binding: MainRecommendationsViewBinding? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         setHasOptionsMenu(true)
         super.onCreate(savedInstanceState)
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? =
-            inflater.inflate(R.layout.main_recommendations_view, container, false)
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View =
+            MainRecommendationsViewBinding.inflate(inflater, container, false).apply {
+                binding = this
+            }.root
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        list.addItemDecoration(DividerItemDecoration(resources.getDrawable(R.drawable.divider_account_list), LinearLayoutManager.VERTICAL)
+        binding?.list?.addItemDecoration(DividerItemDecoration(resources.getDrawable(R.drawable.divider_account_list), LinearLayoutManager.VERTICAL)
                 .apply { setFromItem(1) })
 
         val adapter = RecommendationAdapter(mutableListOf<RecommendationInfo>().apply {
@@ -81,7 +81,12 @@ class RecommendationsFragment : Fragment() {
                 // implement when using big Banner Ad
             }
         })
-        list.adapter = adapter
+        binding?.list?.adapter = adapter
+    }
+
+    override fun onDestroyView() {
+        binding = null
+        super.onDestroyView()
     }
 
     override fun onDestroy() {

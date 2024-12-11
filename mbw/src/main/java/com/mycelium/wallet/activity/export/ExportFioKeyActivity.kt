@@ -15,11 +15,11 @@ import com.mycelium.wallet.databinding.ActivityExportFioKeyBinding
 import com.mycelium.wapi.wallet.ExportableAccount
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount
 import com.mycelium.wapi.wallet.fio.FioKeyManager
-import kotlinx.android.synthetic.main.export_as_qr_activity_qr.*
-import kotlinx.android.synthetic.main.export_as_qr_activity_share.*
+import androidx.activity.viewModels
 
 class ExportFioKeyActivity : AppCompatActivity() {
-    private lateinit var viewModel: ExportAsQrViewModel
+    private val viewModel: ExportFioAsQrViewModel by viewModels()
+    private lateinit var binding: ActivityExportFioKeyBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -29,26 +29,25 @@ class ExportFioKeyActivity : AppCompatActivity() {
         val publicKey = fioKeyManager.getFioPublicKey((mbwManager.selectedAccount as HDAccount).accountIndex)
         val formatPubKey = fioKeyManager.formatPubKey(publicKey)
 
-
-        val viewModelProvider = ViewModelProviders.of(this)
-        viewModel = viewModelProvider.get(ExportFioAsQrViewModel::class.java)
-
         if (!viewModel.isInitialized()) {
             viewModel.init(ExportableAccount.Data(Optional.absent(), mapOf(BipDerivationType.BIP44 to formatPubKey)))
         }
 
-        val binding = DataBindingUtil.setContentView<ActivityExportFioKeyBinding>(this, R.layout.activity_export_fio_key).also {
-            it.viewModel = viewModel as ExportFioAsQrViewModel
-            it.activity = this
-        }
+        setContentView(ActivityExportFioKeyBinding.inflate(layoutInflater).apply {
+            binding = this
+            this.viewModel = viewModel as ExportFioAsQrViewModel
+            this.activity = this@ExportFioKeyActivity
+        }.root)
         binding.lifecycleOwner = this
         subscribeQR()
-        tvWarning.visibility = GONE
-        btShare.text = getString(R.string.share_fio_public_key)
+        binding.layoutQR.tvWarning.visibility = GONE
+        binding.layoutShare.btShare.text = getString(R.string.share_fio_public_key)
     }
 
     // sets key as qr and as textView
     private fun subscribeQR() =
-            viewModel.getAccountDataString().observe(this, Observer { accountData -> ivQrCode.qrCode = accountData })
+            viewModel.getAccountDataString().observe(this, Observer { accountData ->
+                binding.layoutQR.ivQrCode.qrCode = accountData
+            })
 
 }

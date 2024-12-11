@@ -7,7 +7,7 @@ import android.os.Bundle
 import android.text.Html
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Transformations
+import androidx.lifecycle.map
 import com.mrd.bitlib.TransactionUtils
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.MinerFee
@@ -128,7 +128,7 @@ abstract class SendCoinsModel(
             }
         }
     }
-    val amountFormatted: LiveData<String> = Transformations.map(amount) {
+    val amountFormatted: LiveData<String> = amount.map {
         getRequestedAmountFormatted()
     }
 
@@ -140,7 +140,7 @@ abstract class SendCoinsModel(
             }
         }
     }
-    val alternativeAmountFormatted: LiveData<String> = Transformations.map(alternativeAmount) {
+    val alternativeAmountFormatted: LiveData<String> = alternativeAmount.map {
         getRequestedAmountAlternativeFormatted()
     }
 

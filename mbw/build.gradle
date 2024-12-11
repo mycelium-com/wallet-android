@@ -1,26 +1,26 @@
+buildscript {
+    repositories {
+        google()
+        mavenCentral()
+    }
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+//        classpath "com.squareup.sqldelight:gradle-plugin:$sqldelight_version"
+    }
+}
+
+plugins {
+    id("app.cash.sqldelight") version "$sqldelight_version"
+}
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
-apply plugin: 'kotlin-android-extensions'
 apply plugin: "androidx.navigation.safeargs.kotlin"
-apply plugin: 'com.squareup.sqldelight'
+apply plugin: "kotlin-parcelize"
 
 repositories {
     mavenCentral()
     google()
-}
-
-buildscript {
-    repositories {
-        mavenCentral()
-        google()
-    }
-
-    dependencies {
-        classpath "com.android.tools.build:gradle:$gradleVersion"
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-        classpath "com.squareup.sqldelight:gradle-plugin:$sqldelight_version"
-    }
 }
 
 configurations {
@@ -36,6 +36,7 @@ configurations.all {
     }
 }
 kapt {
+    correctErrorTypes true
     useBuildCache = true
     javacOptions {
         option("-Xmaxerrs", 500)
@@ -72,12 +73,12 @@ dependencies {
     implementation "androidx.appcompat:appcompat:$appCompatVersion"
     implementation 'androidx.constraintlayout:constraintlayout:2.1.0'
     implementation "androidx.legacy:legacy-support-v4:$xLegacyVersion"
-    implementation "androidx.lifecycle:lifecycle-runtime:2.2.0-rc01"
+    implementation "androidx.lifecycle:lifecycle-runtime:$lifecycle_version"
 
-    implementation "androidx.lifecycle:lifecycle-extensions:$lifecycle_version"
-    kapt "androidx.lifecycle:lifecycle-compiler:$lifecycle_version"
+    implementation "androidx.lifecycle:lifecycle-extensions:2.2.0"
+//    kapt "androidx.lifecycle:lifecycle-compiler:$lifecycle_version"
 
-    implementation "androidx.lifecycle:lifecycle-livedata-ktx:2.3.1"
+    implementation "androidx.lifecycle:lifecycle-livedata-ktx:$lifecycle_version"
     implementation "androidx.lifecycle:lifecycle-reactivestreams-ktx:$lifecycle_version"
     implementation "androidx.lifecycle:lifecycle-reactivestreams:$lifecycle_version"
 
@@ -142,7 +143,7 @@ dependencies {
     }
     implementation 'org.web3j:core:4.2.1-android'
 
-    implementation "com.squareup.sqldelight:android-driver:$sqldelight_version"
+    implementation "app.cash.sqldelight:android-driver:$sqldelight_version"
 
     implementation("com.github.bumptech.glide:glide:4.7.1") {
         exclude group: "com.android.support"
@@ -151,7 +152,7 @@ dependencies {
     implementation "info.guardianproject.netcipher:netcipher:2.1.0"
     implementation "com.airbnb.android:lottie:3.4.0"
 
-    androidTestImplementation 'androidx.test:core:1.2.0'
+    androidTestImplementation 'androidx.test:core:1.4.0'
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
     androidTestImplementation 'androidx.test.espresso:espresso-contrib:3.2.0'
@@ -162,20 +163,25 @@ dependencies {
 }
 
 sqldelight {
-    GiftboxDB {
-        packageName = "com.mycelium.generated.giftbox.database"
-    }
-    LoggerDB {
-        packageName = "com.mycelium.generated.logger.database"
-        sourceFolders = ["sqldelight_logger"]
-    }
-    RatesDB {
-        packageName = "com.mycelium.generated.rates.database"
-        sourceFolders = ["sqldelight_rate"]
+    databases {
+        GiftboxDB {
+            packageName = "com.mycelium.generated.giftbox.database"
+        }
+        LoggerDB {
+            packageName = "com.mycelium.generated.logger.database"
+            srcDirs.setFrom("src/main/sqldelight_logger")
+//            sourceFolders = ["sqldelight_logger"]
+        }
+        RatesDB {
+            packageName = "com.mycelium.generated.rates.database"
+            srcDirs.setFrom("src/main/sqldelight_rate")
+//            sourceFolders = ["sqldelight_rate"]
+        }
     }
 }
 
 android {
+    namespace 'com.mycelium.wallet'
     buildFeatures {
         viewBinding true
         dataBinding true
@@ -184,10 +190,6 @@ android {
         all*.exclude module: 'jcip-annotations'
         all*.exclude module: 'jsr305'
         all*.exclude group: 'com.google.guava', module: 'listenablefuture'
-    }
-    dexOptions {
-        javaMaxHeapSize "4g"
-        jumboMode = true
     }
     kotlinOptions {
         jvmTarget = '1.8'
@@ -217,7 +219,7 @@ android {
         targetCompatibility = 'VERSION_1_8'
     }
 
-    compileSdkVersion androidCompileSdkVersion
+    compileSdk androidCompileSdkVersion
     buildToolsVersion androidSdkBuildVersion
 
     defaultConfig {
@@ -289,6 +291,10 @@ android {
             signingConfig signingConfigs.commonDebug
             debuggable true
         }
+    }
+
+    lint {
+        baseline = file("lint-baseline.xml")
     }
 
     flavorDimensions "default"

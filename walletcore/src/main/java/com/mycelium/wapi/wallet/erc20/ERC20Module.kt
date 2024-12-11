@@ -51,7 +51,7 @@ class ERC20Module(
                 val uuid = UUID(BitUtils.uint64ToLong(HexUtils.toBytes(token.contractAddress.substring(2)), 0),
                         config.ethAccount.id.mostSignificantBits)
                 val accountContext = createAccountContext(uuid, config)
-                backing.createAccountContext(accountContext)
+                backing.createAccountContext(accountContext.uuid, accountContext)
                 val accountBacking = EthAccountBacking(walletDB, accountContext.uuid, ethCoinType, token)
                 result = ERC20Account(chainId, accountContext, token, config.ethAccount, credentials, accountBacking,
                         accountListener, blockchainService, if(config.ethAccount.canSpend()) null else config.ethAccount.receivingAddress)
@@ -90,7 +90,7 @@ class ERC20Module(
                     accountContextInDB.currency,
                     accountContextInDB.accountName,
                     accountContextInDB.balance,
-                    backing::updateAccountContext,
+                { backing.updateAccountContext(it.uuid, it) },
                     accountContextInDB.contractAddress,
                     accountContextInDB.symbol,
                     accountContextInDB.unitExponent,
@@ -105,7 +105,7 @@ class ERC20Module(
                     ethCoinType,
                     token.name,
                     Balance.getZeroBalance(ethCoinType),
-                    backing::updateAccountContext,
+                { backing.updateAccountContext(it.uuid, it) },
                     (token as ERC20Token).contractAddress,
                     token.symbol,
                     token.unitExponent,

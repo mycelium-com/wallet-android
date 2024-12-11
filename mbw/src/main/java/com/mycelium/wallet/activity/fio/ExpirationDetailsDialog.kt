@@ -8,9 +8,11 @@ import android.view.ViewGroup
 import android.view.Window
 import androidx.fragment.app.DialogFragment
 import com.mycelium.wallet.R
-import kotlinx.android.synthetic.main.dialog_expiration_details.*
+import com.mycelium.wallet.databinding.DialogExpirationDetailsBinding
 
 class ExpirationDetailsDialog : DialogFragment() {
+
+    var binding: DialogExpirationDetailsBinding? = null
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog =
             super.onCreateDialog(savedInstanceState).apply {
                 window?.requestFeature(Window.FEATURE_NO_TITLE)
@@ -21,14 +23,21 @@ class ExpirationDetailsDialog : DialogFragment() {
         setStyle(STYLE_NORMAL, R.style.CustomDialog)
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? =
-            inflater.inflate(R.layout.dialog_expiration_details, container, false)
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View =
+        DialogExpirationDetailsBinding.inflate(inflater, container, false).apply {
+            binding = this
+        }.root
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        toolbar.setNavigationOnClickListener {
+        binding?.toolbar?.setNavigationOnClickListener {
             dismissAllowingStateLoss()
         }
+    }
+
+    override fun onDestroyView() {
+        binding = null
+        super.onDestroyView()
     }
 
     override fun onStart() {

@@ -10,7 +10,7 @@ import android.widget.Toast.*
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.Transformations
+import androidx.lifecycle.map
 import com.mrd.bitlib.crypto.HdKeyNode
 import com.mycelium.paymentrequest.PaymentRequestException
 import com.mycelium.view.Denomination
@@ -126,7 +126,7 @@ abstract class SendCoinsViewModel(application: Application) : AndroidViewModel(a
         MbwManager.getEventBus().register(eventListener)
     }
 
-    abstract fun        sendTransaction(activity: Activity)
+    abstract fun sendTransaction(activity: Activity)
 
     protected fun sendFioObtData() {
         // TODO: 10/7/20 redesign the whole process to have the viewModel around until after the
@@ -218,11 +218,15 @@ abstract class SendCoinsViewModel(application: Application) : AndroidViewModel(a
 
     fun getTransactionDataStatus() = model.transactionDataStatus
 
-    fun hasPaymentRequestHandlerTransformer(): LiveData<Boolean> = Transformations.map(model.paymentRequestHandler,
-            this::hasPaymentRequestHandler)
+    fun hasPaymentRequestHandlerTransformer(): LiveData<Boolean> = model.paymentRequestHandler
+        .map {
+            hasPaymentRequestHandler()
+        }
 
-    fun hasPaymentRequestAmountTransformer(): LiveData<Boolean> = Transformations.map(model.paymentRequestHandler,
-            this::hasPaymentRequestAmount)
+    fun hasPaymentRequestAmountTransformer(): LiveData<Boolean> = model.paymentRequestHandler
+        .map {
+            hasPaymentRequestAmount()
+        }
 
 
     fun hasPaymentRequestHandler() = hasPaymentRequestHandler(model.paymentRequestHandler.value)

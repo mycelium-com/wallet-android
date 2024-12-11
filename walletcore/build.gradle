@@ -1,7 +1,19 @@
+buildscript {
+    repositories {
+        google()
+        mavenCentral()
+    }
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+//        classpath "com.squareup.sqldelight:gradle-plugin:$sqldelight_version"
+    }
+}
+plugins {
+    id("app.cash.sqldelight") version "$sqldelight_version"
+}
 apply plugin: 'java'
 apply plugin: 'kotlin'
 apply from: 'integration-test.gradle'
-apply plugin: 'com.squareup.sqldelight'
 
 repositories {
     mavenCentral()
@@ -25,8 +37,9 @@ dependencies {
     implementation "com.google.code.gson:gson:$gsonVersion"
 
     // SQDelight
-    implementation "com.squareup.sqldelight:sqlite-driver:$sqldelight_version"
-    implementation "com.squareup.sqldelight:rxjava2-extensions:$sqldelight_version"
+    implementation "app.cash.sqldelight:sqlite-driver:$sqldelight_version"
+    implementation "app.cash.sqldelight:primitive-adapters:$sqldelight_version"
+    implementation "app.cash.sqldelight:rxjava2-extensions:$sqldelight_version"
 
     implementation 'org.bitcoinj:bitcoinj-core:0.14.5'
 
@@ -39,21 +52,14 @@ dependencies {
 }
 
 sqldelight {
-    WalletDB {
-        packageName = "com.mycelium.generated.wallet.database"
+    databases {
+        WalletDB {
+            packageName = "com.mycelium.generated.wallet.database"
+        }
     }
 }
 
-buildscript {
-    repositories {
-        google()
-        mavenCentral()
-    }
-    dependencies {
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-        classpath "com.squareup.sqldelight:gradle-plugin:$sqldelight_version"
-    }
-}
+
 
 compileKotlin {
     kotlinOptions {
@@ -69,7 +75,7 @@ compileTestKotlin {
 
 // Creates a single Jar with all dependencies
 task fatJar(type: Jar) {
-    baseName = project.name + '-all'
+    archiveBaseName = project.name + '-all'
     from {
         configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
         configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }

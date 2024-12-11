@@ -6,7 +6,9 @@
     android:background="#272727"
     android:orientation="vertical">
 
-    <include layout="@layout/layout_top_banner" />
+    <include
+        android:id="@+id/layoutTopBanner"
+        layout="@layout/layout_top_banner" />
 
     <FrameLayout
         android:layout_width="match_parent"

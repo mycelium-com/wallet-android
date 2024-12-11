@@ -1,5 +1,7 @@
 package com.mycelium.wapi.wallet.genericdb
 
+import app.cash.sqldelight.ColumnAdapter
+import app.cash.sqldelight.adapter.primitive.IntColumnAdapter
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.ArrayNode
 import com.google.common.base.Preconditions
@@ -16,7 +18,6 @@ import com.mycelium.wapi.wallet.fio.FIODomain
 import com.mycelium.wapi.wallet.fio.FioName
 import com.mycelium.wapi.wallet.fio.FioRequestStatus
 import com.mycelium.wapi.wallet.fio.RegisteredFIOName
-import com.squareup.sqldelight.ColumnAdapter
 import fiofoundation.io.fiosdk.models.fionetworkprovider.FundsRequestContent
 import fiofoundation.io.fiosdk.models.fionetworkprovider.RecordObtDataContent
 import java.math.BigInteger
@@ -204,7 +205,7 @@ object Adapters {
 }
 
 val accountBackingAdapter = AccountBacking.Adapter(Adapters.uuidAdapter, Adapters.cryptoCurrencyAdapter,
-        Adapters.valueAdapter, Adapters.valueAdapter)
+    IntColumnAdapter, Adapters.valueAdapter, Adapters.valueAdapter, IntColumnAdapter)
 
 val ethAccountBackingAdapter = EthAccountBacking.Adapter(Adapters.uuidAdapter, Adapters.bigIntAdapter,
         Adapters.bigIntAdapter, Adapters.bigIntAdapter, Adapters.bigIntAdapter, Adapters.valueAdapter)
@@ -212,28 +213,33 @@ val ethAccountBackingAdapter = EthAccountBacking.Adapter(Adapters.uuidAdapter, A
 val fioAccountBackingAdapter = FioAccountBacking.Adapter(Adapters.uuidAdapter, Adapters.valueAdapter)
 
 val accountContextAdapter = AccountContext.Adapter(Adapters.uuidAdapter, Adapters.cryptoCurrencyAdapter,
-        Adapters.balanceAdapter)
-val ethContextAdapter = EthContext.Adapter(Adapters.uuidAdapter, Adapters.bigIntAdapter, Adapters.listAdapter)
+        Adapters.balanceAdapter, IntColumnAdapter)
 
-val erc20ContextAdapter = Erc20Context.Adapter(Adapters.uuidAdapter, Adapters.bigIntAdapter, Adapters.uuidAdapter)
+val ethContextAdapter = EthContext.Adapter(Adapters.uuidAdapter, Adapters.bigIntAdapter,
+    Adapters.listAdapter, IntColumnAdapter)
+
+val erc20ContextAdapter = Erc20Context.Adapter(Adapters.uuidAdapter, Adapters.bigIntAdapter,
+    IntColumnAdapter, Adapters.uuidAdapter)
 
 val BTCVAccountBackingAdapter = BTCVAccountBacking.Adapter(Adapters.uuidAdapter)
-val BTCVContextAdapter = BTCVContext.Adapter(Adapters.uuidAdapter, Adapters.indexContextsAdapter, Adapters.addressTypeAdapter)
-val BTCVTransactionAdapter = BTCVTransaction.Adapter(Adapters.sha256Adapter, Adapters.uuidAdapter, Adapters.sha256Adapter)
-val BTCVUtxoAdapter = BTCVUtxo.Adapter(Adapters.outPointAdapter, Adapters.uuidAdapter)
-val BTCVPtxoAdapter = BTCVPtxo.Adapter(Adapters.outPointAdapter, Adapters.uuidAdapter)
+val BTCVContextAdapter = BTCVContext.Adapter(Adapters.uuidAdapter, IntColumnAdapter,
+    Adapters.indexContextsAdapter, IntColumnAdapter, IntColumnAdapter, Adapters.addressTypeAdapter)
+val BTCVTransactionAdapter = BTCVTransaction.Adapter(Adapters.sha256Adapter, Adapters.uuidAdapter,
+    Adapters.sha256Adapter, IntColumnAdapter, IntColumnAdapter)
+val BTCVUtxoAdapter = BTCVUtxo.Adapter(Adapters.outPointAdapter, Adapters.uuidAdapter, IntColumnAdapter)
+val BTCVPtxoAdapter = BTCVPtxo.Adapter(Adapters.outPointAdapter, Adapters.uuidAdapter, IntColumnAdapter)
 val BTCVRefersPtxoAdapter = BTCVRefersPtxo.Adapter(Adapters.sha256Adapter, Adapters.uuidAdapter, Adapters.outPointAdapter)
 val BTCVOutgoingTxAdapter = BTCVOutgoingTx.Adapter(Adapters.sha256Adapter, Adapters.uuidAdapter)
 
-val fioContextAdapter = FioContext.Adapter(Adapters.uuidAdapter, Adapters.bigIntAdapter, Adapters.registeredFioNameAdapter,
-        Adapters.fioDomainAdapter)
+val fioContextAdapter = FioContext.Adapter(Adapters.uuidAdapter, IntColumnAdapter, IntColumnAdapter,
+    Adapters.bigIntAdapter, Adapters.registeredFioNameAdapter, Adapters.fioDomainAdapter)
 
 val fioKnownNamesAdapter = FioKnownNames.Adapter(Adapters.fioNameAdapter)
 
 val fioNameAccountMappingsAdapter = FioNameAccountMappings.Adapter(Adapters.uuidAdapter)
 
 val feeEstimatorAdapter = FeeEstimation.Adapter(Adapters.assetAdapter,
-        Adapters.valueAdapter, Adapters.valueAdapter, Adapters.valueAdapter, Adapters.valueAdapter)
+        Adapters.valueAdapter, Adapters.valueAdapter, Adapters.valueAdapter, Adapters.valueAdapter, LongColumnAdapter, IntColumnAdapter)
 
 val fioSentRequestsAdapter = FioRequestsSentBacking.Adapter(Adapters.bigIntAdapter, Adapters.uuidAdapter, Adapters.fioRequestDeserializedContentAdapter,
         Adapters.fioRequestStatusAdapter)

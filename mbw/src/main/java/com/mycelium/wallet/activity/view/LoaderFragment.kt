@@ -13,10 +13,12 @@ import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import com.mycelium.bequant.BequantConstants as Constants
 import com.mycelium.wallet.R
-import kotlinx.android.synthetic.main.layout_loading.view.*
+import com.mycelium.wallet.databinding.LayoutLoadingBinding
 
 
 class LoaderFragment(val message: String? = null) : DialogFragment() {
+
+    var binding: LayoutLoadingBinding? = null
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         return super.onCreateDialog(savedInstanceState).apply {
             window?.requestFeature(Window.FEATURE_NO_TITLE)
@@ -27,12 +29,16 @@ class LoaderFragment(val message: String? = null) : DialogFragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? =
-        inflater.inflate(R.layout.layout_loading, container, false)
+    ): View =
+        LayoutLoadingBinding.inflate(inflater, container, false)
+            .apply {
+                binding = this
+            }
+            .root
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        view.loaderText.text = message ?: getString(R.string.loading)
+        binding?.loaderText?.text = message ?: getString(R.string.loading)
     }
 
     override fun onStart() {
@@ -42,6 +48,11 @@ class LoaderFragment(val message: String? = null) : DialogFragment() {
             ViewGroup.LayoutParams.MATCH_PARENT
         )
         dialog?.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+    }
+
+    override fun onDestroyView() {
+        binding = null
+        super.onDestroyView()
     }
 }
 

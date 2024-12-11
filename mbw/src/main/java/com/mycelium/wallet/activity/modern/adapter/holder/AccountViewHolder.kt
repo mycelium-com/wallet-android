@@ -5,22 +5,23 @@ import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import kotlinx.android.synthetic.main.record_row.view.*
+import com.mycelium.wallet.databinding.RecordRowBinding
 
 class AccountViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-    val llAddress: View = itemView.llAddress
-    val tvLabel: TextView = itemView.tvLabel
-    val tvWhatIsIt: TextView = itemView.tvWhatIsIt
-    val icon: ImageView = itemView.ivIcon
-    val tvAddress: TextView = itemView.tvAddress
-    val tvAccountType: TextView = itemView.tvAccountType
-    val tvBalance: TextView = itemView.tvBalance
-    val backupMissing: TextView = itemView.tvBackupMissingWarning
-    val tvProgress: TextView = itemView.tvProgress
-    val layoutProgressTxRetreived: View = itemView.progressTxRetreived
-    val tvProgressLayout: View = itemView.tvProgressLayout
-    val ivWhatIsSync: ImageView = itemView.ivWhatIsSync
-    val progressBar: ProgressBar = itemView.progress_bar
-    val lastSyncState: View = itemView.lastSyncState
-    val tvTraderKey: View = itemView.tvTraderKey
+    val binding = RecordRowBinding.bind(itemView)
+    val llAddress: View = binding.llAddress
+    val tvLabel: TextView = binding.tvLabel
+    val tvWhatIsIt: TextView = binding.tvWhatIsIt
+    val icon: ImageView = binding.ivIcon
+    val tvAddress: TextView = binding.tvAddress
+    val tvAccountType: TextView = binding.tvAccountType
+    val tvBalance: TextView = binding.tvBalance
+    val backupMissing: TextView = binding.tvBackupMissingWarning
+    val tvProgress: TextView = binding.tvProgress
+    val layoutProgressTxRetreived: View = binding.progressTxRetreived
+    val tvProgressLayout: View = binding.tvProgressLayout
+    val ivWhatIsSync: ImageView = binding.ivWhatIsSync
+    val progressBar: ProgressBar = binding.progressBar
+    val lastSyncState: View = binding.lastSyncState
+    val tvTraderKey: View = binding.tvTraderKey
 }

@@ -14,15 +14,16 @@ import com.mycelium.bequant.common.ErrorHandler
 import com.mycelium.bequant.common.loader
 import com.mycelium.bequant.remote.repositories.Api
 import com.mycelium.wallet.R
-import kotlinx.android.synthetic.main.activity_bequant_sign.*
 import org.json.JSONObject
 import com.mycelium.wallet.Constants.BAD_REQUEST_HTTP_CODE
+import com.mycelium.wallet.databinding.ActivityBequantSignBinding
 
-class SignActivity : AppCompatActivity(R.layout.activity_bequant_sign) {
+class SignActivity : AppCompatActivity() {
     
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setSupportActionBar(toolbar)
+        val binding = ActivityBequantSignBinding.inflate(layoutInflater)
+        setSupportActionBar(binding.toolbar)
         supportActionBar?.run {
             setDisplayHomeAsUpEnabled(true)
             setDisplayShowTitleEnabled(true)

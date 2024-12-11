@@ -1,8 +1,8 @@
 package com.mycelium.wallet.external.changelly2.viewmodel
 
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.map
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.WalletApplication
@@ -29,7 +29,7 @@ class ExchangeResultViewModel : ViewModel() {
     val isExchangeComplete = MutableLiveData(false)
 
     val more = MutableLiveData(true)
-    val moreText = Transformations.map(more) {
+    val moreText = more.map {
         WalletApplication.getInstance().getString(
                 if (it) {
                     R.string.show_transaction_details

@@ -43,6 +43,7 @@
             </com.google.android.material.textfield.TextInputLayout>
 
             <include
+                android:id="@+id/layoutRegistration"
                 layout="@layout/layout_password_registration"
                 app:viewModel="@{viewModel}" />
 

@@ -11,7 +11,7 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.mycelium.bequant.remote.model.KYCDocument
 import com.mycelium.wallet.R
-import kotlinx.android.synthetic.main.item_bequant_kyc_document.view.*
+import com.mycelium.wallet.databinding.ItemBequantKycDocumentBinding
 import java.io.File
 
 enum class LoadStatus {
@@ -36,36 +36,37 @@ class DocumentAdapter() : ListAdapter<Document, RecyclerView.ViewHolder>(Documen
 
     override fun onBindViewHolder(viewHolder: RecyclerView.ViewHolder, position: Int) {
         val item = getItem(position)
-        viewHolder.itemView.image.setImageBitmap(item.image)
-        viewHolder.itemView.name.text = item.name
-        viewHolder.itemView.uploadProgress.progress = item.progress
+        viewHolder as ViewHolder
+        viewHolder.binding.image.setImageBitmap(item.image)
+        viewHolder.binding.name.text = item.name
+        viewHolder.binding.uploadProgress.progress = item.progress
         if (item.loadStatus == LoadStatus.FAILED) {
-            viewHolder.itemView.reload.visibility = VISIBLE
-            viewHolder.itemView.name.text = "Upload failed"
-            viewHolder.itemView.size.text = "Try again"
-            viewHolder.itemView.name.setTextColor(viewHolder.itemView.resources.getColor(R.color.bequant_red))
-            viewHolder.itemView.size.setTextColor(viewHolder.itemView.resources.getColor(R.color.bequant_red))
-            viewHolder.itemView.uploadProgress.visibility = VISIBLE
-            viewHolder.itemView.uploadProgress.progress = 100
-            viewHolder.itemView.uploadProgress.progressDrawable = viewHolder.itemView.resources.getDrawable(R.drawable.bequantprogress_failed)
+            viewHolder.binding.reload.visibility = VISIBLE
+            viewHolder.binding.name.text = "Upload failed"
+            viewHolder.binding.size.text = "Try again"
+            viewHolder.binding.name.setTextColor(viewHolder.itemView.resources.getColor(R.color.bequant_red))
+            viewHolder.binding.size.setTextColor(viewHolder.itemView.resources.getColor(R.color.bequant_red))
+            viewHolder.binding.uploadProgress.visibility = VISIBLE
+            viewHolder.binding.uploadProgress.progress = 100
+            viewHolder.binding.uploadProgress.progressDrawable = viewHolder.itemView.resources.getDrawable(R.drawable.bequantprogress_failed)
         } else if (item.loadStatus == LoadStatus.LOADING) {
-            viewHolder.itemView.reload.visibility = GONE
-            viewHolder.itemView.size.text = viewHolder.itemView.resources.getString(R.string.loading)
-            viewHolder.itemView.name.setTextColor(viewHolder.itemView.resources.getColor(R.color.white))
-            viewHolder.itemView.size.setTextColor(viewHolder.itemView.resources.getColor(R.color.bequant_gray_6))
-            viewHolder.itemView.uploadProgress.visibility = VISIBLE
-            viewHolder.itemView.uploadProgress.progressDrawable = viewHolder.itemView.resources.getDrawable(R.drawable.bequantprogress)
+            viewHolder.binding.reload.visibility = GONE
+            viewHolder.binding.size.text = viewHolder.itemView.resources.getString(R.string.loading)
+            viewHolder.binding.name.setTextColor(viewHolder.itemView.resources.getColor(R.color.white))
+            viewHolder.binding.size.setTextColor(viewHolder.itemView.resources.getColor(R.color.bequant_gray_6))
+            viewHolder.binding.uploadProgress.visibility = VISIBLE
+            viewHolder.binding.uploadProgress.progressDrawable = viewHolder.itemView.resources.getDrawable(R.drawable.bequantprogress)
         } else {
-            viewHolder.itemView.reload.visibility = GONE
-            viewHolder.itemView.size.text = "%.1f MB".format(File(item.url).length() / 1000000f)
-            viewHolder.itemView.name.setTextColor(viewHolder.itemView.resources.getColor(R.color.white))
-            viewHolder.itemView.size.setTextColor(viewHolder.itemView.resources.getColor(R.color.bequant_gray_6))
-            viewHolder.itemView.uploadProgress.visibility = View.GONE
+            viewHolder.binding.reload.visibility = GONE
+            viewHolder.binding.size.text = "%.1f MB".format(File(item.url).length() / 1000000f)
+            viewHolder.binding.name.setTextColor(viewHolder.itemView.resources.getColor(R.color.white))
+            viewHolder.binding.size.setTextColor(viewHolder.itemView.resources.getColor(R.color.bequant_gray_6))
+            viewHolder.binding.uploadProgress.visibility = View.GONE
         }
-        viewHolder.itemView.reload.setOnClickListener {
+        viewHolder.binding.reload.setOnClickListener {
             reloadListener?.invoke(item)
         }
-        viewHolder.itemView.remove.setOnClickListener {
+        viewHolder.binding.remove.setOnClickListener {
             submitList(currentList - item)
             removeListner?.invoke(item)
         }
@@ -76,7 +77,9 @@ class DocumentAdapter() : ListAdapter<Document, RecyclerView.ViewHolder>(Documen
         listChangeListener?.invoke(currentList)
     }
 
-    class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
+    class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        val binding = ItemBequantKycDocumentBinding.bind(itemView)
+    }
     class DocumentDiffCallback : DiffUtil.ItemCallback<Document>() {
         override fun areItemsTheSame(oldItem: Document, newItem: Document): Boolean =
                 oldItem == newItem

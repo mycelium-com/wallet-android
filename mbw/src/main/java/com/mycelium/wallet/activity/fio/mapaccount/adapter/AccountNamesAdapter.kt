@@ -10,10 +10,10 @@ import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.fio.mapaccount.adapter.viewholder.FIODomainViewHolder
 import com.mycelium.wallet.activity.fio.mapaccount.adapter.viewholder.GroupViewHolder
 import com.mycelium.wallet.activity.util.toStringWithUnit
+import com.mycelium.wallet.databinding.ItemFioRegisterBinding
 import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.fio.FIODomain
 import com.mycelium.wapi.wallet.fio.RegisteredFIOName
-import kotlinx.android.synthetic.main.item_fio_register.view.*
 import java.text.DateFormat
 import java.text.SimpleDateFormat
 
@@ -48,13 +48,16 @@ class AccountNamesAdapter : ListAdapter<Item, RecyclerView.ViewHolder>(DiffCallb
                 TYPE_ACCOUNT -> GroupViewHolder(LayoutInflater.from(parent.context)
                         .inflate(R.layout.item_fio_account_mapping_group, parent, false))
                 TYPE_REGISTER_FIO_NAME -> RegisterFIONameViewHolder(LayoutInflater.from(parent.context)
-                        .inflate(R.layout.item_fio_register, parent, false).apply {
-                            this.action.text = context.getString(R.string.fio_register_name)
-                        })
+                    .inflate(R.layout.item_fio_register, parent, false)
+                ).apply {
+                    binding.action.text = binding.action.context.getString(R.string.fio_register_name)
+                }
                 TYPE_REGISTER_FIO_DOMAIN -> RegisterFIODomainViewHolder(LayoutInflater.from(parent.context)
-                        .inflate(R.layout.item_fio_register, parent, false).apply {
-                            this.action.text = context.getString(R.string.fio_register_domain)
-                        })
+                    .inflate(R.layout.item_fio_register, parent, false)
+                ).apply {
+                    binding.action.text =
+                        binding.action.context.getString(R.string.fio_register_domain)
+                }
                 else -> TODO("Not implemented")
             }
 
@@ -112,8 +115,13 @@ class AccountNamesAdapter : ListAdapter<Item, RecyclerView.ViewHolder>(DiffCallb
 
     override fun getItemViewType(position: Int): Int = getItem(position).type
 
-    class RegisterFIONameViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
-    class RegisterFIODomainViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
+    class RegisterFIONameViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        val binding = ItemFioRegisterBinding.bind(itemView)
+    }
+
+    class RegisterFIODomainViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        val binding = ItemFioRegisterBinding.bind(itemView)
+    }
 
     class DiffCallback : DiffUtil.ItemCallback<Item>() {
         override fun areItemsTheSame(oldItem: Item, newItem: Item): Boolean =

@@ -23,8 +23,13 @@ dependencies {
 }
 
 android {
-    compileSdkVersion androidCompileSdkVersion
+    namespace 'com.btchip'
+    compileSdk androidCompileSdkVersion
     buildToolsVersion androidSdkBuildVersion
+
+    buildFeatures {
+        aidl true
+    }
 
     sourceSets {
         main {

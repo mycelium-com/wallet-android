@@ -6,24 +6,25 @@ import androidx.appcompat.app.AppCompatActivity
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.mycelium.wallet.R
-import kotlinx.android.synthetic.main.activity_news_image.*
+import com.mycelium.wallet.databinding.ActivityNewsImageBinding
 
 
 class NewsImageActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_news_image)
+        val binding = ActivityNewsImageBinding.inflate(layoutInflater)
+        setContentView(binding.root)
         val url = intent.getStringExtra("url")
         supportActionBar?.title = ""
         supportActionBar?.setHomeAsUpIndicator(R.drawable.ic_back_arrow)
         supportActionBar?.setHomeButtonEnabled(true);
         supportActionBar?.setDisplayHomeAsUpEnabled(true);
-        Glide.with(ivImage)
+        Glide.with(binding.ivImage)
                 .load(url)
                 .apply(RequestOptions()
                         .placeholder(R.drawable.mediaflow_default_picture)
                         .error(R.drawable.mediaflow_default_picture))
-                .into(ivImage)
+                .into(binding.ivImage)
 
     }
 

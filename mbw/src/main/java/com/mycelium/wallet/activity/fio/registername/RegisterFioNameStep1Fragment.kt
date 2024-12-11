@@ -16,7 +16,6 @@ import android.widget.ArrayAdapter
 import android.widget.TextView
 import androidx.core.text.HtmlCompat
 import androidx.core.widget.doOnTextChanged
-import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
@@ -27,20 +26,20 @@ import com.mycelium.wallet.activity.fio.registerdomain.RegisterFIODomainActivity
 import com.mycelium.wallet.activity.fio.registername.viewmodel.RegisterFioNameViewModel
 import com.mycelium.wallet.activity.fio.registername.viewmodel.RegisterFioNameViewModel.Companion.DEFAULT_DOMAIN
 import com.mycelium.wallet.activity.util.toStringWithUnit
-import com.mycelium.wallet.databinding.FragmentRegisterFioNameStep1BindingImpl
+import com.mycelium.wallet.databinding.FragmentRegisterFioNameStep1Binding
 import com.mycelium.wapi.wallet.fio.FIODomain
 import com.mycelium.wapi.wallet.fio.FioModule
-import kotlinx.android.synthetic.main.fragment_register_fio_name_confirm.btNextButton
-import kotlinx.android.synthetic.main.fragment_register_fio_name_step1.*
 import java.util.*
 
 
 class RegisterFioNameStep1Fragment : Fragment() {
     private val viewModel: RegisterFioNameViewModel by activityViewModels()
+    private var binding: FragmentRegisterFioNameStep1Binding? = null
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? =
-            DataBindingUtil.inflate<FragmentRegisterFioNameStep1BindingImpl>(inflater, R.layout.fragment_register_fio_name_step1, container, false)
+            FragmentRegisterFioNameStep1Binding.inflate(inflater, container, false)
                     .apply {
+                        binding = this
                         viewModel = this@RegisterFioNameStep1Fragment.viewModel.apply {
                             val domains = getDomains()
                             val spinnerItems: MutableList<CharSequence> = mutableListOf()
@@ -77,11 +76,11 @@ class RegisterFioNameStep1Fragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        spinner.setSelection((spinner.adapter as ArrayAdapter<String>).getPosition("@${viewModel.domain.value!!.domain}"))
+        binding?.spinner?.setSelection((binding!!.spinner.adapter as ArrayAdapter<String>).getPosition("@${viewModel.domain.value!!.domain}"))
         viewModel.registrationFee.observe(viewLifecycleOwner, Observer {
-            tvFeeInfo.text = resources.getString(R.string.fio_annual_fee, it.toStringWithUnit())
+            binding?.tvFeeInfo?.text = resources.getString(R.string.fio_annual_fee, it.toStringWithUnit())
         })
-        btNextButton.setOnClickListener {
+        binding?.btNextButton?.setOnClickListener {
             findNavController().navigate(R.id.actionNext)
         }
         viewModel.isFioAddressValid.observe(viewLifecycleOwner, Observer {
@@ -93,10 +92,10 @@ class RegisterFioNameStep1Fragment : Fragment() {
         viewModel.isFioServiceAvailable.observe(viewLifecycleOwner, Observer {
             doAddressCheck(viewModel.address.value!!)
         })
-        inputEditText.doOnTextChanged { text: CharSequence?, _, _, _ ->
+        binding?.inputEditText?.doOnTextChanged { text: CharSequence?, _, _, _ ->
             doAddressCheck(text.toString())
         }
-        inputEditText.filters = arrayOf<InputFilter>(
+        binding?.inputEditText?.filters = arrayOf<InputFilter>(
                 object : AllCaps() {
                     override fun filter(source: CharSequence, start: Int, end: Int, dest: Spanned, dstart: Int, dend: Int): CharSequence {
                         return source.toString().toLowerCase(Locale.US)
@@ -105,9 +104,14 @@ class RegisterFioNameStep1Fragment : Fragment() {
         )
     }
 
+    override fun onDestroyView() {
+        binding = null
+        super.onDestroyView()
+    }
+
     private fun doAddressCheck(fioAddress: String) {
-        btNextButton.isEnabled = viewModel.isFioAddressValid.value!! && viewModel.isFioAddressAvailable.value!!
-                && viewModel.isFioServiceAvailable.value!! && inputEditText.text!!.isNotEmpty()
+        binding?.btNextButton?.isEnabled = viewModel.isFioAddressValid.value!! && viewModel.isFioAddressAvailable.value!!
+                && viewModel.isFioServiceAvailable.value!! && binding?.inputEditText?.text?.isNotEmpty() == true
         setDefaults()
         if (fioAddress.isNotEmpty()) {
             if (!viewModel.isFioAddressValid.value!!) {
@@ -116,7 +120,7 @@ class RegisterFioNameStep1Fragment : Fragment() {
                 showErrorOrSuccess(resources.getString(R.string.fio_address_check_service_unavailable), isError = true)
             } else if (!viewModel.isFioAddressAvailable.value!!) {
                 showErrorOrSuccess(resources.getString(R.string.fio_address_occupied, viewModel.domain.value!!.domain), isError = true)
-                tvHint.setOnClickListener {
+                binding?.tvHint?.setOnClickListener {
                     RegisterFIODomainActivity.start(requireContext())
                 }
             } else {
@@ -126,22 +130,22 @@ class RegisterFioNameStep1Fragment : Fragment() {
     }
 
     private fun setDefaults() {
-        tvHint.setOnClickListener(null)
-        tvHint.text = resources.getString(R.string.fio_create_name_hint_text)
-        tvHint.setTextColor(resources.getColor(R.color.fio_white_alpha_0_6))
-        tvHint.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12.toFloat())
-        tvHint.setCompoundDrawables(null, null, null, null)
+        binding?.tvHint?.setOnClickListener(null)
+        binding?.tvHint?.text = resources.getString(R.string.fio_create_name_hint_text)
+        binding?.tvHint?.setTextColor(resources.getColor(R.color.fio_white_alpha_0_6))
+        binding?.tvHint?.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12.toFloat())
+        binding?.tvHint?.setCompoundDrawables(null, null, null, null)
     }
 
     private fun showErrorOrSuccess(message: String, isError: Boolean) {
         val drawableRes = if (isError) R.drawable.ic_fio_name_error else R.drawable.ic_fio_name_ok
         val colorRes = if (isError) R.color.fio_red else R.color.fio_green
 
-        tvHint.text = HtmlCompat.fromHtml(message, HtmlCompat.FROM_HTML_MODE_COMPACT)
-        tvHint.setCompoundDrawablesWithIntrinsicBounds(resources.getDrawable(drawableRes), null, null, null)
-        tvHint.compoundDrawablePadding = 3
-        tvHint.setTextColor(resources.getColor(colorRes))
-        tvHint.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14.toFloat())
+        binding?.tvHint?.text = HtmlCompat.fromHtml(message, HtmlCompat.FROM_HTML_MODE_COMPACT)
+        binding?.tvHint?.setCompoundDrawablesWithIntrinsicBounds(resources.getDrawable(drawableRes), null, null, null)
+        binding?.tvHint?.compoundDrawablePadding = 3
+        binding?.tvHint?.setTextColor(resources.getColor(colorRes))
+        binding?.tvHint?.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14.toFloat())
     }
 }
 

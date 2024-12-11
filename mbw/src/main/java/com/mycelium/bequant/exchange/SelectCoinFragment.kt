@@ -4,7 +4,9 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
@@ -20,31 +22,40 @@ import com.mycelium.bequant.remote.repositories.Api
 import com.mycelium.bequant.remote.trading.model.Currency
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.view.DividerItemDecoration
-import kotlinx.android.synthetic.main.fragment_bequant_exchange_select_coin.*
-import kotlinx.android.synthetic.main.item_bequant_search.*
-import kotlinx.android.synthetic.main.item_bequant_search.search
+import com.mycelium.wallet.databinding.FragmentBequantExchangeSelectCoinBinding
 
-class SelectCoinFragment : Fragment(R.layout.fragment_bequant_exchange_select_coin), CoinAdapter.ClickListener {
+class SelectCoinFragment : Fragment(), CoinAdapter.ClickListener {
     private val role: String by lazy {
         requireArguments().getString(ROLE)!!
     }
     private val currencyList = mutableListOf<Currency>()
+    private var binding: FragmentBequantExchangeSelectCoinBinding? = null
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View = FragmentBequantExchangeSelectCoinBinding.inflate(inflater, container, false)
+        .apply {
+            binding = this
+        }
+        .root
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        list.addItemDecoration(DividerItemDecoration(resources.getDrawable(R.drawable.divider_bequant), VERTICAL)
+        binding?.list?.addItemDecoration(DividerItemDecoration(resources.getDrawable(R.drawable.divider_bequant), VERTICAL)
                 .apply { setFromItem(1) })
         val adapter = CoinAdapter(role, this, (requireActivity() as SelectCoinActivity).youSendYouGetPair)
-        list.adapter = adapter
-        search.doOnTextChanged { filter, _, _, _ ->
+        binding?.list?.adapter = adapter
+        binding?.searchLayout?.search?.doOnTextChanged { filter, _, _, _ ->
             updateData(adapter, currencyList.filter {
                 it.fullName.contains(filter ?: "", true) || it.id.contains(filter ?: "", true)
             })
         }
-        clear.setOnClickListener {
+        binding?.searchLayout?.clear?.setOnClickListener {
             val inputMethodManager = requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-            inputMethodManager.hideSoftInputFromWindow(search.applicationWindowToken, 0)
-            search.text = null
+            inputMethodManager.hideSoftInputFromWindow(binding?.searchLayout?.search?.applicationWindowToken, 0)
+            binding?.searchLayout?.search?.text = null
             updateData(adapter, currencyList)
         }
         loader(true)

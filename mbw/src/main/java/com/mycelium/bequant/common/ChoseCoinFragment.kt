@@ -1,7 +1,9 @@
 package com.mycelium.bequant.common
 
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.coroutineScope
@@ -16,7 +18,7 @@ import com.mycelium.bequant.remote.repositories.Api
 import com.mycelium.bequant.remote.trading.model.Currency
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.view.DividerItemDecoration
-import kotlinx.android.synthetic.main.fragment_bequant_receive_choose_coin.*
+import com.mycelium.wallet.databinding.FragmentBequantReceiveChooseCoinBinding
 
 
 class ChoseCoinFragment : Fragment(R.layout.fragment_bequant_receive_choose_coin) {
@@ -24,12 +26,21 @@ class ChoseCoinFragment : Fragment(R.layout.fragment_bequant_receive_choose_coin
 
     val args by navArgs<ChoseCoinFragmentArgs>()
     var currencies = listOf<Currency>()
+    var binding: FragmentBequantReceiveChooseCoinBinding? = null
 
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View = FragmentBequantReceiveChooseCoinBinding.inflate(inflater, container, false)
+        .apply {
+            binding = this
+        }.root
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         loadCurrencies()
-        list.adapter = adapter
-        list.addItemDecoration(DividerItemDecoration(resources.getDrawable(R.drawable.divider_bequant), VERTICAL)
+        binding?.list?.adapter = adapter
+        binding?.list?.addItemDecoration(DividerItemDecoration(resources.getDrawable(R.drawable.divider_bequant), VERTICAL)
                 .apply { setFromItem(1) })
         adapter.coinClickListener = {
             when (it.symbol) {
@@ -48,6 +59,11 @@ class ChoseCoinFragment : Fragment(R.layout.fragment_bequant_receive_choose_coin
         adapter.searchChangeListener = {
             updateList(it)
         }
+    }
+
+    override fun onDestroyView() {
+        binding = null
+        super.onDestroyView()
     }
 
     private fun loadCurrencies() {

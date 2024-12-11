@@ -35,7 +35,7 @@ abstract class WapiFeeProvider(private val wapi: Wapi, private val feeBacking: F
                         System.currentTimeMillis(), BTC_ELECTRUMX_FEE_ESTIMATIONS_SCALE
                 )
                 //if all ok we return requested new fee estimation
-                feeBacking.updateFeeEstimation(newEstimation)
+                feeBacking.updateFeeEstimation(newEstimation.feeEstimation())
                 return@withContext newEstimation
             } catch (ex: WapiException) {
                 return@withContext estimation

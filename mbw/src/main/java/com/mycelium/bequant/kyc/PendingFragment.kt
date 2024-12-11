@@ -1,8 +1,10 @@
 package com.mycelium.bequant.kyc
 
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
+import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
@@ -10,9 +12,8 @@ import com.mycelium.bequant.BequantPreference
 import com.mycelium.bequant.kyc.steps.adapter.ItemStep
 import com.mycelium.bequant.kyc.steps.adapter.StepAdapter
 import com.mycelium.bequant.kyc.steps.adapter.StepState
-import com.mycelium.bequant.remote.model.KYCStatus
 import com.mycelium.wallet.R
-import kotlinx.android.synthetic.main.fragment_bequant_kyc_final_pending.*
+import com.mycelium.wallet.databinding.FragmentBequantKycFinalPendingBinding
 import java.text.SimpleDateFormat
 import java.util.*
 import java.util.concurrent.TimeUnit
@@ -21,11 +22,21 @@ import java.util.concurrent.TimeUnit
 class PendingFragment : Fragment(R.layout.fragment_bequant_kyc_final_pending) {
 
     private val stepAdapter = StepAdapter()
+    private var binding: FragmentBequantKycFinalPendingBinding? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
     }
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View = FragmentBequantKycFinalPendingBinding.inflate(inflater, container, false)
+        .apply {
+            binding = this
+        }.root
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -33,13 +44,13 @@ class PendingFragment : Fragment(R.layout.fragment_bequant_kyc_final_pending) {
             title = getString(R.string.identity_auth)
             setHomeAsUpIndicator(resources.getDrawable(R.drawable.ic_bequant_clear))
         }
-        stepper.adapter = stepAdapter
+        binding?.stepper?.adapter = stepAdapter
         stepAdapter.submitList(listOf(
                 ItemStep(1, getString(R.string.personal_info), StepState.COMPLETE),
                 ItemStep(2, getString(R.string.residential_address), StepState.COMPLETE),
                 ItemStep(3, getString(R.string.phone_number), StepState.COMPLETE),
                 ItemStep(4, getString(R.string.doc_selfie), StepState.COMPLETE)))
-        subtitle3.text = getString(R.string.you_cant_change_info)
+        binding?.subtitle3?.text = getString(R.string.you_cant_change_info)
         stepAdapter.clickListener = {
             when (it) {
                 4 -> findNavController().navigate(PendingFragmentDirections.actionEditDocs(BequantPreference.getKYCRequest().apply {
@@ -48,9 +59,9 @@ class PendingFragment : Fragment(R.layout.fragment_bequant_kyc_final_pending) {
             }
         }
         val submitDate = BequantPreference.getKYCSubmitDate()
-        subtitle1.text = getString(R.string.bequant_application_submit_time,
+        binding?.subtitle1?.text = getString(R.string.bequant_application_submit_time,
                 submitDateFormat.format(submitDate))
-        subtitle2.text = getString(R.string.bequant_application_submit_time_left,
+        binding?.subtitle2?.text = getString(R.string.bequant_application_submit_time_left,
                 REVIEW_TIME - (TimeUnit.MILLISECONDS.toHours(Date().time - submitDate.time)))
     }
 

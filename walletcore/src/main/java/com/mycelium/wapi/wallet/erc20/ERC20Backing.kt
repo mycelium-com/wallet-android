@@ -29,7 +29,8 @@ open class ERC20Backing(walletDB: WalletDB, private val generalBacking: Backing<
                           unitExponent: Int,
                           symbol: String,
                           ethAccountId: UUID ->
-        ERC20AccountContext(uuid, currency, accountName, balance, this::updateAccountContext,
+        ERC20AccountContext(uuid, currency, accountName, balance,
+            { updateAccountContext(it.uuid, it) },
                 contractAddress, migrateSymbols(symbol), unitExponent, ethAccountId, archived, blockHeight, nonce)
     }
 
@@ -41,13 +42,13 @@ open class ERC20Backing(walletDB: WalletDB, private val generalBacking: Backing<
             erc20Queries.selectERC20ContextByUUID(accountId, accountMapper)
                     .executeAsOneOrNull()
 
-    override fun createAccountContext(context: ERC20AccountContext) {
-        generalBacking.createAccountContext(context)
+    override fun createAccountContext(accountId: UUID, context: ERC20AccountContext) {
+        generalBacking.createAccountContext(accountId, context.accountContext())
         erc20Queries.insert(context.uuid, context.nonce, context.contractAddress, context.unitExponent, context.symbol, context.ethAccountId)
     }
 
-    override fun updateAccountContext(context: ERC20AccountContext) {
-        generalBacking.updateAccountContext(context)
+    override fun updateAccountContext(accountId: UUID, context: ERC20AccountContext) {
+        generalBacking.updateAccountContext(accountId, context.accountContext())
         erc20Queries.update(context.nonce, context.uuid)
     }
 

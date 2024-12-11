@@ -8,37 +8,39 @@ import com.mycelium.wapi.wallet.genericdb.AccountContextImpl
 import java.math.BigInteger
 import java.util.*
 
-class FioAccountContext(override val uuid: UUID,
+class FioAccountContext(uuid: UUID,
                         currency: CryptoCurrency,
                         accountName: String,
                         balance: Balance,
                         val listener: (FioAccountContext) -> Unit,
-                        override val accountIndex: Int,
+                        val accountIndex: Int,
                         registeredFIONames: List<RegisteredFIOName>? = null,
                         registeredFIODomains: List<FIODomain>? = null,
                         archived: Boolean = false,
                         blockHeight: Int = 0,
-                        accountType: Int = ACCOUNT_TYPE_FROM_MASTERSEED,
+                        val accountType: Int = ACCOUNT_TYPE_FROM_MASTERSEED,
                         actionSequenceNumber: BigInteger = BigInteger.ZERO) :
-        FioContext by FioContext.Impl(uuid, accountIndex, accountType, actionSequenceNumber, registeredFIONames, registeredFIODomains),
         AccountContextImpl(uuid, currency, accountName, balance, archived, blockHeight) {
+
+    fun fioContext() = FioContext(uuid, accountIndex, accountType, actionSequenceNumber, registeredFIONames, registeredFIODomains)
+
     override fun onChange() {
         listener(this)
     }
 
-    override var actionSequenceNumber = actionSequenceNumber
+    var actionSequenceNumber = actionSequenceNumber
         set(value) {
             field = value
             onChange()
         }
 
-    override var registeredFIONames = registeredFIONames
+    var registeredFIONames = registeredFIONames
         set(value) {
             field = value
             onChange()
         }
 
-    override var registeredFIODomains = registeredFIODomains
+    var registeredFIODomains = registeredFIODomains
         set(value) {
             field = value
             onChange()

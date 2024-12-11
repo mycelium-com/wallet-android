@@ -9,8 +9,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.mycelium.view.Denomination
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.util.toString
+import com.mycelium.wallet.databinding.LayoutBequantMyceliumWalletAccountsBinding
 import com.mycelium.wapi.wallet.WalletAccount
-import kotlinx.android.synthetic.main.layout_bequant_mycelium_wallet_accounts.view.*
 
 
 class AccountPagerAdapter : ListAdapter<WalletAccount<*>, RecyclerView.ViewHolder>(DiffCallback()) {
@@ -20,15 +20,18 @@ class AccountPagerAdapter : ListAdapter<WalletAccount<*>, RecyclerView.ViewHolde
 
     override fun onBindViewHolder(viewHolder: RecyclerView.ViewHolder, position: Int) {
         val item = getItem(position)
-        viewHolder.itemView.accountLabel.text = item.label
+        viewHolder as ViewHolder
+        viewHolder.binding.accountLabel.text = item.label
         val value = item.accountBalance.confirmed
-        viewHolder.itemView.accountBalance.text = value.toString(Denomination.UNIT)
-        viewHolder.itemView.accountBalanceCurrency.text = value.currencySymbol
+        viewHolder.binding.accountBalance.text = value.toString(Denomination.UNIT)
+        viewHolder.binding.accountBalanceCurrency.text = value.currencySymbol
     }
 
     public override fun getItem(position: Int): WalletAccount<*> = super.getItem(position)
 
-    class ViewHolder(val itemView: View) : RecyclerView.ViewHolder(itemView)
+    class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        val binding = LayoutBequantMyceliumWalletAccountsBinding.bind(itemView)
+    }
 
     class DiffCallback : DiffUtil.ItemCallback<WalletAccount<*>>() {
         override fun areItemsTheSame(oldItem: WalletAccount<*>, newItem: WalletAccount<*>): Boolean =

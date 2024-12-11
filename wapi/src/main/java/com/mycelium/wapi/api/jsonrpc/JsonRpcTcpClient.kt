@@ -211,7 +211,7 @@ open class JsonRpcTcpClient(private var endpoints : Array<TcpEndpoint>, androidA
     /**
      * Computes a "short" compound ID based on an array of IDs.
      */
-    private fun compoundId(ids: List<String>): String = ids.min() ?: ""
+    private fun compoundId(ids: List<String>): String = ids.minOrNull() ?: ""
 
     fun cancel(requests: List<RpcRequestOut>) {
         val compoundId = compoundId(requests.map { it.id.toString() })

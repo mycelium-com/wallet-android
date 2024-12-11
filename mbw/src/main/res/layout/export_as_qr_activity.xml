@@ -33,6 +33,7 @@
                 bind:viewModel="@{viewModel}" />
 
             <include
+                android:id="@+id/layoutQR"
                 layout="@layout/export_as_qr_activity_qr"
                 bind:viewModel="@{viewModel}" />
 

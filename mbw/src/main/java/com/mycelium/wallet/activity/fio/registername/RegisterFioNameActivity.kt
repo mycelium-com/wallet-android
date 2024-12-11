@@ -7,7 +7,6 @@ import android.os.Bundle
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
@@ -20,9 +19,10 @@ import fiofoundation.io.fiosdk.models.fionetworkprovider.FIOApiEndPoints
 import java.util.*
 import java.util.logging.Level
 import java.util.logging.Logger
+import androidx.activity.viewModels
 
 class RegisterFioNameActivity : AppCompatActivity(R.layout.activity_fio_add_address) {
-    private lateinit var viewModel: RegisterFioNameViewModel
+    private val viewModel: RegisterFioNameViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -32,8 +32,6 @@ class RegisterFioNameActivity : AppCompatActivity(R.layout.activity_fio_add_addr
             setDisplayShowTitleEnabled(true)
             title = resources.getString(R.string.fio_register_address)
         }
-
-        viewModel = ViewModelProviders.of(this).get(RegisterFioNameViewModel::class.java)
 
         val fioEndpoints = MbwManager.getInstance(this).fioEndpoints
         // set default fee at first, it will be updated in async task

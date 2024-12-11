@@ -1,6 +1,5 @@
 package com.mycelium.wallet.activity
 
-import android.app.Activity
 import android.app.ProgressDialog
 import android.content.Context
 import android.content.Intent
@@ -12,6 +11,7 @@ import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
 import com.mycelium.wallet.activity.modern.HDSigningActivity
 import com.mycelium.wallet.activity.modern.Toaster
+import com.mycelium.wallet.databinding.MessageSigningBinding
 import com.mycelium.wapi.wallet.Address
 import com.mycelium.wapi.wallet.KeyCipher.InvalidKeyCipher
 import com.mycelium.wapi.wallet.WalletAccount
@@ -20,7 +20,6 @@ import com.mycelium.wapi.wallet.btc.bip44.AddressesListProvider
 import com.mycelium.wapi.wallet.btcvault.AbstractBtcvAccount
 import com.mycelium.wapi.wallet.colu.ColuAccount
 import com.mycelium.wapi.wallet.eth.EthAccount
-import kotlinx.android.synthetic.main.message_signing.*
 import java.util.*
 import kotlin.concurrent.thread
 
@@ -29,6 +28,7 @@ class MessageSigningActivity : AppCompatActivity() {
     private var messageText: String? = null
     private var address: Address? = null
     private var account: WalletAccount<*>? = null
+    lateinit var binding: MessageSigningBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -37,34 +37,36 @@ class MessageSigningActivity : AppCompatActivity() {
             .getAccount(intent.getSerializableExtra(ACCOUNT) as UUID)!!
         address = intent.getSerializableExtra(ADDRESS) as? Address ?: account!!.receiveAddress
 
-        setContentView(R.layout.message_signing)
-        btCopyToClipboard.visibility = View.GONE
-        btShare.visibility = View.GONE
-        btSign.setOnClickListener {
-            btSign.isEnabled = false
-            etMessageToSign.isEnabled = false
-            etMessageToSign.hint = ""
+        setContentView(MessageSigningBinding.inflate(layoutInflater).apply {
+            binding = this
+        }.root)
+        binding.btCopyToClipboard.visibility = View.GONE
+        binding.btShare.visibility = View.GONE
+        binding.btSign.setOnClickListener {
+            binding.btSign.isEnabled = false
+            binding.etMessageToSign.isEnabled = false
+            binding.etMessageToSign.hint = ""
             val pd = ProgressDialog(this)
             pd.setTitle(getString(R.string.signing_inprogress))
             pd.setCancelable(false)
             pd.show()
             thread {
-                messageText = etMessageToSign.text.toString()
+                messageText = binding.etMessageToSign.text.toString()
                 signature = account!!.signMessage(messageText!!, address)
                 runOnUiThread {
                     pd.dismiss()
-                    tvSignature.text = signature
-                    btSign.visibility = View.GONE
-                    btCopyToClipboard.visibility = View.VISIBLE
-                    btShare.visibility = View.VISIBLE
+                    binding.tvSignature.text = signature
+                    binding.btSign.visibility = View.GONE
+                    binding.btCopyToClipboard.visibility = View.VISIBLE
+                    binding.btShare.visibility = View.VISIBLE
                 }
             }
         }
-        btCopyToClipboard.setOnClickListener {
+        binding.btCopyToClipboard.setOnClickListener {
             Utils.setClipboardString(signature, this@MessageSigningActivity)
             Toaster(this@MessageSigningActivity).toast(R.string.sig_copied, false)
         }
-        btShare.setOnClickListener {
+        binding.btShare.setOnClickListener {
             val sharingIntent = Intent(Intent.ACTION_SEND)
             sharingIntent.type = "text/plain"
             sharingIntent.putExtra(Intent.EXTRA_TEXT, getBody())

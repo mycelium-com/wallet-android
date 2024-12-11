@@ -288,6 +288,7 @@ class AddressBookFragment : Fragment() {
             ResultType.PRIVATE_KEY -> Utils.showSimpleMessageDialog(activity, R.string.addressbook_cannot_add_private_key)
             ResultType.ASSET_URI -> addFromAddress(intent.getAssetUri().address)
             ResultType.ADDRESS -> addFromAddress(intent.getAddress())
+            else -> {}
         }
     }
 

@@ -7,7 +7,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.mycelium.wallet.R
-import kotlinx.android.synthetic.main.item_bequant_step.view.*
+import com.mycelium.wallet.databinding.ItemBequantStepBinding
 
 class ItemStep(val step: Int, val stepName: String, val stepState: StepState)
 
@@ -19,22 +19,27 @@ class StepAdapter : ListAdapter<ItemStep, RecyclerView.ViewHolder>(ItemListDiffC
 
     override fun onBindViewHolder(viewHolder: RecyclerView.ViewHolder, position: Int) {
         val item = getItem(position)
+        viewHolder as ViewHolder
         if (position == 0) {
-            viewHolder.itemView.stepView.showConnectorLine = false
+            viewHolder.binding.stepView.showConnectorLine = false
         }
-        viewHolder.itemView.stepView.title = item.stepName
-        viewHolder.itemView.stepView.number = item.step
-        viewHolder.itemView.stepView.state = item.stepState
-        viewHolder.itemView.stepView.update()
+        viewHolder.binding.stepView.title = item.stepName
+        viewHolder.binding.stepView.number = item.step
+        viewHolder.binding.stepView.state = item.stepState
+        viewHolder.binding.stepView.update()
         when (item.stepState) {
             StepState.COMPLETE_EDITABLE, StepState.ERROR ->
                 viewHolder.itemView.setOnClickListener {
                     clickListener?.invoke(getItem(viewHolder.adapterPosition).step)
                 }
+
+            else -> {}
         }
     }
 
-    class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
+    class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        val binding = ItemBequantStepBinding.bind(itemView)
+    }
 
     class ItemListDiffCallback : DiffUtil.ItemCallback<ItemStep>() {
         override fun areItemsTheSame(oldItem: ItemStep, newItem: ItemStep): Boolean =

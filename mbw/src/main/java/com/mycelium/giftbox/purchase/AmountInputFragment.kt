@@ -31,13 +31,11 @@ import com.mycelium.wapi.wallet.coins.Value.Companion.isNullOrZero
 import com.mycelium.wapi.wallet.coins.Value.Companion.valueOf
 import com.mycelium.wapi.wallet.erc20.ERC20Account
 import com.mycelium.wapi.wallet.fiat.coins.FiatType
-import kotlinx.android.synthetic.main.fragment_giftbox_amount.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.math.BigDecimal
@@ -89,15 +87,15 @@ class AmountInputFragment : Fragment(), NumberEntry.NumberEntryListener {
                                 account?.coinType!!,
                                 toUnits(account?.coinType!!, cryptoAmountFromFiat)
                             )
-                        tvCryptoAmount.isVisible = true
-                        tvCryptoAmount.text = cryptoAmountValue.toStringFriendlyWithUnit()
+                        binding.tvCryptoAmount.isVisible = true
+                        binding.tvCryptoAmount.text = cryptoAmountValue.toStringFriendlyWithUnit()
 
                         //update spendable
                         val maxSpendable = getMaxSpendable()
                         val fiatSpendable = maxSpendable.valueAsBigDecimal.multiply(exchangeRate)
-                        spendableLayout.isVisible = true
+                        binding.spendableLayout.isVisible = true
 
-                        tvSpendableFiatAmount.text = "~" + valueOf(
+                        binding.tvSpendableFiatAmount.text = "~" + valueOf(
                             zeroFiatValue.type,
                             toUnits(zeroFiatValue.type, fiatSpendable!!)
                         ).toStringFriendlyWithUnit()
@@ -146,8 +144,8 @@ class AmountInputFragment : Fragment(), NumberEntry.NumberEntryListener {
         lifecycleScope.launch(IO) {
             val maxSpendable = getMaxSpendable()
             withContext(Dispatchers.Main) {
-                spendableLayout.isVisible = true
-                tvSpendableCryptoAmount.text = maxSpendable.toStringFriendlyWithUnit()
+                binding.spendableLayout.isVisible = true
+                binding.tvSpendableCryptoAmount.text = maxSpendable.toStringFriendlyWithUnit()
             }
         }
 
@@ -304,7 +302,7 @@ class AmountInputFragment : Fragment(), NumberEntry.NumberEntryListener {
                     if (priceResponse!!.status == PriceResponse.Status.eRROR) {
                         return@getPrice
                     }
-                    offer(priceResponse)
+                    trySend(priceResponse)
                 },
                 error = { _, error ->
                     close()

@@ -2,10 +2,11 @@ package com.mycelium.wallet.activity.modern.adapter.holder
 
 import android.view.View
 import androidx.recyclerview.widget.RecyclerView
-import kotlinx.android.synthetic.main.record_row_investment.view.*
+import com.mycelium.wallet.databinding.RecordRowInvestmentBinding
 
 
 class InvestmentViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-    val balance = view.tvBalance
-    val activateLink = view.activateLink
+    val binding = RecordRowInvestmentBinding.bind(view)
+    val balance = binding.tvBalance
+    val activateLink = binding.activateLink
 }

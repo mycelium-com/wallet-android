@@ -11,12 +11,12 @@ import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.util.AddressLabel
 import com.mycelium.wallet.activity.util.BtcFeeFormatter
 import com.mycelium.wallet.activity.util.toStringWithUnit
+import com.mycelium.wallet.databinding.TransactionDetailsBtcBinding
 import com.mycelium.wapi.api.WapiException
 import com.mycelium.wapi.wallet.OutputViewModel
 import com.mycelium.wapi.wallet.TransactionSummary
 import com.mycelium.wapi.wallet.btc.AbstractBtcAccount
 import com.mycelium.wapi.wallet.coins.Value.Companion.zeroValue
-import kotlinx.android.synthetic.main.transaction_details_btc.*
 import kotlinx.coroutines.*
 import java.util.*
 import java.util.logging.Level
@@ -34,81 +34,96 @@ class BtcDetailsFragment : DetailsFragment() {
         mbwManager!!.getWalletManager(false)
                 .getAccount(requireArguments().getSerializable("accountId") as UUID) as AbstractBtcAccount
     }
+    private var binding: TransactionDetailsBtcBinding? = null
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? =
-            inflater.inflate(R.layout.transaction_details_btc, container, false)
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View =
+        TransactionDetailsBtcBinding.inflate(inflater, container, false)
+            .apply {
+                binding = this
+            }
+            .root
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         tx = requireArguments().getSerializable("tx") as TransactionSummary
         loadAndUpdate(false)
-        listOf(btFeeRetry, btInputsRetry).forEach { it.setOnClickListener { startRemoteLoading() } }
+        listOf(binding?.btFeeRetry, binding?.btInputsRetry)
+            .forEach { it?.setOnClickListener { startRemoteLoading() } }
         startRemoteLoading()
     }
 
     private fun updateUi(isAfterRemoteUpdate: Boolean, suggestRetryIfError: Boolean) {
-        if (specific_table == null) {
-            return
-        }
-        alignTables(specific_table)
+        binding?.run {
 
-        btFeeRetry.visibility = View.GONE
-        btInputsRetry.visibility = View.GONE
-        tvFee.visibility = View.VISIBLE
-        tvInputsAmount.visibility = View.VISIBLE
+            alignTables(specificTable)
 
-        // Set Inputs
-        llInputs.removeAllViews()
-        if (tx!!.inputs != null) {
-            var sum = zeroValue(tx!!.type)
-            for (input in tx!!.inputs) {
-                sum = sum.plus(input.value)
-            }
-            if (!sum.equalZero()) {
-                tvInputsAmount.visibility = View.GONE
-                for (item in tx!!.inputs) {
-                    llInputs.addView(getItemView(item))
-                }
-            }
-        }
-
-        // Set Outputs
-        llOutputs.removeAllViews()
-        if (tx!!.outputs != null) {
-            for (item in tx!!.outputs) {
-                llOutputs.addView(getItemView(item))
-            }
-        }
-
-        // Set Fee
-        val txFeeTotal = tx!!.fee!!.valueAsLong
-        if (txFeeTotal > 0 && tx!!.inputs.size != 0) {
-            tvFeeLabel.visibility = View.VISIBLE
-            tvInputsLabel.visibility = View.VISIBLE
-            var fee = tx!!.fee!!.toStringWithUnit(mbwManager!!.getDenomination(account.coinType)) + "\n"
-            if (tx!!.rawSize > 0) {
-                fee += BtcFeeFormatter().getFeePerUnitInBytes(txFeeTotal / tx!!.rawSize)
-            }
-            tvFee.text = fee
+            btFeeRetry.visibility = View.GONE
+            btInputsRetry.visibility = View.GONE
             tvFee.visibility = View.VISIBLE
-        } else {
-            tvFee.setText(if (isAfterRemoteUpdate) R.string.no_transaction_details else R.string.no_transaction_loading)
-            if (isAfterRemoteUpdate) {
-                if (suggestRetryIfError) {
-                    btFeeRetry.visibility = View.VISIBLE
-                    btInputsRetry.visibility = View.VISIBLE
-                    tvFee.visibility = View.GONE
+            tvInputsAmount.visibility = View.VISIBLE
+
+            // Set Inputs
+            llInputs.removeAllViews()
+            if (tx!!.inputs != null) {
+                var sum = zeroValue(tx!!.type)
+                for (input in tx!!.inputs) {
+                    sum = sum.plus(input.value)
+                }
+                if (!sum.equalZero()) {
                     tvInputsAmount.visibility = View.GONE
+                    for (item in tx!!.inputs) {
+                        llInputs.addView(getItemView(item))
+                    }
                 }
+            }
+
+            // Set Outputs
+            llOutputs.removeAllViews()
+            if (tx!!.outputs != null) {
+                for (item in tx!!.outputs) {
+                    llOutputs.addView(getItemView(item))
+                }
+            }
+
+            // Set Fee
+            val txFeeTotal = tx!!.fee!!.valueAsLong
+            if (txFeeTotal > 0 && tx!!.inputs.size != 0) {
+                tvFeeLabel.visibility = View.VISIBLE
+                tvInputsLabel.visibility = View.VISIBLE
+                var fee =
+                    tx!!.fee!!.toStringWithUnit(mbwManager!!.getDenomination(account.coinType)) + "\n"
+                if (tx!!.rawSize > 0) {
+                    fee += BtcFeeFormatter().getFeePerUnitInBytes(txFeeTotal / tx!!.rawSize)
+                }
+                tvFee.text = fee
+                tvFee.visibility = View.VISIBLE
             } else {
-                val length = tx!!.inputs.size
-                val amountLoading = if (length > 0) {
-                    String.format("%s %s", length.toString(), getString(R.string.no_transaction_loading))
+                tvFee.setText(if (isAfterRemoteUpdate) R.string.no_transaction_details else R.string.no_transaction_loading)
+                if (isAfterRemoteUpdate) {
+                    if (suggestRetryIfError) {
+                        btFeeRetry.visibility = View.VISIBLE
+                        btInputsRetry.visibility = View.VISIBLE
+                        tvFee.visibility = View.GONE
+                        tvInputsAmount.visibility = View.GONE
+                    }
                 } else {
-                    getString(R.string.no_transaction_loading)
-                }
-                if (tvInputsAmount.isAttachedToWindow) {
-                    tvInputsAmount.text = amountLoading
+                    val length = tx!!.inputs.size
+                    val amountLoading = if (length > 0) {
+                        String.format(
+                            "%s %s",
+                            length.toString(),
+                            getString(R.string.no_transaction_loading)
+                        )
+                    } else {
+                        getString(R.string.no_transaction_loading)
+                    }
+                    if (tvInputsAmount.isAttachedToWindow) {
+                        tvInputsAmount.text = amountLoading
+                    }
                 }
             }
         }
@@ -141,6 +156,11 @@ class BtcDetailsFragment : DetailsFragment() {
     override fun onStop() {
         job?.cancel()
         super.onStop()
+    }
+
+    override fun onDestroyView() {
+        binding = null
+        super.onDestroyView()
     }
 
     private fun loadAndUpdate(isAfterRemoteUpdate: Boolean) {

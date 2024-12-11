@@ -11,9 +11,8 @@ import android.view.ViewGroup
 import androidx.core.content.FileProvider
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.mycelium.wallet.BuildConfig
-import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
-import kotlinx.android.synthetic.main.dialog_bequant_document_attach.*
+import com.mycelium.wallet.databinding.DialogBequantDocumentAttachBinding
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
@@ -21,13 +20,17 @@ import java.util.*
 
 class DocumentAttachDialog : BottomSheetDialogFragment() {
     private var hasCameraPermission: Boolean = false
-
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? =
-            inflater.inflate(R.layout.dialog_bequant_document_attach, container, false)
+    var binding: DialogBequantDocumentAttachBinding? = null
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View =
+            DialogBequantDocumentAttachBinding.inflate(inflater, container, false)
+                .apply {
+                    binding = this
+                }
+                .root
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        camera.setOnClickListener {
+        binding?.camera?.setOnClickListener {
             hasCameraPermission = Utils.hasOrRequestAccess(this, Manifest.permission.CAMERA, CAMERA_REQUEST_CODE)
             if (!hasCameraPermission) {
                 // finishError(R.string.no_camera_permission);
@@ -36,11 +39,16 @@ class DocumentAttachDialog : BottomSheetDialogFragment() {
             startCamera()
             dismissAllowingStateLoss()
         }
-        upload.setOnClickListener {
+        binding?.upload?.setOnClickListener {
             targetFragment?.startActivityForResult(Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI),
                     targetRequestCode)
             dismissAllowingStateLoss()
         }
+    }
+
+    override fun onDestroyView() {
+        binding = null
+        super.onDestroyView()
     }
 
     private fun startCamera() {

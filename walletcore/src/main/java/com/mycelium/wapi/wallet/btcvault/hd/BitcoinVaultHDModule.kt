@@ -69,9 +69,9 @@ class BitcoinVaultHDModule(internal val backing: Backing<BitcoinVaultHDAccountCo
                 // Generate the context for the account
                 val accountContext = BitcoinVaultHDAccountContext(keyManagerMap[BipDerivationType.BIP44]!!.accountId,
                         coinType, accountIndex, false, "Bitcoin Vault ${accountIndex + 1}",
-                        Balance.getZeroBalance(coinType), backing::updateAccountContext)
+                    Balance.getZeroBalance(coinType), { backing.updateAccountContext(it.uuid, it) })
 
-                backing.createAccountContext(accountContext)
+                backing.createAccountContext(accountContext.uuid, accountContext)
                 result = BitcoinVaultHdAccount(accountContext, keyManagerMap, networkParameters, _wapi,
                         BitcoinVaultHDAccountBacking(walletDB, accountContext.uuid),
                         accountListener, settings.changeAddressModeReference)
@@ -100,7 +100,7 @@ class BitcoinVaultHDModule(internal val backing: Backing<BitcoinVaultHDAccountCo
 
     private fun getCurrentBip44Index() = accounts.values
             .filter { it.isDerivedFromInternalMasterseed() }
-            .maxBy { it.accountIndex }
+            .maxByOrNull { it.accountIndex }
             ?.accountIndex
             ?: -1
 

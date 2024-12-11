@@ -18,8 +18,8 @@ import com.mycelium.giftbox.client.models.Order
 import com.mycelium.giftbox.client.models.Status
 import com.mycelium.giftbox.getDateString
 import com.mycelium.wallet.R
-import kotlinx.android.synthetic.main.item_giftbox_purchaced.view.*
-import kotlinx.android.synthetic.main.item_giftbox_purchaced_group.view.*
+import com.mycelium.wallet.databinding.ItemGiftboxPurchacedBinding
+import com.mycelium.wallet.databinding.ItemGiftboxPurchacedGroupBinding
 import java.math.BigDecimal
 
 abstract class PurchasedItem(val type: Int)
@@ -35,8 +35,8 @@ class OrderAdapter : ListAdapter<PurchasedItem, RecyclerView.ViewHolder>(DiffCal
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder =
             when (viewType) {
                 TYPE_CARD -> CardViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.item_giftbox_purchaced, parent, false)).apply {
-                    itemView.more.visibility = GONE
-                    itemView.descriptionLabel.visibility = GONE
+                    binding.more.visibility = GONE
+                    binding.descriptionLabel.visibility = GONE
                 }
                 TYPE_GROUP -> GroupViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.item_giftbox_purchaced_group, parent, false))
                 TYPE_LOADING -> LoadingViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.item_giftbox_loading, parent, false))
@@ -52,44 +52,45 @@ class OrderAdapter : ListAdapter<PurchasedItem, RecyclerView.ViewHolder>(DiffCal
             TYPE_CARD -> {
                 val purchasedItem = getItem(bindingAdapterPosition) as PurchasedOrderItem
                 val item = purchasedItem.order
-                holder.itemView.title.text = item.productName
+                holder as CardViewHolder
+                holder.binding.title.text = item.productName
                 val amount = (item.amount?.toBigDecimal() ?: BigDecimal.ZERO) *
                         (item.quantity ?: BigDecimal.ZERO)
-                holder.itemView.description.text = "${amount.stripTrailingZeros().toPlainString()} ${item.currencyCode}"
-                holder.itemView.additional.text = when (item.status) {
+                holder.binding.description.text = "${amount.stripTrailingZeros().toPlainString()} ${item.currencyCode}"
+                holder.binding.additional.text = when (item.status) {
                     Status.pROCESSING -> {
-                        holder.itemView.additionalLabel.visibility = GONE
-                        holder.itemView.additional.setCompoundDrawablesRelativeWithIntrinsicBounds(R.drawable.ic_history, 0, 0, 0)
+                        holder.binding.additionalLabel.visibility = GONE
+                        holder.binding.additional.setCompoundDrawablesRelativeWithIntrinsicBounds(R.drawable.ic_history, 0, 0, 0)
                         val color = holder.itemView.context.resources.getColor(R.color.giftbox_yellow)
-                        holder.itemView.additional.setTextColor(color)
+                        holder.binding.additional.setTextColor(color)
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                            holder.itemView.additional.compoundDrawableTintList = ColorStateList.valueOf(color)
+                            holder.binding.additional.compoundDrawableTintList = ColorStateList.valueOf(color)
                         }
                         holder.itemView.context.getString(R.string.payment_in_progress)
                     }
                     Status.eRROR -> {
-                        holder.itemView.additionalLabel.visibility = GONE
-                        holder.itemView.additional.setCompoundDrawablesRelativeWithIntrinsicBounds(R.drawable.ic_failed, 0, 0, 0)
+                        holder.binding.additionalLabel.visibility = GONE
+                        holder.binding.additional.setCompoundDrawablesRelativeWithIntrinsicBounds(R.drawable.ic_failed, 0, 0, 0)
                         val color = holder.itemView.context.resources.getColor(R.color.fio_white_alpha_0_9)
-                        holder.itemView.additional.setTextColor(color)
+                        holder.binding.additional.setTextColor(color)
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                            holder.itemView.additional.compoundDrawableTintList = ColorStateList.valueOf(color)
+                            holder.binding.additional.compoundDrawableTintList = ColorStateList.valueOf(color)
                         }
                         holder.itemView.context.getString(R.string.failed)
                     }
                     else -> {
-                        holder.itemView.additionalLabel.visibility = View.VISIBLE
-                        holder.itemView.additional.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0, 0, 0)
-                        holder.itemView.additional.setTextColor(holder.itemView.context.resources.getColor(R.color.giftbox_green))
+                        holder.binding.additionalLabel.visibility = View.VISIBLE
+                        holder.binding.additional.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0, 0, 0)
+                        holder.binding.additional.setTextColor(holder.itemView.context.resources.getColor(R.color.giftbox_green))
                         item.timestamp?.getDateString(holder.itemView.resources)
                     }
                 }
                 holder.itemView.isEnabled = !purchasedItem.redeemed
-                Glide.with(holder.itemView.image)
+                Glide.with(holder.binding.image)
                         .load(item.productImg)
                         .apply(RequestOptions()
                                 .transforms(CenterCrop(), RoundedCorners(holder.itemView.resources.getDimensionPixelSize(R.dimen.giftbox_small_corner))))
-                        .into(holder.itemView.image)
+                        .into(holder.binding.image)
                 if (!purchasedItem.redeemed) {
                     holder.itemView.setOnClickListener {
                         itemClickListener?.invoke((getItem(bindingAdapterPosition) as PurchasedOrderItem).order)
@@ -100,8 +101,9 @@ class OrderAdapter : ListAdapter<PurchasedItem, RecyclerView.ViewHolder>(DiffCal
             }
             TYPE_GROUP -> {
                 val item = getItem(bindingAdapterPosition) as PurchasedGroupItem
-                holder.itemView.groupTitle.text = item.title
-                holder.itemView.expand.rotation = if (item.isOpened) 180f else 0f
+                holder as GroupViewHolder
+                holder.binding.groupTitle.text = item.title
+                holder.binding.expand.rotation = if (item.isOpened) 180f else 0f
                 holder.itemView.setOnClickListener {
                     groupListener?.invoke((getItem(bindingAdapterPosition) as PurchasedGroupItem).title)
                 }
@@ -111,8 +113,12 @@ class OrderAdapter : ListAdapter<PurchasedItem, RecyclerView.ViewHolder>(DiffCal
 
     override fun getItemViewType(position: Int): Int = getItem(position).type
 
-    class CardViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
-    class GroupViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
+    class CardViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        val binding = ItemGiftboxPurchacedBinding.bind(itemView)
+    }
+    class GroupViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        val binding = ItemGiftboxPurchacedGroupBinding.bind(itemView)
+    }
     class LoadingViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
 
     class DiffCallback : DiffUtil.ItemCallback<PurchasedItem>() {

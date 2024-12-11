@@ -3,7 +3,7 @@ package com.mycelium.wallet.activity.main.model.transactionhistory
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Transformations
+import androidx.lifecycle.switchMap
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.fio.FIOOBTransaction
@@ -21,7 +21,7 @@ class TransactionHistoryModel(application: Application) : AndroidViewModel(appli
     var txs: TransactionHistoryLiveData? = null // TODO refactor append  logic
 
     val transactionHistory =
-            Transformations.switchMap(account) {
+            account.switchMap {
                 TransactionHistoryLiveData(mbwManager, it, fioMetadataMap).apply {
                     txs = this
                 }

@@ -37,7 +37,7 @@ class SquarePinField : PinField {
         }
     }
 
-    override fun onDraw(canvas: Canvas?) {
+    override fun onDraw(canvas: Canvas) {
 
         for (i in 0 until numberOfFields) {
 
@@ -61,13 +61,13 @@ class SquarePinField : PinField {
             }
 
             if (character != null) {
-                canvas?.drawText(character.toString(), textX, textY, textPaint)
+                canvas.drawText(character.toString(), textX, textY, textPaint)
             }
 
             if (shouldDrawHint()) {
                 val hintChar = hint.getOrNull(i)
                 if (hintChar != null) {
-                    canvas?.drawText(hintChar.toString(), textX, textY, hintPaint)
+                    canvas.drawText(hintChar.toString(), textX, textY, hintPaint)
                 }
             }
 

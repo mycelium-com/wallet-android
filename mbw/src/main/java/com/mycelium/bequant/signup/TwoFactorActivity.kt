@@ -13,14 +13,16 @@ import com.mycelium.bequant.common.ErrorHandler
 import com.mycelium.bequant.common.loader
 import com.mycelium.bequant.remote.repositories.Api
 import com.mycelium.wallet.R
-import kotlinx.android.synthetic.main.activity_two_factor.*
 import org.json.JSONObject
 import com.mycelium.wallet.Constants.BAD_REQUEST_HTTP_CODE
+import com.mycelium.wallet.databinding.ActivityTwoFactorBinding
 
-class TwoFactorActivity : AppCompatActivity(R.layout.activity_two_factor) {
+class TwoFactorActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setSupportActionBar(toolbar)
+        val binding = ActivityTwoFactorBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+        setSupportActionBar(binding.toolbar)
         supportActionBar?.run {
             setDisplayHomeAsUpEnabled(true)
             setDisplayShowTitleEnabled(true)

@@ -1,5 +1,7 @@
 import com.mrd.bitlib.model.OutPoint;
 import java.util.UUID;
+import kotlin.Boolean;
+import kotlin.Int;
 
 CREATE TABLE IF NOT EXISTS BTCVPtxo(
         outpoint BLOB AS OutPoint,

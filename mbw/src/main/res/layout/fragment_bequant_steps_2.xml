@@ -184,6 +184,7 @@
         </ScrollView>
 
         <include
+            android:id="@+id/body"
             layout="@layout/part_bequant_stepper_body"
             android:layout_width="match_parent"
             android:layout_height="0dp"

@@ -34,7 +34,6 @@ import com.mycelium.wapi.wallet.erc20.getActiveERC20Accounts
 import com.mycelium.wapi.wallet.eth.getActiveEthAccounts
 import com.mycelium.wapi.wallet.fio.FioAccount
 import com.mycelium.wapi.wallet.fio.FioModule
-import kotlinx.android.synthetic.main.fragment_fio_account_mapping.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -52,10 +51,12 @@ class FIONameDetailsFragment : Fragment() {
     private lateinit var fioModule: FioModule
 
     val args: FIONameDetailsFragmentArgs by navArgs()
+    var binding: FragmentFioAccountMappingBinding? = null
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? =
-            DataBindingUtil.inflate<FragmentFioAccountMappingBinding>(inflater, R.layout.fragment_fio_account_mapping, container, false)
+            FragmentFioAccountMappingBinding.inflate(inflater, container, false)
                     .apply {
+                        binding = this
                         viewModel = this@FIONameDetailsFragment.viewModel
                         lifecycleOwner = this@FIONameDetailsFragment
                     }.root
@@ -81,8 +82,8 @@ class FIONameDetailsFragment : Fragment() {
         (requireActivity() as AppCompatActivity).supportActionBar?.run {
             title = getString(R.string.fio_name_details)
         }
-        list.adapter = adapter
-        list.itemAnimator = null
+        binding?.list?.adapter = adapter
+        binding?.list?.itemAnimator = null
         setFioName()
         fioAccount = fioModule.getFioAccountByFioName(args.fioName.name)!!.let { accountId ->
             walletManager.getAccount(accountId) as FioAccount
@@ -97,7 +98,7 @@ class FIONameDetailsFragment : Fragment() {
                                 it.accountId == accountItem.accountId && accountItem.isEnabled)
                     }
             val enabledList = data.filterIsInstance<ItemAccount>().filter { it.isEnabled }
-            acknowledge?.visibility = if (enabledList.isEmpty()) INVISIBLE else VISIBLE
+            binding?.acknowledge?.visibility = if (enabledList.isEmpty()) INVISIBLE else VISIBLE
             viewModel.acknowledge.value = enabledList.isEmpty()
             adapter.submitList(data.toList())
         }
@@ -107,21 +108,21 @@ class FIONameDetailsFragment : Fragment() {
             updateList(walletManager, preference)
         }
         updateList(walletManager, preference)
-        llBundled.setOnClickListener {
+        binding?.llBundled?.setOnClickListener {
             Toast.makeText(requireContext(),
                     "TODO: add an explanation of how FIO bundled transactions work.",
                     Toast.LENGTH_SHORT).show()
         }
-        renewFIOName.setOnClickListener {
+        binding?.renewFIOName?.setOnClickListener {
             val fioName = viewModel.fioName.value!!.name
             RegisterFioNameActivity.startRenew(requireContext(), fioAccount.id, fioName)
         }
-        copy.setOnClickListener {
+        binding?.copy?.setOnClickListener {
             val text = viewModel.fioName.value!!.name
             Utils.setClipboardString(text, context)
             Toast.makeText(context, R.string.copied_to_clipboard, Toast.LENGTH_SHORT).show()
         }
-        buttonContinue.setOnClickListener {
+        binding?.buttonContinue?.setOnClickListener {
             val accounts = adapter.currentList
                     .filterIsInstance<ItemAccount>()
                     .filter { it.isEnabled }
@@ -149,11 +150,16 @@ class FIONameDetailsFragment : Fragment() {
         viewModel.fioName.observe(viewLifecycleOwner) {
             viewModel.update()
         }
-        tvConnectAccountsDesc.text = if (viewModel.fioAccount.value!!.canSpend()) {
+        binding?.tvConnectAccountsDesc?.text = if (viewModel.fioAccount.value!!.canSpend()) {
             getText(R.string.select_name_to_associate)
         } else {
             getText(R.string.select_name_to_associate_read_only_account)
         }
+    }
+
+    override fun onDestroyView() {
+        binding = null
+        super.onDestroyView()
     }
 
     private fun updateList(walletManager: WalletManager, preference: SharedPreferences) {

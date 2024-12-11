@@ -12,9 +12,8 @@ import android.view.View
 import android.view.View.GONE
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
-import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProviders
+import androidx.fragment.app.viewModels
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.mycelium.bequant.BequantPreference
 import com.mycelium.bequant.BequantConstants
@@ -23,12 +22,12 @@ import com.mycelium.bequant.remote.model.BequantUserEvent
 import com.mycelium.bequant.signup.viewmodel.RegistrationInfoViewModel
 import com.mycelium.wallet.R
 import com.mycelium.wallet.databinding.FragmentBequantRegistrationTotpBinding
-import kotlinx.android.synthetic.main.part_bequant_not_receive_email.*
 
 
 class RegistrationTotpFragment : Fragment() {
 
-    lateinit var viewModel: RegistrationInfoViewModel
+    val viewModel: RegistrationInfoViewModel by viewModels()
+    var binding: FragmentBequantRegistrationTotpBinding? = null
 
     private val receiver = object : BroadcastReceiver() {
         override fun onReceive(p0: Context?, p1: Intent?) {
@@ -42,16 +41,16 @@ class RegistrationTotpFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
-        viewModel = ViewModelProviders.of(this).get(RegistrationInfoViewModel::class.java)
         LocalBroadcastManager.getInstance(requireContext()).registerReceiver(receiver, IntentFilter(BequantConstants.ACTION_BEQUANT_TOTP_CONFIRMED))
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? =
-            DataBindingUtil.inflate<FragmentBequantRegistrationTotpBinding>(inflater, R.layout.fragment_bequant_registration_totp, container, false)
-                    .apply {
-                        viewModel = this@RegistrationTotpFragment.viewModel
-                        lifecycleOwner = this@RegistrationTotpFragment
-                    }.root
+        FragmentBequantRegistrationTotpBinding.inflate(inflater, container, false)
+            .apply {
+                binding = this
+                viewModel = this@RegistrationTotpFragment.viewModel
+                lifecycleOwner = this@RegistrationTotpFragment
+            }.root
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -60,11 +59,11 @@ class RegistrationTotpFragment : Fragment() {
             setHomeAsUpIndicator(resources.getDrawable(R.drawable.ic_bequant_clear))
         }
         viewModel.email.value = BequantPreference.getEmail()
-        checkIsEmailCorrect.visibility = GONE
-        resendConfirmationEmail.setOnClickListener {
+        binding?.layoutNotReceive?.checkIsEmailCorrect?.visibility = GONE
+        binding?.layoutNotReceive?.resendConfirmationEmail?.setOnClickListener {
 //            Api.signRepository.resendRegister(Email(register.email), {}, {})
         }
-        supportTeam.setOnClickListener {
+        binding?.layoutNotReceive?.supportTeam?.setOnClickListener {
             startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(BequantConstants.LINK_SUPPORT_CENTER)))
         }
     }
@@ -77,4 +76,9 @@ class RegistrationTotpFragment : Fragment() {
                 }
                 else -> super.onOptionsItemSelected(item)
             }
+
+    override fun onDestroyView() {
+        binding = null
+        super.onDestroyView()
+    }
 }

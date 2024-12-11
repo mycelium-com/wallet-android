@@ -112,6 +112,7 @@
                 android:layout_marginTop="4dp" />
 
             <include
+                android:id="@+id/layoutBequantAmount"
                 layout="@layout/layout_bequant_amount"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

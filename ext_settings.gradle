@@ -1,15 +1,15 @@
 // keep that file in sync with ext_settings.gradle in the internal big repository
 ext {
     guavaVersion = '23.0-android'
-    gradleVersion = '4.1.1'
-    androidCompileSdkVersion = 33
+    gradleVersion = '8.7.1'
+    androidCompileSdkVersion = 35
     androidSdkBuildVersion = '30.0.3'
-    androidMinSdkVersion = 19
-    androidTargetSdkVersion = 33
+    androidMinSdkVersion = 21
+    androidTargetSdkVersion = 35
     junitVersion = '4.12'
-    kotlin_version = '1.3.72'
+    kotlin_version = '2.0.21'
     coroutines_version = "1.3.0-M2"
-    lifecycle_version = "2.1.0"
+    lifecycle_version = "2.8.6"
     gsonVersion = '2.8.5'
     findBugsVersion = '3.0.1'
     okhttpVersion = '2.7.5'
@@ -28,9 +28,9 @@ ext {
     // 2.9.9. was downgraded to 2.9.6 due to runtime crash "NoSuchMethodError" on android api 23
     // the solution got from https://github.com/FasterXML/jackson-module-kotlin/issues/218#issuecomment-470900330
     jacksonDatabindVersion = '2.9.6'
-    nav_version = "2.3.5"
+    nav_version = '2.5.0'
     // latest version is 1.4.3 but that changes the api somehow
-    sqldelight_version = '1.2.1'
+    sqldelight_version = '2.0.0'
 
     projectRootDir = project.rootDir.getPath()
     commonDebugKeystore = project.file('debug.keystore')

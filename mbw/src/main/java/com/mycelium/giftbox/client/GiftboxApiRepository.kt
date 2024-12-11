@@ -10,7 +10,7 @@ import com.mycelium.giftbox.model.Card
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.WalletApplication
 import com.mycelium.wapi.wallet.AesKeyCipher
-import com.squareup.sqldelight.android.AndroidSqliteDriver
+import app.cash.sqldelight.driver.android.AndroidSqliteDriver
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import retrofit2.Response

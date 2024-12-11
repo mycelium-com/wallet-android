@@ -147,7 +147,7 @@ class ModernMain : AppCompatActivity(), BackHandler {
                 addressBookConfig, TAB_ADDRESS_BOOK)
         addAdsTabs(binding.pagerTabs)
         binding.pager.offscreenPageLimit = (mTabsAdapter?.count ?: 0) + 2
-        selectTab(if (intent.getStringExtra(TAB_KEY) != null) intent.getStringExtra(TAB_KEY) else TAB_ACCOUNTS)
+        selectTab(intent.getStringExtra(TAB_KEY) ?: TAB_ACCOUNTS)
         _toaster = Toaster(this)
         checkTorState()
         if (savedInstanceState != null) {
@@ -534,16 +534,17 @@ class ModernMain : AppCompatActivity(), BackHandler {
 
     private fun showRefresh() {
         val menuItem = refreshItem!!.setActionView(R.layout.actionbar_indeterminate_progress)
-        val ivTorIcon = menuItem.actionView.findViewById<ImageView>(R.id.ivTorIcon)
-        if (mbwManager.torMode == ServerEndpointType.Types.ONLY_TOR && mbwManager.torManager != null) {
-            ivTorIcon.visibility = View.VISIBLE
-            if (mbwManager.torManager.initState == 100) {
-                ivTorIcon.setImageResource(R.drawable.tor)
+        menuItem.actionView?.findViewById<ImageView>(R.id.ivTorIcon)?.let { ivTorIcon ->
+            if (mbwManager.torMode == ServerEndpointType.Types.ONLY_TOR && mbwManager.torManager != null) {
+                ivTorIcon.visibility = View.VISIBLE
+                if (mbwManager.torManager.initState == 100) {
+                    ivTorIcon.setImageResource(R.drawable.tor)
+                } else {
+                    ivTorIcon.setImageResource(R.drawable.tor_gray)
+                }
             } else {
-                ivTorIcon.setImageResource(R.drawable.tor_gray)
+                ivTorIcon.visibility = View.GONE
             }
-        } else {
-            ivTorIcon.visibility = View.GONE
         }
     }
 

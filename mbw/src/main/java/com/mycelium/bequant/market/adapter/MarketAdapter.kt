@@ -15,7 +15,7 @@ import com.mycelium.bequant.BequantConstants
 import com.mycelium.bequant.common.equalsValuesBy
 import com.mycelium.bequant.market.viewmodel.*
 import com.mycelium.wallet.R
-import kotlinx.android.synthetic.main.item_bequant_market.view.*
+import com.mycelium.wallet.databinding.ItemBequantMarketBinding
 
 
 class MarketAdapter(private val callback: (Int, Boolean) -> Unit) : ListAdapter<AdapterItem, RecyclerView.ViewHolder>(DiffCallback()) {
@@ -33,7 +33,9 @@ class MarketAdapter(private val callback: (Int, Boolean) -> Unit) : ListAdapter<
         when (item.viewType) {
             MARKET_ITEM -> {
                 item as MarketItem
-                holder.itemView.run {
+                holder as ViewHolder
+                val resources = holder.itemView.resources
+                holder.binding.run {
                     currencies.text = "${item.from} / ${item.to}"
                     volume.text = "Vol ${item.volume.toBigDecimal().toPlainString()}"
                     rate.text = if (item.price == null) "N/A" else item.price.toBigDecimal().toPlainString()
@@ -55,8 +57,8 @@ class MarketAdapter(private val callback: (Int, Boolean) -> Unit) : ListAdapter<
                             "+%.${2}f%%".format(item.change)
                         }
                     }
-                    setOnClickListener {
-                        LocalBroadcastManager.getInstance(context)
+                    root.setOnClickListener {
+                        LocalBroadcastManager.getInstance(root.context)
                                 .sendBroadcast(Intent(BequantConstants.ACTION_EXCHANGE)
                                         .putExtra("from", item.from)
                                         .putExtra("to", item.to))
@@ -106,7 +108,9 @@ class MarketAdapter(private val callback: (Int, Boolean) -> Unit) : ListAdapter<
 
     override fun getItemViewType(position: Int): Int = getItem(position).viewType
 
-    class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
+    class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        val binding = ItemBequantMarketBinding.bind(itemView)
+    }
 
     class DiffCallback : DiffUtil.ItemCallback<AdapterItem>() {
         override fun areItemsTheSame(oldItem: AdapterItem, newItem: AdapterItem): Boolean =

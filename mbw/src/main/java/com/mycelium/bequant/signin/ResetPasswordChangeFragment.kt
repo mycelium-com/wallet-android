@@ -8,10 +8,9 @@ import android.view.View
 import android.view.View.GONE
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
-import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
@@ -21,26 +20,25 @@ import com.mycelium.bequant.remote.client.models.AccountPasswordSetRequest
 import com.mycelium.bequant.remote.repositories.Api
 import com.mycelium.bequant.signup.viewmodel.SignUpViewModel
 import com.mycelium.wallet.R
-import com.mycelium.wallet.databinding.FragmentBequantChangePasswordBindingImpl
-import kotlinx.android.synthetic.main.fragment_bequant_change_password.*
-import kotlinx.android.synthetic.main.layout_password_registration.*
+import com.mycelium.wallet.databinding.FragmentBequantChangePasswordBinding
 
 
 class ResetPasswordChangeFragment : Fragment() {
 
-    lateinit var viewModel: SignUpViewModel
+    val viewModel: SignUpViewModel by viewModels()
 
     val args by navArgs<ResetPasswordChangeFragmentArgs>()
+    var binding: FragmentBequantChangePasswordBinding? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
-        viewModel = ViewModelProviders.of(this).get(SignUpViewModel::class.java)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? =
-            DataBindingUtil.inflate<FragmentBequantChangePasswordBindingImpl>(inflater, R.layout.fragment_bequant_change_password, container, false)
+            FragmentBequantChangePasswordBinding.inflate(inflater, container, false)
                     .apply {
+                        binding = this
                         this.viewModel = this@ResetPasswordChangeFragment.viewModel
                         lifecycleOwner = this@ResetPasswordChangeFragment
                     }.root
@@ -55,22 +53,26 @@ class ResetPasswordChangeFragment : Fragment() {
         val token = args.token
         viewModel.email.value = mail
         viewModel.password.observe(this, Observer { value ->
-            passwordLayout.error = null
-            viewModel.calculatePasswordLevel(value, passwordLevel, passwordLevelLabel)
+            binding?.layoutPassword?.passwordLayout?.error = null
+            viewModel.calculatePasswordLevel(value,
+                binding?.layoutPassword?.passwordLevel!!,
+                binding?.layoutPassword?.passwordLevelLabel!!)
         })
         viewModel.repeatPassword.observe(this, Observer { value ->
-            repeatPasswordLayout.error = null
+            binding?.layoutPassword?.repeatPasswordLayout?.error = null
         })
-        password.setOnFocusChangeListener { _, focus ->
-            passwordNote.setTextColor(if (focus) Color.WHITE else Color.parseColor("#49505C"))
+        binding?.layoutPassword?.password?.setOnFocusChangeListener { _, focus ->
+            binding?.layoutPassword?.passwordNote?.setTextColor(if (focus) Color.WHITE else Color.parseColor("#49505C"))
             if (focus) {
                 viewModel.calculatePasswordLevel(viewModel.password.value
-                        ?: "", passwordLevel, passwordLevelLabel)
+                        ?: "",
+                    binding?.layoutPassword?.passwordLevel!!,
+                    binding?.layoutPassword?.passwordLevelLabel!!)
             } else {
                 viewModel.passwordLevelVisibility.value = GONE
             }
         }
-        changePassword.setOnClickListener {
+        binding?.changePassword?.setOnClickListener {
             val request = AccountPasswordSetRequest(viewModel.password.value!!, token)
             loader(true)
             Api.signRepository.resetPasswordSet(lifecycleScope, request, {
@@ -91,4 +93,9 @@ class ResetPasswordChangeFragment : Fragment() {
                 }
                 else -> super.onOptionsItemSelected(item)
             }
+
+    override fun onDestroyView() {
+        binding = null
+        super.onDestroyView()
+    }
 }

@@ -5,7 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.text.Html
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Transformations
+import androidx.lifecycle.map
 import com.mrd.bitlib.FeeEstimatorBuilder
 import com.mrd.bitlib.model.BitcoinAddress
 import com.mycelium.wallet.Constants.BTC_BLOCK_TIME_IN_SECONDS
@@ -29,6 +29,7 @@ import com.mycelium.wapi.wallet.exceptions.OutputTooSmallException
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Completable
 import io.reactivex.schedulers.Schedulers
+import java.util.Collections.emptyList
 
 class SendBtcModel(context: Context,
                    account: WalletAccount<*>,
@@ -37,7 +38,7 @@ class SendBtcModel(context: Context,
     val receivingAddressesList: MutableLiveData<List<Address>> = MutableLiveData()
     val feeDescription: MutableLiveData<String> = MutableLiveData()
     val isFeeExtended: MutableLiveData<Boolean> = MutableLiveData()
-    val feeHintShow = Transformations.map(feeLvl) {
+    val feeHintShow = feeLvl.map {
         it != MinerFee.LOWPRIO
     }
 

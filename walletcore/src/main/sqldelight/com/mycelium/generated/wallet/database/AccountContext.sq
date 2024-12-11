@@ -1,6 +1,8 @@
-import java.util.UUID;
-import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 import com.mycelium.wapi.wallet.coins.Balance;
+import com.mycelium.wapi.wallet.coins.CryptoCurrency;
+import java.util.UUID;
+import kotlin.Boolean;
+import kotlin.Int;
 
 -- Creates table for generic account context storage
 

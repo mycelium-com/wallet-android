@@ -5,41 +5,37 @@ import com.mycelium.wapi.wallet.coins.Balance
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import java.util.*
 
-abstract class AccountContextImpl(uuid: UUID,
-                                  currency: CryptoCurrency,
+abstract class AccountContextImpl(val uuid: UUID,
+                                  val currency: CryptoCurrency,
                                   accountName: String,
                                   balance: Balance,
                                   archived: Boolean = false,
-                                  blockHeight: Int = 0) :
-        AccountContext by AccountContext.Impl(
-                uuid,
-                currency,
-                accountName,
-                balance,
-                archived,
-                blockHeight) {
+                                  blockHeight: Int = 0) {
+
+    fun accountContext() =
+        AccountContext(uuid, currency, accountName, balance, archived, blockHeight)
 
     abstract fun onChange()
 
-    override var archived = archived
+    open var archived = archived
         set(value) {
             field = value
             onChange()
         }
 
-    override var accountName = accountName
+    var accountName = accountName
         set(value) {
             field = value
             onChange()
         }
 
-    override var balance = balance
+    var balance = balance
         set(value) {
             field = value
             onChange()
         }
 
-    override var blockHeight = blockHeight
+    var blockHeight = blockHeight
         set(value) {
             field = value
             onChange()

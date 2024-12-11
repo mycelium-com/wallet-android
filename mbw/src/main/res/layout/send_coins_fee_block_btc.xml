@@ -21,7 +21,9 @@
             layout="@layout/send_coins_fee_heap_btc"
             bind:viewModel="@{viewModel}" />
 
-        <include layout="@layout/send_coins_fee_selector" />
+        <include
+            android:id="@+id/layoutFeeSelector"
+            layout="@layout/send_coins_fee_selector" />
 
         <include layout="@layout/send_coins_fee_description_btc"
             bind:viewModel="@{viewModel}"  />

@@ -123,7 +123,6 @@ class ERC20Account(private val chainId: Byte,
             accountContext.accountName = value
         }
 
-    @Synchronized
     override suspend fun doSynchronization(mode: SyncMode?): Boolean {
         val syncTx = syncTransactions()
         updateBalanceCache()

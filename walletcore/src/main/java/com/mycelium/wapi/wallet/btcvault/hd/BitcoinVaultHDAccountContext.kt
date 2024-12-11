@@ -15,7 +15,7 @@ class BitcoinVaultHDAccountContext @JvmOverloads constructor(
         val id: UUID,
         currency: CryptoCurrency,
         val accountIndex: Int,
-        private var isArchived: Boolean,
+        isArchived: Boolean,
         accountName: String,
         balance: Balance,
         val listener: (BitcoinVaultHDAccountContext) -> Unit,
@@ -28,22 +28,15 @@ class BitcoinVaultHDAccountContext @JvmOverloads constructor(
 ) : AccountContextImpl(id, currency, accountName, balance, isArchived, blockHeight) {
     private var isDirty: Boolean = false
 
-    /**
-     * Is this account archived?
-     */
-    @Override
-    fun isArchived() = isArchived
-
-    /**
-     * Mark this account as archived
-     */
-    fun setArchived(isArchived: Boolean) {
-        if (this.isArchived != isArchived) {
-            isDirty = true
-            this.isArchived = isArchived
+    override var archived: Boolean = isArchived
+        get() = super.archived
+        set(value) {
+            if (field != value) {
+                isDirty = true
+                field = value
+                onChange()
+            }
         }
-    }
-
 
     fun getLastExternalIndexWithActivity(type: BipDerivationType): Int =
             indexesMap[type]?.lastExternalIndexWithActivity ?: -1

@@ -5,7 +5,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.fragment.NavHostFragment
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
@@ -14,6 +13,7 @@ import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.fio.FioAccount
 import com.mycelium.wapi.wallet.fio.FioModule
 import java.util.*
+import androidx.activity.viewModels
 
 
 class AccountMappingActivity : AppCompatActivity(R.layout.activity_account_mapping) {
@@ -25,7 +25,7 @@ class AccountMappingActivity : AppCompatActivity(R.layout.activity_account_mappi
         }
     }
 
-    private lateinit var viewModel: FIOMapPubAddressViewModel
+    private val viewModel: FIOMapPubAddressViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -36,7 +36,6 @@ class AccountMappingActivity : AppCompatActivity(R.layout.activity_account_mappi
         }
         (supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment?)
                 ?.navController?.setGraph(R.navigation.fio_map_account, intent?.extras)
-        viewModel = ViewModelProviders.of(this).get(FIOMapPubAddressViewModel::class.java)
         val walletManager = MbwManager.getInstance(this.application).getWalletManager(false)
         if (intent?.extras?.containsKey("accountId") == true) {
             val accountId = intent.getSerializableExtra("accountId") as UUID

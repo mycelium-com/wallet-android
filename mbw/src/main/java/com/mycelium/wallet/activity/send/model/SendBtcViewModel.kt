@@ -91,6 +91,8 @@ open class SendBtcViewModel(application: Application) : SendCoinsViewModel(appli
                             return
                         }
                     }
+
+                    else -> {}
                 }
             }
         } else if (requestCode == SendCoinsActivity.SIGN_TRANSACTION_REQUEST_CODE && resultCode == Activity.RESULT_OK) {

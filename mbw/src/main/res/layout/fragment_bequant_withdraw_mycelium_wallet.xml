@@ -7,6 +7,8 @@
     android:paddingEnd="16dp"
     android:paddingBottom="16dp">
 
-    <include layout="@layout/item_bequant_withdraw_pager_accounts" />
+    <include
+        android:id="@+id/layout"
+        layout="@layout/item_bequant_withdraw_pager_accounts" />
 
 </LinearLayout>

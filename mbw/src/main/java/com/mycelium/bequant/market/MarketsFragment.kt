@@ -2,7 +2,9 @@ package com.mycelium.bequant.market
 
 import android.content.Context
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
@@ -16,7 +18,7 @@ import com.mycelium.bequant.remote.repositories.Api
 import com.mycelium.bequant.remote.trading.model.Symbol
 import com.mycelium.bequant.remote.trading.model.Ticker
 import com.mycelium.wallet.R
-import kotlinx.android.synthetic.main.fragment_bequant_markets.*
+import com.mycelium.wallet.databinding.FragmentBequantMarketsBinding
 import java.util.*
 import kotlin.math.roundToInt
 
@@ -27,20 +29,31 @@ class MarketsFragment : Fragment(R.layout.fragment_bequant_markets) {
     private val adapter = MarketAdapter { pos: Int, desc: Boolean ->
         sortField = pos
         sortDirection = desc
-        updateList(search?.text?.toString()?.trim() ?: "")
+        updateList(binding?.search?.text?.toString()?.trim() ?: "")
     }
     private var tickersData = listOf<Ticker>()
     private var tickerTimer: Timer? = null
+    private var binding: FragmentBequantMarketsBinding? = null
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View = FragmentBequantMarketsBinding.inflate(inflater, container, false)
+        .apply {
+
+        }
+        .root
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        list.adapter = adapter
-        list.itemAnimator = null
-        search.doOnTextChanged { text, _, _, _ ->
+        binding?.list?.adapter = adapter
+        binding?.list?.itemAnimator = null
+        binding?.search?.doOnTextChanged { text, _, _, _ ->
             updateList(text?.toString()?.trim() ?: "")
         }
-        search.setOnEditorActionListener { _, _, _ ->
-            updateList(search.text?.toString()?.trim() ?: "")
+        binding?.search?.setOnEditorActionListener { _, _, _ ->
+            updateList(binding?.search?.text?.toString()?.trim() ?: "")
             hideKeyboard()
             true
         }
@@ -48,7 +61,7 @@ class MarketsFragment : Fragment(R.layout.fragment_bequant_markets) {
 
     private fun hideKeyboard() {
         (requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager)
-                .hideSoftInputFromWindow(search.windowToken, InputMethodManager.HIDE_NOT_ALWAYS)
+                .hideSoftInputFromWindow(binding?.search?.windowToken, InputMethodManager.HIDE_NOT_ALWAYS)
     }
 
     override fun onResume() {
@@ -56,7 +69,7 @@ class MarketsFragment : Fragment(R.layout.fragment_bequant_markets) {
         tickerTimer = Timer("market-tickets", false).apply {
             schedule(object : TimerTask() {
                 override fun run() {
-                    list?.post {
+                    binding?.list?.post {
                         requestTickers()
                     }
                 }
@@ -67,7 +80,7 @@ class MarketsFragment : Fragment(R.layout.fragment_bequant_markets) {
     override fun onPause() {
         tickerTimer?.cancel()
         tickerTimer = null
-        search.clearFocus()
+        binding?.search?.clearFocus()
         hideKeyboard()
         super.onPause()
     }
@@ -78,7 +91,7 @@ class MarketsFragment : Fragment(R.layout.fragment_bequant_markets) {
         }
         Api.publicRepository.publicTickerGet(viewLifecycleOwner.lifecycleScope, null, {
             tickersData = it?.toList() ?: emptyList()
-            updateList(search?.text?.toString()?.trim() ?: "")
+            updateList(binding?.search?.text?.toString()?.trim() ?: "")
         }, { _, error ->
             ErrorHandler(requireContext()).handle(error)
         }, {
@@ -158,7 +171,8 @@ class MarketsFragment : Fragment(R.layout.fragment_bequant_markets) {
     }
 
     override fun onDestroyView() {
-        list.adapter = null
+        binding?.list?.adapter = null
+        binding = null
         super.onDestroyView()
     }
 }

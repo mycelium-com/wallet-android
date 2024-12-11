@@ -7,9 +7,8 @@ import android.view.View.GONE
 import android.view.View.VISIBLE
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProviders
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
@@ -27,28 +26,25 @@ import com.mycelium.bequant.remote.repositories.Api
 import com.mycelium.wallet.R
 import com.mycelium.wallet.databinding.FragmentBequantKycVerifyPhoneBinding
 import com.poovam.pinedittextfield.PinField
-import kotlinx.android.synthetic.main.fragment_bequant_kyc_verify_phone.*
-import kotlinx.android.synthetic.main.part_bequant_step_header.*
-import kotlinx.android.synthetic.main.part_bequant_stepper_body.*
-import java.util.*
 import java.util.concurrent.TimeUnit
 
-class VerifyPhoneFragment : Fragment(R.layout.fragment_bequant_kyc_verify_phone) {
+class VerifyPhoneFragment : Fragment() {
 
-    lateinit var headerViewModel: HeaderViewModel
-    lateinit var viewModel: VerifyPhoneViewModel
+    val headerViewModel: HeaderViewModel by viewModels()
+    val viewModel: VerifyPhoneViewModel by viewModels()
     lateinit var kycRequest: KYCRequest
 
     val args: VerifyPhoneFragmentArgs by navArgs()
+    var binding: FragmentBequantKycVerifyPhoneBinding? = null
 
     private var resendTimer = object : CountDownTimer(TimeUnit.MINUTES.toMillis(1), 1000) {
         override fun onTick(leftTime: Long) {
-            resendTime?.text = "${TimeUnit.MILLISECONDS.toMinutes(leftTime)}:${TimeUnit.MILLISECONDS.toSeconds(leftTime % 60000)}"
+            binding?.resendTime?.text = "${TimeUnit.MILLISECONDS.toMinutes(leftTime)}:${TimeUnit.MILLISECONDS.toSeconds(leftTime % 60000)}"
         }
 
         override fun onFinish() {
-            resendTimerLayout?.visibility = GONE
-            tryAgainLayout?.visibility = VISIBLE
+            binding?.resendTimerLayout?.visibility = GONE
+            binding?.tryAgainLayout?.visibility = VISIBLE
         }
     }
 
@@ -56,13 +52,12 @@ class VerifyPhoneFragment : Fragment(R.layout.fragment_bequant_kyc_verify_phone)
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
         kycRequest = args.kycRequest ?: KYCRequest()
-        viewModel = ViewModelProviders.of(this).get(VerifyPhoneViewModel::class.java)
-        headerViewModel = ViewModelProviders.of(this).get(HeaderViewModel::class.java)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? =
-            DataBindingUtil.inflate<FragmentBequantKycVerifyPhoneBinding>(inflater, R.layout.fragment_bequant_kyc_verify_phone, container, false)
+            FragmentBequantKycVerifyPhoneBinding.inflate(inflater, container, false)
                     .apply {
+                        binding = this
                         viewModel = this@VerifyPhoneFragment.viewModel
                         headerViewModel = this@VerifyPhoneFragment.headerViewModel
                         lifecycleOwner = this@VerifyPhoneFragment
@@ -74,10 +69,10 @@ class VerifyPhoneFragment : Fragment(R.layout.fragment_bequant_kyc_verify_phone)
             title = getString(R.string.identity_auth)
             setHomeAsUpIndicator(resources.getDrawable(R.drawable.ic_bequant_arrow_back))
         }
-        step.text = getString(R.string.step_n, 3)
-        stepProgress.progress = 3
+        binding?.stepHeader?.step?.text = getString(R.string.step_n, 3)
+        binding?.stepHeader?.stepProgress?.progress = 3
         val stepAdapter = StepAdapter()
-        stepper.adapter = stepAdapter
+        binding?.body?.stepper?.adapter = stepAdapter
         stepAdapter.submitList(listOf(
                 ItemStep(1, getString(R.string.personal_info), StepState.COMPLETE_EDITABLE)
                 , ItemStep(2, getString(R.string.residential_address), StepState.COMPLETE_EDITABLE)
@@ -90,21 +85,21 @@ class VerifyPhoneFragment : Fragment(R.layout.fragment_bequant_kyc_verify_phone)
                 2 -> findNavController().navigate(Step3FragmentDirections.actionEditStep2(kycRequest))
             }
         }
-        pinCode.onTextCompleteListener = object : PinField.OnTextCompleteListener {
+        binding?.pinCode?.onTextCompleteListener = object : PinField.OnTextCompleteListener {
             override fun onTextComplete(enteredText: String): Boolean {
                 checkCode(enteredText)
                 return true
             }
         }
-        tvTryAgain.setOnClickListener {
+        binding?.tvTryAgain?.setOnClickListener {
             resendCode()
         }
         startTryAgainCountDown()
     }
 
     private fun startTryAgainCountDown() {
-        resendTimerLayout.visibility = VISIBLE
-        tryAgainLayout.visibility = GONE
+        binding?.resendTimerLayout?.visibility = VISIBLE
+        binding?.tryAgainLayout?.visibility = GONE
         resendTimer.start()
     }
 
@@ -120,8 +115,8 @@ class VerifyPhoneFragment : Fragment(R.layout.fragment_bequant_kyc_verify_phone)
                     true
                 }
                 R.id.stepper -> {
-                    item.icon = resources.getDrawable(if (stepperLayout.visibility == VISIBLE) R.drawable.ic_chevron_down else R.drawable.ic_chevron_up)
-                    stepperLayout.visibility = if (stepperLayout.visibility == VISIBLE) GONE else VISIBLE
+                    item.icon = resources.getDrawable(if (binding?.body?.stepperLayout?.visibility == VISIBLE) R.drawable.ic_chevron_down else R.drawable.ic_chevron_up)
+                    binding?.body?.stepperLayout?.visibility = if (binding?.body?.stepperLayout?.visibility == VISIBLE) GONE else VISIBLE
                     true
                 }
                 else -> super.onOptionsItemSelected(item)
@@ -154,7 +149,7 @@ class VerifyPhoneFragment : Fragment(R.layout.fragment_bequant_kyc_verify_phone)
     }
 
     private fun showError() {
-        otp_view.error = "Error code"
+        binding?.otpView?.error = "Error code"
     }
 
     private fun nextPage() {

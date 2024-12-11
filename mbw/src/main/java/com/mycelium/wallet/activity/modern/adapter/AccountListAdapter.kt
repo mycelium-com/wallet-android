@@ -214,6 +214,7 @@ class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
                 }
             }
             UNKNOWN -> throw IllegalArgumentException("Unknown view type")
+            else -> {}
         }
     }
 

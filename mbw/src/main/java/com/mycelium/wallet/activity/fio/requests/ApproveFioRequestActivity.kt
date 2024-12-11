@@ -9,13 +9,13 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
+import android.widget.ScrollView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.databinding.DataBindingUtil
+import androidx.appcompat.widget.AppCompatSpinner
+import androidx.databinding.ViewDataBinding
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.ViewModelProviders
 import com.google.gson.Gson
 import com.mrd.bitlib.util.HexUtils
 import com.mycelium.bequant.common.loader
@@ -45,27 +45,27 @@ import com.mycelium.wapi.wallet.fio.*
 import fiofoundation.io.fiosdk.errors.FIOError
 import fiofoundation.io.fiosdk.models.fionetworkprovider.FIORequestContent
 import fiofoundation.io.fiosdk.models.fionetworkprovider.response.PushTransactionResponse
-import kotlinx.android.synthetic.main.fio_send_request_buttons.*
-import kotlinx.android.synthetic.main.fio_send_request_info.*
-import kotlinx.android.synthetic.main.send_coins_activity.*
-import kotlinx.android.synthetic.main.send_coins_advanced_eth.*
-import kotlinx.android.synthetic.main.send_coins_fee_selector.*
 import java.math.BigInteger
 import java.util.*
 import java.util.logging.Level
 import java.util.logging.Logger
+import androidx.activity.viewModels
 
 class ApproveFioRequestActivity : AppCompatActivity(), BroadcastResultListener {
 
-    private lateinit var fioRequestViewModel: FioSendRequestViewModel
-    private lateinit var sendViewModel: SendCoinsViewModel
-    private lateinit var binding: Any
+    private val fioRequestViewModel: FioSendRequestViewModel by viewModels()
+    private val sendViewModel: SendCoinsViewModel by viewModels { SendCoinsFactory(account) }
+    private lateinit var binding: ViewDataBinding
     private lateinit var signedTransaction: Transaction
     private lateinit var mbwManager: MbwManager
     private lateinit var fioModule: FioModule
     private var payerInited = false
     private var spinnerInited = false
     private var activityResultDialog: DialogFragment? = null
+    private var bindingFioSendBtn: FioSendRequestButtonsBinding? = null
+    private var bindingFioSendInfo: FioSendRequestInfoBinding? = null
+    private var bindingFeeBlock:SendCoinsFeeBlockBinding? = null
+    private lateinit var account: WalletAccount<*>
 
     companion object {
         const val CONTENT = "content"
@@ -88,8 +88,6 @@ class ApproveFioRequestActivity : AppCompatActivity(), BroadcastResultListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val viewModelProvider = ViewModelProviders.of(this)
-        fioRequestViewModel = viewModelProvider.get(FioSendRequestViewModel::class.java)
         val fioRequestContent = Gson().fromJson(intent.getStringExtra(CONTENT), FIORequestContent::class.java)
 
         supportActionBar?.run {
@@ -124,9 +122,9 @@ class ApproveFioRequestActivity : AppCompatActivity(), BroadcastResultListener {
         fioRequestViewModel.amount.value = Value.valueOf(requestedCurrency, strToBigInteger(requestedCurrency,
                 fioRequestContent.deserializedContent!!.amount))
         if (spendingAccounts.isNotEmpty()) {
-            val account = spendingAccounts.first()
+            account = spendingAccounts.first()
             fioRequestViewModel.payerAccount.value = account
-            setUpSendViewModel(account, viewModelProvider)
+            setUpSendViewModel(account)
             initSpinners(spendingAccounts)
         } else {
             Toaster(this).toast("Impossible to pay request with the ${fioRequestContent.deserializedContent!!.tokenCode} currency", true)
@@ -151,7 +149,7 @@ class ApproveFioRequestActivity : AppCompatActivity(), BroadcastResultListener {
                 sendViewModel.getAmount().value = fioRequestViewModel.amount.value
                 initReceivingAddress()
                 sendViewModel.getTransactionStatus().observe(this, Observer { status ->
-                    btSend.isEnabled = status == SendCoinsModel.TransactionStatus.OK
+                    bindingFioSendBtn?.btSend?.isEnabled = status == SendCoinsModel.TransactionStatus.OK
                 })
             }
         })
@@ -182,7 +180,7 @@ class ApproveFioRequestActivity : AppCompatActivity(), BroadcastResultListener {
                 mbwManager.getFiatCurrency(fioRequestViewModel.amount.value?.type))?.toStringWithUnit()
 
         sendViewModel.getTransactionStatus().observe(this, Observer {
-            btSend.isEnabled = it == SendCoinsModel.TransactionStatus.OK
+            bindingFioSendBtn?.btSend?.isEnabled = it == SendCoinsModel.TransactionStatus.OK
         })
         fioRequestViewModel.payeeTokenPublicAddress.observe(this, Observer {
             initReceivingAddress()
@@ -199,21 +197,11 @@ class ApproveFioRequestActivity : AppCompatActivity(), BroadcastResultListener {
         }
     }
 
-    private fun setUpSendViewModel(account: WalletAccount<*>, viewModelProvider: ViewModelProvider) {
-        sendViewModel = provideSendViewModel(account, viewModelProvider)
+    private fun setUpSendViewModel(account: WalletAccount<*>) {
         sendViewModel.init(account, intent)
         initDatabinding(account)
         initFeeView()
         initFeeLvlView()
-    }
-
-    private fun provideSendViewModel(account: WalletAccount<*>, viewModelProvider: ViewModelProvider): SendCoinsViewModel {
-        return when (account) {
-            is SingleAddressAccount, is HDAccount -> viewModelProvider.get(SendBtcViewModel::class.java)
-            is EthAccount, is ERC20Account -> viewModelProvider.get(SendEthViewModel::class.java)
-            is FioAccount -> viewModelProvider.get(SendFioViewModel::class.java)
-            else -> throw NotImplementedError()
-        }
     }
 
     private fun initSpinners(spendingAccounts: List<WalletAccount<*>>) {
@@ -222,32 +210,32 @@ class ApproveFioRequestActivity : AppCompatActivity(), BroadcastResultListener {
             mbwManager.exchangeRateManager.get(fioRequestViewModel.amount.value, it)?.toStringWithUnit()
         }
         if (spinnerItems.size < 2) {
-            spinnerFiat?.background = null
-            spinnerFiat?.setPadding(0,0,0,0)
+            bindingFioSendInfo?.spinnerFiat?.background = null
+            bindingFioSendInfo?.spinnerFiat?.setPadding(0,0,0,0)
         }
-        spinnerFiat?.adapter = ArrayAdapter(this, R.layout.layout_fio_fiat_spinner, R.id.text,
+        bindingFioSendInfo?.spinnerFiat?.adapter = ArrayAdapter(this, R.layout.layout_fio_fiat_spinner, R.id.text,
                 spinnerItems).apply {
             setDropDownViewResource(R.layout.layout_send_coin_transaction_replace_dropdown)
         }
-        spinnerFiat?.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+        bindingFioSendInfo?.spinnerFiat?.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onNothingSelected(p0: AdapterView<*>?) {}
             override fun onItemSelected(p0: AdapterView<*>?, p1: View?, p2: Int, p3: Long) {
-                fioRequestViewModel.alternativeAmountFormatted.value = spinnerFiat.adapter.getItem(p2) as String
+                fioRequestViewModel.alternativeAmountFormatted.value = bindingFioSendInfo?.spinnerFiat?.adapter?.getItem(p2) as String
             }
         }
-        spinnerFiat?.setSelection(spinnerItems.indexOfFirst {
+        bindingFioSendInfo?.spinnerFiat?.setSelection(spinnerItems.indexOfFirst {
             it.contains(mbwManager.getFiatCurrency(fioRequestViewModel.amount.value?.type).symbol, true)
         })
         val spendingFrom = spendingAccounts.map { "${it.label} - ${it.accountBalance.spendable}" }
         if (spendingFrom.size < 2) {
-            spinnerSpendingFromAccount?.background = null
-            spinnerSpendingFromAccount?.setPadding(0,0,0,0)
+            bindingFioSendInfo?.spinnerSpendingFromAccount?.background = null
+            bindingFioSendInfo?.spinnerSpendingFromAccount?.setPadding(0,0,0,0)
         }
-        spinnerSpendingFromAccount?.adapter = ArrayAdapter(this, R.layout.layout_spending_from_account,
+        bindingFioSendInfo?.spinnerSpendingFromAccount?.adapter = ArrayAdapter(this, R.layout.layout_spending_from_account,
                 R.id.text, spendingFrom).apply {
             setDropDownViewResource(R.layout.layout_send_coin_transaction_replace_dropdown)
         }
-        spinnerSpendingFromAccount?.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+        bindingFioSendInfo?.spinnerSpendingFromAccount?.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onNothingSelected(p0: AdapterView<*>?) {}
             override fun onItemSelected(p0: AdapterView<*>?, p1: View?, p2: Int, p3: Long) {
                 if (!spinnerInited) {
@@ -270,7 +258,7 @@ class ApproveFioRequestActivity : AppCompatActivity(), BroadcastResultListener {
                 .setNegativeButton(R.string.cancel, null)
                 .setPositiveButton(R.string.delete) { _, _ ->
                     loader(true)
-                    btSend.isEnabled = false
+                    bindingFioSendBtn?.btSend?.isEnabled = false
                     RejectRequestTask(fioRequestViewModel.payerNameOwnerAccount.value!! as FioAccount, fioRequestViewModel.payerName.value!!,
                             fioRequestViewModel.request.value!!.fioRequestId, fioModule) {
                         loader(false)
@@ -280,7 +268,7 @@ class ApproveFioRequestActivity : AppCompatActivity(), BroadcastResultListener {
                     }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
                 }.create()
         dialog.setOnShowListener {
-            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(getColor(R.color.fio_red))
+            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(resources.getColor(R.color.fio_red))
         }
         dialog.show()
     }
@@ -294,11 +282,14 @@ class ApproveFioRequestActivity : AppCompatActivity(), BroadcastResultListener {
     private fun initDatabinding(account: WalletAccount<*>) {
         val sendCoinsActivityBinding = when (account) {
             is EthAccount, is ERC20Account -> {
-                DataBindingUtil.setContentView<FioSendRequestActivityEthBinding>(this, R.layout.fio_send_request_activity_eth)
+                FioSendRequestActivityEthBinding.inflate(layoutInflater)
                         .also {
+                            bindingFioSendBtn = it.layoutFioSendButtons
+                            bindingFioSendInfo = it.layoutFioSendInfo
+                            bindingFeeBlock = it.layoutFeeBlock
                             it.fioRequestViewModel = fioRequestViewModel
                             it.sendViewModel = (sendViewModel as SendEthViewModel).apply {
-                                spinner?.adapter = ArrayAdapter(context,
+                                it.root.findViewById<AppCompatSpinner>(R.id.spinner)?.adapter = ArrayAdapter(context,
                                         R.layout.layout_send_coin_transaction_replace, R.id.text, getTxItems()).apply {
                                     this.setDropDownViewResource(R.layout.layout_send_coin_transaction_replace_dropdown)
                                 }
@@ -307,29 +298,33 @@ class ApproveFioRequestActivity : AppCompatActivity(), BroadcastResultListener {
                         }
             }
             is FioAccount -> {
-                DataBindingUtil.setContentView<FioSendRequestActivityFioBinding>(this, R.layout.fio_send_request_activity_fio)
+                FioSendRequestActivityFioBinding.inflate(layoutInflater)
                         .also {
+                            bindingFioSendBtn = it.layoutFioSendButtons
+                            bindingFioSendInfo = it.layoutFioSendInfo
+//                            bindingFeeBlock = it.layoutFeeBlock
                             it.fioRequestViewModel = fioRequestViewModel
                             it.sendViewModel = sendViewModel as SendFioViewModel
                             it.activity = this
                         }
             }
-            else -> getDefaultBinding()
+            else ->
+                FioSendRequestActivityBinding.inflate(layoutInflater)
+                    .also {
+                        bindingFioSendBtn = it.layoutFioSendButtons
+                        bindingFioSendInfo = it.layoutFioSendInfo
+                        bindingFeeBlock = it.layoutFeeBlock
+                        it.fioRequestViewModel = fioRequestViewModel
+                        it.sendViewModel = sendViewModel
+                        it.activity = this
+                    }
         }
         sendCoinsActivityBinding.lifecycleOwner = this
         binding = sendCoinsActivityBinding
     }
 
-    private fun getDefaultBinding(): FioSendRequestActivityBinding =
-            DataBindingUtil.setContentView<FioSendRequestActivityBinding>(this, R.layout.fio_send_request_activity)
-                    .also {
-                        it.fioRequestViewModel = fioRequestViewModel
-                        it.sendViewModel = sendViewModel
-                        it.activity = this
-                    }
-
     private fun initFeeView() {
-        feeValueList?.setHasFixedSize(true)
+        bindingFeeBlock?.layoutFeeSelector?.feeValueList?.setHasFixedSize(true)
 
         val displaySize = Point()
         windowManager.defaultDisplay.getSize(displaySize)
@@ -338,21 +333,22 @@ class ApproveFioRequestActivity : AppCompatActivity(), BroadcastResultListener {
         val feeViewAdapter = FeeViewAdapter(feeFirstItemWidth)
         feeViewAdapter.setFormatter(sendViewModel.getFeeFormatter())
 
-        feeValueList?.adapter = feeViewAdapter
+        bindingFeeBlock?.layoutFeeSelector?.feeValueList?.adapter = feeViewAdapter
         feeViewAdapter.setDataset(sendViewModel.getFeeDataset().value)
         sendViewModel.getFeeDataset().observe(this, Observer { feeItems ->
             feeViewAdapter.setDataset(feeItems)
             val selectedFee = sendViewModel.getSelectedFee().value!!
             if (feeViewAdapter.selectedItem >= feeViewAdapter.itemCount ||
                     feeViewAdapter.getItem(feeViewAdapter.selectedItem).feePerKb != selectedFee.valueAsLong) {
-                feeValueList?.setSelectedItem(selectedFee)
+                bindingFeeBlock?.layoutFeeSelector?.feeValueList?.setSelectedItem(selectedFee)
             }
         })
 
-        feeValueList?.setSelectListener { adapter, position ->
+        bindingFeeBlock?.layoutFeeSelector?.feeValueList?.setSelectListener { adapter, position ->
             val item = (adapter as FeeViewAdapter).getItem(position)
             sendViewModel.getSelectedFee().value = Value.valueOf(item.value.type, item.feePerKb)
 
+            val root = findViewById<ScrollView>(R.id.root)
             if (sendViewModel.isSendScrollDefault() && root.maxScrollAmount - root.scaleY > 0) {
                 root.smoothScrollBy(0, root.maxScrollAmount)
                 sendViewModel.setSendScrollDefault(false)
@@ -361,19 +357,19 @@ class ApproveFioRequestActivity : AppCompatActivity(), BroadcastResultListener {
     }
 
     private fun initFeeLvlView() {
-        feeLvlList?.setHasFixedSize(true)
+        bindingFeeBlock?.layoutFeeSelector?.feeLvlList?.setHasFixedSize(true)
         val feeLvlItems = sendViewModel.getFeeLvlItems()
 
         val displaySize = Point()
         windowManager.defaultDisplay.getSize(displaySize)
         val feeFirstItemWidth = (displaySize.x - resources.getDimensionPixelSize(R.dimen.item_dob_width)) / 2
-        feeLvlList?.adapter = FeeLvlViewAdapter(feeLvlItems, feeFirstItemWidth)
-        feeLvlList?.setSelectListener { adapter, position ->
+        bindingFeeBlock?.layoutFeeSelector?.feeLvlList?.adapter = FeeLvlViewAdapter(feeLvlItems, feeFirstItemWidth)
+        bindingFeeBlock?.layoutFeeSelector?.feeLvlList?.setSelectListener { adapter, position ->
             val item = (adapter as FeeLvlViewAdapter).getItem(position)
             sendViewModel.getFeeLvl().value = item.minerFee
-            feeValueList?.setSelectedItem(sendViewModel.getSelectedFee().value)
+            bindingFeeBlock?.layoutFeeSelector?.feeValueList?.setSelectedItem(sendViewModel.getSelectedFee().value)
         }
-        feeLvlList?.setSelectedItem(sendViewModel.getFeeLvl().value)
+        bindingFeeBlock?.layoutFeeSelector?.feeLvlList?.setSelectedItem(sendViewModel.getFeeLvl().value)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
