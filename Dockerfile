@@ -5,7 +5,7 @@ RUN dpkg --add-architecture i386 && \
     apt-get install -y software-properties-common && \
     apt-get update -y && \
     apt-get install -y wget \
-            openjdk-11-jdk \
+            openjdk-17-jdk \
             git unzip disorderfs && \
     rm -rf /var/lib/apt/lists/* && \
     apt-get autoremove -y && \
