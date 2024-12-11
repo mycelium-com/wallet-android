@@ -130,7 +130,7 @@ class ERC20Module(
                 accountListener, blockchainService
             )
         } else {
-            val ethAddress = EthAddress(token, String(secureStore.getPlaintextValue(ethAccount.id.toString().toByteArray())))
+            val ethAddress = EthAddress(token, String(secureStore.getPlaintextValue(ethAccount.id.toString().toByteArray())!!))
             ERC20Account(chainId, accountContext, token, ethAccount, null, accountBacking,
                 accountListener, blockchainService, ethAddress)
         }

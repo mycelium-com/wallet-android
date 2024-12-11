@@ -158,7 +158,7 @@ public class AddAdvancedAccountActivity extends AppCompatActivity implements Imp
       btGenerateNewBchSingleKey.setVisibility(View.GONE);
 
       btCreateFioLegacyAccount.setOnClickListener(view -> {
-         FioKeyManager fioKeyManager = new FioKeyManager(_mbwManager.getMasterSeedManager());
+         FioKeyManager fioKeyManager = _mbwManager.fioKeyManager;
          HdKeyNode legacyFioNode = fioKeyManager.getLegacyFioNode();
          //since uuid is used for account creation we can check hdKeynode uuid for account existence
          if (_mbwManager.getWalletManager(false).getAccount(legacyFioNode.getUuid()) == null) {
