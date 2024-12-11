@@ -6,7 +6,6 @@ import com.mrd.bitlib.model.Script.SIGHASH_ANYONECANPAY
 import com.mrd.bitlib.model.UnspentTransactionOutput
 import com.mrd.bitlib.util.ByteWriter
 import com.mrd.bitlib.util.HashUtils
-import com.mrd.bitlib.util.HexUtils
 import com.mrd.bitlib.util.Sha256Hash
 
 class TaprootCommonSignatureMessageBuilder(
@@ -29,7 +28,6 @@ class TaprootCommonSignatureMessageBuilder(
             input.outPoint.hashPrev(writer)
 
         }
-        println("!!!! prevOutputsHash=${HexUtils.toHex(writer.toBytes())}")
         return hash(writer.toBytes())
     }
 
@@ -41,7 +39,6 @@ class TaprootCommonSignatureMessageBuilder(
         inputs.forEach { input ->
             writer.putLongLE(input.value)
         }
-        println("!!!! inputAmountsHash=${HexUtils.toHex(writer.toBytes())}")
         return hash(writer.toBytes())
     }
 
@@ -56,7 +53,6 @@ class TaprootCommonSignatureMessageBuilder(
             writer.put((scriptBytes.size and 0xFF).toByte())
             writer.putBytes(scriptBytes)
         }
-        println("!!!! scriptPubKeysHash=${HexUtils.toHex(writer.toBytes())}")
         return hash(writer.toBytes())
     }
 
@@ -69,7 +65,6 @@ class TaprootCommonSignatureMessageBuilder(
         inputs.forEach { input ->
             writer.putIntLE(input.sequence)
         }
-        println("!!!! sequenceHash=${HexUtils.toHex(writer.toBytes())}")
         return hash(writer.toBytes())
     }
 
@@ -83,7 +78,6 @@ class TaprootCommonSignatureMessageBuilder(
             writer.put((output.script.scriptBytes.size and 0xFF).toByte())
             writer.putBytes(output.script.scriptBytes)
         }
-        println("!!!! outputsHash=${HexUtils.toHex(writer.toBytes())}")
         return hash(writer.toBytes());
     }
 

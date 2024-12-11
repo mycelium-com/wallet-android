@@ -451,12 +451,18 @@ class TaprootCommonSignatureMessageBuilderTest {
             HexUtils.toBytes("02000000000101ec9016580d98a93909faf9d2f431e74f781b438d81372bb6aab4db67725c11a70000000000ffffffff0110270000000000001600144e44ca792ce545acba99d41304460dd1f53be3840000000000")
         val unsignedTransaction = BitcoinTransaction.fromBytes(rawUnsignedTx)
 
-        val builder = TaprootCommonSignatureMessageBuilder(unsignedTransaction, utxos, 0, 2)
-
+        val funds = arrayOf(
+            UnspentTransactionOutput(
+                unsignedTransaction.inputs[0].outPoint,
+                0,
+                20000,
+                ScriptOutput.fromScriptBytes(HexUtils.toBytes("51200f0c8db753acbd17343a39c2f3f4e35e4be6da749f9e35137ab220e7b238a667"))
+            )
+        )
+        val builder = TaprootCommonSignatureMessageBuilder(unsignedTransaction, funds, 0, 2)
         setValue(builder.inputs[0], 20000)
         builder.inputs[0].script =
             ScriptInput.fromScriptBytes(HexUtils.toBytes("51200f0c8db753acbd17343a39c2f3f4e35e4be6da749f9e35137ab220e7b238a667"))
-
         val writer = ByteWriter(1024)
         builder.build(writer)
         val signMsg = writer.toBytes()
