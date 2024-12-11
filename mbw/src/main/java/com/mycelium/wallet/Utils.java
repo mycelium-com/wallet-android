@@ -1171,8 +1171,13 @@ public class Utils {
             return coin;
          }
       }
+      Logger.getLogger(Utils.class.getSimpleName()).log(Level.SEVERE, "Unknown currency type '" + name + "'");
       // Never set to null. The currentCurrencyMap assumes non-null keys,
       // which can lead to an exception in CurrencySwitcher.setCurrency
-      return getBtcCoinType();
+      CryptoCurrency copyPropsFromType = getBtcCoinType();
+      return new CryptoCurrency("Unknown_" + name, name, "?",
+              copyPropsFromType.getUnitExponent(),
+              copyPropsFromType.getFriendlyDigits(),
+              copyPropsFromType.isUtxosBased());
    }
 }
