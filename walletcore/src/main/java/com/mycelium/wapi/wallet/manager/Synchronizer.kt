@@ -67,7 +67,7 @@ class Synchronizer(val walletManager: WalletManager, val syncMode: SyncMode,
         }.map {
             launch(Dispatchers.Default) {
                 getMutex(it).withLock {
-                    logger.log(Level.INFO, "Synchronizing ${it.coinType.symbol} account ${it.id}, OS thread ${Thread.currentThread().name}}: ...")
+                    logger.log(Level.INFO, "Synchronizing ${it.coinType.symbol} account ${it.id} '${it.label}', OS thread ${Thread.currentThread().name}}: ...")
                     val timeStart = System.currentTimeMillis()
                     val isSyncSuccessful = try {
                         if (it is SyncPausableAccount && !it.maySync) {
@@ -82,7 +82,7 @@ class Synchronizer(val walletManager: WalletManager, val syncMode: SyncMode,
                     }
                     val timeEnd = System.currentTimeMillis()
                     val syncTime = timeEnd - timeStart
-                    logger.log(Level.INFO, "Synchronizing ${it.coinType.symbol} account ${it.id}: ${if (isSyncSuccessful) "success" else "failed!"} ($syncTime ms)")
+                    logger.log(Level.INFO, "Synchronizing ${it.coinType.symbol} account ${it.id} '${it.label}': ${if (isSyncSuccessful) "success" else "failed!"} ($syncTime ms)")
                     walletManager.walletListener?.accountSyncStopped(it)
                 }
             }

@@ -1159,7 +1159,6 @@ public class Utils {
       return hasPermission;
    }
 
-   @Nullable
    public static AssetInfo getTypeByName(String name) {
       for (CurrencyCode currencyCode : CurrencyCode.values()) {
          if (name.equals(currencyCode.getShortString())) {
@@ -1172,6 +1171,13 @@ public class Utils {
             return coin;
          }
       }
-      return null;
+      Logger.getLogger(Utils.class.getSimpleName()).log(Level.SEVERE, "Unknown currency type '" + name + "'");
+      // Never set to null. The currentCurrencyMap assumes non-null keys,
+      // which can lead to an exception in CurrencySwitcher.setCurrency
+      CryptoCurrency copyPropsFromType = getBtcCoinType();
+      return new CryptoCurrency("Unknown_" + name, name, "?",
+              copyPropsFromType.getUnitExponent(),
+              copyPropsFromType.getFriendlyDigits(),
+              copyPropsFromType.isUtxosBased());
    }
 }
