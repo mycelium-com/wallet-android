@@ -6,12 +6,14 @@ import androidx.lifecycle.*
 import com.google.gson.Gson
 import com.mrd.bitlib.TransactionUtils
 import com.mrd.bitlib.model.BitcoinAddress
+import com.mycelium.bequant.kyc.inputPhone.coutrySelector.CountriesSource
 import com.mycelium.giftbox.client.GitboxAPI
-import com.mycelium.giftbox.client.models.OrderResponse
-import com.mycelium.giftbox.client.models.PriceResponse
-import com.mycelium.giftbox.client.models.ProductInfo
+import com.mycelium.giftbox.client.model.MCOrderResponse
+import com.mycelium.giftbox.client.model.MCPrice
+import com.mycelium.giftbox.client.model.MCProductInfo
 import com.mycelium.giftbox.common.OrderHeaderViewModel
 import com.mycelium.giftbox.purchase.debounce
+import com.mycelium.wallet.BuildConfig
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
@@ -44,15 +46,15 @@ import java.math.RoundingMode
 import java.util.*
 
 
-class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel(), OrderHeaderViewModel {
+class GiftboxBuyViewModel(val productInfo: MCProductInfo) : ViewModel(), OrderHeaderViewModel {
     val gson = Gson()
 
     val accountId = MutableLiveData<UUID>()
     val zeroFiatValue = zeroFiatValue(productInfo)
-    val orderResponse = MutableLiveData<OrderResponse>()
+    val orderResponse = MutableLiveData<MCOrderResponse>()
     val warningQuantityMessage: MutableLiveData<String> = MutableLiveData("")
     val totalProgress = MutableLiveData(false)
-    val lastPriceResponse = MutableLiveData<PriceResponse>()
+    val lastPriceResponse = MutableLiveData<MCPrice>()
     private val mbwManager = MbwManager.getInstance(WalletApplication.getInstance())
     val account by lazy {
         mbwManager.getWalletManager(false).getAccount(accountId.value!!)!!
@@ -62,14 +64,16 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel(), OrderHead
     }
 
     fun getPreselectedValues(): List<Value> {
-        return productInfo.availableDenominations?.map {
+        return productInfo.denominations?.map {
             Value.valueOf(getAssetInfo(), toUnits(zeroFiatValue.type, it))
         }?.sortedBy { it.value } ?: listOf()
     }
 
-    override val productName = MutableLiveData("")
-    override val expire = MutableLiveData("")
-    override val country = MutableLiveData("")
+    override val productName = MutableLiveData(productInfo.name.orEmpty())
+    override val expire = MutableLiveData(productInfo.expiryData.orEmpty())
+    override val country = MutableLiveData(productInfo.countries?.mapNotNull {
+        CountriesSource.countryModels.find { model -> model.acronym.equals(it, true) }
+    }?.joinToString { it.name }.orEmpty())
     override val cardValue = MutableLiveData("")
     override val quantity = MutableLiveData(0)
 
@@ -79,21 +83,21 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel(), OrderHead
             try {
                 val address = when (account) {
                     is AbstractEthERC20Account -> {
-                        EthAddress(Utils.getEthCoinType(), orderResponse.value!!.payinAddress!!)
+                        EthAddress(Utils.getEthCoinType(), orderResponse.value!!.paymentAddress!!)
                     }
                     is AbstractBtcAccount -> {
                         BtcAddress(
                                 Utils.getBtcCoinType(),
-                                BitcoinAddress.fromString(orderResponse.value!!.payinAddress)
+                                BitcoinAddress.fromString(orderResponse.value!!.paymentAddress!!)
                         )
                     }
                     else -> TODO("Account not supported yet")
                 }
-                val price = orderResponse.value?.amountExpectedFrom!!
+                val price = orderResponse.value?.paymentAmount!!
 
                 val createTx = account.createTx(
-                        address, getCryptoAmount(price),
-                        FeePerKbFee(feeEstimation.normal), null
+                        address, getCryptoAmount(price.toPlainString()),
+                        FeePerKbFee(minerFee), null
                 )
                 account.signTx(createTx, AesKeyCipher.defaultKeyCipher())
                 trySend(createTx!! to account.broadcastTx(createTx))
@@ -105,7 +109,6 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel(), OrderHead
         }.asLiveData(Dispatchers.IO)
     }
 
-    val hasDenominations = productInfo.availableDenominations.isNullOrEmpty().not()
     val quantityString: MutableLiveData<String> = MutableLiveData("1")
     val quantityInt = quantityString.map {
         if (it.isDigitsOnly() && !it.isNullOrBlank()) it.toInt() else 1
@@ -115,8 +118,11 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel(), OrderHead
         mbwManager.getFeeProvider(account.basedOnCoinType).estimation
     }
 
-    fun zeroFiatValue(product: ProductInfo): Value {
-        return Value.zeroValue(Utils.getTypeByName(product.currencyCode)!!)
+    private val minerFee
+        get() = feeEstimation.normal
+
+    fun zeroFiatValue(product: MCProductInfo): Value {
+        return Value.zeroValue(Utils.getTypeByName(product.currency)!!)
     }
 
     val totalAmountFiatSingle = MutableLiveData<Value>(zeroFiatValue)
@@ -135,10 +141,7 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel(), OrderHead
                     totalAmountFiatSingle,
                     quantityInt
                             .map { if (forSingleItem) 1 else it.toInt() }) { amount: Value, quantity: Int ->
-                Pair(
-                        amount,
-                        quantity
-                )
+                Pair(amount, quantity)
             }.switchMap {
         callbackFlow {
             txValid.value = null
@@ -160,16 +163,16 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel(), OrderHead
                 if (quantity > MAX_QUANTITY) {
                 } else {
                     totalProgress.value = true
-                    GitboxAPI.giftRepository.getPrice(viewModelScope,
-                            code = productInfo.code ?: "",
-                            quantity = quantity,
-                            amount = amount.valueAsBigDecimal.toInt(),
-                            currencyId = zeroCryptoValue.getCurrencyId(),
+                    GitboxAPI.mcGiftRepository.getPrice(viewModelScope,
+                            code = productInfo.id ?: "",
+//                            quantity = quantity,
+                            amount = amount.valueAsBigDecimal,
+                            currencyId = productInfo.currency!!,
                             success = { priceResponse ->
-                                if (priceResponse!!.status == PriceResponse.Status.eRROR) {
-                                    return@getPrice
-                                }
-                                lastPriceResponse.value = priceResponse
+//                                if (priceResponse!!.status == PriceResponse.Status.eRROR) {
+//                                    return@getPrice
+//                                }
+                                lastPriceResponse.value = priceResponse!!
 
                                 val cryptoAmount = getCryptoAmount(priceResponse)
                                 if (!forSingleItem) {
@@ -179,7 +182,7 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel(), OrderHead
                                                 cryptoAmount
                                         )
 //                                        txValid.postValue(checkValidTransaction.state)
-                                        if (checkValidTransaction.state == AmountValidation.Ok) {
+                                        if (checkValidTransaction.state == AmountValidation.Ok && transaction != null) {
                                             tempTransaction.postValue(transaction)
                                             trySend(cryptoAmount)
                                         } else {
@@ -228,25 +231,27 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel(), OrderHead
 
     private val tempTransaction = MutableLiveData<Transaction>()
 
-    private fun getCryptoAmount(price: PriceResponse): Value = getCryptoAmount(price.priceOffer!!)
+    private fun getCryptoAmount(price: MCPrice): Value = getCryptoAmount(price.amount)
 
-    private fun getCryptoAmount(price: String): Value {
-        val cryptoUnit = BigDecimal(price).movePointRight(account.coinType?.unitExponent!!)
-                .toBigInteger()
+    private fun getCryptoAmount(price: String): Value = getCryptoAmount(BigDecimal(price))
+
+    private fun getCryptoAmount(price: BigDecimal): Value {
+        val cryptoUnit = price.movePointRight(account.coinType?.unitExponent!!)
+            .toBigInteger()
         return Value.valueOf(account.coinType, cryptoUnit)
     }
 
-    fun getAssetInfo() = Utils.getTypeByName(productInfo.currencyCode)!!
+    fun getAssetInfo() = Utils.getTypeByName(productInfo.currency)!!
 
 
     val minerFeeCrypto = tempTransaction.map {
         it.totalFee()
     }
     val minerFeeCryptoString = minerFeeCrypto.map {
-        "~" + it.toStringFriendlyWithUnit()
+        "~" + it?.toStringFriendlyWithUnit()
     }
     val minerFeeFiat = minerFeeCrypto.map {
-        mbwManager.exchangeRateManager.get(it, Utils.getTypeByName(productInfo.currencyCode)) ?: zeroFiatValue
+        mbwManager.exchangeRateManager.get(it, Utils.getTypeByName(productInfo.currency)) ?: zeroFiatValue
     }
     val minerFeeFiatString = minerFeeFiat.map {
         if (it.lessThan(Value(it.type, 1.toBigInteger()))) {
@@ -261,7 +266,7 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel(), OrderHead
     private fun getMaxSpendable() =
             mbwManager.getWalletManager(false)
                     .getAccount(accountId.value!!)
-                    ?.calculateMaxSpendableAmount(feeEstimation.normal, null, null)!!
+                    ?.calculateMaxSpendableAmount(minerFee, null, null)!!
 
 
     val isGrantedPlus =
@@ -307,8 +312,8 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel(), OrderHead
     }
 
     private fun convertToFiat(value: Value): Value? {
-        lastPriceResponse.value?.exchangeRate?.let {
-            val fiat = value.valueAsBigDecimal.multiply(BigDecimal(it))
+        lastPriceResponse.value?.rate?.let {
+            val fiat = value.valueAsBigDecimal.multiply(it)
             return Value.valueOf(zeroFiatValue.type, toUnits(zeroFiatValue.type, fiat))
         }
         return null
@@ -376,7 +381,7 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel(), OrderHead
             Status(AmountValidation.Ok) to account.createTx(
                     account.dummyAddress,
                     value,
-                    FeePerKbFee(feeEstimation.normal),
+                    FeePerKbFee(minerFee),
                     null
             )
         } catch (e: OutputTooSmallException) {
@@ -384,7 +389,7 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel(), OrderHead
                     Value.valueOf(account.coinType, TransactionUtils.MINIMUM_OUTPUT_VALUE).toStringWithUnit())) to null
         } catch (e: InsufficientFundsForFeeException) {
             if (account is ERC20Account) {
-                val totalFee = feeEstimation.normal.times(account.typicalEstimatedTransactionSize.toBigInteger())
+                val totalFee = minerFee.times(account.typicalEstimatedTransactionSize.toBigInteger())
                 val parentAccountBalance = account.ethAcc.accountBalance.spendable
                 val fee = totalFee - parentAccountBalance
                 Status(AmountValidation.NotEnoughFunds, res.getString(R.string.please_top_up_your_eth_account,

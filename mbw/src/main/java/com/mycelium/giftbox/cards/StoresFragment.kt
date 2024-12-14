@@ -4,18 +4,17 @@ import android.content.Context
 import android.os.Bundle
 import android.view.*
 import android.view.inputmethod.InputMethodManager
+import androidx.core.view.isVisible
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.observe
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DividerItemDecoration.VERTICAL
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.tabs.TabLayout
-import com.mycelium.bequant.kyc.inputPhone.coutrySelector.CountriesSource
 import com.mycelium.giftbox.cards.adapter.StoresAdapter
 import com.mycelium.giftbox.cards.event.RefreshOrdersRequest
 import com.mycelium.giftbox.cards.viewmodel.GiftBoxViewModel
@@ -53,6 +52,7 @@ class StoresFragment : Fragment() {
         updateCategories(activityViewModel.categories.value ?: listOf())
         viewModel.category?.let {
             getTab(it, binding?.tags!!)?.select()
+
         }
         binding?.tags?.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
             override fun onTabReselected(p0: TabLayout.Tab?) {
@@ -83,7 +83,8 @@ class StoresFragment : Fragment() {
                 loadData(viewModel.products.size.toLong())
             }
 
-            override fun isLastPage() = viewModel.productsSize.value ?: 0 <= viewModel.products.size
+            override fun isLastPage() =
+                (viewModel.productsSize.value ?: 0) <= viewModel.products.size
 
             override fun isLoading() = viewModel.state.value == ListState.LOADING
         })
@@ -104,6 +105,7 @@ class StoresFragment : Fragment() {
     }
 
     private fun updateCategories(categories: List<String>) {
+        binding?.tags?.isVisible = categories.isNotEmpty() == true
         binding?.tags?.let { tags ->
             categories.forEach {
                 if (getTab(it, tags) == null) {
@@ -136,19 +138,17 @@ class StoresFragment : Fragment() {
         }
         activityViewModel.reloadStore = false
         viewModel.state.value = ListState.LOADING
-        productsJob = GitboxAPI.giftRepository.getProducts(lifecycleScope,
+        productsJob = GitboxAPI.mcGiftRepository.getProducts(lifecycleScope,
                 search = viewModel.search.value,
                 category = viewModel.category,
                 country = activityViewModel.selectedCountries.value,
                 offset = if (offset == -1L) 0 else offset, limit = 30,
                 success = {
-                    activityViewModel.categories.value = listOf("All") + (it?.categories
-                            ?: emptyList())
-                    activityViewModel.countries.value = it?.countries?.mapNotNull {
-                        CountriesSource.countryModels.find { model -> model.acronym.equals(it, true) }
-                    }
-                    viewModel.setProductsResponse(it, offset != -1L)
-                    adapter.submitList(viewModel.products)
+                    val categories = it?.categories.orEmpty()
+                    activityViewModel.categories.value = listOf("All") + categories
+                    activityViewModel.countries.value = it?.countries
+                    viewModel.setProducts(it?.products.orEmpty())
+                    adapter.submitList(viewModel.products.toList())
                 },
                 error = { code, msg ->
                     adapter.submitList(listOf())

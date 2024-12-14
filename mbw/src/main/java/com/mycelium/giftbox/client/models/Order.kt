@@ -13,9 +13,8 @@ package com.mycelium.giftbox.client.models
 
 import android.os.Parcelable
 import com.fasterxml.jackson.annotation.JsonProperty
-import kotlinx.android.parcel.Parcelize
+import kotlinx.parcelize.Parcelize
 import java.math.BigDecimal
-import java.math.BigInteger
 import java.util.*
 
 /**

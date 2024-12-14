@@ -93,7 +93,7 @@ constructor(val network: NetworkParameters,
         val backing = FeeEstimationsBacking(walletDB)
         feeEstimations.addProvider(EthFeeProvider(network.isTestnet, backing))
         feeEstimations.addProvider(BtcFeeProvider(network.isTestnet, wapi, backing))
-        feeEstimations.addProvider(ColuFeeProvider(network.isTestnet, wapi, backing))
+//        feeEstimations.addProvider(ColuFeeProvider(network.isTestnet, wapi, backing))
         feeEstimations.addProvider(BtcvFeeProvider(network.isTestnet, btcvWapi, backing))
         feeEstimations.addProvider(FioFeeProvider(network.isTestnet))
     }

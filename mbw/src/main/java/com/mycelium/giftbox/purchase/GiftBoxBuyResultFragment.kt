@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.text.Html
 import android.view.*
 import android.widget.ImageView
+import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentTransaction
 import androidx.fragment.app.activityViewModels
@@ -19,6 +20,9 @@ import com.bumptech.glide.request.RequestOptions
 import com.mycelium.giftbox.cards.GiftBoxFragment
 import com.mycelium.giftbox.cards.viewmodel.GiftBoxViewModel
 import com.mycelium.giftbox.client.GitboxAPI
+import com.mycelium.giftbox.client.model.MCOrderCommon
+import com.mycelium.giftbox.client.model.MCOrderResponse
+import com.mycelium.giftbox.client.model.MCOrderStatusResponse
 import com.mycelium.giftbox.client.models.OrderResponse
 import com.mycelium.giftbox.client.models.Status
 import com.mycelium.giftbox.loadImage
@@ -58,21 +62,16 @@ class GiftBoxBuyResultFragment : Fragment() {
     val args by navArgs<GiftBoxBuyResultFragmentArgs>()
     private var refreshItem: MenuItem? = null
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
-    }
-
     override fun onCreateView(
-            inflater: LayoutInflater,
-            container: ViewGroup?,
-            savedInstanceState: Bundle?
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
     ): View =
-            FragmentGiftboxBuyResultBinding.inflate(inflater).apply {
-                binding = this
-                lifecycleOwner = this@GiftBoxBuyResultFragment
-                vm = viewModel
-            }.root
+        FragmentGiftboxBuyResultBinding.inflate(inflater).apply {
+            binding = this
+            lifecycleOwner = this@GiftBoxBuyResultFragment
+            vm = viewModel
+        }.root
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -93,21 +92,25 @@ class GiftBoxBuyResultFragment : Fragment() {
         }
         binding?.orderScheme?.paymentText?.setOnClickListener {
             if (args.accountId != null) {
-                findNavController().navigate(GiftBoxBuyResultFragmentDirections.actionTransactionList(args.accountId))
+                findNavController().navigate(
+                    GiftBoxBuyResultFragmentDirections.actionTransactionList(args.accountId)
+                )
             }
         }
         binding?.orderScheme?.successText?.setOnClickListener {
             activityViewModel.currentTab.value = GiftBoxFragment.CARDS
             findNavController().navigate(GiftBoxBuyResultFragmentDirections.actionMyGiftCards())
         }
+        requireActivity().addMenuProvider(MenuImpl(), viewLifecycleOwner)
     }
 
     override fun onResume() {
         super.onResume()
-        updateJob = startCoroutineTimer(lifecycleScope, repeatMillis = TimeUnit.SECONDS.toMillis(15)) {
-            updateAllUi()
-            loadOrder(false, true)
-        }
+        updateJob =
+            startCoroutineTimer(lifecycleScope, repeatMillis = TimeUnit.SECONDS.toMillis(15)) {
+                updateAllUi()
+                loadOrder(false, true)
+            }
     }
 
     override fun onPause() {
@@ -123,27 +126,30 @@ class GiftBoxBuyResultFragment : Fragment() {
             args.transaction?.id?.let { txId ->
                 tx = account?.getTxSummary(txId)!!
                 val findFragmentById =
-                        childFragmentManager.findFragmentById(R.id.spec_details_fragment)
+                    childFragmentManager.findFragmentById(R.id.spec_details_fragment)
                 val transaction: FragmentTransaction = childFragmentManager.beginTransaction()
                 if (findFragmentById != null) {
                     transaction.remove(findFragmentById)
                 }
                 if (account is EthAccount || account is ERC20Account) {
                     transaction.add(
-                            R.id.spec_details_fragment,
-                            EthDetailsFragment.newInstance(tx)
+                        R.id.spec_details_fragment,
+                        EthDetailsFragment.newInstance(tx)
                     )
                 } else if (account is FioAccount) {
                     transaction.add(
-                            R.id.spec_details_fragment,
-                            FioDetailsFragment.newInstance(tx)
+                        R.id.spec_details_fragment,
+                        FioDetailsFragment.newInstance(tx)
                     )
                 } else if (account is BitcoinVaultHdAccount) {
-                    transaction.add(R.id.spec_details_fragment, BtcvDetailsFragment.newInstance(tx, accountId))
+                    transaction.add(
+                        R.id.spec_details_fragment,
+                        BtcvDetailsFragment.newInstance(tx, accountId)
+                    )
                 } else {
                     transaction.add(
-                            R.id.spec_details_fragment,
-                            BtcDetailsFragment.newInstance(tx, false, accountId)
+                        R.id.spec_details_fragment,
+                        BtcDetailsFragment.newInstance(tx, false, accountId)
                     )
                 }
                 transaction.commit()
@@ -157,29 +163,34 @@ class GiftBoxBuyResultFragment : Fragment() {
 
     private fun loadProduct() {
         args.productResponse?.let {
-            binding?.detailsHeader?.ivImage?.loadImage(it.cardImageUrl,
-                    RequestOptions().transforms(CenterCrop(),
-                            RoundedCorners(resources.getDimensionPixelSize(R.dimen.giftbox_small_corner))))
+            binding?.detailsHeader?.ivImage?.loadImage(
+                it.cardImageUrl,
+                RequestOptions().transforms(
+                    CenterCrop(),
+                    RoundedCorners(resources.getDimensionPixelSize(R.dimen.giftbox_small_corner))
+                )
+            )
             viewModel.setProduct(it)
-        } ?: GitboxAPI.giftRepository.getProduct(lifecycleScope, args.orderResponse.productCode!!, {
-            binding?.detailsHeader?.ivImage?.loadImage(it?.product?.cardImageUrl,
-                    RequestOptions().transforms(CenterCrop(),
-                            RoundedCorners(resources.getDimensionPixelSize(R.dimen.giftbox_small_corner))))
-            viewModel.setProduct(it?.product!!)
-        }, { _, msg ->
-            Toaster(this).toast(msg, true)
-        })
+        }
+//            ?: GitboxAPI.giftRepository.getProduct(lifecycleScope, args.orderResponse.productCode!!, {
+//            binding?.detailsHeader?.ivImage?.loadImage(it?.product?.cardImageUrl,
+//                    RequestOptions().transforms(CenterCrop(),
+//                            RoundedCorners(resources.getDimensionPixelSize(R.dimen.giftbox_small_corner))))
+//            viewModel.setProduct(it?.product!!)
+//        }, { _, msg ->
+//            Toaster(this).toast(msg, true)
+//        })
     }
 
-    private fun loadOrder(withLoader: Boolean = true, updateFromRemote:Boolean = false) {
-        if (args.orderResponse is OrderResponse && !updateFromRemote) {
-            updateOrder(args.orderResponse as OrderResponse)
+    private fun loadOrder(withLoader: Boolean = true, updateFromRemote: Boolean = false) {
+        if (args.orderResponse is MCOrderResponse && !updateFromRemote) {
+            updateOrder(args.orderResponse)
         } else {
             if (withLoader) {
                 loader(true)
             }
             showRefresh()
-            GitboxAPI.giftRepository.getOrder(lifecycleScope, args.orderResponse.clientOrderId!!, {
+            GitboxAPI.mcGiftRepository.getOrder(lifecycleScope, args.orderResponse.orderId, {
                 updateOrder(it!!)
             }, { _, msg ->
                 Toaster(this).toast(msg, true)
@@ -192,30 +203,40 @@ class GiftBoxBuyResultFragment : Fragment() {
         }
     }
 
-    private fun updateOrder(order: OrderResponse) {
-        viewModel.setOrder(order)
+    private fun updateOrder(order: MCOrderCommon) {
+        if (order is MCOrderResponse) {
+            viewModel.setOrder(order as MCOrderResponse)
+        }
         var paymentText = getString(R.string.gift_card_after_confirmed)
         if (args.accountId == null) {
             paymentText = paymentText.replace("<[^>]*>".toRegex(), "")
         }
         binding?.orderScheme?.paymentText?.setOnClickListener(null)
         when (order.status) {
-            Status.pROCESSING -> {
+            Status.PENDING -> {
                 binding?.orderScheme?.paidIcon?.setImageResource(R.drawable.ic_vertical_stepper_done)
                 binding?.orderScheme?.paidIcon?.setBackgroundResource(R.drawable.vertical_stepper_view_item_circle_completed)
                 binding?.orderScheme?.line1?.setBackgroundResource(R.drawable.line_dash_green)
-                binding?.orderScheme?.paymentIcon?.setImageDrawable(TextDrawable(resources, "2").apply {
-                    setFontSize(16f)
-                    setFontColor(resources.getColor(R.color.bequant_green))
-                })
+                binding?.orderScheme?.paymentIcon?.setImageDrawable(
+                    TextDrawable(
+                        resources,
+                        "2"
+                    ).apply {
+                        setFontSize(16f)
+                        setFontColor(resources.getColor(R.color.bequant_green))
+                    })
                 binding?.orderScheme?.paymentIcon?.setBackgroundResource(R.drawable.circle_dash_green)
                 binding?.orderScheme?.paymentText?.text = Html.fromHtml(paymentText)
                 binding?.orderScheme?.line2?.setBackgroundResource(R.drawable.line_dash_gray)
                 val grayColor = resources.getColor(R.color.giftbox_gray)
-                binding?.orderScheme?.successIcon?.setImageDrawable(TextDrawable(resources, "3").apply {
-                    setFontSize(16f)
-                    setFontColor(grayColor)
-                })
+                binding?.orderScheme?.successIcon?.setImageDrawable(
+                    TextDrawable(
+                        resources,
+                        "3"
+                    ).apply {
+                        setFontSize(16f)
+                        setFontColor(grayColor)
+                    })
                 binding?.orderScheme?.successIcon?.setBackgroundResource(R.drawable.circle_dash_gray)
                 binding?.orderScheme?.successTitle?.setTextColor(grayColor)
                 binding?.orderScheme?.successText?.setTextColor(grayColor)
@@ -225,6 +246,7 @@ class GiftBoxBuyResultFragment : Fragment() {
                     findNavController().popBackStack()
                 }
             }
+
             Status.sUCCESS -> {
                 binding?.orderScheme?.paidIcon?.setImageResource(R.drawable.ic_vertical_stepper_done)
                 binding?.orderScheme?.paidIcon?.setBackgroundResource(R.drawable.vertical_stepper_view_item_circle_completed)
@@ -243,6 +265,7 @@ class GiftBoxBuyResultFragment : Fragment() {
                     findNavController().popBackStack()
                 }
             }
+
             Status.eRROR -> {
                 binding?.orderScheme?.paidIcon?.setImageResource(R.drawable.ic_vertical_stepper_done)
                 binding?.orderScheme?.paidIcon?.setBackgroundResource(R.drawable.vertical_stepper_view_item_circle_completed)
@@ -253,20 +276,26 @@ class GiftBoxBuyResultFragment : Fragment() {
                 binding?.orderScheme?.paymentIcon?.setImageResource(R.drawable.ic_bequant_clear_24)
                 binding?.orderScheme?.paymentIcon?.background = null
                 binding?.orderScheme?.line2?.setBackgroundResource(R.drawable.line_dash_gray)
-                binding?.orderScheme?.successIcon?.setImageDrawable(TextDrawable(resources, "3").apply {
-                    setFontSize(16f)
-                    setFontColor(resources.getColor(R.color.giftbox_gray))
-                })
+                binding?.orderScheme?.successIcon?.setImageDrawable(
+                    TextDrawable(
+                        resources,
+                        "3"
+                    ).apply {
+                        setFontSize(16f)
+                        setFontColor(resources.getColor(R.color.giftbox_gray))
+                    })
                 binding?.orderScheme?.successIcon?.setBackgroundResource(R.drawable.circle_dash_gray)
                 binding?.finish?.text = getString(R.string.return_to_payment)
             }
+
             Status.EXPIRED -> {
                 binding?.orderScheme?.paidIcon?.setImageResource(R.drawable.ic_vertical_stepper_done)
                 binding?.orderScheme?.paidIcon?.setBackgroundResource(R.drawable.vertical_stepper_view_item_circle_completed)
                 binding?.orderScheme?.line1?.setBackgroundResource(R.drawable.line_dash_gray)
                 binding?.orderScheme?.paymentTitle?.text = getString(R.string.failed)
                 binding?.orderScheme?.paymentTitle?.setTextColor(resources.getColor(R.color.sender_recyclerview_background_red))
-                binding?.orderScheme?.paymentText?.text = Html.fromHtml(getString(R.string.giftbox_expired_text))
+                binding?.orderScheme?.paymentText?.text =
+                    Html.fromHtml(getString(R.string.giftbox_expired_text))
                 binding?.orderScheme?.paymentText?.setOnClickListener {
                     startActivity(
                         Intent.createChooser(
@@ -279,10 +308,14 @@ class GiftBoxBuyResultFragment : Fragment() {
                 binding?.orderScheme?.paymentIcon?.setImageResource(R.drawable.ic_bequant_clear_24)
                 binding?.orderScheme?.paymentIcon?.background = null
                 binding?.orderScheme?.line2?.setBackgroundResource(R.drawable.line_dash_gray)
-                binding?.orderScheme?.successIcon?.setImageDrawable(TextDrawable(resources, "3").apply {
-                    setFontSize(16f)
-                    setFontColor(resources.getColor(R.color.giftbox_gray))
-                })
+                binding?.orderScheme?.successIcon?.setImageDrawable(
+                    TextDrawable(
+                        resources,
+                        "3"
+                    ).apply {
+                        setFontSize(16f)
+                        setFontColor(resources.getColor(R.color.giftbox_gray))
+                    })
                 binding?.orderScheme?.successIcon?.setBackgroundResource(R.drawable.circle_dash_gray)
                 binding?.finish?.text = getString(R.string.return_to_payment)
             }
@@ -326,27 +359,11 @@ class GiftBoxBuyResultFragment : Fragment() {
         // Set Date & Time
         val date = Date(tx.timestamp * 1000L)
         val locale = resources.configuration.locale
-        binding?.txDetails?.tvDate?.text = DateFormat.getDateInstance(DateFormat.LONG, locale).format(date)
-        binding?.txDetails?.tvTime?.text = DateFormat.getTimeInstance(DateFormat.LONG, locale).format(date)
+        binding?.txDetails?.tvDate?.text =
+            DateFormat.getDateInstance(DateFormat.LONG, locale).format(date)
+        binding?.txDetails?.tvTime?.text =
+            DateFormat.getTimeInstance(DateFormat.LONG, locale).format(date)
     }
-
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.refresh, menu);
-    }
-
-    override fun onPrepareOptionsMenu(menu: Menu) {
-        super.onPrepareOptionsMenu(menu)
-        refreshItem = menu.findItem(R.id.miRefresh)
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean =
-            when (item.itemId) {
-                R.id.miRefresh -> {
-                    loadOrder(false, true)
-                    true
-                }
-                else -> super.onOptionsItemSelected(item)
-            }
 
     private fun hideRefresh() {
         refreshItem?.actionView = null
@@ -361,5 +378,29 @@ class GiftBoxBuyResultFragment : Fragment() {
     override fun onDestroyView() {
         binding = null
         super.onDestroyView()
+    }
+
+    internal inner class MenuImpl : MenuProvider {
+        override fun onCreateMenu(
+            menu: Menu,
+            menuInflater: MenuInflater
+        ) {
+            menuInflater.inflate(R.menu.refresh, menu)
+        }
+
+        override fun onPrepareMenu(menu: Menu) {
+            super.onPrepareMenu(menu)
+            refreshItem = menu.findItem(R.id.miRefresh)
+        }
+
+        override fun onMenuItemSelected(menuItem: MenuItem): Boolean =
+            when (menuItem.itemId) {
+                R.id.miRefresh -> {
+                    loadOrder(false, true)
+                    true
+                }
+
+                else -> false
+            }
     }
 }

@@ -65,12 +65,12 @@ class CardsFragment : Fragment() {
             shareGiftcard(it)
         }
         adapter.itemRedeemListener = {
-            GitboxAPI.giftRepository.redeem(it, lifecycleScope) {
+            GitboxAPI.mcGiftRepository.redeem(it, lifecycleScope) {
                 loadData()
             }
         }
         adapter.itemUnredeemListener = {
-            GitboxAPI.giftRepository.unredeem(it, lifecycleScope) {
+            GitboxAPI.mcGiftRepository.unredeem(it, lifecycleScope) {
                 loadData()
             }
         }
@@ -80,7 +80,7 @@ class CardsFragment : Fragment() {
                     .setMessage(getString(R.string.delete_gift_card_msg))
                     .setNegativeButton(R.string.button_cancel) { _, _ -> }
                     .setPositiveButton(R.string.delete) { _, _ ->
-                        GitboxAPI.giftRepository.remove(it, lifecycleScope) {
+                        GitboxAPI.mcGiftRepository.remove(it, lifecycleScope) {
                             loadData()
                         }
                     }
@@ -101,7 +101,7 @@ class CardsFragment : Fragment() {
     }
 
     fun loadData() {
-        GitboxAPI.giftRepository.getCards(lifecycleScope, { data ->
+        GitboxAPI.mcGiftRepository.getCards(lifecycleScope, { data ->
             cards.clear()
             cards.addAll((data ?: emptyList()).sortedByDescending { it.timestamp })
             binding?.noResultText?.visibility = if (cards.isEmpty()) VISIBLE else GONE

@@ -19,9 +19,11 @@ import com.mycelium.giftbox.details.viewmodel.GiftBoxStoreDetailsViewModel
 import com.mycelium.giftbox.loadImage
 import com.mycelium.giftbox.setupDescription
 import com.mycelium.wallet.BuildConfig
+import com.mycelium.wallet.Utils
 import com.mycelium.wallet.WalletConfiguration
 import com.mycelium.wallet.databinding.FragmentGiftboxStoreDetailsBinding
 import com.mycelium.wallet.external.partner.openLink
+import com.mycelium.wapi.wallet.btc.coins.BitcoinMain
 import java.util.*
 
 class GiftBoxStoreDetailsFragment : Fragment() {
@@ -42,14 +44,14 @@ class GiftBoxStoreDetailsFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        (activity as AppCompatActivity).supportActionBar?.title = args.product.name
+        (activity as AppCompatActivity).supportActionBar?.title = args.mcproduct.name
         binding?.btSend?.setOnClickListener {
             viewModel.productInfo.value?.let {
-                findNavController().navigate(GiftBoxStoreDetailsFragmentDirections.actionNext(
-                        it,
-                        CurrencyInfos().apply {
-                            addAll(viewModel.currencies!!)
-                        }))
+                findNavController().navigate(GiftBoxStoreDetailsFragmentDirections.actionNext(it))
+//                        it,
+//                        CurrencyInfos().apply {
+//                            addAll(viewModel.currencies!!)
+//                        }))
             }
         }
         val descriptionClick: (View) -> Unit = {
@@ -63,44 +65,45 @@ class GiftBoxStoreDetailsFragment : Fragment() {
         binding?.layoutDescription?.more?.setOnClickListener(descriptionClick)
         binding?.layoutDescription?.redeem?.setOnClickListener {
             viewModel.productInfo.value?.let { productInto ->
-                findNavController().navigate(GiftBoxStoreDetailsFragmentDirections.actionRedeem(productInto))
+//                findNavController().navigate(GiftBoxStoreDetailsFragmentDirections.actionRedeem(productInto))
             }
         }
         binding?.layoutDescription?.terms?.setOnClickListener {
-            openLink(viewModel.productInfo.value?.termsAndConditionsPdfUrl)
+//            openLink(viewModel.productInfo.value?.termsAndConditionsPdfUrl)
         }
         viewModel.description.observe(viewLifecycleOwner) {
             binding?.layoutDescription?.tvDescription?.setupDescription(it,
                     viewModel.more.value ?: false) {
-                viewModel.moreVisible.value = true
+                viewModel.moreVisible.value = it
             }
         }
         loadData()
     }
 
     private fun loadData() {
-        loader(true)
-        GitboxAPI.giftRepository.checkoutProduct(viewModel.viewModelScope,
-                quantity = 1,
-                amount = args.product.minimumValue.toInt(),
-                code = args.product.code!!,
-                success = { checkout ->
-                    viewModel.currencies = checkout?.currencies
+//        loader(true)
+//        GitboxAPI.mcGiftRepository.checkoutProduct(viewModel.viewModelScope,
+//                quantity = 1,
+//                amount = args.mcproduct.minFaceValue,
+//                code = args.mcproduct.code!!,
+//                success = { checkout ->
+        val checkout = args.mcproduct
+//                    viewModel.currencies = arrayOf(Utils.getBtcCoinType())
                     if (BuildConfig.FLAVOR == "btctestnet") {
                         changeToTestnetAddresses()
                     }
-                    viewModel.setProduct(checkout?.product)
-                    binding?.ivImage?.loadImage(checkout?.product?.cardImageUrl,
+                    viewModel.setProduct(checkout)
+                    binding?.ivImage?.loadImage(checkout?.cardImageUrl,
                             RequestOptions()
-                                    .error(DefaultCardDrawable(resources, args.product.name ?: "")))
-                },
-                error = { _, error ->
-                    binding?.ivImage?.setImageDrawable(DefaultCardDrawable(resources, args.product.name ?: ""))
-                    ErrorHandler(requireContext()).handle(error)
-                },
-                finally = {
-                    loader(false)
-                })
+                                    .error(DefaultCardDrawable(resources, args.mcproduct.name ?: "")))
+//                },
+//                error = { _, error ->
+//                    binding?.ivImage?.setImageDrawable(DefaultCardDrawable(resources, args.product.name ?: ""))
+//                    ErrorHandler(requireContext()).handle(error)
+//                },
+//                finally = {
+//                    loader(false)
+//                })
     }
 
     private fun changeToTestnetAddresses() {

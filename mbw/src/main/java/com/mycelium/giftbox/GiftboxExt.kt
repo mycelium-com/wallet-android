@@ -11,8 +11,10 @@ import androidx.fragment.app.Fragment
 import app.cash.sqldelight.ColumnAdapter
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
+import com.mycelium.giftbox.client.model.MCProductInfo
 import com.mycelium.giftbox.model.Card
 import com.mycelium.wallet.R
+import java.math.BigDecimal
 import java.text.DateFormat
 import java.text.ParseException
 import java.text.SimpleDateFormat
@@ -32,6 +34,22 @@ fun ImageView.loadImage(url: String?, options: RequestOptions?) {
         builder.into(this)
     }
 }
+
+fun MCProductInfo.cardValues() =
+    if (denominations?.isNotEmpty() == true && (denominations?.size ?: 100) < 6) {
+        denominations?.joinToString {
+            "${it.stripTrailingZeros().toPlainString()} ${this.currency}"
+        }
+    } else if (this.denominations?.isNotEmpty() == true && (this.denominations?.size ?: 100) >= 6) {
+        "from ${denominations?.first()} ${currency} to ${denominations?.last()} ${currency}"
+    } else {
+        "from ${minFaceValue.stripTrailingZeros().toPlainString()} ${currency}" +
+                if (maxFaceValue != BigDecimal.ZERO) {
+                    " to ${maxFaceValue.stripTrailingZeros().toPlainString()} ${currency}"
+                } else {
+                    ""
+                }
+    }
 
 
 fun Date.getDateString(resources: Resources): String =

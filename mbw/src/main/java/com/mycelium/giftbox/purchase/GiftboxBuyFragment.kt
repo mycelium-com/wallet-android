@@ -16,7 +16,6 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.observe
 import androidx.lifecycle.viewModelScope
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.navigation.fragment.findNavController
@@ -24,22 +23,19 @@ import androidx.navigation.fragment.navArgs
 import com.bumptech.glide.load.resource.bitmap.CenterCrop
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import com.bumptech.glide.request.RequestOptions
-import com.mycelium.bequant.common.ErrorHandler
 import com.mycelium.bequant.common.loader
 import com.mycelium.bequant.kyc.inputPhone.coutrySelector.CountriesSource
 import com.mycelium.giftbox.client.GitboxAPI
-import com.mycelium.giftbox.client.models.ProductInfo
-import com.mycelium.giftbox.client.models.getCardValue
+import com.mycelium.giftbox.client.model.MCProductInfo
+import com.mycelium.giftbox.client.model.getCardValue
 import com.mycelium.giftbox.loadImage
 import com.mycelium.giftbox.purchase.adapter.CustomSimpleAdapter
 import com.mycelium.giftbox.purchase.viewmodel.GiftboxBuyViewModel
-import com.mycelium.giftbox.purchase.viewmodel.getCurrencyId
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.WalletApplication
 import com.mycelium.wallet.activity.modern.ModernMain
 import com.mycelium.wallet.activity.modern.Toaster
-import com.mycelium.wallet.activity.modern.event.SelectTab
 import com.mycelium.wallet.activity.modern.helper.MainActions
 import com.mycelium.wallet.databinding.FragmentGiftboxBuyBinding
 import com.mycelium.wallet.external.changelly2.viewmodel.ExchangeViewModel
@@ -54,7 +50,7 @@ class GiftboxBuyFragment : Fragment() {
     private var binding: FragmentGiftboxBuyBinding? = null
     private val args by navArgs<GiftboxBuyFragmentArgs>()
 
-    val viewModel: GiftboxBuyViewModel by viewModels { ViewModelFactory(args.product) }
+    val viewModel: GiftboxBuyViewModel by viewModels { ViewModelFactory(args.mcproduct) }
 
     val receiver = object : BroadcastReceiver() {
         override fun onReceive(p0: Context?, intent: Intent?) {
@@ -89,7 +85,7 @@ class GiftboxBuyFragment : Fragment() {
     val defaultClickListener: (View) -> Unit = {
         findNavController().navigate(
             GiftboxBuyFragmentDirections.enterAmount(
-                args.product,
+                args.mcproduct,
                 viewModel.totalAmountFiatSingle.value,
                 viewModel.quantityInt.value!!,
                 args.accountId
@@ -102,12 +98,12 @@ class GiftboxBuyFragment : Fragment() {
         binding?.btSend?.isEnabled = viewModel.totalAmountFiatSingle.value != null
         viewModel.totalAmountFiatSingle.value = viewModel.totalAmountFiatSingle.value
 
-        if (args.product.availableDenominations != null) {
+        if (args.mcproduct.denominations?.isNotEmpty() == true) {
             binding?.btEnterAmount?.isVisible = false
             binding?.btEnterAmountPreselected?.isVisible = true
             binding?.btEnterAmountPreselected?.background = null
             val isNotSetYet =
-                    viewModel.totalAmountFiatSingle.value == null || viewModel.totalAmountFiatSingle.value?.isZero() ?: true
+                viewModel.totalAmountFiatSingle.value == null || viewModel.totalAmountFiatSingle.value?.isZero() ?: true
             if (isNotSetYet && viewModel.getPreselectedValues().isNotEmpty()) {
                 viewModel.totalAmountFiatSingle.value = viewModel.getPreselectedValues()[0]
             }
@@ -135,10 +131,11 @@ class GiftboxBuyFragment : Fragment() {
             }
         }
 
-        loader(true)
-        GitboxAPI.giftRepository.getProduct(viewModel.viewModelScope,
-                productId = args.product.code!!, success = { productResponse ->
-            val product = productResponse?.product
+//        loader(true)
+//        GitboxAPI.giftRepository.getProduct(viewModel.viewModelScope,
+//                productId = args.product.code!!, success = { productResponse ->
+//            val product = productResponse?.product
+        val product = args.mcproduct
             binding?.detailsHeader?.ivImage?.loadImage(product?.cardImageUrl,
                     RequestOptions().transforms(CenterCrop(),
                             RoundedCorners(resources.getDimensionPixelSize(R.dimen.giftbox_small_corner))))
@@ -146,8 +143,8 @@ class GiftboxBuyFragment : Fragment() {
             binding?.detailsHeader?.tvQuantityLabel?.isVisible = false
             binding?.detailsHeader?.tvQuantity?.isVisible = false
             binding?.detailsHeader?.tvCardValueHeader?.text = product?.getCardValue()
-            binding?.detailsHeader?.tvExpire?.text =
-                    if (product?.expiryInMonths != null) "${product.expiryDatePolicy} (${product.expiryInMonths} months)" else "Does not expire"
+//            binding?.detailsHeader?.tvExpire?.text =
+//                    if (product?.expiryInMonths != null) "${product.expiryDatePolicy} (${product.expiryInMonths} months)" else "Does not expire"
 
             binding?.detailsHeader?.tvCountry?.text = product?.countries?.mapNotNull {
                 CountriesSource.countryModels.find { model ->
@@ -175,24 +172,27 @@ class GiftboxBuyFragment : Fragment() {
                     }
                 }
             }
-            binding?.amountRoot?.setOnClickListener(if (args.product.availableDenominations == null) defaultClickListener else preselectedClickListener)
-        },
-                error = { _, error ->
-                    ErrorHandler(requireContext()).handle(error)
-                }, finally = {
-            loader(false)
-        })
+        binding?.amountRoot?.setOnClickListener(
+            if (args.mcproduct.denominations?.isNotEmpty() == true) preselectedClickListener else defaultClickListener
+        )
+//        },
+//                error = { _, error ->
+//                    ErrorHandler(requireContext()).handle(error)
+//                }, finally = {
+//            loader(false)
+//        })
 
         binding?.btSend?.setOnClickListener {
             MbwManager.getInstance(WalletApplication.getInstance()).runPinProtectedFunction(activity) {
                 loader(true)
                 binding?.btSend?.isEnabled = false
-                GitboxAPI.giftRepository.createOrder(
+                GitboxAPI.mcGiftRepository.createOrder(
                         viewModel.viewModelScope,
-                        code = args.product.code!!,
-                        amount = (viewModel.totalAmountFiatSingle.value?.valueAsLong?.div(100))?.toInt()!!,
+                        code = args.mcproduct.id!!,
+                        amount = viewModel.totalAmountFiatSingle.value?.valueAsBigDecimal!!,
                         quantity = viewModel.quantityString.value?.toInt()!!,
-                        currencyId = viewModel.zeroCryptoValue!!.getCurrencyId(),
+                        amountCurrency = args.mcproduct.currency!!,
+                        cryptoCurrency = "BTC",
                         success = { orderResponse ->
                             viewModel.orderResponse.value = orderResponse
                             viewModel.sendTransactionAction.value = Unit
@@ -282,8 +282,8 @@ class GiftboxBuyFragment : Fragment() {
     }
 }
 
-class ViewModelFactory(param: ProductInfo) :
+class ViewModelFactory(param: MCProductInfo) :
     ViewModelProvider.Factory {
-    private val mParam: ProductInfo = param
+    private val mParam: MCProductInfo = param
     override fun <T : ViewModel> create(modelClass: Class<T>): T = GiftboxBuyViewModel(mParam) as T
 }

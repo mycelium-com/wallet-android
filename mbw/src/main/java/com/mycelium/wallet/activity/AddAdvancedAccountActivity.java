@@ -34,6 +34,7 @@
 
 package com.mycelium.wallet.activity;
 
+import static com.mycelium.wallet.activity.BipSsImportActivity.RESULT_SECRET;
 import static com.mycelium.wallet.activity.util.IntentExtentionsKt.getAddress;
 import static com.mycelium.wallet.activity.util.IntentExtentionsKt.getAssetUri;
 import static com.mycelium.wallet.activity.util.IntentExtentionsKt.getHdKeyNode;
@@ -342,6 +343,11 @@ public class AddAdvancedAccountActivity extends AppCompatActivity implements Imp
       } else if (requestCode == LEDGER_RESULT_CODE && resultCode == Activity.RESULT_OK) {
          // already added to the WalletManager - just return the new account
          finishOk((UUID) intent.getSerializableExtra("account"), false);
+      } else if (requestCode == StringHandlerActivity.IMPORT_SSS_CONTENT_CODE && resultCode == Activity.RESULT_OK) {
+         String base58Key = intent.getStringExtra(RESULT_SECRET);
+         Optional<InMemoryPrivateKey> key = InMemoryPrivateKey.fromBase58String(base58Key, _network);
+         returnAccount(key.get(), MetadataStorage.BackupState.IGNORED, AccountType.Unknown);
+         //
       } else {
          super.onActivityResult(requestCode, resultCode, intent);
       }

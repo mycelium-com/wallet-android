@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.*
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
@@ -24,21 +25,16 @@ class GiftBoxDetailsFragment : Fragment() {
     private val args by navArgs<GiftBoxDetailsFragmentArgs>()
     private val viewModel: GiftBoxDetailsViewModel by viewModels()
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
-    }
-
     override fun onCreateView(
-            inflater: LayoutInflater,
-            container: ViewGroup?,
-            savedInstanceState: Bundle?
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
     ): View =
-            FragmentGiftboxDetailsBinding.inflate(inflater).apply {
-                binding = this
-                this.viewModel = this@GiftBoxDetailsFragment.viewModel
-                this.lifecycleOwner = this@GiftBoxDetailsFragment
-            }.root
+        FragmentGiftboxDetailsBinding.inflate(inflater).apply {
+            binding = this
+            this.viewModel = this@GiftBoxDetailsFragment.viewModel
+            this.lifecycleOwner = this@GiftBoxDetailsFragment
+        }.root
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -47,8 +43,9 @@ class GiftBoxDetailsFragment : Fragment() {
         val descriptionClick: (View) -> Unit = {
             viewModel.more.value = !(viewModel.more.value ?: false)
             binding?.layoutDescription?.tvDescription?.setupDescription(
-                    viewModel.description.value ?: "",
-                    viewModel.more.value ?: false) {
+                viewModel.description.value ?: "",
+                viewModel.more.value ?: false
+            ) {
                 viewModel.moreVisible.value = it
             }
         }
@@ -71,52 +68,58 @@ class GiftBoxDetailsFragment : Fragment() {
             Toaster(this).toast(R.string.copied_to_clipboard, true)
         }
         viewModel.description.observe(viewLifecycleOwner) { desc ->
-            binding?.layoutDescription?.tvDescription?.setupDescription(desc,
-                    viewModel.more.value ?: false) {
+            binding?.layoutDescription?.tvDescription?.setupDescription(
+                desc,
+                viewModel.more.value ?: false
+            ) {
                 viewModel.moreVisible.value = it
             }
         }
         viewModel.setCard(args.card)
-        loadProduct()
+//        loadProduct()
+        requireActivity().addMenuProvider(MenuImpl(), viewLifecycleOwner)
     }
 
-    private fun loadProduct() {
-        GitboxAPI.giftRepository.getProduct(lifecycleScope, args.card.productCode!!, {
-            viewModel.setProduct(it!!)
-        }, { _, msg ->
-            Toaster(this).toast(msg, true)
-        })
-    }
-
-
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.giftbox_details, menu)
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean =
-            when (item.itemId) {
-                R.id.share -> {
-                    shareGiftcard(viewModel.orderResponse!!)
-                    true
-                }
-                R.id.delete -> {
-                    AlertDialog.Builder(requireContext(), R.style.MyceliumModern_Dialog)
-                            .setTitle(getString(R.string.delete_gift_card))
-                            .setMessage(getString(R.string.delete_gift_card_msg))
-                            .setNegativeButton(R.string.button_cancel) { _, _ -> }
-                            .setPositiveButton(R.string.delete) { _, _ ->
-                                GitboxAPI.giftRepository.remove(args.card, lifecycleScope) {
-                                    findNavController().popBackStack()
-                                }
-                            }
-                            .create().show()
-                    true
-                }
-                else -> super.onOptionsItemSelected(item)
-            }
+//    private fun loadProduct() {
+//        GitboxAPI.giftRepository.getProduct(lifecycleScope, args.card.productCode!!, {
+//            viewModel.setProduct(it!!)
+//        }, { _, msg ->
+//            Toaster(this).toast(msg, true)
+//        })
+//    }
 
     override fun onDestroyView() {
         binding = null
         super.onDestroyView()
+    }
+
+    internal inner class MenuImpl : MenuProvider {
+        override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+            menuInflater.inflate(R.menu.giftbox_details, menu)
+        }
+
+        override fun onMenuItemSelected(menuItem: MenuItem): Boolean =
+            when (menuItem.itemId) {
+                R.id.share -> {
+                    shareGiftcard(viewModel.orderResponse!!)
+                    true
+                }
+//                R.id.delete -> {
+//                    AlertDialog.Builder(requireContext(), R.style.MyceliumModern_Dialog)
+//                            .setTitle(getString(R.string.delete_gift_card))
+//                            .setMessage(getString(R.string.delete_gift_card_msg))
+//                            .setNegativeButton(R.string.button_cancel) { _, _ -> }
+//                            .setPositiveButton(R.string.delete) { _, _ ->
+//                                GitboxAPI.giftRepository.remove(args.card, lifecycleScope) {
+//                                    findNavController().popBackStack()
+//                                }
+//                            }
+//                            .create().show()
+//                    true
+//                }
+                else -> false
+            }
+
+
     }
 }

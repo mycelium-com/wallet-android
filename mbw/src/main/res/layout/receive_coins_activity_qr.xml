@@ -1,46 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
-<merge xmlns:android="http://schemas.android.com/apk/res/android"
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-        tools:showIn="@layout/receive_coins_activity">
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center"
+    android:layout_margin="0dp"
+    android:gravity="center"
+    android:paddingTop="10dp"
+    android:orientation="vertical"
+    tools:showIn="@layout/receive_coins_activity">
 
-    <LinearLayout
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_margin="0dp"
-        android:gravity="center"
-        android:orientation="vertical"
-        tools:showIn="@layout/receive_coins_activity">
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
 
-        <FrameLayout
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content">
-
-            <com.mycelium.wallet.activity.util.QrImageView
-                android:id="@+id/ivQrCode"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:background="@color/white"
-                android:contentDescription="@string/qr_code"
-                android:longClickable="false"
-                android:maxHeight="180dp"
-                android:maxWidth="180dp"
-                android:minHeight="180dp"
-                android:minWidth="180dp" />
-        </FrameLayout>
-
-        <TextView
+        <com.mycelium.wallet.activity.util.QrImageView
+            android:id="@+id/ivQrCode"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:text="@string/tap_qr_code_desc"
-            android:textColor="@color/grey"
-            android:textSize="12sp" />
-    </LinearLayout>
+            android:layout_gravity="center_horizontal"
+            android:background="@color/white"
+            android:contentDescription="@string/qr_code"
+            android:longClickable="false"
+            android:maxWidth="180dp"
+            android:maxHeight="180dp"
+            android:minWidth="180dp"
+            android:minHeight="180dp" />
+    </FrameLayout>
 
-
-    <View
-        android:layout_width="fill_parent"
-        android:layout_height="10dp" />
-</merge>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:text="@string/tap_qr_code_desc"
+        android:textColor="@color/grey"
+        android:textSize="12sp" />
+</LinearLayout>

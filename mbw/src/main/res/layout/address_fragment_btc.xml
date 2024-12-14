@@ -1,7 +1,9 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:bind="http://schemas.android.com/tools">
 
     <data>
+
         <variable
             name="activity"
             type="androidx.fragment.app.FragmentActivity" />
@@ -11,28 +13,30 @@
             type="com.mycelium.wallet.activity.main.address.AddressFragmentBtcModel" />
     </data>
 
-    <RelativeLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingTop="20dp"
         android:paddingBottom="10dp">
 
         <FrameLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_toStartOf="@+id/qrView"
-                android:layout_alignParentStart="true"
-                android:layout_marginStart="20dp"
-                android:layout_centerVertical="true">
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_centerVertical="true"
+            app:layout_constraintTop_toTopOf="parent"
+            android:layout_marginStart="20dp"
+            app:layout_constraintEnd_toStartOf="@id/layoutQR"
+            app:layout_constraintStart_toStartOf="parent">
 
             <LinearLayout
                 android:id="@+id/llAddress"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_gravity="center"
                 android:background="@drawable/btn_transparent_slim"
                 android:clickable="true"
                 android:focusable="true"
-                android:layout_gravity="center"
                 android:orientation="vertical">
 
                 <include
@@ -44,8 +48,9 @@
                     layout="@layout/address_fragment_addr"
                     bind:viewModel="@{viewModel}" />
 
-                <include layout="@layout/address_fragment_btc_address_type"
-                    bind:viewModel="@{viewModel}"/>
+                <include
+                    layout="@layout/address_fragment_btc_address_type"
+                    bind:viewModel="@{viewModel}" />
 
                 <include
                     layout="@layout/address_fragment_path"
@@ -57,7 +62,11 @@
         <include
             android:id="@+id/layoutQR"
             layout="@layout/address_fragment_qr_btc"
-            bind:viewModel="@{viewModel}"
-            bind:activity="@{activity}" />
-    </RelativeLayout>
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            bind:activity="@{activity}"
+            bind:viewModel="@{viewModel}" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
