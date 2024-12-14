@@ -5,17 +5,17 @@ RUN dpkg --add-architecture i386 && \
     apt-get install -y software-properties-common && \
     apt-get update -y && \
     apt-get install -y wget \
-            openjdk-11-jdk \
+            openjdk-17-jdk \
             git unzip disorderfs && \
     rm -rf /var/lib/apt/lists/* && \
     apt-get autoremove -y && \
     apt-get clean
 
-ARG ANDROID_SDK_VERSION=9123335
+ARG ANDROID_SDK_VERSION=11076708
 ARG ANDROID_BUILD_TOOLS_VERSION=34.0.0
-ARG ANDROID_NDK_VERSION=25.1.8937393
-ARG ANDROID_PLATFORM_VERSION=31
-ARG CMAKE_VERSION=3.10.2.4988404
+ARG ANDROID_NDK_VERSION=21.1.6352462
+ARG ANDROID_PLATFORM_VERSION=34
+ARG CMAKE_VERSION=3.22.1
 
 ENV ANDROID_HOME /opt/android-sdk
 ENV ANDROID_SDK_HOME  ${ANDROID_HOME}

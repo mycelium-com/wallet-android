@@ -30,9 +30,11 @@ jobs:
 
     - run: ./gradlew clean test mbw:assembleProdnetDebug mbw:assembleBtctestnetDebug mbw:assembleBtctestnetRelease
 
-    - uses: actions/upload-artifact@v3
+    - uses: actions/upload-artifact@v4
       with:
-        path: mbw/build/outputs/apk/
+        path: |
+          mbw/build/outputs/apk/
+          mbw/build/outputs/native-debug-symbols/
 
     - name: Check Target SDK
       run: |

@@ -32,8 +32,10 @@ jobs:
           mkdir /project/
           disorderfs --sort-dirents=yes --reverse-dirents=no /app/ /project/;
           cd /project/
-          ./gradlew clean test mbw::assembleProdnetRelease mbw::assembleBtctestnetRelease mbw::assembleProdnetDebug mbw::assembleBtctestnetDebug
+          ./gradlew clean test mbw:assembleProdnetDebug mbw:assembleBtctestnetDebug mbw:assembleProdnetRelease mbw:assembleBtctestnetRelease 
 
-    - uses: actions/upload-artifact@v3
+    - uses: actions/upload-artifact@v4
       with:
-        path: mbw/build/outputs/
+        path: |
+          mbw/build/outputs/
+          mbw/build/outputs/native-debug-symbols/
