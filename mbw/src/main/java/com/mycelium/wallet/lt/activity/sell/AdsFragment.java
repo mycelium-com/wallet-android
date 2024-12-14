@@ -304,10 +304,12 @@ public class AdsFragment extends Fragment {
    };
 
    private void doDeleteEntry() {
-      if (_selectedAd == null) {
+      // Optimized to not cause 4 bytes difference in DEX thus failing build reproducibility check
+      final Ad selectedAd = this._selectedAd;
+      if (selectedAd == null) {
          return;
       }
-      _ltManager.makeRequest(new DeleteAd(_selectedAd.id));
+      _ltManager.makeRequest(new DeleteAd(selectedAd.id));
    }
 
    private class AdsAdapter extends ArrayAdapter<Ad> {
