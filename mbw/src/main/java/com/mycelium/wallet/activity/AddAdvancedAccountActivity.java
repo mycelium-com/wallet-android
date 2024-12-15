@@ -345,8 +345,8 @@ public class AddAdvancedAccountActivity extends AppCompatActivity implements Imp
          finishOk((UUID) intent.getSerializableExtra("account"), false);
       } else if (requestCode == StringHandlerActivity.IMPORT_SSS_CONTENT_CODE && resultCode == Activity.RESULT_OK) {
          String base58Key = intent.getStringExtra(RESULT_SECRET);
-         Optional<InMemoryPrivateKey> key = InMemoryPrivateKey.fromBase58String(base58Key, _network);
-         returnAccount(key.get(), MetadataStorage.BackupState.IGNORED, AccountType.Unknown);
+         InMemoryPrivateKey key = InMemoryPrivateKey.fromBase58String(base58Key, _network);
+         returnAccount(key, MetadataStorage.BackupState.IGNORED, AccountType.Unknown);
          //
       } else {
          super.onActivityResult(requestCode, resultCode, intent);
