@@ -41,6 +41,7 @@ import android.view.View;
 import android.widget.Button;
 import com.google.common.base.Optional;
 import com.mycelium.wallet.activity.util.Pin;
+import com.mycelium.wallet.databinding.EnterClearPinDialogBinding;
 
 import static com.mycelium.wallet.Constants.BTC_BLOCK_TIME_IN_SECONDS;
 
@@ -116,6 +117,9 @@ public class ClearPinDialog extends PinDialog {
 
    @Override
    protected void loadLayout() {
-      setContentView(R.layout.enter_clear_pin_dialog);
+      EnterClearPinDialogBinding binding = EnterClearPinDialogBinding.inflate(getLayoutInflater());
+      setNumpadBinding(binding.numPad);
+      setPinBinding(binding.pinDisplay);
+      setContentView(binding.getRoot());
    }
 }
