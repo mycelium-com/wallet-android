@@ -35,6 +35,7 @@
 package com.mycelium.wallet.activity.modern;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.mycelium.wallet.activity.settings.HelpFragmentKt.boostGapLimitDialog;
 import static com.mycelium.wapi.wallet.btc.bip44.BitcoinHDModuleKt.getActiveMasterseedAccounts;
 import static com.mycelium.wapi.wallet.btc.bip44.BitcoinHDModuleKt.getActiveMasterseedHDAccounts;
 import static com.mycelium.wapi.wallet.colu.ColuModuleKt.getColuAccounts;
@@ -695,6 +696,10 @@ public class AccountsFragment extends Fragment {
             }
         }
 
+        if (account.isActive() && account instanceof HDAccount) {
+            menus.add(R.menu.record_options_boost_gap);
+        }
+
         if (account.getId().equals(_mbwManager.getLocalTraderManager().getLocalTraderAccountId())) {
             menus.add(R.menu.record_options_menu_detach);
         }
@@ -775,6 +780,9 @@ public class AccountsFragment extends Fragment {
                             return true;
                         }
                         rescan();
+                        return true;
+                    case R.id.miBoostGap:
+                        boostGapLimitDialog(AccountsFragment.this, _mbwManager, account);
                         return true;
                     default:
                         return false;

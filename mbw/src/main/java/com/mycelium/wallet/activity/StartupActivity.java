@@ -118,7 +118,7 @@ public class StartupActivity extends AppCompatActivity implements AccountCreator
    private static final int IMPORT_WORDLIST = 0;
 
    public static final List<Config> mainAccounts = new ArrayList<>(
-           Arrays.asList(new AdditionalHDAccountConfig(), new EthereumMasterseedConfig(), new FIOMasterseedConfig()));
+           Arrays.asList(new AdditionalHDAccountConfig(), new EthereumMasterseedConfig()));
 
    private static final String LAST_STARTUP_TIME = "startupTme";
 
