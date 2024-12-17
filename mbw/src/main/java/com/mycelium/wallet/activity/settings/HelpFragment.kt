@@ -21,6 +21,7 @@ import com.mycelium.wallet.activity.ConnectionLogsActivity
 import com.mycelium.wallet.databinding.FragmentHelpBinding
 import com.mycelium.wallet.databinding.LayoutGapInputBinding
 import com.mycelium.wapi.wallet.SyncMode
+import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.fio.FioModule
 
 
@@ -44,25 +45,8 @@ class HelpFragment : Fragment() {
             AlertDialog.Builder(requireContext())
                     .setMessage(Html.fromHtml(getString(R.string.help_missing_tx_dialog_text)))
                 .setPositiveButton(getString(R.string.boost_gap_limit)) { _, _ ->
-                    val bind = LayoutGapInputBinding.inflate(LayoutInflater.from(requireContext()))
-                    bind.text.setText("200")
-                    AlertDialog.Builder(requireContext())
-                        .setTitle(getString(R.string.input_look_ahead))
-                        .setView(bind.root)
-                        .setPositiveButton(R.string.button_ok, object : DialogInterface.OnClickListener {
-                            override fun onClick(
-                                p0: DialogInterface?,
-                                p1: Int
-                            ) {
-                                val lookAheadCount = bind.text.text.toString().toInt()
-                                val mode = SyncMode.BOOSTED
-                                mode.mode.lookAhead = lookAheadCount
-                                mbwManager.getWalletManager(false).startSynchronization(mode)
-                                requireActivity().finish()
-                            }
-                        })
-                        .show()
-                    }
+                    boostGapLimitDialog(mbwManager)
+                }
                     .setNegativeButton(R.string.cancel, null)
                     .show()
         }
@@ -99,4 +83,28 @@ class HelpFragment : Fragment() {
         binding = null
         super.onDestroyView()
     }
+}
+
+
+fun Fragment.boostGapLimitDialog(
+    mbwManager: MbwManager,
+    vararg accounts: WalletAccount<*>
+) {
+    val bind = LayoutGapInputBinding.inflate(LayoutInflater.from(requireContext()))
+    bind.text.setText("200")
+    AlertDialog.Builder(requireContext())
+        .setTitle(getString(R.string.input_look_ahead))
+        .setView(bind.root)
+        .setPositiveButton(R.string.button_ok, object : DialogInterface.OnClickListener {
+            override fun onClick(
+                p0: DialogInterface?,
+                p1: Int
+            ) {
+                val lookAheadCount = bind.text.text.toString().toInt()
+                val mode = SyncMode.BOOSTED
+                mode.mode.lookAhead = lookAheadCount
+                mbwManager.getWalletManager(false).startSynchronization(mode, accounts.toList())
+            }
+        })
+        .show()
 }
