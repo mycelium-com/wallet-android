@@ -25,6 +25,7 @@ import com.mycelium.wapi.wallet.btc.*
 import java.util.*
 import java.util.concurrent.TimeUnit
 import java.util.logging.Level
+import kotlin.math.max
 import kotlin.math.min
 
 open class HDAccount(
@@ -185,7 +186,7 @@ open class HDAccount(
     /**
      * Ensure that all addresses in the look ahead window have been created
      */
-    protected fun ensureAddressIndexes(boostedLookAhead: Boolean = false) {
+    protected fun ensureAddressIndexes(boostedLookAhead: Int = -1) {
         derivePaths.forEachIndexed { index, derivationType ->
             ensureAddressIndexes(true, true, boostedLookAhead, derivationType)
             ensureAddressIndexes(false, true, boostedLookAhead, derivationType)
@@ -201,7 +202,7 @@ open class HDAccount(
         }
     }
 
-    private fun ensureAddressIndexes(isChangeChain: Boolean, fullLookAhead: Boolean, boostedLookAhead: Boolean, derivationType: BipDerivationType) {
+    private fun ensureAddressIndexes(isChangeChain: Boolean, fullLookAhead: Boolean, boostedLookAheadCount: Int = -1, derivationType: BipDerivationType) {
         var index: Int
         val addressMap: BiMap<BitcoinAddress, Int>
         if (isChangeChain) {
@@ -215,7 +216,7 @@ open class HDAccount(
         } else {
             index = context.getLastExternalIndexWithActivity(derivationType)
             index += when {
-                boostedLookAhead -> EXTERNAL_BOOSTED_ADDRESS_LOOK_AHEAD_LENGTH
+                boostedLookAheadCount > 0 -> boostedLookAheadCount
                 fullLookAhead -> EXTERNAL_FULL_ADDRESS_LOOK_AHEAD_LENGTH
                 else -> EXTERNAL_MINIMAL_ADDRESS_LOOK_AHEAD_LENGTH
             }
@@ -242,7 +243,7 @@ open class HDAccount(
                             currentInternalAddressId + INTERNAL_FULL_ADDRESS_LOOK_AHEAD_LENGTH, derivationType))
                     addresses.addAll(getAddressRange(false, currentExternalAddressId,
                             currentExternalAddressId + mode.mode.lookAhead, derivationType))
-                    ensureAddressIndexes(boostedLookAhead = true)
+                    ensureAddressIndexes(mode.mode.lookAhead)
                 }
                 SyncMode.Mode.FULL_SYNC -> {
                     // check the full change-chain and external-chain
@@ -281,18 +282,15 @@ open class HDAccount(
                 }
             }
         }
-        return ImmutableList.copyOf(addresses)
+        return addresses.toList()
     }
 
     private fun getAddressRange(isChangeChain: Boolean, fromIndex: Int, toIndex: Int,
-                                derivationType: BipDerivationType): List<BitcoinAddress> {
-        val clippedFromIndex = Math.max(0, fromIndex) // clip at zero
-        val ret = ArrayList<BitcoinAddress>(toIndex - clippedFromIndex + 1)
-        for (i in clippedFromIndex..toIndex) {
-            ret.add(keyManagerMap[derivationType]!!.getAddress(isChangeChain, i))
+                                derivationType: BipDerivationType): List<BitcoinAddress> =
+        // clip at zero
+        (max(0, fromIndex)..toIndex).map { i ->
+            keyManagerMap[derivationType]!!.getAddress(isChangeChain, i)
         }
-        return ret
-    }
 
     override suspend fun doSynchronization(proposedMode: SyncMode): Boolean {
         if (!maySync) {
@@ -306,7 +304,7 @@ open class HDAccount(
             mode = SyncMode.FULL_SYNC_CURRENT_ACCOUNT_FORCED
         }
         try {
-            if (mode.mode == SyncMode.Mode.FULL_SYNC) {
+            if (mode.mode in arrayOf(SyncMode.Mode.FULL_SYNC, SyncMode.Mode.BOOSTED)) {
                 // Discover new addresses once in a while
                 if (!discovery()) {
                     return false

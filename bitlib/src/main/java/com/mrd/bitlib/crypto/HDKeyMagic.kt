@@ -8,23 +8,23 @@ enum class HDKeyMagic(val isPrivate: Boolean, val isProdnet: Boolean, val typeTo
     PRODNET_PUBLIC(false, true,
             mapOf(BipDerivationType.BIP44 to toBytes("04 88 B2 1E"),    // xpub
                     BipDerivationType.BIP49 to toBytes("04 9d 7c b2"),    // ypub
-                    BipDerivationType.BIP84 to toBytes("04 b2 47 46"),    // zpub
-                    BipDerivationType.BIP86 to toBytes("04 88 B2 1E")).toBiMap()),
+                    BipDerivationType.BIP84 to toBytes("04 b2 47 46")    // zpub
+                    ).toBiMap()),
     TESTNET_PUBLIC(false, false,
             mapOf(BipDerivationType.BIP44 to toBytes("04 35 87 CF"),    // tpub
                     BipDerivationType.BIP49 to toBytes("04 4a 52 62"),    // upub
-                    BipDerivationType.BIP84 to toBytes("04 5f 1c f6"),    // vpub
-                    BipDerivationType.BIP86 to toBytes("04 35 87 CF")).toBiMap()),
+                    BipDerivationType.BIP84 to toBytes("04 5f 1c f6")    // vpub
+                    ).toBiMap()),
     PRODNET_PRIVATE(true, true,
             mapOf(BipDerivationType.BIP44 to toBytes("04 88 AD E4"),    // xprv
                     BipDerivationType.BIP49 to toBytes("04 9d 78 78"),    // yprv
-                    BipDerivationType.BIP84 to toBytes("04 b2 43 0c"),    // zprv
-                    BipDerivationType.BIP86 to toBytes("04 88 AD E4")).toBiMap()),
+                    BipDerivationType.BIP84 to toBytes("04 b2 43 0c")    // zprv
+                    ).toBiMap()),
     TESTNET_PRIVATE(true, false,
             mapOf(BipDerivationType.BIP44 to toBytes("04 35 83 94"),    // tprv
                     BipDerivationType.BIP49 to toBytes("04 4a 4e 28"),    // uprv
-                    BipDerivationType.BIP84 to toBytes("04 5f 18 bc"),  // vprv
-                    BipDerivationType.BIP86 to toBytes("04 35 83 94")).toBiMap())
+                    BipDerivationType.BIP84 to toBytes("04 5f 18 bc")  // vprv
+                    ).toBiMap())
 }
 
 fun <K, V> Map<K, V>.toBiMap() = HashBiMap.create(this)!!

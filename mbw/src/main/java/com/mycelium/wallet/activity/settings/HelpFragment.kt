@@ -1,6 +1,6 @@
 package com.mycelium.wallet.activity.settings
 
-import android.app.AlertDialog
+import android.content.DialogInterface
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -11,6 +11,7 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import com.mycelium.wallet.BuildConfig
 import com.mycelium.wallet.MbwManager
@@ -18,6 +19,7 @@ import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
 import com.mycelium.wallet.activity.ConnectionLogsActivity
 import com.mycelium.wallet.databinding.FragmentHelpBinding
+import com.mycelium.wallet.databinding.LayoutGapInputBinding
 import com.mycelium.wapi.wallet.SyncMode
 import com.mycelium.wapi.wallet.fio.FioModule
 
@@ -41,8 +43,25 @@ class HelpFragment : Fragment() {
         binding?.missingTxs?.setOnClickListener {
             AlertDialog.Builder(requireContext())
                     .setMessage(Html.fromHtml(getString(R.string.help_missing_tx_dialog_text)))
-                    .setPositiveButton(getString(R.string.boost_gap_limit)) { _, _ ->
-                        mbwManager.getWalletManager(false).startSynchronization(SyncMode.BOOSTED)
+                .setPositiveButton(getString(R.string.boost_gap_limit)) { _, _ ->
+                    val bind = LayoutGapInputBinding.inflate(LayoutInflater.from(requireContext()))
+                    bind.text.setText("200")
+                    AlertDialog.Builder(requireContext())
+                        .setTitle(getString(R.string.input_look_ahead))
+                        .setView(bind.root)
+                        .setPositiveButton(R.string.button_ok, object : DialogInterface.OnClickListener {
+                            override fun onClick(
+                                p0: DialogInterface?,
+                                p1: Int
+                            ) {
+                                val lookAheadCount = bind.text.text.toString().toInt()
+                                val mode = SyncMode.BOOSTED
+                                mode.mode.lookAhead = lookAheadCount
+                                mbwManager.getWalletManager(false).startSynchronization(mode)
+                                requireActivity().finish()
+                            }
+                        })
+                        .show()
                     }
                     .setNegativeButton(R.string.cancel, null)
                     .show()

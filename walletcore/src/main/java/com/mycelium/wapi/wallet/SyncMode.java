@@ -80,7 +80,7 @@ public class SyncMode {
       // Synchronizes only the current address (external) - only short lookahead
       ONE_ADDRESS(0, 0);
 
-      public final int lookAhead;
+      public int lookAhead;
       public final int lookBack;
 
       Mode(int lookBack, int lookAhead) {
