@@ -39,6 +39,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.InfiniteLinearLayoutManager
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.mycelium.view.ItemCentralizer
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
@@ -98,12 +101,17 @@ class BuySellFragment : Fragment(), ButtonClickListener {
         binding?.quadList?.adapter = quadAdapter
         binding?.quadList?.addOnScrollListener(ItemCentralizer())
         recreateActions()
-        quadAdapter.submitList(getBalanceContent()
+        val quadList = getBalanceContent()
             ?.quads
             ?.filter {
                 it.isActive() && isContentEnabled(it.parentId ?: "")
                         && it.filter.check(mbwManager.selectedAccount)
-            }?.sortedBy { it.index })
+            }?.sortedBy { it.index }
+        binding?.quadList?.layoutManager = if (quadList.orEmpty().size > 1)
+            InfiniteLinearLayoutManager(requireContext(), RecyclerView.HORIZONTAL, false)
+        else
+            LinearLayoutManager(requireContext())
+        quadAdapter.submitList(quadList)
         quadAdapter.clickListener = { startContentLink(it.link) }
     }
 
