@@ -78,6 +78,7 @@ import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.AddAccountActivity;
 import com.mycelium.wallet.activity.AddAdvancedAccountActivity;
 import com.mycelium.wallet.activity.MessageSigningActivity;
+import com.mycelium.wallet.activity.export.ShamirSharingActivity;
 import com.mycelium.wallet.activity.export.VerifyBackupActivity;
 import com.mycelium.wallet.activity.fio.AboutFIOProtocolDialog;
 import com.mycelium.wallet.activity.fio.registername.RegisterFioNameActivity;
@@ -641,6 +642,7 @@ public class AccountsFragment extends Fragment {
 
         if (account instanceof SingleAddressAccount) {
             menus.add(R.menu.record_options_menu_backup_verify);
+            menus.add(R.menu.record_options_menu_shamir);
         }
 
         if (account instanceof ColuAccount) {
@@ -772,6 +774,15 @@ public class AccountsFragment extends Fragment {
                         return true;
                     case R.id.miSingleKeyBackupVerify:
                         verifySingleKeyBackup();
+                        return true;
+                    case R.id.miShamirBackup:
+                        try {
+                            String privateKey = account.getPrivateKey(AesKeyCipher.defaultKeyCipher()).getBase58EncodedPrivateKey(_mbwManager.getNetwork());
+                            startActivity(new Intent(requireContext(), ShamirSharingActivity.class)
+                                    .putExtra("data", privateKey));
+                        } catch (KeyCipher.InvalidKeyCipher e) {
+                            _toaster.toast("Something went wrong", false);
+                        }
                         return true;
                     case R.id.miRescan:
                         // If we are synchronizing, show "Synchronizing, please wait..." to avoid blocking behavior
