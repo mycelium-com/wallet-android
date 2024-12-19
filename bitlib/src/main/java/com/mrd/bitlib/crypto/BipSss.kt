@@ -90,7 +90,7 @@ object BipSss {
         val gf = Gf256()
         val shares = gf.makeShares(secret, threshold, totalShares)
         val id = HashUtils.sha256(secret).bytes.copyOfRange(0, 2)
-        return shares.map { Share(TYPE_BASE_58_STRING, id, threshold, it.index.toInt(), it.data) }
+        return shares.map { Share(TYPE_BASE_58_STRING, id, it.index.toInt(), threshold, it.data) }
     }
 
     class NotEnoughSharesException(@JvmField var needed: Int) : Exception()
@@ -133,7 +133,7 @@ object BipSss {
         }
 
         private fun getByteForNumberAndThreshold(shareNumber: Int, threshold: Int): Byte =
-            ((shareNumber - 1) * 16 + (threshold - 1)).toByte()
+            ((threshold - 1) * 16 + (shareNumber - 1)).toByte()
 
         /**
          * Determine whether two shares are compatible, and can be combined.

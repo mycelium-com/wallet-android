@@ -69,6 +69,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.common.collect.Lists;
+import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.model.AddressType;
 import com.mrd.bitlib.model.BitcoinAddress;
 import com.mycelium.bequant.intro.BequantIntroActivity;
@@ -777,9 +778,8 @@ public class AccountsFragment extends Fragment {
                         return true;
                     case R.id.miShamirBackup:
                         try {
-                            String privateKey = account.getPrivateKey(AesKeyCipher.defaultKeyCipher()).getBase58EncodedPrivateKey(_mbwManager.getNetwork());
-                            startActivity(new Intent(requireContext(), ShamirSharingActivity.class)
-                                    .putExtra("data", privateKey));
+                            InMemoryPrivateKey privateKey = account.getPrivateKey(AesKeyCipher.defaultKeyCipher());
+                            ShamirSharingActivity.callMe(requireActivity(), privateKey);
                         } catch (KeyCipher.InvalidKeyCipher e) {
                             _toaster.toast("Something went wrong", false);
                         }

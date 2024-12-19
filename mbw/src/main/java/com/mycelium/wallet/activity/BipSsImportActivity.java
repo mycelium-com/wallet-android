@@ -39,6 +39,7 @@ import java.util.List;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.WindowManager;
@@ -46,7 +47,9 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.mrd.bitlib.bitcoinj.Base58;
 import com.mrd.bitlib.crypto.BipSss;
+import com.mrd.bitlib.util.HexUtils;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.content.HandleConfigFactory;
 import com.mycelium.wallet.content.ResultType;
@@ -84,6 +87,7 @@ public class BipSsImportActivity extends AppCompatActivity {
       try {
          String secret = BipSss.combine(shares);
 
+         Log.e("!!!!", HexUtils.toHex(Base58.decodeChecked(secret)));
          // Success, send the result back immediately
          Intent result = new Intent();
          result.putExtra(RESULT_SECRET, secret);

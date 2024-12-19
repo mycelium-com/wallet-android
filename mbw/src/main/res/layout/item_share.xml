@@ -6,13 +6,22 @@
     android:padding="8dp">
 
     <TextView
-        android:id="@+id/tvShare"
+        android:id="@+id/tvLabel"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:textSize="16sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/tvShare"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tvLabel" />
 
     <com.mycelium.wallet.activity.util.QrImageView
         android:id="@+id/qrImageView"
