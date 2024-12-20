@@ -5,10 +5,12 @@ import com.mrd.bitlib.crypto.BipSss.IncompatibleSharesException
 import com.mrd.bitlib.crypto.BipSss.InvalidContentTypeException
 import com.mrd.bitlib.crypto.BipSss.NotEnoughSharesException
 import com.mrd.bitlib.crypto.BipSss.Share.Companion.fromString
+import com.mrd.bitlib.model.NetworkParameters
 import com.mrd.bitlib.util.BitUtils
 import com.mrd.bitlib.util.HexUtils
 import org.junit.Assert
 import org.junit.Test
+import java.security.SecureRandom
 import java.util.ArrayList
 
 class BipSssTest {
@@ -29,6 +31,53 @@ class BipSssTest {
         Assert.assertEquals(
             HexUtils.toHex(test),
             HexUtils.toHex(result)
+        )
+    }
+
+    @Test
+    fun backTest3() {
+        val privateKey = InMemoryPrivateKey(RANDOM_SOURCE)
+//        val secret = privateKey.getBase58EncodedPrivateKey(NetworkParameters.testNetwork)
+        val network = NetworkParameters.testNetwork
+        val nw: Byte = (if (network.isProdnet()) 0x80 else 0xEF).toByte()
+        val secret = ByteArray(0) + nw + privateKey.privateKeyBytes
+        println("!!!! size=" + secret.size)
+//        Assert.assertEquals(
+//            "test fromBase58String",
+//            HexUtils.toHex(privateKey.privateKeyBytes),
+//            HexUtils.toHex(
+//                InMemoryPrivateKey.fromBase58String(secret, NetworkParameters.testNetwork)
+//                    .get().privateKeyBytes
+//            )
+//        )
+
+        println("!!!! base58 =$secret")
+        val shares = BipSss.split(secret, 3, 2)
+
+        val sharesString = shares.subList(0, 2).map { it.toString() }
+
+
+        val sharesTest = sharesString.mapNotNull { content ->
+            BipSss.Share.fromString(content)
+        }
+
+        val combine = BipSss.combine(sharesTest)
+        val secretTest = Base58.decodeChecked(combine)
+        println("!!!! test base58 =${String(secretTest)}")
+        Assert.assertEquals(
+            "test just data",
+            HexUtils.toHex(secret),
+            HexUtils.toHex(secretTest)
+        )
+
+//        val privateKeyTest =
+//            InMemoryPrivateKey.fromBase58String(String(secretTest), NetworkParameters.testNetwork)
+        val privateKeyTest = InMemoryPrivateKey(combine, NetworkParameters.testNetwork)
+//        Assert.assertEquals("test is private key created", true, privateKeyTest.isPresent)
+        Assert.assertEquals(
+            "test is private keys same",
+            HexUtils.toHex(privateKey.privateKeyBytes),
+            HexUtils.toHex(privateKeyTest.privateKeyBytes)
         )
     }
 
@@ -371,5 +420,9 @@ class BipSssTest {
         val result = Base58.decodeChecked(base58Result)
         Assert.assertNotNull(result)
         Assert.assertTrue(BitUtils.areEqual(result, expected))
+    }
+
+    companion object {
+        private val RANDOM_SOURCE = RandomSource { bytes -> SecureRandom().nextBytes(bytes) }
     }
 }

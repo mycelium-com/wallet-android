@@ -1,18 +1,3 @@
-/*
- * Copyright 2013, 2014 Megion Research & Development GmbH
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package com.mrd.bitlib.crypto;
 
 import static com.google.common.base.Preconditions.checkState;
@@ -24,6 +9,7 @@ import com.mrd.bitlib.crypto.ec.Parameters;
 import com.mrd.bitlib.crypto.ec.Point;
 import com.mrd.bitlib.crypto.schnorr.SchnorrSign;
 import com.mrd.bitlib.model.NetworkParameters;
+import com.mrd.bitlib.util.BitUtils;
 import com.mrd.bitlib.util.ByteWriter;
 import com.mrd.bitlib.util.HashUtils;
 import com.mrd.bitlib.util.Sha256Hash;
@@ -370,22 +356,42 @@ public class InMemoryPrivateKey extends PrivateKey implements KeyExporter, Seria
       }
    }
 
+   public byte[] getPrivateKeyBytes(NetworkParameters network) {
+      if (getPublicKey().isCompressed()) {
+         return getPrivateKeyBytesCompressed(network);
+      } else {
+         return getPrivateKeyBytesUncompressed(network);
+      }
+   }
+
    private String getBase58EncodedPrivateKeyUncompressed(NetworkParameters network) {
-      byte[] toEncode = new byte[1 + 32 + 4];
+      byte[] toEncode = getPrivateKeyBytesUncompressed(network);
+      // Set checksum
+      byte[] checkSum = HashUtils.doubleSha256(toEncode, 0, 1 + 32).firstFourBytes();
+      // Encode
+      return Base58.encode(BitUtils.concatenate(toEncode, checkSum));
+   }
+
+   public byte[] getPrivateKeyBytesUncompressed(NetworkParameters network) {
+      byte[] toEncode = new byte[1 + 32];
       // Set network
       toEncode[0] = network.isProdnet() ? (byte) 0x80 : (byte) 0xEF;
       // Set key bytes
       byte[] keyBytes = getPrivateKeyBytes();
       System.arraycopy(keyBytes, 0, toEncode, 1, keyBytes.length);
-      // Set checksum
-      byte[] checkSum = HashUtils.doubleSha256(toEncode, 0, 1 + 32).firstFourBytes();
-      System.arraycopy(checkSum, 0, toEncode, 1 + 32, 4);
-      // Encode
-      return Base58.encode(toEncode);
+      return toEncode;
    }
 
    private String getBase58EncodedPrivateKeyCompressed(NetworkParameters network) {
-      byte[] toEncode = new byte[1 + 32 + 1 + 4];
+      byte[] toEncode = getPrivateKeyBytesCompressed(network);
+      // Set checksum
+      byte[] checkSum = HashUtils.doubleSha256(toEncode, 0, 1 + 32 + 1).firstFourBytes();
+      // Encode
+      return Base58.encode(BitUtils.concatenate(toEncode, checkSum));
+   }
+
+   public byte[] getPrivateKeyBytesCompressed(NetworkParameters network) {
+      byte[] toEncode = new byte[1 + 32 + 1];
       // Set network
       toEncode[0] = network.isProdnet() ? (byte) 0x80 : (byte) 0xEF;
       // Set key bytes
@@ -393,12 +399,9 @@ public class InMemoryPrivateKey extends PrivateKey implements KeyExporter, Seria
       System.arraycopy(keyBytes, 0, toEncode, 1, keyBytes.length);
       // Set compressed indicator
       toEncode[33] = 0x01;
-      // Set checksum
-      byte[] checkSum = HashUtils.doubleSha256(toEncode, 0, 1 + 32 + 1).firstFourBytes();
-      System.arraycopy(checkSum, 0, toEncode, 1 + 32 + 1, 4);
-      // Encode
-      return Base58.encode(toEncode);
+      return toEncode;
    }
+
 
    @Override
    public byte[] makeSchnorrBitcoinSignature(Sha256Hash transactionSigningHash) {
