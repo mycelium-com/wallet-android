@@ -4,6 +4,6 @@
 
     <item
         android:id="@+id/miShamirBackup"
-        android:title="Shamir" />
+        android:title="Shamir export key" />
 
 </menu>

@@ -41,7 +41,6 @@ import static com.mycelium.wapi.wallet.btc.bip44.BitcoinHDModuleKt.getActiveMast
 import static com.mycelium.wapi.wallet.colu.ColuModuleKt.getColuAccounts;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -61,6 +60,7 @@ import android.widget.CheckBox;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.view.ActionMode;
 import androidx.appcompat.view.ActionMode.Callback;
@@ -79,6 +79,7 @@ import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.AddAccountActivity;
 import com.mycelium.wallet.activity.AddAdvancedAccountActivity;
 import com.mycelium.wallet.activity.MessageSigningActivity;
+import com.mycelium.wallet.activity.export.ExportAsQrActivity;
 import com.mycelium.wallet.activity.export.ShamirSharingActivity;
 import com.mycelium.wallet.activity.export.VerifyBackupActivity;
 import com.mycelium.wallet.activity.fio.AboutFIOProtocolDialog;
@@ -643,7 +644,6 @@ public class AccountsFragment extends Fragment {
 
         if (account instanceof SingleAddressAccount) {
             menus.add(R.menu.record_options_menu_backup_verify);
-            menus.add(R.menu.record_options_menu_shamir);
         }
 
         if (account instanceof ColuAccount) {
@@ -677,6 +677,10 @@ public class AccountsFragment extends Fragment {
 
         if (account.isActive() && account instanceof ExportableAccount && !isBch) {
             menus.add(R.menu.record_options_menu_export);
+        }
+
+        if (account instanceof SingleAddressAccount) {
+            menus.add(R.menu.record_options_menu_shamir);
         }
 
         final List<FioAccount> fioAccounts = FioModuleKt.getActiveSpendableFioAccounts(_mbwManager.getWalletManager(false));
@@ -777,12 +781,7 @@ public class AccountsFragment extends Fragment {
                         verifySingleKeyBackup();
                         return true;
                     case R.id.miShamirBackup:
-                        try {
-                            InMemoryPrivateKey privateKey = account.getPrivateKey(AesKeyCipher.defaultKeyCipher());
-                            ShamirSharingActivity.callMe(requireActivity(), privateKey);
-                        } catch (KeyCipher.InvalidKeyCipher e) {
-                            _toaster.toast("Something went wrong", false);
-                        }
+                        shamirExportSelectedPrivateKey();
                         return true;
                     case R.id.miRescan:
                         // If we are synchronizing, show "Synchronizing, please wait..." to avoid blocking behavior
@@ -943,6 +942,31 @@ public class AccountsFragment extends Fragment {
         }
         runPinProtected(() -> Utils.exportSelectedAccount(getActivity()));
     }
+
+
+    private void shamirExportSelectedPrivateKey() {
+        if (!isAdded()) {
+            return;
+        }
+        runPinProtected(() -> {
+            final WalletAccount account = MbwManager.getInstance(requireContext()).getSelectedAccount();
+            androidx.appcompat.app.AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+            builder.setMessage(R.string.export_account_data_warning).setCancelable(true)
+                    .setPositiveButton(R.string.yes, (dialog, id) -> {
+                        dialog.dismiss();
+                        account.interruptSync();
+                        try {
+                            InMemoryPrivateKey privateKey = account.getPrivateKey(AesKeyCipher.defaultKeyCipher());
+                            ShamirSharingActivity.callMe(requireActivity(), privateKey);
+                        } catch (KeyCipher.InvalidKeyCipher e) {
+                            _toaster.toast("Something went wrong", false);
+                        }
+                    }).setNegativeButton(R.string.no, null);
+            androidx.appcompat.app.AlertDialog alertDialog = builder.create();
+            alertDialog.show();
+        });
+    }
+
 
     private void detachFromLocalTrader() {
         if (!isAdded()) {

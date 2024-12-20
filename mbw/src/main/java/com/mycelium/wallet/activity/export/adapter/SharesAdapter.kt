@@ -1,6 +1,7 @@
 package com.mycelium.wallet.activity.export.adapter
 
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
@@ -10,23 +11,45 @@ import com.mycelium.bequant.common.equalsValuesBy
 import com.mycelium.wallet.R
 import com.mycelium.wallet.databinding.ItemShareBinding
 
-class SharesAdapter :
-    ListAdapter<BipSss.Share, SharesAdapter.ShareViewHolder>(ShareDiffCallback()) {
+class SharesAdapter : ListAdapter<BipSss.Share, RecyclerView.ViewHolder>(ShareDiffCallback()) {
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ShareViewHolder {
-        val binding = ItemShareBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-        return ShareViewHolder(binding)
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder =
+        when (viewType) {
+            EMPTY_TYPE -> EmptyViewHolder(
+                LayoutInflater.from(parent.context).inflate(R.layout.item_space, parent, false)
+                    .apply {
+                        layoutParams.height = resources.getDimensionPixelSize(R.dimen.size_x12)
+                    }
+            )
+
+            ITEM_TYPE -> ShareViewHolder(
+                ItemShareBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+            )
+
+            else -> TODO("not implemented")
+        }
+
+
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+        when (getItemViewType(position)) {
+            EMPTY_TYPE -> {}
+            ITEM_TYPE -> (holder as ShareViewHolder).bind(getItem(position))
+        }
     }
 
-    override fun onBindViewHolder(holder: ShareViewHolder, position: Int) {
-        holder.bind(getItem(position))
-    }
+    override fun getItemViewType(position: Int): Int =
+        when (getItem(position)) {
+            null -> EMPTY_TYPE
+            else -> ITEM_TYPE
+        }
+
+    class EmptyViewHolder(view: View) : RecyclerView.ViewHolder(view)
 
     class ShareViewHolder(private val binding: ItemShareBinding) :
         RecyclerView.ViewHolder(binding.root) {
         fun bind(share: BipSss.Share) {
             binding.tvLabel.text = binding.tvLabel.context.getString(
-                R.string.part_of, share.shareNumber, share.threshold
+                R.string.part_of, share.shareNumber
             )
             val shareString = share.toString()
             binding.tvShare.text = shareString
@@ -41,4 +64,10 @@ class SharesAdapter :
         override fun areContentsTheSame(oldItem: BipSss.Share, newItem: BipSss.Share): Boolean =
             equalsValuesBy(oldItem, newItem, { it.shareNumber }, { it.threshold }, { it.shareData })
     }
+
+    companion object {
+        private const val ITEM_TYPE = 0
+        private const val EMPTY_TYPE = 1
+    }
+
 }

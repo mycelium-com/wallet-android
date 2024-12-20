@@ -5,60 +5,64 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/startGuidline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_begin="@dimen/horizontal_page_margin" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/endGuidline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_end="@dimen/horizontal_page_margin" />
+
     <TextView
         android:id="@+id/tvInstructions"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="@dimen/size_x4"
         android:text="Enter Secret Shares"
         android:textSize="18sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="@id/endGuidline"
+        app:layout_constraintStart_toStartOf="@id/startGuidline"
         app:layout_constraintTop_toTopOf="parent" />
 
     <EditText
         android:id="@+id/etNumberOfShares"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_margin="16dp"
-        android:hint="Total number of Shares"
+        android:layout_marginTop="@dimen/size_x4"
+        android:hint="@string/total_number_of_shares"
         android:inputType="number"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="@id/endGuidline"
+        app:layout_constraintStart_toStartOf="@id/startGuidline"
         app:layout_constraintTop_toBottomOf="@id/tvInstructions" />
 
     <EditText
         android:id="@+id/etThreshold"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_margin="16dp"
-        android:hint="Threshold"
+        android:layout_marginTop="@dimen/size_x2"
+        android:hint="@string/threshold"
         android:inputType="number"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="@id/endGuidline"
+        app:layout_constraintStart_toStartOf="@id/startGuidline"
         app:layout_constraintTop_toBottomOf="@id/etNumberOfShares" />
-
-    <Button
-        android:id="@+id/btnGenerateShares"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:text="Generate Shares"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/etThreshold" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvSharesContainer"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="@dimen/size_x4"
         android:orientation="vertical"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/btnGenerateShares"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/etThreshold"
         tools:listitem="@layout/item_share" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
