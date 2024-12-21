@@ -39,7 +39,7 @@ class SharesAdapter : ListAdapter<BipSss.Share, RecyclerView.ViewHolder>(ShareDi
 
     override fun getItemViewType(position: Int): Int =
         when (getItem(position)) {
-            null -> EMPTY_TYPE
+            EMPTY -> EMPTY_TYPE
             else -> ITEM_TYPE
         }
 
@@ -59,13 +59,14 @@ class SharesAdapter : ListAdapter<BipSss.Share, RecyclerView.ViewHolder>(ShareDi
 
     class ShareDiffCallback : DiffUtil.ItemCallback<BipSss.Share>() {
         override fun areItemsTheSame(oldItem: BipSss.Share, newItem: BipSss.Share): Boolean =
-            oldItem == newItem
+            oldItem != EMPTY && oldItem == newItem
 
         override fun areContentsTheSame(oldItem: BipSss.Share, newItem: BipSss.Share): Boolean =
             equalsValuesBy(oldItem, newItem, { it.shareNumber }, { it.threshold }, { it.shareData })
     }
 
     companion object {
+        val EMPTY = BipSss.Share(0, ByteArray(0), 0, 0, 0, ByteArray(0), 0)
         private const val ITEM_TYPE = 0
         private const val EMPTY_TYPE = 1
     }

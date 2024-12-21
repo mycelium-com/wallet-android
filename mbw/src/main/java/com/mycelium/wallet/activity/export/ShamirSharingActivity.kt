@@ -7,8 +7,9 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
-import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.FileProvider
 import androidx.core.view.MenuProvider
 import androidx.core.widget.doAfterTextChanged
 import com.mrd.bitlib.crypto.BipSss
@@ -17,8 +18,11 @@ import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
 import com.mycelium.wallet.activity.export.adapter.SharesAdapter
+import com.mycelium.wallet.activity.util.fileProviderAuthority
 import com.mycelium.wallet.activity.view.VerticalSpaceItemDecoration
 import com.mycelium.wallet.databinding.ActivityShamirSharingBinding
+import com.mycelium.wallet.pdf.ShamirBuilder
+import java.io.File
 
 
 class ShamirSharingActivity : AppCompatActivity() {
@@ -26,6 +30,12 @@ class ShamirSharingActivity : AppCompatActivity() {
     private lateinit var binding: ActivityShamirSharingBinding
 
     private val sharesAdapter = SharesAdapter()
+
+    val shareLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == RESULT_OK) {
+            }
+        }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -54,21 +64,20 @@ class ShamirSharingActivity : AppCompatActivity() {
     }
 
     private fun generateShares(secret: ByteArray) {
-        sharesAdapter.submitList(emptyList<BipSss.Share>())
         val totalShares = binding.etNumberOfShares.text.toString().toIntOrNull()
         val threshold = binding.etThreshold.text.toString().toIntOrNull()
 
         if (totalShares != null && threshold != null && threshold <= totalShares) {
             val shares = BipSss.split(secret, totalShares, threshold)
-
-            sharesAdapter.submitList(shares + null)
+            sharesAdapter.submitList(shares.sortedBy { it.shareNumber } + SharesAdapter.EMPTY)
         } else {
-            Toast.makeText(this, "Invalid input. Check your values.", Toast.LENGTH_SHORT).show()
+            sharesAdapter.submitList(emptyList<BipSss.Share>())
         }
     }
 
     internal inner class MenuImpl : MenuProvider {
         override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+            menuInflater.inflate(R.menu.shamir, menu)
         }
 
         override fun onMenuItemSelected(menuItem: MenuItem): Boolean =
@@ -78,8 +87,33 @@ class ShamirSharingActivity : AppCompatActivity() {
                     true
                 }
 
+                R.id.miExportPdf -> {
+                    val sharedFile = File(cacheDir, "shamir_shares.pdf")
+                    val shamirBuilder = ShamirBuilder().apply {
+                        shares = sharesAdapter.currentList
+                            .filterNotNull()
+                            .filter { it != SharesAdapter.EMPTY }
+                    }
+                    sharedFile.writeText(shamirBuilder.build())
+                    shareFile(sharedFile)
+                    sharedFile.deleteOnExit()
+                    true
+                }
+
                 else -> false
             }
+    }
+
+    private fun shareFile(file: File) {
+        val fileUri = FileProvider.getUriForFile(this, fileProviderAuthority(), file)
+
+        val shareIntent = Intent(Intent.ACTION_SEND).apply {
+            type = "application/pdf" // Adjust MIME type as per the file
+            putExtra(Intent.EXTRA_STREAM, fileUri)
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        }
+
+        shareLauncher.launch(Intent.createChooser(shareIntent, "Share File"))
     }
 
     companion object {

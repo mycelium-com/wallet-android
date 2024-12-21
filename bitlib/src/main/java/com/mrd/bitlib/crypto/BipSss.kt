@@ -3,6 +3,9 @@ package com.mrd.bitlib.crypto
 import com.mrd.bitlib.bitcoinj.Base58
 import com.mrd.bitlib.crypto.BipSss.IncompatibleSharesException
 import com.mrd.bitlib.crypto.BipSss.NotEnoughSharesException
+import com.mrd.bitlib.crypto.BipSss.Share.Companion.SSS_EXT2_PREFIX
+import com.mrd.bitlib.crypto.BipSss.Share.Companion.SSS_EXT_PREFIX
+import com.mrd.bitlib.crypto.BipSss.Share.Companion.SSS_PREFIX
 import com.mrd.bitlib.util.BitUtils
 import com.mrd.bitlib.util.ByteReader
 import com.mrd.bitlib.util.ByteReader.InsufficientBytesException
@@ -10,7 +13,6 @@ import com.mrd.bitlib.util.ByteWriter
 import com.mrd.bitlib.util.HashUtils
 import java.io.Serializable
 import java.lang.Exception
-import java.util.ArrayList
 
 /**
  * Class implementing BIP-SS (place holder name until there actually is a BIP),
@@ -27,6 +29,10 @@ import java.util.ArrayList
  *
  *
  */
+enum class BipSssType(val prefix: String) {
+    SSS(SSS_PREFIX), SSS_EXT(SSS_EXT_PREFIX), SSS_EXT2(SSS_EXT2_PREFIX);
+}
+
 object BipSss {
     const val TYPE_BASE_58_STRING: Int = 19
 
@@ -54,10 +60,8 @@ object BipSss {
 
         // Figure out whether the shares are compatible
         val firstShare = shares.first()
-        shares.forEach { share ->
-            if (!share.isCompatible(firstShare)) {
-                throw IncompatibleSharesException()
-            }
+        if (shares.any { !it.isCompatible(firstShare) }) {
+            throw IncompatibleSharesException()
         }
 
         // Does it have the right format?
@@ -77,21 +81,42 @@ object BipSss {
         // Make a selection of the necessary shares
         val selection = unique.toList().subList(0, threshold)
 
-        // Combine
-        val gf = Gf256()
-        val gfShares = selection.map { s -> Gf256.Share(s.shareNumber.toByte(), s.shareData) }
-        val content = gf.combineShares(gfShares)
+        val content = if (firstShare.version == 2) {
+            val gfv2 = Gf256v2()
+            val gfShares = selection.map { s -> Gf256v2.Share(s.shareNumber, s.shareData) }
+            gfv2.combineShares(gfShares).let {
+                if (it[0].toInt() == 0) it.copyOfRange(1, it.size) else it
+            }
+        } else {
+            // Combine
+            val gf = Gf256()
+            val gfShares = selection.map { s -> Gf256.Share(s.shareNumber.toByte(), s.shareData) }
+            gf.combineShares(gfShares)
+        }
+
         return Base58.encodeWithChecksum(content)
     }
 
 
     @JvmStatic
-    fun split(secret: ByteArray, totalShares: Int, threshold: Int): List<Share> {
-        val gf = Gf256()
-        val shares = gf.makeShares(secret, threshold, totalShares)
-        val id = HashUtils.sha256(secret).bytes.copyOfRange(0, 2)
-        return shares.map { Share(TYPE_BASE_58_STRING, id, it.index.toInt(), threshold, it.data) }
-    }
+    fun split(secret: ByteArray, totalShares: Int, threshold: Int): List<Share> =
+        if (totalShares < 256) {
+            val gf = Gf256()
+            val shares = gf.makeShares(secret, threshold, totalShares)
+            val id = HashUtils.sha256(secret).bytes.copyOfRange(0, 2)
+
+            shares.map {
+                val shareNumber = it.index.toInt() and 0xFF
+                Share(TYPE_BASE_58_STRING, id, shareNumber, threshold, totalShares, it.data, 1)
+            }
+        } else {
+            val gfv2 = Gf256v2()
+            val shares = gfv2.makeShares(secret, threshold, totalShares)
+            val id = HashUtils.sha256(secret).bytes.copyOfRange(0, 2)
+            shares.map {
+                Share(TYPE_BASE_58_STRING, id, it.index, threshold, totalShares, it.data, 2)
+            }
+        }
 
     class NotEnoughSharesException(@JvmField var needed: Int) : Exception()
 
@@ -119,17 +144,33 @@ object BipSss {
         /**
          * The data of this share
          */
-        val shareData: ByteArray
+        val totalShares: Int,
+        val shareData: ByteArray,
+        val version:Int = 1
     ) : Serializable {
 
-        override fun toString(): String {
+        override fun toString(): String = toString(null)
+
+        fun toString(exportType: BipSssType?): String {
             val w = ByteWriter(1024)
             w.put(contentType.toByte())
             w.putBytes(id)
-            w.put(getByteForNumberAndThreshold(shareNumber, threshold))
+            val type = if (exportType == null) {
+                if (totalShares < 16) BipSssType.SSS
+                else if (totalShares < 256) BipSssType.SSS_EXT
+                else BipSssType.SSS_EXT2
+            } else {
+                exportType
+            }
+            if (type == BipSssType.SSS) {
+                w.put(getByteForNumberAndThreshold(shareNumber, threshold))
+            } else {
+                w.putCompactInt(threshold.toLong())
+                w.putCompactInt(shareNumber.toLong())
+            }
             w.putBytes(shareData)
             val base58 = Base58.encodeWithChecksum(w.toBytes())
-            return SSS_PREFIX + base58
+            return type.prefix + base58
         }
 
         private fun getByteForNumberAndThreshold(shareNumber: Int, threshold: Int): Byte =
@@ -153,6 +194,8 @@ object BipSss {
 
         companion object {
             const val SSS_PREFIX: String = "SSS-"
+            const val SSS_EXT_PREFIX: String = "SSSExt-"
+            const val SSS_EXT2_PREFIX: String = "SSSExt2-"
 
             /**
              * Create a share from its string representation.
@@ -166,8 +209,16 @@ object BipSss {
             fun fromString(encodedShare: String): Share? {
                 //check for SSS- prefix
                 var encodedShare = encodedShare
-                if (encodedShare.startsWith(SSS_PREFIX)) {
+                var type = BipSssType.SSS
+                if (encodedShare.startsWith(SSS_EXT2_PREFIX)) {
+                    encodedShare = encodedShare.substring(SSS_EXT2_PREFIX.length)
+                    type = BipSssType.SSS_EXT2
+                } else if (encodedShare.startsWith(SSS_EXT_PREFIX)) {
+                    encodedShare = encodedShare.substring(SSS_EXT_PREFIX.length)
+                    type = BipSssType.SSS_EXT
+                } else if (encodedShare.startsWith(SSS_PREFIX)) {
                     encodedShare = encodedShare.substring(SSS_PREFIX.length)
+                    type = BipSssType.SSS
                 }
                 // Base58 decode
                 val decoded = Base58.decodeChecked(encodedShare)
@@ -175,26 +226,34 @@ object BipSss {
                     return null
                 }
                 val reader = ByteReader(decoded)
-                try {
+                return try {
                     // content type
                     val contentByte = reader.get()
                     //id of the secret
                     val id = reader.getBytes(2)
-                    //contains number of this share and total shares needed
-                    val numberAndThreshold = reader.get()
+                    val shareNumber: Int
+                    val threshold: Int
+                    if (type == BipSssType.SSS_EXT ||
+                        type == BipSssType.SSS_EXT2
+                    ) {
+                        threshold = reader.compactInt.toInt()
+                        shareNumber = reader.compactInt.toInt()
+                    } else {
+                        //contains number of this share and total shares needed
+                        val numberAndThreshold = reader.get()
+                        threshold = getThreshold(numberAndThreshold)
+                        shareNumber = getShareNumber(numberAndThreshold)
+                    }
                     //the  share bytes
                     val content = reader.getBytes(reader.available())
 
-                    return Share(
-                        b2i(contentByte),
-                        id,
-                        getShareNumber(numberAndThreshold),
-                        getThreshold(numberAndThreshold),
-                        content
+                    Share(
+                        b2i(contentByte), id, shareNumber, threshold, -1, content,
+                        if (type == BipSssType.SSS_EXT2) 2 else 1
                     )
                 } catch (e: InsufficientBytesException) {
                     // This should not happen as we already have checked the content length
-                    return null
+                    null
                 }
             }
 

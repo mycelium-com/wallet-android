@@ -41,7 +41,6 @@ class BipSssTest {
         val network = NetworkParameters.testNetwork
         val nw: Byte = (if (network.isProdnet()) 0x80 else 0xEF).toByte()
         val secret = ByteArray(0) + nw + privateKey.privateKeyBytes
-        println("!!!! size=" + secret.size)
 //        Assert.assertEquals(
 //            "test fromBase58String",
 //            HexUtils.toHex(privateKey.privateKeyBytes),
@@ -51,7 +50,6 @@ class BipSssTest {
 //            )
 //        )
 
-        println("!!!! base58 =$secret")
         val shares = BipSss.split(secret, 3, 2)
 
         val sharesString = shares.subList(0, 2).map { it.toString() }
@@ -63,7 +61,6 @@ class BipSssTest {
 
         val combine = BipSss.combine(sharesTest)
         val secretTest = Base58.decodeChecked(combine)
-        println("!!!! test base58 =${String(secretTest)}")
         Assert.assertEquals(
             "test just data",
             HexUtils.toHex(secret),
