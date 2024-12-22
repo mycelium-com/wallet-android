@@ -42,7 +42,11 @@ class BipSsImportActivity : AppCompatActivity() {
 
     private fun updateUI() {
         val last = shares.last()
-        var status = getString(R.string.sss_share_number_scanned, last.shareNumber)
+        var status = if (shares.size > 1) {
+            val setOfPart = shares.map { it.shareNumber }.toSet()
+            "You already have parts: \n" + setOfPart.joinToString() + "\n"
+        } else ""
+        status += getString(R.string.sss_share_number_scanned, last.shareNumber)
         try {
             val secret = combine(shares)
             // Success, send the result back immediately

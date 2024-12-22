@@ -82,11 +82,9 @@ object BipSss {
         val selection = unique.toList().subList(0, threshold)
 
         val content = if (firstShare.version == 2) {
-            val gfv2 = Gf256v2()
-            val gfShares = selection.map { s -> Gf256v2.Share(s.shareNumber, s.shareData) }
-            gfv2.combineShares(gfShares).let {
-                if (it[0].toInt() == 0) it.copyOfRange(1, it.size) else it
-            }
+            val gfv2 = Gf65536()
+            val gfShares = selection.map { s -> Gf65536.Share(s.shareNumber, s.shareData) }
+            gfv2.combineShares(gfShares)
         } else {
             // Combine
             val gf = Gf256()
@@ -110,7 +108,7 @@ object BipSss {
                 Share(TYPE_BASE_58_STRING, id, shareNumber, threshold, totalShares, it.data, 1)
             }
         } else {
-            val gfv2 = Gf256v2()
+            val gfv2 = Gf65536()
             val shares = gfv2.makeShares(secret, threshold, totalShares)
             val id = HashUtils.sha256(secret).bytes.copyOfRange(0, 2)
             shares.map {
