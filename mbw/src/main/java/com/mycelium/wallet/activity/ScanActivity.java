@@ -60,6 +60,11 @@ import com.mycelium.wallet.activity.modern.Toaster;
 public class ScanActivity extends AppCompatActivity {
    private boolean hasCameraPermission;
 
+   public static Intent getIntent(Activity currentActivity, StringHandleConfig stringHandleConfig) {
+      return new Intent(currentActivity, ScanActivity.class)
+              .putExtra("request", stringHandleConfig);
+   }
+
    public static void callMe(Activity currentActivity, int requestCode, StringHandleConfig stringHandleConfig) {
       Intent intent = new Intent(currentActivity, ScanActivity.class)
               .putExtra("request", stringHandleConfig);

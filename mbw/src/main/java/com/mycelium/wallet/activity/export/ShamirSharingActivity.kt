@@ -8,6 +8,7 @@ import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
 import androidx.core.view.MenuProvider
@@ -67,6 +68,15 @@ class ShamirSharingActivity : AppCompatActivity() {
         val totalShares = binding.etNumberOfShares.text.toString().toIntOrNull()
         val threshold = binding.etThreshold.text.toString().toIntOrNull()
 
+        if ((totalShares ?: 0) > 65535) {
+            AlertDialog.Builder(this)
+                .setTitle("Not valid value")
+                .setMessage("Total shares must be less than 65535")
+                .setPositiveButton(R.string.button_ok,  null)
+                .show()
+            sharesAdapter.submitList(emptyList<BipSss.Share>())
+            return
+        }
         if (totalShares != null && threshold != null && threshold <= totalShares) {
             val shares = BipSss.split(secret, totalShares, threshold)
             sharesAdapter.submitList(shares.sortedBy { it.shareNumber } + SharesAdapter.EMPTY)
