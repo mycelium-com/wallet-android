@@ -1885,4 +1885,6 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="part_of">Part %1$d</string>
     <string name="total_number_of_shares">Total number of Shares</string>
     <string name="threshold">Threshold</string>
+    <string name="total_shares_count_too_high">Total shares count too high, this take a while</string>
+    <string name="every_1000_shares_20mb">\nevery 1000 shares = ~20MB</string>
 </resources>

@@ -65,4 +65,31 @@
         app:layout_constraintTop_toBottomOf="@id/etThreshold"
         tools:listitem="@layout/item_share" />
 
+    <LinearLayout
+        android:id="@+id/progressOverlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/semi_black"
+        android:visibility="gone"
+        android:clickable="true"
+        android:orientation="vertical"
+        android:focusable="true"
+        android:gravity="center"
+        tools:visibility="visible">
+        <TextView
+            android:id="@+id/progressText"
+            android:layout_width="match_parent"
+            android:layout_marginStart="@dimen/size_x4"
+            android:layout_marginEnd="@dimen/size_x4"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/size_x4"
+            android:text=""/>
+
+        <ProgressBar
+            android:id="@+id/progressBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center" />
+    </LinearLayout>
+
 </androidx.constraintlayout.widget.ConstraintLayout>

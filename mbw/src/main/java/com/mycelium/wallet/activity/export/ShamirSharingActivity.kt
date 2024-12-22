@@ -4,15 +4,21 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.view.KeyEvent
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
+import android.view.inputmethod.EditorInfo
+import android.widget.TextView
+import android.widget.TextView.OnEditorActionListener
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
 import androidx.core.view.MenuProvider
+import androidx.core.view.isVisible
 import androidx.core.widget.doAfterTextChanged
+import androidx.lifecycle.lifecycleScope
 import com.mrd.bitlib.crypto.BipSss
 import com.mrd.bitlib.crypto.InMemoryPrivateKey
 import com.mycelium.wallet.MbwManager
@@ -21,8 +27,12 @@ import com.mycelium.wallet.Utils
 import com.mycelium.wallet.activity.export.adapter.SharesAdapter
 import com.mycelium.wallet.activity.util.fileProviderAuthority
 import com.mycelium.wallet.activity.view.VerticalSpaceItemDecoration
+import com.mycelium.wallet.activity.view.hideKeyboard
 import com.mycelium.wallet.databinding.ActivityShamirSharingBinding
 import com.mycelium.wallet.pdf.ShamirBuilder
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.File
 
 
@@ -33,10 +43,7 @@ class ShamirSharingActivity : AppCompatActivity() {
     private val sharesAdapter = SharesAdapter()
 
     val shareLauncher =
-        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            if (result.resultCode == RESULT_OK) {
-            }
-        }
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result -> }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -60,6 +67,17 @@ class ShamirSharingActivity : AppCompatActivity() {
         binding.etThreshold.doAfterTextChanged {
             generateShares(secret)
         }
+        val editorListener = object : OnEditorActionListener {
+            override fun onEditorAction(p0: TextView?, actionId: Int, p2: KeyEvent?): Boolean =
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    p0?.hideKeyboard()
+                    true
+                } else {
+                    false
+                }
+        }
+        binding.etThreshold.setOnEditorActionListener(editorListener)
+        binding.etNumberOfShares.setOnEditorActionListener(editorListener)
         Utils.preventScreenshots(this)
         addMenuProvider(MenuImpl())
     }
@@ -72,14 +90,29 @@ class ShamirSharingActivity : AppCompatActivity() {
             AlertDialog.Builder(this)
                 .setTitle("Not valid value")
                 .setMessage("Total shares must be less than 65535")
-                .setPositiveButton(R.string.button_ok,  null)
+                .setPositiveButton(R.string.button_ok, null)
                 .show()
             sharesAdapter.submitList(emptyList<BipSss.Share>())
             return
         }
         if (totalShares != null && threshold != null && threshold <= totalShares) {
-            val shares = BipSss.split(secret, totalShares, threshold)
-            sharesAdapter.submitList(shares.sortedBy { it.shareNumber } + SharesAdapter.EMPTY)
+            lifecycleScope.launch(Dispatchers.Unconfined) {
+                withContext(Dispatchers.Main) {
+                    if (totalShares > 10000) {
+                        binding.progressText.isVisible = true
+                        binding.progressText.text = getString(R.string.total_shares_count_too_high)
+                    }
+                    binding.progressOverlay.isVisible = true
+                }
+                val shares = BipSss.split(secret, totalShares, threshold)
+                val listTiShow = shares.sortedBy { it.shareNumber } + SharesAdapter.EMPTY
+                withContext(Dispatchers.Main) {
+                    binding.progressOverlay.isVisible = false
+                    binding.progressText.isVisible = false
+                    sharesAdapter.submitList(listTiShow)
+                }
+            }
+
         } else {
             sharesAdapter.submitList(emptyList<BipSss.Share>())
         }
@@ -98,15 +131,30 @@ class ShamirSharingActivity : AppCompatActivity() {
                 }
 
                 R.id.miExportPdf -> {
-                    val sharedFile = File(cacheDir, "shamir_shares.pdf")
-                    val shamirBuilder = ShamirBuilder().apply {
-                        shares = sharesAdapter.currentList
-                            .filterNotNull()
-                            .filter { it != SharesAdapter.EMPTY }
+                    lifecycleScope.launch(Dispatchers.IO) {
+                        withContext(Dispatchers.Main) {
+                            val totalShares = binding.etNumberOfShares.text.toString().toIntOrNull()
+                            if (totalShares != null && totalShares > 1000) {
+                                binding.progressText.isVisible = true
+                                binding.progressText.text =
+                                    getString(R.string.total_shares_count_too_high) + getString(R.string.every_1000_shares_20mb)
+                            }
+
+                            binding.progressOverlay.isVisible = true
+                        }
+                        val sharedFile = File(cacheDir, "shamir_shares.pdf")
+                        val shamirBuilder = ShamirBuilder().apply {
+                            shares = sharesAdapter.currentList
+                                .filterNotNull()
+                                .filter { it != SharesAdapter.EMPTY }
+                        }
+                        sharedFile.writeText(shamirBuilder.build())
+                        withContext(Dispatchers.Main) {
+                            binding.progressOverlay.isVisible = true
+                            shareFile(sharedFile)
+                        }
+                        sharedFile.deleteOnExit()
                     }
-                    sharedFile.writeText(shamirBuilder.build())
-                    shareFile(sharedFile)
-                    sharedFile.deleteOnExit()
                     true
                 }
 
