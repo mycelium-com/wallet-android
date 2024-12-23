@@ -17,7 +17,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
 import androidx.core.view.MenuProvider
 import androidx.core.view.isVisible
-import androidx.core.widget.doAfterTextChanged
 import androidx.lifecycle.lifecycleScope
 import com.mrd.bitlib.crypto.BipSss
 import com.mrd.bitlib.crypto.InMemoryPrivateKey
@@ -41,6 +40,7 @@ class ShamirSharingActivity : AppCompatActivity() {
     private lateinit var binding: ActivityShamirSharingBinding
 
     private val sharesAdapter = SharesAdapter()
+    lateinit var secret: ByteArray
 
     val shareLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result -> }
@@ -53,7 +53,7 @@ class ShamirSharingActivity : AppCompatActivity() {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.setDisplayShowHomeEnabled(true)
 
-        val secret = intent.getByteArrayExtra("data")!!
+        secret = intent.getByteArrayExtra("data")!!
 
         binding.rvSharesContainer.adapter = sharesAdapter
         binding.rvSharesContainer.addItemDecoration(
@@ -61,12 +61,16 @@ class ShamirSharingActivity : AppCompatActivity() {
                 resources.getDimensionPixelOffset(R.dimen.fio_list_item_space)
             )
         )
-        binding.etNumberOfShares.doAfterTextChanged {
+        binding.generate.setOnClickListener {
+            it?.hideKeyboard()
             generateShares(secret)
         }
-        binding.etThreshold.doAfterTextChanged {
-            generateShares(secret)
-        }
+//        binding.etNumberOfShares.doAfterTextChanged {
+//            handleChange()
+//        }
+//        binding.etThreshold.doAfterTextChanged {
+//            handleChange()
+//        }
         val editorListener = object : OnEditorActionListener {
             override fun onEditorAction(p0: TextView?, actionId: Int, p2: KeyEvent?): Boolean =
                 if (actionId == EditorInfo.IME_ACTION_DONE) {
@@ -82,11 +86,27 @@ class ShamirSharingActivity : AppCompatActivity() {
         addMenuProvider(MenuImpl())
     }
 
+//    private fun handleChange() {
+//        val totalShares = binding.etNumberOfShares.text.toString().toIntOrNull()
+//        val threshold = binding.etThreshold.text.toString().toIntOrNull()
+//        if (totalShares != null && threshold != null) {
+//            if (totalShares < 256) {
+//                binding.generate.isVisible = false
+//                generateShares(secret, threshold, totalShares)
+//            } else {
+//                binding.generate.isVisible = false
+//            }
+//        } else {
+//            binding.generate.isVisible = false
+//            sharesAdapter.submitList(emptyList<BipSss.Share>())
+//        }
+//    }
+
     private fun generateShares(secret: ByteArray) {
         val totalShares = binding.etNumberOfShares.text.toString().toIntOrNull()
         val threshold = binding.etThreshold.text.toString().toIntOrNull()
 
-        if ((totalShares ?: 0) > 65535) {
+        if (totalShares != null && totalShares > 65535) {
             AlertDialog.Builder(this)
                 .setTitle("Not valid value")
                 .setMessage("Total shares must be less than 65535")
@@ -112,7 +132,6 @@ class ShamirSharingActivity : AppCompatActivity() {
                     sharesAdapter.submitList(listTiShow)
                 }
             }
-
         } else {
             sharesAdapter.submitList(emptyList<BipSss.Share>())
         }
