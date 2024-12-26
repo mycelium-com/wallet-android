@@ -2,11 +2,9 @@ package com.mycelium.giftbox.client.model
 
 import android.os.Parcelable
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.mycelium.giftbox.client.model.MCOrderResponse
 import com.mycelium.giftbox.client.models.Status
 import kotlinx.parcelize.Parcelize
 import java.math.BigDecimal
-import java.math.BigInteger
 import java.util.Date
 
 //"order_id": "12345",
@@ -30,6 +28,8 @@ data class MCOrderResponse(
     var cardUrl: String? = null,
     @JsonProperty("card_code")
     var cardCode: String? = null,
+    @JsonProperty("card_pin")
+    var cardPin: String? = null,
 
     @JsonProperty("brand_info")
     var product: MCProductInfo? = null,

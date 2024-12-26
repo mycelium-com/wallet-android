@@ -12,7 +12,6 @@ import androidx.lifecycle.observe
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.mycelium.giftbox.*
-import com.mycelium.giftbox.client.GitboxAPI
 import com.mycelium.giftbox.details.viewmodel.GiftBoxDetailsViewModel
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
