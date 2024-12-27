@@ -43,7 +43,7 @@ class GiftBoxDetailsViewModel(application: Application) : AndroidViewModel(appli
 
     fun setProduct(product: ProductResponse) {
         productInfo = product.product
-        description.value = product.product?.description
+        description.value = product.product?.description.orEmpty()
         termsLink.value = product.product?.termsAndConditionsPdfUrl
         redeemInstruction.value = product.product?.redeemInstructionsHtml
         expiry.value = if (product.product?.expiryInMonths != null) "${product.product?.expiryDatePolicy} (${product.product?.expiryInMonths} months)" else "Does not expire"

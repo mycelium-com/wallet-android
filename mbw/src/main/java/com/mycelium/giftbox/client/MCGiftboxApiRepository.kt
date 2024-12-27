@@ -1,18 +1,13 @@
 package com.mycelium.giftbox.client
 
-import com.mycelium.bequant.kyc.inputPhone.coutrySelector.CountryModel
-import com.mycelium.bequant.remote.doRequest
-import com.mycelium.generated.giftbox.database.GiftboxCard
-import com.mycelium.generated.giftbox.database.GiftboxDB
-import com.mycelium.giftbox.dateAdapter
-import com.mycelium.giftbox.model.Card
-import com.mycelium.wallet.MbwManager
-import com.mycelium.wallet.WalletApplication
-import com.mycelium.wapi.wallet.AesKeyCipher
 import app.cash.sqldelight.driver.android.AndroidSqliteDriver
 import com.mrd.bitlib.model.AddressType
 import com.mycelium.bequant.kyc.inputPhone.coutrySelector.CountriesSource
+import com.mycelium.bequant.kyc.inputPhone.coutrySelector.CountryModel
+import com.mycelium.bequant.remote.doRequest
 import com.mycelium.bequant.remote.doRequestModify
+import com.mycelium.generated.giftbox.database.GiftboxCard
+import com.mycelium.generated.giftbox.database.GiftboxDB
 import com.mycelium.giftbox.client.model.MCCreateOrderRequest
 import com.mycelium.giftbox.client.model.MCOrderResponse
 import com.mycelium.giftbox.client.model.MCOrderStatusRequest
@@ -21,6 +16,11 @@ import com.mycelium.giftbox.client.model.MCPrice
 import com.mycelium.giftbox.client.model.MCProductInfo
 import com.mycelium.giftbox.client.model.OrderList
 import com.mycelium.giftbox.client.model.Products
+import com.mycelium.giftbox.dateAdapter
+import com.mycelium.giftbox.model.Card
+import com.mycelium.wallet.MbwManager
+import com.mycelium.wallet.WalletApplication
+import com.mycelium.wapi.wallet.AesKeyCipher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import retrofit2.Response
@@ -28,7 +28,6 @@ import java.math.BigDecimal
 import java.util.*
 import java.util.concurrent.TimeUnit
 import kotlin.collections.orEmpty
-import kotlin.math.abs
 import kotlin.text.orEmpty
 
 class MCGiftboxApiRepository {
@@ -241,7 +240,7 @@ class MCGiftboxApiRepository {
                 order.orderId,
                 order.cardCode.orEmpty(),
                 order.cardUrl.orEmpty(),
-                ""
+                order.cardPin.orEmpty()
             )
             if (giftbxDB.giftboxCardQueries.isCardUpdated().executeAsOne() == 0L) {
                 giftbxDB.giftboxCardQueries.insertCard(
@@ -254,7 +253,7 @@ class MCGiftboxApiRepository {
                     order.product?.expiryData,
                     order.cardCode.orEmpty(),
                     order.cardUrl.orEmpty(),
-                    "",
+                    order.cardPin.orEmpty(),
                     order.createdDate
                 )
             }
