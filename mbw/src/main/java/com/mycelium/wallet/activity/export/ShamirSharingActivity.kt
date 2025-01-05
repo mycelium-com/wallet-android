@@ -56,6 +56,18 @@ class ShamirSharingActivity : AppCompatActivity() {
         secret = intent.getByteArrayExtra("data")!!
 
         binding.rvSharesContainer.adapter = sharesAdapter
+        sharesAdapter.shareListener = {
+            val sharedFile = File(cacheDir, "shamir_share.pdf")
+            val shamirBuilder = ShamirBuilder().apply {
+                shares = listOf(it)
+            }
+            sharedFile.writeText(shamirBuilder.build())
+            shareFile(sharedFile)
+            sharedFile.deleteOnExit()
+        }
+        sharesAdapter.itemListener = {
+            Utils.setClipboardString(it.toString(), this)
+        }
         binding.rvSharesContainer.addItemDecoration(
             VerticalSpaceItemDecoration(
                 resources.getDimensionPixelOffset(R.dimen.fio_list_item_space)

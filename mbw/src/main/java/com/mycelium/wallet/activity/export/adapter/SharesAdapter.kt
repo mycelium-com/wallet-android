@@ -13,6 +13,9 @@ import com.mycelium.wallet.databinding.ItemShareBinding
 
 class SharesAdapter : ListAdapter<BipSss.Share, RecyclerView.ViewHolder>(ShareDiffCallback()) {
 
+    var shareListener: ((BipSss.Share) -> Unit)? = null
+    var itemListener: ((BipSss.Share) -> Unit)? = null
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder =
         when (viewType) {
             EMPTY_TYPE -> EmptyViewHolder(
@@ -33,7 +36,16 @@ class SharesAdapter : ListAdapter<BipSss.Share, RecyclerView.ViewHolder>(ShareDi
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         when (getItemViewType(position)) {
             EMPTY_TYPE -> {}
-            ITEM_TYPE -> (holder as ShareViewHolder).bind(getItem(position))
+            ITEM_TYPE -> {
+                val item = getItem(position)
+                (holder as ShareViewHolder).bind(item)
+                holder.binding.shareQr.setOnClickListener {
+                    shareListener?.invoke(item)
+                }
+                holder.binding.tvShare.setOnClickListener {
+                    itemListener?.invoke(item)
+                }
+            }
         }
     }
 
@@ -45,7 +57,7 @@ class SharesAdapter : ListAdapter<BipSss.Share, RecyclerView.ViewHolder>(ShareDi
 
     class EmptyViewHolder(view: View) : RecyclerView.ViewHolder(view)
 
-    class ShareViewHolder(private val binding: ItemShareBinding) :
+    class ShareViewHolder(val binding: ItemShareBinding) :
         RecyclerView.ViewHolder(binding.root) {
         fun bind(share: BipSss.Share) {
             binding.tvLabel.text = binding.tvLabel.context.getString(
@@ -54,6 +66,9 @@ class SharesAdapter : ListAdapter<BipSss.Share, RecyclerView.ViewHolder>(ShareDi
             val shareString = share.toString()
             binding.tvShare.text = shareString
             binding.qrImageView.setQrCode(shareString)
+            binding.shareQr.setOnClickListener {
+
+            }
         }
     }
 

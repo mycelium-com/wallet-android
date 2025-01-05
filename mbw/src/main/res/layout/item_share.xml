@@ -18,10 +18,23 @@
         android:id="@+id/tvShare"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/size_x1"
+        android:layout_marginEnd="@dimen/size_x2"
+        android:drawablePadding="@dimen/size_x2"
         android:textSize="16sp"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:drawableEndCompat="@drawable/ic_content_copy_white"
+        app:layout_constraintEnd_toStartOf="@id/shareQr"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tvLabel" />
+
+    <ImageView
+        android:id="@+id/shareQr"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_share_24px"
+        app:layout_constraintBottom_toBottomOf="@id/tvShare"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@id/tvShare" />
 
     <com.mycelium.wallet.activity.util.QrImageView
         android:id="@+id/qrImageView"
