@@ -4,17 +4,10 @@ import android.os.Bundle
 import android.text.Editable
 import android.util.Log
 import android.view.View
-import android.widget.Button
-import android.widget.EditText
-import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.widget.doAfterTextChanged
-import butterknife.BindView
-import butterknife.ButterKnife
-import butterknife.OnClick
-import butterknife.OnTextChanged
-import com.mrd.bitlib.model.BitcoinAddress
 import com.mrd.bitlib.crypto.SignedMessage
+import com.mrd.bitlib.model.BitcoinAddress
 import com.mrd.bitlib.util.HashUtils
 import com.mrd.bitlib.util.X509Utils
 import com.mycelium.wallet.R
@@ -37,7 +30,6 @@ class MessageVerifyActivity : AppCompatActivity() {
     """.trimIndent()
     )
 
-    var pasteView: Button? = null
     var checkResult = false
 
     private lateinit var binding: ActivityMessageVerifyBinding
@@ -59,7 +51,7 @@ class MessageVerifyActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        binding.btPaste.post { pasteView!!.isEnabled = !Utils.getClipboardString(this).isEmpty() }
+        binding.btPaste.post { binding.btPaste.isEnabled = !Utils.getClipboardString(this).isEmpty() }
     }
 
     fun onPasteClick() {
