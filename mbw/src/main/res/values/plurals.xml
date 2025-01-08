@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <plurals name="confirm_delete_pk_with_balance">
+        <item quantity="one">This cannot be undone!\n\nCurrent address:\n%1$s\n\nIt contains %2$s\n\nDo you want to delete it?</item>
+        <item quantity="other">This cannot be undone!\n\nCurrent addresses:\n%1$s\n\nIt contains %2$s\n\nDo you want to delete it?</item>
+    </plurals>
+    <plurals name="confirm_delete_pk_with_balance_with_label">
+        <item quantity="one">This cannot be undone!\n\n%1$s\n\nCurrent address:\n%2$s\n\nIt contains %3$s\n\nDo you want to delete it?</item>
+        <item quantity="other">This cannot be undone!\n\n%1$s\n\nCurrent addresses:\n%2$s\n\nIt contains %3$s\n\nDo you want to delete it?</item>
+    </plurals>
+    <plurals name="confirm_delete_pk_without_balance">
+        <item quantity="one">This cannot be undone!\n\nCurrent address:\n%1$s\n\nDo you want to delete it?</item>
+        <item quantity="other">This cannot be undone!\n\nCurrent addresses:\n%1$s\n\nDo you want to delete it?</item>
+    </plurals>
+    <plurals name="confirm_delete_pk_without_balance_with_label">
+        <item quantity="one">This cannot be undone!\n\n%1$s\n\nCurrent address:\n%2$s\n\nDo you want to delete it?</item>
+        <item quantity="other">This cannot be undone!\n\n%1$s\n\nCurrent addresses:\n%2$s\n\nDo you want to delete it?</item>
+    </plurals>
+    <plurals name="contains_keys">
+        <item quantity="one">Contains %1$d private key.</item>
+        <item quantity="other">Contains %1$d private keys.</item>
+    </plurals>
+    <plurals name="contains_addresses">
+        <item quantity="one">Contains %1$d address.</item>
+        <item quantity="other">Contains %1$d addresses.</item>
+    </plurals>
+    <plurals name="account_label">
+        <item quantity="one">Account label:\n%s</item>
+        <item quantity="other">Accounts labels:\n%s</item>
+    </plurals>
+    <plurals name="existing_accounts_found">
+        <item quantity="one">%d existing account found</item>
+        <item quantity="other">%d existing accounts found</item>
+    </plurals>
+    <plurals name="new_accounts_created">
+        <item quantity="one">%d new account created</item>
+        <item quantity="other">%d new accounts created</item>
+    </plurals>
+    <plurals name="d_countries">
+        <item quantity="zero"><u>All countries</u></item>
+        <item quantity="one"><u>%d country</u></item>
+        <item quantity="other"><u>%d countries</u></item>
+    </plurals>
+    <plurals name="cards">
+        <item quantity="one">%d card</item>
+        <item quantity="other">%d cards</item>
+    </plurals>
+</resources>

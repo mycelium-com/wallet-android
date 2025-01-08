@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <plurals name="confirm_delete_pk_with_balance">
+        <item quantity="one">Это нельзя будет отменить!\n\nТекущий адрес:\n%1$s\n\nОн содержит %2$s\n\nВы хотите удалить его?</item>
+        <item quantity="other">Это нельзя будет отменить!\n\nТекущие адреса:\n%1$s\n\nОни содержат %2$s\n\nВы хотите удалить их?</item>
+    </plurals>
+    <plurals name="confirm_delete_pk_with_balance_with_label">
+        <item quantity="one">Это нельзя будет отменить!\n\n%1$s\n\nТекущий адрес:\n%2$s\n\nОн содержит %3$s\n\nВы хотите удалить его?</item>
+        <item quantity="other">Это нельзя будет отменить!\n\n%1$s\n\nТекущие адреса:\n%2$s\n\nОни содержат %3$s\n\nВы хотите удалить их?</item>
+    </plurals>
+    <plurals name="confirm_delete_pk_without_balance">
+        <item quantity="one">Это нельзя будет отменить!\n\nТекущий адрес:\n%1$s\n\nВы хотите удалить его?</item>
+        <item quantity="other">Это нельзя будет отменить!\n\nТекущие адреса:\n%1$s\n\nВы хотите удалить их?</item>
+    </plurals>
+    <plurals name="confirm_delete_pk_without_balance_with_label">
+        <item quantity="one">Это нельзя будет отменить!\n\n%1$s\n\nТекущий адрес:\n%2$s\n\nВы хотите удалить его?</item>
+        <item quantity="other">Это нельзя будет отменить!\n\n%1$s\n\nТекущие адреса:\n%2$s\n\nВы хотите удалить их?</item>
+    </plurals>
+    <plurals name="contains_keys">
+        <item quantity="one">Содержит %1$d приватный ключ.</item>
+        <item quantity="other">Содержит %1$d приватных ключей.</item>
+    </plurals>
+    <plurals name="contains_addresses">
+        <item quantity="one">Содержит %1$d адрес.</item>
+        <item quantity="other">Содержит %1$d адресов.</item>
+    </plurals>
+
+</resources>
