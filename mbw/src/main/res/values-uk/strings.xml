@@ -987,7 +987,7 @@
     <string name="p2sh_receive_mode">Режим P2SH</string>
     <string name="bech32_receive_mode">Нативний SegWit (Bech32)</string>
     <string name="set_default">Встановити за замовчуванням</string>
-    <string name="tap_next">Натисніть для %s</string>
+    <string name="tap_next">Тап для %s</string>
     <string name="p2pkh_short">P2PKH</string>
     <string name="p2sh_short">P2SH</string>
     <string name="bech_short">Bech32</string>
