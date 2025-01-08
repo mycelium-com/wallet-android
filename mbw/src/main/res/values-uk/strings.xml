@@ -844,8 +844,8 @@
     <string name="single_address_backup_missing">ГАМАНЕЦЬ НЕ МОЖНА ВІДНОВИТИ БЕЗ РЕЗЕРВНОЇ КОПІЇ! ТАКОЖ, ЯКЩО ВИ ВТРАТИТЕ СВОЮ РЕЗЕРВНУ КОПІЮ, МИ НЕ ЗМОЖЕМО ДОПОМОГТИ ВАМ ВІДНОВИТИ ГАМАНЕЦЬ! БЕЗ РЕЗЕРВУ — БЕЗ КОШТІВ!</string>
     <string name="wallet_backup_missing">ГАМАНЕЦЬ НЕ МОЖНА ВІДНОВИТИ БЕЗ РЕЗЕРВНОЇ КОПІЇ! ТАКОЖ, ЯКЩО ВИ ВТРАТИТЕ СВОЮ РЕЗЕРВНУ КОПІЮ, МИ НЕ ЗМОЖЕМО ДОПОМОГТИ ВАМ ВІДНОВИТИ ГАМАНЕЦЬ! БЕЗ РЕЗЕРВУ — БЕЗ КОШТІВ!</string>
     <string name="backup">РЕЗЕРВНЕ КОПІЮВАННЯ</string>
-    <string name="backup_later">Зробити резервну копію пізніше</string>
-    <string name="backup_now">Створити резервну копію зараз</string>
+    <string name="backup_later">Зберегти пізніше</string>
+    <string name="backup_now">Зберегти зараз</string>
     <string name="bch_module_description">Використовуйте модуль BCH, щоб отримати ваші BCH і обміняти їх на BTC</string>
     <string name="install_bch_module">Встановити модуль Bitcoin Cash</string>
     <string name="continue_without_bch">Продовжити без BCH</string>
