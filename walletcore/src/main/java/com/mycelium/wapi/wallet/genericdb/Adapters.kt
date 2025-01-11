@@ -20,6 +20,7 @@ import com.mycelium.wapi.wallet.fio.FioRequestStatus
 import com.mycelium.wapi.wallet.fio.RegisteredFIOName
 import fiofoundation.io.fiosdk.models.fionetworkprovider.FundsRequestContent
 import fiofoundation.io.fiosdk.models.fionetworkprovider.RecordObtDataContent
+import java.math.BigDecimal
 import java.math.BigInteger
 import java.util.*
 import kotlin.collections.HashMap
@@ -109,6 +110,16 @@ object Adapters {
         }
 
         override fun encode(value: BigInteger): String {
+            return value.toString()
+        }
+    }
+
+    val bigDecimalAdapter = object : ColumnAdapter<BigDecimal, String> {
+        override fun decode(databaseValue: String): BigDecimal {
+            return BigDecimal(databaseValue)
+        }
+
+        override fun encode(value: BigDecimal): String {
             return value.toString()
         }
     }

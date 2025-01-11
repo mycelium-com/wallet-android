@@ -1,16 +1,19 @@
 package com.mycelium.giftbox.client
 
+import app.cash.sqldelight.driver.android.AndroidSqliteDriver
 import com.mycelium.bequant.kyc.inputPhone.coutrySelector.CountryModel
 import com.mycelium.bequant.remote.doRequest
 import com.mycelium.generated.giftbox.database.GiftboxCard
 import com.mycelium.generated.giftbox.database.GiftboxDB
+import com.mycelium.generated.giftbox.database.GiftboxProduct
 import com.mycelium.giftbox.client.models.*
 import com.mycelium.giftbox.dateAdapter
+import com.mycelium.giftbox.listBigDecimalAdapter
 import com.mycelium.giftbox.model.Card
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.WalletApplication
 import com.mycelium.wapi.wallet.AesKeyCipher
-import app.cash.sqldelight.driver.android.AndroidSqliteDriver
+import com.mycelium.wapi.wallet.genericdb.Adapters
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import retrofit2.Response
@@ -20,8 +23,14 @@ class GiftboxApiRepository {
     private var lastOrderId = updateOrderId()
 
     private val api = GiftboxApi.create()
-    private val giftbxDB = GiftboxDB.invoke(AndroidSqliteDriver(GiftboxDB.Schema, WalletApplication.getInstance(), "giftbox.db"),
-             GiftboxCard.Adapter(dateAdapter))
+    private val giftbxDB = GiftboxDB.invoke(
+        AndroidSqliteDriver(GiftboxDB.Schema, WalletApplication.getInstance(), "giftbox.db"),
+        GiftboxCard.Adapter(dateAdapter),
+        GiftboxProduct.Adapter(
+            Adapters.listAdapter, Adapters.listAdapter,
+            Adapters.bigDecimalAdapter, Adapters.bigDecimalAdapter,
+            listBigDecimalAdapter)
+    )
 
     private val clientUserIdFromMasterSeed by lazy {
         MbwManager.getInstance(WalletApplication.getInstance())

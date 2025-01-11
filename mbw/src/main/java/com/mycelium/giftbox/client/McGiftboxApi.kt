@@ -1,11 +1,11 @@
 package com.mycelium.giftbox.client
 
-import com.mycelium.giftbox.client.model.MCOrderStatusRequest
 import com.mycelium.giftbox.client.model.MCCreateOrderRequest
 import com.mycelium.giftbox.client.model.MCOrderResponse
+import com.mycelium.giftbox.client.model.MCOrderStatusRequest
 import com.mycelium.giftbox.client.model.MCOrderStatusResponse
 import com.mycelium.giftbox.client.model.MCPrice
-import com.mycelium.giftbox.client.model.MCProductInfo
+import com.mycelium.giftbox.client.model.MCProductResponse
 import com.mycelium.giftbox.client.model.OrderList
 import retrofit2.Response
 import retrofit2.http.Body
@@ -16,7 +16,10 @@ import retrofit2.http.Query
 interface McGiftboxApi {
 
     @GET("brands")
-    suspend fun products(): Response<List<MCProductInfo>>
+    suspend fun products(
+        @Query("offset") offset: Int? = null,
+        @Query("limit") limit: Int? = null
+    ): Response<MCProductResponse>
 
     @GET("get-order-history")
     suspend fun getOrders(

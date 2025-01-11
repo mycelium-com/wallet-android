@@ -1,34 +1,40 @@
 package com.mycelium.giftbox.client
 
-import com.mycelium.bequant.kyc.inputPhone.coutrySelector.CountryModel
-import com.mycelium.bequant.remote.doRequest
-import com.mycelium.generated.giftbox.database.GiftboxCard
-import com.mycelium.generated.giftbox.database.GiftboxDB
-import com.mycelium.giftbox.dateAdapter
-import com.mycelium.giftbox.model.Card
-import com.mycelium.wallet.MbwManager
-import com.mycelium.wallet.WalletApplication
-import com.mycelium.wapi.wallet.AesKeyCipher
 import app.cash.sqldelight.driver.android.AndroidSqliteDriver
 import com.mrd.bitlib.model.AddressType
-import com.mycelium.bequant.kyc.inputPhone.coutrySelector.CountriesSource
+import com.mycelium.bequant.kyc.inputPhone.coutrySelector.CountryModel
+import com.mycelium.bequant.remote.doRequest
 import com.mycelium.bequant.remote.doRequestModify
+import com.mycelium.generated.giftbox.database.GiftboxCard
+import com.mycelium.generated.giftbox.database.GiftboxDB
+import com.mycelium.generated.giftbox.database.GiftboxProduct
+import com.mycelium.giftbox.GiftboxPreference
+import com.mycelium.giftbox.categories
 import com.mycelium.giftbox.client.model.MCCreateOrderRequest
 import com.mycelium.giftbox.client.model.MCOrderResponse
 import com.mycelium.giftbox.client.model.MCOrderStatusRequest
 import com.mycelium.giftbox.client.model.MCOrderStatusResponse
 import com.mycelium.giftbox.client.model.MCPrice
-import com.mycelium.giftbox.client.model.MCProductInfo
+import com.mycelium.giftbox.client.model.MCProductResponse
 import com.mycelium.giftbox.client.model.OrderList
 import com.mycelium.giftbox.client.model.Products
+import com.mycelium.giftbox.countries
+import com.mycelium.giftbox.dateAdapter
+import com.mycelium.giftbox.getProducts
+import com.mycelium.giftbox.listBigDecimalAdapter
+import com.mycelium.giftbox.model.Card
+import com.mycelium.giftbox.save
+import com.mycelium.wallet.MbwManager
+import com.mycelium.wallet.WalletApplication
+import com.mycelium.wapi.wallet.AesKeyCipher
+import com.mycelium.wapi.wallet.genericdb.Adapters
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 import retrofit2.Response
 import java.math.BigDecimal
 import java.util.*
-import java.util.concurrent.TimeUnit
-import kotlin.collections.orEmpty
-import kotlin.math.abs
 import kotlin.text.orEmpty
 
 class MCGiftboxApiRepository {
@@ -54,7 +60,12 @@ class MCGiftboxApiRepository {
 
     private val giftbxDB = GiftboxDB.invoke(
         AndroidSqliteDriver(GiftboxDB.Schema, WalletApplication.getInstance(), "giftbox.db"),
-        GiftboxCard.Adapter(dateAdapter)
+        GiftboxCard.Adapter(dateAdapter),
+        GiftboxProduct.Adapter(
+            Adapters.listAdapter, Adapters.listAdapter,
+            Adapters.bigDecimalAdapter, Adapters.bigDecimalAdapter,
+            listBigDecimalAdapter
+        )
     )
 
     private val clientUserIdFromMasterSeed by lazy {
@@ -109,49 +120,67 @@ class MCGiftboxApiRepository {
 //        }, successBlock = success, errorBlock = error, finallyBlock = finally)
 //    }
 
-    var cacheProducts: Pair<Long, Response<List<MCProductInfo>>>? = null
+    var fetchJob: Job? = null
+    fun fetchProducts(scope: CoroutineScope) {
+        if (fetchJob == null) {
+            fetchJob = scope.launch(Dispatchers.IO) {
+                var offset = 0
+                val size = 500
+                giftbxDB.giftboxProductQueries.deleteAll()
+                do {
+                    val response = api.products(offset, size).apply {
+                        giftbxDB.transaction {
+                            body()?.items?.forEach { it.save(giftbxDB) }
+                        }
+                    }
+                    offset += size
+                } while ((response.body()?.items?.size ?: 0) > 0)
+                GiftboxPreference.productFetched()
+                fetchJob = null
+            }
+        }
+    }
+
 
     fun getProducts(
         scope: CoroutineScope,
         search: String? = null,
-        country: List<CountryModel>? = null,
+        country: CountryModel? = null,
         category: String? = null,
-        offset: Long = 0,
-        limit: Long = 100,
+        offset: Int = 0,
+        limit: Int = 100,
         success: (Products?) -> Unit,
         error: (Int, String) -> Unit,
         finally: (() -> Unit)? = null
     ): Job =
-        doRequestModify<List<MCProductInfo>, Products>(scope, {
-            if (System.currentTimeMillis() - (cacheProducts?.first
-                    ?: 0) < TimeUnit.MINUTES.toMillis(5)
-                && cacheProducts?.second != null
-            ) {
-                cacheProducts?.second
-            } else {
-                api.products().apply {
-                    cacheProducts = System.currentTimeMillis() to this
+        doRequestModify<MCProductResponse, Products>(scope, {
+            if (GiftboxPreference.needFetchProducts()) {
+                fetchProducts(scope)
+                api.products(offset, limit).apply {
+                    giftbxDB.transaction {
+                        body()?.items?.forEach { it.save(giftbxDB) }
+                    }
                 }
-            }!!
+            } else {
+                val items = giftbxDB.getProducts(offset, limit, search, category, country)
+                Response<MCProductResponse>.success(MCProductResponse(-1, items))
+            }
         }, successBlock = success, errorBlock = error, finallyBlock = finally,
             responseModifier = {
-                val products = it?.filter {
-                    if (search?.isNotEmpty() == true)
-                        it.name?.contains(search, true) == true else true
-                }?.filter {
-                    if (country?.isNotEmpty() == true) {
-                        it.countries?.intersect(country.map { it.acronym })?.isNotEmpty() == true
-                    } else true
-                }?.filter {
-                    if (category?.isNotEmpty() == true) it.categories?.contains(category) == true else true
-                }
-                val categories = it?.flatMap { it.categories.orEmpty() }
-                    ?.toSet().orEmpty().filter { it.isNotEmpty() }
-
-                val countries = it?.flatMap { it.countries.orEmpty() }?.toSet()?.mapNotNull {
-                    CountriesSource.countryModels.find { model -> model.acronym.equals(it, true) }
-                }
-                Products(products, categories, countries)
+//                val items = it?.items.orEmpty()
+//                val products = items.filter {
+//                    if (search?.isNotEmpty() == true)
+//                        it.name?.contains(search, true) == true else true
+//                }.filter {
+//                    if (country?.isNotEmpty() == true) {
+//                        it.countries?.intersect(country.map { it.acronym })?.isNotEmpty() == true
+//                    } else true
+//                }.filter {
+//                    if (category?.isNotEmpty() == true) it.categories?.contains(category) == true else true
+//                }
+                val categories = giftbxDB.categories()
+                val countries = giftbxDB.countries()
+                Products(it?.items.orEmpty(), categories, countries)
             })
 
 
