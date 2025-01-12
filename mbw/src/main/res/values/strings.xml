@@ -1882,10 +1882,14 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="message_verified_to_be_from">Message verified to be from %1$s</string>
     <string name="message_failed_to_verify">"Message failed to verify! "</string>
     <string name="input_look_ahead">Input look ahead</string>
-    <string name="part_of">Part %1$d</string>
+    <string name="share_of">Share %1$d</string>
     <string name="total_number_of_shares">Total number of Shares</string>
     <string name="threshold">Threshold</string>
     <string name="total_shares_count_too_high">Total shares count too high, this take a while</string>
     <string name="every_1000_shares_20mb">\nevery 1000 shares = ~20MB</string>
     <string name="generate_shares">Generate shares</string>
+    <string name="shamir_share_hint"><![CDATA[Total shares: a number of parts to split the private key into.\n\nThreshold: a number of parts needed to reconstruct the private key.]]></string>
+    <string name="not_valid_value">Not valid value</string>
+    <string name="total_shares_limit">Total shares must be less than 65535</string>
+    <string name="shamir_secret_sharing">Shamir Secret Sharing</string>
 </resources>

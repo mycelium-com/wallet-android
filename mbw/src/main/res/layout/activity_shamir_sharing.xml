@@ -19,48 +19,67 @@
         android:orientation="vertical"
         app:layout_constraintGuide_end="@dimen/horizontal_page_margin" />
 
-    <TextView
-        android:id="@+id/tvInstructions"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/size_x4"
-        android:text="Enter Secret Shares"
-        android:textSize="18sp"
-        app:layout_constraintEnd_toEndOf="@id/endGuidline"
-        app:layout_constraintStart_toStartOf="@id/startGuidline"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <EditText
-        android:id="@+id/etNumberOfShares"
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/tilTotalShares"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/size_x4"
         android:layout_marginTop="@dimen/size_x4"
+        android:layout_marginEnd="@dimen/size_x1"
+        android:background="@drawable/bg_shamir_input"
         android:hint="@string/total_number_of_shares"
-        android:inputType="number"
-        app:layout_constraintEnd_toEndOf="@id/endGuidline"
-        app:layout_constraintStart_toStartOf="@id/startGuidline"
-        app:layout_constraintTop_toBottomOf="@id/tvInstructions" />
+        android:minHeight="@dimen/btnHeight_x2"
+        app:layout_constraintEnd_toStartOf="@id/tilThreshold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
-    <EditText
-        android:id="@+id/etThreshold"
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/etNumberOfShares"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/size_x3"
+            android:layout_marginTop="@dimen/size_x2"
+            android:layout_marginEnd="@dimen/size_x3"
+            android:layout_marginBottom="@dimen/size_x2"
+            android:inputType="number" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/tilThreshold"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/size_x2"
+        android:layout_marginStart="@dimen/size_x1"
+        android:layout_marginTop="@dimen/size_x4"
+        android:layout_marginEnd="@dimen/size_x4"
+        android:background="@drawable/bg_shamir_input"
         android:hint="@string/threshold"
-        android:inputType="number"
-        app:layout_constraintEnd_toEndOf="@id/endGuidline"
-        app:layout_constraintStart_toStartOf="@id/startGuidline"
-        app:layout_constraintTop_toBottomOf="@id/etNumberOfShares" />
+        android:minHeight="@dimen/btnHeight_x2"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/tilTotalShares"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/etThreshold"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/size_x3"
+            android:layout_marginTop="@dimen/size_x2"
+            android:layout_marginEnd="@dimen/size_x3"
+            android:layout_marginBottom="@dimen/size_x2"
+            android:inputType="number" />
+    </com.google.android.material.textfield.TextInputLayout>
 
     <Button
         android:id="@+id/generate"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/size_x4"
+        android:minHeight="@dimen/btnHeight_x2"
         android:text="@string/generate_shares"
+        android:textSize="16sp"
         app:layout_constraintEnd_toEndOf="@id/endGuidline"
         app:layout_constraintStart_toStartOf="@id/startGuidline"
-        app:layout_constraintTop_toBottomOf="@id/etThreshold" />
+        app:layout_constraintTop_toBottomOf="@id/tilTotalShares" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvSharesContainer"
@@ -75,6 +94,18 @@
         app:layout_constraintTop_toBottomOf="@id/generate"
         tools:listitem="@layout/item_share" />
 
+    <TextView
+        android:id="@+id/pageHint"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_shamir_input"
+        android:padding="@dimen/size_x4"
+        android:textColor="@color/textPrimary"
+        android:layout_marginBottom="@dimen/size_x4"
+        android:text="@string/shamir_share_hint"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@id/endGuidline"
+        app:layout_constraintStart_toStartOf="@id/startGuidline" />
 
     <LinearLayout
         android:id="@+id/progressOverlay"

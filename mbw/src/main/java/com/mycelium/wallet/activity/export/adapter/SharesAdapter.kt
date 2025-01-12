@@ -14,6 +14,7 @@ import com.mycelium.wallet.databinding.ItemShareBinding
 class SharesAdapter : ListAdapter<BipSss.Share, RecyclerView.ViewHolder>(ShareDiffCallback()) {
 
     var shareListener: ((BipSss.Share) -> Unit)? = null
+    var printListener: ((BipSss.Share) -> Unit)? = null
     var itemListener: ((BipSss.Share) -> Unit)? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder =
@@ -26,7 +27,7 @@ class SharesAdapter : ListAdapter<BipSss.Share, RecyclerView.ViewHolder>(ShareDi
             )
 
             ITEM_TYPE -> ShareViewHolder(
-                ItemShareBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+                LayoutInflater.from(parent.context).inflate(R.layout.item_share, parent, false)
             )
 
             else -> TODO("not implemented")
@@ -39,10 +40,13 @@ class SharesAdapter : ListAdapter<BipSss.Share, RecyclerView.ViewHolder>(ShareDi
             ITEM_TYPE -> {
                 val item = getItem(position)
                 (holder as ShareViewHolder).bind(item)
+                holder.binding.sharePrint.setOnClickListener {
+                    printListener?.invoke(item)
+                }
                 holder.binding.shareQr.setOnClickListener {
                     shareListener?.invoke(item)
                 }
-                holder.binding.tvShare.setOnClickListener {
+                holder.binding.shareCopy.setOnClickListener {
                     itemListener?.invoke(item)
                 }
             }
@@ -57,18 +61,15 @@ class SharesAdapter : ListAdapter<BipSss.Share, RecyclerView.ViewHolder>(ShareDi
 
     class EmptyViewHolder(view: View) : RecyclerView.ViewHolder(view)
 
-    class ShareViewHolder(val binding: ItemShareBinding) :
-        RecyclerView.ViewHolder(binding.root) {
+    class ShareViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        val binding = ItemShareBinding.bind(view)
         fun bind(share: BipSss.Share) {
             binding.tvLabel.text = binding.tvLabel.context.getString(
-                R.string.part_of, share.shareNumber
+                R.string.share_of, share.shareNumber
             )
             val shareString = share.toString()
             binding.tvShare.text = shareString
             binding.qrImageView.setQrCode(shareString)
-            binding.shareQr.setOnClickListener {
-
-            }
         }
     }
 

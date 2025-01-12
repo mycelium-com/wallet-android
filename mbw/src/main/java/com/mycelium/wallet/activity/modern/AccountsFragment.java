@@ -679,7 +679,7 @@ public class AccountsFragment extends Fragment {
             menus.add(R.menu.record_options_menu_export);
         }
 
-        if (account instanceof SingleAddressAccount) {
+        if (account instanceof SingleAddressAccount && account.canSpend()) {
             menus.add(R.menu.record_options_menu_shamir);
         }
 

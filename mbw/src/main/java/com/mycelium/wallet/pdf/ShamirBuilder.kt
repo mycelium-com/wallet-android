@@ -47,7 +47,7 @@ class ShamirBuilder {
                 writer.addPage()
                 fromTop = 0
             }
-            writer.addText(MARGIN_START, fromTop, 18, "Part ${it.shareNumber}");
+            writer.addText(MARGIN_START, fromTop, 18, "Share ${it.shareNumber}");
             fromTop += 20
 
             val data = it.toString()
@@ -66,7 +66,6 @@ class ShamirBuilder {
 
 
     companion object {
-
         fun exportShamirSharesToFile(context: Context, params: ShamirBuilder, filePath: String) {
             val pdfString = params.build()
             try {

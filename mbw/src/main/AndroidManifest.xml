@@ -335,7 +335,8 @@
             android:name="com.mycelium.bequant.exchange.SelectCoinActivity"
             android:theme="@style/BequantSign"
             android:windowSoftInputMode="stateHidden" />
-        <activity android:name=".activity.export.ShamirSharingActivity" />
+        <activity android:name=".activity.export.ShamirSharingActivity"
+            android:label="@string/shamir_secret_sharing"/>
         <activity
             android:name="com.mycelium.bequant.sign.SignActivity"
             android:launchMode="singleInstance"

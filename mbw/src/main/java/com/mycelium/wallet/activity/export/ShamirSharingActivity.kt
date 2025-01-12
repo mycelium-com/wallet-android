@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.print.PrintManager
 import android.view.KeyEvent
 import android.view.Menu
 import android.view.MenuInflater
@@ -24,6 +25,7 @@ import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
 import com.mycelium.wallet.activity.export.adapter.SharesAdapter
+import com.mycelium.wallet.activity.export.adapter.TextPrintAdapter
 import com.mycelium.wallet.activity.util.fileProviderAuthority
 import com.mycelium.wallet.activity.view.VerticalSpaceItemDecoration
 import com.mycelium.wallet.activity.view.hideKeyboard
@@ -65,24 +67,29 @@ class ShamirSharingActivity : AppCompatActivity() {
             shareFile(sharedFile)
             sharedFile.deleteOnExit()
         }
+        sharesAdapter.printListener = {
+            lifecycleScope.launch(Dispatchers.IO) {
+                val shamirBuilder = ShamirBuilder().apply {
+                    shares = listOf(it)
+                }
+                val shamirString = shamirBuilder.build()
+                withContext(Dispatchers.Main) {
+                    val printManager = getSystemService(PRINT_SERVICE) as PrintManager
+                    val jobName = "${getString(R.string.app_name)} Document"
+                    printManager.print(jobName, TextPrintAdapter(this@ShamirSharingActivity, shamirString), null)
+                }
+            }
+        }
         sharesAdapter.itemListener = {
             Utils.setClipboardString(it.toString(), this)
         }
         binding.rvSharesContainer.addItemDecoration(
-            VerticalSpaceItemDecoration(
-                resources.getDimensionPixelOffset(R.dimen.fio_list_item_space)
-            )
+            VerticalSpaceItemDecoration(resources.getDimensionPixelOffset(R.dimen.size_x1))
         )
         binding.generate.setOnClickListener {
             it?.hideKeyboard()
             generateShares(secret)
         }
-//        binding.etNumberOfShares.doAfterTextChanged {
-//            handleChange()
-//        }
-//        binding.etThreshold.doAfterTextChanged {
-//            handleChange()
-//        }
         val editorListener = object : OnEditorActionListener {
             override fun onEditorAction(p0: TextView?, actionId: Int, p2: KeyEvent?): Boolean =
                 if (actionId == EditorInfo.IME_ACTION_DONE) {
@@ -98,30 +105,14 @@ class ShamirSharingActivity : AppCompatActivity() {
         addMenuProvider(MenuImpl())
     }
 
-//    private fun handleChange() {
-//        val totalShares = binding.etNumberOfShares.text.toString().toIntOrNull()
-//        val threshold = binding.etThreshold.text.toString().toIntOrNull()
-//        if (totalShares != null && threshold != null) {
-//            if (totalShares < 256) {
-//                binding.generate.isVisible = false
-//                generateShares(secret, threshold, totalShares)
-//            } else {
-//                binding.generate.isVisible = false
-//            }
-//        } else {
-//            binding.generate.isVisible = false
-//            sharesAdapter.submitList(emptyList<BipSss.Share>())
-//        }
-//    }
-
     private fun generateShares(secret: ByteArray) {
         val totalShares = binding.etNumberOfShares.text.toString().toIntOrNull()
         val threshold = binding.etThreshold.text.toString().toIntOrNull()
 
         if (totalShares != null && totalShares > 65535) {
             AlertDialog.Builder(this)
-                .setTitle("Not valid value")
-                .setMessage("Total shares must be less than 65535")
+                .setTitle(getString(R.string.not_valid_value))
+                .setMessage(getString(R.string.total_shares_limit))
                 .setPositiveButton(R.string.button_ok, null)
                 .show()
             sharesAdapter.submitList(emptyList<BipSss.Share>())
@@ -142,10 +133,12 @@ class ShamirSharingActivity : AppCompatActivity() {
                     binding.progressOverlay.isVisible = false
                     binding.progressText.isVisible = false
                     sharesAdapter.submitList(listTiShow)
+                    binding.pageHint.isVisible = false
                 }
             }
         } else {
             sharesAdapter.submitList(emptyList<BipSss.Share>())
+            binding.pageHint.isVisible = true
         }
     }
 
@@ -192,6 +185,7 @@ class ShamirSharingActivity : AppCompatActivity() {
                 else -> false
             }
     }
+
 
     private fun shareFile(file: File) {
         val fileUri = FileProvider.getUriForFile(this, fileProviderAuthority(), file)
