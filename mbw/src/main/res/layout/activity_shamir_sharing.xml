@@ -29,6 +29,7 @@
         android:background="@drawable/bg_shamir_input"
         android:hint="@string/total_number_of_shares"
         android:minHeight="@dimen/btnHeight_x2"
+        android:paddingTop="@dimen/size_x2"
         app:layout_constraintEnd_toStartOf="@id/tilThreshold"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
@@ -54,6 +55,7 @@
         android:background="@drawable/bg_shamir_input"
         android:hint="@string/threshold"
         android:minHeight="@dimen/btnHeight_x2"
+        android:paddingTop="@dimen/size_x2"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@id/tilTotalShares"
         app:layout_constraintTop_toTopOf="parent">
@@ -98,11 +100,11 @@
         android:id="@+id/pageHint"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/size_x4"
         android:background="@drawable/bg_shamir_input"
         android:padding="@dimen/size_x4"
-        android:textColor="@color/textPrimary"
-        android:layout_marginBottom="@dimen/size_x4"
         android:text="@string/shamir_share_hint"
+        android:textColor="@color/textPrimary"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="@id/endGuidline"
         app:layout_constraintStart_toStartOf="@id/startGuidline" />

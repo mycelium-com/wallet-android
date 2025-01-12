@@ -28,7 +28,9 @@ class SharesAdapter : ListAdapter<BipSss.Share, RecyclerView.ViewHolder>(ShareDi
 
             ITEM_TYPE -> ShareViewHolder(
                 LayoutInflater.from(parent.context).inflate(R.layout.item_share, parent, false)
-            )
+            ).apply {
+                binding.qrImageView.tapToCycleBrightness = true
+            }
 
             else -> TODO("not implemented")
         }
