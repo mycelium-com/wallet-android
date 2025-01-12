@@ -4,13 +4,13 @@ import android.content.Context
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.mrd.bitlib.crypto.Bip39
+import com.mycelium.giftbox.client.model.MCProductInfo
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.activity.StartupActivity.mainAccounts
 import com.mycelium.wapi.wallet.AesKeyCipher
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import java.math.BigDecimal
 
 @RunWith(AndroidJUnit4::class)
 class MCGiftboxApiRepositoryTests {
@@ -38,7 +38,7 @@ class MCGiftboxApiRepositoryTests {
 
     @Test
     fun testProducts() = kotlinx.coroutines.test.runTest {
-        repository.getProducts(this,  country = null, category = null,
+        repository.getProducts(this, country = null, category = null,
             success = {
                 assert(true)
 //                assertEquals(2, it?.products?.size)
@@ -61,7 +61,18 @@ class MCGiftboxApiRepositoryTests {
 
     @Test
     fun testPrice() = kotlinx.coroutines.test.runTest {
-        repository.getPrice(this, "ace-hardware-us", BigDecimal.ONE, "USD",
+        var products: List<MCProductInfo>? = null
+        repository.getProducts(this, country = null, category = null,
+            success = {
+                assert(true)
+                products = it?.products
+//                assertEquals(2, it?.products?.size)
+            },
+            error = { _, _ -> assert(false) },
+            finally = {}
+        ).join()
+        val item = products?.get(0)!!
+        repository.getPrice(this, item.id!!, item.minFaceValue, item.currency!!,
             success = {
                 assert(true)
 //                assertEquals(BigDecimal.TEN, it?.price)
