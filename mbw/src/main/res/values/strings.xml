@@ -1883,7 +1883,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="message_failed_to_verify">"Message failed to verify! "</string>
     <string name="input_look_ahead">Input look ahead</string>
     <string name="share_of">Share %1$d</string>
-    <string name="total_number_of_shares">Total number of Shares</string>
+    <string name="total_number_of_shares">Total shares</string>
     <string name="threshold">Threshold</string>
     <string name="total_shares_count_too_high">Total shares count too high, this take a while</string>
     <string name="every_1000_shares_20mb">\nevery 1000 shares = ~20MB</string>
