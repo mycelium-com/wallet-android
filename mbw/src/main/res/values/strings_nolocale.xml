@@ -106,4 +106,6 @@
                 </style>
         </head><body>%6$s</body></html>]]>
     </string>
+
+    <string name="shamir_secret_sharing" translatable="false">Shamir Secret Sharing</string>
 </resources>

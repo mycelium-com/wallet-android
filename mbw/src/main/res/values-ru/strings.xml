@@ -999,4 +999,14 @@
     <string name="vip_title_success">Всё готово!</string>
     <string name="vip_exchange_expired_title">Ваш SWAP обмен недоступен</string>
     <string name="vip_exchange_status_expired_alert_message">Ваш VIP-статус истек, поэтому теперь применяются обычные (не VIP) тарифы.</string>
+
+    <string name="share_of">Доля %1$d</string>
+    <string name="total_number_of_shares">Общее количество долей</string>
+    <string name="threshold">Порог</string>
+    <string name="total_shares_count_too_high">Слишком большое количество долей, это займет время</string>
+    <string name="every_1000_shares_20mb">\nкаждые 1000 долей ≈ 20 МБ</string>
+    <string name="generate_shares">Создать Shares</string>
+    <string name="shamir_share_hint"><![CDATA[Общее количество долей: количество частей, на которые будет разделен приватный ключ.\n\nПорог: количество частей, необходимое для восстановления приватного ключа.]]></string>
+    <string name="not_valid_value">Недопустимое значение</string>
+    <string name="total_shares_limit">Общее количество долей должно быть меньше 65535</string>
 </resources>
