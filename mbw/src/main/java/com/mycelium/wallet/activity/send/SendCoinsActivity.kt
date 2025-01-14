@@ -18,8 +18,10 @@ import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.widget.*
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.children
+import androidx.core.widget.NestedScrollView
 import androidx.core.widget.doOnTextChanged
 import androidx.databinding.BindingAdapter
 import androidx.databinding.InverseBindingAdapter
@@ -61,8 +63,6 @@ import org.web3j.utils.Convert
 import java.math.BigInteger
 import java.util.*
 import java.util.concurrent.TimeUnit
-import androidx.activity.viewModels
-import androidx.core.widget.NestedScrollView
 
 class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener, AmountListener {
     private val viewModel: SendCoinsViewModel by viewModels { SendCoinsFactory(account) }
@@ -430,7 +430,7 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener, AmountLi
                                     this.setDropDownViewResource(R.layout.layout_send_coin_transaction_replace_dropdown)
                                 }
                             }
-//                            it.activity = this
+                            binding.activity = this
                         }
             }
             is FioAccount -> {

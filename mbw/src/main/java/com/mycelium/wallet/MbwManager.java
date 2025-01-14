@@ -1740,9 +1740,6 @@ public class MbwManager {
         if (accounts.get(Utils.getEthCoinType()) == null) {
             needsToBeCreated.add(new EthereumMasterseedConfig());
         }
-        if (accounts.get(Utils.getFIOCoinType()) == null) {
-            needsToBeCreated.add(new FIOMasterseedConfig());
-        }
         return needsToBeCreated;
     }
 

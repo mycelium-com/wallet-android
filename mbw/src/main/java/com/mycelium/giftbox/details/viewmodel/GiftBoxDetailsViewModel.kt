@@ -1,7 +1,6 @@
 package com.mycelium.giftbox.details.viewmodel
 
 import android.app.Application
-import android.webkit.URLUtil
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import com.mycelium.giftbox.client.models.ProductInfo
@@ -17,7 +16,8 @@ class GiftBoxDetailsViewModel(application: Application) : AndroidViewModel(appli
     val expireDate = MutableLiveData<String>()
 
     val redeemCode = MutableLiveData<String>("")
-    val pinCode = MutableLiveData<String>("")
+    val cardCode = MutableLiveData<String>("")
+    val cardPin = MutableLiveData<String>("")
 
     override val amount = MutableLiveData<String>()
     override val amountFiat = MutableLiveData<String>()
@@ -51,24 +51,12 @@ class GiftBoxDetailsViewModel(application: Application) : AndroidViewModel(appli
     }
 
     fun setCodes(code: Card) {
-        when {
-            code.deliveryUrl.isNotEmpty() -> {
-                redeemCode.value = code.deliveryUrl
-            }
-            URLUtil.isValidUrl(code.code) -> {
-                redeemCode.value = code.code
-            }
-            code.code.isNotEmpty() -> {
-                redeemCode.value = code.code
-            }
-            else -> {
-                redeemCode.value = ""
-            }
-        }
-        pinCode.value = if (code.pin.isNotEmpty()) {
-            code.pin
-        } else {
-            ""
-        }
+        redeemCode.value = code.deliveryUrl
+        //        if(URLUtil.isValidUrl(code.code))
+//            redeemCode.value =
+//    }
+
+        cardCode.value = code.code
+        cardPin.value = code.pin
     }
 }
