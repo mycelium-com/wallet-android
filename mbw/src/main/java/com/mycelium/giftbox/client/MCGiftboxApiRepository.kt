@@ -15,6 +15,7 @@ import com.mycelium.giftbox.client.model.MCOrderResponse
 import com.mycelium.giftbox.client.model.MCOrderStatusRequest
 import com.mycelium.giftbox.client.model.MCOrderStatusResponse
 import com.mycelium.giftbox.client.model.MCPrice
+import com.mycelium.giftbox.client.model.MCProductInfo
 import com.mycelium.giftbox.client.model.MCProductResponse
 import com.mycelium.giftbox.client.model.OrderList
 import com.mycelium.giftbox.client.model.Products
@@ -126,15 +127,17 @@ class MCGiftboxApiRepository {
             fetchJob = scope.launch(Dispatchers.IO) {
                 var offset = 0
                 val size = 500
-                giftbxDB.giftboxProductQueries.deleteAll()
+                val brands = mutableListOf<MCProductInfo>()
                 do {
                     val response = api.products(offset, size).apply {
-                        giftbxDB.transaction {
-                            body()?.items?.forEach { it.save(giftbxDB) }
-                        }
+                        brands.addAll(body()?.items.orEmpty())
                     }
                     offset += size
                 } while ((response.body()?.items?.size ?: 0) > 0)
+                giftbxDB.transaction {
+                    giftbxDB.giftboxProductQueries.deleteAll()
+                    brands.forEach { it.save(giftbxDB) }
+                }
                 GiftboxPreference.productFetched()
                 fetchJob = null
             }
@@ -154,6 +157,8 @@ class MCGiftboxApiRepository {
         finally: (() -> Unit)? = null
     ): Job =
         doRequestModify<MCProductResponse, Products>(scope, {
+//            giftbxDB.giftboxProductQueries.deleteAll()
+//            GiftboxPreference.setLastProductFetch(0)
             if (GiftboxPreference.needFetchProducts()) {
                 fetchProducts(scope)
                 api.products(offset, limit).apply {
@@ -167,17 +172,6 @@ class MCGiftboxApiRepository {
             }
         }, successBlock = success, errorBlock = error, finallyBlock = finally,
             responseModifier = {
-//                val items = it?.items.orEmpty()
-//                val products = items.filter {
-//                    if (search?.isNotEmpty() == true)
-//                        it.name?.contains(search, true) == true else true
-//                }.filter {
-//                    if (country?.isNotEmpty() == true) {
-//                        it.countries?.intersect(country.map { it.acronym })?.isNotEmpty() == true
-//                    } else true
-//                }.filter {
-//                    if (category?.isNotEmpty() == true) it.categories?.contains(category) == true else true
-//                }
                 val categories = giftbxDB.categories()
                 val countries = giftbxDB.countries()
                 Products(it?.items.orEmpty(), categories, countries)
@@ -198,13 +192,7 @@ class MCGiftboxApiRepository {
         updateOrderId()
         doRequest(scope, {
             api.createOrder(
-                MCCreateOrderRequest(
-                    userId,
-                    code,
-                    amount,
-                    cryptoCurrency,
-                    amountCurrency
-                )
+                MCCreateOrderRequest(userId, code, amount, cryptoCurrency, amountCurrency)
             )
         }, successBlock = success, errorBlock = error, finallyBlock = finally)
     }
