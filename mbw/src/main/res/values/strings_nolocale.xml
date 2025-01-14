@@ -106,4 +106,6 @@
                 </style>
         </head><body>%6$s</body></html>]]>
     </string>
+    <string name="about_0_btc">~ 0.00 BTC</string>
+    <string name="zero_usd">0.00 USD</string>
 </resources>

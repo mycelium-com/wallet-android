@@ -137,6 +137,7 @@
                 android:text="@string/expires_at"
                 android:textColor="@color/fio_white_alpha_0_6"
                 android:textSize="14sp"
+                android:visibility="@{viewModel.expire.isEmpty() ? View.GONE : View.VISIBLE}"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/tvQuantityLabel" />
 
@@ -149,6 +150,7 @@
                 android:maxLines="2"
                 android:text="@{viewModel.expire}"
                 android:textSize="14sp"
+                android:visibility="@{viewModel.expire.isEmpty() ? View.GONE : View.VISIBLE}"
                 app:layout_constraintBaseline_toBaselineOf="@id/tvExpireTitle"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@id/tvExpireTitle"
