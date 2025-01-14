@@ -2,6 +2,7 @@ package com.mycelium.giftbox.cards
 
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.view.*
 import android.view.inputmethod.InputMethodManager
 import androidx.core.view.isVisible
@@ -83,8 +84,7 @@ class StoresFragment : Fragment() {
                 loadData(viewModel.products.size.toLong())
             }
 
-            override fun isLastPage() =
-                (viewModel.productsSize.value ?: 0) <= viewModel.products.size
+            override fun isLastPage() = viewModel.isLoaded
 
             override fun isLoading() = viewModel.state.value == ListState.LOADING
         })
@@ -127,11 +127,12 @@ class StoresFragment : Fragment() {
     }
 
     private var productsJob: Job? = null
-    private fun loadData(offset: Long = -1) {
+    private fun loadData(offset: Long = -1, skipCache: Boolean = false) {
         if (offset == -1L) {
             adapter.submitList(List(8) { StoresAdapter.LOADING_ITEM })
+            viewModel.isLoaded = false
             productsJob?.cancel()
-        } else if (offset >= viewModel.productsSize.value ?: 0) {
+        } else if (viewModel.isLoaded) {
             return
         } else {
             adapter.submitList(adapter.currentList + StoresAdapter.LOADING_ITEM)
@@ -141,13 +142,19 @@ class StoresFragment : Fragment() {
         productsJob = GitboxAPI.mcGiftRepository.getProducts(lifecycleScope,
                 search = viewModel.search.value,
                 category = viewModel.category,
-                country = activityViewModel.selectedCountries.value,
-                offset = if (offset == -1L) 0 else offset, limit = 30,
+                country = activityViewModel.selectedCountries.value?.firstOrNull(),
+                offset = if (offset == -1L) 0 else offset.toInt(),
+                limit = 30,
+                skipCache = skipCache,
                 success = {
+                    viewModel.state.value = ListState.OK
+                    if(it?.products?.isEmpty() != false) {
+                        viewModel.isLoaded = true
+                    }
                     val categories = it?.categories.orEmpty()
                     activityViewModel.categories.value = listOf("All") + categories
                     activityViewModel.countries.value = it?.countries
-                    viewModel.setProducts(it?.products.orEmpty())
+                    viewModel.setProducts(it?.products.orEmpty(), offset != -1L)
                     adapter.submitList(viewModel.products.toList())
                 },
                 error = { code, msg ->
@@ -156,6 +163,7 @@ class StoresFragment : Fragment() {
                     if(code != 400) {
                         Toaster(this).toast(msg, true)
                     }
+                    Log.e("StoresFragment", "loadData error: $msg")
                 })
     }
 
@@ -183,9 +191,10 @@ class StoresFragment : Fragment() {
         }
     }
 
+    var updateCount = 0
     @Subscribe
     internal fun updateOrder(request: RefreshOrdersRequest) {
-        loadData()
+        loadData(skipCache = (++updateCount)%5 == 0)
     }
 
     @Subscribe
