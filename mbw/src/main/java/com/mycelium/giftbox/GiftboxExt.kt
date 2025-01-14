@@ -86,18 +86,13 @@ fun TextView.setupDescription(description: String, more: Boolean, hasMore: (Bool
 
 fun Card.shareText(resources: Resources): String {
     var text = resources.getString(R.string.share_gift_card_text, productName, amount, currencyCode)
-    when {
-        deliveryUrl.isNotEmpty() -> {
-            text += "\nUrl: $deliveryUrl"
-        }
-
-        URLUtil.isValidUrl(code) -> {
-            text += "\nUrl: $code"
-        }
-
-        code.isNotEmpty() -> {
-            text += "\nCode: $code"
-        }
+    if (deliveryUrl.isNotEmpty()) {
+        text += "\nUrl: $deliveryUrl"
+    }
+    if (URLUtil.isValidUrl(code)) {
+        text += "\nUrl: $code"
+    } else if (code.isNotEmpty()) {
+        text += "\nCode: $code"
     }
     if (pin.isNotEmpty()) {
         text += "\nPin: $pin"
