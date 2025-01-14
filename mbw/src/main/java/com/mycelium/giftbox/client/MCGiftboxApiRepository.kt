@@ -258,7 +258,7 @@ class MCGiftboxApiRepository {
                 order.orderId,
                 order.cardCode.orEmpty(),
                 order.cardUrl.orEmpty(),
-                ""
+                order.cardPin.orEmpty()
             )
             if (giftbxDB.giftboxCardQueries.isCardUpdated().executeAsOne() == 0L) {
                 giftbxDB.giftboxCardQueries.insertCard(
@@ -271,7 +271,7 @@ class MCGiftboxApiRepository {
                     order.product?.expiryData,
                     order.cardCode.orEmpty(),
                     order.cardUrl.orEmpty(),
-                    "",
+                    order.cardPin.orEmpty(),
                     order.createdDate
                 )
             }
