@@ -147,7 +147,7 @@ fun MCProductInfo.save(dataBase: GiftboxDB) {
         countries.orEmpty(), categories.orEmpty(),
         minFaceValue, maxFaceValue,
         denominations.orEmpty(), stockStatus, logoUrl,
-        categories?.joinToString(), expiryData
+        cardImageUrl, expiryData
     )
 }
 
