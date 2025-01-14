@@ -127,7 +127,7 @@ class StoresFragment : Fragment() {
     }
 
     private var productsJob: Job? = null
-    private fun loadData(offset: Long = -1) {
+    private fun loadData(offset: Long = -1, skipCache: Boolean = false) {
         if (offset == -1L) {
             adapter.submitList(List(8) { StoresAdapter.LOADING_ITEM })
             viewModel.isLoaded = false
@@ -145,6 +145,7 @@ class StoresFragment : Fragment() {
                 country = activityViewModel.selectedCountries.value?.firstOrNull(),
                 offset = if (offset == -1L) 0 else offset.toInt(),
                 limit = 30,
+                skipCache = skipCache,
                 success = {
                     viewModel.state.value = ListState.OK
                     if(it?.products?.isEmpty() != false) {
@@ -190,9 +191,10 @@ class StoresFragment : Fragment() {
         }
     }
 
+    var updateCount = 0
     @Subscribe
     internal fun updateOrder(request: RefreshOrdersRequest) {
-        loadData()
+        loadData(skipCache = (++updateCount)%5 == 0)
     }
 
     @Subscribe

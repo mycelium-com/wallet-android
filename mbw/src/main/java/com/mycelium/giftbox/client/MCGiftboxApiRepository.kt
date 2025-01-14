@@ -152,6 +152,7 @@ class MCGiftboxApiRepository {
         category: String? = null,
         offset: Int = 0,
         limit: Int = 100,
+        skipCache: Boolean = false,
         success: (Products?) -> Unit,
         error: (Int, String) -> Unit,
         finally: (() -> Unit)? = null
@@ -159,7 +160,7 @@ class MCGiftboxApiRepository {
         doRequestModify<MCProductResponse, Products>(scope, {
 //            giftbxDB.giftboxProductQueries.deleteAll()
 //            GiftboxPreference.setLastProductFetch(0)
-            if (GiftboxPreference.needFetchProducts()) {
+            if (GiftboxPreference.needFetchProducts() || skipCache) {
                 fetchProducts(scope)
                 api.products(offset, limit).apply {
                     giftbxDB.transaction {
