@@ -18,7 +18,9 @@ data class MCOrderStatusResponse(
     @JsonProperty("card_url")
     var cardUrl: String? = null,
     @JsonProperty("card_code")
-    var cardCode: String? = null
+    var cardCode: String? = null,
+    @JsonProperty("card_pin")
+    var cardPin: String? = null
 ) : MCOrderCommon, Parcelable
 
 
