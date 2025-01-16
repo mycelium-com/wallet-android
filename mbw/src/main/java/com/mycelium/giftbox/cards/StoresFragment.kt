@@ -76,6 +76,9 @@ class StoresFragment : Fragment() {
         adapter.itemClickListener = {
             findNavController().navigate(GiftBoxFragmentDirections.actionStoreDetails(it))
         }
+        adapter.tryAgainListener = {
+            loadData(skipCache = true)
+        }
         binding?.counties?.setOnClickListener {
             findNavController().navigate(GiftBoxFragmentDirections.actionSelectCountries())
         }
@@ -158,7 +161,7 @@ class StoresFragment : Fragment() {
                     adapter.submitList(viewModel.products.toList())
                 },
                 error = { code, msg ->
-                    adapter.submitList(listOf())
+                    adapter.submitList(listOf(StoresAdapter.ERROR_ITEM))
                     viewModel.state.value = ListState.ERROR
                     if(code != 400) {
                         Toaster(this).toast(msg, true)
@@ -191,10 +194,9 @@ class StoresFragment : Fragment() {
         }
     }
 
-    var updateCount = 0
     @Subscribe
     internal fun updateOrder(request: RefreshOrdersRequest) {
-        loadData(skipCache = (++updateCount)%5 == 0)
+        loadData(skipCache = true)
     }
 
     @Subscribe
