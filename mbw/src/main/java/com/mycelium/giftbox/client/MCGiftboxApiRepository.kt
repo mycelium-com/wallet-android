@@ -125,20 +125,23 @@ class MCGiftboxApiRepository {
     fun fetchProducts(scope: CoroutineScope) {
         if (fetchJob == null) {
             fetchJob = scope.launch(Dispatchers.IO) {
-                var offset = 0
-                val size = 500
-                val brands = mutableListOf<MCProductInfo>()
-                do {
-                    val response = api.products(offset, size).apply {
-                        brands.addAll(body()?.items.orEmpty())
+                try {
+                    var offset = 0
+                    val size = 500
+                    val brands = mutableListOf<MCProductInfo>()
+                    do {
+                        val response = api.products(offset, size).apply {
+                            brands.addAll(body()?.items.orEmpty())
+                        }
+                        offset += size
+                    } while ((response.body()?.items?.size ?: 0) > 0)
+                    giftbxDB.transaction {
+                        giftbxDB.giftboxProductQueries.deleteAll()
+                        brands.forEach { it.save(giftbxDB) }
                     }
-                    offset += size
-                } while ((response.body()?.items?.size ?: 0) > 0)
-                giftbxDB.transaction {
-                    giftbxDB.giftboxProductQueries.deleteAll()
-                    brands.forEach { it.save(giftbxDB) }
+                    GiftboxPreference.productFetched()
+                }catch (e: Exception) {
                 }
-                GiftboxPreference.productFetched()
                 fetchJob = null
             }
         }
