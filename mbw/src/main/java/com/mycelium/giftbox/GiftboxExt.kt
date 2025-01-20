@@ -10,6 +10,7 @@ import androidx.databinding.BindingAdapter
 import androidx.fragment.app.Fragment
 import app.cash.sqldelight.ColumnAdapter
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.bumptech.glide.request.RequestOptions
 import com.mycelium.bequant.kyc.inputPhone.coutrySelector.CountriesSource
 import com.mycelium.bequant.kyc.inputPhone.coutrySelector.CountryModel
@@ -32,6 +33,7 @@ fun ImageView.loadImage(url: String?) {
 fun ImageView.loadImage(url: String?, options: RequestOptions?) {
     if (!url.isNullOrEmpty()) {
         val builder = Glide.with(context).load(url)
+            .transition(DrawableTransitionOptions.withCrossFade(300))
         options?.let {
             builder.apply(options)
         }
@@ -142,7 +144,7 @@ fun MCProductInfo.save(dataBase: GiftboxDB) {
         countries.orEmpty(), categories.orEmpty(),
         minFaceValue, maxFaceValue,
         denominations.orEmpty(), stockStatus, logoUrl,
-        cardImageUrl, expiryData
+        cardImageUrl, expiryData, featuredRank.toLong()
     )
 }
 
@@ -168,10 +170,12 @@ fun GiftboxDB.getProducts(offset: Int, limit: Int,
         stockStatus: String?,
         logoUrl: String?,
         cardImageUrl: String?,
-        expiryData: String? ->
+        expiryData: String?,
+        featuredRank: Long->
         MCProductInfo(
             id, name, description, currency, countries, categories, minFaceValue,
-            maxFaceValue, denominations, stockStatus, logoUrl, cardImageUrl, expiryData
+            maxFaceValue, denominations, stockStatus, logoUrl, cardImageUrl, expiryData,
+            featuredRank.toInt()
         )
     }.executeAsList()
 
@@ -188,3 +192,37 @@ fun GiftboxDB.countries(): List<CountryModel> =
         .mapNotNull {
             CountriesSource.countryModels.find { model -> model.acronym.equals(it, true) }
         }
+
+fun List<String>.toCountryModel(): List<CountryModel> =
+    mapNotNull {
+        CountriesSource.countryModels.find { model -> model.acronym.equals(it, true) }
+    }
+
+fun GiftboxDB.getCards(): List<Card> =
+    this.giftboxCardQueries.selectCards(mapper = { clientOrderId: String,
+                                                   productCode: String?,
+                                                   productName: String?,
+                                                   productImg: String?,
+                                                   currencyCode: String?,
+                                                   amount: String?,
+                                                   expiryDate: String?,
+                                                   code: String,
+                                                   deliveryUrl: String,
+                                                   pin: String,
+                                                   timestamp: Date?,
+                                                   redeemed: Boolean ->
+        Card(
+            clientOrderId,
+            productCode,
+            productName,
+            productImg,
+            currencyCode,
+            amount,
+            expiryDate,
+            code,
+            deliveryUrl,
+            pin,
+            timestamp,
+            redeemed
+        )
+    }).executeAsList()

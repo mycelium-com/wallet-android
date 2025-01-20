@@ -17,6 +17,10 @@
     <color name="mycelium_midblue">#3e9bd3</color>
     <color name="mycelium_brightblue">#5fcbf2</color>
 
+    <color name="mycelium_button_color_pressed">#163049</color>"
+    <color name="mycelium_button_color_pressed_stroke">#26527A</color>"
+    <color name="mycelium_button_color_default">@color/buttoncolor</color>"
+    <color name="mycelium_button_color_default_stroke">@color/darkblue</color>"
 
     <color name="greenblue">#0FF</color>
     <color name="darkgrey">#444</color>
