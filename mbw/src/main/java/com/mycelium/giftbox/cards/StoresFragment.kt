@@ -160,7 +160,6 @@ class StoresFragment : Fragment() {
                     activityViewModel.categories.value = listOf("All") + categories
                     activityViewModel.countries.value = it?.countries
                     viewModel.setProducts(it?.products.orEmpty(), offset != -1L)
-                    Log.e("!!!", "submitList 1")
                     adapter.submitList(viewModel.products.toList())
                 },
                 error = { code, msg ->
