@@ -706,8 +706,349 @@
     <!-- Simplex start -->
     <!-- Simplex end -->
     <string name="label_use_device_location">usar localização do dispositivo</string>
-    <plurals name="contains_keys">
-        <item quantity="one">Contém %1$d chave privada.</item>
-        <item quantity="other">Contém %1$d chaves privadas.</item>
-    </plurals>
+
+    <!--  here should be rest of translation  -->
+
+    <string name="gift_card_amount">Valor do cartão de oferta:</string>
+    <string name="gift_cards_with_discount">Cartões de oferta</string>
+    <string name="select_account_to_pay_with">Selecione a conta para efetuar o pagamento:</string>
+    <string name="expire_date">Data de expiração:</string>
+    <string name="card_value">Valor do cartão:</string>
+    <string name="card_value2">Valor do cartão:</string>
+    <string name="total_amount">Montante total:</string>
+    <string name="quantity">Quantidade:</string>
+    <string name="miner_fee">Taxas de mineração:</string>
+    <string name="expires_at">Data de validade:</string>
+    <string name="currency">Moeda:</string>
+    <string name="description">Descrição:</string>
+    <string name="available_country">País disponível:</string>
+    <string name="pay">Pagar</string>
+    <string name="redeem_instructions">Instruções de resgate</string>
+    <string name="terms_and_conditions">Termos e condições</string>
+    <string name="less">menos</string>
+    <string name="proceed">Continuar</string>
+    <string name="more">mais</string>
+    <string name="redeem_code">O seu cartão de oferta:</string>
+    <string name="giftbox_pin_code">Código PIN:</string>
+    <string name="delete_gift_card">Eliminar cartão de oferta?</string>
+    <string name="delete_gift_card_msg">Tem a certeza de que deseja eliminar este cartão de oferta?</string>
+    <string name="redeemed_gift_cards">CARTÕES DE OFERTA RESGATADOS</string>
+    <string name="all_countries">Todos os países</string>
+    <string name="gift_cards">Cartões de oferta</string>
+    <string name="share_gift_card_text">Olá!\nRecentemente comprou cartões de oferta:\n%s\nValor: %s %s
+    </string>
+    <string name="select_card_value_dialog">Selecione o valor do cartão:</string>
+    <string name="gift_card_d">Cartão de oferta:</string>
+    <string name="spendable">Valor disponível:</string>
+    <string name="search_store">Procurar loja</string>
+    <string name="accounts">Contas</string>
+    <string name="giftbox_promo_action">Comprar cartão de oferta</string>
+    <string name="giftbox_promo_title">Poupe ao comprar com
+    BTC e ETH!</string>
+    <string name="giftbox_promo_mark">Novo</string>
+    <string name="purchase_failed">Falha na compra</string>
+    <string name="processing">A processar...</string>
+    <string name="success_s">Sucesso, %s</string>
+    <string name="sync_failed_reason_s">A sincronização falhou. Motivo: %s</string>
+    <string name="sync_failed_s">A sincronização falhou. %s</string>
+    <string name="giftcard_order_title">Encomenda de cartão de oferta</string>
+    <string name="select_country">Selecione o país</string>
+    <string name="buy_gift_card">Comprar cartão de oferta</string>
+    <string name="giftbox_amount_title">Valor do cartão de oferta</string>
+    <string name="stores">Lojas</string>
+    <string name="purchases">Encomendas</string>
+    <string name="mygiftcards">Os meus cartões de oferta</string>
+    <string name="payment_in_progress">Pagamento em processamento</string>
+    <string name="failed">Falhou</string>
+    <string name="paid">Enviado</string>
+    <string name="successfully_paid_gift_card">
+        Enviou com sucesso a transação para pagar o cartão de oferta!
+    </string>
+
+    <string name="payment_confirmed">Transação confirmada</string>
+
+    <string name="gift_card_after_confirmed">
+        <![CDATA[
+        O seu cartão de oferta ficará disponível após a confirmação da transação pela rede.
+        Pode acompanhar o estado da confirmação na <u>lista de transações</u> da sua carteira.
+        ]]>
+    </string>
+
+    <string name="success1">Sucesso</string>
+
+    <string name="gift_card_ready">
+        O seu cartão de oferta está pronto!
+        O link de transferência do cartão e as instruções de resgate encontram-se em <u>Os meus cartões de oferta</u>.
+    </string>
+
+    <string name="return_to_payment">Voltar às encomendas</string>
+
+    <string name="giftbox_failed_text">
+        A transação não foi enviada. Verifique o seu saldo, a ligação à internet e tente novamente.
+    </string>
+
+    <string name="card_value1">Valor do cartão</string>
+
+    <string name="no_results_found_for_s">
+        <![CDATA[
+        Nenhum resultado encontrado para \"<font color="#ffffff">%s</font>\".
+        <br/>Verifique a ortografia e tente novamente.
+        ]]>
+    </string>
+
+    <string name="no_stores_found">NENHUMA LOJA ENCONTRADA</string>
+
+    <string name="no_purchased_gift_card">NÃO COMPROU\nNENHUM CARTÃO DE OFERTA AINDA</string>
+
+    <string name="no_purchased_order">NÃO COMPROU\nNENHUM CARTÃO DE OFERTA AINDA</string>
+
+    <string name="no_gift_cards_linked">
+        Comece por explorar o catálogo de lojas ou verificar o estado das suas Encomendas.
+    </string>
+    <string name="no_order_linked">
+        De momento, não tem nenhuma compra associada à sua conta.
+        Comece por explorar o catálogo de lojas.
+    </string>
+    <string name="tx_not_sent">A transação não foi enviada</string>
+    <string name="check_internet_and_try_again">
+        Mycelium não consegue ligar-se ao servidor devido à fraca ligação à internet.\n
+        Por favor, verifique a sua ligação e tente novamente.
+    </string>
+    <string name="no_funds">Sem fundos</string>
+    <string name="you_dont_have_btc_or_eth_accounts_with_funds">
+        Não tem nenhuma conta BTC ou ETH com fundos.\n
+        Por favor, carregue uma das suas contas BTC ou ETH e tente novamente.
+    </string>
+    <string name="mark_as_redeemed">Marcar como resgatado</string>
+    <string name="show_transaction_details">
+        <![CDATA[Mostrar detalhes da transação >]]>
+    </string>
+    <string name="show_transaction_details_hide">
+        Mostrar detalhes da transação (ocultar)
+    </string>
+    <string name="max_available_cards_d">Máximo de cartões disponíveis: %d cartões</string>
+    <string name="gift_card_info">Informações do cartão de oferta</string>
+    <string name="exceed_card_value">Exceder valor do cartão</string>
+    <string name="from_s_to_s">De %s a %s</string>
+    <string name="gift_cards_menu">Cartões de oferta</string>
+    <string name="delete_received_fio_request">Eliminar pedido FIO recebido</string>
+    <string name="delete_received_fio_request_msg">
+        Tem a certeza de que deseja eliminar este pedido FIO?
+    </string>
+    <string name="erc20_highest_possible_fee_info">
+        <![CDATA[
+        Esta é a taxa máxima que poderá ter de pagar para enviar a transação da conta <b>ETH %s</b>.
+        No entanto, é provável que a taxa de minerador não exceda %s%s.
+        Para mais detalhes, consulte <u>cálculo da taxa de minerador</u>.
+        ]]>
+    </string>
+
+    <string name="erc20_this_is_updated_fee">
+        <![CDATA[
+        Esta é a taxa atualizada com base no Gas Limit definido.
+        Para mais detalhes, consulte <u>cálculo da taxa de minerador</u>.
+        ]]>
+    </string>
+
+    <string name="all_ethereum_network_transactions">
+        Todas as transações da rede Ethereum exigem ETH para pagar a taxa de minerador.
+    </string>
+
+    <string name="please_top_up_your_eth_account">
+        <![CDATA[
+        Por favor, carregue a sua conta <b><u>ETH %s</u></b> em %s%s para pagar a taxa de minerador
+        desta transação.
+        ]]>
+    </string>
+
+    <string name="miner_fee_erc20_info_title">Taxa de Minerador (ERC-20)</string>
+
+    <string name="miner_fee_erc20_info">
+        Todas as transações da rede Ethereum exigem ETH para pagar a taxa de minerador.
+        Taxa de Minerador = Gas Limit * Gas Price (Gwei/Gas)\n\n
+        Para lhe fornecer a estimativa mais alta possível da taxa de minerador, o Mycelium usa por
+        padrão 90 000 unidades como Gas Limit máximo, devido à complexidade do processamento de
+        transações ERC-20.\n\n
+        A quantidade média de gas gasto pelos mineradores em cada transação é de ~ 55 500 unidades.\n\n
+        A taxa efetiva poderá ser menor ou igual, dependendo da quantidade de gas usada para processar
+        a transação.
+    </string>
+
+    <string name="gas_limit_erc20_info_title">Gas Limit (ERC-20)</string>
+
+    <string name="gas_limit_erc20_info">
+        O Mycelium usa 90 000 unidades como Gas Limit máximo por padrão, devido à complexidade do
+        processamento de transações ERC-20.\n\n
+        A quantidade média de gas gasto pelos mineradores em cada transação é de ~ 55 500 unidades.\n\n
+        Pode definir um Gas Limit inferior, mas o Mycelium não garante que a transação seja processada
+        nessas condições.
+    </string>
+
+    <string name="gas_limit_helper">Mínimo 21 000 unidades</string>
+    <string name="input_data_helper">Formato hexadecimal (0–9, A–F)</string>
+
+    <string name="gas_limit_warning">
+        Definiu um Gas Limit abaixo de 90 000 unidades. Pode não ser suficiente para a rede Ethereum
+        processar a sua transação, enquanto o Gas ainda será consumido.
+    </string>
+    <string name="gas_limit_error">
+        O limite mínimo de gas para transações na rede Ethereum é de 21 000 unidades.
+    </string>
+    <string name="parent_eth_account">ETH %s:</string>
+    <string name="connection_issues">
+        <b>Problemas de ligação.</b>
+        Por favor, certifique-se de que está online.
+    </string>
+    <string name="course_outdated">Taxa de câmbio desatualizada</string>
+    <string name="network_s">%s Rede</string>
+    <string name="changelly2_policy_text">
+        O serviço está disponível através de um fornecedor de API de terceiros.
+        Ao clicar em Exchange, aceita os <font color="#4583de">Termos de Utilização</font>.
+    </string>
+    <string name="changelly2_select_from">Selecione a conta:</string>
+    <string name="changelly2_select_to">Selecione a conta para receber fundos:</string>
+    <string name="changelly2_proceed">Continuar</string>
+    <string name="exchange_history">Histórico de Trocas</string>
+    <string name="tab_exchange_title">TROCA</string>
+    <string name="no_operations_history">Sem histórico de operações</string>
+    <string name="history_appear_after_operation">
+        O histórico surgirá automaticamente após a primeira operação de troca.
+    </string>
+    <string name="next_fee_update_in_s">Próxima atualização em %ds</string>
+    <string name="exchange_min_msg">O montante é inferior ao mínimo de troca de %s %s</string>
+    <string name="exchange_max_msg">O montante é superior ao máximo de troca de %s %s</string>
+    <string name="settings_exchange_quick_exchange_title">Confirmação de Troca</string>
+    <string name="settings_exchange_quick_exchange_summary">
+        Mostrar caixa de diálogo de confirmação antes da troca
+    </string>
+    <string name="exchange_accept_dialog_title">Troca</string>
+    <string name="exchange_accept_dialog_msg">
+        Envia: %s %s\nTaxa de minerador: %s\n\nRecebe: %s %s
+    </string>
+
+    <string name="sent">Enviado</string>
+    <string name="received">Recebido</string>
+    <string name="unredeemed">Cartão não resgatado</string>
+    <string name="changelly_receiving">A receber</string>
+    <string name="changelly_received">Recebido</string>
+    <string name="changelly_error_rate_expired">
+        Taxa de câmbio desatualizada, por favor tente novamente.
+    </string>
+
+    <string name="contact_support_team">Contactar Suporte</string>
+    <string name="share_logs">Partilhar Logs</string>
+    <string name="support_team">Contactar Suporte</string>
+    <string name="support_team_text">
+        Por favor descreva o problema e os passos para reproduzi-lo.
+        Para ter uma visão completa do problema, anexe os logs.
+    </string>
+
+    <string name="link_to_track_transaction">Estado da troca</string>
+    <string name="exchange_in_progress">Troca em processamento</string>
+    <string name="help_missing_tx_dialog_text" formatted="false"><![CDATA[
+    Os casos mais comuns de moedas em falta são facilmente resolvidos. Por favor, leia atentamente antes de entrar em contato com o suporte:<br><br>
+    <h4>Sem conexão ao servidor</h4>
+    Quando a carteira não consegue se conectar aos servidores, ela não consegue exibir corretamente o seu saldo e pode até exibir 0BTC se tentar recarregar a conta.
+    <b>Não entre em pânico.</b> Verifique a sua ligação à internet ou, se os nossos servidores estiverem com problemas, é provável que os nossos engenheiros já estejam a trabalhar para resolver a situação.
+    De qualquer forma, enquanto não visualizar uma transação onde os seus fundos tenham saído da carteira, eles continuam protegidos pelo seu backup de 12 palavras, o qual, no pior dos cenários, funciona com a maioria das carteiras Bitcoin.
+    Não tente eliminar e reinstalar a aplicação a menos que tenha 100% de certeza de que possui todos os backups.
+    <h4>Restaurou a carteira com "12 palavras + frase secreta" usando o PIN como frase secreta</h4>
+    Inserir a frase secreta incorreta não gera erro, mas restaura uma carteira diferente, vazia.
+    <b>Tente restaurar a sua carteira apenas com "12 palavras".</b>
+    <h4>As moedas estão na "Conta 2"</h4>
+    Se restaurou de um backup de uma carteira que tinha mais do que apenas a "Conta 1", precisará recriar manualmente as contas em falta para as localizar. Para isso, basta
+    <b>ir ao separador "Contas" e criar uma "nova" conta</b>.
+    <h4>As moedas estão para além do "look-ahead" ou "gap limit" padrão:</h4>
+    Se utilizou ferramentas de terceiros, como o BTC-Pay Server, para receber moedas na sua carteira, a carteira pode não encontrar essas transações por verificar apenas até 20 endereços futuros além do último endereço não utilizado.
+    <b>Toque em "Boost Gap Limit"</b> abaixo para verificar se este é o caso.
+    Isso verificará 200 endereços em todas as contas ativas numa única tentativa.
+    ]]></string>
+
+    <string name="boost_gap_limit">Boost Gap Limit</string>
+    <string name="help_share_logs_text">
+        Só recebemos os seus logs se os partilhar connosco. Os logs não contêm informações pessoais.
+    </string>
+
+    <string name="missing_tx_text">
+        Casos mais comuns de moedas em falta e como podem ser resolvidos.
+    </string>
+
+    <string name="changelog_title">O que há de novo no Mycelium</string>
+    <string name="changelog_button_show_less">Mostrar menos</string>
+    <string name="changelog_button_show_more">Saiba mais sobre as últimas atualizações</string>
+    <string name="changelog_button_close">@string/button_continue</string>
+    <string name="changelog_version_placeholder">Versão: %s</string>
+
+    <string name="etc20_require_eth">
+        Todas as transações da rede Ethereum exigem ETH para pagar a taxa de minerador.
+    </string>
+    <string name="giftcard_coin_not_acceptable">
+        %s não é suportada.\nPor favor, contacte o suporte.
+    </string>
+
+    <string name="update_acvailable">Atualização disponível</string>
+    <string name="current_version_s">Versão atual: %s</string>
+    <string name="update_to_new_features">
+        Atualize o Mycelium para obter novos recursos e funcionalidades melhoradas.
+    </string>
+    <string name="new_version_s">Nova versão: %s</string>
+
+    <string name="send_fee_hint">
+        <b>ATENÇÃO.</b>
+        Transações com taxa de minerador de baixa prioridade podem nunca ser confirmadas ou podem
+        demorar muitas horas ou até dias para serem confirmadas.
+        Não escolha baixa prioridade se não compreender como funciona a rede Bitcoin.
+    </string>
+
+    <string name="hours_or_more">%s ou mais</string>
+    <string name="russia">Rússia</string>
+
+    <string name="giftbox_expired_text">
+        <![CDATA[
+        A encomenda expirou. Por favor, contacte o suporte -
+        <font color="#4583de">support@mycelium.com</font>
+        ]]>
+    </string>
+    <string name="fingerprint_detection_failed">Falha na deteção da impressão digital</string>
+    <string name="fingerprint_not_available">Impressão digital indisponível</string>
+    <string name="unlock_label_fingerprint">Prosseguir com impressão digital</string>
+    <string name="use_pin">Usar código PIN</string>
+    <string name="hide_this_ad">Não mostrar mais este anúncio</string>
+    <string name="batch">Lote</string>
+    <string name="add_all_receiving_addresses_and_amounts">Adicionar todos os endereços de receção e montantes</string>
+    <string name="tab_vip">VIP</string>
+    <string name="vip_code_hint">Introduza o seu código VIP pessoal</string>
+    <string name="vip_code_who_can_get_title">Quem pode obter estatuto VIP</string>
+    <string name="vip_code_who_can_get">Detentores de tokens Mycelium\nParticipantes do SU7 Max giveaway\nUtilizadores leais da Mycelium que receberam um\nconvite pessoal</string>
+    <string name="vip_code_granted_status">Foi-lhe atribuído o estatuto VIP da Mycelium.</string>
+    <string name="vip_code_discount_title">Descontos em trocas cripto-cripto</string>
+    <string name="vip_code_discount_description">A comissão de troca é reduzida em 25%.</string>
+    <string name="vip_code_limits_title">Sem limites</string>
+    <string name="vip_code_limits_description">Agora pode trocar qualquer montante.</string>
+    <string name="vip_code_privacy_related_notice">
+        E há algo MUITO IMPORTANTE relativo à privacidade de que deve estar ciente.
+    </string>
+    <string name="apply_vip_code">Continuar</string>
+    <string name="vip_code_invalid">O código não é válido</string>
+    <string name="vip_title">Obtenha a experiência VIP</string>
+    <string name="vip_menu_text">VIP</string>
+    <string name="vip_title_success">Tudo pronto!</string>
+    <string name="vip_exchange_unexpected_alert_title">Ooops, algo correu mal</string>
+    <string name="vip_exchange_expired_title">A troca VIP não está disponível</string>
+    <string name="vip_exchange_status_expired_alert_message">
+        O seu estatuto VIP expirou; aplicam-se agora as taxas normais (não VIP).
+    </string>
+    <string name="vip_exchange_unexpected_alert_message">
+        O serviço VIP não está disponível de momento devido a razões técnicas.
+        Tente novamente mais tarde ou prossiga sem benefícios VIP.
+    </string>
+    <string name="vip_unexpected_alert_title">O serviço VIP está atualmente indisponível</string>
+    <string name="vip_unexpected_alert_message">Por favor, tente novamente mais tarde</string>
+    <string name="vip_alert_proceed">Sim, continuar</string>
+    <string name="vip_alert_cancel">Cancelar</string>
+    <string name="add_address">Adicionar endereço</string>
+    <string name="message_verified_to_be_from">Mensagem verificada como sendo de %1$s</string>
+    <string name="message_failed_to_verify">"Não foi possível verificar a mensagem!"</string>
+    <string name="input_look_ahead">Entrada de look ahead</string>
+    <string name="card_code">Código do cartão:</string>
 </resources>
