@@ -1178,7 +1178,213 @@
     <string name="given_rates_includes_transaction_fee">Указанный курс включает комиссию за транзакцию</string>
     <string name="try_again">Попробовать снова</string>
 
-<!--old translation-->
+
+<!--  here should be rest of translation  -->
+
+
+    <string name="gift_card_amount">Сумма подарочной карты:</string>
+<!--    <string name="gift_cards_with_discount">Подарочные карты</string>-->
+<!--    <string name="select_account_to_pay_with">Выберите аккаунт для оплаты:</string>-->
+    <string name="expire_date">Дата истечения срока:</string>
+<!--    <string name="card_value">Номинал карты:</string>-->
+<!--    <string name="card_value2">Номинал карты:</string>-->
+<!--    <string name="total_amount">Итоговая сумма:</string>-->
+<!--    <string name="quantity">Количество:</string>-->
+<!--    <string name="miner_fee">Комиссия майнеров:</string>-->
+<!--    <string name="expires_at">Дата истечения срока:</string>-->
+<!--    <string name="currency">Валюта:</string>-->
+<!--    <string name="description">Описание:</string>-->
+<!--    <string name="available_country">Доступная страна:</string>-->
+<!--    <string name="pay">Оплатить</string>-->
+<!--    <string name="redeem_instructions">Инструкции по использованию</string>-->
+<!--    <string name="terms_and_conditions">Условия и положения</string>-->
+<!--    <string name="less">меньше</string>-->
+<!--    <string name="proceed">Продолжить</string>-->
+<!--    <string name="more">больше</string>-->
+<!--    <string name="redeem_code">Ваша подарочная карта:</string>-->
+    <string name="giftbox_pin_code">Пин-код:</string>
+<!--    <string name="delete_gift_card">Удалить подарочную карту?</string>-->
+<!--    <string name="delete_gift_card_msg">Вы уверены, что хотите удалить эту подарочную карту?</string>-->
+<!--    <string name="redeemed_gift_cards">ИСПОЛЬЗОВАННЫЕ ПОДАРОЧНЫЕ КАРТЫ</string>-->
+<!--    <string name="all_countries">Все страны</string>-->
+<!--    <string name="gift_cards">Подарочные карты</string>-->
+<!--    <string name="share_gift_card_text">Здравствуйте!\nВы недавно приобрели подарочные карты:\n%s\nСумма: %s %s</string>-->
+<!--    <string name="select_card_value_dialog">Выберите номинал карты:</string>-->
+    <string name="gift_card_d">Подарочная карта:</string>
+<!--    <string name="spendable">Доступно для расходования:</string>-->
+<!--    <string name="search_store">Поиск магазина</string>-->
+<!--    <string name="accounts">Аккаунты</string>-->
+<!--    <string name="giftbox_promo_action">Купить подарочную карту</string>-->
+<!--    <string name="giftbox_promo_title">Экономьте, покупая за\nBTC и ETH!</string>-->
+    <string name="giftbox_promo_mark">Новинка</string>
+    <string name="purchase_failed">Покупка не удалась</string>
+    <string name="processing">Обработка...</string>
+    <string name="success_s">Успешно, %s</string>
+<!--    <string name="sync_failed_reason_s">Синхронизация не удалась. Причина: %s</string>-->
+<!--    <string name="sync_failed_s">Синхронизация не удалась. %s</string>-->
+<!--    <string name="giftcard_order_title">Заказ подарочной карты</string>-->
+<!--    <string name="select_country">Выберите страну</string>-->
+<!--    <string name="buy_gift_card">Купить подарочную карту</string>-->
+    <string name="giftbox_amount_title">Сумма подарочной карты</string>
+    <string name="stores">Магазины</string>
+<!--    <string name="purchases">Заказы</string>-->
+<!--    <string name="mygiftcards">Мои подарочные карты</string>-->
+<!--    <string name="payment_in_progress">Оплата в процессе</string>-->
+<!--    <string name="failed">Неудачно</string>-->
+<!--    <string name="paid">Отправлено</string>-->
+<!--    <string name="successfully_paid_gift_card">Вы успешно отправили транзакцию для оплаты подарочной карты!</string>-->
+<!--    <string name="payment_confirmed">Транзакция подтверждена</string>-->
+<!--    <string name="gift_card_after_confirmed"><![CDATA[Ваша подарочная карта станет доступна после подтверждения транзакции сетью. Статус подтверждения можно отследить в <u>списке транзакций</u> вашего кошелька.]]></string>-->
+<!--    <string name="success1">Успех</string>-->
+<!--    <string name="gift_card_ready">Ваша подарочная карта готова! Ссылка для скачивания и инструкция по использованию доступны в <u>Мои подарочные карты</u>.</string>-->
+<!--    <string name="return_to_payment">Назад к заказам</string>-->
+<!--    <string name="giftbox_failed_text">Транзакция не была отправлена. Проверьте баланс, подключение к интернету и повторите попытку.</string>-->
+<!--    <string name="card_value1">Номинал карты</string>-->
+<!--    <string name="no_results_found_for_s"><![CDATA[Нет результатов по запросу \"<font color="#ffffff">%s</font>\".<br/>Проверьте правильность написания и попробуйте снова.]]></string>-->
+<!--    <string name="no_stores_found">МАГАЗИНЫ НЕ НАЙДЕНЫ</string>-->
+<!--    <string name="no_purchased_gift_card">ВЫ ЕЩЕ НЕ ПРИОБРЕЛИ\nНИ ОДНОЙ ПОДАРОЧНОЙ КАРТЫ</string>-->
+<!--    <string name="no_purchased_order">ВЫ ЕЩЕ НЕ ПРИОБРЕЛИ\nНИ ОДНОЙ ПОДАРОЧНОЙ КАРТЫ</string>-->
+<!--    <string name="no_gift_cards_linked">Начните с просмотра каталога магазинов или проверьте статус ваших заказов.</string>-->
+<!--    <string name="no_order_linked">В данный момент у вас нет покупок, связанных с вашим аккаунтом. Начните с просмотра каталога магазинов.</string>-->
+<!--    <string name="tx_not_sent">Транзакция не была отправлена</string>-->
+<!--    <string name="check_internet_and_try_again">Mycelium не может подключиться к серверу из-за плохого интернет-соединения.\nПроверьте соединение с интернетом и попробуйте снова.</string>-->
+<!--    <string name="no_funds">Недостаточно средств</string>-->
+<!--    <string name="you_dont_have_btc_or_eth_accounts_with_funds">У вас нет BTC или ETH аккаунтов с балансом.\nПополните любой из ваших BTC или ETH аккаунтов и повторите попытку.</string>-->
+<!--    <string name="mark_as_redeemed">Отметить как использованную</string>-->
+<!--    <string name="show_transaction_details"><![CDATA[Показать детали транзакции >]]></string>-->
+<!--    <string name="show_transaction_details_hide">Скрыть детали транзакции</string>-->
+<!--    <string name="max_available_cards_d">Максимально доступно карт: %d</string>-->
+<!--    <string name="gift_card_info">Информация о подарочной карте</string>-->
+<!--    <string name="exceed_card_value">Превышение номинала карты</string>-->
+<!--    <string name="from_s_to_s">От %s до %s</string>-->
+<!--    <string name="gift_cards_menu">Подарочные карты</string>-->
+    <string name="delete_received_fio_request">Удалить полученный FIO-запрос</string>
+    <string name="delete_received_fio_request_msg">Вы уверены, что хотите удалить этот FIO-запрос?</string>
+    <string name="erc20_highest_possible_fee_info"><![CDATA[Это максимальная комиссия, которую, возможно, придется заплатить за отправку транзакции с <b>ETH %s</b>. Однако, скорее всего, комиссия не превысит %s%s. Подробнее см. <u>расчет комиссии майнеров</u>.]]></string>
+    <string name="erc20_this_is_updated_fee"><![CDATA[Это обновленная комиссия, основанная на установленном Gas Limit. Подробнее см. <u>расчет комиссии майнеров</u>.]]></string>
+    <string name="all_ethereum_network_transactions">Все транзакции в сети Ethereum требуют наличие ETH для оплаты комиссии майнеров.</string>
+    <string name="please_top_up_your_eth_account"><![CDATA[Пожалуйста, пополните свой <b><u>ETH %s</u></b> на %s%s, чтобы оплатить комиссию майнеров и отправить эту транзакцию.]]></string>
+    <string name="miner_fee_erc20_info_title">Комиссия майнеров (ERC-20)</string>
+    <string name="miner_fee_erc20_info">Все транзакции в сети Ethereum требуют наличие ETH для оплаты комиссии майнеров. Комиссия майнеров = Gas Limit * Gas Price (Gwei/Gas)\n\nЧтобы обеспечить максимально возможную оценку комиссии, Mycelium использует 90 000 единиц в качестве значения Gas Limit по умолчанию, учитывая сложность обработки транзакций ERC-20.\n\nСреднее количество газа, затрачиваемое майнерами на каждую транзакцию, составляет около 55 500 единиц.\n\nФактическая комиссия может быть меньше или равна, в зависимости от того, сколько газа уйдёт на обработку транзакции.</string>
+    <string name="gas_limit_erc20_info_title">Gas Limit (ERC-20)</string>
+    <string name="gas_limit_erc20_info">Mycelium использует 90 000 единиц в качестве значения Gas Limit по умолчанию, учитывая сложность обработки транзакций ERC-20.\n\nСреднее количество газа, затрачиваемого майнерами на каждую транзакцию, составляет около 55 500 единиц.\n\nВы можете установить меньшее значение Gas Limit, однако Mycelium не может гарантировать, что транзакция будет обработана на таких условиях.</string>
+    <string name="gas_limit_helper">Минимум 21 000 единиц</string>
+    <string name="input_data_helper">Шестнадцатеричный формат (0–9, A-F)</string>
+    <string name="gas_limit_warning">Вы установили Gas Limit ниже 90 000 единиц. Это может быть недостаточно для обработки вашей транзакции в сети Ethereum, при этом газ все равно будет потрачен.</string>
+    <string name="gas_limit_error">Минимальный Gas Limit для транзакций в сети Ethereum составляет 21 000 единиц.</string>
+    <string name="parent_eth_account">ETH %s:</string>
+<!--    <string name="connection_issues"><b>Проблемы с подключением.</b> Пожалуйста, убедитесь, что вы в сети.</string>-->
+<!--    <string name="course_outdated">Курс устарел</string>-->
+    <string name="network_s">Сеть %s</string>
+<!--    <string name="changelly2_policy_text">Сервис предоставляется через стороннего поставщика API. Нажимая «Обмен», вы принимаете <font color="#4583de">Условия использования</font>.</string>-->
+    <string name="changelly2_select_from">Выберите аккаунт:</string>
+    <string name="changelly2_select_to">Выберите аккаунт для получения средств:</string>
+<!--    <string name="changelly2_proceed">Продолжить</string>-->
+    <string name="exchange_history">История обменов</string>
+    <string name="tab_exchange_title">ОБМЕН</string>
+    <string name="no_operations_history">История операций отсутствует</string>
+    <string name="history_appear_after_operation">История появится автоматически после первой операции обмена.</string>
+    <string name="next_fee_update_in_s">Следующее обновление через %ds</string>
+    <string name="exchange_min_msg">Сумма меньше минимально допустимой для обмена: %s %s</string>
+    <string name="exchange_max_msg">Сумма превышает максимальную допустимую для обмена: %s %s</string>
+    <string name="settings_exchange_quick_exchange_title">Подтверждение обмена</string>
+    <string name="settings_exchange_quick_exchange_summary">Показывать диалог подтверждения перед обменом</string>
+    <string name="exchange_accept_dialog_title">Обмен</string>
+    <string name="exchange_accept_dialog_msg">Вы отправляете: %s %s\nКомиссия майнеров: %s\n\nВы получаете: %s %s</string>
+    <string name="sent">Отправлено</string>
+    <string name="received">Получено</string>
+<!--    <string name="unredeemed">Неиспользованная карта</string>-->
+    <string name="changelly_receiving">В процессе получения</string>
+    <string name="changelly_received">Получено</string>
+<!--    <string name="changelly_error_rate_expired">Курс устарел, попробуйте снова.</string>-->
+    <string name="contact_support_team">Связаться со службой поддержки</string>
+    <string name="share_logs">Отправить логи</string>
+    <string name="support_team">Связаться со службой поддержки</string>
+    <string name="support_team_text">Пожалуйста, опишите проблему и шаги для ее воспроизведения. Чтобы мы могли получить полную картину, приложите журналы (логи).</string>
+    <string name="link_to_track_transaction">Статус обмена</string>
+    <string name="exchange_in_progress">Обмен в процессе</string>
+    <string name="help_missing_tx_dialog_text" formatted="false"><![CDATA[Самые распространенные ситуации с «пропавшими» монетами часто решаются легко.
+                        Пожалуйста, внимательно прочитайте, прежде чем обращаться в поддержку:<br><br>
+                        <h4>Нет соединения с сервером</h4>
+                        Когда кошелек не может связаться с серверами, он не может правильно отобразить ваш
+                        баланс и может даже показывать 0BTC, если вы пытались перезагрузить аккаунт.
+                        <b>Не паникуйте.</b> Проверьте интернет-соединение или, если проблемы на наших серверах,
+                        наши инженеры уже работают над их устранением.
+                        В любом случае, пока вы не видите транзакции, в которой ваши средства покинули кошелек,
+                        ваши средства все еще находятся в кошельке и защищены вашей резервной копией из 12 слов,
+                        которая в худшем случае совместима со многими другими Bitcoin-кошельками.
+                        Не пытайтесь удалять и переустанавливать приложение, если вы не на 100% уверены,
+                        что у вас есть все резервные копии.
+                        <h4>Кошелек, восстановленный с помощью "12 слов + пароль", при этом пароль — это PIN</h4>
+                        Если вы вводите неправильный пароль, то ошибки не произойдет, но
+                        будет восстановлен другой, пустой кошелек. <b>Попробуйте восстановить свой кошелек,
+                        указав только "12 слов".</b>
+                        <h4>Монеты на "Аккаунт 2"</h4>
+                        Если вы восстановили кошелек из резервной копии, в котором было больше, чем просто "Аккаунт 1",
+                        вам нужно вручную воссоздать недостающие аккаунты, чтобы они снова появились.
+                        Для этого <b>перейдите на вкладку
+                        "Аккаунты" и создайте "новый" аккаунт</b>.
+                        <h4>Монеты находятся за пределами стандартного «look-ahead» или «gap limit»:</h4>
+                        Если вы использовали сторонние инструменты для получения монет, например
+                        BTC-Pay Server, кошелек, проверяющий только 20 будущих адресов за последним неиспользованным,
+                        может не найти эти транзакции. <b>Нажмите
+                        «Boost Gap Limit»</b> ниже, чтобы проверить, так ли это.
+                        Это позволит проверить 200 адресов во всех активных аккаунтах один раз.]]></string>
+    <string name="boost_gap_limit">Увеличить Gap Limit</string>
+    <string name="help_share_logs_text">Мы получаем ваши логи только если вы сами поделитесь ими. Логи не содержат личной информации.</string>
+    <string name="missing_tx_text">Наиболее распространенные случаи «пропавших» монет и способы их решения.</string>
+    <string name="changelog_title">Что нового в Mycelium</string>
+    <string name="changelog_button_show_less">Показать меньше</string>
+    <string name="changelog_button_show_more">Узнать больше о последних обновлениях</string>
+    <string name="changelog_button_close">@string/button_continue</string>
+    <string name="changelog_version_placeholder">Версия: %s</string>
+    <string name="etc20_require_eth">Все транзакции в сети Ethereum требуют наличие ETH для оплаты комиссии майнеров.</string>
+    <string name="giftcard_coin_not_acceptable">Монета %s не принимается.\nПожалуйста, свяжитесь со службой поддержки.</string>
+    <string name="update_acvailable">Доступно обновление</string>
+    <string name="current_version_s">Текущая версия: %s</string>
+    <string name="update_to_new_features">Обновите Mycelium, чтобы получить новые функции и улучшения.</string>
+    <string name="new_version_s">Новая версия: %s</string>
+    <string name="send_fee_hint"><b>ВНИМАНИЕ.</b> Транзакции с комиссией майнеров низкого приоритета могут никогда не подтвердиться или подтверждаться в течение многих часов или даже дней. Не выбирайте низкий приоритет, если вы не понимаете, как работает сеть биткоина.</string>
+    <string name="hours_or_more">%s или больше</string>
+    <string name="russia">Россия</string>
+<!--    <string name="giftbox_expired_text"><![CDATA[Срок действия заказа истек. Пожалуйста, свяжитесь со службой поддержки - <font color="#4583de">support@mycelium.com</font>]]></string>-->
+    <string name="fingerprint_detection_failed">Сканирование отпечатка не удалось</string>
+    <string name="fingerprint_not_available">Отпечаток недоступен</string>
+<!--    <string name="unlock_label_fingerprint">Продолжить, используя отпечаток пальца</string>-->
+<!--    <string name="use_pin">Использовать PIN-код</string>-->
+<!--    <string name="hide_this_ad">Больше не показывать это объявление</string>-->
+    <string name="batch">Пакет</string>
+    <string name="add_all_receiving_addresses_and_amounts">Добавить все адреса получателей и суммы</string>
+    <string name="tab_vip">VIP</string>
+<!--    <string name="vip_code_hint">Введите ваш персональный VIP-код</string>-->
+<!--    <string name="vip_code_who_can_get_title">Кто может получить VIP-статус</string>-->
+<!--    <string name="vip_code_who_can_get">Держатели токенов Mycelium\nУчастники розыгрыша SU7 Max\nПостоянные пользователи Mycelium, получившие\nперсональное приглашение</string>-->
+<!--    <string name="vip_code_granted_status">Вам присвоен VIP-статус в Mycelium.</string>-->
+<!--    <string name="vip_code_discount_title">Скидки на обмен криптовалют</string>-->
+<!--    <string name="vip_code_discount_description">Комиссия за обмен снижена на 25%.</string>-->
+<!--    <string name="vip_code_limits_title">Без ограничений</string>-->
+<!--    <string name="vip_code_limits_description">Теперь вы можете обменивать любые суммы.</string>-->
+<!--    <string name="vip_code_privacy_related_notice">И один ОЧЕНЬ ВАЖНЫЙ момент, связанный с конфиденциальностью, о котором вы должны знать.</string>-->
+<!--    <string name="apply_vip_code">Продолжить</string>-->
+<!--    <string name="vip_code_invalid">Код недействителен</string>-->
+<!--    <string name="vip_title">Получите VIP-возможности</string>-->
+<!--    <string name="vip_menu_text">VIP</string>-->
+<!--    <string name="vip_title_success">Все готово!</string>-->
+    <string name="vip_exchange_unexpected_alert_title">Упс, что-то пошло не так</string>
+<!--    <string name="vip_exchange_expired_title">VIP SWAP недоступен</string>-->
+<!--    <string name="vip_exchange_status_expired_alert_message">Ваш VIP-статус истек, поэтому теперь действуют обычные (не-VIP) тарифы.</string>-->
+    <string name="vip_exchange_unexpected_alert_message">VIP-сервис в настоящее время недоступен по техническим причинам. Попробуйте позже или продолжите без VIP-преимуществ.</string>
+    <string name="vip_unexpected_alert_title">VIP-сервис в настоящее время недоступен</string>
+    <string name="vip_unexpected_alert_message">Пожалуйста, попробуйте позже</string>
+    <string name="vip_alert_proceed">Да, продолжить</string>
+    <string name="vip_alert_cancel">Отмена</string>
+    <string name="add_address">Добавить адрес</string>
+    <string name="message_verified_to_be_from">Сообщение подтверждено, отправлено от %1$s</string>
+    <string name="message_failed_to_verify">"Не удалось проверить сообщение!"</string>
+    <string name="input_look_ahead">Input look ahead</string>
+    <string name="card_code">Код карты:</string>
+
+    <!--old translation-->
     <string name="exchange_sending">АДРЕС\nОТПРАВКИ</string>
     <string name="exchange_receiving">АДРЕС\nПОЛУЧЕНИЯ</string>
     <string name="what_is_sync">Что такое синхронизация?</string>
@@ -1259,7 +1465,6 @@
     <string name="delete_gift_card_msg">Вы уверены, что хотите удалить сертификат?</string>
     <string name="select_card_value_dialog">Выберите номинал сертификата:</string>
     <string name="select_country">Выберите страну</string>
-    <string name="stores">Магазины</string>
     <string name="mygiftcards">Мои сертификаты</string>
     <string name="purchases">Заказы</string>
     <string name="no_funds">Нет средств</string>
