@@ -153,7 +153,7 @@ fun GiftboxDB.getProducts(offset: Int, limit: Int,
                           category: String? = null,
                           country: CountryModel? = null): List<MCProductInfo> =
     this.giftboxProductQueries.selectWithLimit(
-        search,
+        search?.trim(),
         category,
         country?.acronym,
         limit.toLong(),
