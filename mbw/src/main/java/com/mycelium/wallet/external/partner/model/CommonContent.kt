@@ -9,6 +9,6 @@ abstract class CommonContent(@SerializedName("parentId") val parentId: String? =
                              @SerializedName("start-date") val startDate: Date? = null,
                              @SerializedName("end-date") val endDate: Date? = null,
                              @SerializedName("isEnabled") val isEnabled: Boolean? = true) : Serializable {
-    fun isActive() = isEnabled ?: true &&
-            Date().let { startDate?.before(it) ?: true && endDate?.after(it) ?: true }
+    fun isActive() = isEnabled != false &&
+            Date().let { startDate?.before(it) != false && endDate?.after(it) != false }
 }

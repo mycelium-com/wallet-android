@@ -13,7 +13,6 @@ import com.mycelium.giftbox.client.model.MCPrice
 import com.mycelium.giftbox.client.model.MCProductInfo
 import com.mycelium.giftbox.common.OrderHeaderViewModel
 import com.mycelium.giftbox.purchase.debounce
-import com.mycelium.wallet.BuildConfig
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
@@ -126,12 +125,12 @@ class GiftboxBuyViewModel(val productInfo: MCProductInfo) : ViewModel(), OrderHe
     }
 
     val totalAmountFiatSingle = MutableLiveData<Value>(zeroFiatValue)
-    val totalAmountFiatSingleString = totalAmountFiatSingle.map {
+    val totalAmountFiatSingleString: LiveData<String> = totalAmountFiatSingle.map {
         it.toStringFriendlyWithUnit()
     }
 
     val totalAmountCrypto: LiveData<Value> = totalAmountCrypto()
-    val totalAmountCryptoSingleString = totalAmountCrypto.map {
+    val totalAmountCryptoSingleString: LiveData<String> = totalAmountCrypto.map {
         it.div(quantityInt.value?.toBigInteger() ?: BigInteger.ONE).toStringFriendlyWithUnit()
     }
     val txValid =  MutableLiveData<AmountValidation?>()
@@ -287,7 +286,7 @@ class GiftboxBuyViewModel(val productInfo: MCProductInfo) : ViewModel(), OrderHe
         return@map it > 1
     }
 
-    val isGranted =
+    val isGranted: LiveData<Boolean> =
             zip3(
                     totalAmountCrypto,
                     totalProgress,

@@ -57,7 +57,10 @@ data class MCProductInfo(
     var cardImageUrl: String? = null,
 
     @JsonProperty("expiry")
-    var expiryData:String? = null
+    var expiryData:String? = null,
+
+    @JsonProperty("featured_rank", defaultValue = "0")
+    var featuredRank:Int = 0,
 
 ) : Parcelable
 

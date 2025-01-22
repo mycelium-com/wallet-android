@@ -15,7 +15,6 @@ import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import com.bumptech.glide.request.RequestOptions
 import com.mycelium.bequant.common.equalsValuesBy
 import com.mycelium.giftbox.client.model.MCOrderResponse
-import com.mycelium.giftbox.client.models.Order
 import com.mycelium.giftbox.client.models.Status
 import com.mycelium.giftbox.getDateString
 import com.mycelium.wallet.R

@@ -3,5 +3,8 @@
     <stroke
         android:width="0.5dp"
         android:color="#33ffffff" />
+    <solid
+        android:width="0.5dp"
+        android:color="#18ffffff" />
     <corners android:radius="@dimen/giftbox_small_corner" />
 </shape>

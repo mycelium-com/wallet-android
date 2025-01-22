@@ -17,59 +17,60 @@
         android:layout_height="wrap_content"
         android:scrollbars="vertical">
 
-        <LinearLayout
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="@dimen/horizontal_page_margin"
             android:layout_marginVertical="@dimen/activity_vertical_margin"
             android:orientation="vertical">
 
-            <androidx.cardview.widget.CardView
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/ivImage"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="0dp"
+                android:adjustViewBounds="true"
                 android:background="@drawable/giftcard_card_bg"
-                app:cardCornerRadius="14dp">
-
-                <androidx.appcompat.widget.AppCompatImageView
-                    android:id="@+id/ivImage"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="0.5dp"
-                    android:gravity="center"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    tools:minHeight="250dp" />
-            </androidx.cardview.widget.CardView>
+                android:scaleType="center"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintDimensionRatio="1:0.65"
+                app:shapeAppearanceOverlay="@style/Shape_4x" />
 
             <include
                 android:id="@+id/layoutDescription"
                 layout="@layout/layout_giftbox_card_description_store"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toBottomOf="@id/ivImage"
                 app:viewModel="@{model}" />
 
             <include
                 android:id="@+id/layoutProductInfo"
                 layout="@layout/giftcard_send_info"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toBottomOf="@id/layoutDescription"
                 app:viewModel="@{model}" />
 
             <TextView
                 android:id="@+id/cardValueLabel"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
                 android:text="@string/card_value"
-                android:visibility="@{model.amount != null ? View.VISIBLE : View.GONE}"
                 android:textColor="@color/giftbox_label"
-                android:textSize="14sp" />
+                android:textSize="14sp"
+                android:visibility="@{model.amount != null ? View.VISIBLE : View.GONE}"
+                app:layout_constraintTop_toBottomOf="@id/layoutProductInfo" />
 
             <TextView
                 android:id="@+id/cardValue"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
                 android:fontFamily="sans-serif-medium"
                 android:text="@{model.amount}"
                 android:textSize="18sp"
+                app:layout_constraintTop_toBottomOf="@id/cardValueLabel"
                 tools:text="From 1$ to 20$" />
 
             <Button
@@ -82,9 +83,10 @@
                 android:layout_marginTop="32dp"
                 android:layout_marginEnd="0dp"
                 android:layout_marginBottom="32dp"
-                android:text="@string/proceed"
                 android:enabled="@{model.productInfo != null}"
-                android:textSize="20sp" />
-        </LinearLayout>
+                android:text="@string/proceed"
+                android:textSize="20sp"
+                app:layout_constraintTop_toBottomOf="@id/cardValue" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
     </ScrollView>
 </layout>

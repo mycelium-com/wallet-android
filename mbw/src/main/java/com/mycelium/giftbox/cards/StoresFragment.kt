@@ -138,7 +138,9 @@ class StoresFragment : Fragment() {
         } else if (viewModel.isLoaded) {
             return
         } else {
-            adapter.submitList(adapter.currentList + StoresAdapter.LOADING_ITEM)
+            if (!adapter.currentList.contains(StoresAdapter.LOADING_ITEM)) {
+                adapter.submitList(adapter.currentList + StoresAdapter.LOADING_ITEM)
+            }
         }
         activityViewModel.reloadStore = false
         viewModel.state.value = ListState.LOADING
@@ -196,7 +198,7 @@ class StoresFragment : Fragment() {
 
     @Subscribe
     internal fun updateOrder(request: RefreshOrdersRequest) {
-        loadData(skipCache = true)
+//        loadData(skipCache = true) TODO
     }
 
     @Subscribe

@@ -7,12 +7,15 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.bumptech.glide.RequestManager
 import com.bumptech.glide.load.resource.bitmap.CenterCrop
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.bumptech.glide.request.RequestOptions
 import com.mycelium.bequant.common.equalsValuesBy
 import com.mycelium.giftbox.cardValues
 import com.mycelium.giftbox.client.model.MCProductInfo
+import com.mycelium.giftbox.details.DefaultCardDrawable
 import com.mycelium.wallet.R
 import com.mycelium.wallet.databinding.ItemGiftboxErrorBinding
 import com.mycelium.wallet.databinding.ItemGiftboxStoreBinding
@@ -23,6 +26,13 @@ class StoresAdapter : ListAdapter<MCProductInfo, RecyclerView.ViewHolder>(DiffCa
 
     var itemClickListener: ((MCProductInfo) -> Unit)? = null
     var tryAgainListener: (() -> Unit)? = null
+
+    lateinit var glide: RequestManager
+
+    override fun onAttachedToRecyclerView(recyclerView: RecyclerView) {
+        super.onAttachedToRecyclerView(recyclerView)
+        glide = Glide.with(recyclerView.context)
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder =
         when (viewType) {
@@ -53,16 +63,21 @@ class StoresAdapter : ListAdapter<MCProductInfo, RecyclerView.ViewHolder>(DiffCa
             TYPE_CARD -> {
                 val item = getItem(bindingAdapterPosition)
                 holder as CardViewHolder
-                Glide.with(holder.binding.image)
-                    .load(item?.logoUrl)
-                    .apply(
-                        RequestOptions()
-                            .transforms(
-                                CenterCrop(),
-                                RoundedCorners(holder.itemView.resources.getDimensionPixelSize(R.dimen.giftbox_small_corner))
-                            )
-                    )
+                val errorDrawable = DefaultCardDrawable(
+                    holder.binding.image.resources, item.name.orEmpty(), 14f
+                )
+                glide.clear(holder.binding.image)
+                glide.load(item?.logoUrl).apply(
+                    RequestOptions()
+                        .error(errorDrawable)
+                        .transforms(
+                            CenterCrop(),
+                            RoundedCorners(holder.itemView.resources.getDimensionPixelSize(R.dimen.giftbox_small_corner))
+                        )
+                )
+                    .transition(DrawableTransitionOptions.withCrossFade(200))
                     .into(holder.binding.image)
+
 
                 holder.binding.title.text = item.name
                 item.categories?.map {
@@ -110,7 +125,7 @@ class StoresAdapter : ListAdapter<MCProductInfo, RecyclerView.ViewHolder>(DiffCa
 
         override fun areContentsTheSame(oldItem: MCProductInfo, newItem: MCProductInfo): Boolean =
             equalsValuesBy(oldItem, newItem,
-                { it.cardImageUrl }, { it.name }/*, { it.description }*/
+                { it.cardImageUrl }, { it.logoUrl }, { it.name }/*, { it.description }*/
             )
     }
 
