@@ -1442,7 +1442,7 @@
     <string name="success1">Успішно</string>
     <string name="gift_card_ready">Ваша подарункова картка готова! Посилання для завантаження картки та інструкції з використання доступні в розділі <u>Мої подарункові картки</u>.</string>
     <string name="return_to_payment">Назад до замовлень</string>
-    <string name="giftbox_failed_text">Транзакція не була відправлена. Перевірте ваш баланс, інтернет-з\'єднання та спробуйте ще раз.</string>
+    <string name="giftbox_failed_text">Не хвилюйтеся, ваші кошти у повній безпеці. На жаль, магазин не зміг випустити карту через технічні несправності. Будь ласка, зв'яжіться з нами за адресою support@mycelium.com для отримання допомоги.</string>
     <string name="card_value1">Вартість картки</string>
     <string name="no_results_found_for_s"><![CDATA[Результатів для "<font color="#ffffff">%s</font>" не знайдено.<br/>Перевірте правильність написання та спробуйте ще раз.]]></string>
     <string name="no_stores_found">Магазинів не знайдено</string>

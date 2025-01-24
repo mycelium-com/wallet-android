@@ -1238,7 +1238,7 @@
 <!--    <string name="success1">Успех</string>-->
     <string name="gift_card_ready">Ваша подарочная карта готова! Ссылка для скачивания и инструкция по использованию доступны в <u>Мои подарочные карты</u>.</string>
 <!--    <string name="return_to_payment">Назад к заказам</string>-->
-<!--    <string name="giftbox_failed_text">Транзакция не была отправлена. Проверьте баланс, подключение к интернету и повторите попытку.</string>-->
+    <string name="giftbox_failed_text">Не волнуйтесь, ваши средства в полной безопасности. К сожалению, магазин не смог выпустить карту из-за технических неполадок. Пожалуйста, свяжитесь с нами по адресу support@mycelium.com  для получения помощи.</string>
     <string name="card_value1">Номинал карты</string>
 <!--    <string name="no_results_found_for_s"><![CDATA[Нет результатов по запросу \"<font color="#ffffff">%s</font>\".<br/>Проверьте правильность написания и попробуйте снова.]]></string>-->
 <!--    <string name="no_stores_found">МАГАЗИНЫ НЕ НАЙДЕНЫ</string>-->
@@ -1460,7 +1460,6 @@
     <string name="no_stores_found">Магазины не найдены</string>
     <string name="no_results_found_for_s"><![CDATA[Ничего не найдено по запросу \"<font color="#ffffff">%s</font>\".<br/>Пожалуйста, проверьте написание и попробуйте ещё раз.]]></string>
     <string name="tx_not_sent">Не удалось отправить транзакцию</string>
-    <string name="giftbox_failed_text">Не удалось отправить транзакцию. Пожалуйста, проверьте ваш баланс, интернет-соединение и попробуйте ещё раз.</string>
     <string name="payment_confirmed">Транзакция подтверждена</string>
     <string name="mark_as_redeemed">Использован</string>
     <string name="failed">Ошибка</string>

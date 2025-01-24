@@ -783,9 +783,7 @@
 
     <string name="return_to_payment">Voltar às encomendas</string>
 
-    <string name="giftbox_failed_text">
-        A transação não foi enviada. Verifique o seu saldo, a ligação à internet e tente novamente.
-    </string>
+    <string name="giftbox_failed_text">Não se preocupe, os seus fundos estão seguros. Infelizmente, a loja não conseguiu emitir o cartão devido a dificuldades técnicas. Por favor, entre em contacto connosco através do endereço support@mycelium.com para assistê</string>
 
     <string name="card_value1">Valor do cartão</string>
 
