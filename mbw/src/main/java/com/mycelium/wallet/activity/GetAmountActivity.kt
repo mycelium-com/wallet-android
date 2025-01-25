@@ -16,8 +16,6 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
-import butterknife.ButterKnife
-import butterknife.OnClick
 import com.google.common.base.Preconditions
 import com.mrd.bitlib.TransactionUtils.MINIMUM_OUTPUT_VALUE
 import com.mycelium.view.Denomination
@@ -77,7 +75,6 @@ class GetAmountActivity : AppCompatActivity(), NumberEntryListener {
             lifecycleOwner = this@GetAmountActivity
             viewModel = this@GetAmountActivity.viewModel
         }.root)
-        ButterKnife.bind(this)
         _mbwManager = MbwManager.getInstance(application)
         isSendMode = intent.getBooleanExtra(SEND_MODE, false)
         if (isSendMode) {
@@ -98,6 +95,25 @@ class GetAmountActivity : AppCompatActivity(), NumberEntryListener {
         }
         checkEntry()
         setupActionBar()
+
+        binding.btOk.setOnClickListener {
+            onOkClick()
+        }
+        binding.btMax.setOnClickListener {
+            onMaxButtonClick()
+        }
+        binding.btCurrency.setOnClickListener {
+            onSwitchCurrencyClick(it)
+        }
+        binding.currencyClickArea.setOnClickListener {
+            onSwitchCurrencyClick(it)
+        }
+        binding.btPaste.setOnClickListener {
+            onPasteButtonClick()
+        }
+        binding.tvHowIsItCalculated.setOnClickListener {
+            howIsItCalculatedClick()
+        }
     }
 
     private fun setupActionBar() {
@@ -155,7 +171,6 @@ class GetAmountActivity : AppCompatActivity(), NumberEntryListener {
         _numberEntry = NumberEntry(getMaxDecimal(viewModel.currentCurrency.value), this, this, amountString)
     }
 
-    @OnClick(R.id.btOk)
     fun onOkClick() {
         if (isNullOrZero(viewModel.amount.value) && isSendMode) {
             return
@@ -166,7 +181,6 @@ class GetAmountActivity : AppCompatActivity(), NumberEntryListener {
         finish()
     }
 
-    @OnClick(R.id.btMax)
     fun onMaxButtonClick() {
         if (isNullOrZero(viewModel.maxSpendableAmount.value)) {
             Toaster(this).toast(R.string.insufficient_funds, true)
@@ -180,7 +194,6 @@ class GetAmountActivity : AppCompatActivity(), NumberEntryListener {
         }
     }
 
-    @OnClick(R.id.btCurrency, R.id.currencyClickArea)
     fun onSwitchCurrencyClick(view: View) {
         val currencyList = availableCurrencyList()
         if (currencyList.size > 1) {
@@ -218,7 +231,7 @@ class GetAmountActivity : AppCompatActivity(), NumberEntryListener {
         }
     }
 
-    @OnClick(R.id.btPaste)
+
     fun onPasteButtonClick() {
         amountFromClipboard()?.let {
             setEnteredAmount(it)
@@ -227,7 +240,6 @@ class GetAmountActivity : AppCompatActivity(), NumberEntryListener {
         }
     }
 
-    @OnClick(R.id.tvHowIsItCalculated)
     fun howIsItCalculatedClick() {
         AlertDialog.Builder(this)
                 .setMessage(getString(R.string.how_is_it_calculated_text))
