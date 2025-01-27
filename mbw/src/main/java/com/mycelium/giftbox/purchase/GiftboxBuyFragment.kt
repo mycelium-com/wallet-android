@@ -26,6 +26,8 @@ import com.bumptech.glide.request.RequestOptions
 import com.mycelium.bequant.common.loader
 import com.mycelium.bequant.kyc.inputPhone.coutrySelector.CountriesSource
 import com.mycelium.giftbox.client.GitboxAPI
+import com.mycelium.giftbox.client.RetrofitFactory
+import com.mycelium.giftbox.client.model.MCErrorWrap
 import com.mycelium.giftbox.client.model.MCProductInfo
 import com.mycelium.giftbox.client.model.getCardValue
 import com.mycelium.giftbox.loadImage
@@ -147,12 +149,7 @@ class GiftboxBuyFragment : Fragment() {
 //                    if (product?.expiryInMonths != null) "${product.expiryDatePolicy} (${product.expiryInMonths} months)" else "Does not expire"
 
             binding?.detailsHeader?.tvCountry?.text = product?.countries?.mapNotNull {
-                CountriesSource.countryModels.find { model ->
-                    model.acronym.equals(
-                            it,
-                            true
-                    )
-                }
+                CountriesSource.countryModels.find { model -> model.acronym.equals(it, true) }
             }?.joinToString { it.name }
 
             binding?.btMinusQuantity?.setOnClickListener {
@@ -197,22 +194,34 @@ class GiftboxBuyFragment : Fragment() {
                             viewModel.orderResponse.value = orderResponse
                             viewModel.sendTransactionAction.value = Unit
                         },
-                        error = { _, error ->
+                        error = { code, error ->
                             loader(false)
                             binding?.btSend?.isEnabled = true
-                            AlertDialog.Builder(requireContext(), R.style.MyceliumModern_Dialog)
-                                    .setTitle(getString(R.string.tx_not_sent))
+                            val alertDialog =
+                                AlertDialog.Builder(requireContext(), R.style.MyceliumModern_Dialog)
+                            if (code == 409) {
+                                val mcError = RetrofitFactory.objectMapper
+                                    .readValue<MCErrorWrap>(error, MCErrorWrap::class.java).error
+                                alertDialog
+                                    .setTitle(mcError.title)
+                                    .setMessage(mcError.body)
+                                    .setPositiveButton(R.string.button_ok) { _, _ -> }
+
+                            } else {
+                                alertDialog.setTitle(getString(R.string.tx_not_sent))
                                     .setMessage(getString(R.string.check_internet_and_try_again))
                                     .setPositiveButton(R.string.try_again) { _, _ -> }
                                     .setNegativeButton(R.string.cancel) { _, _ ->
                                         findNavController().navigate(GiftboxBuyFragmentDirections.actionGiftBox())
                                     }
-                                    .create().apply {
-                                        setOnShowListener {
-                                            getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(resources.getColor(R.color.bequant_green))
-                                        }
-                                    }
-                                    .show()
+                            }
+                            alertDialog.create().apply {
+                                setOnShowListener {
+                                    getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(
+                                        resources.getColor(R.color.bequant_green)
+                                    )
+                                }
+                            }.show()
                         })
 
                 viewModel.sendTransaction.observe(viewLifecycleOwner) {
