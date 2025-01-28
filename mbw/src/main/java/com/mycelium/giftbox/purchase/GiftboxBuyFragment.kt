@@ -199,14 +199,17 @@ class GiftboxBuyFragment : Fragment() {
                             binding?.btSend?.isEnabled = true
                             val alertDialog =
                                 AlertDialog.Builder(requireContext(), R.style.MyceliumModern_Dialog)
-                            if (code == 409) {
-                                val mcError = RetrofitFactory.objectMapper
+                            val mcError = try {
+                                RetrofitFactory.objectMapper
                                     .readValue<MCErrorWrap>(error, MCErrorWrap::class.java).error
+                            } catch (e: Exception) {
+                                null
+                            }
+                            if (mcError != null) {
                                 alertDialog
                                     .setTitle(mcError.title)
                                     .setMessage(mcError.body)
                                     .setPositiveButton(R.string.button_ok) { _, _ -> }
-
                             } else {
                                 alertDialog.setTitle(getString(R.string.tx_not_sent))
                                     .setMessage(getString(R.string.check_internet_and_try_again))
