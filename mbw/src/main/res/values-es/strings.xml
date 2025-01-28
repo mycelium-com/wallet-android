@@ -689,8 +689,7 @@
     <string name="error_details">Detalles del error</string>
     <!-- Simplex start -->
     <!-- Simplex end -->
-    <plurals name="contains_keys">
-        <item quantity="one">Contiene %1$d clave privada.</item>
-        <item quantity="other">Contiene %1$d claves privadas.</item>
-    </plurals>
+
+    <string name="gift_card_load_error_title">A compra de cartões-presente está temporariamente indisponível.</string>
+    <string name="gift_card_load_error_desc">Estamos atualizando nossas lojas, e o serviço estará disponível novamente em breve. Obrigado pela compreensão!</string>
 </resources>

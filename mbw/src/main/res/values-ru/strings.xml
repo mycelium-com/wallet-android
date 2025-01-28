@@ -1383,6 +1383,8 @@
     <string name="message_failed_to_verify">"Не удалось проверить сообщение!"</string>
     <string name="input_look_ahead">Input look ahead</string>
     <string name="card_code">Код карты:</string>
+    <string name="gift_card_load_error_title">Покупка подарочных карточек временно недоступна.</string>
+    <string name="gift_card_load_error_desc">Мы обновляем наши магазины, и сервис скоро снова будет доступен. Спасибо за понимание!</string>
 
     <!--old translation-->
     <string name="exchange_sending">АДРЕС\nОТПРАВКИ</string>

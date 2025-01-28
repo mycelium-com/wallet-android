@@ -1837,4 +1837,6 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="message_failed_to_verify">"Message failed to verify! "</string>
     <string name="input_look_ahead">Input look ahead</string>
     <string name="card_code">Card Code:</string>
+    <string name="gift_card_load_error_title">Gift card purchases are temporarily unavailable.</string>
+    <string name="gift_card_load_error_desc">We are currently updating our stores, and the service will be back online soon. Thank you for your understanding!</string>
 </resources>

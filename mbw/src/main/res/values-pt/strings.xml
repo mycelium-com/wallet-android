@@ -1049,4 +1049,6 @@
     <string name="message_failed_to_verify">"Não foi possível verificar a mensagem!"</string>
     <string name="input_look_ahead">Entrada de look ahead</string>
     <string name="card_code">Código do cartão:</string>
+    <string name="gift_card_load_error_title">Las compras de tarjetas de regalo están temporalmente fuera de servicio.</string>
+    <string name="gift_card_load_error_desc">Estamos actualizando nuestras tiendas, y el servicio estará disponible nuevamente pronto. ¡Gracias por su comprensión!</string>
 </resources>

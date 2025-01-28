@@ -211,8 +211,8 @@ class GiftboxBuyFragment : Fragment() {
                                     .setMessage(mcError.body)
                                     .setPositiveButton(R.string.button_ok) { _, _ -> }
                             } else {
-                                alertDialog.setTitle(getString(R.string.tx_not_sent))
-                                    .setMessage(getString(R.string.check_internet_and_try_again))
+                                alertDialog.setTitle(getString(R.string.gift_card_load_error_title))
+                                    .setMessage(getString(R.string.gift_card_load_error_title))
                                     .setPositiveButton(R.string.try_again) { _, _ -> }
                                     .setNegativeButton(R.string.cancel) { _, _ ->
                                         findNavController().navigate(GiftboxBuyFragmentDirections.actionGiftBox())
