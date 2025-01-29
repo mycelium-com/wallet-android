@@ -13,6 +13,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import com.mycelium.giftbox.ErrorHandler
 import com.mycelium.giftbox.client.GiftboxConstants
 import com.mycelium.giftbox.client.GitboxAPI
 import com.mycelium.giftbox.client.model.MCPrice
@@ -58,6 +59,12 @@ class AmountInputFragment : Fragment(), NumberEntry.NumberEntryListener {
     private val account by lazy {
         MbwManager.getInstance(requireContext()).getWalletManager(false)
             .getAccount(args.accountId)
+    }
+
+    private val errorHandler = ErrorHandler().apply {
+        cancelListener = {
+            findNavController().navigate(AmountInputFragmentDirections.actionGiftBox())
+        }
     }
 
     private var _amount: Value? = null
@@ -269,8 +276,8 @@ class AmountInputFragment : Fragment(), NumberEntry.NumberEntryListener {
                 if (insufficientFunds /*&& !conversionError*/) {
                     Toaster(requireContext()).toast("Insufficient funds", true)
                 }
-            }, error = { _, error ->
-
+            }, error = { code, error ->
+                errorHandler.handle(requireContext(), code, error)
             },
             finally = {
             })
@@ -313,7 +320,7 @@ class AmountInputFragment : Fragment(), NumberEntry.NumberEntryListener {
 //                    }
                     trySend(response)
                 },
-                error = { _, error ->
+                error = { code, error ->
                     close()
                 },
                 finally = {

@@ -25,9 +25,8 @@ import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import com.bumptech.glide.request.RequestOptions
 import com.mycelium.bequant.common.loader
 import com.mycelium.bequant.kyc.inputPhone.coutrySelector.CountriesSource
+import com.mycelium.giftbox.ErrorHandler
 import com.mycelium.giftbox.client.GitboxAPI
-import com.mycelium.giftbox.client.RetrofitFactory
-import com.mycelium.giftbox.client.model.MCErrorWrap
 import com.mycelium.giftbox.client.model.MCProductInfo
 import com.mycelium.giftbox.client.model.getCardValue
 import com.mycelium.giftbox.loadImage
@@ -53,6 +52,11 @@ class GiftboxBuyFragment : Fragment() {
     private val args by navArgs<GiftboxBuyFragmentArgs>()
 
     val viewModel: GiftboxBuyViewModel by viewModels { ViewModelFactory(args.mcproduct) }
+    val errorHandler = ErrorHandler().apply {
+        cancelListener = {
+            findNavController().navigate(GiftboxBuyFragmentDirections.actionGiftBox())
+        }
+    }
 
     val receiver = object : BroadcastReceiver() {
         override fun onReceive(p0: Context?, intent: Intent?) {
@@ -197,34 +201,7 @@ class GiftboxBuyFragment : Fragment() {
                         error = { code, error ->
                             loader(false)
                             binding?.btSend?.isEnabled = true
-                            val alertDialog =
-                                AlertDialog.Builder(requireContext(), R.style.MyceliumModern_Dialog)
-                            val mcError = try {
-                                RetrofitFactory.objectMapper
-                                    .readValue<MCErrorWrap>(error, MCErrorWrap::class.java).error
-                            } catch (e: Exception) {
-                                null
-                            }
-                            if (mcError != null) {
-                                alertDialog
-                                    .setTitle(mcError.title)
-                                    .setMessage(mcError.body)
-                                    .setPositiveButton(R.string.button_ok) { _, _ -> }
-                            } else {
-                                alertDialog.setTitle(getString(R.string.gift_card_load_error_title))
-                                    .setMessage(getString(R.string.gift_card_load_error_title))
-                                    .setPositiveButton(R.string.try_again) { _, _ -> }
-                                    .setNegativeButton(R.string.cancel) { _, _ ->
-                                        findNavController().navigate(GiftboxBuyFragmentDirections.actionGiftBox())
-                                    }
-                            }
-                            alertDialog.create().apply {
-                                setOnShowListener {
-                                    getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(
-                                        resources.getColor(R.color.bequant_green)
-                                    )
-                                }
-                            }.show()
+                            errorHandler.handle(requireContext(), code, error)
                         })
 
                 viewModel.sendTransaction.observe(viewLifecycleOwner) {
