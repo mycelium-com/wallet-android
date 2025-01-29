@@ -14,11 +14,12 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.mycelium.giftbox.GiftboxPreference
+import com.mycelium.giftbox.client.GiftboxConstants
 import com.mycelium.giftbox.purchase.adapter.AccountAdapter
+import com.mycelium.wallet.BuildConfig
 import com.mycelium.wallet.ExchangeRateManager
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
-import com.mycelium.wallet.Utils
 import com.mycelium.wallet.WalletApplication
 import com.mycelium.wallet.activity.modern.ModernMain
 import com.mycelium.wallet.activity.modern.helper.MainActions
@@ -103,9 +104,10 @@ class SelectAccountFragment : Fragment(), ExchangeRateManager.Observer {
                 return@forEach
             }
             val accounts = accountsGroup.accountsList
-                    .filterIsInstance(AccountViewModel::class.java)
+                    .filterIsInstance<AccountViewModel>()
                     .filter {
-                        it.canSpend && it.balance?.spendable?.moreThanZero() == true &&
+                        it.canSpend &&
+                                (it.balance?.spendable?.moreThanZero() == true || GiftboxConstants.TEST) &&
                                 isAccountTypeSupported(it.coinType, currenciesByName, currenciesByAddress)
                     }
             if (accounts.isNotEmpty()) {

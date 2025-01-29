@@ -38,6 +38,7 @@ object RetrofitFactory {
             .addInterceptor {
                 it.proceed(it.request().newBuilder().apply {
                     addHeader("Content-Type", "application/json")
+                    addHeader("Accept-Language", Locale.getDefault().language)
                     addHeader("x-api-key", MC_API_KEY)
 //                    addHeader("Authorization", "Basic ${GiftboxPreference.getAccessToken()}")
                     signatureProvider?.run {

@@ -8,7 +8,13 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/connection_unavailable" />
+        android:text="@string/gift_card_load_error_title" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/size_x2"
+        android:text="@string/gift_card_load_error_desc" />
 
     <Button
         android:id="@+id/tryAgain"

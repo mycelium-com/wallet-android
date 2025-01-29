@@ -25,6 +25,7 @@ import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import com.bumptech.glide.request.RequestOptions
 import com.mycelium.bequant.common.loader
 import com.mycelium.bequant.kyc.inputPhone.coutrySelector.CountriesSource
+import com.mycelium.giftbox.ErrorHandler
 import com.mycelium.giftbox.client.GitboxAPI
 import com.mycelium.giftbox.client.model.MCProductInfo
 import com.mycelium.giftbox.client.model.getCardValue
@@ -51,6 +52,11 @@ class GiftboxBuyFragment : Fragment() {
     private val args by navArgs<GiftboxBuyFragmentArgs>()
 
     val viewModel: GiftboxBuyViewModel by viewModels { ViewModelFactory(args.mcproduct) }
+    val errorHandler = ErrorHandler().apply {
+        cancelListener = {
+            findNavController().navigate(GiftboxBuyFragmentDirections.actionGiftBox())
+        }
+    }
 
     val receiver = object : BroadcastReceiver() {
         override fun onReceive(p0: Context?, intent: Intent?) {
@@ -147,12 +153,7 @@ class GiftboxBuyFragment : Fragment() {
 //                    if (product?.expiryInMonths != null) "${product.expiryDatePolicy} (${product.expiryInMonths} months)" else "Does not expire"
 
             binding?.detailsHeader?.tvCountry?.text = product?.countries?.mapNotNull {
-                CountriesSource.countryModels.find { model ->
-                    model.acronym.equals(
-                            it,
-                            true
-                    )
-                }
+                CountriesSource.countryModels.find { model -> model.acronym.equals(it, true) }
             }?.joinToString { it.name }
 
             binding?.btMinusQuantity?.setOnClickListener {
@@ -197,22 +198,10 @@ class GiftboxBuyFragment : Fragment() {
                             viewModel.orderResponse.value = orderResponse
                             viewModel.sendTransactionAction.value = Unit
                         },
-                        error = { _, error ->
+                        error = { code, error ->
                             loader(false)
                             binding?.btSend?.isEnabled = true
-                            AlertDialog.Builder(requireContext(), R.style.MyceliumModern_Dialog)
-                                    .setTitle(getString(R.string.tx_not_sent))
-                                    .setMessage(getString(R.string.check_internet_and_try_again))
-                                    .setPositiveButton(R.string.try_again) { _, _ -> }
-                                    .setNegativeButton(R.string.cancel) { _, _ ->
-                                        findNavController().navigate(GiftboxBuyFragmentDirections.actionGiftBox())
-                                    }
-                                    .create().apply {
-                                        setOnShowListener {
-                                            getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(resources.getColor(R.color.bequant_green))
-                                        }
-                                    }
-                                    .show()
+                            errorHandler.handle(requireContext(), code, error)
                         })
 
                 viewModel.sendTransaction.observe(viewLifecycleOwner) {

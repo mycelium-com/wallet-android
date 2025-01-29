@@ -20,8 +20,10 @@ import com.mycelium.giftbox.cards.adapter.StoresAdapter
 import com.mycelium.giftbox.cards.event.RefreshOrdersRequest
 import com.mycelium.giftbox.cards.viewmodel.GiftBoxViewModel
 import com.mycelium.giftbox.cards.viewmodel.StoresViewModel
+import com.mycelium.giftbox.client.GiftboxConstants
 import com.mycelium.giftbox.client.GitboxAPI
 import com.mycelium.giftbox.common.ListState
+import com.mycelium.wallet.BuildConfig
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.modern.Toaster
@@ -103,6 +105,16 @@ class StoresFragment : Fragment() {
         }
         if (viewModel.products.isEmpty() || activityViewModel.reloadStore) {
             loadData()
+        }
+        if (BuildConfig.DEBUG) {
+            var tapCount = 0
+            binding?.giftCardLabel?.setOnClickListener {
+                tapCount++
+                if (tapCount > 5) {
+                    GiftboxConstants.TEST = true
+                    Toaster(this).toast("You are in test mode gift cards", false)
+                }
+            }
         }
         MbwManager.getEventBus().register(this)
     }

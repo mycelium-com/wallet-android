@@ -7,6 +7,7 @@ import com.google.gson.Gson
 import com.mrd.bitlib.TransactionUtils
 import com.mrd.bitlib.model.BitcoinAddress
 import com.mycelium.bequant.kyc.inputPhone.coutrySelector.CountriesSource
+import com.mycelium.giftbox.client.GiftboxConstants
 import com.mycelium.giftbox.client.GitboxAPI
 import com.mycelium.giftbox.client.model.MCOrderResponse
 import com.mycelium.giftbox.client.model.MCPrice
@@ -293,7 +294,8 @@ class GiftboxBuyViewModel(val productInfo: MCProductInfo) : ViewModel(), OrderHe
                     quantityInt
             ) { total: Value, progress: Boolean, quantity: Int -> Triple(total, progress, quantity) }.map {
         val (total, progress, quantity) = it
-        return@map total.lessOrEqualThan(getAccountBalance()) && total.moreThanZero() && quantity <= MAX_QUANTITY && !progress
+        return@map GiftboxConstants.TEST || (total.lessOrEqualThan(getAccountBalance())  &&
+                total.moreThanZero() && quantity <= MAX_QUANTITY && !progress)
     }
 
     val plusBackground = isGrantedPlus.map {

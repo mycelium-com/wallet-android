@@ -1378,7 +1378,7 @@
     <string name="success1">Erfolg</string>
     <string name="gift_card_ready">Ihre Geschenkkarte ist bereit! Der Download-Link und die Einlöseanweisungen finden Sie unter <u>Meine Geschenkkarten</u>.</string>
     <string name="return_to_payment">Zurück zu Bestellungen</string>
-    <string name="giftbox_failed_text">Die Transaktion wurde nicht gesendet. Bitte überprüfen Sie Ihr Guthaben, Ihre Internetverbindung und versuchen Sie es erneut.</string>
+    <string name="giftbox_failed_text">Keine Sorge, Ihr Geld ist sicher. Leider konnte der Shop die Karte aufgrund technischer Schwierigkeiten nicht ausstellen. Bitte kontaktieren Sie uns unter support@mycelium.com, falls Sie Unterstützung benötigen.</string>
     <string name="card_value1">Kartenwert</string>
     <string name="no_results_found_for_s"><![CDATA[Keine Ergebnisse für „<font color="#ffffff">%s</font>“ gefunden.<br/>Bitte überprüfen Sie die Schreibweise und versuchen Sie es erneut.]]></string>
     <string name="no_stores_found">KEINE SHOPS GEFUNDEN</string>
@@ -1523,4 +1523,6 @@
     <string name="message_failed_to_verify">"Nachricht konnte nicht verifiziert werden!"</string>
     <string name="input_look_ahead">Input look ahead</string>
     <string name="card_code">Kartencode:</string>
+    <string name="gift_card_load_error_title">Geschenkkartenkäufe sind momentan nicht verfügbar.</string>
+    <string name="gift_card_load_error_desc">Wir aktualisieren derzeit unsere Shops, und der Service wird bald wieder verfügbar sein. Vielen Dank für Ihr Verständnis!</string>
 </resources>
