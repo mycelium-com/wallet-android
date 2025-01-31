@@ -234,6 +234,7 @@ class AmountInputFragment : Fragment(), NumberEntry.NumberEntryListener {
             _amount?.type?.value(value)
         }
         binding.btOk.isEnabled = false
+        _amount?.valueAsBigDecimal?.let { if(it < args.mcproduct.minFaceValue) return }
         GitboxAPI.mcGiftRepository.getPrice(lifecycleScope,
             code = args.mcproduct.id ?: "",
 //            quantity = 1,
