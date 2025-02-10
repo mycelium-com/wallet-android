@@ -34,17 +34,28 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="4dp"
             android:layout_marginTop="4dp"
+            android:layout_marginEnd="@dimen/size_x1"
             android:drawablePadding="8dp"
             android:ellipsize="end"
             android:singleLine="true"
             android:text="@{viewModel.redeemCode}"
             android:textSize="14sp"
             android:visibility="@{viewModel.redeemCode.isEmpty() ? View.GONE : View.VISIBLE}"
-            app:drawableRightCompat="@drawable/ic_content_copy_white"
             app:layout_constraintBaseline_toBaselineOf="@id/redeemCodeLabel"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/redeemCodeCopy"
             app:layout_constraintStart_toEndOf="@id/redeemCodeLabel"
             tools:text="@tools:sample/lorem/random" />
+
+        <ImageView
+            android:id="@+id/redeemCodeCopy"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/size_x1"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@id/redeemCode"
+            app:layout_constraintBottom_toBottomOf="@id/redeemCode"
+            android:src="@drawable/ic_content_copy_white"
+            />
 
         <TextView
             android:id="@+id/cardCodeLabel"
@@ -67,6 +78,7 @@
             android:drawablePadding="8dp"
             android:ellipsize="end"
             android:singleLine="true"
+            android:paddingEnd="@dimen/size_x1"
             android:text="@{viewModel.cardCode}"
             android:textSize="14sp"
             android:visibility="@{viewModel.cardCode.isEmpty() ? View.GONE : View.VISIBLE}"
@@ -96,6 +108,7 @@
             android:layout_marginTop="4dp"
             android:drawablePadding="8dp"
             android:ellipsize="end"
+            android:paddingEnd="@dimen/size_x1"
             android:singleLine="true"
             android:text="@{viewModel.cardPin}"
             android:textSize="14sp"

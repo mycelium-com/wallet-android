@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <plurals name="contains_keys">
+        <item quantity="one">Contém %1$d chave privada.</item>
+        <item quantity="other">Contém %1$d chaves privadas.</item>
+    </plurals>
+</resources>

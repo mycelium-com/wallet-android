@@ -7,23 +7,15 @@ import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.*
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.bumptech.glide.request.RequestOptions
-import com.mycelium.bequant.common.ErrorHandler
-import com.mycelium.bequant.common.loader
-import com.mycelium.giftbox.client.GitboxAPI
-import com.mycelium.giftbox.client.models.CurrencyInfos
 import com.mycelium.giftbox.details.viewmodel.GiftBoxStoreDetailsViewModel
 import com.mycelium.giftbox.loadImage
 import com.mycelium.giftbox.setupDescription
 import com.mycelium.wallet.BuildConfig
-import com.mycelium.wallet.Utils
 import com.mycelium.wallet.WalletConfiguration
 import com.mycelium.wallet.databinding.FragmentGiftboxStoreDetailsBinding
-import com.mycelium.wallet.external.partner.openLink
-import com.mycelium.wapi.wallet.btc.coins.BitcoinMain
 import java.util.*
 
 class GiftBoxStoreDetailsFragment : Fragment() {

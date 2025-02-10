@@ -21,10 +21,12 @@ import com.mycelium.giftbox.client.model.OrderList
 import com.mycelium.giftbox.client.model.Products
 import com.mycelium.giftbox.countries
 import com.mycelium.giftbox.dateAdapter
+import com.mycelium.giftbox.getCards
 import com.mycelium.giftbox.getProducts
 import com.mycelium.giftbox.listBigDecimalAdapter
 import com.mycelium.giftbox.model.Card
 import com.mycelium.giftbox.save
+import com.mycelium.giftbox.toCountryModel
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.WalletApplication
 import com.mycelium.wapi.wallet.AesKeyCipher
@@ -125,20 +127,23 @@ class MCGiftboxApiRepository {
     fun fetchProducts(scope: CoroutineScope) {
         if (fetchJob == null) {
             fetchJob = scope.launch(Dispatchers.IO) {
-                var offset = 0
-                val size = 500
-                val brands = mutableListOf<MCProductInfo>()
-                do {
-                    val response = api.products(offset, size).apply {
-                        brands.addAll(body()?.items.orEmpty())
+                try {
+                    var offset = 0
+                    val size = 500
+                    val brands = mutableListOf<MCProductInfo>()
+                    do {
+                        val response = api.products(offset, size).apply {
+                            brands.addAll(body()?.items.orEmpty())
+                        }
+                        offset += size
+                    } while ((response.body()?.items?.size ?: 0) > 0)
+                    giftbxDB.transaction {
+                        giftbxDB.giftboxProductQueries.deleteAll()
+                        brands.forEach { it.save(giftbxDB) }
                     }
-                    offset += size
-                } while ((response.body()?.items?.size ?: 0) > 0)
-                giftbxDB.transaction {
-                    giftbxDB.giftboxProductQueries.deleteAll()
-                    brands.forEach { it.save(giftbxDB) }
+                    GiftboxPreference.productFetched()
+                }catch (e: Exception) {
                 }
-                GiftboxPreference.productFetched()
                 fetchJob = null
             }
         }
@@ -163,20 +168,30 @@ class MCGiftboxApiRepository {
             if (GiftboxPreference.needFetchProducts() || skipCache) {
                 fetchProducts(scope)
                 api.products(offset, limit).apply {
+                    GiftboxPreference.setCountries(this.body()?.countries.orEmpty())
+                    GiftboxPreference.setCategories(this.body()?.categories.orEmpty())
                     giftbxDB.transaction {
                         body()?.items?.forEach { it.save(giftbxDB) }
                     }
                 }
             } else {
                 val items = giftbxDB.getProducts(offset, limit, search, category, country)
-                Response<MCProductResponse>.success(MCProductResponse(-1, items))
+                Response<MCProductResponse>.success(
+                    MCProductResponse(
+                        -1,
+                        countries = GiftboxPreference.getCountries(),
+                        categories = GiftboxPreference.getCategories(),
+                        items = items
+                    )
+                )
             }
-        }, successBlock = success, errorBlock = error, finallyBlock = finally,
-            responseModifier = {
-                val categories = giftbxDB.categories()
-                val countries = giftbxDB.countries()
-                Products(it?.items.orEmpty(), categories, countries)
-            })
+        }, successBlock = success, errorBlock = error, finallyBlock = finally, responseModifier = {
+            val categories =
+                if (it?.categories?.isNotEmpty() == true) it.categories else giftbxDB.categories()
+            val countries =
+                if (it?.countries?.isNotEmpty() == true) it.countries.toCountryModel() else giftbxDB.countries()
+            Products(it?.items.orEmpty(), categories, countries)
+        })
 
 
     fun createOrder(
@@ -286,35 +301,10 @@ class MCGiftboxApiRepository {
         error: (Int, String) -> Unit,
         finally: (() -> Unit)? = null
     ) {
-        doRequest(scope, {
-            Response.success(giftbxDB.giftboxCardQueries.selectCards(mapper = { clientOrderId: String,
-                                                                                productCode: String?,
-                                                                                productName: String?,
-                                                                                productImg: String?,
-                                                                                currencyCode: String?,
-                                                                                amount: String?,
-                                                                                expiryDate: String?,
-                                                                                code: String,
-                                                                                deliveryUrl: String,
-                                                                                pin: String,
-                                                                                timestamp: Date?,
-                                                                                redeemed: Boolean ->
-                Card(
-                    clientOrderId,
-                    productCode,
-                    productName,
-                    productImg,
-                    currencyCode,
-                    amount,
-                    expiryDate,
-                    code,
-                    deliveryUrl,
-                    pin,
-                    timestamp,
-                    redeemed
-                )
-            }).executeAsList())
-        }, successBlock = success, errorBlock = error, finallyBlock = finally)
+        doRequest(
+            scope, { Response.success(giftbxDB.getCards()) },
+            successBlock = success, errorBlock = error, finallyBlock = finally
+        )
     }
 
     fun redeem(

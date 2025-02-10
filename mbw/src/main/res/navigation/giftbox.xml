@@ -116,6 +116,12 @@
         <argument
             android:name="accountId"
             app:argType="java.util.UUID" />
+
+        <action
+            android:id="@+id/actionGiftBox"
+            app:destination="@id/giftboxFragment"
+            app:popUpTo="@id/giftboxFragment"
+            app:popUpToInclusive="true" />
     </fragment>
     <fragment
         android:id="@+id/purchasedDetails"

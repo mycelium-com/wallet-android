@@ -701,4 +701,14 @@
     <style name="EditText.Theme" parent="AppBaseTheme">
         <item name="android:popupBackground">@color/transparent</item>
     </style>
+
+    <style name="Shape_4x">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">@dimen/size_x4</item>
+    </style>
+
+    <style name="Shape_2x">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">@dimen/size_x2</item>
+    </style>
 </resources>

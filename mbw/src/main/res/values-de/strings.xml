@@ -1319,4 +1319,210 @@
     <string name="payment_uri_wrong_account_eth">Wählen Sie ein Ethereum-Konto aus, um die Zahlungs-URI zu lesen</string>
     <string name="payment_uri_unsupported_token">Das in der Zahlungs-URI angeforderte Token wird nicht unterstützt</string>
     <string name="export_fio_public_key_title">FIO-öffentlichen Schlüssel exportieren</string>
+
+    <!--  here should be rest of translation  -->
+
+    <string name="gift_card_amount">Geschenkkartenbetrag:</string>
+    <string name="gift_cards_with_discount">Geschenkkarten</string>
+    <string name="select_account_to_pay_with">Wählen Sie ein Konto zur Bezahlung aus:</string>
+    <string name="expire_date">Ablaufdatum:</string>
+    <string name="card_value">Kartenwert:</string>
+    <string name="card_value2">Kartenwert:</string>
+    <string name="total_amount">Gesamtbetrag:</string>
+    <string name="quantity">Menge:</string>
+    <string name="miner_fee">Miner-Gebühren:</string>
+    <string name="expires_at">Ablaufdatum:</string>
+    <string name="currency">Währung:</string>
+    <string name="description">Beschreibung:</string>
+    <string name="available_country">Verfügbares Land:</string>
+    <string name="pay">Bezahlen</string>
+    <string name="redeem_instructions">Einlöseanweisungen</string>
+    <string name="terms_and_conditions">Allgemeine Geschäftsbedingungen</string>
+    <string name="less">weniger</string>
+    <string name="proceed">Fortfahren</string>
+    <string name="more">mehr</string>
+    <string name="redeem_code">Ihre Geschenkkarte:</string>
+    <string name="giftbox_pin_code">PIN-Code:</string>
+    <string name="delete_gift_card">Geschenkkarte löschen?</string>
+    <string name="delete_gift_card_msg">Möchten Sie diese Geschenkkarte wirklich löschen?</string>
+    <string name="redeemed_gift_cards">EINGELÖSTE GESCHENKKARTEN</string>
+    <string name="all_countries">Alle Länder</string>
+    <string name="gift_cards">Geschenkkarten</string>
+    <string name="share_gift_card_text">Hallo!\nSie haben vor Kurzem Geschenkkarten gekauft:\n%s\nBetrag: %s %s</string>
+    <string name="select_card_value_dialog">Wählen Sie einen Kartenwert aus:</string>
+    <string name="gift_card_d">Geschenkkarte:</string>
+    <string name="spendable">Verfügbar:</string>
+    <string name="search_store">Shop suchen</string>
+    <string name="accounts">Konten</string>
+    <string name="giftbox_promo_action">Geschenkkarte kaufen</string>
+    <string name="giftbox_promo_title">Sparen Sie beim Kauf mit\nBTC und ETH!</string>
+    <string name="giftbox_promo_mark">Neu</string>
+    <string name="purchase_failed">Kauf fehlgeschlagen</string>
+    <string name="processing">Verarbeitung...</string>
+    <string name="success_s">Erfolg, %s</string>
+    <string name="sync_failed_reason_s">Synchronisierung fehlgeschlagen. Grund: %s</string>
+    <string name="sync_failed_s">Synchronisierung fehlgeschlagen. %s</string>
+    <string name="giftcard_order_title">Geschenkkartenbestellung</string>
+    <string name="select_country">Wählen Sie ein Land aus</string>
+    <string name="buy_gift_card">Geschenkkarte kaufen</string>
+    <string name="giftbox_amount_title">Geschenkkartenbetrag</string>
+    <string name="stores">Shops</string>
+    <string name="purchases">Bestellungen</string>
+    <string name="mygiftcards">Meine Geschenkkarten</string>
+    <string name="payment_in_progress">Zahlung wird bearbeitet</string>
+    <string name="failed">Fehlgeschlagen</string>
+    <string name="paid">Gesendet</string>
+    <string name="successfully_paid_gift_card">Sie haben die Transaktion zur Bezahlung der Geschenkkarte erfolgreich gesendet!</string>
+    <string name="payment_confirmed">Transaktion bestätigt</string>
+    <string name="gift_card_after_confirmed"><![CDATA[Ihre Geschenkkarte wird verfügbar sein, nachdem die Transaktion vom Netzwerk bestätigt wurde. Den Bestätigungsstatus können Sie in der <u>Transaktionsliste</u> Ihrer Wallet verfolgen.]]></string>
+    <string name="success1">Erfolg</string>
+    <string name="gift_card_ready">Ihre Geschenkkarte ist bereit! Der Download-Link und die Einlöseanweisungen finden Sie unter <u>Meine Geschenkkarten</u>.</string>
+    <string name="return_to_payment">Zurück zu Bestellungen</string>
+    <string name="giftbox_failed_text">Keine Sorge, Ihr Geld ist sicher. Leider konnte der Shop die Karte aufgrund technischer Schwierigkeiten nicht ausstellen. Bitte kontaktieren Sie uns unter support@mycelium.com, falls Sie Unterstützung benötigen.</string>
+    <string name="card_value1">Kartenwert</string>
+    <string name="no_results_found_for_s"><![CDATA[Keine Ergebnisse für „<font color="#ffffff">%s</font>“ gefunden.<br/>Bitte überprüfen Sie die Schreibweise und versuchen Sie es erneut.]]></string>
+    <string name="no_stores_found">KEINE SHOPS GEFUNDEN</string>
+    <string name="no_purchased_gift_card">SIE HABEN NOCH KEINE\nGESCHENKKARTE ERWORBEN</string>
+    <string name="no_purchased_order">SIE HABEN NOCH KEINE\nGESCHENKKARTE ERWORBEN</string>
+    <string name="no_gift_cards_linked">Beginnen Sie mit dem Durchsuchen des Shop-Katalogs oder überprüfen Sie den Status Ihrer Bestellungen.</string>
+    <string name="no_order_linked">Derzeit sind keine Bestellungen mit Ihrem Konto verknüpft. Beginnen Sie mit dem Durchsuchen des Shop-Katalogs.</string>
+    <string name="tx_not_sent">Transaktion wurde nicht gesendet</string>
+    <string name="check_internet_and_try_again">Mycelium kann aufgrund einer schlechten Internetverbindung nicht mit dem Server kommunizieren.\nBitte überprüfen Sie Ihre Verbindung und versuchen Sie es erneut.</string>
+    <string name="no_funds">Kein Guthaben</string>
+    <string name="you_dont_have_btc_or_eth_accounts_with_funds">Sie haben keine BTC- oder ETH-Konten mit Guthaben.\nBitte füllen Sie ein beliebiges BTC- oder ETH-Konto auf und versuchen Sie es erneut.</string>
+    <string name="mark_as_redeemed">Als eingelöst markieren</string>
+    <string name="show_transaction_details"><![CDATA[Transaktionsdetails anzeigen >]]></string>
+    <string name="show_transaction_details_hide">Transaktionsdetails ausblenden</string>
+    <string name="max_available_cards_d">Maximal verfügbare Karten: %d Karten</string>
+    <string name="gift_card_info">Informationen zur Geschenkkarte</string>
+    <string name="exceed_card_value">Kartenwert überschritten</string>
+    <string name="from_s_to_s">Von %s bis %s</string>
+    <string name="gift_cards_menu">Geschenkkarten</string>
+    <string name="delete_received_fio_request">Erhaltene FIO-Anfrage löschen</string>
+    <string name="delete_received_fio_request_msg">Möchten Sie diese FIO-Anfrage wirklich löschen?</string>
+    <string name="erc20_highest_possible_fee_info"><![CDATA[Dies ist die maximal mögliche Gebühr, die für das Versenden der Transaktion von <b>ETH %s</b> anfallen kann. Höchstwahrscheinlich wird die Gebühr jedoch %s%s nicht überschreiten. Weitere Details finden Sie unter <u>Miner-Gebühren-Berechnung</u>.]]></string>
+    <string name="erc20_this_is_updated_fee"><![CDATA[Dies ist die aktualisierte Gebühr basierend auf dem eingestellten Gas Limit. Weitere Informationen finden Sie unter <u>Miner-Gebühren-Berechnung</u>.]]></string>
+    <string name="all_ethereum_network_transactions">Alle Transaktionen im Ethereum-Netzwerk erfordern ETH zur Bezahlung der Miner-Gebühren.</string>
+    <string name="please_top_up_your_eth_account"><![CDATA[Bitte füllen Sie Ihr <b><u>ETH %s</u></b> um %s%s auf, um die Miner-Gebühren für diese Transaktion zu bezahlen.]]></string>
+    <string name="miner_fee_erc20_info_title">Miner-Gebühr (ERC-20)</string>
+    <string name="miner_fee_erc20_info">Alle Transaktionen im Ethereum-Netzwerk erfordern ETH zur Bezahlung der Miner-Gebühren. Miner-Gebühr = Gas Limit * Gas Price (Gwei/Gas)\n\nUm Ihnen die höchstmögliche Gebührenschätzung zu bieten, verwendet Mycelium standardmäßig 90.000 Einheiten als maximales Gas Limit, da ERC-20-Transaktionen komplex zu verarbeiten sind.\n\nDurchschnittlich werden von Minern etwa 55.500 Einheiten Gas pro Transaktion verbraucht.\n\nDie tatsächliche Gebühr kann geringer oder gleich sein, abhängig davon, wie viel Gas für die Verarbeitung der Transaktion tatsächlich benötigt wird.</string>
+    <string name="gas_limit_erc20_info_title">Gas Limit (ERC-20)</string>
+    <string name="gas_limit_erc20_info">Mycelium verwendet standardmäßig 90.000 Einheiten als maximales Gas Limit, da ERC-20-Transaktionen komplex zu verarbeiten sind.\n\nDurchschnittlich werden von Minern etwa 55.500 Einheiten Gas pro Transaktion verbraucht.\n\nSie können ein niedrigeres Gas Limit festlegen, aber Mycelium kann nicht garantieren, dass die Transaktion unter diesen Bedingungen verarbeitet wird.</string>
+    <string name="gas_limit_helper">Mindestens 21.000 Einheiten</string>
+    <string name="input_data_helper">Hexadezimalformat (0–9, A-F)</string>
+    <string name="gas_limit_warning">Sie haben ein Gas Limit unter 90.000 Einheiten festgelegt. Dies könnte für die Verarbeitung Ihrer Transaktion im Ethereum-Netzwerk unzureichend sein, während Gas trotzdem verbraucht wird.</string>
+    <string name="gas_limit_error">Das minimale Gas Limit für Transaktionen im Ethereum-Netzwerk beträgt 21.000 Einheiten.</string>
+    <string name="parent_eth_account">ETH %s:</string>
+    <string name="connection_issues"><b>Verbindungsprobleme.</b> Bitte stellen Sie sicher, dass Sie online sind.</string>
+    <string name="course_outdated">Wechselkurs ist veraltet</string>
+    <string name="network_s">%s-Netzwerk</string>
+    <string name="changelly2_policy_text">Dieser Service wird über einen Drittanbieter-API bereitgestellt. Durch Klicken auf „Tauschen“ akzeptieren Sie die <font color="#4583de">Nutzungsbedingungen</font>.</string>
+    <string name="changelly2_select_from">Wählen Sie ein Konto aus:</string>
+    <string name="changelly2_select_to">Wählen Sie ein Konto zum Empfangen aus:</string>
+    <string name="changelly2_proceed">Fortfahren</string>
+    <string name="exchange_history">Tauschverlauf</string>
+    <string name="tab_exchange_title">TAUSCH</string>
+    <string name="no_operations_history">Keine Vorgangshistorie</string>
+    <string name="history_appear_after_operation">Die Historie wird automatisch angezeigt, sobald die erste Tauschoperation durchgeführt wurde.</string>
+    <string name="next_fee_update_in_s">Nächstes Update in %ds</string>
+    <string name="exchange_min_msg">Der Betrag liegt unter dem Mindesttauschwert von %s %s</string>
+    <string name="exchange_max_msg">Der Betrag übersteigt den maximalen Tauschwert von %s %s</string>
+    <string name="settings_exchange_quick_exchange_title">Tauschbestätigung</string>
+    <string name="settings_exchange_quick_exchange_summary">Bestätigungsdialog vor dem Tausch anzeigen</string>
+    <string name="exchange_accept_dialog_title">Tausch</string>
+    <string name="exchange_accept_dialog_msg">Sie senden: %s %s\nMiner-Gebühr: %s\n\nSie erhalten: %s %s</string>
+    <string name="sent">Gesendet</string>
+    <string name="received">Empfangen</string>
+    <string name="unredeemed">Nicht eingelöste Karte</string>
+    <string name="changelly_receiving">Wird empfangen</string>
+    <string name="changelly_received">Empfangen</string>
+    <string name="changelly_error_rate_expired">Wechselkurs ist veraltet, bitte erneut versuchen.</string>
+    <string name="contact_support_team">Support kontaktieren</string>
+    <string name="share_logs">Logs freigeben</string>
+    <string name="support_team">Support kontaktieren</string>
+    <string name="support_team_text">Bitte beschreiben Sie das Problem und die Schritte zu dessen Reproduktion. Um einen umfassenden Einblick in das Problem zu erhalten, fügen Sie bitte die Logs bei.</string>
+    <string name="link_to_track_transaction">Tauschstatus</string>
+    <string name="exchange_in_progress">Tausch wird durchgeführt</string>
+    <string name="help_missing_tx_dialog_text" formatted="false"><![CDATA[Die häufigsten Gründe für „fehlende“ Coins lassen sich meist leicht beheben.
+                        Bitte lesen Sie die folgenden Punkte sorgfältig, bevor Sie den Support kontaktieren:<br><br>
+                        <h4>Keine Serververbindung</h4>
+                        Wenn die Wallet nicht mit den Servern kommunizieren kann, kann sie Ihr
+                        Guthaben nicht korrekt anzeigen und ggf. sogar 0BTC anzeigen, wenn Sie versucht haben,
+                        das Konto erneut zu laden.
+                        <b>Keine Panik.</b> Überprüfen Sie Ihre Internetverbindung oder, falls unsere Server Probleme haben,
+                        arbeiten unsere Techniker bereits an der Lösung.
+                        Solange Sie keine Transaktion sehen, in der Ihre Mittel die Wallet verlassen haben,
+                        befinden sich Ihre Coins noch in der Wallet und sind durch Ihr 12-Wörter-Backup geschützt,
+                        das im schlimmsten Fall auch mit den meisten anderen Bitcoin-Wallets kompatibel ist.
+                        Versuchen Sie nicht, die App zu löschen und neu zu installieren, es sei denn,
+                        Sie sind zu 100 % sicher, dass Sie alle Backups haben.
+                        <h4>Wallet mit „12 Wörtern + Passwort“ wiederhergestellt, dabei PIN als Passwort verwendet</h4>
+                        Wenn Sie ein falsches Passwort eingeben, gibt es keine Fehlermeldung, aber
+                        es wird eine andere, leere Wallet wiederhergestellt. <b>Versuchen Sie, Ihre Wallet
+                        nur mit den „12 Wörtern“ wiederherzustellen.</b>
+                        <h4>Coins befinden sich in „Konto 2“</h4>
+                        Wenn Sie eine Wallet aus einem Backup wiederherstellen, in der sich mehr als nur „Konto 1“ befand,
+                        müssen Sie manuell die fehlenden Konten erneut erstellen, um sie wiederzufinden.
+                        Gehen Sie dazu <b>zum Tab „Konten“ und erstellen Sie ein „neues“ Konto</b>.
+                        <h4>Coins liegen außerhalb des standardmäßigen „Look-Ahead“ oder „Gap Limit“:</h4>
+                        Wenn Sie Tools von Drittanbietern zum Empfangen von Coins genutzt haben, z. B.
+                        BTC-Pay Server, durchsucht die Wallet nur 20 zukünftige Adressen hinter der letzten ungenutzten.
+                        <b>Klicken Sie unten auf
+                        „Boost Gap Limit“</b>, um zu prüfen, ob dies der Fall ist.
+                        Dadurch werden einmalig 200 Adressen auf allen aktiven Konten geprüft.]]></string>
+    <string name="boost_gap_limit">Gap Limit erhöhen</string>
+    <string name="help_share_logs_text">Wir erhalten Ihre Logs nur, wenn Sie sie mit uns teilen. Die Logs enthalten keine persönlichen Daten.</string>
+    <string name="missing_tx_text">Die häufigsten Gründe für „fehlende“ Coins und wie sie sich beheben lassen.</string>
+    <string name="changelog_title">Was gibt’s Neues in Mycelium</string>
+    <string name="changelog_button_show_less">Weniger anzeigen</string>
+    <string name="changelog_button_show_more">Mehr über die neuesten Updates erfahren</string>
+    <string name="changelog_button_close">@string/button_continue</string>
+    <string name="changelog_version_placeholder">Version: %s</string>
+    <string name="etc20_require_eth">Alle Transaktionen im Ethereum-Netzwerk erfordern ETH für die Miner-Gebühren.</string>
+    <string name="giftcard_coin_not_acceptable">%s-Coin wird nicht akzeptiert.\nBitte kontaktieren Sie den Support.</string>
+    <string name="update_acvailable">Update verfügbar</string>
+    <string name="current_version_s">Aktuelle Version: %s</string>
+    <string name="update_to_new_features">Aktualisieren Sie Mycelium, um neue Funktionen und Verbesserungen zu erhalten.</string>
+    <string name="new_version_s">Neue Version: %s</string>
+    <string name="send_fee_hint"><b>ACHTUNG.</b> Transaktionen mit niedrigen Miner-Gebühren haben möglicherweise keine oder sehr späte Bestätigungen, was Stunden oder sogar Tage dauern kann. Wählen Sie keine niedrige Priorität, wenn Sie nicht genau wissen, wie das Bitcoin-Netzwerk funktioniert.</string>
+    <string name="hours_or_more">%s oder länger</string>
+    <string name="russia">Russland</string>
+    <string name="giftbox_expired_text"><![CDATA[Die Bestellung ist abgelaufen. Bitte wenden Sie sich an den Support – <font color="#4583de">support@mycelium.com</font>]]></string>
+    <string name="fingerprint_detection_failed">Fingerabdruckerkennung fehlgeschlagen</string>
+    <string name="fingerprint_not_available">Fingerabdruck nicht verfügbar</string>
+    <string name="unlock_label_fingerprint">Mit Fingerabdruck fortfahren</string>
+    <string name="use_pin">PIN-Code verwenden</string>
+    <string name="hide_this_ad">Diese Anzeige nicht mehr anzeigen</string>
+    <string name="batch">Stapel</string>
+    <string name="add_all_receiving_addresses_and_amounts">Alle Empfängeradressen und Beträge hinzufügen</string>
+    <string name="tab_vip">VIP</string>
+    <string name="vip_code_hint">Geben Sie Ihren persönlichen VIP-Code ein</string>
+    <string name="vip_code_who_can_get_title">Wer erhält den VIP-Status</string>
+    <string name="vip_code_who_can_get">Mycelium-Token-Inhaber\nTeilnehmer der SU7 Max-Verlosung\nTreue Mycelium-Nutzer, die eine persönliche\nEinladung erhalten haben</string>
+    <string name="vip_code_granted_status">Ihnen wurde der Mycelium VIP-Status gewährt.</string>
+    <string name="vip_code_discount_title">Rabatte auf Krypto-zu-Krypto-Tausche</string>
+    <string name="vip_code_discount_description">Die Tauschgebühr wird um 25 % reduziert.</string>
+    <string name="vip_code_limits_title">Keine Limits</string>
+    <string name="vip_code_limits_description">Sie können jetzt beliebige Beträge tauschen.</string>
+    <string name="vip_code_privacy_related_notice">Und eine SEHR WICHTIGE Datenschutzangelegenheit, derer Sie sich bewusst sein sollten.</string>
+    <string name="apply_vip_code">Fortfahren</string>
+    <string name="vip_code_invalid">Code ist ungültig</string>
+    <string name="vip_title">VIP-Vorteile genießen</string>
+    <string name="vip_menu_text">VIP</string>
+    <string name="vip_title_success">Sie sind startklar!</string>
+    <string name="vip_exchange_unexpected_alert_title">Ups, da ist etwas schiefgelaufen</string>
+    <string name="vip_exchange_expired_title">Vip SWAP ist nicht verfügbar</string>
+    <string name="vip_exchange_status_expired_alert_message">Ihr VIP-Status ist abgelaufen, daher gelten jetzt die regulären (Nicht-VIP-)Tarife.</string>
+    <string name="vip_exchange_unexpected_alert_message">Der VIP-Service ist derzeit aus technischen Gründen nicht verfügbar. Versuchen Sie es später erneut oder fahren Sie ohne VIP-Vorteile fort.</string>
+    <string name="vip_unexpected_alert_title">VIP-Service ist derzeit nicht verfügbar</string>
+    <string name="vip_unexpected_alert_message">Bitte versuchen Sie es später erneut</string>
+    <string name="vip_alert_proceed">Ja, fortfahren</string>
+    <string name="vip_alert_cancel">Abbrechen</string>
+    <string name="add_address">Adresse hinzufügen</string>
+    <string name="message_verified_to_be_from">Nachricht wurde erfolgreich verifiziert von %1$s</string>
+    <string name="message_failed_to_verify">"Nachricht konnte nicht verifiziert werden!"</string>
+    <string name="input_look_ahead">Input look ahead</string>
+    <string name="card_code">Kartencode:</string>
+    <string name="gift_card_load_error_title">Geschenkkartenkäufe sind momentan nicht verfügbar.</string>
+    <string name="gift_card_load_error_desc">Wir aktualisieren derzeit unsere Shops, und der Service wird bald wieder verfügbar sein. Vielen Dank für Ihr Verständnis!</string>
 </resources>
