@@ -42,6 +42,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 
+import androidx.core.content.ContextCompat;
+
 import com.mycelium.wallet.activity.RestartPopupActivity;
 import com.mycelium.wallet.activity.StartupActivity;
 import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount;
@@ -55,7 +57,7 @@ public class PackageRemovedReceiver extends BroadcastReceiver {
         filter.addAction(Intent.ACTION_PACKAGE_REPLACED);
         filter.addAction(Intent.ACTION_PACKAGE_REMOVED);
         filter.addDataScheme("package");
-        context.registerReceiver(new PackageRemovedReceiver(), filter);
+        ContextCompat.registerReceiver(context, new PackageRemovedReceiver(), filter, ContextCompat.RECEIVER_EXPORTED);
     }
 
     @Override

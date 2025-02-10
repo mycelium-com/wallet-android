@@ -8,6 +8,9 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.hardware.usb.*;
 import android.util.Log;
+
+import androidx.core.content.ContextCompat;
+
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.Message;
 import com.satoshilabs.trezor.lib.protobuf.TrezorMessage.*;
@@ -138,7 +141,7 @@ public abstract class ExternalSignatureDevice {
 
         IntentFilter filter = new IntentFilter();
         filter.addAction(ACTION_USB_PERMISSION);
-        context.registerReceiver(mUsbReceiver, filter);
+        ContextCompat.registerReceiver(context, mUsbReceiver, filter, ContextCompat.RECEIVER_EXPORTED);
 
         final UsbDevice extSigDevice = getExtSigDevice();
         if (extSigDevice == null) {

@@ -27,6 +27,7 @@ import android.content.IntentFilter;
 import android.hardware.usb.*;
 import android.nfc.Tag;
 import android.util.Log;
+import androidx.core.content.ContextCompat;
 import com.btchip.comm.BTChipTransport;
 import com.btchip.comm.BTChipTransportFactory;
 import com.btchip.comm.BTChipTransportFactoryCallback;
@@ -143,7 +144,7 @@ public class BTChipTransportAndroid implements BTChipTransportFactory {
       }
       IntentFilter filter = new IntentFilter();
       filter.addAction(ACTION_USB_PERMISSION);
-      context.registerReceiver(mUsbReceiver, filter);
+      ContextCompat.registerReceiver(context, mUsbReceiver, filter, ContextCompat.RECEIVER_EXPORTED);
 
 
       final UsbDevice device = getDevice(usbManager);

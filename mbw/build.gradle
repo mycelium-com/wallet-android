@@ -149,7 +149,7 @@ dependencies {
         exclude group: "com.android.support"
     }
     kapt "com.github.bumptech.glide:compiler:4.7.1"
-    implementation "info.guardianproject.netcipher:netcipher:2.1.0"
+    implementation files("$rootDir/libs/netcipher-2.2.1.jar")
     implementation "com.airbnb.android:lottie:3.4.0"
 
     androidTestImplementation 'androidx.test:core:1.4.0'
