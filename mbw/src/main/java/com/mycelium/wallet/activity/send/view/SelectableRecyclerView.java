@@ -59,7 +59,7 @@ public class SelectableRecyclerView extends RecyclerView {
     }
 
     public void setSelectedItem(int selectedItem) {
-        if (getAdapter() == null) {
+        if (getAdapter() == null || selectedItem < 0 || selectedItem >= getAdapter().getItemCount()) {
             return;
         }
         if (((SRVAdapter) getAdapter()).getSelectedItem() != selectedItem) {

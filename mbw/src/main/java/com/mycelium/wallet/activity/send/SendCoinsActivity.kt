@@ -325,10 +325,10 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener, AmountLi
                                         getTransactionDataStatus().value = SendCoinsModel.TransactionDataStatus.READY
                                     }
                                 }
-                                val tvSatFeeValue = findViewById<TextView>(R.id.tvSatFeeValue)
+                                val tvSatFeeValue:TextView? = findViewById<TextView>(R.id.tvSatFeeValue)
                                 getGasPrice().observe(this@SendCoinsActivity, Observer { gp ->
                                     if (gp == null) {
-                                        tvSatFeeValue.visibility = View.GONE
+                                        tvSatFeeValue?.visibility = View.GONE
                                         bindingFeeSelector?.feeLvlList?.visibility = View.VISIBLE
                                         bindingFeeSelector?.feeValueList?.visibility = View.VISIBLE
                                         bindingFeeTitleEth?.tvFeeUpdatesTimer?.visibility = View.VISIBLE
@@ -341,10 +341,10 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener, AmountLi
                                             }
 
                                         val totalFee = Value.valueOf(account.basedOnCoinType, gasLimit * gp)
-                                        tvSatFeeValue.text =
+                                        tvSatFeeValue?.text =
                                             "${totalFee.toStringFriendlyWithUnit(getDenomination())} ${convert(totalFee)}"
 
-                                        tvSatFeeValue.visibility = View.VISIBLE
+                                        tvSatFeeValue?.visibility = View.VISIBLE
                                         bindingFeeSelector?.feeLvlList?.visibility = View.GONE
                                         bindingFeeSelector?.feeValueList?.visibility = View.GONE
                                         bindingFeeTitleEth?.tvFeeUpdatesTimer?.visibility = View.GONE
@@ -374,7 +374,7 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener, AmountLi
                                                 getDefaultGasLimit()
                                             }
                                         val totalFee = Value.valueOf(account.basedOnCoinType, gasLimit * gp)
-                                        tvSatFeeValue.text =
+                                        tvSatFeeValue?.text =
                                             "${totalFee.toStringFriendlyWithUnit(getDenomination())} ${convert(totalFee)}"
                                     }
                                 })

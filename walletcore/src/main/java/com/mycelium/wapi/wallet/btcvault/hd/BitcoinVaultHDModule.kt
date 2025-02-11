@@ -22,7 +22,7 @@ import com.mycelium.wapi.wallet.masterseed.MasterSeedManager
 import com.mycelium.wapi.wallet.metadata.IMetaDataStorage
 import java.util.*
 
-
+@Deprecated("Bitcoin Vault is no longer supported")
 class BitcoinVaultHDModule(internal val backing: Backing<BitcoinVaultHDAccountContext>,
                            private val secureStore: SecureKeyValueStore,
                            internal val networkParameters: BTCVNetworkParameters,
@@ -90,10 +90,16 @@ class BitcoinVaultHDModule(internal val backing: Backing<BitcoinVaultHDAccountCo
 
     private fun loadKeyManagers(context: BitcoinVaultHDAccountContext): Map<BipDerivationType, HDAccountKeyManager<BtcvAddress>> =
             if (context.accountType == HDAccountContext.ACCOUNT_TYPE_FROM_MASTERSEED) {
-                context.indexesMap.keys.associateWith { derivationType ->
-                    HDAccountKeyManager(context.accountIndex, networkParameters, secureStore,
-                            derivationType, BtcvAddressFactory(coinType, networkParameters))
-                }
+                context.indexesMap.keys.mapNotNull { derivationType ->
+                    try {
+                        HDAccountKeyManager(
+                            context.accountIndex, networkParameters, secureStore,
+                            derivationType, BtcvAddressFactory(coinType, networkParameters)
+                        )
+                    } catch (_: NullPointerException) {
+                        null
+                    }
+                }.associate { it.derivationType to it }
             } else {
                 emptyMap()
             }
