@@ -20,8 +20,10 @@ import com.mycelium.giftbox.cards.adapter.StoresAdapter
 import com.mycelium.giftbox.cards.event.RefreshOrdersRequest
 import com.mycelium.giftbox.cards.viewmodel.GiftBoxViewModel
 import com.mycelium.giftbox.cards.viewmodel.StoresViewModel
+import com.mycelium.giftbox.client.GiftboxConstants
 import com.mycelium.giftbox.client.GitboxAPI
 import com.mycelium.giftbox.common.ListState
+import com.mycelium.wallet.BuildConfig
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.modern.Toaster
@@ -76,6 +78,9 @@ class StoresFragment : Fragment() {
         adapter.itemClickListener = {
             findNavController().navigate(GiftBoxFragmentDirections.actionStoreDetails(it))
         }
+        adapter.tryAgainListener = {
+            loadData(skipCache = true)
+        }
         binding?.counties?.setOnClickListener {
             findNavController().navigate(GiftBoxFragmentDirections.actionSelectCountries())
         }
@@ -100,6 +105,16 @@ class StoresFragment : Fragment() {
         }
         if (viewModel.products.isEmpty() || activityViewModel.reloadStore) {
             loadData()
+        }
+        if (BuildConfig.DEBUG) {
+            var tapCount = 0
+            binding?.giftCardLabel?.setOnClickListener {
+                tapCount++
+                if (tapCount > 5) {
+                    GiftboxConstants.TEST = true
+                    Toaster(this).toast("You are in test mode gift cards", false)
+                }
+            }
         }
         MbwManager.getEventBus().register(this)
     }
@@ -135,7 +150,9 @@ class StoresFragment : Fragment() {
         } else if (viewModel.isLoaded) {
             return
         } else {
-            adapter.submitList(adapter.currentList + StoresAdapter.LOADING_ITEM)
+            if (!adapter.currentList.contains(StoresAdapter.LOADING_ITEM)) {
+                adapter.submitList(adapter.currentList + StoresAdapter.LOADING_ITEM)
+            }
         }
         activityViewModel.reloadStore = false
         viewModel.state.value = ListState.LOADING
@@ -158,7 +175,7 @@ class StoresFragment : Fragment() {
                     adapter.submitList(viewModel.products.toList())
                 },
                 error = { code, msg ->
-                    adapter.submitList(listOf())
+                    adapter.submitList(listOf(StoresAdapter.ERROR_ITEM))
                     viewModel.state.value = ListState.ERROR
                     if(code != 400) {
                         Toaster(this).toast(msg, true)
@@ -191,10 +208,9 @@ class StoresFragment : Fragment() {
         }
     }
 
-    var updateCount = 0
     @Subscribe
     internal fun updateOrder(request: RefreshOrdersRequest) {
-        loadData(skipCache = (++updateCount)%5 == 0)
+//        loadData(skipCache = true) TODO
     }
 
     @Subscribe

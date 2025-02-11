@@ -13,6 +13,8 @@ object GiftboxPreference {
     }
     const val COUNTRIES_KEY = "country_set"
     const val LAST_PRODUCT_FETCH = "last_product_fetch"
+    const val ALL_COUNTRIES_KEY = "all_countries"
+    const val ALL_CATEGORIES_KEY = "all_categories"
 
     fun setGroupOpen(group: String, flag: Boolean) {
         preference.edit().putBoolean(group, flag).apply()
@@ -42,4 +44,18 @@ object GiftboxPreference {
 
     fun needFetchProducts(): Boolean =
         System.currentTimeMillis() - lastProductFetch() > 1000 * 60 * 60 * 24 // 24 hours
+
+    fun setCountries(countries: List<String>) {
+        preference.edit().putStringSet(ALL_COUNTRIES_KEY, countries.toSet()).apply()
+    }
+
+    fun getCountries(): List<String> =
+        preference.getStringSet(ALL_COUNTRIES_KEY, emptySet())?.toList().orEmpty()
+
+    fun setCategories(categories: List<String>) {
+        preference.edit().putStringSet(ALL_CATEGORIES_KEY, categories.toSet()).apply()
+    }
+
+    fun getCategories(): List<String> =
+        preference.getStringSet(ALL_CATEGORIES_KEY, emptySet())?.toList().orEmpty()
 }

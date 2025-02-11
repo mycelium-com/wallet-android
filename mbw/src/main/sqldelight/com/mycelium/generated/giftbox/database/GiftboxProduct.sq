@@ -16,6 +16,7 @@ CREATE TABLE IF NOT EXISTS GiftboxProduct(
     logoUrl TEXT,
     cardImageUrl TEXT,
     expiryData TEXT,
+    featuredRank INTEGER NOT NULL,
     PRIMARY KEY (id)
 );
 
@@ -26,11 +27,11 @@ WHERE
     (name LIKE '%' || :search || '%' OR :search IS NULL OR :search == "") AND
     (categories LIKE '%' || :category || '%' OR :category IS NULL) AND
     (countries LIKE '%' || :country || '%' OR :country IS NULL)
-ORDER BY id DESC LIMIT (:limit) OFFSET (:offset);
+ORDER BY featuredRank ASC, name ASC LIMIT (:limit) OFFSET (:offset);
 
 insert:
-INSERT OR REPLACE INTO GiftboxProduct (id,name,description,currency,countries,categories,minFaceValue,maxFaceValue,denominations,stockStatus,logoUrl,cardImageUrl,expiryData)
-VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+INSERT OR REPLACE INTO GiftboxProduct (id,name,description,currency,countries,categories,minFaceValue,maxFaceValue,denominations,stockStatus,logoUrl,cardImageUrl,expiryData,featuredRank)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
 
 categories:
 SELECT categories FROM GiftboxProduct;

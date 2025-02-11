@@ -795,8 +795,11 @@ fun setVisibilityAnimated(target: TextView, error: CharSequence) {
 fun setVisibilityAnimated(target: View, visible: Boolean, activity: SendCoinsActivity?) {
     if (visible) {
         target.expand {
-            activity?.findViewById<ScrollView>(R.id.root)?.let {
-                it.smoothScrollTo(0, it.measuredHeight)
+            val view = activity?.findViewById<View>(R.id.root)
+            if (view is ScrollView) {
+                view.smoothScrollTo(0, view.measuredHeight)
+            } else if (view is NestedScrollView) {
+                view.smoothScrollTo(0, view.measuredHeight)
             }
         }
     } else {

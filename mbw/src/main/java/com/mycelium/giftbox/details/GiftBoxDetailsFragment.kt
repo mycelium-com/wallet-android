@@ -2,6 +2,7 @@ package com.mycelium.giftbox.details
 
 import android.os.Bundle
 import android.view.*
+import android.webkit.URLUtil
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
@@ -58,6 +59,14 @@ class GiftBoxDetailsFragment : Fragment() {
             shareGiftcard(viewModel.orderResponse!!)
         }
         binding?.layoutCode?.redeemCode?.setOnClickListener {
+            if(URLUtil.isValidUrl(viewModel.redeemCode.value)) {
+                openLink(viewModel.redeemCode.value)
+            } else {
+                Utils.setClipboardString(viewModel.redeemCode.value, it.context)
+                toaster.toast(R.string.copied_to_clipboard, true)
+            }
+        }
+        binding?.layoutCode?.redeemCodeCopy?.setOnClickListener {
             Utils.setClipboardString(viewModel.redeemCode.value, it.context)
             toaster.toast(R.string.copied_to_clipboard, true)
         }

@@ -1687,7 +1687,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="success1">Success</string>
     <string name="gift_card_ready">Your Gift card is ready! Gift card download link and redeem instructions are in <u>My Gift cards</u>.</string>
     <string name="return_to_payment">Back to Orders</string>
-    <string name="giftbox_failed_text">Transactions was not sent. Please check your balance, internet connection, and try again.</string>
+    <string name="giftbox_failed_text">No worries, your funds are safe. Unfortunately, the shop couldn’t issue the card due to technical difficulties. Please contact us at support@mycelium.com for assistance.</string>
     <string name="card_value1">Card value</string>
     <string name="no_results_found_for_s"><![CDATA[No results found for \"<font color="#ffffff">%s</font>\".<br/>Please check the spelling and try again.]]></string>
     <string name="no_stores_found">NO STORES FOUND</string>
@@ -1837,4 +1837,6 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="message_failed_to_verify">"Message failed to verify! "</string>
     <string name="input_look_ahead">Input look ahead</string>
     <string name="card_code">Card Code:</string>
+    <string name="gift_card_load_error_title">Gift card purchases are temporarily unavailable.</string>
+    <string name="gift_card_load_error_desc">We are currently updating our stores, and the service will be back online soon. Thank you for your understanding!</string>
 </resources>
