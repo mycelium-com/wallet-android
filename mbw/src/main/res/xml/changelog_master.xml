@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog>
+    <release version="3.18.1.0" versioncode="3180100">
+        <change>Gift Cards can now be bought with BTC again</change>
+        <change>Improved overall app performance</change>
+        <change>Bug fixes</change>
+    </release>
     <release version="3.18.0" versioncode="3180000">
         <change>Gift Cards can now be bought with BTC again</change>
         <change>Improved overall app performance</change>
