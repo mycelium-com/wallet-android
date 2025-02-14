@@ -1657,9 +1657,9 @@ public class MbwManager {
         WalletAccount account = _walletManager.getAccount(uuid);
         Preconditions.checkState(account.isActive());
         getEditor().putString(SELECTED_ACCOUNT, uuid.toString()).apply();
-        getEventBus().post(new SelectedAccountChanged(uuid));
+        mainLoopHandler.post(() -> getEventBus().post(new SelectedAccountChanged(uuid)));
         Address receivingAddress = account.getReceiveAddress();
-        getEventBus().post(new ReceivingAddressChanged(receivingAddress));
+        mainLoopHandler.post(() -> getEventBus().post(new ReceivingAddressChanged(receivingAddress)));
         _walletManager.startSynchronization(account.getId());
     }
 
