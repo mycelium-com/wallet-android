@@ -43,25 +43,25 @@ import android.view.ViewGroup
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import com.google.common.collect.Iterables
-import com.mycelium.wallet.activity.util.toStringWithUnit
-import com.mycelium.wallet.activity.util.MasterseedPasswordSetter
-import com.mycelium.wallet.activity.util.AbstractAccountScanManager
-import com.mycelium.wapi.wallet.coins.CryptoCurrency
-import com.mycelium.wapi.wallet.AccountScanManager.AccountCallback
-import com.mycelium.wapi.wallet.AccountScanManager.HdKeyNodeWrapper
-import com.mycelium.wallet.MbwManager
-import com.mycelium.wapi.wallet.btc.bip44.HDAccount
-import com.mycelium.wapi.wallet.fio.FioAccount
-import com.mycelium.wapi.wallet.AccountScanManager
-import com.mrd.bitlib.model.hdpath.HdKeyPath
 import com.mrd.bitlib.crypto.HdKeyNode
+import com.mrd.bitlib.model.hdpath.HdKeyPath
+import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
-import com.mycelium.wapi.wallet.AccountScanManager.OnScanError
-import com.mycelium.wapi.wallet.AccountScanManager.OnStatusChanged
+import com.mycelium.wallet.activity.util.AbstractAccountScanManager
+import com.mycelium.wallet.activity.util.MasterseedPasswordSetter
+import com.mycelium.wallet.activity.util.toStringWithUnit
+import com.mycelium.wapi.wallet.AccountScanManager
+import com.mycelium.wapi.wallet.AccountScanManager.AccountCallback
+import com.mycelium.wapi.wallet.AccountScanManager.HdKeyNodeWrapper
 import com.mycelium.wapi.wallet.AccountScanManager.OnAccountFound
 import com.mycelium.wapi.wallet.AccountScanManager.OnPassphraseRequest
+import com.mycelium.wapi.wallet.AccountScanManager.OnScanError
+import com.mycelium.wapi.wallet.AccountScanManager.OnStatusChanged
 import com.mycelium.wapi.wallet.SyncMode
+import com.mycelium.wapi.wallet.btc.bip44.HDAccount
+import com.mycelium.wapi.wallet.coins.CryptoCurrency
+import com.mycelium.wapi.wallet.fio.FioAccount
 import com.squareup.otto.Subscribe
 import kotlinx.coroutines.runBlocking
 import java.io.Serializable
@@ -215,7 +215,7 @@ abstract class HdAccountSelectorActivity : AppCompatActivity(), MasterseedPasswo
         }
     }
 
-    protected class HdAccountWrapper : Serializable {
+    class HdAccountWrapper : Serializable {
         @JvmField
         var id: UUID? = null
         @JvmField

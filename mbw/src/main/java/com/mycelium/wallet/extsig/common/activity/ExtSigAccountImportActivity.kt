@@ -1,211 +1,180 @@
-/*
- * Copyright 2013, 2014 Megion Research and Development GmbH
- *
- * Licensed under the Microsoft Reference Source License (MS-RSL)
- *
- * This license governs use of the accompanying software. If you use the software, you accept this license.
- * If you do not accept the license, do not use the software.
- *
- * 1. Definitions
- * The terms "reproduce," "reproduction," and "distribution" have the same meaning here as under U.S. copyright law.
- * "You" means the licensee of the software.
- * "Your company" means the company you worked for when you downloaded the software.
- * "Reference use" means use of the software within your company as a reference, in read only form, for the sole purposes
- * of debugging your products, maintaining your products, or enhancing the interoperability of your products with the
- * software, and specifically excludes the right to distribute the software outside of your company.
- * "Licensed patents" means any Licensor patent claims which read directly on the software as distributed by the Licensor
- * under this license.
- *
- * 2. Grant of Rights
- * (A) Copyright Grant- Subject to the terms of this license, the Licensor grants you a non-transferable, non-exclusive,
- * worldwide, royalty-free copyright license to reproduce the software for reference use.
- * (B) Patent Grant- Subject to the terms of this license, the Licensor grants you a non-transferable, non-exclusive,
- * worldwide, royalty-free patent license under licensed patents for reference use.
- *
- * 3. Limitations
- * (A) No Trademark License- This license does not grant you any rights to use the Licensor’s name, logo, or trademarks.
- * (B) If you begin patent litigation against the Licensor over patents that you think may apply to the software
- * (including a cross-claim or counterclaim in a lawsuit), your license to the software ends automatically.
- * (C) The software is licensed "as-is." You bear the risk of using it. The Licensor gives no express warranties,
- * guarantees or conditions. You may have additional consumer rights under your local laws which this license cannot
- * change. To the extent permitted under your local laws, the Licensor excludes the implied warranties of merchantability,
- * fitness for a particular purpose and non-infringement.
- */
+package com.mycelium.wallet.extsig.common.activity
 
-package com.mycelium.wallet.extsig.common.activity;
+import android.app.LoaderManager
+import android.app.ProgressDialog
+import android.content.AsyncTaskLoader
+import android.content.Context
+import android.content.Intent
+import android.content.Loader
+import android.os.Bundle
+import android.view.View
+import android.widget.AdapterView
+import android.widget.AdapterView.OnItemClickListener
+import androidx.core.view.isVisible
+import androidx.lifecycle.lifecycleScope
+import com.mycelium.wallet.MbwManager
+import com.mycelium.wallet.R
+import com.mycelium.wallet.Utils
+import com.mycelium.wallet.activity.HdAccountSelectorActivity.HdAccountWrapper
+import com.mycelium.wallet.databinding.ActivityInstantExtSigBinding
+import com.mycelium.wallet.extsig.common.ExternalSignatureDeviceManager
+import com.mycelium.wallet.extsig.common.ExternalSignatureDeviceManager.OnPinMatrixRequest
+import com.mycelium.wallet.persistence.MetadataStorage
+import com.mycelium.wapi.wallet.AccountScanManager
+import com.mycelium.wapi.wallet.AccountScanManager.OnAccountFound
+import com.mycelium.wapi.wallet.AccountScanManager.OnPassphraseRequest
+import com.mycelium.wapi.wallet.AccountScanManager.OnScanError
+import com.mycelium.wapi.wallet.AccountScanManager.OnStatusChanged
+import com.mycelium.wapi.wallet.btc.bip44.ExternalSignaturesAccountConfig
+import com.squareup.otto.Subscribe
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.util.UUID
 
-import android.app.LoaderManager;
-import android.app.ProgressDialog;
-import android.content.AsyncTaskLoader;
-import android.content.Context;
-import android.content.Intent;
-import android.content.Loader;
-import android.os.Bundle;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import android.view.View;
-import android.widget.AdapterView;
-import android.widget.TextView;
-import com.mrd.bitlib.crypto.HdKeyNode;
-import com.mycelium.wallet.MbwManager;
-import com.mycelium.wallet.R;
-import com.mycelium.wallet.Utils;
-import com.mycelium.wallet.extsig.common.ExternalSignatureDeviceManager;
-import com.mycelium.wallet.persistence.MetadataStorage;
-import com.mycelium.wapi.wallet.AccountScanManager;
-import com.mycelium.wapi.wallet.btc.bip44.ExternalSignaturesAccountConfig;
-import com.squareup.otto.Subscribe;
+abstract class ExtSigAccountImportActivity : ExtSigAccountSelectorActivity(),
+    LoaderManager.LoaderCallbacks<UUID?> {
+    lateinit var binding: ActivityInstantExtSigBinding
 
-import java.util.List;
-import java.util.UUID;
+    override fun accountClickListener(): OnItemClickListener? {
+        return object : OnItemClickListener {
+            override fun onItemClick(adapterView: AdapterView<*>, view: View?, i: Int, l: Long) {
+                val bundle = Bundle()
+                bundle.putSerializable(
+                    ITEM_WRAPPER,
+                    adapterView.getItemAtPosition(i) as HdAccountWrapper?
+                )
+                getLoaderManager().initLoader<UUID?>(1, bundle, this@ExtSigAccountImportActivity)
+                    .forceLoad()
 
+                val dialog = ProgressDialog(this@ExtSigAccountImportActivity)
+                dialog.setCancelable(false)
+                dialog.setCanceledOnTouchOutside(false)
+                dialog.setTitle(getString(R.string.hardware_account_create))
+                dialog.setMessage(getString(R.string.please_wait_hardware))
+                dialog.show()
+            }
+        }
+    }
 
-public abstract class ExtSigAccountImportActivity extends ExtSigAccountSelectorActivity implements LoaderManager.LoaderCallbacks<UUID> {
+    override fun onCreateLoader(i: Int, bundle: Bundle?): Loader<UUID?> =
+        AccountCreationLoader(
+            applicationContext,
+            (bundle!!.getSerializable(ITEM_WRAPPER) as HdAccountWrapper?)!!,
+            (masterseedScanManager as ExternalSignatureDeviceManager?)!!
+        )
 
-   private static final String ITEM_WRAPPER = "ITEM_WRAPPER";
+    override fun onLoadFinished(loader: Loader<UUID?>?, uuid: UUID?) {
+        val result = Intent()
+        result.putExtra("account", uuid)
+        setResult(RESULT_OK, result)
+        finish()
+    }
 
-   @Override
-   protected AdapterView.OnItemClickListener accountClickListener() {
-      return new AdapterView.OnItemClickListener() {
-         @Override
-         public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-            Bundle bundle = new Bundle();
-            bundle.putSerializable(ITEM_WRAPPER,(HdAccountWrapper) adapterView.getItemAtPosition(i));
-            getLoaderManager().initLoader(1, bundle, ExtSigAccountImportActivity.this).forceLoad();
+    override fun onLoaderReset(loader: Loader<UUID?>?) {}
 
-            ProgressDialog dialog = new ProgressDialog(ExtSigAccountImportActivity.this);
-            dialog.setCancelable(false);
-            dialog.setCanceledOnTouchOutside(false);
-            dialog.setTitle(getString(R.string.hardware_account_create));
-            dialog.setMessage(getString(R.string.please_wait_hardware));
-            dialog.show();
-         }
-      };
-   }
+    class AccountCreationLoader(
+        context: Context,
+        val item: HdAccountWrapper,
+        val masterseedScanManager: ExternalSignatureDeviceManager
+    ) : AsyncTaskLoader<UUID?>(context) {
 
+        override fun loadInBackground(): UUID? {
+            // create the new account and get the uuid of it
 
-   @NonNull
-   @Override
-   public Loader onCreateLoader(int i, @Nullable Bundle bundle) {
-      return new AccountCreationLoader(getApplicationContext(),
-              (HdAccountWrapper) bundle.getSerializable(ITEM_WRAPPER), (ExternalSignatureDeviceManager) masterseedScanManager);
-   }
+            val mbwManager = MbwManager.getInstance(context)
 
-   @Override
-   public void onLoadFinished(@NonNull Loader loader, UUID uuid) {
-      Intent result = new Intent();
-      result.putExtra("account", uuid);
-      setResult(RESULT_OK, result);
-      finish();
-   }
+            val acc = mbwManager.getWalletManager(false)
+                .createAccounts(
+                    ExternalSignaturesAccountConfig(
+                        item.publicKeyNodes!!,
+                        masterseedScanManager,
+                        item.accountHdKeysPaths!!.iterator().next().lastIndex
+                    )
+                )[0]
 
-   @Override
-   public void onLoaderReset(@NonNull Loader loader) { }
+            // Mark this account as backup warning ignored
+            mbwManager.metadataStorage
+                .setOtherAccountBackupState(acc, MetadataStorage.BackupState.IGNORED)
 
-   public static class AccountCreationLoader extends AsyncTaskLoader<UUID> {
+            return acc
+        }
+    }
 
-      private HdAccountWrapper item;
-      private final ExternalSignatureDeviceManager masterseedScanManager;
+    override fun updateUi() {
+        super.updateUi()
+        binding.btNextAccount.setEnabled(masterseedScanManager?.currentAccountState == AccountScanManager.AccountStatus.done)
+    }
 
-      AccountCreationLoader(@NonNull Context context, HdAccountWrapper item, ExternalSignatureDeviceManager masterseedScanManager) {
-         super(context);
-         this.item = item;
-         this.masterseedScanManager = masterseedScanManager;
-      }
+    override fun setView() {
+        setContentView(ActivityInstantExtSigBinding.inflate(layoutInflater).apply {
+            binding = this
+        }.root)
+        binding.tvCaption.text = getString(R.string.ext_sig_import_account_caption)
+        binding.tvSelectAccount.text = getString(R.string.ext_sig_select_account_to_import)
+        binding.btNextAccount.isVisible = true
 
-      @Nullable
-      @Override
-      public UUID loadInBackground() {
+        binding.btNextAccount.setOnClickListener {
+            Utils.showSimpleMessageDialog(
+                this@ExtSigAccountImportActivity,
+                getString(R.string.ext_sig_next_unused_account_info)
+            ) {
+                lifecycleScope.launch(Dispatchers.Default) {
+                    val nextAccount = masterseedScanManager?.getNextUnusedAccounts()
 
-         // create the new account and get the uuid of it
-         MbwManager mbwManager = MbwManager.getInstance(getContext());
+                    val mbwManager =
+                        MbwManager.getInstance(this@ExtSigAccountImportActivity)
 
-         UUID acc = mbwManager.getWalletManager(false)
-                 .createAccounts(new ExternalSignaturesAccountConfig(
-                         item.publicKeyNodes,
-                         masterseedScanManager,
-                         item.accountHdKeysPaths.iterator().next().getLastIndex()
-                 )).get(0);
+                    if (nextAccount?.isNotEmpty() == true) {
+                        val acc = mbwManager.getWalletManager(false)
+                            .createAccounts(
+                                ExternalSignaturesAccountConfig(
+                                    nextAccount,
+                                    (masterseedScanManager as ExternalSignatureDeviceManager?)!!,
+                                    nextAccount[0].index
+                                )
+                            )[0]
 
-         // Mark this account as backup warning ignored
-         mbwManager.getMetadataStorage().setOtherAccountBackupState(acc, MetadataStorage.BackupState.IGNORED);
+                        mbwManager.metadataStorage.setOtherAccountBackupState(
+                            acc, MetadataStorage.BackupState.IGNORED
+                        )
 
-         return acc;
-      }
+                        withContext(Dispatchers.Main) {
+                            setResult(RESULT_OK, Intent().putExtra("account", acc))
+                            finish()
+                        }
+                    }
+                }
+            }
+        }
+    }
 
-   }
+    // Otto.EventBus does not traverse class hierarchy to find subscribers
+    @Subscribe
+    override fun onPinMatrixRequest(event: OnPinMatrixRequest?) {
+        super.onPinMatrixRequest(event)
+    }
 
-   @Override
-   protected void updateUi() {
-      super.updateUi();
-      if (masterseedScanManager.getCurrentAccountState() == AccountScanManager.AccountStatus.done) {
-         findViewById(R.id.btNextAccount).setEnabled(true);
-      } else {
-         findViewById(R.id.btNextAccount).setEnabled(false);
-      }
-   }
+    @Subscribe
+    override fun onScanError(event: OnScanError) {
+        super.onScanError(event)
+    }
 
-   @Override
-   protected void setView() {
-      setContentView(R.layout.activity_instant_ext_sig);
-      ((TextView) findViewById(R.id.tvCaption)).setText(getString(R.string.ext_sig_import_account_caption));
-      ((TextView) findViewById(R.id.tvSelectAccount)).setText(getString(R.string.ext_sig_select_account_to_import));
-      findViewById(R.id.btNextAccount).setVisibility(View.VISIBLE);
+    @Subscribe
+    override fun onStatusChanged(event: OnStatusChanged?) {
+        super.onStatusChanged(event)
+    }
 
-      findViewById(R.id.btNextAccount).setOnClickListener(new View.OnClickListener() {
-         @Override
-         public void onClick(View view) {
-            Utils.showSimpleMessageDialog(ExtSigAccountImportActivity.this, getString(R.string.ext_sig_next_unused_account_info), new Runnable() {
-               @Override
-               public void run() {
-                  List<HdKeyNode> nextAccount = masterseedScanManager.getNextUnusedAccounts();
+    override fun onAccountFound(event: OnAccountFound) {
+        super.onAccountFound(event)
+    }
 
-                  MbwManager mbwManager = MbwManager.getInstance(ExtSigAccountImportActivity.this);
+    @Subscribe
+    override fun onPassphraseRequest(event: OnPassphraseRequest?) {
+        super.onPassphraseRequest(event)
+    }
 
-                  if (!nextAccount.isEmpty()) {
-                     UUID acc = mbwManager.getWalletManager(false)
-                           .createAccounts(new ExternalSignaturesAccountConfig(
-                                 nextAccount,
-                                 (ExternalSignatureDeviceManager) masterseedScanManager,
-                                 nextAccount.get(0).getIndex()
-                           )).get(0);
-
-                     mbwManager.getMetadataStorage().setOtherAccountBackupState(acc, MetadataStorage.BackupState.IGNORED);
-
-                     Intent result = new Intent();
-                     result.putExtra("account", acc);
-                     setResult(RESULT_OK, result);
-                     finish();
-                  }
-               }
-            });
-         }
-      });
-   }
-
-   // Otto.EventBus does not traverse class hierarchy to find subscribers
-   @Subscribe
-   public void onPinMatrixRequest(ExternalSignatureDeviceManager.OnPinMatrixRequest event) {
-      super.onPinMatrixRequest(event);
-   }
-
-   @Subscribe
-   public void onScanError(AccountScanManager.OnScanError event) {
-      super.onScanError(event);
-   }
-
-   @Subscribe
-   public void onStatusChanged(AccountScanManager.OnStatusChanged event) {
-      super.onStatusChanged(event);
-   }
-
-   @Subscribe
-   public void onAccountFound(AccountScanManager.OnAccountFound event) {
-      super.onAccountFound(event);
-   }
-
-   @Subscribe
-   public void onPassphraseRequest(AccountScanManager.OnPassphraseRequest event) {
-      super.onPassphraseRequest(event);
-   }
+    companion object {
+        private const val ITEM_WRAPPER = "ITEM_WRAPPER"
+    }
 }
