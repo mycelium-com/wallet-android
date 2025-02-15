@@ -127,16 +127,16 @@ public class BTChipTransportAndroid implements BTChipTransportFactory {
             return false;
          }
       }
-      IntentFilter filter = new IntentFilter();
-      filter.addAction(UsbReceiver.ACTION_USB_PERMISSION);
-      ContextCompat.registerReceiver(context, mUsbReceiver, filter, ContextCompat.RECEIVER_EXPORTED);
+      String usbPermission = UsbReceiver.actionUsbPermission(context);
+      ContextCompat.registerReceiver(context, mUsbReceiver,
+              new IntentFilter(usbPermission), ContextCompat.RECEIVER_EXPORTED);
 
 
       final UsbDevice device = getDevice(usbManager);
-      final Intent intent = new Intent(UsbReceiver.ACTION_USB_PERMISSION);
 
       gotRights.clear();
-      usbManager.requestPermission(device, PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_IMMUTABLE));
+      usbManager.requestPermission(device, PendingIntent.getBroadcast(context, 0,
+              new Intent(usbPermission), PendingIntent.FLAG_IMMUTABLE));
       // retry because of InterruptedException
       while (true) {
          try {

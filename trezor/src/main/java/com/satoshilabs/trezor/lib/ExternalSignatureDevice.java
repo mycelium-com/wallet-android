@@ -125,22 +125,22 @@ public abstract class ExternalSignatureDevice {
         if (usbManager == null) {
             return false;
         }
-
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(UsbReceiver.ACTION_USB_PERMISSION);
-        ContextCompat.registerReceiver(context, mUsbReceiver, filter, ContextCompat.RECEIVER_EXPORTED);
+        String usdPermission = UsbReceiver.actionUsbPermission(context);
+        Log.d(TAG, "Registering broadcast receiver for " + usdPermission);
+        ContextCompat.registerReceiver(context, mUsbReceiver,
+                new IntentFilter(usdPermission),
+                ContextCompat.RECEIVER_EXPORTED);
 
         final UsbDevice extSigDevice = getExtSigDevice();
         if (extSigDevice == null) {
             return false;
         }
 
-        final Intent intent = new Intent(UsbReceiver.ACTION_USB_PERMISSION);
-
         // clear the token-queue - under some circumstances it might happen that the requestPermission
         // callback already returned but this functions wasn't waiting anymore
         gotRights.clear();
-        usbManager.requestPermission(extSigDevice, PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_IMMUTABLE));
+        usbManager.requestPermission(extSigDevice, PendingIntent.getBroadcast(context, 0,
+                new Intent(usdPermission), PendingIntent.FLAG_IMMUTABLE));
 
 
         // retry because of InterruptedException
