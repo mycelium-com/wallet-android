@@ -31,6 +31,8 @@ import androidx.core.content.ContextCompat;
 import com.btchip.comm.BTChipTransport;
 import com.btchip.comm.BTChipTransportFactory;
 import com.btchip.comm.BTChipTransportFactoryCallback;
+
+import kotlin.Unit;
 import nordpol.android.AndroidCard;
 
 import java.util.HashMap;
@@ -46,33 +48,18 @@ public class BTChipTransportAndroid implements BTChipTransportFactory {
 
    private static final String LOG_TAG = "BTChipTransportAndroid";
 
-   private static final String ACTION_USB_PERMISSION = "USB_PERMISSION";
-
    private static final byte TEST_APDU[] = {(byte) 0xe0, (byte) 0xc4, (byte) 0x00, (byte) 0x00, (byte) 0x00};
 
    /**
     * Receives broadcast when a supported USB device is attached, detached or
     * when a permission to communicate to the device has been granted.
     */
-   private final BroadcastReceiver mUsbReceiver = new BroadcastReceiver() {
-      @Override
-      public void onReceive(Context context, Intent intent) {
-         String action = intent.getAction();
-         UsbDevice usbDevice = (UsbDevice) intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
-         String deviceName = usbDevice.getDeviceName();
-
-         if (ACTION_USB_PERMISSION.equals(action)) {
-            boolean permission = intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED,
-                  false);
-            Log.d(LOG_TAG, "ACTION_USB_PERMISSION: " + permission + " Device: " + deviceName);
-
-            // sync with connect
-            gotRights.clear();
-            gotRights.add(permission);
-            context.unregisterReceiver(mUsbReceiver);
-         }
-      }
-   };
+   private final BroadcastReceiver mUsbReceiver = new UsbReceiver(permission -> {
+      gotRights.clear();
+      // sync with connect
+      gotRights.add(permission);
+      return Unit.INSTANCE;
+   });
 
    public BTChipTransportAndroid(Context context) {
       usbManager = (UsbManager) context.getSystemService(Context.USB_SERVICE);
@@ -141,12 +128,12 @@ public class BTChipTransportAndroid implements BTChipTransportFactory {
          }
       }
       IntentFilter filter = new IntentFilter();
-      filter.addAction(ACTION_USB_PERMISSION);
+      filter.addAction(UsbReceiver.ACTION_USB_PERMISSION);
       ContextCompat.registerReceiver(context, mUsbReceiver, filter, ContextCompat.RECEIVER_EXPORTED);
 
 
       final UsbDevice device = getDevice(usbManager);
-      final Intent intent = new Intent(ACTION_USB_PERMISSION);
+      final Intent intent = new Intent(UsbReceiver.ACTION_USB_PERMISSION);
 
       gotRights.clear();
       usbManager.requestPermission(device, PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_IMMUTABLE));
