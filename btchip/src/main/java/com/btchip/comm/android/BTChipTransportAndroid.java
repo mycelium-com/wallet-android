@@ -135,8 +135,10 @@ public class BTChipTransportAndroid implements BTChipTransportFactory {
       final UsbDevice device = getDevice(usbManager);
 
       gotRights.clear();
+
       usbManager.requestPermission(device, PendingIntent.getBroadcast(context, 0,
-              new Intent(usbPermission), PendingIntent.FLAG_IMMUTABLE));
+              new Intent(usbPermission).setPackage(context.getPackageName()),
+              PendingIntent.FLAG_MUTABLE));
       // retry because of InterruptedException
       while (true) {
          try {

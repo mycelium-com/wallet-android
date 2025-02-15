@@ -140,7 +140,8 @@ public abstract class ExternalSignatureDevice {
         // callback already returned but this functions wasn't waiting anymore
         gotRights.clear();
         usbManager.requestPermission(extSigDevice, PendingIntent.getBroadcast(context, 0,
-                new Intent(usdPermission), PendingIntent.FLAG_IMMUTABLE));
+                new Intent(usdPermission).setPackage(context.getPackageName()),
+                PendingIntent.FLAG_MUTABLE));
 
 
         // retry because of InterruptedException
