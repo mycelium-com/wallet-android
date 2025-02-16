@@ -1,47 +1,16 @@
-/*
- * Copyright 2013, 2014 Megion Research and Development GmbH
- *
- * Licensed under the Microsoft Reference Source License (MS-RSL)
- *
- * This license governs use of the accompanying software. If you use the software, you accept this license.
- * If you do not accept the license, do not use the software.
- *
- * 1. Definitions
- * The terms "reproduce," "reproduction," and "distribution" have the same meaning here as under U.S. copyright law.
- * "You" means the licensee of the software.
- * "Your company" means the company you worked for when you downloaded the software.
- * "Reference use" means use of the software within your company as a reference, in read only form, for the sole purposes
- * of debugging your products, maintaining your products, or enhancing the interoperability of your products with the
- * software, and specifically excludes the right to distribute the software outside of your company.
- * "Licensed patents" means any Licensor patent claims which read directly on the software as distributed by the Licensor
- * under this license.
- *
- * 2. Grant of Rights
- * (A) Copyright Grant- Subject to the terms of this license, the Licensor grants you a non-transferable, non-exclusive,
- * worldwide, royalty-free copyright license to reproduce the software for reference use.
- * (B) Patent Grant- Subject to the terms of this license, the Licensor grants you a non-transferable, non-exclusive,
- * worldwide, royalty-free patent license under licensed patents for reference use.
- *
- * 3. Limitations
- * (A) No Trademark License- This license does not grant you any rights to use the Licensor’s name, logo, or trademarks.
- * (B) If you begin patent litigation against the Licensor over patents that you think may apply to the software
- * (including a cross-claim or counterclaim in a lawsuit), your license to the software ends automatically.
- * (C) The software is licensed "as-is." You bear the risk of using it. The Licensor gives no express warranties,
- * guarantees or conditions. You may have additional consumer rights under your local laws which this license cannot
- * change. To the extent permitted under your local laws, the Licensor excludes the implied warranties of merchantability,
- * fitness for a particular purpose and non-infringement.
- */
 package com.mycelium.wallet.activity
 
 import android.app.AlertDialog
 import android.content.Context
 import android.content.DialogInterface
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import com.google.common.collect.Iterables
 import com.mrd.bitlib.crypto.HdKeyNode
 import com.mrd.bitlib.model.hdpath.HdKeyPath
@@ -51,6 +20,8 @@ import com.mycelium.wallet.Utils
 import com.mycelium.wallet.activity.util.AbstractAccountScanManager
 import com.mycelium.wallet.activity.util.MasterseedPasswordSetter
 import com.mycelium.wallet.activity.util.toStringWithUnit
+import com.mycelium.wallet.extsig.common.ExternalSignatureDeviceManager
+import com.mycelium.wallet.persistence.MetadataStorage
 import com.mycelium.wapi.wallet.AccountScanManager
 import com.mycelium.wapi.wallet.AccountScanManager.AccountCallback
 import com.mycelium.wapi.wallet.AccountScanManager.HdKeyNodeWrapper
@@ -59,27 +30,32 @@ import com.mycelium.wapi.wallet.AccountScanManager.OnPassphraseRequest
 import com.mycelium.wapi.wallet.AccountScanManager.OnScanError
 import com.mycelium.wapi.wallet.AccountScanManager.OnStatusChanged
 import com.mycelium.wapi.wallet.SyncMode
+import com.mycelium.wapi.wallet.btc.bip44.ExternalSignaturesAccountConfig
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.fio.FioAccount
 import com.squareup.otto.Subscribe
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import java.io.Serializable
 import java.util.*
 import javax.annotation.Nonnull
 
-abstract class HdAccountSelectorActivity : AppCompatActivity(), MasterseedPasswordSetter {
+abstract class HdAccountSelectorActivity<AccountScanManager : AbstractAccountScanManager> :
+    AppCompatActivity(), MasterseedPasswordSetter {
     @JvmField
     protected var accounts = ArrayList<HdAccountWrapper>()
     @JvmField
     protected var accountsAdapter: AccountsAdapter? = null
     @JvmField
-    protected var masterseedScanManager: AbstractAccountScanManager? = null
+    protected var masterseedScanManager: AccountScanManager? = null
     @JvmField
     protected var txtStatus: TextView? = null
     @JvmField
     protected var coinType: CryptoCurrency? = null
-    protected abstract fun initMasterseedManager(): AbstractAccountScanManager?
+    protected abstract fun initMasterseedManager(): AccountScanManager
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setView()
@@ -206,7 +182,7 @@ abstract class HdAccountSelectorActivity : AppCompatActivity(), MasterseedPasswo
         masterseedScanManager!!.forgetAccounts()
     }
 
-    override fun setPassphrase(passphrase: String) {
+    override fun setPassphrase(passphrase: String?) {
         masterseedScanManager!!.setPassphrase(passphrase)
         // close the dialog fragment
         val fragPassphrase = fragmentManager.findFragmentByTag(PASSPHRASE_FRAGMENT_TAG)
@@ -215,14 +191,12 @@ abstract class HdAccountSelectorActivity : AppCompatActivity(), MasterseedPasswo
         }
     }
 
-    class HdAccountWrapper : Serializable {
-        @JvmField
-        var id: UUID? = null
-        @JvmField
-        var accountHdKeysPaths: Collection<HdKeyPath>? = null
-        @JvmField
-        var publicKeyNodes: List<HdKeyNode>? = null
-        var name: String? = null
+    class HdAccountWrapper(
+        val id: UUID,
+        val name: String,
+        val accountHdKeysPaths: Collection<HdKeyPath>,
+        val publicKeyNodes: List<HdKeyNode>,
+    ) : Serializable {
         override fun equals(o: Any?): Boolean {
             if (this === o) return true
             if (o == null || javaClass != o.javaClass) return false
@@ -266,6 +240,27 @@ abstract class HdAccountSelectorActivity : AppCompatActivity(), MasterseedPasswo
 
     }
 
+    protected fun createAccountAndFinish(hdKeyNodes: List<HdKeyNode>, accountIndex: Int) {
+        lifecycleScope.launch(Dispatchers.Default) {
+            val mbwManager = MbwManager.getInstance(this@HdAccountSelectorActivity)
+            val acc = mbwManager.getWalletManager(false).createAccounts(
+                ExternalSignaturesAccountConfig(
+                    hdKeyNodes,
+                    (masterseedScanManager as? ExternalSignatureDeviceManager)!!,
+                    accountIndex
+                )
+            ).first()
+            mbwManager.metadataStorage.setOtherAccountBackupState(
+                acc,
+                MetadataStorage.BackupState.IGNORED
+            )
+            withContext(Dispatchers.Main) {
+                setResult(RESULT_OK, Intent().putExtra("account", acc))
+                finish()
+            }
+        }
+    }
+
     @Subscribe
     open fun onScanError(event: OnScanError) {
         Utils.showSimpleMessageDialog(this, event.errorMessage)
@@ -278,16 +273,16 @@ abstract class HdAccountSelectorActivity : AppCompatActivity(), MasterseedPasswo
 
     @Subscribe
     open fun onAccountFound(event: OnAccountFound) {
-        val acc = HdAccountWrapper()
-        acc.id = event.account.accountId
-        acc.accountHdKeysPaths = event.account.keysPaths
         val path = event.account.keysPaths.iterator().next()
-        if (path == HdKeyPath.BIP32_ROOT) {
-            acc.name = getString(R.string.bip32_root_account)
-        } else {
-            acc.name = String.format(getString(R.string.account_number), path.lastIndex + 1)
-        }
-        acc.publicKeyNodes = event.account.accountsRoots
+        val acc = HdAccountWrapper(
+            event.account.accountId,
+            if (path == HdKeyPath.BIP32_ROOT) {
+                getString(R.string.bip32_root_account)
+            } else {
+                String.format(getString(R.string.account_number), path.lastIndex + 1)
+            }, event.account.keysPaths,
+            event.account.accountsRoots
+        )
         if (!accounts.contains(acc)) {
             accountsAdapter!!.add(acc)
             updateUi()
@@ -301,7 +296,7 @@ abstract class HdAccountSelectorActivity : AppCompatActivity(), MasterseedPasswo
     }
 
     companion object {
-        protected const val REQUEST_SEND = 1
+        const val REQUEST_SEND = 1
         const val PASSPHRASE_FRAGMENT_TAG = "passphrase"
     }
 }

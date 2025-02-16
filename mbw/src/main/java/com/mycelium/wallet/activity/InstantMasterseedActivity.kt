@@ -1,168 +1,130 @@
-/*
- * Copyright 2013, 2014 Megion Research and Development GmbH
- *
- * Licensed under the Microsoft Reference Source License (MS-RSL)
- *
- * This license governs use of the accompanying software. If you use the software, you accept this license.
- * If you do not accept the license, do not use the software.
- *
- * 1. Definitions
- * The terms "reproduce," "reproduction," and "distribution" have the same meaning here as under U.S. copyright law.
- * "You" means the licensee of the software.
- * "Your company" means the company you worked for when you downloaded the software.
- * "Reference use" means use of the software within your company as a reference, in read only form, for the sole purposes
- * of debugging your products, maintaining your products, or enhancing the interoperability of your products with the
- * software, and specifically excludes the right to distribute the software outside of your company.
- * "Licensed patents" means any Licensor patent claims which read directly on the software as distributed by the Licensor
- * under this license.
- *
- * 2. Grant of Rights
- * (A) Copyright Grant- Subject to the terms of this license, the Licensor grants you a non-transferable, non-exclusive,
- * worldwide, royalty-free copyright license to reproduce the software for reference use.
- * (B) Patent Grant- Subject to the terms of this license, the Licensor grants you a non-transferable, non-exclusive,
- * worldwide, royalty-free patent license under licensed patents for reference use.
- *
- * 3. Limitations
- * (A) No Trademark License- This license does not grant you any rights to use the Licensor’s name, logo, or trademarks.
- * (B) If you begin patent litigation against the Licensor over patents that you think may apply to the software
- * (including a cross-claim or counterclaim in a lawsuit), your license to the software ends automatically.
- * (C) The software is licensed "as-is." You bear the risk of using it. The Licensor gives no express warranties,
- * guarantees or conditions. You may have additional consumer rights under your local laws which this license cannot
- * change. To the extent permitted under your local laws, the Licensor excludes the implied warranties of merchantability,
- * fitness for a particular purpose and non-infringement.
- */
+package com.mycelium.wallet.activity
 
-package com.mycelium.wallet.activity;
+import android.app.Activity
+import android.content.Intent
+import android.os.Bundle
+import android.view.View
+import android.widget.AdapterView
+import android.widget.AdapterView.OnItemClickListener
+import com.mrd.bitlib.crypto.Bip39.MasterSeed
+import com.mycelium.wallet.MbwManager
+import com.mycelium.wallet.R
+import com.mycelium.wallet.activity.HdAccountSelectorActivity.HdAccountWrapper
+import com.mycelium.wallet.activity.send.SendInitializationActivity.Companion.getIntent
+import com.mycelium.wallet.activity.util.MasterseedScanManager
+import com.mycelium.wapi.wallet.AccountScanManager.OnAccountFound
+import com.mycelium.wapi.wallet.AccountScanManager.OnPassphraseRequest
+import com.mycelium.wapi.wallet.AccountScanManager.OnScanError
+import com.mycelium.wapi.wallet.AccountScanManager.OnStatusChanged
+import com.squareup.otto.Subscribe
 
-import android.app.Activity;
-import android.content.Intent;
-import android.os.Bundle;
-import android.view.View;
-import android.widget.AdapterView;
+class InstantMasterseedActivity : HdAccountSelectorActivity<MasterseedScanManager>() {
+    private var masterSeed: MasterSeed? = null
+    private var words: Array<String>? = null
+    private var password: String? = null
 
-import com.mrd.bitlib.crypto.Bip39;
-import com.mycelium.wallet.MbwManager;
-import com.mycelium.wallet.R;
-import com.mycelium.wallet.activity.send.SendInitializationActivity;
-import com.mycelium.wallet.activity.util.AbstractAccountScanManager;
-import com.mycelium.wallet.activity.util.MasterseedScanManager;
-import com.mycelium.wapi.wallet.AccountScanManager;
-import com.mycelium.wapi.wallet.WalletManager;
-import com.squareup.otto.Subscribe;
+    override fun onCreate(savedInstanceState: Bundle?) {
+        masterSeed = intent.getSerializableExtra(MASTERSEED) as MasterSeed?
+        if (masterSeed == null) {
+            words = intent.getStringArrayExtra(WORDS)
+            password = intent.getStringExtra(PASSWORD)
+        }
+        super.onCreate(savedInstanceState)
+    }
 
-public class InstantMasterseedActivity extends HdAccountSelectorActivity {
+    override fun finish() {
+        super.finish()
+        masterseedScanManager!!.stopBackgroundAccountScan()
+    }
 
-   public static final String PASSWORD = "password";
-   public static final String WORDS = "words";
-   public static final String MASTERSEED = "masterseed";
-   private Bip39.MasterSeed masterSeed;
-   private String[] words;
-   private String password;
+    override fun setView() {
+        setContentView(R.layout.activity_instant_masterseed)
+    }
 
-   // if password is null, the scan manager will ask the user for a password later on
-   public static void callMe(Activity currentActivity, String[] masterSeedWords, String password) {
-      Intent intent = new Intent(currentActivity, InstantMasterseedActivity.class);
-      intent.putExtra(WORDS, masterSeedWords);
-      intent.putExtra(PASSWORD, password);
-      currentActivity.startActivity(intent);
-   }
-
-   public static void callMe(Activity currentActivity, int requestCode, Bip39.MasterSeed masterSeed) {
-      Intent intent = new Intent(currentActivity, InstantMasterseedActivity.class);
-      intent.putExtra(MASTERSEED, masterSeed);
-      currentActivity.startActivityForResult(intent, requestCode);
-   }
-
-   @Override
-   protected void onCreate(Bundle savedInstanceState) {
-      masterSeed = (Bip39.MasterSeed) getIntent().getSerializableExtra(MASTERSEED);
-      if (masterSeed == null){
-         words = getIntent().getStringArrayExtra(WORDS);
-         password = getIntent().getStringExtra(PASSWORD);
-      }
-      super.onCreate(savedInstanceState);
-   }
-
-   @Override
-   public void finish() {
-      super.finish();
-      masterseedScanManager.stopBackgroundAccountScan();
-   }
-
-
-   @Override
-   protected void setView() {
-      setContentView(R.layout.activity_instant_masterseed);
-   }
-
-   @Override
-   protected AbstractAccountScanManager initMasterseedManager() {
-      MbwManager mbwManager = MbwManager.getInstance(this);
-      WalletManager walletManager = mbwManager.getWalletManager(true);
-      if (walletManager.accountScanManager == null) {
-         if (masterSeed != null) {
-            walletManager.accountScanManager = new MasterseedScanManager(
+    override fun initMasterseedManager(): MasterseedScanManager {
+        val mbwManager = MbwManager.getInstance(this)
+        val walletManager = mbwManager.getWalletManager(true)
+        if (walletManager.accountScanManager == null) {
+            walletManager.accountScanManager = if (masterSeed != null) {
+                MasterseedScanManager(
                     this,
-                    mbwManager.getNetwork(),
-                    masterSeed,
-                    mbwManager.getEventBus(),
-                    coinType);
-         } else {
-            // only provide the words - the manager will ask for a passphrase
-            walletManager.accountScanManager = new MasterseedScanManager(
+                    mbwManager.network,
+                    masterSeed!!,
+                    MbwManager.getEventBus(),
+                    coinType!!
+                )
+            } else {
+                // only provide the words - the manager will ask for a passphrase
+                MasterseedScanManager(
                     this,
-                    mbwManager.getNetwork(),
-                    words,
+                    mbwManager.network,
+                    words!!,
                     password,
-                    mbwManager.getEventBus(),
-                    coinType);
-         }
-      }
-      return (AbstractAccountScanManager) walletManager.accountScanManager;
-   }
-
-   @Override
-   protected AdapterView.OnItemClickListener accountClickListener() {
-      return new AdapterView.OnItemClickListener() {
-         @Override
-         public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-            final HdAccountWrapper item = (HdAccountWrapper) adapterView.getItemAtPosition(i);
-            if (item != null && item.id != null) {
-               final Intent intent = SendInitializationActivity.getIntent(
-                       InstantMasterseedActivity.this,
-                       item.id,
-                       true
-               );
-               InstantMasterseedActivity.this.startActivityForResult(intent, REQUEST_SEND);
+                    MbwManager.getEventBus(),
+                    coinType!!
+                )
             }
-         }
-      };
-   }
+        }
+        return walletManager.accountScanManager as MasterseedScanManager
+    }
 
-   // Otto.EventBus does not traverse class hierarchy to find subscribers
-   @Subscribe
-   public void onScanError(AccountScanManager.OnScanError event){
-      super.onScanError(event);
-   }
+    override fun accountClickListener(): OnItemClickListener? =
+        object : OnItemClickListener {
+            override fun onItemClick(adapterView: AdapterView<*>, view: View?, i: Int, l: Long) {
+                (adapterView.getItemAtPosition(i) as? HdAccountWrapper)?.run {
+                    val intent = getIntent(
+                        this@InstantMasterseedActivity,
+                        id,
+                        true
+                    )
+                    this@InstantMasterseedActivity.startActivityForResult(intent, REQUEST_SEND)
+                }
+            }
+        }
 
-   @Subscribe
-   public void onStatusChanged(AccountScanManager.OnStatusChanged event){
-      super.onStatusChanged(event);
-   }
+    // Otto.EventBus does not traverse class hierarchy to find subscribers
+    @Subscribe
+    override fun onScanError(event: OnScanError) {
+        super.onScanError(event)
+    }
 
-   @Subscribe
-   public void onAccountFound(AccountScanManager.OnAccountFound event){
-      super.onAccountFound(event);
-   }
+    @Subscribe
+    override fun onStatusChanged(event: OnStatusChanged?) {
+        super.onStatusChanged(event)
+    }
 
-   @Subscribe
-   public void onPassphraseRequest(AccountScanManager.OnPassphraseRequest event){
-      super.onPassphraseRequest(event);
-   }
+    @Subscribe
+    override fun onAccountFound(event: OnAccountFound) {
+        super.onAccountFound(event)
+    }
 
-   @Override
-   protected void onDestroy() {
-      super.onDestroy();
-      MbwManager.getInstance(this).forgetColdStorageWalletManager();
-   }
+    @Subscribe
+    override fun onPassphraseRequest(event: OnPassphraseRequest?) {
+        super.onPassphraseRequest(event)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        MbwManager.getInstance(this).forgetColdStorageWalletManager()
+    }
+
+    companion object {
+        const val PASSWORD: String = "password"
+        const val WORDS: String = "words"
+        const val MASTERSEED: String = "masterseed"
+
+        // if password is null, the scan manager will ask the user for a password later on
+        fun callMe(currentActivity: Activity, masterSeedWords: Array<String>, password: String?) {
+            val intent = Intent(currentActivity, InstantMasterseedActivity::class.java)
+            intent.putExtra(WORDS, masterSeedWords)
+            intent.putExtra(PASSWORD, password)
+            currentActivity.startActivity(intent)
+        }
+
+        fun callMe(currentActivity: Activity, requestCode: Int, masterSeed: MasterSeed?) {
+            val intent = Intent(currentActivity, InstantMasterseedActivity::class.java)
+            intent.putExtra(MASTERSEED, masterSeed)
+            currentActivity.startActivityForResult(intent, requestCode)
+        }
+    }
 }

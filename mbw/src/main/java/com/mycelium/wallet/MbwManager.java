@@ -282,7 +282,7 @@ public class MbwManager {
     }
 
     private static final Bus _eventBus = new Bus();
-    private final ExternalSignatureDeviceManager _trezorManager;
+    private final TrezorManager _trezorManager;
     private final KeepKeyManager _keepkeyManager;
     private final LedgerManager _ledgerManager;
     private final WapiClientElectrumX _wapi;
@@ -1755,7 +1755,7 @@ public class MbwManager {
         return _randomSource;
     }
 
-    public ExternalSignatureDeviceManager getTrezorManager() {
+    public TrezorManager getTrezorManager() {
         return _trezorManager;
     }
 

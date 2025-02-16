@@ -31,32 +31,21 @@
  * change. To the extent permitted under your local laws, the Licensor excludes the implied warranties of merchantability,
  * fitness for a particular purpose and non-infringement.
  */
+package com.mycelium.wallet.extsig.trezor
 
-package com.mycelium.wallet.extsig.trezor;
+import android.content.Context
+import com.mrd.bitlib.model.NetworkParameters
+import com.mycelium.wallet.extsig.common.ExternalSignatureDeviceManager
+import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext
+import com.satoshilabs.trezor.lib.ExternalSignatureDevice
+import com.satoshilabs.trezor.lib.Trezor
+import com.squareup.otto.Bus
 
-import android.content.Context;
-import com.mrd.bitlib.model.NetworkParameters;
-import com.mycelium.wallet.extsig.common.ExternalSignatureDeviceManager;
-import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext;
-import com.satoshilabs.trezor.lib.ExternalSignatureDevice;
-import com.satoshilabs.trezor.lib.Trezor;
-import com.squareup.otto.Bus;
+class TrezorManager(context: Context, network: NetworkParameters, eventBus: Bus) :
+    ExternalSignatureDeviceManager(context, network, eventBus) {
+    override fun createDevice(): ExternalSignatureDevice =
+        Trezor(context)
 
-public class TrezorManager extends ExternalSignatureDeviceManager {
-   public TrezorManager(Context context, NetworkParameters network, Bus eventBus) {
-      super(context, network, eventBus);
-   }
-
-   @Override
-   protected ExternalSignatureDevice createDevice() {
-      return new Trezor(getContext());
-   }
-
-   @Override
-   public int getBIP44AccountType() {
-      return HDAccountContext.ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_TREZOR;
-   }
-
-
-
+    override fun getBIP44AccountType(): Int =
+        HDAccountContext.ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_TREZOR
 }

@@ -1,105 +1,43 @@
 package com.mycelium.wallet.extsig.common.activity
 
-import android.app.LoaderManager
 import android.app.ProgressDialog
-import android.content.AsyncTaskLoader
-import android.content.Context
-import android.content.Intent
-import android.content.Loader
-import android.os.Bundle
 import android.view.View
 import android.widget.AdapterView
 import android.widget.AdapterView.OnItemClickListener
 import androidx.core.view.isVisible
-import androidx.lifecycle.lifecycleScope
-import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
 import com.mycelium.wallet.activity.HdAccountSelectorActivity.HdAccountWrapper
+import com.mycelium.wallet.activity.util.AbstractAccountScanManager
 import com.mycelium.wallet.databinding.ActivityInstantExtSigBinding
-import com.mycelium.wallet.extsig.common.ExternalSignatureDeviceManager
 import com.mycelium.wallet.extsig.common.ExternalSignatureDeviceManager.OnPinMatrixRequest
-import com.mycelium.wallet.persistence.MetadataStorage
 import com.mycelium.wapi.wallet.AccountScanManager
 import com.mycelium.wapi.wallet.AccountScanManager.OnAccountFound
 import com.mycelium.wapi.wallet.AccountScanManager.OnPassphraseRequest
 import com.mycelium.wapi.wallet.AccountScanManager.OnScanError
 import com.mycelium.wapi.wallet.AccountScanManager.OnStatusChanged
-import com.mycelium.wapi.wallet.btc.bip44.ExternalSignaturesAccountConfig
 import com.squareup.otto.Subscribe
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import java.util.UUID
 
-abstract class ExtSigAccountImportActivity : ExtSigAccountSelectorActivity(),
-    LoaderManager.LoaderCallbacks<UUID?> {
+abstract class ExtSigAccountImportActivity<AccountScanManager : AbstractAccountScanManager> :
+    ExtSigAccountSelectorActivity<AccountScanManager>() {
     lateinit var binding: ActivityInstantExtSigBinding
 
-    override fun accountClickListener(): OnItemClickListener? {
-        return object : OnItemClickListener {
+    override fun accountClickListener(): OnItemClickListener? =
+        object : OnItemClickListener {
             override fun onItemClick(adapterView: AdapterView<*>, view: View?, i: Int, l: Long) {
-                val bundle = Bundle()
-                bundle.putSerializable(
-                    ITEM_WRAPPER,
-                    adapterView.getItemAtPosition(i) as HdAccountWrapper?
+                val item = adapterView.getItemAtPosition(i) as HdAccountWrapper
+                createAccountAndFinish(
+                    item.publicKeyNodes,
+                    item.accountHdKeysPaths.last().lastIndex
                 )
-                getLoaderManager().initLoader<UUID?>(1, bundle, this@ExtSigAccountImportActivity)
-                    .forceLoad()
-
-                val dialog = ProgressDialog(this@ExtSigAccountImportActivity)
-                dialog.setCancelable(false)
-                dialog.setCanceledOnTouchOutside(false)
-                dialog.setTitle(getString(R.string.hardware_account_create))
-                dialog.setMessage(getString(R.string.please_wait_hardware))
-                dialog.show()
+                ProgressDialog(this@ExtSigAccountImportActivity).apply {
+                    setCancelable(false)
+                    setCanceledOnTouchOutside(false)
+                    setTitle(getString(R.string.hardware_account_create))
+                    setMessage(getString(R.string.please_wait_hardware))
+                }.show()
             }
         }
-    }
-
-    override fun onCreateLoader(i: Int, bundle: Bundle?): Loader<UUID?> =
-        AccountCreationLoader(
-            applicationContext,
-            (bundle!!.getSerializable(ITEM_WRAPPER) as HdAccountWrapper?)!!,
-            (masterseedScanManager as ExternalSignatureDeviceManager?)!!
-        )
-
-    override fun onLoadFinished(loader: Loader<UUID?>?, uuid: UUID?) {
-        val result = Intent()
-        result.putExtra("account", uuid)
-        setResult(RESULT_OK, result)
-        finish()
-    }
-
-    override fun onLoaderReset(loader: Loader<UUID?>?) {}
-
-    class AccountCreationLoader(
-        context: Context,
-        val item: HdAccountWrapper,
-        val masterseedScanManager: ExternalSignatureDeviceManager
-    ) : AsyncTaskLoader<UUID?>(context) {
-
-        override fun loadInBackground(): UUID? {
-            // create the new account and get the uuid of it
-
-            val mbwManager = MbwManager.getInstance(context)
-
-            val acc = mbwManager.getWalletManager(false)
-                .createAccounts(
-                    ExternalSignaturesAccountConfig(
-                        item.publicKeyNodes!!,
-                        masterseedScanManager,
-                        item.accountHdKeysPaths!!.iterator().next().lastIndex
-                    )
-                )[0]
-
-            // Mark this account as backup warning ignored
-            mbwManager.metadataStorage
-                .setOtherAccountBackupState(acc, MetadataStorage.BackupState.IGNORED)
-
-            return acc
-        }
-    }
 
     override fun updateUi() {
         super.updateUi()
@@ -119,31 +57,9 @@ abstract class ExtSigAccountImportActivity : ExtSigAccountSelectorActivity(),
                 this@ExtSigAccountImportActivity,
                 getString(R.string.ext_sig_next_unused_account_info)
             ) {
-                lifecycleScope.launch(Dispatchers.Default) {
-                    val nextAccount = masterseedScanManager?.getNextUnusedAccounts()
-
-                    val mbwManager =
-                        MbwManager.getInstance(this@ExtSigAccountImportActivity)
-
-                    if (nextAccount?.isNotEmpty() == true) {
-                        val acc = mbwManager.getWalletManager(false)
-                            .createAccounts(
-                                ExternalSignaturesAccountConfig(
-                                    nextAccount,
-                                    (masterseedScanManager as ExternalSignatureDeviceManager?)!!,
-                                    nextAccount[0].index
-                                )
-                            )[0]
-
-                        mbwManager.metadataStorage.setOtherAccountBackupState(
-                            acc, MetadataStorage.BackupState.IGNORED
-                        )
-
-                        withContext(Dispatchers.Main) {
-                            setResult(RESULT_OK, Intent().putExtra("account", acc))
-                            finish()
-                        }
-                    }
+                val nextAccount = masterseedScanManager?.getNextUnusedAccounts()
+                if (nextAccount?.isNotEmpty() == true) {
+                    createAccountAndFinish(nextAccount, nextAccount.first().index)
                 }
             }
         }
@@ -172,9 +88,5 @@ abstract class ExtSigAccountImportActivity : ExtSigAccountSelectorActivity(),
     @Subscribe
     override fun onPassphraseRequest(event: OnPassphraseRequest?) {
         super.onPassphraseRequest(event)
-    }
-
-    companion object {
-        private const val ITEM_WRAPPER = "ITEM_WRAPPER"
     }
 }
