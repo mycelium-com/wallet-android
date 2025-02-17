@@ -13,7 +13,7 @@ abstract class InstantExtSigActivity<AccountScanManager : AbstractAccountScanMan
         object : OnItemClickListener {
             override fun onItemClick(adapterView: AdapterView<*>, view: View?, i: Int, l: Long) {
                 (adapterView.getItemAtPosition(i) as? HdAccountWrapper)?.run {
-                    val intent = getIntent(this@InstantExtSigActivity, id, true)
+                    val intent = getIntent(this@InstantExtSigActivity, id!!, true)
                     this@InstantExtSigActivity.startActivityForResult(intent, REQUEST_SEND)
                 }
             }

@@ -32,7 +32,7 @@ abstract class LedgerAccountSelectorActivity : HdAccountSelectorActivity<LedgerM
             (masterseedScanManager?.currentState != AccountScanManager.Status.unableToScan)
         ) {
             findViewById<View?>(R.id.tvWaitForLedger).visibility = View.GONE
-            findViewById<View?>(R.id.ivConnectLedger).setVisibility(View.GONE)
+            findViewById<View?>(R.id.ivConnectLedger).visibility = View.GONE
             txtStatus!!.text = getString(R.string.ledger_scanning_status)
         } else {
             super.updateUi()
@@ -43,7 +43,7 @@ abstract class LedgerAccountSelectorActivity : HdAccountSelectorActivity<LedgerM
             if (accounts.isNotEmpty()) {
                 super.updateUi()
             } else {
-                txtStatus!!.setText(getString(R.string.ledger_scanning_status))
+                txtStatus!!.text = getString(R.string.ledger_scanning_status)
             }
         } else if (masterseedScanManager?.currentAccountState == AccountScanManager.AccountStatus.done) {
             // DONE
@@ -90,15 +90,16 @@ abstract class LedgerAccountSelectorActivity : HdAccountSelectorActivity<LedgerM
     override fun onAccountFound(event: OnAccountFound) {
         super.onAccountFound(event)
         val walletManager = MbwManager.getInstance(this).getWalletManager(false)
-        if (walletManager.hasAccount(event.account.accountId)) {
+        val id = event.account.accountId
+        if (id != null && walletManager.hasAccount(id)) {
             val upgraded = masterseedScanManager?.upgradeAccount(
                 event.account.accountsRoots,
-                walletManager, event.account.accountId
+                walletManager, id
             )
             if (upgraded == true) {
                 // If it's migrated it's 100% that it's HD
                 val accountIndex =
-                    (walletManager.getAccount(event.account.accountId) as HDAccount).accountIndex
+                    (walletManager.getAccount(id) as HDAccount).accountIndex
                 Toaster(this).toast(getString(R.string.account_upgraded, accountIndex + 1), false)
             }
         }

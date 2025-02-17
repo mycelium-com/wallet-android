@@ -1,37 +1,3 @@
-/*
- * Copyright 2013, 2014 Megion Research and Development GmbH
- *
- * Licensed under the Microsoft Reference Source License (MS-RSL)
- *
- * This license governs use of the accompanying software. If you use the software, you accept this license.
- * If you do not accept the license, do not use the software.
- *
- * 1. Definitions
- * The terms "reproduce," "reproduction," and "distribution" have the same meaning here as under U.S. copyright law.
- * "You" means the licensee of the software.
- * "Your company" means the company you worked for when you downloaded the software.
- * "Reference use" means use of the software within your company as a reference, in read only form, for the sole purposes
- * of debugging your products, maintaining your products, or enhancing the interoperability of your products with the
- * software, and specifically excludes the right to distribute the software outside of your company.
- * "Licensed patents" means any Licensor patent claims which read directly on the software as distributed by the Licensor
- * under this license.
- *
- * 2. Grant of Rights
- * (A) Copyright Grant- Subject to the terms of this license, the Licensor grants you a non-transferable, non-exclusive,
- * worldwide, royalty-free copyright license to reproduce the software for reference use.
- * (B) Patent Grant- Subject to the terms of this license, the Licensor grants you a non-transferable, non-exclusive,
- * worldwide, royalty-free patent license under licensed patents for reference use.
- *
- * 3. Limitations
- * (A) No Trademark License- This license does not grant you any rights to use the Licensor’s name, logo, or trademarks.
- * (B) If you begin patent litigation against the Licensor over patents that you think may apply to the software
- * (including a cross-claim or counterclaim in a lawsuit), your license to the software ends automatically.
- * (C) The software is licensed "as-is." You bear the risk of using it. The Licensor gives no express warranties,
- * guarantees or conditions. You may have additional consumer rights under your local laws which this license cannot
- * change. To the extent permitted under your local laws, the Licensor excludes the implied warranties of merchantability,
- * fitness for a particular purpose and non-infringement.
- */
-
 package com.mycelium.wallet.extsig.common
 
 import android.app.AlertDialog
@@ -39,7 +5,6 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.util.Log
-import com.google.common.base.Optional
 import com.google.protobuf.ByteString
 import com.google.protobuf.GeneratedMessageV3
 import com.google.protobuf.Message
@@ -52,28 +17,31 @@ import com.mrd.bitlib.model.hdpath.HdKeyPath
 import com.mrd.bitlib.util.ByteReader
 import com.mrd.bitlib.util.ByteWriter
 import com.mrd.bitlib.util.Sha256Hash
+import com.mycelium.wallet.Constants.TAG
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.util.AbstractAccountScanManager
+import com.mycelium.wallet.extsig.common.ExternalSignatureDeviceManager.OnStatusUpdate.CurrentStatus.SHOW_CHANGE_ADDRESS
+import com.mycelium.wallet.extsig.common.ExternalSignatureDeviceManager.OnStatusUpdate.CurrentStatus.WARNING
 import com.mycelium.wapi.model.TransactionEx
+import com.mycelium.wapi.wallet.AccountScanManager
 import com.mycelium.wapi.wallet.WalletManager
+import com.mycelium.wapi.wallet.btc.bip44.*
 import com.satoshilabs.trezor.lib.ExtSigDeviceConnectionException
 import com.satoshilabs.trezor.lib.ExternalSignatureDevice
 import com.satoshilabs.trezor.lib.protobuf.TrezorMessage
 import com.satoshilabs.trezor.lib.protobuf.TrezorMessage.SignTx
 import com.satoshilabs.trezor.lib.protobuf.TrezorMessage.TxRequest
 import com.satoshilabs.trezor.lib.protobuf.TrezorType
+import com.satoshilabs.trezor.lib.protobuf.TrezorType.RequestType.TXOUTPUT
 import com.squareup.otto.Bus
 import java.util.UUID
 import java.util.concurrent.LinkedBlockingQueue
 
-import com.mycelium.wallet.Constants.TAG
-import com.mycelium.wallet.extsig.common.ExternalSignatureDeviceManager.OnStatusUpdate.CurrentStatus.SHOW_CHANGE_ADDRESS
-import com.mycelium.wallet.extsig.common.ExternalSignatureDeviceManager.OnStatusUpdate.CurrentStatus.WARNING
-import com.mycelium.wapi.wallet.AccountScanManager
-import com.mycelium.wapi.wallet.btc.bip44.*
-import com.satoshilabs.trezor.lib.protobuf.TrezorType.RequestType.TXOUTPUT
-
-abstract class ExternalSignatureDeviceManager(context: Context, network: NetworkParameters, eventBus: Bus) : AbstractAccountScanManager(context, network, eventBus), ExternalSignatureProvider {
+abstract class ExternalSignatureDeviceManager(
+    context: Context,
+    network: NetworkParameters,
+    eventBus: Bus
+) : AbstractAccountScanManager(context, network, eventBus), ExternalSignatureProvider {
     private val pinMatrixEntry = LinkedBlockingQueue<String>(1)
     private val signatureDevice by lazy { createDevice() }
 
@@ -81,11 +49,10 @@ abstract class ExternalSignatureDeviceManager(context: Context, network: Network
     var features: TrezorMessage.Features? = null
         private set
 
-    override fun getLabelOrDefault(): String {
-        return if (features != null && !features!!.label.isEmpty()) {
+    override fun getLabelOrDefault(): String =
+        if (features?.label?.isNotEmpty() == true) {
             features!!.label
         } else signatureDevice.defaultAccountName
-    }
 
     // we dont know...
     val isMostRecentVersion: Boolean
@@ -146,9 +113,7 @@ abstract class ExternalSignatureDeviceManager(context: Context, network: Network
         }
     }
 
-    override fun onBeforeScan(): Boolean {
-        return initialize()
-    }
+    override fun onBeforeScan(): Boolean = initialize()
 
     private fun initialize(): Boolean {
         // check if a trezor is attached and connect to it, otherwise loop and check periodically
@@ -429,7 +394,10 @@ abstract class ExternalSignatureDeviceManager(context: Context, network: Network
         return TrezorType.OutputScriptType.PAYTOADDRESS
     }
 
-    override fun getAccountPubKeyNode(keyPath: HdKeyPath, derivationType: BipDerivationType): Optional<HdKeyNode> {
+    override fun getAccountPubKeyNode(
+        keyPath: HdKeyPath,
+        derivationType: BipDerivationType
+    ): HdKeyNode? {
         val msgGetPubKey = TrezorMessage.GetPublicKey.newBuilder()
                 .addAllAddressN(keyPath.addressN)
                 .build()
@@ -439,22 +407,20 @@ abstract class ExternalSignatureDeviceManager(context: Context, network: Network
             if (resp is TrezorMessage.PublicKey) {
                 val pubKeyNode = resp as TrezorMessage.PublicKey?
                 val pubKey = PublicKey(pubKeyNode!!.node.publicKey.toByteArray())
-                val accountRootNode = HdKeyNode(
+                HdKeyNode(
                         pubKey,
                         pubKeyNode.node.chainCode.toByteArray(),
                         3, 0,
                         keyPath.lastIndex,
                         derivationType
                 )
-                Optional.of(accountRootNode)
             } else {
-                Optional.absent()
+                null
             }
         } catch (ex: ExtSigDeviceConnectionException) {
             postErrorMessage(ex.message!!)
-            Optional.absent()
+            null
         }
-
     }
 
     override fun upgradeAccount(accountRoots: List<HdKeyNode>, walletManager: WalletManager,
@@ -468,10 +434,17 @@ abstract class ExternalSignatureDeviceManager(context: Context, network: Network
         }
     }
 
-    override fun createOnTheFlyAccount(accountRoots: List<HdKeyNode>, walletManager: WalletManager, accountIndex: Int) =
-            accountRoots.firstOrNull { walletManager.hasAccount(it.uuid) }?.uuid
-                    ?: walletManager.createAccounts(ExternalSignaturesAccountConfig(
-                            accountRoots, this, accountIndex)).get(0);
+    override fun createOnTheFlyAccount(
+        accountRoots: List<HdKeyNode>,
+        walletManager: WalletManager,
+        accountIndex: Int
+    ): UUID =
+        accountRoots.firstOrNull { walletManager.hasAccount(it.uuid) }?.uuid
+            ?: walletManager.createAccounts(
+                ExternalSignaturesAccountConfig(
+                    accountRoots, this, accountIndex
+                )
+            ).first()
 
     fun enterPin(pin: String) {
         pinMatrixEntry.clear()

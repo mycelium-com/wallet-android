@@ -4,7 +4,6 @@ import android.app.Activity
 import androidx.test.espresso.Espresso
 import androidx.test.espresso.IdlingRegistry
 import androidx.test.espresso.action.ViewActions
-import androidx.test.espresso.core.internal.deps.guava.collect.Iterables
 import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.runner.lifecycle.ActivityLifecycleMonitorRegistry
@@ -29,12 +28,25 @@ inline fun <reified T : Activity> waitWhileAcitvity(): ActivityIdlingResource {
     return activityIdlingResource
 }
 
+fun awaitCondition(
+    timeout: Long = 10000,
+    checkInterval: Long = 200,
+    condition: () -> Boolean
+) {
+    val startTime = System.currentTimeMillis()
+    while (System.currentTimeMillis() - startTime < timeout) {
+        if (condition()) return
+        Thread.sleep(checkInterval)
+    }
+    throw AssertionError("Condition not met within timeout")
+}
+
 fun getCurrentActivity(): Activity? {
     InstrumentationRegistry.getInstrumentation().waitForIdleSync()
     val arrayOfActivities = arrayOfNulls<Activity>(1)
     InstrumentationRegistry.getInstrumentation().runOnMainSync {
         val activities = ActivityLifecycleMonitorRegistry.getInstance().getActivitiesInStage(Stage.RESUMED)
-        arrayOfActivities[0] = Iterables.getOnlyElement(activities)
+        arrayOfActivities[0] = activities.first()
     }
     return arrayOfActivities[0]
 }

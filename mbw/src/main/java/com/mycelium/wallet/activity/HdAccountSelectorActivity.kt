@@ -20,7 +20,6 @@ import com.mycelium.wallet.Utils
 import com.mycelium.wallet.activity.util.AbstractAccountScanManager
 import com.mycelium.wallet.activity.util.MasterseedPasswordSetter
 import com.mycelium.wallet.activity.util.toStringWithUnit
-import com.mycelium.wallet.extsig.common.ExternalSignatureDeviceManager
 import com.mycelium.wallet.persistence.MetadataStorage
 import com.mycelium.wapi.wallet.AccountScanManager
 import com.mycelium.wapi.wallet.AccountScanManager.AccountCallback
@@ -30,6 +29,7 @@ import com.mycelium.wapi.wallet.AccountScanManager.OnPassphraseRequest
 import com.mycelium.wapi.wallet.AccountScanManager.OnScanError
 import com.mycelium.wapi.wallet.AccountScanManager.OnStatusChanged
 import com.mycelium.wapi.wallet.SyncMode
+import com.mycelium.wapi.wallet.btc.bip44.ExternalSignatureProvider
 import com.mycelium.wapi.wallet.btc.bip44.ExternalSignaturesAccountConfig
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
@@ -68,12 +68,10 @@ abstract class HdAccountSelectorActivity<AccountScanManager : AbstractAccountSca
         lvAccounts.onItemClickListener = accountClickListener()
         // ask user from what blockchain he/she wants to spend from
         val selectedItem = IntArray(1)
-        val choices = arrayOfNulls<CharSequence>(2)
-        choices[0] = "BTC"
-        choices[1] = "FIO"
+        masterseedScanManager = initMasterseedManager()
         AlertDialog.Builder(this)
-            .setTitle("Choose blockchain")
-            .setSingleChoiceItems(choices, 0) { _: DialogInterface?, i: Int ->
+            .setTitle(getString(R.string.choose_blockchain))
+            .setSingleChoiceItems(arrayOf("BTC", "FIO"), 0) { _: DialogInterface?, i: Int ->
                 selectedItem[0] = i
             }
             .setPositiveButton(this.getString(R.string.ok)) { _: DialogInterface?, _: Int ->
@@ -82,7 +80,6 @@ abstract class HdAccountSelectorActivity<AccountScanManager : AbstractAccountSca
                 } else {
                     Utils.getFIOCoinType()
                 }
-                masterseedScanManager = initMasterseedManager()
                 startBackgroundScan()
                 updateUi()
             }
@@ -93,7 +90,7 @@ abstract class HdAccountSelectorActivity<AccountScanManager : AbstractAccountSca
 
     protected fun startBackgroundScan() {
         masterseedScanManager!!.startBackgroundAccountScan(object : AccountCallback {
-            override fun checkForTransactions(account: HdKeyNodeWrapper): UUID? {
+            override suspend fun checkForTransactions(account: HdKeyNodeWrapper): UUID? {
                 val mbwManager = MbwManager.getInstance(applicationContext)
                 val walletManager = mbwManager.getWalletManager(true)
                 val id = masterseedScanManager!!.createOnTheFlyAccount(
@@ -131,7 +128,7 @@ abstract class HdAccountSelectorActivity<AccountScanManager : AbstractAccountSca
     protected abstract fun setView()
     override fun finish() {
         super.finish()
-        masterseedScanManager!!.stopBackgroundAccountScan()
+        masterseedScanManager?.stopBackgroundAccountScan()
     }
 
     override fun onResume() {
@@ -191,23 +188,12 @@ abstract class HdAccountSelectorActivity<AccountScanManager : AbstractAccountSca
         }
     }
 
-    class HdAccountWrapper(
-        val id: UUID,
+    data class HdAccountWrapper(
+        val id: UUID?,
         val name: String,
         val accountHdKeysPaths: Collection<HdKeyPath>,
         val publicKeyNodes: List<HdKeyNode>,
-    ) : Serializable {
-        override fun equals(o: Any?): Boolean {
-            if (this === o) return true
-            if (o == null || javaClass != o.javaClass) return false
-            val that = o as HdAccountWrapper
-            return id == that.id
-        }
-
-        override fun hashCode(): Int {
-            return if (id != null) id.hashCode() else 0
-        }
-    }
+    ) : Serializable
 
     protected inner class AccountsAdapter(context: Context, resource: Int, objects: List<HdAccountWrapper>) :
         ArrayAdapter<HdAccountWrapper?>(context, resource, objects) {
@@ -246,7 +232,7 @@ abstract class HdAccountSelectorActivity<AccountScanManager : AbstractAccountSca
             val acc = mbwManager.getWalletManager(false).createAccounts(
                 ExternalSignaturesAccountConfig(
                     hdKeyNodes,
-                    (masterseedScanManager as? ExternalSignatureDeviceManager)!!,
+                    (masterseedScanManager as? ExternalSignatureProvider)!!,
                     accountIndex
                 )
             ).first()

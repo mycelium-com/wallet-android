@@ -7,13 +7,13 @@ import android.os.Bundle
 import android.view.View
 import android.widget.AdapterView
 import android.widget.AdapterView.OnItemClickListener
-import android.widget.TextView
 import com.mycelium.wallet.LedgerPinDialog
 import com.mycelium.wallet.PinDialog
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
 import com.mycelium.wallet.activity.HdAccountSelectorActivity.HdAccountWrapper
 import com.mycelium.wallet.activity.util.Pin
+import com.mycelium.wallet.databinding.ActivityInstantLedgerBinding
 import com.mycelium.wallet.extsig.ledger.LedgerManager
 import com.mycelium.wallet.extsig.ledger.LedgerManager.OnPinRequest
 import com.mycelium.wapi.wallet.AccountScanManager
@@ -35,17 +35,17 @@ class LedgerAccountImportActivity : LedgerAccountSelectorActivity() {
 
     override fun onResume() {
         super.onResume()
-        dispatcher!!.enableExclusiveNfc()
+        dispatcher?.enableExclusiveNfc()
     }
 
     override fun onPause() {
         super.onPause()
-        dispatcher!!.disableExclusiveNfc()
+        dispatcher?.disableExclusiveNfc()
     }
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
-        dispatcher!!.interceptIntent(intent)
+        dispatcher?.interceptIntent(intent)
     }
 
     override fun accountClickListener(): OnItemClickListener? =
@@ -68,22 +68,21 @@ class LedgerAccountImportActivity : LedgerAccountSelectorActivity() {
 
     override fun updateUi() {
         super.updateUi()
-        if (masterseedScanManager!!.currentAccountState == AccountScanManager.AccountStatus.done) {
-            findViewById<View?>(R.id.btNextAccount).setEnabled(true)
-        } else {
-            findViewById<View?>(R.id.btNextAccount).setEnabled(false)
-        }
+        findViewById<View?>(R.id.btNextAccount)?.setEnabled(
+            masterseedScanManager?.currentAccountState == AccountScanManager.AccountStatus.done
+        )
     }
+    lateinit var binding: ActivityInstantLedgerBinding
 
     override fun setView() {
-        setContentView(R.layout.activity_instant_ledger)
-        (findViewById<View?>(R.id.tvCaption) as TextView).text =
-            getString(R.string.ledger_import_account_caption)
-        (findViewById<View?>(R.id.tvSelectAccount) as TextView).text =
-            getString(R.string.ledger_select_account_to_import)
-        (findViewById<View?>(R.id.btNextAccount) as TextView).visibility = View.VISIBLE
+        setContentView(ActivityInstantLedgerBinding.inflate(layoutInflater).apply {
+            binding = this
+        }.root)
+        binding.tvCaption.text = getString(R.string.ledger_import_account_caption)
+        binding.tvSelectAccount.text = getString(R.string.ledger_select_account_to_import)
+        binding.btNextAccount.visibility = View.VISIBLE
 
-        findViewById<View?>(R.id.btNextAccount).setOnClickListener {
+        binding.btNextAccount.setOnClickListener {
             Utils.showSimpleMessageDialog(
                 this@LedgerAccountImportActivity,
                 getString(R.string.ledger_next_unused_account_info)

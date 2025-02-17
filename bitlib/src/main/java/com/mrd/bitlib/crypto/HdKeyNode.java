@@ -34,6 +34,8 @@ import com.mrd.bitlib.util.ByteReader.InsufficientBytesException;
 import com.mrd.bitlib.util.ByteWriter;
 import org.jetbrains.annotations.Nullable;
 
+import jdk.internal.net.http.common.Log;
+
 /**
  * Implementation of BIP 32 HD wallet key derivation.
  * <p>
@@ -73,7 +75,8 @@ public class HdKeyNode implements Serializable {
       } else {
          writer.put((byte) 0);
       }
-      Preconditions.checkArgument(_publicKey.getPublicKeyBytes().length == 33);
+      Preconditions.checkArgument(_publicKey.getPublicKeyBytes().length == 33,
+              "public key bytes length(must be 33)=" + _publicKey.getPublicKeyBytes().length);
       writer.putBytes(_publicKey.getPublicKeyBytes());
       writer.putBytes(_chainCode);
       writer.putIntLE(_depth);

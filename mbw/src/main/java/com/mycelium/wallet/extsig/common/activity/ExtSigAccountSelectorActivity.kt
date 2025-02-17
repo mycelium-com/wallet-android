@@ -63,7 +63,7 @@ abstract class ExtSigAccountSelectorActivity<AccountScanManager : AbstractAccoun
 
     override fun finish() {
         super.finish()
-        masterseedScanManager!!.stopBackgroundAccountScan()
+        masterseedScanManager?.stopBackgroundAccountScan()
     }
 
     @SuppressLint("DefaultLocale") // It's only for display.
@@ -207,15 +207,16 @@ abstract class ExtSigAccountSelectorActivity<AccountScanManager : AbstractAccoun
     override fun onAccountFound(event: OnAccountFound) {
         super.onAccountFound(event)
         val walletManager = MbwManager.getInstance(this).getWalletManager(false)
-        if (walletManager.hasAccount(event.account.accountId)) {
+        val id = event.account.accountId
+        if (id != null && walletManager.hasAccount(id)) {
             val upgraded = masterseedScanManager!!.upgradeAccount(
                 event.account.accountsRoots,
-                walletManager, event.account.accountId
+                walletManager, id
             )
             if (upgraded) {
                 // If it's migrated it's 100% that it's HD
                 val accountIndex =
-                    (walletManager.getAccount(event.account.accountId) as HDAccount).accountIndex
+                    (walletManager.getAccount(id) as HDAccount).accountIndex
                 Toaster(this).toast(getString(R.string.account_upgraded, accountIndex + 1), false)
             }
         }

@@ -34,7 +34,7 @@ class InstantMasterseedActivity : HdAccountSelectorActivity<MasterseedScanManage
 
     override fun finish() {
         super.finish()
-        masterseedScanManager!!.stopBackgroundAccountScan()
+        masterseedScanManager?.stopBackgroundAccountScan()
     }
 
     override fun setView() {
@@ -74,7 +74,7 @@ class InstantMasterseedActivity : HdAccountSelectorActivity<MasterseedScanManage
                 (adapterView.getItemAtPosition(i) as? HdAccountWrapper)?.run {
                     val intent = getIntent(
                         this@InstantMasterseedActivity,
-                        id,
+                        id!!,
                         true
                     )
                     this@InstantMasterseedActivity.startActivityForResult(intent, REQUEST_SEND)
@@ -116,14 +116,14 @@ class InstantMasterseedActivity : HdAccountSelectorActivity<MasterseedScanManage
         // if password is null, the scan manager will ask the user for a password later on
         fun callMe(currentActivity: Activity, masterSeedWords: Array<String>, password: String?) {
             val intent = Intent(currentActivity, InstantMasterseedActivity::class.java)
-            intent.putExtra(WORDS, masterSeedWords)
-            intent.putExtra(PASSWORD, password)
+                .putExtra(WORDS, masterSeedWords)
+                .putExtra(PASSWORD, password)
             currentActivity.startActivity(intent)
         }
 
         fun callMe(currentActivity: Activity, requestCode: Int, masterSeed: MasterSeed?) {
             val intent = Intent(currentActivity, InstantMasterseedActivity::class.java)
-            intent.putExtra(MASTERSEED, masterSeed)
+                .putExtra(MASTERSEED, masterSeed)
             currentActivity.startActivityForResult(intent, requestCode)
         }
     }
