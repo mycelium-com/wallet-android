@@ -22,8 +22,6 @@ import com.mycelium.wallet.activity.util.MasterseedPasswordSetter
 import com.mycelium.wallet.activity.util.toStringWithUnit
 import com.mycelium.wallet.persistence.MetadataStorage
 import com.mycelium.wapi.wallet.AccountScanManager
-import com.mycelium.wapi.wallet.AccountScanManager.AccountCallback
-import com.mycelium.wapi.wallet.AccountScanManager.HdKeyNodeWrapper
 import com.mycelium.wapi.wallet.AccountScanManager.OnAccountFound
 import com.mycelium.wapi.wallet.AccountScanManager.OnPassphraseRequest
 import com.mycelium.wapi.wallet.AccountScanManager.OnScanError
@@ -37,7 +35,6 @@ import com.mycelium.wapi.wallet.fio.FioAccount
 import com.squareup.otto.Subscribe
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import java.io.Serializable
 import java.util.*
@@ -91,39 +88,38 @@ abstract class HdAccountSelectorActivity<AccountScanManager : AbstractAccountSca
     }
 
     protected fun startBackgroundScan() {
-        masterseedScanManager!!.startBackgroundAccountScan(object : AccountCallback {
-            override suspend fun checkForTransactions(account: HdKeyNodeWrapper): UUID? {
-                val mbwManager = MbwManager.getInstance(applicationContext)
-                val walletManager = mbwManager.getWalletManager(true)
-                val id = masterseedScanManager!!.createOnTheFlyAccount(
-                    account.accountsRoots,
-                    walletManager,
-                    account.keysPaths.iterator().next().lastIndex)
-                val walletAccount = walletManager.getAccount(id)
-                if (walletAccount is HDAccount) {
-                    runBlocking {
-                        walletAccount.doSynchronization(SyncMode.NORMAL_WITHOUT_TX_LOOKUP)
-                    }
-                    return if (walletAccount.hasHadActivity()) {
-                        id
-                    } else {
-                        walletAccount.dropCachedData()
-                        null
-                    }
-                } else if (walletAccount is FioAccount) {
-                    runBlocking {
-                        walletAccount.synchronize(SyncMode.NORMAL_WITHOUT_TX_LOOKUP)
-                    }
-                    return if (walletAccount.hasHadActivity()) {
+        masterseedScanManager!!.startBackgroundAccountScan { account ->
+            val walletManager = MbwManager.getInstance(applicationContext).getWalletManager(true)
+            val id = masterseedScanManager!!.createOnTheFlyAccount(
+                account.accountsRoots,
+                walletManager,
+                account.keysPaths.iterator().next().lastIndex
+            )
+            val walletAccount = walletManager.getAccount(id)
+            return@startBackgroundAccountScan when (walletAccount) {
+                is HDAccount -> {
+                    walletAccount.doSynchronization(SyncMode.NORMAL_WITHOUT_TX_LOOKUP)
+                    if (walletAccount.hasHadActivity()) {
                         id
                     } else {
                         walletAccount.dropCachedData()
                         null
                     }
                 }
-                return null
+
+                is FioAccount -> {
+                    walletAccount.synchronize(SyncMode.NORMAL_WITHOUT_TX_LOOKUP)
+                    if (walletAccount.hasHadActivity()) {
+                        id
+                    } else {
+                        walletAccount.dropCachedData()
+                        null
+                    }
+                }
+
+                else -> null
             }
-        })
+        }
     }
 
     protected abstract fun accountClickListener(): AdapterView.OnItemClickListener?

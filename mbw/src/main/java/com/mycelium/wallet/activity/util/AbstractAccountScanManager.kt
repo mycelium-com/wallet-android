@@ -10,14 +10,16 @@ import com.mrd.bitlib.model.hdpath.HdKeyPath
 import com.mycelium.wallet.BuildConfig
 import com.mycelium.wallet.Utils
 import com.mycelium.wapi.wallet.AccountScanManager
+import com.mycelium.wapi.wallet.AccountScanManager.*
 import com.mycelium.wapi.wallet.WalletManager
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.satoshilabs.trezor.lib.protobuf.TrezorType
 import com.squareup.otto.Bus
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.*
@@ -30,29 +32,29 @@ abstract class AbstractAccountScanManager @JvmOverloads constructor(
 ) : AccountScanManager {
 
     private var scanAsyncTask: Job? = null
-    private val foundAccounts = ArrayList<AccountScanManager.HdKeyNodeWrapper>()
+    private val foundAccounts = ArrayList<HdKeyNodeWrapper>()
 
     @Volatile
     protected var passphraseValue: Pair<Boolean, String?> = Pair(false, null)
     protected val mainThreadHandler: Handler = Handler(Looper.getMainLooper())
 
     @Volatile
-    var currentAccountState: AccountScanManager.AccountStatus =
-        AccountScanManager.AccountStatus.unknown
+    var currentAccountState: AccountStatus =
+        AccountStatus.unknown
 
     @Volatile
-    var currentState: AccountScanManager.Status = AccountScanManager.Status.unableToScan
+    var currentState: Status = Status.unableToScan
 
     @Volatile
     private var nextUnusedAccounts = listOf<HdKeyNode>()
 
     open inner class ScanStatus(
-        val state: AccountScanManager.Status,
-        val accountState: AccountScanManager.AccountStatus
+        val state: Status,
+        val accountState: AccountStatus
     )
 
-    inner class FoundAccountStatus(val account: AccountScanManager.HdKeyNodeWrapper) :
-        ScanStatus(AccountScanManager.Status.readyToScan, AccountScanManager.AccountStatus.scanning)
+    inner class FoundAccountStatus(val account: HdKeyNodeWrapper) :
+        ScanStatus(Status.readyToScan, AccountStatus.scanning)
 
     protected abstract fun onBeforeScan(): Boolean
 
@@ -61,122 +63,88 @@ abstract class AbstractAccountScanManager @JvmOverloads constructor(
             setState(stateInfo.state, stateInfo.accountState)
             if (stateInfo is FoundAccountStatus) {
                 val foundAccount = stateInfo.account
-                eventBus.post(AccountScanManager.OnAccountFound(foundAccount))
+                eventBus.post(OnAccountFound(foundAccount))
                 foundAccounts.add(foundAccount)
             }
         }
     }
 
-    override fun startBackgroundAccountScan(scanningCallback: AccountScanManager.AccountCallback) {
-        if (currentAccountState == AccountScanManager.AccountStatus.scanning || currentAccountState == AccountScanManager.AccountStatus.done) {
+    override fun startBackgroundAccountScan(checkTxs: suspend (HdKeyNodeWrapper) -> UUID?) {
+        if (currentAccountState == AccountStatus.scanning || currentAccountState == AccountStatus.done) {
             // currently scanning or have already all account - just post the events for all already known accounts
             foundAccounts.forEach { a ->
-                eventBus.post(AccountScanManager.OnAccountFound(a))
+                eventBus.post(OnAccountFound(a))
             }
         } else {
             // start a background task which iterates over all accounts and calls the callback
             // to check if there was activity on it
             scanAsyncTask = GlobalScope.launch(Dispatchers.Default) {
-                currentState = AccountScanManager.Status.initializing
-
-                progressUpdate(
-                    ScanStatus(
-                        AccountScanManager.Status.initializing,
-                        AccountScanManager.AccountStatus.unknown
-                    )
-                )
+                progressUpdate(ScanStatus(Status.initializing, AccountStatus.unknown))
                 if (onBeforeScan()) {
-                    progressUpdate(
-                        ScanStatus(
-                            AccountScanManager.Status.readyToScan,
-                            AccountScanManager.AccountStatus.scanning
-                        )
-                    )
+                    progressUpdate(ScanStatus(Status.readyToScan, AccountStatus.scanning))
                 } else {
                     return@launch
                 }
-
                 // scan through the accounts, to find the first unused one
-                var lastScannedPath: HdKeyPath? = null
-                val lastAccountPubKeyNodes = mutableListOf<HdKeyNode>()
-                var wasUsedOrAccountsLookahead = false
-                var lastUsedAccountIndex = 0
-                do {
-                    val accountPathsToScan =
-                        getAccountPathsToScan(lastScannedPath, wasUsedOrAccountsLookahead, coinType)
+                scanAccounts(checkTxs)
+                progressUpdate(ScanStatus(Status.readyToScan, AccountStatus.done))
+            }
+        }
+    }
 
-                    // we have scanned all accounts - get out of here...
-                    if (accountPathsToScan.isEmpty()) {
-                        // remember the last xPub key as the next-unused one
-                        nextUnusedAccounts = lastAccountPubKeyNodes
-                        break
-                    }
+    private suspend fun CoroutineScope.scanAccounts(checkTxs: suspend (HdKeyNodeWrapper) -> UUID?) {
+        var lastScannedPath: HdKeyPath? = null
+        val lastAccountPubKeyNodes = mutableListOf<HdKeyNode>()
+        var wasUsedOrAccountsLookahead = false
+        var lastUsedAccountIndex = 0
+        while (isActive) {
+            val accountPathsToScan =
+                getAccountPathsToScan(lastScannedPath, wasUsedOrAccountsLookahead, coinType)
 
-                    val accountPubKeyNodes =
-                        accountPathsToScan.mapNotNull { getAccountPubKeyNode(it.value, it.key) }
-                    lastAccountPubKeyNodes.clear()
-                    lastAccountPubKeyNodes.addAll(accountPubKeyNodes)
+            // we have scanned all accounts - get out of here...
+            if (accountPathsToScan.isEmpty()) {
+                // remember the last xPub key as the next-unused one
+                nextUnusedAccounts = lastAccountPubKeyNodes.toList()
+                break
+            } else {
+                val accountPubKeyNodes =
+                    accountPathsToScan.mapNotNull { getAccountPubKeyNode(it.value, it.key) }
+                // unable to retrieve the account (eg. device unplugged) - cancel scan
+                if (accountPubKeyNodes.isEmpty()) {
+                    break
+                }
+                lastAccountPubKeyNodes.clear()
+                lastAccountPubKeyNodes.addAll(accountPubKeyNodes)
 
-                    // unable to retrieve the account (eg. device unplugged) - cancel scan
-                    if (accountPubKeyNodes.isEmpty()) {
-                        progressUpdate(
-                            ScanStatus(
-                                AccountScanManager.Status.initializing,
-                                AccountScanManager.AccountStatus.unknown
-                            )
-                        )
-                        break
-                    }
-                    // leave accountID empty for now - set it later if it is an already used account
-                    val acc = AccountScanManager.HdKeyNodeWrapper(
+                // leave accountID empty for now - set it later if it is an already used account
+                val acc =
+                    HdKeyNodeWrapper(accountPathsToScan.values, accountPubKeyNodes, null)
+                val newAccount = checkTxs(acc)
+                lastScannedPath = accountPathsToScan.values.first()
+                wasUsedOrAccountsLookahead = if (newAccount != null) {
+                    lastUsedAccountIndex++
+                    val hdKeyNode = HdKeyNodeWrapper(
                         accountPathsToScan.values,
                         accountPubKeyNodes,
-                        null
+                        newAccount
                     )
-                    val newAccount = scanningCallback.checkForTransactions(acc)
-                    lastScannedPath = accountPathsToScan.values.first()
-                    wasUsedOrAccountsLookahead = if (newAccount != null) {
-                        lastUsedAccountIndex++
-                        progressUpdate(
-                            FoundAccountStatus(
-                                AccountScanManager.HdKeyNodeWrapper(
-                                    accountPathsToScan.values,
-                                    accountPubKeyNodes,
-                                    newAccount
-                                )
-                            )
-                        )
-                        true
-                    } else {
-                        // for FIO accounts we want to perform accounts lookahead
-                        coinType == Utils.getFIOCoinType() && accountPathsToScan.values.iterator()
-                            .next().lastIndex < lastUsedAccountIndex + ACCOUNT_LOOKAHEAD
-                    }
-                    delay(50)
-                } while (true)
-                progressUpdate(
-                    ScanStatus(
-                        AccountScanManager.Status.readyToScan,
-                        AccountScanManager.AccountStatus.done
-                    )
-                )
+                    progressUpdate(FoundAccountStatus(hdKeyNode))
+                    true
+                } else {
+                    // for FIO accounts we want to perform accounts lookahead
+                    coinType == Utils.getFIOCoinType() &&
+                            accountPathsToScan.values.first().lastIndex < lastUsedAccountIndex + ACCOUNT_LOOKAHEAD
+                }
             }
         }
     }
 
     @Synchronized
     protected fun setState(
-        state: AccountScanManager.Status,
-        accountState: AccountScanManager.AccountStatus
+        state: Status,
+        accountState: AccountStatus
     ) {
-        mainThreadHandler.post {
-            eventBus.post(
-                AccountScanManager.OnStatusChanged(
-                    state,
-                    accountState
-                )
-            )
-        }
+        mainThreadHandler.post { eventBus.post(OnStatusChanged(state, accountState)) }
         currentState = state
         currentAccountState = accountState
     }
@@ -185,24 +153,24 @@ abstract class AbstractAccountScanManager @JvmOverloads constructor(
         if (scanAsyncTask != null) {
             scanAsyncTask?.cancel()
             scanAsyncTask = null
-            currentAccountState = AccountScanManager.AccountStatus.unknown
+            currentAccountState = AccountStatus.unknown
         }
     }
 
     override fun getNextUnusedAccounts() = nextUnusedAccounts
 
     override fun forgetAccounts() {
-        if (currentAccountState == AccountScanManager.AccountStatus.scanning) {
+        if (currentAccountState == AccountStatus.scanning) {
             stopBackgroundAccountScan()
         }
-        currentAccountState = AccountScanManager.AccountStatus.unknown
+        currentAccountState = AccountStatus.unknown
         foundAccounts.clear()
     }
 
     protected fun waitForPassphrase(): String? {
         passphraseValue = passphraseValue.copy(false, null)
         // call external passphrase request ...
-        mainThreadHandler.post { eventBus.post(AccountScanManager.OnPassphraseRequest()) }
+        mainThreadHandler.post { eventBus.post(OnPassphraseRequest()) }
 
         // ... and block until we get one
         while (passphraseValue.first == false) {
@@ -212,7 +180,7 @@ abstract class AbstractAccountScanManager @JvmOverloads constructor(
     }
 
     protected fun postErrorMessage(msg: String): Boolean {
-        mainThreadHandler.post { eventBus.post(AccountScanManager.OnScanError(msg)) }
+        mainThreadHandler.post { eventBus.post(OnScanError(msg)) }
         return true
     }
 
@@ -221,13 +189,13 @@ abstract class AbstractAccountScanManager @JvmOverloads constructor(
             // need to map to the known error types, because wapi does not import the trezor lib
             if (failureType == TrezorType.FailureType.Failure_NotInitialized) {
                 eventBus.post(
-                    AccountScanManager.OnScanError(
+                    OnScanError(
                         msg,
-                        AccountScanManager.OnScanError.ErrorType.NOT_INITIALIZED
+                        OnScanError.ErrorType.NOT_INITIALIZED
                     )
                 )
             } else {
-                eventBus.post(AccountScanManager.OnScanError(msg))
+                eventBus.post(OnScanError(msg))
             }
         }
         return true
