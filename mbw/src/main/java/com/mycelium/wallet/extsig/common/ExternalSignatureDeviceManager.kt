@@ -495,14 +495,14 @@ abstract class ExternalSignatureDeviceManager(
             // get the user to enter a passphrase
             val passphrase = waitForPassphrase()
 
-            return if (!passphrase.isPresent) {
+            return if (passphrase == null) {
                 // user has not provided a password - reset session on trezor and cancel
                 response = TrezorMessage.ClearSession.newBuilder().build()
                 signatureDevice.send(response)
                 null
             } else {
                 response = TrezorMessage.PassphraseAck.newBuilder()
-                        .setPassphrase(passphrase.get())
+                        .setPassphrase(passphrase)
                         .build()
 
                 // send the Passphrase Response and get the response for the

@@ -56,6 +56,8 @@ abstract class HdAccountSelectorActivity<AccountScanManager : AbstractAccountSca
     @JvmField
     protected var coinType: CryptoCurrency? = null
     protected abstract fun initMasterseedManager(): AccountScanManager
+    private var passDialog: MasterseedPasswordDialog? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setView()
@@ -181,11 +183,6 @@ abstract class HdAccountSelectorActivity<AccountScanManager : AbstractAccountSca
 
     override fun setPassphrase(passphrase: String?) {
         masterseedScanManager!!.setPassphrase(passphrase)
-        // close the dialog fragment
-        val fragPassphrase = fragmentManager.findFragmentByTag(PASSPHRASE_FRAGMENT_TAG)
-        if (fragPassphrase != null) {
-            fragmentManager.beginTransaction().remove(fragPassphrase).commit()
-        }
     }
 
     data class HdAccountWrapper(
@@ -277,8 +274,11 @@ abstract class HdAccountSelectorActivity<AccountScanManager : AbstractAccountSca
 
     @Subscribe
     open fun onPassphraseRequest(event: OnPassphraseRequest?) {
-        val pwd = MasterseedPasswordDialog()
-        pwd.show(fragmentManager, PASSPHRASE_FRAGMENT_TAG)
+        if (passDialog?.isAdded == true) {
+            passDialog?.dismissAllowingStateLoss()
+        }
+        passDialog = MasterseedPasswordDialog()
+        passDialog?.show(supportFragmentManager, PASSPHRASE_FRAGMENT_TAG)
     }
 
     companion object {

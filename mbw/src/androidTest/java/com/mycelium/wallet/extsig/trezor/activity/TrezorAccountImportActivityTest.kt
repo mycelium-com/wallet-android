@@ -8,6 +8,7 @@ import androidx.test.core.app.launchActivityForResult
 import androidx.test.espresso.Espresso.onData
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
+import androidx.test.espresso.action.ViewActions.typeText
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.mrd.bitlib.crypto.Bip39
@@ -21,6 +22,7 @@ import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.HdAccountSelectorActivity
 import com.mycelium.wallet.activity.awaitCondition
 import com.mycelium.wallet.extsig.common.ExternalSignatureDeviceManager
+import com.mycelium.wapi.wallet.AccountScanManager
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext
 import com.satoshilabs.trezor.lib.ExternalSignatureDevice
 import com.satoshilabs.trezor.lib.Trezor
@@ -48,6 +50,22 @@ class TrezorAccountImportActivityTest {
             HdKeyNode.fromSeed(masterSeed.bip32Seed, it)
         }
         MockitoAnnotations.openMocks(this)
+    }
+
+    @Test
+    fun testPasswordInput() {
+        launchActivityForResult<TrezorAccountImportActivity>().use { scenario ->
+            scenario.moveToState(Lifecycle.State.RESUMED)
+
+            scenario.onActivity { activity ->
+                activity.onPassphraseRequest(AccountScanManager.OnPassphraseRequest())
+            }
+
+            onView(withId(R.id.etPassphrase)).perform(typeText("password"))
+            onView(withId(R.id.btnOkay)).perform(click())
+
+            scenario.close()
+        }
     }
 
     @Test

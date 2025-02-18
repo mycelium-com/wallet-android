@@ -3,7 +3,6 @@ package com.mycelium.wallet.activity.util
 import android.content.Context
 import android.os.Handler
 import android.os.Looper
-import com.google.common.base.Optional
 import com.mrd.bitlib.crypto.BipDerivationType
 import com.mrd.bitlib.crypto.HdKeyNode
 import com.mrd.bitlib.model.NetworkParameters
@@ -32,8 +31,9 @@ abstract class AbstractAccountScanManager @JvmOverloads constructor(
 
     private var scanAsyncTask: Job? = null
     private val foundAccounts = ArrayList<AccountScanManager.HdKeyNodeWrapper>()
+
     @Volatile
-    protected var passphraseValue: String? = null
+    protected var passphraseValue: Pair<Boolean, String?> = Pair(false, null)
     protected val mainThreadHandler: Handler = Handler(Looper.getMainLooper())
 
     @Volatile
@@ -199,17 +199,16 @@ abstract class AbstractAccountScanManager @JvmOverloads constructor(
         foundAccounts.clear()
     }
 
-    protected fun waitForPassphrase(): Optional<String> {
+    protected fun waitForPassphrase(): String? {
+        passphraseValue = passphraseValue.copy(false, null)
         // call external passphrase request ...
         mainThreadHandler.post { eventBus.post(AccountScanManager.OnPassphraseRequest()) }
 
         // ... and block until we get one
-        while (true) {
-            passphraseValue?.let {
-                return Optional.of(it)
-            }
+        while (passphraseValue.first == false) {
             Thread.sleep(50)
         }
+        return passphraseValue.second
     }
 
     protected fun postErrorMessage(msg: String): Boolean {
@@ -235,7 +234,7 @@ abstract class AbstractAccountScanManager @JvmOverloads constructor(
     }
 
     override fun setPassphrase(passphrase: String?) {
-        this.passphraseValue = passphrase
+        passphraseValue = passphraseValue.copy(true, passphrase)
     }
 
     abstract fun upgradeAccount(

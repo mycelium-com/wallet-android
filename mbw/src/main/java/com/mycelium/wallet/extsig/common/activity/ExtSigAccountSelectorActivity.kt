@@ -153,12 +153,6 @@ abstract class ExtSigAccountSelectorActivity<AccountScanManager : AbstractAccoun
         if (passphrase == null) {
             // user choose cancel -> leave this activity
             finish()
-        } else {
-            // close the dialog fragment
-            val fragPassphrase = supportFragmentManager.findFragmentByTag(PASSPHRASE_FRAGMENT_TAG)
-            if (fragPassphrase != null) {
-                supportFragmentManager.beginTransaction().remove(fragPassphrase).commit()
-            }
         }
     }
 

@@ -1,7 +1,6 @@
 package com.mycelium.wallet.activity.util
 
 import android.content.Context
-import com.google.common.base.Optional
 import com.mrd.bitlib.crypto.Bip39
 import com.mrd.bitlib.crypto.BipDerivationType
 import com.mrd.bitlib.crypto.HdKeyNode
@@ -18,7 +17,7 @@ import java.util.UUID
 class MasterseedScanManager : AbstractAccountScanManager {
     private var masterSeed: Bip39.MasterSeed? = null
     private val words: Array<String>?
-    private val password: String?
+    private var password: String?
     private var coinType: CryptoCurrency
 
     constructor(context: Context, network: NetworkParameters, masterSeed: Bip39.MasterSeed, eventBus: Bus,
@@ -39,13 +38,12 @@ class MasterseedScanManager : AbstractAccountScanManager {
     override fun onBeforeScan(): Boolean {
         if (masterSeed == null) {
             // use the provided passphrase, if it is nor null, ...
-            var passphrase = Optional.fromNullable(password)
-            if (!passphrase.isPresent) {
+            if (password == null) {
                 // .. otherwise query the user for a passphrase
-                passphrase = waitForPassphrase()
+                password = waitForPassphrase()
             }
-            if (passphrase.isPresent) {
-                masterSeed = Bip39.generateSeedFromWordList(words, passphrase.get())
+            if (password != null) {
+                masterSeed = Bip39.generateSeedFromWordList(words, password)
             } else {
                 return false
             }
