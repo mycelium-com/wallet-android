@@ -7,6 +7,8 @@ import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.util.ByteReader;
 import com.mycelium.wapi.wallet.SecureKeyValueStore;
 
+import jdk.internal.org.jline.utils.Log;
+
 
 public class HDPubOnlyAccountKeyManager extends HDAccountKeyManager {
 

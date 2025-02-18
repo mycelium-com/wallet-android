@@ -18,7 +18,9 @@ interface ExportableAccount {
         }
 
         constructor(privateDataMap: Map<BipDerivationType, String>?, publicDataMap: Map<BipDerivationType, String>?) {
-            this.privateData = Optional.fromNullable(privateDataMap?.get(privateDataMap.keys.iterator().next()))
+            this.privateData = if (privateDataMap?.isNotEmpty() == true)
+                Optional.fromNullable(privateDataMap[privateDataMap.keys.iterator().next()])
+            else Optional.absent<String>()
             this.privateDataMap = privateDataMap
             this.publicDataMap = publicDataMap
         }

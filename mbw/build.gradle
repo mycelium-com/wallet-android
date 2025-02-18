@@ -45,7 +45,6 @@ kapt {
 
 dependencies {
     testImplementation "junit:junit:$junitVersion"
-    androidTestImplementation 'androidx.test:rules:1.3.0'
 
     implementation project(includePrefix + ':walletmodel')
     implementation project(includePrefix + ':wapi')
@@ -153,18 +152,23 @@ dependencies {
     implementation "com.airbnb.android:lottie:3.4.0"
 
     androidTestImplementation 'androidx.test:core:1.6.1'
+    androidTestImplementation 'androidx.test:core-ktx:1.6.1'
     androidTestImplementation 'androidx.test:runner:1.6.2'
     androidTestImplementation 'androidx.test:rules:1.6.1'
     androidTestImplementation 'androidx.test.ext:junit:1.2.1'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
-    androidTestImplementation 'androidx.test.espresso:espresso-contrib:3.2.0'
-    androidTestImplementation 'androidx.test.espresso:espresso-intents:3.2.0'
-    androidTestImplementation 'androidx.test.espresso.idling:idling-concurrent:3.2.0'
-    androidTestImplementation 'androidx.test.espresso:espresso-idling-resource:3.2.0'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.6.1'
+    androidTestImplementation('androidx.test.espresso:espresso-contrib:3.6.1') {
+        exclude module: "protobuf-lite"
+    }
+    androidTestImplementation 'androidx.test.espresso:espresso-intents:3.6.1'
+    androidTestImplementation 'androidx.test.espresso.idling:idling-concurrent:3.6.1'
+    androidTestImplementation 'androidx.test.espresso:espresso-idling-resource:3.6.1'
     androidTestImplementation project(includePrefix + ':testhelper')
 
     // Kotlin Coroutines Test
-    androidTestImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3"
+    androidTestImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:1.10.1"
+    // For instrumented tests
+    androidTestImplementation "org.mockito:mockito-android:4.8.0"
 }
 
 sqldelight {
