@@ -18,6 +18,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.*
@@ -153,7 +154,7 @@ abstract class AbstractAccountScanManager @JvmOverloads constructor(
                             .next().lastIndex < lastUsedAccountIndex + ACCOUNT_LOOKAHEAD
                     }
                     delay(50)
-                } while (true)
+                } while (isActive)
                 progressUpdate(
                     ScanStatus(
                         AccountScanManager.Status.readyToScan,
