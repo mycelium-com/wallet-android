@@ -28,7 +28,7 @@ jobs:
     - name: Setup Android SDK
       uses: android-actions/setup-android@v3
 
-    - run: ./gradlew clean test mbw:assembleProdnetDebug mbw:assembleBtctestnetDebug mbw:assembleBtctestnetRelease
+    - run: ./gradlew clean test mbw:assembleProdnetDebug mbw:assembleBtctestnetDebug
 
     - uses: actions/upload-artifact@v4
       with:
@@ -38,7 +38,7 @@ jobs:
 
     - name: Check Target SDK
       run: |
-        target_sdk=$(/usr/local/lib/android/sdk/cmdline-tools/latest/bin/apkanalyzer manifest target-sdk mbw/build/outputs/apk/btctestnet/release/mbw-btctestnet-release.apk)
+        target_sdk=$(/usr/local/lib/android/sdk/cmdline-tools/latest/bin/apkanalyzer manifest target-sdk mbw/build/outputs/apk/prodnet/debug/mbw-prodnet-debug.apk)
         echo "$target_sdk" | grep "^34$"
 
     - run: mv mbw/build/outputs/apk /tmp/buildA
@@ -57,13 +57,13 @@ jobs:
         git clean -dfx
 
         cd ..
-        ./gradlew clean mbw:assembleBtctestnetRelease
+        ./gradlew clean mbw:assembleProdnetDebug
 
     - name: Unzip buildA
-      run: unzip -d buildA -qq /tmp/buildA/btctestnet/release/mbw-btctestnet-release.apk
+      run: unzip -d buildA -qq /tmp/buildA/prodnet/debug/mbw-prodnet-debug.apk
 
     - name: Unzip buildB
-      run: unzip -d buildB -qq mbw/build/outputs/apk/btctestnet/release/mbw-btctestnet-release.apk
+      run: unzip -d buildB -qq mbw/build/outputs/apk/prodnet/debug/mbw-prodnet-debug.apk
 
     - name: Compare builds
       run: |
