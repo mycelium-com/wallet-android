@@ -9,7 +9,7 @@ import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import java.util.UUID
 
 interface AccountScanManager {
-    fun startBackgroundAccountScan(scanningCallback: AccountCallback)
+    fun startBackgroundAccountScan(checkTxs: suspend (HdKeyNodeWrapper) -> UUID?)
     fun stopBackgroundAccountScan()
     fun forgetAccounts()
     fun getNextUnusedAccounts(): List<HdKeyNode>
@@ -63,8 +63,4 @@ interface AccountScanManager {
 
     class OnPassphraseRequest
 
-    interface AccountCallback {
-        // gets called from a background thread
-        suspend fun checkForTransactions(account: HdKeyNodeWrapper): UUID?
-    }
 }
