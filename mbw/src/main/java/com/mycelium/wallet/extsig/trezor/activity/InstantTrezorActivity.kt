@@ -60,8 +60,11 @@ class InstantTrezorActivity : InstantExtSigActivity<TrezorManager>() {
 
     companion object {
         fun callMe(currentActivity: Activity, requestCode: Int) {
-            val intent = Intent(currentActivity, InstantTrezorActivity::class.java)
-            currentActivity.startActivityForResult(intent, requestCode)
+            currentActivity.selectCoin {
+                currentActivity.startActivityForResult(
+                    Intent(currentActivity, InstantTrezorActivity::class.java), requestCode
+                )
+            }
         }
     }
 }

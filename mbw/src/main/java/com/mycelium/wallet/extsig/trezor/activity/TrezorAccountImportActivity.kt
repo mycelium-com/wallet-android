@@ -55,10 +55,12 @@ class TrezorAccountImportActivity : ExtSigAccountImportActivity<TrezorManager>()
     companion object {
         @JvmStatic
         fun callMe(currentActivity: Activity, requestCode: Int) {
-            currentActivity.startActivityForResult(
-                Intent(currentActivity, TrezorAccountImportActivity::class.java),
-                requestCode
-            )
+            currentActivity.selectCoin {
+                currentActivity.startActivityForResult(
+                    Intent(currentActivity, TrezorAccountImportActivity::class.java),
+                    requestCode
+                )
+            }
         }
     }
 }

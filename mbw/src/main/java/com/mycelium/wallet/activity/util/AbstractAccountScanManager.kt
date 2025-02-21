@@ -19,8 +19,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.isActive
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -85,6 +83,7 @@ abstract class AbstractAccountScanManager @JvmOverloads constructor(
                 if (onBeforeScan()) {
                     progressUpdate(ScanStatus(Status.readyToScan, AccountStatus.scanning))
                 } else {
+                    progressUpdate(ScanStatus(Status.unableToScan, AccountStatus.unknown))
                     return@launch
                 }
                 // scan through the accounts, to find the first unused one

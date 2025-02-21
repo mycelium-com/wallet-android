@@ -122,6 +122,8 @@ abstract class AbstractEthERC20Account(coinType: CryptoCurrency,
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
+    override fun hasHadActivity(): Boolean = getTransactionSummaries(0, 1).isNotEmpty()
+
     override fun canSpend() = credentials != null
 
     override fun isSyncing() = syncing

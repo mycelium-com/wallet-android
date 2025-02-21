@@ -75,6 +75,10 @@ fun Intent.getBitIdRequest(): BitIDSignRequest {
     checkType(ResultType.BIT_ID_REQUEST)
     return getSerializableExtra(RESULT_BIT_ID_REQUEST) as BitIDSignRequest
 }
+fun Intent.getWordList(): Array<String> {
+    checkType(ResultType.WORD_LIST)
+    return getStringArrayExtra(RESULT_WORD_LIST)!!
+}
 
 private fun Intent.checkType(type: ResultType) {
     Preconditions.checkState(type === getSerializableExtra(RESULT_TYPE_KEY))

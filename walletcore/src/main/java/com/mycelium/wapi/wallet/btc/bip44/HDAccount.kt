@@ -177,7 +177,7 @@ open class HDAccount(
      *
      * @return true if this account has ever had any activity, false otherwise
      */
-    fun hasHadActivity(): Boolean {
+    override fun hasHadActivity(): Boolean {
         // public method that needs no synchronization
         return derivePaths.any { context.getLastExternalIndexWithActivity(it) != -1 }
     }

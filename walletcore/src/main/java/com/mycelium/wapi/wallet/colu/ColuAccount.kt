@@ -52,6 +52,8 @@ class ColuAccount(val context: ColuAccountContext, val privateKey: InMemoryPriva
 
     override fun isSpendingUnconfirmed(tx: Transaction): Boolean = false
 
+    override fun hasHadActivity(): Boolean = getTransactionSummaries(0, 1).isNotEmpty()
+
     override fun getTx(txid: ByteArray): Transaction {
         val txJson = accountBacking.getTx(Sha256Hash(txid))
         val coluTx = ColuTransaction(coinType, null, null, null)

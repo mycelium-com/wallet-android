@@ -8,6 +8,7 @@ import android.text.Html
 import android.text.method.LinkMovementMethod
 import android.view.View
 import android.widget.TextView
+import androidx.annotation.VisibleForTesting
 import androidx.appcompat.app.AlertDialog
 import com.google.common.base.Joiner
 import com.mycelium.view.Denomination
@@ -27,7 +28,8 @@ import com.mycelium.wapi.wallet.btc.bip44.HDAccount
 import com.squareup.otto.Subscribe
 
 abstract class ExtSigSignTransactionActivity : SignTransactionActivity(), MasterseedPasswordSetter {
-    protected abstract val extSigManager: ExternalSignatureDeviceManager
+    @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED)
+    abstract val extSigManager: ExternalSignatureDeviceManager
 
     private var showTx = false
     private var feeString = ""
