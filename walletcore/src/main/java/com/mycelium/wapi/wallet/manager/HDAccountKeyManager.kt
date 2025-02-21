@@ -20,11 +20,9 @@ import com.mrd.bitlib.crypto.BipDerivationType
 import com.mrd.bitlib.crypto.HdKeyNode
 import com.mrd.bitlib.crypto.InMemoryPrivateKey
 import com.mrd.bitlib.crypto.PublicKey
-import com.mrd.bitlib.model.BitcoinAddress
 import com.mrd.bitlib.model.hdpath.HdKeyPath
 import com.mrd.bitlib.util.BitUtils
 import com.mrd.bitlib.util.ByteReader
-import com.mrd.bitlib.util.ByteWriter
 import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import java.util.*
@@ -148,6 +146,7 @@ class HDAccountKeyManager<ADDRESS>(val accountIndex: Int,
             BipDerivationType.BIP44 -> HdKeyPath.BIP44
             BipDerivationType.BIP49 -> HdKeyPath.BIP49
             BipDerivationType.BIP84 -> HdKeyPath.BIP84
+            BipDerivationType.BIP86 -> return null
             else -> throw NotImplementedError()
         }
         val path = purpose

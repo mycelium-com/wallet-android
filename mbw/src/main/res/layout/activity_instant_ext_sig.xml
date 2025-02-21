@@ -1,153 +1,153 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     android:paddingStart="@dimen/activity_horizontal_margin"
-    android:paddingEnd="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
+    android:paddingEnd="@dimen/activity_horizontal_margin"
     android:paddingBottom="@dimen/activity_vertical_margin"
     tools:context=".extsig.trezor.activity.InstantTrezorActivity">
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
 
+    <TextView
+        android:id="@+id/tvCaption"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:textSize="24sp"
+        tools:text="@string/trezor_cold_storage_header" />
+
+    <LinearLayout
+        android:id="@+id/llStatus"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/size_x2">
+
+        <ProgressBar
+            android:id="@+id/pbProgress"
+            android:layout_width="25sp"
+            android:layout_height="25sp" />
 
         <TextView
+            android:id="@+id/txtStatus"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            tools:text="@string/trezor_cold_storage_header"
-            android:textSize="24sp"
-            android:id="@+id/tvCaption"/>
+            android:layout_gravity="center_vertical"
+            android:paddingStart="10sp"
+            android:paddingEnd="10sp"
+            android:text="@string/ext_sig_initial_status" />
+    </LinearLayout>
 
-        <LinearLayout
+    <LinearLayout
+        android:id="@+id/llExtSigInfo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/size_x1"
+        android:orientation="horizontal"
+        android:visibility="gone"
+        tools:visibility="visible">
+
+        <TextView
+            android:id="@+id/tvDeviceType"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:paddingTop="10sp"
-            android:id="@+id/llStatus"
-            >
-            <ProgressBar
-                android:id="@+id/pbProgress"
-                android:layout_width="25sp"
-                android:layout_height="25sp"/>
-
-            <TextView android:id="@+id/txtStatus"
-                android:text="@string/ext_sig_initial_status"
-                android:layout_gravity="center_vertical"
-                android:paddingStart="10sp"
-                android:paddingEnd="10sp"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
-        </LinearLayout>
+            tools:text="@string/trezor_name" />
 
         <LinearLayout
-            android:id="@+id/llExtSigInfo"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:visibility="gone"
-            tools:visibility="visible"
-            android:orientation="horizontal">
+            android:orientation="vertical"
+            android:paddingStart="5dp"
+            android:paddingEnd="5dp">
 
             <TextView
-                android:id="@+id/tvDeviceType"
+                android:id="@+id/tvExtSigName"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                tools:text="@string/trezor_name"/>
+                tools:text="Name" />
 
-            <LinearLayout
-                android:layout_width="match_parent"
+            <TextView
+                android:id="@+id/tvExtSigSerial"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:paddingStart="5dp"
-                android:paddingEnd="5dp"
-                android:orientation="vertical">
-
-                <TextView
-                    android:id="@+id/tvExtSigName"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    tools:text="Name"/>
-                <TextView
-                    android:id="@+id/tvExtSigSerial"
-                    android:layout_width="wrap_content"
-                    android:textSize="13sp"
-                    android:layout_height="wrap_content"
-                    android:textColor="@color/lightgrey"
-                    tools:text="Serial, Version"/>
-            </LinearLayout>
+                android:textColor="@color/lightgrey"
+                android:textSize="13sp"
+                tools:text="Serial, Version" />
         </LinearLayout>
+    </LinearLayout>
 
-        <TextView
-            android:id="@+id/tvWaitForExtSig"
+    <TextView
+        android:id="@+id/tvWaitForExtSig"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingTop="30sp"
+        android:text="@string/connect_your_ext_sig_device_info"
+        tools:visibility="gone" />
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        tools:visibility="gone">
+
+        <ImageView
+            android:id="@+id/ivConnectExtSig"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:paddingTop="30sp"
-            tools:visibility="gone"
-            android:text="@string/connect_your_ext_sig_device_info" />
+            android:layout_alignParentBottom="true"
+            android:contentDescription="Device-Logo"
+            tools:src="@drawable/connect_trezor" />
+
+    </RelativeLayout>
+
+    <LinearLayout
+        android:id="@+id/llSelectAccount"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:visibility="gone"
+        tools:visibility="visible">
+
+        <TextView
+            android:id="@+id/tvSelectAccount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/size_x4"
+            android:gravity="start"
+            android:text="@string/select_ext_sig_account_to_spend_from" />
 
         <RelativeLayout
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            tools:visibility="gone">
-            <ImageView
-                android:id="@+id/ivConnectExtSig"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                tools:src="@drawable/connect_trezor"
-                android:layout_alignParentBottom="true"
-                android:contentDescription="Device-Logo"/>
+            android:layout_height="wrap_content">
 
-        </RelativeLayout>
+            <ListView
+                android:id="@+id/lvAccounts"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_above="@+id/btNextAccount" />
 
-        <LinearLayout
-            android:id="@+id/llSelectAccount"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:visibility="gone"
-            tools:visibility="visible">
             <TextView
-                android:id="@+id/tvSelectAccount"
+                android:id="@+id/tvNoAccounts"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:paddingTop="10dp"
+                android:text="@string/hd_account_selector_no_account_found"
+                android:visibility="gone" />
+
+            <Button
+                android:id="@+id/btNextAccount"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:gravity="start"
-                android:text="@string/select_ext_sig_account_to_spend_from"
-                android:paddingTop="20sp"
-                />
-
-            <RelativeLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content">
-
-                <ListView
-                    android:layout_width="fill_parent"
-                    android:layout_height="fill_parent"
-                    android:layout_above="@+id/btNextAccount"
-                    android:id="@+id/lvAccounts" />
-                <TextView
-                    android:id="@+id/tvNoAccounts"
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:paddingTop="10dp"
-                    android:gravity="center"
-                    android:visibility="gone"
-                    android:text="@string/hd_account_selector_no_account_found"/>
-                <Button
-                    android:id="@+id/btNextAccount"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:layout_centerHorizontal="true"
-                    android:text="@string/ext_sig_next_unused_account_button"
-                    android:enabled="false"
-                    android:layout_marginTop="10dp"
-                    android:visibility="gone"
-                    android:layout_alignParentBottom="true"/>
-            </RelativeLayout>
-        </LinearLayout>
-
+                android:layout_alignParentBottom="true"
+                android:layout_centerHorizontal="true"
+                android:layout_gravity="center"
+                android:layout_marginTop="10dp"
+                android:enabled="false"
+                android:text="@string/ext_sig_next_unused_account_button"
+                android:visibility="gone" />
+        </RelativeLayout>
     </LinearLayout>
 
-</RelativeLayout>
+</LinearLayout>

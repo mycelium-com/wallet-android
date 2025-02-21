@@ -19,8 +19,8 @@ import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.btc.BtcAddress
 import com.mycelium.wapi.wallet.btc.ChangeAddressMode
 import com.mycelium.wapi.wallet.btc.Reference
-import com.mycelium.wapi.wallet.btc.bip44.HDAccount
 import com.mycelium.wapi.wallet.btc.bip44.AddressesListProvider
+import com.mycelium.wapi.wallet.btc.bip44.HDAccount
 import com.mycelium.wapi.wallet.btcvault.AbstractBtcvAccount
 import com.mycelium.wapi.wallet.btcvault.BTCVNetworkParameters
 import com.mycelium.wapi.wallet.btcvault.BtcvAddress
@@ -702,7 +702,9 @@ class BitcoinVaultHdAccount(protected var accountContext: BitcoinVaultHDAccountC
             if (addressMap.inverse().containsKey(index)) {
                 return
             }
-            addressMap[keyManagerMap[derivationType]!!.getAddress(isChangeChain, index)] = index
+            keyManagerMap[derivationType]!!.getAddress(isChangeChain, index)?.let {
+                addressMap[it] = index
+            }
             index--
         }
     }

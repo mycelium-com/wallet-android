@@ -1629,10 +1629,10 @@ abstract class AbstractBtcAccount protected constructor(backing: BtcAccountBacki
     override val accountBalance: Balance
         get() {
             val coinType = coinType
-            return Balance(valueOf(coinType, _cachedBalance!!.confirmed),
-                           valueOf(coinType, _cachedBalance!!.pendingReceiving),
-                           valueOf(coinType, _cachedBalance!!.pendingSending),
-                           valueOf(coinType, _cachedBalance!!.pendingChange))
+            return Balance(valueOf(coinType, balance.confirmed),
+                           valueOf(coinType, balance.pendingReceiving),
+                           valueOf(coinType, balance.pendingSending),
+                           valueOf(coinType, balance.pendingChange))
         }
 
     override fun onlySyncWhenActive(): Boolean {

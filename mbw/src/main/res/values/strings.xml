@@ -1839,4 +1839,5 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="card_code">Card Code:</string>
     <string name="gift_card_load_error_title">Gift card purchases are temporarily unavailable.</string>
     <string name="gift_card_load_error_desc">We are currently updating our stores, and the service will be back online soon. Thank you for your understanding!</string>
+    <string name="choose_blockchain">Choose blockchain</string>
 </resources>

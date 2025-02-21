@@ -1,45 +1,8 @@
-/*
- * Copyright 2013 - 2018 Megion Research and Development GmbH
- *
- * Licensed under the Microsoft Reference Source License (MS-RSL)
- *
- * This license governs use of the accompanying software. If you use the software, you accept this license.
- * If you do not accept the license, do not use the software.
- *
- * 1. Definitions
- * The terms "reproduce," "reproduction," and "distribution" have the same meaning here as under U.S. copyright law.
- * "You" means the licensee of the software.
- * "Your company" means the company you worked for when you downloaded the software.
- * "Reference use" means use of the software within your company as a reference, in read only form, for the sole purposes
- * of debugging your products, maintaining your products, or enhancing the interoperability of your products with the
- * software, and specifically excludes the right to distribute the software outside of your company.
- * "Licensed patents" means any Licensor patent claims which read directly on the software as distributed by the Licensor
- * under this license.
- *
- * 2. Grant of Rights
- * (A) Copyright Grant- Subject to the terms of this license, the Licensor grants you a non-transferable, non-exclusive,
- * worldwide, royalty-free copyright license to reproduce the software for reference use.
- * (B) Patent Grant- Subject to the terms of this license, the Licensor grants you a non-transferable, non-exclusive,
- * worldwide, royalty-free patent license under licensed patents for reference use.
- *
- * 3. Limitations
- * (A) No Trademark License- This license does not grant you any rights to use the Licensor’s name, logo, or trademarks.
- * (B) If you begin patent litigation against the Licensor over patents that you think may apply to the software
- * (including a cross-claim or counterclaim in a lawsuit), your license to the software ends automatically.
- * (C) The software is licensed "as-is." You bear the risk of using it. The Licensor gives no express warranties,
- * guarantees or conditions. You may have additional consumer rights under your local laws which this license cannot
- * change. To the extent permitted under your local laws, the Licensor excludes the implied warranties of merchantability,
- * fitness for a particular purpose and non-infringement.
- */
-
 package com.mycelium.wallet.activity.util
 
-import android.annotation.SuppressLint
 import android.content.Context
-import android.os.AsyncTask
 import android.os.Handler
 import android.os.Looper
-import com.google.common.base.Optional
 import com.mrd.bitlib.crypto.BipDerivationType
 import com.mrd.bitlib.crypto.HdKeyNode
 import com.mrd.bitlib.model.NetworkParameters
@@ -47,168 +10,177 @@ import com.mrd.bitlib.model.hdpath.HdKeyPath
 import com.mycelium.wallet.BuildConfig
 import com.mycelium.wallet.Utils
 import com.mycelium.wapi.wallet.AccountScanManager
+import com.mycelium.wapi.wallet.AccountScanManager.*
 import com.mycelium.wapi.wallet.WalletManager
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.satoshilabs.trezor.lib.protobuf.TrezorType
 import com.squareup.otto.Bus
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.util.*
-import java.util.concurrent.LinkedBlockingQueue
 
-abstract class AbstractAccountScanManager @JvmOverloads constructor(protected val context: Context,
-                                                                    protected val network: NetworkParameters,
-                                                                    protected val eventBus: Bus,
-                                                                    private val coinType: CryptoCurrency = Utils.getBtcCoinType()) : AccountScanManager {
+abstract class AbstractAccountScanManager @JvmOverloads constructor(
+    protected val context: Context,
+    protected val network: NetworkParameters,
+    protected val eventBus: Bus,
+    private val coinType: CryptoCurrency = Utils.getBtcCoinType()
+) : AccountScanManager {
 
-    private var scanAsyncTask: AsyncTask<Void, ScanStatus, Void>? = null
-    private val foundAccounts = ArrayList<AccountScanManager.HdKeyNodeWrapper>()
-    protected val passphraseSyncQueue = LinkedBlockingQueue<Optional<String>>(1)
+    private var scanAsyncTask: Job? = null
+    private val foundAccounts = ArrayList<HdKeyNodeWrapper>()
+
+    @Volatile
+    protected var passphraseValue: Pair<Boolean, String?> = Pair(false, null)
     protected val mainThreadHandler: Handler = Handler(Looper.getMainLooper())
 
     @Volatile
-    var currentAccountState: AccountScanManager.AccountStatus = AccountScanManager.AccountStatus.unknown
+    var currentAccountState: AccountStatus =
+        AccountStatus.unknown
+
     @Volatile
-    var currentState: AccountScanManager.Status = AccountScanManager.Status.unableToScan
+    var currentState: Status = Status.unableToScan
+
     @Volatile
     private var nextUnusedAccounts = listOf<HdKeyNode>()
 
-    open inner class ScanStatus(val state: AccountScanManager.Status, val accountState: AccountScanManager.AccountStatus)
+    open inner class ScanStatus(
+        val state: Status,
+        val accountState: AccountStatus
+    )
 
-    inner class FoundAccountStatus(val account: AccountScanManager.HdKeyNodeWrapper) : ScanStatus(AccountScanManager.Status.readyToScan, AccountScanManager.AccountStatus.scanning)
+    inner class FoundAccountStatus(val account: HdKeyNodeWrapper) :
+        ScanStatus(Status.readyToScan, AccountStatus.scanning)
 
     protected abstract fun onBeforeScan(): Boolean
 
-    override fun startBackgroundAccountScan(scanningCallback: AccountScanManager.AccountCallback) {
-        if (currentAccountState == AccountScanManager.AccountStatus.scanning || currentAccountState == AccountScanManager.AccountStatus.done) {
+    suspend fun progressUpdate(stateInfo: ScanStatus) {
+        withContext(Dispatchers.Main) {
+            setState(stateInfo.state, stateInfo.accountState)
+            if (stateInfo is FoundAccountStatus) {
+                val foundAccount = stateInfo.account
+                eventBus.post(OnAccountFound(foundAccount))
+                foundAccounts.add(foundAccount)
+            }
+        }
+    }
+
+    override fun startBackgroundAccountScan(checkTxs: suspend (HdKeyNodeWrapper) -> UUID?) {
+        if (currentAccountState == AccountStatus.scanning || currentAccountState == AccountStatus.done) {
             // currently scanning or have already all account - just post the events for all already known accounts
-            for (a in foundAccounts) {
-                eventBus.post(AccountScanManager.OnAccountFound(a))
+            foundAccounts.forEach { a ->
+                eventBus.post(OnAccountFound(a))
             }
         } else {
             // start a background task which iterates over all accounts and calls the callback
             // to check if there was activity on it
-            @SuppressLint("StaticFieldLeak")
-            scanAsyncTask = object : AsyncTask<Void, ScanStatus, Void>() {
-                override fun doInBackground(vararg voids: Void): Void? {
-                    publishProgress(ScanStatus(AccountScanManager.Status.initializing, AccountScanManager.AccountStatus.unknown))
-                    if (onBeforeScan()) {
-                        publishProgress(ScanStatus(AccountScanManager.Status.readyToScan, AccountScanManager.AccountStatus.scanning))
-                    } else {
-                        return null
-                    }
-
-                    // scan through the accounts, to find the first unused one
-                    var lastScannedPath: HdKeyPath? = null
-                    val lastAccountPubKeyNodes = mutableListOf<HdKeyNode>()
-                    var wasUsedOrAccountsLookahead = false
-                    var lastUsedAccountIndex = 0
-                    do {
-                        val rootNodes: List<HdKeyNode>
-                        val accountPathsToScan = getAccountPathsToScan(lastScannedPath, wasUsedOrAccountsLookahead, coinType)
-
-                        // we have scanned all accounts - get out of here...
-                        if (accountPathsToScan.isEmpty()) {
-                            // remember the last xPub key as the next-unused one
-                            nextUnusedAccounts = lastAccountPubKeyNodes
-                            break
-                        }
-
-                        val accountPubKeyNodes = accountPathsToScan.map { getAccountPubKeyNode(it.value, it.key) }
-                                .filter { it.isPresent }
-                                .map { it.get() }
-                        lastAccountPubKeyNodes.clear()
-                        lastAccountPubKeyNodes.addAll(accountPubKeyNodes)
-
-
-                        // unable to retrieve the account (eg. device unplugged) - cancel scan
-                        if (accountPubKeyNodes.isEmpty()) {
-                            publishProgress(ScanStatus(AccountScanManager.Status.initializing, AccountScanManager.AccountStatus.unknown))
-                            break
-                        }
-
-                        rootNodes = accountPubKeyNodes
-
-                        // leave accountID empty for now - set it later if it is an already used account
-                        val acc = AccountScanManager.HdKeyNodeWrapper(accountPathsToScan.values, rootNodes, null)
-                        val newAccount = scanningCallback.checkForTransactions(acc)
-                        lastScannedPath = accountPathsToScan.values.first()
-
-                        wasUsedOrAccountsLookahead = if (newAccount != null) {
-                            lastUsedAccountIndex++
-                            val foundAccount = AccountScanManager.HdKeyNodeWrapper(accountPathsToScan.values, rootNodes, newAccount)
-
-                            publishProgress(FoundAccountStatus(foundAccount))
-                            true
-                        } else {
-                            // for FIO accounts we want to perform accounts lookahead
-                            coinType == Utils.getFIOCoinType() && accountPathsToScan.values.iterator().next().lastIndex < lastUsedAccountIndex + ACCOUNT_LOOKAHEAD
-                        }
-                    } while (!isCancelled)
-                    publishProgress(ScanStatus(AccountScanManager.Status.readyToScan, AccountScanManager.AccountStatus.done))
-                    return null
+            scanAsyncTask = GlobalScope.launch(Dispatchers.Default) {
+                progressUpdate(ScanStatus(Status.initializing, AccountStatus.unknown))
+                if (onBeforeScan()) {
+                    progressUpdate(ScanStatus(Status.readyToScan, AccountStatus.scanning))
+                } else {
+                    return@launch
                 }
+                // scan through the accounts, to find the first unused one
+                scanAccounts(checkTxs)
+                progressUpdate(ScanStatus(Status.readyToScan, AccountStatus.done))
+            }
+        }
+    }
 
+    private suspend fun CoroutineScope.scanAccounts(checkTxs: suspend (HdKeyNodeWrapper) -> UUID?) {
+        var lastScannedPath: HdKeyPath? = null
+        val lastAccountPubKeyNodes = mutableListOf<HdKeyNode>()
+        var wasUsedOrAccountsLookahead = false
+        var lastUsedAccountIndex = 0
+        while (isActive) {
+            val accountPathsToScan =
+                getAccountPathsToScan(lastScannedPath, wasUsedOrAccountsLookahead, coinType)
 
-                override fun onPreExecute() {
-                    super.onPreExecute()
-                    currentState = AccountScanManager.Status.initializing
+            // we have scanned all accounts - get out of here...
+            if (accountPathsToScan.isEmpty()) {
+                // remember the last xPub key as the next-unused one
+                nextUnusedAccounts = lastAccountPubKeyNodes.toList()
+                break
+            } else {
+                val accountPubKeyNodes =
+                    accountPathsToScan.mapNotNull { getAccountPubKeyNode(it.value, it.key) }
+                // unable to retrieve the account (eg. device unplugged) - cancel scan
+                if (accountPubKeyNodes.isEmpty()) {
+                    break
                 }
+                lastAccountPubKeyNodes.clear()
+                lastAccountPubKeyNodes.addAll(accountPubKeyNodes)
 
-                override fun onProgressUpdate(vararg stateInfo: ScanStatus) {
-                    for (si in stateInfo) {
-                        setState(si.state, si.accountState)
-
-                        if (si is FoundAccountStatus) {
-                            val foundAccount = si.account
-                            eventBus.post(AccountScanManager.OnAccountFound(foundAccount))
-                            foundAccounts.add(foundAccount)
-                        }
-                    }
+                // leave accountID empty for now - set it later if it is an already used account
+                val acc =
+                    HdKeyNodeWrapper(accountPathsToScan.values, accountPubKeyNodes, null)
+                val newAccount = checkTxs(acc)
+                lastScannedPath = accountPathsToScan.values.first()
+                wasUsedOrAccountsLookahead = if (newAccount != null) {
+                    lastUsedAccountIndex++
+                    val hdKeyNode = HdKeyNodeWrapper(
+                        accountPathsToScan.values,
+                        accountPubKeyNodes,
+                        newAccount
+                    )
+                    progressUpdate(FoundAccountStatus(hdKeyNode))
+                    true
+                } else {
+                    // for FIO accounts we want to perform accounts lookahead
+                    coinType == Utils.getFIOCoinType() &&
+                            accountPathsToScan.values.first().lastIndex < lastUsedAccountIndex + ACCOUNT_LOOKAHEAD
                 }
             }
-            scanAsyncTask!!.execute()
         }
     }
 
     @Synchronized
-    protected fun setState(state: AccountScanManager.Status, accountState: AccountScanManager.AccountStatus) {
-        mainThreadHandler.post { eventBus.post(AccountScanManager.OnStatusChanged(state, accountState)) }
+    protected fun setState(
+        state: Status,
+        accountState: AccountStatus
+    ) {
+        mainThreadHandler.post { eventBus.post(OnStatusChanged(state, accountState)) }
         currentState = state
         currentAccountState = accountState
     }
 
     override fun stopBackgroundAccountScan() {
         if (scanAsyncTask != null) {
-            scanAsyncTask!!.cancel(true)
-            currentAccountState = AccountScanManager.AccountStatus.unknown
+            scanAsyncTask?.cancel()
+            scanAsyncTask = null
+            currentAccountState = AccountStatus.unknown
         }
     }
 
     override fun getNextUnusedAccounts() = nextUnusedAccounts
 
     override fun forgetAccounts() {
-        if (currentAccountState == AccountScanManager.AccountStatus.scanning) {
+        if (currentAccountState == AccountStatus.scanning) {
             stopBackgroundAccountScan()
         }
-        currentAccountState = AccountScanManager.AccountStatus.unknown
+        currentAccountState = AccountStatus.unknown
         foundAccounts.clear()
     }
 
-    protected fun waitForPassphrase(): Optional<String> {
+    protected fun waitForPassphrase(): String? {
+        passphraseValue = passphraseValue.copy(false, null)
         // call external passphrase request ...
-        mainThreadHandler.post { eventBus.post(AccountScanManager.OnPassphraseRequest()) }
+        mainThreadHandler.post { eventBus.post(OnPassphraseRequest()) }
 
         // ... and block until we get one
-        while (true) {
-            try {
-                return passphraseSyncQueue.take()
-            } catch (ignore: InterruptedException) {
-            }
-
+        while (passphraseValue.first == false) {
+            Thread.sleep(50)
         }
+        return passphraseValue.second
     }
 
     protected fun postErrorMessage(msg: String): Boolean {
-        mainThreadHandler.post { eventBus.post(AccountScanManager.OnScanError(msg)) }
+        mainThreadHandler.post { eventBus.post(OnScanError(msg)) }
         return true
     }
 
@@ -216,30 +188,49 @@ abstract class AbstractAccountScanManager @JvmOverloads constructor(protected va
         mainThreadHandler.post {
             // need to map to the known error types, because wapi does not import the trezor lib
             if (failureType == TrezorType.FailureType.Failure_NotInitialized) {
-                eventBus.post(AccountScanManager.OnScanError(msg, AccountScanManager.OnScanError.ErrorType.NOT_INITIALIZED))
+                eventBus.post(
+                    OnScanError(
+                        msg,
+                        OnScanError.ErrorType.NOT_INITIALIZED
+                    )
+                )
             } else {
-                eventBus.post(AccountScanManager.OnScanError(msg))
+                eventBus.post(OnScanError(msg))
             }
         }
         return true
     }
 
     override fun setPassphrase(passphrase: String?) {
-        passphraseSyncQueue.add(Optional.fromNullable(passphrase))
+        passphraseValue = passphraseValue.copy(true, passphrase)
     }
 
-    abstract fun upgradeAccount(accountRoots: List<HdKeyNode>, walletManager: WalletManager, uuid: UUID): Boolean
+    abstract fun upgradeAccount(
+        accountRoots: List<HdKeyNode>,
+        walletManager: WalletManager,
+        uuid: UUID
+    ): Boolean
 
-    abstract fun createOnTheFlyAccount(accountRoots: List<HdKeyNode>, walletManager: WalletManager, accountIndex: Int): UUID
+    abstract fun createOnTheFlyAccount(
+        accountRoots: List<HdKeyNode>,
+        walletManager: WalletManager,
+        accountIndex: Int
+    ): UUID
 
     // returns the next Bip44 account based on the last scanned account
-    override fun getAccountPathsToScan(lastPath: HdKeyPath?, wasUsedOrAccountsLookahead: Boolean, coinType: CryptoCurrency): Map<BipDerivationType, HdKeyPath> {
+    override fun getAccountPathsToScan(
+        lastPath: HdKeyPath?,
+        wasUsed: Boolean,
+        coinType: CryptoCurrency?
+    ): Map<BipDerivationType, HdKeyPath> {
         // this is the first call - no lastPath given
         if (lastPath == null) {
             return if (coinType == Utils.getBtcCoinType()) {
-                mapOf(BipDerivationType.BIP44 to BIP44COIN_TYPE.getAccount(0),
-                        BipDerivationType.BIP49 to BIP49COIN_TYPE.getAccount(0),
-                        BipDerivationType.BIP84 to BIP84COIN_TYPE.getAccount(0))
+                mapOf(
+                    BipDerivationType.BIP44 to BIP44COIN_TYPE.getAccount(0),
+                    BipDerivationType.BIP49 to BIP49COIN_TYPE.getAccount(0),
+                    BipDerivationType.BIP84 to BIP84COIN_TYPE.getAccount(0)
+                )
             } else {
                 mapOf(BipDerivationType.BIP44 to BIP44FIOCOIN_TYPE.getAccount(0))
             }
@@ -247,11 +238,13 @@ abstract class AbstractAccountScanManager @JvmOverloads constructor(protected va
 
         // otherwise use the next bip44 account, as long as the last one had activity on it
         // or we perform accounts lookahead
-        return if (wasUsedOrAccountsLookahead) {
+        return if (wasUsed) {
             if (coinType == Utils.getBtcCoinType()) {
-                mapOf(BipDerivationType.BIP44 to BIP44COIN_TYPE.getAccount(lastPath.lastIndex + 1),
-                        BipDerivationType.BIP49 to BIP49COIN_TYPE.getAccount(lastPath.lastIndex + 1),
-                        BipDerivationType.BIP84 to BIP84COIN_TYPE.getAccount(lastPath.lastIndex + 1))
+                mapOf(
+                    BipDerivationType.BIP44 to BIP44COIN_TYPE.getAccount(lastPath.lastIndex + 1),
+                    BipDerivationType.BIP49 to BIP49COIN_TYPE.getAccount(lastPath.lastIndex + 1),
+                    BipDerivationType.BIP84 to BIP84COIN_TYPE.getAccount(lastPath.lastIndex + 1)
+                )
             } else {
                 mapOf(BipDerivationType.BIP44 to BIP44FIOCOIN_TYPE.getAccount(lastPath.lastIndex + 1))
             }

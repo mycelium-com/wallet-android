@@ -21,10 +21,10 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import kotlin.Unit;
+
 public abstract class ExternalSignatureDevice {
     private static final String TAG = "ExtSig";
-    private static final String ACTION_USB_PERMISSION = "USB_PERMISSION";
-    public static final int FLAG_MUTABLE = 1<<25;
     private UsbDeviceConnection conn;
     private String serial;
     private UsbEndpoint epr, epw;
@@ -37,25 +37,12 @@ public abstract class ExternalSignatureDevice {
      * Receives broadcast when a supported USB device is attached, detached or
      * when a permission to communicate to the device has been granted.
      */
-    private final BroadcastReceiver mUsbReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            String action = intent.getAction();
-            UsbDevice usbDevice = intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
-            String deviceName = usbDevice.getDeviceName();
-
-            if (ACTION_USB_PERMISSION.equals(action)) {
-                boolean permission = intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED,
-                        false);
-                Log.d(TAG, "ACTION_USB_PERMISSION: " + permission + " Device: " + deviceName);
-
-                gotRights.clear();
-                // sync with connect
-                gotRights.add(permission);
-                context.unregisterReceiver(mUsbReceiver);
-            }
-        }
-    };
+    private final BroadcastReceiver mUsbReceiver = new UsbReceiver(permission -> {
+        gotRights.clear();
+        // sync with connect
+        gotRights.add(permission);
+        return Unit.INSTANCE;
+    });
 
     public ExternalSignatureDevice(Context context) {
         usbManager = (UsbManager) context.getSystemService(Context.USB_SERVICE);
@@ -138,22 +125,23 @@ public abstract class ExternalSignatureDevice {
         if (usbManager == null) {
             return false;
         }
-
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(ACTION_USB_PERMISSION);
-        ContextCompat.registerReceiver(context, mUsbReceiver, filter, ContextCompat.RECEIVER_EXPORTED);
+        String usdPermission = UsbReceiver.actionUsbPermission(context);
+        Log.d(TAG, "Registering broadcast receiver for " + usdPermission);
+        ContextCompat.registerReceiver(context, mUsbReceiver,
+                new IntentFilter(usdPermission),
+                ContextCompat.RECEIVER_EXPORTED);
 
         final UsbDevice extSigDevice = getExtSigDevice();
         if (extSigDevice == null) {
             return false;
         }
 
-        final Intent intent = new Intent(ACTION_USB_PERMISSION);
-
         // clear the token-queue - under some circumstances it might happen that the requestPermission
         // callback already returned but this functions wasn't waiting anymore
         gotRights.clear();
-        usbManager.requestPermission(extSigDevice, PendingIntent.getBroadcast(context, 0, intent, FLAG_MUTABLE));
+        usbManager.requestPermission(extSigDevice, PendingIntent.getBroadcast(context, 0,
+                new Intent(usdPermission).setPackage(context.getPackageName()),
+                PendingIntent.FLAG_MUTABLE));
 
 
         // retry because of InterruptedException

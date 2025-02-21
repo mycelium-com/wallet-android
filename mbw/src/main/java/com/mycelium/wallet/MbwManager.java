@@ -282,7 +282,7 @@ public class MbwManager {
     }
 
     private static final Bus _eventBus = new Bus();
-    private final ExternalSignatureDeviceManager _trezorManager;
+    private final TrezorManager _trezorManager;
     private final KeepKeyManager _keepkeyManager;
     private final LedgerManager _ledgerManager;
     private final WapiClientElectrumX _wapi;
@@ -1657,9 +1657,9 @@ public class MbwManager {
         WalletAccount account = _walletManager.getAccount(uuid);
         Preconditions.checkState(account.isActive());
         getEditor().putString(SELECTED_ACCOUNT, uuid.toString()).apply();
-        getEventBus().post(new SelectedAccountChanged(uuid));
+        mainLoopHandler.post(() -> getEventBus().post(new SelectedAccountChanged(uuid)));
         Address receivingAddress = account.getReceiveAddress();
-        getEventBus().post(new ReceivingAddressChanged(receivingAddress));
+        mainLoopHandler.post(() -> getEventBus().post(new ReceivingAddressChanged(receivingAddress)));
         _walletManager.startSynchronization(account.getId());
     }
 
@@ -1755,7 +1755,7 @@ public class MbwManager {
         return _randomSource;
     }
 
-    public ExternalSignatureDeviceManager getTrezorManager() {
+    public TrezorManager getTrezorManager() {
         return _trezorManager;
     }
 
