@@ -38,7 +38,7 @@ jobs:
           restore-keys: |
             gradle-${{ runner.os }}-
 
-    - run: ./gradlew --no-daemon --build-cache clean test mbw:assembleProdnetDebug mbw:assembleBtctestnetDebug
+    - run: ./gradlew --no-daemon --build-cache --parallel --configure-on-demand clean test mbw:assembleProdnetDebug mbw:assembleBtctestnetDebug
 
     - uses: actions/upload-artifact@v4
       with:
@@ -67,7 +67,7 @@ jobs:
         git clean -dfx
 
         cd ..
-        ./gradlew --no-daemon --build-cache clean mbw:assembleProdnetDebug
+        ./gradlew --no-daemon --build-cache --parallel --configure-on-demand clean mbw:assembleProdnetDebug
 
     - name: Unzip buildA
       run: unzip -d buildA -qq /tmp/buildA/prodnet/debug/mbw-prodnet-debug.apk
