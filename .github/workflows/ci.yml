@@ -28,7 +28,17 @@ jobs:
     - name: Setup Android SDK
       uses: android-actions/setup-android@v3
 
-    - run: ./gradlew clean test mbw:assembleProdnetDebug mbw:assembleBtctestnetDebug mbw:assembleBtctestnetRelease
+    - name: Cache Gradle files
+      uses: actions/cache@v3
+      with:
+        path: |
+          ~/.gradle/caches
+          ~/.gradle/wrapper
+          key: gradle-${{ runner.os }}-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            gradle-${{ runner.os }}-
+
+    - run: ./gradlew --no-daemon --build-cache clean test mbw:assembleProdnetDebug mbw:assembleBtctestnetDebug mbw:assembleBtctestnetRelease
 
     - uses: actions/upload-artifact@v4
       with:
@@ -57,7 +67,7 @@ jobs:
         git clean -dfx
 
         cd ..
-        ./gradlew clean mbw:assembleBtctestnetRelease
+        ./gradlew --no-daemon --build-cache clean mbw:assembleBtctestnetRelease
 
     - name: Unzip buildA
       run: unzip -d buildA -qq /tmp/buildA/btctestnet/release/mbw-btctestnet-release.apk

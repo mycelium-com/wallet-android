@@ -32,7 +32,7 @@ jobs:
           mkdir /project/
           disorderfs --sort-dirents=yes --reverse-dirents=no /app/ /project/;
           cd /project/
-          ./gradlew clean test mbw:assembleProdnetDebug mbw:assembleBtctestnetDebug mbw:assembleProdnetRelease mbw:assembleBtctestnetRelease 
+          ./gradlew --no-daemon clean test mbw:assembleProdnetDebug mbw:assembleBtctestnetDebug mbw:assembleProdnetRelease mbw:assembleBtctestnetRelease 
 
     - uses: actions/upload-artifact@v4
       with:
