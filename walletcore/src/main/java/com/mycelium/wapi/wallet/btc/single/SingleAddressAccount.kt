@@ -105,6 +105,8 @@ open class SingleAddressAccount @JvmOverloads constructor(private var _context: 
         }
     }
 
+    override fun hasHadActivity(): Boolean = getTransactionHistory(0,1).isNotEmpty()
+
     override fun dropCachedData() {
         if (_context.isArchived()) {
             return
