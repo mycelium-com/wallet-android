@@ -21,8 +21,8 @@ class PrivateKeyAction : Action {
     companion object {
         @JvmStatic
         fun getPrivateKey(network: NetworkParameters, content: String) =
-                InMemoryPrivateKey.fromBase58String(content, network).orNull()
-                        ?: InMemoryPrivateKey.fromBase58MiniFormat(content, network).orNull()
+                InMemoryPrivateKey.fromBase58String(content, network)
+                        ?: InMemoryPrivateKey.fromBase58MiniFormat(content, network)
 
         private fun isPrivKey(network: NetworkParameters, content: String) =
                 getPrivateKey(network, content) != null

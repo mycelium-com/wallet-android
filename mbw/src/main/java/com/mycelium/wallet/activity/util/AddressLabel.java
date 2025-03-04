@@ -48,6 +48,7 @@ import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount;
 public class AddressLabel extends BlockExplorerLabel {
    private Address address;
    private boolean coluMode;
+   private int chopLength = 12;
 
    public AddressLabel(Context context) {
       super(context);
@@ -68,12 +69,16 @@ public class AddressLabel extends BlockExplorerLabel {
 
    @Override
    protected String getFormattedLinkText() {
-      return Utils.stringChopper(address.toString(), 12, "\n");
+      return Utils.stringChopper(address.toString(), chopLength, "\n");
    }
 
    @Override
    protected String getLinkURL(BlockExplorer blockExplorer){
       return blockExplorer.getUrl(address,MbwManager.getInstance(getContext()).getTorMode() == ServerEndpointType.Types.ONLY_TOR);
+   }
+
+   public void setChopLength(int chopLength) {
+      this.chopLength = chopLength;
    }
 
    public void setColuMode(boolean coluMode) {

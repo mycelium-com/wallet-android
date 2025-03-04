@@ -177,7 +177,7 @@ class FioModule(
 
     private fun accountFromUUID(context: FioAccountContext): WalletAccount<*> {
         return if (secureStore.getPlaintextValue(context.uuid.toString().toByteArray()) != null) {
-            val fioAddress = FioAddress(coinType, FioAddressData(String(secureStore.getPlaintextValue(context.uuid.toString().toByteArray()))))
+            val fioAddress = FioAddress(coinType, FioAddressData(String(secureStore.getPlaintextValue(context.uuid.toString().toByteArray())!!)))
             val accountContext = createAccountContext(context.uuid, context.accountType)
             val account = createAccount(accountContext, address = fioAddress, isRestore = true)
             accounts[account.id] = account
