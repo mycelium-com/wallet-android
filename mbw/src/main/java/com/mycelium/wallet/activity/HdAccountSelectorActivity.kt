@@ -8,11 +8,8 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.AdapterView
-import android.widget.ArrayAdapter
-import android.widget.ImageView
-import android.widget.ListView
-import android.widget.TextView
+import android.widget.*
+import androidx.annotation.VisibleForTesting
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.google.common.collect.Iterables
@@ -32,9 +29,7 @@ import com.mycelium.wapi.wallet.AccountScanManager.OnStatusChanged
 import com.mycelium.wapi.wallet.SyncMode
 import com.mycelium.wapi.wallet.btc.bip44.ExternalSignatureProvider
 import com.mycelium.wapi.wallet.btc.bip44.ExternalSignaturesAccountConfig
-import com.mycelium.wapi.wallet.btc.bip44.HDAccount
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
-import com.mycelium.wapi.wallet.fio.FioAccount
 import com.squareup.otto.Subscribe
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -45,20 +40,17 @@ import javax.annotation.Nonnull
 
 abstract class HdAccountSelectorActivity<AccountScanManager : AbstractAccountScanManager> :
     AppCompatActivity(), MasterseedPasswordSetter {
-    @JvmField
     protected var accounts = ArrayList<HdAccountWrapper>()
-    @JvmField
     protected var accountsAdapter: AccountsAdapter? = null
-    @JvmField
-    protected var masterseedScanManager: AccountScanManager? = null
-    @JvmField
+    @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED)
+    var masterseedScanManager: AccountScanManager? = null
     protected var txtStatus: TextView? = null
-    @JvmField
     protected var coinType: CryptoCurrency? = null
     protected abstract fun initMasterseedManager(): AccountScanManager
     private var passDialog: MasterseedPasswordDialog? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        coinType = intent.getSerializableExtra(COIN_TYPE) as CryptoCurrency?
         super.onCreate(savedInstanceState)
         setView()
         val lvAccounts = findViewById<ListView>(R.id.lvAccounts)
@@ -69,25 +61,18 @@ abstract class HdAccountSelectorActivity<AccountScanManager : AbstractAccountSca
         lvAccounts.adapter = accountsAdapter
         lvAccounts.onItemClickListener = accountClickListener()
         // ask user from what blockchain he/she wants to spend from
-        val selectedItem = IntArray(1)
         masterseedScanManager = initMasterseedManager()
-        AlertDialog.Builder(this)
-            .setTitle(getString(R.string.choose_blockchain))
-            .setSingleChoiceItems(arrayOf("BTC", "FIO"), 0) { _: DialogInterface?, i: Int ->
-                selectedItem[0] = i
-            }
-            .setPositiveButton(this.getString(R.string.ok)) { _: DialogInterface?, _: Int ->
-                coinType = if (selectedItem[0] == 0) {
-                    Utils.getBtcCoinType()
-                } else {
-                    Utils.getFIOCoinType()
-                }
-                startBackgroundScan()
-                updateUi()
-            }
-            .setNegativeButton(this.getString(R.string.cancel)) { _: DialogInterface?, _: Int -> super.finish() }
-            .setCancelable(false)
-            .show()
+    }
+
+    override fun onStart() {
+        super.onStart()
+        startBackgroundScan()
+        updateUi()
+    }
+
+    override fun onDestroy() {
+        masterseedScanManager?.stopBackgroundAccountScan()
+        super.onDestroy()
     }
 
     protected fun startBackgroundScan() {
@@ -98,39 +83,20 @@ abstract class HdAccountSelectorActivity<AccountScanManager : AbstractAccountSca
                 walletManager,
                 account.keysPaths.iterator().next().lastIndex
             )
-            val walletAccount = id?.let { walletManager.getAccount(id) }
-            return@startBackgroundAccountScan when (walletAccount) {
-                is HDAccount -> {
-                    walletAccount.doSynchronization(SyncMode.NORMAL_WITHOUT_TX_LOOKUP)
-                    if (walletAccount.hasHadActivity()) {
-                        id
-                    } else {
-                        walletAccount.dropCachedData()
-                        null
-                    }
+            return@startBackgroundAccountScan id?.let { walletManager.getAccount(id) }?.let {
+                it.synchronize(SyncMode.NORMAL_WITHOUT_TX_LOOKUP)
+                if (it.hasHadActivity()) {
+                    id
+                } else {
+                    it.dropCachedData()
+                    null
                 }
-
-                is FioAccount -> {
-                    walletAccount.synchronize(SyncMode.NORMAL_WITHOUT_TX_LOOKUP)
-                    if (walletAccount.hasHadActivity()) {
-                        id
-                    } else {
-                        walletAccount.dropCachedData()
-                        null
-                    }
-                }
-
-                else -> null
             }
         }
     }
 
     protected abstract fun accountClickListener(): AdapterView.OnItemClickListener?
     protected abstract fun setView()
-    override fun finish() {
-        super.finish()
-        masterseedScanManager?.stopBackgroundAccountScan()
-    }
 
     override fun onResume() {
         super.onResume()
@@ -283,5 +249,29 @@ abstract class HdAccountSelectorActivity<AccountScanManager : AbstractAccountSca
     companion object {
         const val REQUEST_SEND = 1
         const val PASSPHRASE_FRAGMENT_TAG = "passphrase"
+        const val COIN_TYPE: String = "coinType"
+
+        fun Context.selectCoin(call: (CryptoCurrency) -> Unit) {
+            var selectedItem = 0
+            AlertDialog.Builder(this)
+                .setTitle(getString(R.string.choose_blockchain))
+                .setSingleChoiceItems(arrayOf("BTC", "FIO"), 0) { _: DialogInterface?, i: Int ->
+                    selectedItem = i
+                }
+                .setPositiveButton(this.getString(R.string.ok)) { _: DialogInterface?, _: Int ->
+                    call(
+                        if (selectedItem == 0) {
+                            Utils.getBtcCoinType()
+                        } else {
+                            Utils.getFIOCoinType()
+                        }
+                    )
+                }
+                .setNegativeButton(this.getString(R.string.cancel)) { dialog: DialogInterface?, _: Int ->
+                    dialog?.dismiss()
+                }
+                .setCancelable(false)
+                .show()
+        }
     }
 }

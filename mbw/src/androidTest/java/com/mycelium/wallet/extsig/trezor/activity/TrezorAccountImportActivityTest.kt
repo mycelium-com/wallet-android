@@ -1,9 +1,10 @@
 package com.mycelium.wallet.extsig.trezor.activity
 
 import android.app.Activity.RESULT_OK
-import android.content.Context
+import android.content.Intent
 import android.widget.ListView
 import androidx.lifecycle.Lifecycle
+import androidx.test.core.app.ApplicationProvider
 import androidx.test.core.app.launchActivityForResult
 import androidx.test.espresso.Espresso.onData
 import androidx.test.espresso.Espresso.onView
@@ -14,32 +15,23 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.mrd.bitlib.crypto.Bip39
 import com.mrd.bitlib.crypto.BipDerivationType
 import com.mrd.bitlib.crypto.HdKeyNode
-import com.mrd.bitlib.model.NetworkParameters
 import com.mrd.bitlib.model.hdpath.HdKeyPath
 import com.mycelium.wallet.CommonKeys
-import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
-import com.mycelium.wallet.activity.HdAccountSelectorActivity
+import com.mycelium.wallet.Utils
+import com.mycelium.wallet.activity.HdAccountSelectorActivity.Companion.COIN_TYPE
 import com.mycelium.wallet.activity.awaitCondition
-import com.mycelium.wallet.extsig.common.ExternalSignatureDeviceManager
 import com.mycelium.wapi.wallet.AccountScanManager
-import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext
-import com.satoshilabs.trezor.lib.ExternalSignatureDevice
-import com.satoshilabs.trezor.lib.Trezor
-import com.squareup.otto.Bus
+import io.mockk.every
+import io.mockk.mockkObject
 import org.hamcrest.CoreMatchers.anything
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.Mock
-import org.mockito.MockitoAnnotations
 
 
 @RunWith(AndroidJUnit4::class)
 class TrezorAccountImportActivityTest {
-
-    @Mock
-    lateinit var trezor: Trezor
 
     lateinit var hdRootNodes: Map<BipDerivationType, HdKeyNode>
 
@@ -49,18 +41,20 @@ class TrezorAccountImportActivityTest {
         hdRootNodes = BipDerivationType.entries.associateWith {
             HdKeyNode.fromSeed(masterSeed.bip32Seed, it)
         }
-        MockitoAnnotations.openMocks(this)
     }
 
     @Test
     fun testPasswordInput() {
-        launchActivityForResult<TrezorAccountImportActivity>().use { scenario ->
+        val intent = Intent(
+            ApplicationProvider.getApplicationContext(),
+            TrezorAccountImportActivity::class.java
+        ).putExtra(COIN_TYPE, Utils.getBtcCoinType())
+        launchActivityForResult<TrezorAccountImportActivity>(intent).use { scenario ->
             scenario.moveToState(Lifecycle.State.RESUMED)
 
             scenario.onActivity { activity ->
                 activity.onPassphraseRequest(AccountScanManager.OnPassphraseRequest())
             }
-
             onView(withId(R.id.etPassphrase)).perform(typeText("password"))
             onView(withId(R.id.btnOkay)).perform(click())
 
@@ -70,17 +64,28 @@ class TrezorAccountImportActivityTest {
 
     @Test
     fun testAccountSelection() {
-        launchActivityForResult<TrezorAccountImportActivity>().use { scenario ->
-            scenario.moveToState(Lifecycle.State.RESUMED)
+        val intent = Intent(
+            ApplicationProvider.getApplicationContext(),
+            TrezorAccountImportActivity::class.java
+        ).putExtra(COIN_TYPE, Utils.getBtcCoinType())
+        launchActivityForResult<TrezorAccountImportActivity>(intent).use { scenario ->
+            scenario.moveToState(Lifecycle.State.CREATED)
             scenario.onActivity { activity ->
-                // Replace the dependency with a fake or mock
-                initScanManager(activity)
-            }
+                mockkObject(activity.masterseedScanManager!!)
 
-            // click ok on dialog, btc selected
-            onView(withId(android.R.id.button1)).perform(click())
+                every { activity.masterseedScanManager!!["onBeforeScan"]() } returns true
+                every {
+                    activity.masterseedScanManager!!.getAccountPubKeyNode(any(), any())
+                } answers {
+                    val keyPath = firstArg<HdKeyPath>()
+                    val derivationType = secondArg<BipDerivationType>()
+                    hdRootNodes[derivationType]?.createChildNode(keyPath)
+                }
+            }
+            scenario.moveToState(Lifecycle.State.RESUMED)
+
             // click first account from loaded list
-            awaitCondition(10000) {
+            awaitCondition(30000) {
                 var count = 0
                 onView(withId(R.id.lvAccounts)).check { view, _ ->
                     val listView = view as ListView
@@ -101,58 +106,4 @@ class TrezorAccountImportActivityTest {
             scenario.close()
         }
     }
-
-
-    fun initScanManager(activity: TrezorAccountImportActivity) {
-        class FakeTrezorManager(
-            context: Context,
-            network: NetworkParameters,
-            eventBus: Bus
-        ) : ExternalSignatureDeviceManager(context, network, eventBus) {
-            override fun createDevice(): ExternalSignatureDevice =
-                trezor
-
-            override fun onBeforeScan(): Boolean = true
-
-            override fun getBIP44AccountType(): Int =
-                HDAccountContext.ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_TREZOR
-
-            override fun getAccountPubKeyNode(
-                keyPath: HdKeyPath,
-                derivationType: BipDerivationType
-            ): HdKeyNode? =
-                hdRootNodes[derivationType]?.createChildNode(keyPath)
-        }
-
-        val mbwManager = MbwManager.getInstance(activity)
-        HdAccountSelectorActivity::class.java.getDeclaredField("masterseedScanManager").apply {
-            isAccessible = true
-            set(
-                activity,
-                FakeTrezorManager(activity, mbwManager.network, MbwManager.getEventBus())
-            )
-        }
-    }
 }
-
-//            val trezorPubKey = TrezorMessage.PublicKey.newBuilder()
-//                .setNode(
-//                    TrezorType.HDNodeType.newBuilder()
-//                        .setPublicKey(
-//                            ByteString.copyFrom(keyList.first().publicKey.publicKeyBytes, 0, 33)
-//                        )
-//                        .setChainCode(
-//                            ByteString.copyFrom(
-//                                "000000000000000000000000000000000",
-//                                Charsets.UTF_8
-//                            )
-//                        )
-//                        .setDepth(3)
-//                        .setFingerprint(0)
-//                        .setChildNum(0)
-//                        .build()
-//                )
-//                .build()
-//            Mockito.`when`(trezor.send(Mockito.any<Message>())).thenAnswer { invocation ->
-//                trezorPubKey
-//            }

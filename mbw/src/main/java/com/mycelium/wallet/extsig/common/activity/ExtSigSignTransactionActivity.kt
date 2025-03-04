@@ -8,6 +8,7 @@ import android.text.Html
 import android.text.method.LinkMovementMethod
 import android.view.View
 import android.widget.TextView
+import androidx.annotation.VisibleForTesting
 import androidx.appcompat.app.AlertDialog
 import com.google.common.base.Joiner
 import com.mycelium.view.Denomination
@@ -27,7 +28,8 @@ import com.mycelium.wapi.wallet.btc.bip44.HDAccount
 import com.squareup.otto.Subscribe
 
 abstract class ExtSigSignTransactionActivity : SignTransactionActivity(), MasterseedPasswordSetter {
-    protected abstract val extSigManager: ExternalSignatureDeviceManager
+    @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED)
+    abstract val extSigManager: ExternalSignatureDeviceManager
 
     private var showTx = false
     private var feeString = ""
@@ -99,7 +101,7 @@ abstract class ExtSigSignTransactionActivity : SignTransactionActivity(), Master
             val hdAccount = _account as HDAccount
 
             for (o in unsigned!!.outputs) {
-                val toAddress = o.script.getAddress(_mbwManager.network)!!
+                val toAddress = o.script.getAddress(_mbwManager?.network)!!
 
                 if (!(hdAccount.isOwnInternalAddress(toAddress))) {
                     // this output goes to a foreign address (addressId[0]==1 means its internal change)
@@ -115,7 +117,7 @@ abstract class ExtSigSignTransactionActivity : SignTransactionActivity(), Master
             val toAddress = Joiner.on(",\n").join(toAddresses)
             amountString = Utils.getBtcCoinType().value(amountSending).toString(Denomination.UNIT)
             val fee = unsigned.calculateFee()
-            val showChange = showChange(unsigned, _mbwManager.network, _account as HDAccount)
+            val showChange = showChange(unsigned, _mbwManager!!.network, _account as HDAccount)
             val totalAmount = amountSending + fee + if (showChange) { changeValue } else { 0 }
             totalString = Utils.getBtcCoinType().value(totalAmount).toString(Denomination.UNIT)
             changeString = Utils.getBtcCoinType().value(changeValue).toString(Denomination.UNIT)
@@ -191,7 +193,7 @@ abstract class ExtSigSignTransactionActivity : SignTransactionActivity(), Master
     @Subscribe
     open fun onStatusUpdate(event: ExternalSignatureDeviceManager.OnStatusUpdate) {
         val output = (_transaction as BtcTransaction).unsignedTx!!.outputs[event.outputIndex]
-        val address = output.script.getAddress(_mbwManager.network)
+        val address = output.script.getAddress(_mbwManager?.network)
 
         val statusText = when (event.status) {
             SHOW_CHANGE_ADDRESS -> {

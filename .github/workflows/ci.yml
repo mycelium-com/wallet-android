@@ -28,7 +28,23 @@ jobs:
     - name: Setup Android SDK
       uses: android-actions/setup-android@v3
 
-    - run: ./gradlew clean test mbw:assembleProdnetDebug mbw:assembleBtctestnetDebug
+    - name: Setup Gradle
+      uses: gradle/actions/setup-gradle@v4
+      with:
+        gradle-version: wrapper
+        cache-read-only: false
+
+    - name: Cache Gradle files
+      uses: actions/cache@v3
+      with:
+        path: |
+          ~/.gradle/caches
+          ~/.gradle/wrapper
+          key: gradle-${{ runner.os }}-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            gradle-${{ runner.os }}-
+
+    - run: ./gradlew --no-daemon --build-cache --parallel --configure-on-demand clean test mbw:assembleProdnetDebug mbw:assembleBtctestnetDebug
 
     - uses: actions/upload-artifact@v4
       with:
@@ -57,7 +73,7 @@ jobs:
         git clean -dfx
 
         cd ..
-        ./gradlew clean mbw:assembleProdnetDebug
+        ./gradlew --no-daemon --build-cache --parallel --configure-on-demand clean mbw:assembleProdnetDebug
 
     - name: Unzip buildA
       run: unzip -d buildA -qq /tmp/buildA/prodnet/debug/mbw-prodnet-debug.apk

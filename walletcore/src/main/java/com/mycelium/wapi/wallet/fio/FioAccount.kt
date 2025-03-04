@@ -72,7 +72,7 @@ class FioAccount(private val fioBlockchainService: FioBlockchainService,
     val accountIndex: Int
         get() = accountContext.accountIndex
 
-    fun hasHadActivity() = accountContext.actionSequenceNumber != BigInteger.ZERO
+    override fun hasHadActivity() = accountContext.actionSequenceNumber != BigInteger.ZERO
 
     /**
      * @return expiration date in format "yyyy-MM-dd'T'HH:mm:ss"

@@ -62,6 +62,7 @@ interface WalletAccount<A : Address> : SyncPausable {
     fun getUnspentOutputViewModels(): List<OutputViewModel>
     var label: String
     fun isSpendingUnconfirmed(tx: Transaction): Boolean
+    fun hasHadActivity(): Boolean
 
     /**
      * Synchronize this account

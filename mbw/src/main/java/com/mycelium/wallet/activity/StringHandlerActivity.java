@@ -68,6 +68,8 @@ import com.mycelium.wallet.pop.PopRequest;
 import com.mycelium.wapi.content.AssetUri;
 import com.mycelium.wapi.wallet.Address;
 
+import org.web3j.abi.datatypes.Array;
+
 import java.util.UUID;
 
 public class StringHandlerActivity extends AppCompatActivity {
@@ -85,6 +87,7 @@ public class StringHandlerActivity extends AppCompatActivity {
    public static final String RESULT_MASTER_SEED_KEY = "master_seed";
    public static final String RESULT_POP_REQUEST = "pop_request";
    public static final String RESULT_BIT_ID_REQUEST = "bit_id_request";
+   public static final String RESULT_WORD_LIST = "word_list";
 
    public static Intent getIntent(Context currentActivity, StringHandleConfig stringHandleConfig, String contentString) {
       return new Intent(currentActivity, StringHandlerActivity.class)
@@ -359,6 +362,13 @@ public class StringHandlerActivity extends AppCompatActivity {
       result.putExtra(RESULT_TYPE_KEY, ResultType.BIT_ID_REQUEST);
       result.putExtra(RESULT_BIT_ID_REQUEST, request);
       setResult(RESULT_OK, result);
+      finish();
+   }
+
+   public void finishOk(String[] seedWords) {
+      setResult(RESULT_OK, new Intent()
+              .putExtra(RESULT_TYPE_KEY, ResultType.WORD_LIST)
+              .putExtra(RESULT_WORD_LIST, seedWords));
       finish();
    }
 

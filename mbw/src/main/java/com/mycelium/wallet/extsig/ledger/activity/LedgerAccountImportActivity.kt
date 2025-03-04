@@ -135,8 +135,14 @@ class LedgerAccountImportActivity : LedgerAccountSelectorActivity() {
     companion object {
         @JvmStatic
         fun callMe(currentActivity: Activity, requestCode: Int) {
-            val intent = Intent(currentActivity, LedgerAccountImportActivity::class.java)
-            currentActivity.startActivityForResult(intent, requestCode)
+            currentActivity.selectCoin {
+                currentActivity.startActivityForResult(
+                    Intent(
+                        currentActivity,
+                        LedgerAccountImportActivity::class.java
+                    ), requestCode
+                )
+            }
         }
     }
 }

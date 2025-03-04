@@ -82,10 +82,11 @@
                 android:layout_marginStart="0dp"
                 android:layout_marginTop="32dp"
                 android:layout_marginEnd="0dp"
-                android:layout_marginBottom="32dp"
+                android:layout_marginBottom="@dimen/size_x12"
                 android:enabled="@{model.productInfo != null}"
                 android:text="@string/proceed"
                 android:textSize="20sp"
+                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/cardValue" />
         </androidx.constraintlayout.widget.ConstraintLayout>
     </ScrollView>

@@ -56,12 +56,14 @@ class KeepKeyAccountImportActivity : ExtSigAccountImportActivity<KeepKeyManager>
     companion object {
         @JvmStatic
         fun callMe(currentActivity: Activity, requestCode: Int) {
-            currentActivity.startActivityForResult(
-                Intent(
-                    currentActivity,
-                    KeepKeyAccountImportActivity::class.java
-                ), requestCode
-            )
+            currentActivity.selectCoin() {
+                currentActivity.startActivityForResult(
+                    Intent(
+                        currentActivity,
+                        KeepKeyAccountImportActivity::class.java
+                    ), requestCode
+                )
+            }
         }
     }
 }

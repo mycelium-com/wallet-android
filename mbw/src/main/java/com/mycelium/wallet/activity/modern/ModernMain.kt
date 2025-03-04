@@ -1,5 +1,6 @@
 package com.mycelium.wallet.activity.modern
 
+import android.Manifest.permission.POST_NOTIFICATIONS
 import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
@@ -14,13 +15,17 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.tabs.TabLayout
 import com.google.common.base.Preconditions
 import com.mycelium.giftbox.GiftBoxRootActivity
-import com.mycelium.giftbox.client.GiftboxConstants
 import com.mycelium.net.ServerEndpointType
-import com.mycelium.wallet.*
+import com.mycelium.wallet.Constants
+import com.mycelium.wallet.MbwManager
+import com.mycelium.wallet.R
+import com.mycelium.wallet.Utils
+import com.mycelium.wallet.WalletApplication
 import com.mycelium.wallet.activity.ActionActivity
 import com.mycelium.wallet.activity.MessageVerifyActivity
 import com.mycelium.wallet.activity.changelog.ChangeLog
@@ -47,8 +52,17 @@ import com.mycelium.wallet.activity.settings.SettingsPreference.isContentEnabled
 import com.mycelium.wallet.activity.settings.SettingsPreference.mediaFlowEnabled
 import com.mycelium.wallet.activity.util.collapse
 import com.mycelium.wallet.activity.util.expand
+import com.mycelium.wallet.checkPushPermission
 import com.mycelium.wallet.databinding.ModernMainBinding
-import com.mycelium.wallet.event.*
+import com.mycelium.wallet.event.FeatureWarningsAvailable
+import com.mycelium.wallet.event.MalformedOutgoingTransactionsFound
+import com.mycelium.wallet.event.NetworkConnectionStateChanged
+import com.mycelium.wallet.event.NewWalletVersionAvailable
+import com.mycelium.wallet.event.SyncFailed
+import com.mycelium.wallet.event.SyncStarted
+import com.mycelium.wallet.event.SyncStopped
+import com.mycelium.wallet.event.TorStateChanged
+import com.mycelium.wallet.event.TransactionBroadcasted
 import com.mycelium.wallet.external.changelly.ChangellyConstants
 import com.mycelium.wallet.external.changelly2.ExchangeFragment
 import com.mycelium.wallet.external.changelly2.HistoryFragment
@@ -64,9 +78,11 @@ import com.mycelium.wapi.wallet.fio.FioModule
 import com.mycelium.wapi.wallet.manager.State
 import com.squareup.otto.Subscribe
 import info.guardianproject.netcipher.proxy.OrbotHelper
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
-import java.util.*
+import java.util.Date
+import java.util.Objects
+import java.util.Timer
+import java.util.TimerTask
 import java.util.concurrent.TimeUnit
 
 class ModernMain : AppCompatActivity(), BackHandler {
@@ -176,6 +192,13 @@ class ModernMain : AppCompatActivity(), BackHandler {
                 supportActionBar?.setIcon(icon)
             }
         }
+        checkPushPermission({}, {
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(POST_NOTIFICATIONS),
+                REQUEST_CODE_NOTIFICATION
+            )
+        })
     }
 
     fun selectTab(tabTag: String) {
@@ -617,6 +640,7 @@ class ModernMain : AppCompatActivity(), BackHandler {
     }
 
     companion object {
+        private const val REQUEST_CODE_NOTIFICATION = 1000223
         private const val TAB_NEWS = "tab_news"
         private const val TAB_ACCOUNTS = "tab_accounts"
         const val TAB_BALANCE = "tab_balance"

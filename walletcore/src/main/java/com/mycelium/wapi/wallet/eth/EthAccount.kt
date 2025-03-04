@@ -45,7 +45,7 @@ class EthAccount(private val chainId: Byte,
     fun updateEnabledTokens() {
         accountContext.updateEnabledTokens()
     }
-    fun hasHadActivity(): Boolean =
+    override fun hasHadActivity(): Boolean =
             accountBalance.spendable.isPositive() || accountContext.nonce > BigInteger.ZERO
 
     @Throws(InsufficientFundsException::class, BuildTransactionException::class)

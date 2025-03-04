@@ -4,7 +4,6 @@ import com.google.common.base.Optional
 import com.google.common.base.Preconditions
 import com.google.common.collect.BiMap
 import com.google.common.collect.HashBiMap
-import com.google.common.collect.ImmutableList
 import com.google.common.collect.Lists
 import com.mrd.bitlib.crypto.BipDerivationType
 import com.mrd.bitlib.crypto.BipDerivationType.Companion.getDerivationTypeByAddress
@@ -178,7 +177,7 @@ open class HDAccount(
      *
      * @return true if this account has ever had any activity, false otherwise
      */
-    fun hasHadActivity(): Boolean {
+    override fun hasHadActivity(): Boolean {
         // public method that needs no synchronization
         return derivePaths.any { context.getLastExternalIndexWithActivity(it) != -1 }
     }

@@ -103,6 +103,7 @@ class InvestmentAccount : WalletAccount<BtcAddress> {
     override var label: String = "Trading Account"
 
     override fun isSpendingUnconfirmed(tx: Transaction): Boolean = false
+    override fun hasHadActivity(): Boolean = getTransactionSummaries(0, 1).isNotEmpty()
 
     override suspend fun synchronize(mode: SyncMode?): Boolean {
         syncing = true
