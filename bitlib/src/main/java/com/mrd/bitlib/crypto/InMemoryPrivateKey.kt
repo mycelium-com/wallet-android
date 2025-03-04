@@ -1,10 +1,7 @@
 package com.mrd.bitlib.crypto
 
-import com.google.common.base.Optional
 import com.google.common.base.Preconditions
 import com.mrd.bitlib.bitcoinj.Base58
-import com.mrd.bitlib.crypto.InMemoryPrivateKey.DsaSignatureNonceGen
-import com.mrd.bitlib.crypto.InMemoryPrivateKey.DsaSignatureNonceGenDeterministic
 import com.mrd.bitlib.crypto.ec.EcTools
 import com.mrd.bitlib.crypto.ec.Parameters
 import com.mrd.bitlib.crypto.ec.Point
@@ -15,9 +12,7 @@ import com.mrd.bitlib.util.HashUtils
 import com.mrd.bitlib.util.Sha256Hash
 import com.mrd.bitlib.util.TaprootUtils
 import java.io.Serializable
-import java.lang.IllegalArgumentException
 import java.math.BigInteger
-import java.util.Arrays
 
 /**
  * A Bitcoin private key that is kept in memory.
@@ -99,7 +94,6 @@ class InMemoryPrivateKey(
             }
             trunc
         }
-    }
 
 
     private abstract class DsaSignatureNonceGen {
@@ -110,21 +104,11 @@ class InMemoryPrivateKey(
         private val messageHash: Sha256Hash,
         private val privateKey: KeyExporter
     ) : DsaSignatureNonceGen() {
-        private val messageHash: Sha256Hash
-        private val privateKey: KeyExporter
-
-        init {
-            this.messageHash = messageHash
-            this.privateKey = privateKey
-        }
 
         // rfc6979 compliant generation of k-value for DSA
         override fun getNonce(): BigInteger {
             // Step b
             var v = ByteArray(32) { 0x01.toByte() }
-
-            var v = ByteArray(32)
-            Arrays.fill(v, 0x01.toByte())
 
             // Step c
             var k = ByteArray(32) { 0x00.toByte() }
@@ -188,8 +172,8 @@ class InMemoryPrivateKey(
     ): Signature {
         val n = Parameters.n
         val e = calculateE(n, messageHash.bytes) //leaving strong typing here
-        var r: BigInteger?
-        var s: BigInteger?
+        var r: BigInteger
+        var s: BigInteger
 
         // 5.3.2
         do  // generate s
@@ -230,19 +214,18 @@ class InMemoryPrivateKey(
         return result
     }
 
-    override fun getBase58EncodedPrivateKey(network: NetworkParameters): String {
-        if (publicKey.isCompressed) {
-            return getBase58EncodedPrivateKeyCompressed(network)
-        } else {
-            return getBase58EncodedPrivateKeyUncompressed(network)
-        }
-    }
-
-    fun getPrivateKeyBytes(network: NetworkParameters): ByteArray =
+    override fun getBase58EncodedPrivateKey(network: NetworkParameters): String =
         if (publicKey.isCompressed) {
             getBase58EncodedPrivateKeyCompressed(network)
         } else {
             getBase58EncodedPrivateKeyUncompressed(network)
+        }
+
+    fun getPrivateKeyBytes(network: NetworkParameters): ByteArray =
+        if (publicKey.isCompressed) {
+            getPrivateKeyBytesCompressed(network)
+        } else {
+            getPrivateKeyBytesUncompressed(network)
         }
 
     private fun getBase58EncodedPrivateKeyUncompressed(network: NetworkParameters): String {
