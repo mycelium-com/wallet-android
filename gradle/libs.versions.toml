@@ -1,0 +1,44 @@
+[versions]
+mockkAndroid = "1.13.3"
+retrofit = "2.6.1"
+test-core = "1.6.1"
+espresso = "3.6.1"
+glide = "5.0.0-rc01"
+junit = "1.2.1"
+kotlin = '2.0.21'
+androidGradlePlugin = "8.7.1"
+sqldelight = "2.0.0"
+
+[libraries]
+espresso-contrib = { module = "androidx.test.espresso:espresso-contrib", version.ref = "espresso" }
+espresso-core = { module = "androidx.test.espresso:espresso-core", version.ref = "espresso" }
+espresso-idling-resource = { module = "androidx.test.espresso:espresso-idling-resource", version.ref = "espresso" }
+espresso-intents = { module = "androidx.test.espresso:espresso-intents", version.ref = "espresso" }
+espresso-idling-concurrent = { module = "androidx.test.espresso.idling:idling-concurrent", version.ref = "espresso" }
+mockk = { module = "io.mockk:mockk", version.ref = "mockkAndroid" }
+mockk-android = { module = "io.mockk:mockk-android", version.ref = "mockkAndroid" }
+retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
+retrofit-jackson = { module = "com.squareup.retrofit2:converter-jackson", version.ref = "retrofit" }
+retrofit-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "retrofit" }
+sqldelight-driver = { module = "app.cash.sqldelight:android-driver", version.ref = "sqldelight" }
+glide = { group = "com.github.bumptech.glide", name = "glide", version.ref = "glide" }
+glide-ksp = { module = "com.github.bumptech.glide:ksp", version.ref = "glide" }
+test-core-ktx = { module = "androidx.test:core-ktx", version.ref = "test-core" }
+test-core = { module = "androidx.test:core", version.ref = "test-core" }
+test-junit = { module = "androidx.test.ext:junit", version.ref = "junit" }
+test-rules = { module = "androidx.test:rules", version.ref = "test-core" }
+test-runner = { module = "androidx.test:runner", version.ref = "test-core" }
+
+
+[plugins]
+android-application = { id = "com.android.application", version.ref = "androidGradlePlugin" }
+android-library = { id = "com.android.library", version.ref = "androidGradlePlugin" }
+kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+ksp = { id = "com.google.devtools.ksp", version = "2.0.21-1.0.28" }
+sqldelight = { id = "app.cash.sqldelight", version.ref = "sqldelight" }
+
+[bundles]
+test-buundle = ["test-core-ktx", "test-core", "test-junit", "test-rules", "test-runner"]
+espresso = ["espresso-contrib", "espresso-core", "espresso-idling-resource", "espresso-intents", "espresso-idling-concurrent"]
+mockk = ["mockk", "mockk-android"]
+retrofit = ["retrofit", "retrofit-jackson", "retrofit-gson"]

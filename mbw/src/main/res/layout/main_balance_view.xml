@@ -94,6 +94,7 @@
 
 
     <include
+        android:id="@+id/layoutActoins"
         layout="@layout/layout_account_actoins"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

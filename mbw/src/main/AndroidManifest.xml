@@ -216,7 +216,6 @@
             android:name=".activity.receive.ReceiveCoinsActivity"
             android:theme="@style/MyceliumFIOMapping" />
         <activity android:name=".simplex.SimplexMainActivity" />
-        <activity android:name=".external.changelly.ChangellyOfferActivity" />
         <activity
             android:name=".lt.activity.LtMainActivity"
             android:launchMode="singleInstance" />

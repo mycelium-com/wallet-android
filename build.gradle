@@ -1,15 +1,5 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
-apply from: 'tools.gradle'
-apply plugin: 'kotlin'
-apply plugin: 'kotlin-kapt'
-apply from: 'integration-test.gradle'
-
-repositories {
-    mavenCentral()
-    google()
-}
-
 buildscript {
     apply from: 'ext_settings.gradle'
     repositories {
@@ -24,10 +14,14 @@ buildscript {
         classpath "androidx.navigation:navigation-safe-args-gradle-plugin:$nav_version"
     }
 }
-
-kapt {
-    useBuildCache = true
+plugins {
+    alias(libs.plugins.android.application) apply false
+    alias(libs.plugins.android.library) apply false
+    alias(libs.plugins.kotlin.android) apply false
+    alias(libs.plugins.ksp) apply false
 }
+apply from: 'tools.gradle'
+apply from: 'integration-test.gradle'
 
 allprojects {
     tasks.withType(JavaCompile).configureEach {
@@ -39,12 +33,6 @@ allprojects {
         kotlinOptions {
             jvmTarget = "1.8"
         }
-    }
-
-    repositories {
-        mavenCentral()
-        google()
-        maven { url 'https://jitpack.io' }
     }
 }
 
