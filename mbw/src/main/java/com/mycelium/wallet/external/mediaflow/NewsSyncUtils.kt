@@ -17,7 +17,11 @@ import android.widget.RemoteViews
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
-import androidx.work.*
+import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.ExistingWorkPolicy
+import androidx.work.OneTimeWorkRequest
+import androidx.work.PeriodicWorkRequest
+import androidx.work.WorkManager
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.target.SimpleTarget
 import com.bumptech.glide.request.transition.Transition
@@ -28,12 +32,13 @@ import com.mycelium.wallet.activity.StartupActivity
 import com.mycelium.wallet.activity.news.NewsActivity
 import com.mycelium.wallet.activity.news.NewsUtils
 import com.mycelium.wallet.activity.settings.SettingsPreference
+import com.mycelium.wallet.checkPushPermission
 import com.mycelium.wallet.external.mediaflow.database.NewsDatabase
 import com.mycelium.wallet.external.mediaflow.model.Content
 import com.mycelium.wallet.external.mediaflow.model.News
 import org.json.JSONException
 import org.json.JSONObject
-import java.util.*
+import java.util.Locale
 import java.util.concurrent.TimeUnit
 import kotlin.random.Random
 
@@ -156,6 +161,8 @@ object NewsSyncUtils {
                         .build())
     }
 
+
+
     fun notifyAboutMediaFlowTopics(context: Context, newTopicsRaw: List<News>) {
         val newTopics = newTopicsRaw.filter { topic -> topic.tags?.any { tag -> tag?.name == TAG_IMPORTANT } == true }
         val builder = createNotificationMediaFlowBuilder(context)
@@ -174,7 +181,10 @@ object NewsSyncUtils {
                                 builder.setStyle(NotificationCompat.BigPictureStyle()
                                         .setBigContentTitle(Html.fromHtml(news.title.rendered))
                                         .bigPicture(resource))
-                                NotificationManagerCompat.from(context).notify(mediaFlowNotificationId, builder.build())
+                                context.checkPushPermission({
+                                    NotificationManagerCompat.from(context)
+                                        .notify(mediaFlowNotificationId, builder.build())
+                                })
                             }
                         })
             }
@@ -192,7 +202,10 @@ object NewsSyncUtils {
 
             builder.setContent(remoteViews)
                     .setContentIntent(pIntent)
-            NotificationManagerCompat.from(context).notify(mediaFlowNotificationId, builder.build())
+            context.checkPushPermission({
+                NotificationManagerCompat.from(context)
+                    .notify(mediaFlowNotificationId, builder.build())
+            })
         } else if (newTopics.size > 1) {
             builder.setGroupSummary(true)
             val inboxStyle = NotificationCompat.InboxStyle()
@@ -207,16 +220,19 @@ object NewsSyncUtils {
             val pIntent = PendingIntent.getActivity(context, 0, activityIntent,
                     PendingIntent.FLAG_CANCEL_CURRENT or PendingIntent.FLAG_IMMUTABLE)
             builder.setContentIntent(pIntent)
-            NotificationManagerCompat.from(context).notify(mediaFlowNotificationId, builder.build())
+            context.checkPushPermission({
+                NotificationManagerCompat.from(context)
+                    .notify(mediaFlowNotificationId, builder.build())
+            })
         }
     }
 
     private fun createSingleNewsIntent(context: Context, news: News): Intent {
-        val clazz = if (MbwManager.getInstance(context).isAppInForeground) NewsActivity::class.java else StartupActivity::class.java
-        val activityIntent = Intent(context, clazz)
-        activityIntent.action = NewsUtils.MEDIA_FLOW_ACTION
-        activityIntent.putExtra(NewsConstants.NEWS, news)
-        return activityIntent
+        val clazz =
+            if (MbwManager.getInstance(context).isAppInForeground) NewsActivity::class.java else StartupActivity::class.java
+        return Intent(context, clazz)
+            .setAction(NewsUtils.MEDIA_FLOW_ACTION)
+            .putExtra(NewsConstants.NEWS, news)
     }
 
     private fun createNotificationMediaFlowBuilder(context: Context): NotificationCompat.Builder =
