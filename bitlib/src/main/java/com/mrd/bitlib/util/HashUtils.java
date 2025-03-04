@@ -44,7 +44,7 @@ public class HashUtils {
 
    private static MessageDigest sha256Digest;
 
-   private static MessageDigest getSha256Digest() {
+   public static MessageDigest getSha256Digest() {
       if (sha256Digest == null) {
          try {
             sha256Digest = MessageDigest.getInstance(SHA256);

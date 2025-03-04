@@ -153,10 +153,8 @@ class InMemoryPrivateKey(
             return t
         }
 
-        fun bits2int(bits: ByteArray): BigInteger {
-            // Step H1/H2a, ignored as tlen === qlen (256 bit)
-            return BigInteger(1, bits)
-        }
+        // Step H1/H2a, ignored as tlen === qlen (256 bit)
+        fun bits2int(bits: ByteArray): BigInteger = BigInteger(1, bits)
     }
 
     override fun generateSignature(messageHash: Sha256Hash): Signature =
