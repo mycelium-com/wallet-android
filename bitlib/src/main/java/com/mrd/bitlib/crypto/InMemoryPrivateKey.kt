@@ -1,10 +1,7 @@
 package com.mrd.bitlib.crypto
 
-import com.google.common.base.Optional
 import com.google.common.base.Preconditions
 import com.mrd.bitlib.bitcoinj.Base58
-import com.mrd.bitlib.crypto.InMemoryPrivateKey.DsaSignatureNonceGen
-import com.mrd.bitlib.crypto.InMemoryPrivateKey.DsaSignatureNonceGenDeterministic
 import com.mrd.bitlib.crypto.ec.EcTools
 import com.mrd.bitlib.crypto.ec.Parameters
 import com.mrd.bitlib.crypto.ec.Point
@@ -15,17 +12,16 @@ import com.mrd.bitlib.util.HashUtils
 import com.mrd.bitlib.util.Sha256Hash
 import com.mrd.bitlib.util.TaprootUtils
 import java.io.Serializable
-import java.lang.IllegalArgumentException
 import java.math.BigInteger
-import java.util.Arrays
 
 /**
  * A Bitcoin private key that is kept in memory.
  */
-class InMemoryPrivateKey() : PrivateKey(), KeyExporter, Serializable {
-    private lateinit var privateKey: BigInteger
-    override lateinit var publicKey: PublicKey
-
+class InMemoryPrivateKey(
+    private var privateKey: BigInteger,
+    compressed: Boolean = false,
+    override var publicKey: PublicKey = getPublicKey(privateKey, compressed)
+) : PrivateKey(), KeyExporter, Serializable {
 
     /**
      * Construct a random private key using a secure random source with optional
@@ -43,28 +39,8 @@ class InMemoryPrivateKey() : PrivateKey(), KeyExporter, Serializable {
      * constructor yields uncompressed public keys.
      */
     @JvmOverloads
-    constructor(randomSource: RandomSource, compressed: Boolean = false) : this() {
-        val nBitLength = Parameters.n.bitLength()
-        var d: BigInteger
-        do {
-            // Make a BigInteger from bytes to ensure that Andriod and 'classic'
-            // java make the same BigIntegers from the same random source with the
-            // same seed. Using BigInteger(nBitLength, random)
-            // produces different results on Android compared to 'classic' java.
-            val bytes = ByteArray(nBitLength / 8)
-            randomSource.nextBytes(bytes)
-            bytes[0] = (bytes[0].toInt() and 0x7F).toByte() // ensure positive number
-            d = BigInteger(bytes)
-        } while (d == BigInteger.ZERO || (d.compareTo(Parameters.n) >= 0))
-
-        var Q = EcTools.multiply(Parameters.G, d)
-        privateKey = d
-        if (compressed) {
-            // Convert Q to a compressed point on the curve
-            Q = Point(Q.getCurve(), Q.getX(), Q.getY(), true)
-        }
-        publicKey = PublicKey(Q.getEncoded())
-    }
+    constructor(randomSource: RandomSource, compressed: Boolean = false) :
+            this(privateKey(randomSource), compressed)
 
     constructor(hash: Sha256Hash, compressed: Boolean) : this(hash.bytes, compressed)
 
@@ -86,19 +62,7 @@ class InMemoryPrivateKey() : PrivateKey(), KeyExporter, Serializable {
      * The private key as an array of bytes
      */
     @JvmOverloads
-    constructor(bytes: ByteArray, compressed: Boolean = false) : this() {
-        require(bytes.size == 32) { "The length must be 32 bytes" }
-        // Ensure that we treat it as a positive number
-        val keyBytes = ByteArray(33)
-        System.arraycopy(bytes, 0, keyBytes, 1, 32)
-        privateKey = BigInteger(keyBytes)
-        var Q = EcTools.multiply(Parameters.G, privateKey)
-        if (compressed) {
-            // Convert Q to a compressed point on the curve
-            Q = Point(Q.getCurve(), Q.getX(), Q.getY(), true)
-        }
-        publicKey = PublicKey(Q.getEncoded())
-    }
+    constructor(bytes: ByteArray, compressed: Boolean = false) : this(privateKey(bytes), compressed)
 
     /**
      * Construct from private and public key bytes
@@ -106,53 +70,21 @@ class InMemoryPrivateKey() : PrivateKey(), KeyExporter, Serializable {
      * @param priBytes
      * The private key as an array of bytes
      */
-    constructor(priBytes: ByteArray, pubBytes: ByteArray) : this() {
-        require(priBytes.size == 32) { "The length of the array of bytes must be 32" }
-        // Ensure that we treat it as a positive number
-        val keyBytes = ByteArray(33)
-        System.arraycopy(priBytes, 0, keyBytes, 1, 32)
-        privateKey = BigInteger(keyBytes)
-        publicKey = PublicKey(pubBytes)
-    }
+    constructor(priBytes: ByteArray, pubBytes: ByteArray) :
+            this(privateKey(priBytes), false, PublicKey(pubBytes))
+
+
+    private constructor(pair: Pair<BigInteger, Boolean>) : this(pair.first, pair.second)
 
     /**
      * Construct from a base58 encoded key (SIPA format)
      */
-    constructor(base58Encoded: String?, network: NetworkParameters) : this() {
-        var decoded = Base58.decodeChecked(base58Encoded)
+    constructor(base58Encoded: String?, network: NetworkParameters) :
+            this(privateKey(base58Encoded, network))
 
-        // Validate format
-        require(!(decoded == null || decoded.size < 33 || decoded.size > 34)) { "Invalid base58 encoded key" }
-        require(!(network == NetworkParameters.productionNetwork && decoded[0] != 0x80.toByte())) { "The base58 encoded key is not for the production network" }
-        require(!(network == NetworkParameters.testNetwork && decoded[0] != 0xEF.toByte())) { "The base58 encoded key is not for the test network" }
-
-        // Determine whether compression should be used for the public key
-        var compressed: Boolean
-        if (decoded.size == 34) {
-            require(decoded[33].toInt() == 0x01) { "Invalid base58 encoded key" }
-            // Get rid of the compression indication byte at the end
-            val temp = ByteArray(33)
-            System.arraycopy(decoded, 0, temp, 0, temp.size)
-            decoded = temp
-            compressed = true
-        } else {
-            compressed = false
-        }
-        // Make positive and clear network prefix
-        decoded[0] = 0
-
-        privateKey = BigInteger(decoded)
-        var Q = EcTools.multiply(Parameters.G, privateKey)
-        if (compressed) {
-            // Convert Q to a compressed point on the curve
-            Q = Point(Q.getCurve(), Q.getX(), Q.getY(), true)
-        }
-        publicKey = PublicKey(Q.getEncoded())
-    }
-
-    private fun calculateE(n: BigInteger, messageHash: ByteArray): BigInteger {
+    private fun calculateE(n: BigInteger, messageHash: ByteArray): BigInteger =
         if (n.bitLength() > messageHash.size * 8) {
-            return BigInteger(1, messageHash)
+            BigInteger(1, messageHash)
         } else {
             val messageBitLength = messageHash.size * 8
             var trunc = BigInteger(1, messageHash)
@@ -160,10 +92,8 @@ class InMemoryPrivateKey() : PrivateKey(), KeyExporter, Serializable {
             if (messageBitLength - n.bitLength() > 0) {
                 trunc = trunc.shiftRight(messageBitLength - n.bitLength())
             }
-
-            return trunc
+            trunc
         }
-    }
 
 
     private abstract class DsaSignatureNonceGen {
@@ -171,34 +101,24 @@ class InMemoryPrivateKey() : PrivateKey(), KeyExporter, Serializable {
     }
 
     private class DsaSignatureNonceGenDeterministic(
-        messageHash: Sha256Hash,
-        privateKey: KeyExporter
-    ) : DsaSignatureNonceGen() {
-        private val messageHash: Sha256Hash
+        private val messageHash: Sha256Hash,
         private val privateKey: KeyExporter
-
-        init {
-            this.messageHash = messageHash
-            this.privateKey = privateKey
-        }
+    ) : DsaSignatureNonceGen() {
 
         // rfc6979 compliant generation of k-value for DSA
         override fun getNonce(): BigInteger {
             // Step b
-
-            var v = ByteArray(32)
-            Arrays.fill(v, 0x01.toByte())
+            var v = ByteArray(32) { 0x01.toByte() }
 
             // Step c
-            var k = ByteArray(32)
-            Arrays.fill(k, 0x00.toByte())
+            var k = ByteArray(32) { 0x00.toByte() }
 
             // Step d
             val bwD = ByteWriter(32 + 1 + 32 + 32)
             bwD.putBytes(v)
             bwD.put(0x00.toByte())
             bwD.putBytes(privateKey.getPrivateKeyBytes())
-            bwD.putBytes(messageHash.getBytes())
+            bwD.putBytes(messageHash.bytes)
             k = Hmac.hmacSha256(k, bwD.toBytes())
 
             // Step e
@@ -209,7 +129,7 @@ class InMemoryPrivateKey() : PrivateKey(), KeyExporter, Serializable {
             bwF.putBytes(v)
             bwF.put(0x01.toByte())
             bwF.putBytes(privateKey.getPrivateKeyBytes())
-            bwF.putBytes(messageHash.getBytes())
+            bwF.putBytes(messageHash.bytes)
             k = Hmac.hmacSha256(k, bwF.toBytes())
 
             // Step g
@@ -221,7 +141,7 @@ class InMemoryPrivateKey() : PrivateKey(), KeyExporter, Serializable {
             var t = bits2int(v)
 
             // Step H3, repeat until T is within the interval [1, Parameters.n - 1]
-            while ((t.signum() <= 0) || (t.compareTo(Parameters.n) >= 0)) {
+            while ((t.signum() <= 0) || (t >= Parameters.n)) {
                 val bwH = ByteWriter(32 + 1)
                 bwH.putBytes(v)
                 bwH.put(0x00.toByte())
@@ -233,9 +153,9 @@ class InMemoryPrivateKey() : PrivateKey(), KeyExporter, Serializable {
             return t
         }
 
-        fun bits2int(`in`: ByteArray): BigInteger {
+        fun bits2int(bits: ByteArray): BigInteger {
             // Step H1/H2a, ignored as tlen === qlen (256 bit)
-            return BigInteger(1, `in`)
+            return BigInteger(1, bits)
         }
     }
 
@@ -251,9 +171,9 @@ class InMemoryPrivateKey() : PrivateKey(), KeyExporter, Serializable {
         kGen: DsaSignatureNonceGen
     ): Signature {
         val n = Parameters.n
-        val e = calculateE(n, messageHash.getBytes()) //leaving strong typing here
-        var r: BigInteger?
-        var s: BigInteger?
+        val e = calculateE(n, messageHash.bytes) //leaving strong typing here
+        var r: BigInteger
+        var s: BigInteger
 
         // 5.3.2
         do  // generate s
@@ -264,7 +184,7 @@ class InMemoryPrivateKey() : PrivateKey(), KeyExporter, Serializable {
             val p = EcTools.multiply(Parameters.G, k)
 
             // 5.3.3
-            val x = p.getX().toBigInteger()
+            val x = p.x.toBigInteger()
 
             r = x.mod(n)
 
@@ -272,7 +192,7 @@ class InMemoryPrivateKey() : PrivateKey(), KeyExporter, Serializable {
         } while (s == BigInteger.ZERO)
 
         // Enforce low S value
-        if (s.compareTo(Parameters.MAX_SIG_S) > 0) {
+        if (s > Parameters.MAX_SIG_S) {
             // If the signature is larger than MAX_SIG_S, inverse it
             s = Parameters.n.subtract(s)
         }
@@ -301,35 +221,36 @@ class InMemoryPrivateKey() : PrivateKey(), KeyExporter, Serializable {
             getBase58EncodedPrivateKeyUncompressed(network)
         }
 
+    fun getPrivateKeyBytes(network: NetworkParameters): ByteArray =
+        if (publicKey.isCompressed) {
+            getPrivateKeyBytesCompressed(network)
+        } else {
+            getPrivateKeyBytesUncompressed(network)
+        }
+
     private fun getBase58EncodedPrivateKeyUncompressed(network: NetworkParameters): String {
-        val toEncode = ByteArray(1 + 32 + 4)
-        // Set network
-        toEncode[0] = if (network.isProdnet()) 0x80.toByte() else 0xEF.toByte()
-        // Set key bytes
-        val keyBytes = getPrivateKeyBytes()
-        System.arraycopy(keyBytes, 0, toEncode, 1, keyBytes.size)
+        val toEncode = getPrivateKeyBytesUncompressed(network)
         // Set checksum
         val checkSum = HashUtils.doubleSha256(toEncode, 0, 1 + 32).firstFourBytes()
-        System.arraycopy(checkSum, 0, toEncode, 1 + 32, 4)
         // Encode
-        return Base58.encode(toEncode)
+        return Base58.encode(toEncode + checkSum)
     }
 
+    fun getPrivateKeyBytesUncompressed(network: NetworkParameters): ByteArray =
+        // network byte + key bytes(32)
+        ByteArray(0) + (if (network.isProdnet) 0x80.toByte() else 0xEF.toByte()) + getPrivateKeyBytes()
+
     private fun getBase58EncodedPrivateKeyCompressed(network: NetworkParameters): String {
-        val toEncode = ByteArray(1 + 32 + 1 + 4)
-        // Set network
-        toEncode[0] = if (network.isProdnet()) 0x80.toByte() else 0xEF.toByte()
-        // Set key bytes
-        val keyBytes = getPrivateKeyBytes()
-        System.arraycopy(keyBytes, 0, toEncode, 1, keyBytes.size)
-        // Set compressed indicator
-        toEncode[33] = 0x01
+        val toEncode = getPrivateKeyBytesCompressed(network)
         // Set checksum
         val checkSum = HashUtils.doubleSha256(toEncode, 0, 1 + 32 + 1).firstFourBytes()
-        System.arraycopy(checkSum, 0, toEncode, 1 + 32 + 1, 4)
         // Encode
-        return Base58.encode(toEncode)
+        return Base58.encode(toEncode + checkSum)
     }
+
+    fun getPrivateKeyBytesCompressed(network: NetworkParameters): ByteArray =
+        //network byte + key bytes(32) + compressed indicator
+        ByteArray(0) + (if (network.isProdnet) 0x80.toByte() else 0xEF.toByte()) + getPrivateKeyBytes() + (0x01).toByte()
 
     override fun makeSchnorrBitcoinSignature(message: ByteArray, merkle: ByteArray): ByteArray =
         makeSchnorrBitcoinSignature(message, merkle, null)
@@ -345,7 +266,67 @@ class InMemoryPrivateKey() : PrivateKey(), KeyExporter, Serializable {
     }
 
     companion object {
-        private const val serialVersionUID = 1L
+        private fun privateKey(randomSource: RandomSource): BigInteger {
+            val nBitLength = Parameters.n.bitLength()
+            var d: BigInteger
+            do {
+                // Make a BigInteger from bytes to ensure that Andriod and 'classic'
+                // java make the same BigIntegers from the same random source with the
+                // same seed. Using BigInteger(nBitLength, random)
+                // produces different results on Android compared to 'classic' java.
+                val bytes = ByteArray(nBitLength / 8)
+                randomSource.nextBytes(bytes)
+                bytes[0] = (bytes[0].toInt() and 0x7F).toByte() // ensure positive number
+                d = BigInteger(bytes)
+            } while (d == BigInteger.ZERO || (d >= Parameters.n))
+            return d
+        }
+
+        private fun privateKey(bytes: ByteArray): BigInteger {
+            require(bytes.size == 32) { "The length must be 32 bytes" }
+            // Ensure that we treat it as a positive number
+            val keyBytes = ByteArray(33)
+            System.arraycopy(bytes, 0, keyBytes, 1, 32)
+            return BigInteger(keyBytes)
+        }
+
+        private fun privateKey(
+            base58Encoded: String?,
+            network: NetworkParameters
+        ): Pair<BigInteger, Boolean> {
+            var decoded = Base58.decodeChecked(base58Encoded)
+
+            // Validate format
+            require(!(decoded == null || decoded.size < 33 || decoded.size > 34)) { "Invalid base58 encoded key" }
+            require(!(network == NetworkParameters.productionNetwork && decoded[0] != 0x80.toByte())) { "The base58 encoded key is not for the production network" }
+            require(!(network == NetworkParameters.testNetwork && decoded[0] != 0xEF.toByte())) { "The base58 encoded key is not for the test network" }
+
+            // Determine whether compression should be used for the public key
+            var compressed: Boolean
+            if (decoded.size == 34) {
+                require(decoded[33].toInt() == 0x01) { "Invalid base58 encoded key" }
+                // Get rid of the compression indication byte at the end
+                val temp = ByteArray(33)
+                System.arraycopy(decoded, 0, temp, 0, temp.size)
+                decoded = temp
+                compressed = true
+            } else {
+                compressed = false
+            }
+            // Make positive and clear network prefix
+            decoded[0] = 0
+            return BigInteger(decoded) to compressed
+        }
+
+
+        private fun getPublicKey(privateKey: BigInteger, compressed: Boolean = false): PublicKey {
+            var Q = EcTools.multiply(Parameters.G, privateKey)
+            if (compressed) {
+                // Convert Q to a compressed point on the curve
+                Q = Point(Q.curve, Q.x, Q.y, true)
+            }
+            return PublicKey(Q.getEncoded())
+        }
 
         @JvmStatic
         fun fromBase58String(
@@ -358,6 +339,7 @@ class InMemoryPrivateKey() : PrivateKey(), KeyExporter, Serializable {
                 null
             }
 
+        @JvmStatic
         fun fromBase58MiniFormat(
             base58: String?,
             network: NetworkParameters?
@@ -367,7 +349,7 @@ class InMemoryPrivateKey() : PrivateKey(), KeyExporter, Serializable {
                 return null
             }
             // Check that the string has a valid checksum
-            val withQuestionMark = base58 + "?"
+            val withQuestionMark = "$base58?"
             val checkHash = HashUtils.sha256(withQuestionMark.toByteArray()).firstFourBytes()
             if (checkHash[0].toInt() != 0x00) {
                 return null

@@ -22,7 +22,6 @@ import com.mycelium.wallet.activity.util.AbstractAccountScanManager
 import com.mycelium.wallet.activity.util.MasterseedPasswordSetter
 import com.mycelium.wallet.activity.util.toStringWithUnit
 import com.mycelium.wallet.persistence.MetadataStorage
-import com.mycelium.wapi.wallet.AccountScanManager
 import com.mycelium.wapi.wallet.AccountScanManager.OnAccountFound
 import com.mycelium.wapi.wallet.AccountScanManager.OnPassphraseRequest
 import com.mycelium.wapi.wallet.AccountScanManager.OnScanError
@@ -36,7 +35,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.Serializable
-import java.util.*
+import java.util.UUID
 import javax.annotation.Nonnull
 
 abstract class HdAccountSelectorActivity<AccountScanManager : AbstractAccountScanManager> :
@@ -84,7 +83,7 @@ abstract class HdAccountSelectorActivity<AccountScanManager : AbstractAccountSca
                 walletManager,
                 account.keysPaths.iterator().next().lastIndex
             )
-            return@startBackgroundAccountScan walletManager.getAccount(id)?.let {
+            return@startBackgroundAccountScan id?.let { walletManager.getAccount(id) }?.let {
                 it.synchronize(SyncMode.NORMAL_WITHOUT_TX_LOOKUP)
                 if (it.hasHadActivity()) {
                     id
@@ -110,7 +109,7 @@ abstract class HdAccountSelectorActivity<AccountScanManager : AbstractAccountSca
     }
 
     protected open fun updateUi() {
-        if (masterseedScanManager!!.currentAccountState == AccountScanManager.AccountStatus.scanning) {
+        if (masterseedScanManager!!.currentAccountState == com.mycelium.wapi.wallet.AccountScanManager.AccountStatus.scanning) {
             findViewById<View>(R.id.llStatus).visibility =
                 View.VISIBLE
             if (accounts.isNotEmpty()) {
@@ -119,7 +118,7 @@ abstract class HdAccountSelectorActivity<AccountScanManager : AbstractAccountSca
                 findViewById<View>(R.id.llSelectAccount).visibility =
                     View.VISIBLE
             }
-        } else if (masterseedScanManager!!.currentAccountState == AccountScanManager.AccountStatus.done) {
+        } else if (masterseedScanManager!!.currentAccountState == com.mycelium.wapi.wallet.AccountScanManager.AccountStatus.done) {
             // DONE
             findViewById<View>(R.id.llStatus).visibility = View.GONE
             findViewById<View>(R.id.llSelectAccount).visibility = View.VISIBLE

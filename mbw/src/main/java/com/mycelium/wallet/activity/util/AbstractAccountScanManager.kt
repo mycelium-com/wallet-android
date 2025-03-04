@@ -10,7 +10,13 @@ import com.mrd.bitlib.model.hdpath.HdKeyPath
 import com.mycelium.wallet.BuildConfig
 import com.mycelium.wallet.Utils
 import com.mycelium.wapi.wallet.AccountScanManager
-import com.mycelium.wapi.wallet.AccountScanManager.*
+import com.mycelium.wapi.wallet.AccountScanManager.AccountStatus
+import com.mycelium.wapi.wallet.AccountScanManager.HdKeyNodeWrapper
+import com.mycelium.wapi.wallet.AccountScanManager.OnAccountFound
+import com.mycelium.wapi.wallet.AccountScanManager.OnPassphraseRequest
+import com.mycelium.wapi.wallet.AccountScanManager.OnScanError
+import com.mycelium.wapi.wallet.AccountScanManager.OnStatusChanged
+import com.mycelium.wapi.wallet.AccountScanManager.Status
 import com.mycelium.wapi.wallet.WalletManager
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.satoshilabs.trezor.lib.protobuf.TrezorType
@@ -22,7 +28,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.util.*
+import java.util.UUID
 
 abstract class AbstractAccountScanManager @JvmOverloads constructor(
     protected val context: Context,
@@ -216,7 +222,7 @@ abstract class AbstractAccountScanManager @JvmOverloads constructor(
         accountRoots: List<HdKeyNode>,
         walletManager: WalletManager,
         accountIndex: Int
-    ): UUID
+    ): UUID?
 
     // returns the next Bip44 account based on the last scanned account
     override fun getAccountPathsToScan(

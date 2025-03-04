@@ -216,7 +216,7 @@ open class LedgerManager(context: Context, network: NetworkParameters, eventBus:
 
         var txPin = ""
         var outputData: BTChipOutput? = null
-        val signatures: MutableList<ByteArray?> = ArrayList<ByteArray?>(inputsNumber)
+        val signatures: MutableList<ByteArray> = ArrayList<ByteArray>(inputsNumber)
 
 
         // Fetch trusted inputs
@@ -681,7 +681,7 @@ open class LedgerManager(context: Context, network: NetworkParameters, eventBus:
         accountRoots: List<HdKeyNode>,
         walletManager: WalletManager,
         accountIndex: Int
-    ): UUID {
+    ): UUID? {
         var account: UUID? = null
         accountRoots.forEach { accountRoot ->
             if (walletManager.hasAccount(accountRoot.getUuid())) {

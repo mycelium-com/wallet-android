@@ -9,7 +9,7 @@ import com.mycelium.wallet.content.Action
 
 class SssShareAction : Action {
     override fun handle(handlerActivity: StringHandlerActivity, content: String): Boolean {
-        if (!content.startsWith(BipSss.Share.SSS_PREFIX)) {
+        if (!isShare(content)) {
             return false
         }
         val share = BipSss.Share.fromString(content)
@@ -21,11 +21,12 @@ class SssShareAction : Action {
         return true
     }
 
-    override fun canHandle(network: NetworkParameters, content: String): Boolean {
-        return isShare(content)
-    }
+    override fun canHandle(network: NetworkParameters, content: String): Boolean =
+        isShare(content)
 
-    private fun isShare(content: String): Boolean {
-        return content.startsWith(BipSss.Share.SSS_PREFIX)
-    }
+    private fun isShare(content: String): Boolean =
+        content.startsWith(BipSss.Share.SSS_PREFIX) ||
+                content.startsWith(BipSss.Share.SSS_EXT_PREFIX) ||
+                content.startsWith(BipSss.Share.SSS_EXT2_PREFIX)
+
 }

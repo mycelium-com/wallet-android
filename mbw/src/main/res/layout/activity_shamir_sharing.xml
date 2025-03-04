@@ -1,0 +1,140 @@
+<!-- res/layout/activity_shamir_sharing.xml -->
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/startGuidline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_begin="@dimen/horizontal_page_margin" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/endGuidline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_end="@dimen/horizontal_page_margin" />
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/tilTotalShares"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/size_x4"
+        android:layout_marginTop="@dimen/size_x4"
+        android:layout_marginEnd="@dimen/size_x1"
+        android:background="@drawable/bg_shamir_input"
+        android:hint="@string/total_number_of_shares"
+        android:minHeight="@dimen/btnHeight_x2"
+        android:paddingTop="@dimen/size_x2"
+        app:layout_constraintEnd_toStartOf="@id/tilThreshold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/etNumberOfShares"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/size_x3"
+            android:layout_marginTop="@dimen/size_x2"
+            android:layout_marginEnd="@dimen/size_x3"
+            android:layout_marginBottom="@dimen/size_x2"
+            android:inputType="number" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/tilThreshold"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/size_x1"
+        android:layout_marginTop="@dimen/size_x4"
+        android:layout_marginEnd="@dimen/size_x4"
+        android:background="@drawable/bg_shamir_input"
+        android:hint="@string/threshold"
+        android:minHeight="@dimen/btnHeight_x2"
+        android:paddingTop="@dimen/size_x2"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/tilTotalShares"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/etThreshold"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/size_x3"
+            android:layout_marginTop="@dimen/size_x2"
+            android:layout_marginEnd="@dimen/size_x3"
+            android:layout_marginBottom="@dimen/size_x2"
+            android:inputType="number" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <Button
+        android:id="@+id/generate"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/size_x4"
+        android:minHeight="@dimen/btnHeight_x2"
+        android:text="@string/generate_shares"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toEndOf="@id/endGuidline"
+        app:layout_constraintStart_toStartOf="@id/startGuidline"
+        app:layout_constraintTop_toBottomOf="@id/tilTotalShares" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvSharesContainer"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="@dimen/size_x4"
+        android:orientation="vertical"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/generate"
+        tools:listitem="@layout/item_share" />
+
+    <TextView
+        android:id="@+id/pageHint"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/size_x4"
+        android:background="@drawable/bg_shamir_input"
+        android:padding="@dimen/size_x4"
+        android:text="@string/shamir_share_hint"
+        android:textColor="@color/textPrimary"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@id/endGuidline"
+        app:layout_constraintStart_toStartOf="@id/startGuidline" />
+
+    <LinearLayout
+        android:id="@+id/progressOverlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/semi_black"
+        android:clickable="true"
+        android:focusable="true"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:visibility="gone"
+        tools:visibility="visible">
+
+        <TextView
+            android:id="@+id/progressText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/size_x4"
+            android:layout_marginEnd="@dimen/size_x4"
+            android:layout_marginBottom="@dimen/size_x4"
+            android:text="" />
+
+        <ProgressBar
+            android:id="@+id/progressBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center" />
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

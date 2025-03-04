@@ -59,6 +59,7 @@ import com.mrd.bitlib.model.BitcoinAddress;
 import com.mrd.bitlib.model.AddressType;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mycelium.wallet.*;
+import com.mycelium.wallet.activity.util.ActivityExtensionsKt;
 import com.mycelium.wallet.pdf.ExportDistiller;
 import com.mycelium.wallet.pdf.ExportPdfParameters;
 import com.mycelium.wallet.persistence.MetadataStorage;
@@ -273,24 +274,8 @@ public class BackupToPdfActivity extends AppCompatActivity {
    }
 
    private Uri getUri() {
-      String authority = getFileProviderAuthority();
+      String authority = ActivityExtensionsKt.fileProviderAuthority(this);
       return FileProvider.getUriForFile(this, authority, getFileStreamPath(getFullExportFilePath()));
-   }
-
-   // ignore null checks in this method
-   private String getFileProviderAuthority() {
-      try {
-         PackageManager packageManager = getApplication().getPackageManager();
-         PackageInfo packageInfo = packageManager.getPackageInfo(getPackageName(), PackageManager.GET_PROVIDERS);
-         for (ProviderInfo info : packageInfo.providers) {
-            if (info.name.equals("androidx.core.content.FileProvider")) {
-               return info.authority;
-            }
-         }
-      } catch (NameNotFoundException e) {
-         throw new RuntimeException(e);
-      }
-      throw new RuntimeException("No file provider authority specified in manifest");
    }
 
    @Subscribe

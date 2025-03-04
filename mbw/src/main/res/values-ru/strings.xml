@@ -1386,6 +1386,16 @@
     <string name="gift_card_load_error_title">Покупка подарочных карточек временно недоступна.</string>
     <string name="gift_card_load_error_desc">Мы обновляем наши магазины, и сервис скоро снова будет доступен. Спасибо за понимание!</string>
 
+    <string name="share_of">Доля %1$d</string>
+    <string name="total_number_of_shares">Общее количество долей</string>
+    <string name="threshold">Порог</string>
+    <string name="total_shares_count_too_high">Слишком большое количество долей, это займет время</string>
+    <string name="every_1000_shares_20mb">\nкаждые 1000 долей ≈ 20 МБ</string>
+    <string name="generate_shares">Создать Shares</string>
+    <string name="shamir_share_hint"><![CDATA[Общее количество долей: количество частей, на которые будет разделен приватный ключ.\n\nПорог: количество частей, необходимое для восстановления приватного ключа.]]></string>
+    <string name="not_valid_value">Недопустимое значение</string>
+    <string name="total_shares_limit">Общее количество долей должно быть меньше 65535</string>
+
     <!--old translation-->
     <string name="exchange_sending">АДРЕС\nОТПРАВКИ</string>
     <string name="exchange_receiving">АДРЕС\nПОЛУЧЕНИЯ</string>

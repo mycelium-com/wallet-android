@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
 
+    <color name="textPrimary" >@color/white</color>
+    <color name="textPrimaryInverse" >@color/black</color>
+
     <color name="red">#f00</color>
     <color name="green">#0f0</color>
     <color name="semidarkgreen">#0c0</color>
@@ -110,4 +113,5 @@
     <color name="giftbox_state_text">#aaaaaa</color>
     <color name="giftbox_state_title_ok">#5EBA89</color>
     <color name="btn_bg_color">#202629</color>
+
 </resources>
