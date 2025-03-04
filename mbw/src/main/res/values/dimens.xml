@@ -8,7 +8,6 @@
     <dimen name="size_x6">24dp</dimen>
     <dimen name="size_x12">48dp</dimen>
     <dimen name="size_x16">64dp</dimen>
-    <dimen name="size_x12">48dp</dimen>
 
     <dimen name="btnHeight_x2">56dp</dimen>
 
