@@ -617,10 +617,9 @@ class StartupActivity : AppCompatActivity(), AccountCreationObserver {
         private const val IMPORT_WORDLIST = 0
 
         @JvmField
-        val mainAccounts = listOf<Config>(
+        val mainAccounts = listOf(
             AdditionalHDAccountConfig(),
-            EthereumMasterseedConfig(),
-            FIOMasterseedConfig()
+            EthereumMasterseedConfig()
         )
 
         private const val LAST_STARTUP_TIME = "startupTme"
