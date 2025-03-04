@@ -245,10 +245,15 @@ public class HDAccountKeyManager {
 
    private static byte[] getLeafNodeId(NetworkParameters network, int accountIndex, boolean isChangeChain, int index,
                                        boolean isHdNode, BipDerivationType derivationType) {
+      return getLeafNodeId(network.isProdnet() ? 0 : 1, accountIndex, isChangeChain, index, isHdNode, derivationType);
+   }
+
+   public static byte[] getLeafNodeId(int networkIndex, int accountIndex, boolean isChangeChain, int index,
+                                      boolean isHdNode, BipDerivationType derivationType) {
       // Create a compact unique address or HD node ID
       byte[] id = new byte[1 + 1 + 4 + 1 + 4 + 1];
       id[0] = derivationType.getPurpose();
-      id[1] = (byte) (network.isProdnet() ? 0 : 1); // network
+      id[1] = (byte) (networkIndex); // network
       BitUtils.uint32ToByteArrayLE(accountIndex, id, 2); // account index
       id[6] = (byte) (isChangeChain ? 1 : 0); // external chain or change chain
       BitUtils.uint32ToByteArrayLE(index, id, 7); // address index

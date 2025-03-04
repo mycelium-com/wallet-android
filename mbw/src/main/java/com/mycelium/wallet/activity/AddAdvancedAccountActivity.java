@@ -153,7 +153,7 @@ public class AddAdvancedAccountActivity extends AppCompatActivity implements Imp
       binding.btGenerateNewBchSingleKey.setVisibility(View.GONE);
 
       binding.btCreateFioLegacyAccount.setOnClickListener(view -> {
-         FioKeyManager fioKeyManager = new FioKeyManager(_mbwManager.getMasterSeedManager());
+         FioKeyManager fioKeyManager = _mbwManager.fioKeyManager;
          HdKeyNode legacyFioNode = fioKeyManager.getLegacyFioNode();
          //since uuid is used for account creation we can check hdKeynode uuid for account existence
          if (_mbwManager.getWalletManager(false).getAccount(legacyFioNode.getUuid()) == null) {
@@ -321,10 +321,10 @@ public class AddAdvancedAccountActivity extends AppCompatActivity implements Imp
          }
       } else if (requestCode == CREATE_RESULT_CODE && resultCode == Activity.RESULT_OK) {
          String base58Key = intent.getStringExtra("base58key");
-         Optional<InMemoryPrivateKey> key = InMemoryPrivateKey.fromBase58String(base58Key, _network);
-         if (key.isPresent()) {
+         InMemoryPrivateKey key = InMemoryPrivateKey.fromBase58String(base58Key, _network);
+         if (key != null) {
             // This is a new key - there is no existing backup
-            returnAccount(key.get(), MetadataStorage.BackupState.UNKNOWN, AccountType.SA);
+            returnAccount(key, MetadataStorage.BackupState.UNKNOWN, AccountType.SA);
          } else {
             throw new RuntimeException("Creating private key from string unexpectedly failed.");
          }
@@ -339,8 +339,8 @@ public class AddAdvancedAccountActivity extends AppCompatActivity implements Imp
          finishOk((UUID) intent.getSerializableExtra("account"), false);
       } else if (requestCode == StringHandlerActivity.IMPORT_SSS_CONTENT_CODE && resultCode == Activity.RESULT_OK) {
          String base58Key = intent.getStringExtra(RESULT_SECRET);
-         Optional<InMemoryPrivateKey> key = InMemoryPrivateKey.fromBase58String(base58Key, _network);
-         returnAccount(key.get(), MetadataStorage.BackupState.IGNORED, AccountType.Unknown);
+         InMemoryPrivateKey key = InMemoryPrivateKey.fromBase58String(base58Key, _network);
+         returnAccount(key, MetadataStorage.BackupState.IGNORED, AccountType.Unknown);
          //
       } else {
          super.onActivityResult(requestCode, resultCode, intent);

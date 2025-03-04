@@ -20,6 +20,8 @@ import com.google.common.base.Preconditions;
 import com.mrd.bitlib.crypto.RandomSource;
 import com.mycelium.wapi.wallet.KeyCipher.InvalidKeyCipher;
 
+import javax.annotation.Nullable;
+
 /**
  * Secure encrypted storage and plaintext storage for arbitrary binary values using a user defined encryption key.
  * <p/>
@@ -59,6 +61,7 @@ public class SecureKeyValueStore {
     * @param id The ID to get the value for
     * @return The plaintext value associated with the ID or null if no plaintext value was associated
     */
+   @Nullable
    public synchronized byte[] getPlaintextValue(byte[] id) {
       if (id.length == 0) {
          throw new RuntimeException("IDs cannot have zero length");

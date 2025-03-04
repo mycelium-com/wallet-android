@@ -25,7 +25,7 @@ class ExportFioKeyActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         supportActionBar?.hide()
         val mbwManager = MbwManager.getInstance(this)
-        val fioKeyManager = FioKeyManager(mbwManager.masterSeedManager)
+        val fioKeyManager = mbwManager.fioKeyManager
         val publicKey = fioKeyManager.getFioPublicKey((mbwManager.selectedAccount as HDAccount).accountIndex)
         val formatPubKey = fioKeyManager.formatPubKey(publicKey)
 

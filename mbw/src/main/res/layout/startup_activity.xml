@@ -6,6 +6,8 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
-    <include layout="@layout/startup_activity_progress" />
+    <include
+        android:id="@+id/layoutProgress"
+        layout="@layout/startup_activity_progress" />
     </LinearLayout>
 </layout>

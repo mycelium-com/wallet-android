@@ -310,6 +310,7 @@ public class MbwManager {
     private final WalletManager _walletManager;
     private WalletManager _tempWalletManager;
     private MasterSeedManager masterSeedManager;
+    public FioKeyManager fioKeyManager;
     private ContentResolver contentResolver;
     private final RandomSource _randomSource;
     private final EventTranslator _eventTranslator;
@@ -965,7 +966,7 @@ public class MbwManager {
 
         FioModule fioModule = new FioModule(configuration, new AbiFioSerializationProviderWrapper(), new FioApiEndpoints(configuration.getFioApiEndpoints()), new FioHistoryEndpoints(configuration.getFioHistoryEndpoints()),
                 secureKeyValueStore, new FioBacking(db, genericBacking), walletDB, networkParameters, getMetadataStorage(),
-                new FioKeyManager(new MasterSeedManager(secureKeyValueStore)), accountListener, walletManager, configuration.getFioTpid());
+                new FioKeyManager(new MasterSeedManager(secureKeyValueStore), secureKeyValueStore), accountListener, walletManager, configuration.getFioTpid());
         walletManager.add(fioModule);
 
         BitcoinVaultHDBacking bitcoinVaultBacking = new BitcoinVaultHDBacking(db, genericBacking);
@@ -1044,9 +1045,10 @@ public class MbwManager {
         walletManager.add(ethModule);
 
         Backing<FioAccountContext> fioGenericBacking = new InMemoryAccountContextsBacking<>();
+        fioKeyManager = new FioKeyManager(new MasterSeedManager(secureKeyValueStore), secureKeyValueStore);
         FioModule fioModule = new FioModule(configuration, new AbiFioSerializationProviderWrapper(), new FioApiEndpoints(configuration.getFioApiEndpoints()), new FioHistoryEndpoints(configuration.getFioHistoryEndpoints()),
                 secureKeyValueStore, fioGenericBacking, db, networkParameters, getMetadataStorage(),
-                new FioKeyManager(new MasterSeedManager(secureKeyValueStore)), accountListener, walletManager, configuration.getFioTpid());
+                fioKeyManager, accountListener, walletManager, configuration.getFioTpid());
         walletManager.add(fioModule);
         walletManager.disableTransactionHistorySynchronization();
         return walletManager;

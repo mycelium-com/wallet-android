@@ -29,7 +29,7 @@ class SegWitTransactionTest {
                 NetworkParameters.productionNetwork, tx.lockTime, tx.inputs[0].sequence)
 
         val signatures = StandardTransactionBuilder.generateSignatures(
-                unsignedTransaction.signingRequests,
+                unsignedTransaction.signingRequests.filterNotNull().toTypedArray(),
                 privateKeyRing
         )
         val finalTx = StandardTransactionBuilder.finalizeTransaction(unsignedTransaction, signatures)
