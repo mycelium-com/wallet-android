@@ -1,98 +1,69 @@
-package com.mycelium.wallet.activity.view;
+package com.mycelium.wallet.activity.view
+
+import android.content.Context
+import android.view.View
+import android.widget.TextView
+import androidx.preference.Preference
+import androidx.preference.PreferenceViewHolder
+import com.mycelium.wallet.R
+import com.mycelium.wallet.activity.settings.ModulePreference
 
 
-import android.content.Context;
-import androidx.preference.Preference;
-import androidx.preference.PreferenceViewHolder;
-import android.view.View;
-import android.widget.TextView;
-
-import com.mycelium.wallet.R;
-import com.mycelium.wallet.activity.settings.ModulePreference;
-
-import javax.annotation.Nullable;
-
-import butterknife.BindView;
-import butterknife.ButterKnife;
-import butterknife.OnClick;
-import butterknife.Optional;
-
-public class ButtonPreference extends Preference implements ModulePreference {
-    @BindView(R.id.preference_button)
-    TextView button;
-
-    @Nullable
-    @BindView(R.id.under_icon_text)
-    TextView underIconTextView;
-
-    @Nullable
-    @BindView(R.id.sync_state)
-    TextView syncState;
+class ButtonPreference(context: Context) : Preference(context), ModulePreference {
+    var button: TextView? = null
+    var underIconTextView: TextView? = null
+    var syncState: TextView? = null
 
 
-    private View.OnClickListener buttonClickListener;
-    private String buttonText;
-    private String syncStateText;
-    private boolean buttonEnabled = true;
+    private var buttonClickListener: View.OnClickListener? = null
+    private var buttonText: String? = null
+    private var syncStateText: String? = null
+    private var buttonEnabled = true
 
-    public ButtonPreference(Context context) {
-        super(context);
-        setLayoutResource(R.layout.preference_layout_no_icon);
-        setWidgetLayoutResource(R.layout.preference_button);
+    init {
+        layoutResource = R.layout.preference_layout_no_icon
+        widgetLayoutResource = R.layout.preference_button
     }
 
-    @Override
-    public void onBindViewHolder(PreferenceViewHolder holder) {
-        super.onBindViewHolder(holder);
-        ButterKnife.bind(this, holder.itemView);
-        if (button != null) {
-            button.setText(buttonText);
-        }
-        if (syncState != null) {
-            syncState.setText(syncStateText);
-        }
-        setButtonEnabled(buttonEnabled);
+    override fun onBindViewHolder(holder: PreferenceViewHolder) {
+        super.onBindViewHolder(holder)
+        button = holder.itemView.findViewById(R.id.preference_button)
+        underIconTextView = holder.itemView.findViewById(R.id.under_icon_text)
+        syncState = holder.itemView.findViewById(R.id.sync_state)
+
+        button?.text = buttonText
+        button?.setOnClickListener { btnClick(it) }
+
+        syncState?.text = syncStateText
+        setButtonEnabled(buttonEnabled)
     }
 
-    @Override
-    public void setEnabled(boolean enabled) {
-        super.setEnabled(enabled);
-        if (button != null) {
-            button.setEnabled(enabled);
-        }
+    override fun setEnabled(enabled: Boolean) {
+        super.setEnabled(enabled)
+        button?.isEnabled = enabled
     }
 
-    @Optional
-    @OnClick(R.id.preference_button)
-    void btnClick(View view) {
-        if (buttonClickListener != null) {
-            buttonClickListener.onClick(view);
-        }
+    fun btnClick(view: View?) {
+        buttonClickListener?.onClick(view)
     }
 
-    public void setButtonClickListener(View.OnClickListener buttonClickListener) {
-        this.buttonClickListener = buttonClickListener;
+    fun setButtonClickListener(buttonClickListener: View.OnClickListener?) {
+        this.buttonClickListener = buttonClickListener
     }
 
-    public void setButtonText(String text) {
-        buttonText = text;
-        if (button != null) {
-            button.setText(text);
-        }
+    fun setButtonText(text: String?) {
+        buttonText = text
+        button?.text = text
     }
 
-    public void setSyncStateText(String syncStateText) {
-        this.syncStateText = syncStateText;
-        if (syncState != null) {
-            syncState.setText(syncStateText);
-        }
+    override fun setSyncStateText(syncStateText: String) {
+        this.syncStateText = syncStateText
+        syncState?.text = syncStateText
     }
 
-    public void setButtonEnabled(boolean enabled) {
-        buttonEnabled = enabled;
-        if (button != null) {
-            button.setClickable(enabled);
-            button.setEnabled(enabled);
-        }
+    fun setButtonEnabled(enabled: Boolean) {
+        buttonEnabled = enabled
+        button?.isClickable = enabled
+        button?.isEnabled = enabled
     }
 }

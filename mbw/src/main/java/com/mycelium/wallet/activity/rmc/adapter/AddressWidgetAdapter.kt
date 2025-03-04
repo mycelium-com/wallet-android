@@ -1,268 +1,268 @@
-package com.mycelium.wallet.activity.rmc.adapter;
+package com.mycelium.wallet.activity.rmc.adapter
 
-import android.content.Context;
-import android.content.SharedPreferences;
-import android.os.AsyncTask;
-import androidx.viewpager.widget.PagerAdapter;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.TextView;
+import android.content.Context
+import android.content.SharedPreferences
+import android.os.AsyncTask
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import androidx.viewpager.widget.PagerAdapter
+import com.mycelium.wallet.MbwManager
+import com.mycelium.wallet.R
+import com.mycelium.wallet.activity.rmc.BtcPoolStatisticsManager
+import com.mycelium.wallet.activity.rmc.BtcPoolStatisticsManager.PoolStatisticInfo
+import com.mycelium.wallet.databinding.RmcAddressProfitMeterBinding
+import com.mycelium.wallet.databinding.RmcAddressStatisticBinding
+import com.mycelium.wapi.wallet.colu.ColuAccount
+import java.math.BigDecimal
+import java.text.DecimalFormat
 
-import com.mycelium.wallet.MbwManager;
-import com.mycelium.wallet.R;
-import com.mycelium.wallet.activity.rmc.BtcPoolStatisticsManager;
-import com.mycelium.wallet.activity.rmc.view.ProfitMeterView;
-import com.mycelium.wapi.wallet.WalletAccount;
-import com.mycelium.wapi.wallet.colu.ColuAccount;
+class AddressWidgetAdapter(private val context: Context, private val mbwManager: MbwManager) :
+    PagerAdapter() {
+    private var poolStatisticInfo: PoolStatisticInfo? = null
+    private val sharedPreferences: SharedPreferences
+    private var coluAccount: ColuAccount? = null
 
-import java.math.BigDecimal;
-import java.text.DecimalFormat;
+    private var angle = 0
+    private var value = 0f
+    private var satPerSec: BigDecimal? = null
+    private var accrued: BigDecimal = BigDecimal.ZERO
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
+    init {
+        sharedPreferences =
+            context.getSharedPreferences(PREFERENCE_RMC_PROFIT_METER, Context.MODE_PRIVATE)
+        val account = mbwManager.selectedAccount
+        if (account is ColuAccount) {
+            coluAccount = mbwManager.selectedAccount as ColuAccount
 
-public class AddressWidgetAdapter extends PagerAdapter {
-    private static final String TOTAL_RMC_HASHRATE = "total_rmc_hashrate";
-    private static final String YOUR_RMC_HASHRATE = "your_rmc_hashrate";
-    private static final String DIFFICULTY = "difficulty";
-    private static final String ACCRUED_INCOME = "accrued_income";
-    private static final BigDecimal POW_2_32 = BigDecimal.valueOf(4294967296L);
-    private static final BigDecimal BLOCK_REWARD = BigDecimal.valueOf(1250000000);
-    public static final String PREFERENCE_RMC_PROFIT_METER = "rmc_profit_meter";
-    private static final DecimalFormat adoFormat = new DecimalFormat("#.####");
-    public static final String ADOANGLE = "adoangle";
-    public static final String ADOTIME = "adotime";
+            poolStatisticInfo = PoolStatisticInfo(
+                sharedPreferences.getLong(TOTAL_RMC_HASHRATE, 0),
+                sharedPreferences.getLong(
+                    YOUR_RMC_HASHRATE + coluAccount?.receiveAddress.toString(),
+                    0
+                )
+            )
+            poolStatisticInfo?.difficulty = sharedPreferences.getLong(DIFFICULTY, 0)
+            accrued = BigDecimal(
+                sharedPreferences.getString(
+                    ACCRUED_INCOME + coluAccount!!.receiveAddress.toString(),
+                    "0"
+                )
+            )
 
-    private Context context;
-    private MbwManager mbwManager;
-    private BtcPoolStatisticsManager.PoolStatisticInfo poolStatisticInfo;
-    private SharedPreferences sharedPreferences;
-    private ColuAccount coluAccount;
-
-    private int angle = 0;
-    private float value = 0;
-    private BigDecimal satPerSec;
-    private BigDecimal accrued = BigDecimal.ZERO;
-
-    public AddressWidgetAdapter(Context context, MbwManager mbwManager) {
-        this.context = context;
-        this.mbwManager = mbwManager;
-        sharedPreferences = context.getSharedPreferences(PREFERENCE_RMC_PROFIT_METER, Context.MODE_PRIVATE);
-        WalletAccount account = mbwManager.getSelectedAccount();
-        if(account instanceof ColuAccount) {
-            coluAccount = (ColuAccount) mbwManager.getSelectedAccount();
-
-
-            poolStatisticInfo = new BtcPoolStatisticsManager.PoolStatisticInfo(
-                    sharedPreferences.getLong(TOTAL_RMC_HASHRATE, 0)
-                    , sharedPreferences.getLong(YOUR_RMC_HASHRATE + coluAccount.getReceiveAddress().toString(), 0));
-            poolStatisticInfo.difficulty = sharedPreferences.getLong(DIFFICULTY, 0);
-            accrued = new BigDecimal(sharedPreferences.getString(ACCRUED_INCOME + coluAccount.getReceiveAddress().toString(), "0"));
-
-            BtcPoolStatisticsTask task = new BtcPoolStatisticsTask(coluAccount);
-            task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+            val task = BtcPoolStatisticsTask(coluAccount)
+            task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
         }
     }
 
-    @Override
-    public Object instantiateItem(ViewGroup container, int position) {
-        View view;
+    override fun instantiateItem(container: ViewGroup, position: Int): Any {
+        val view: View
         if (position == 0) {
-            view = LayoutInflater.from(context).inflate(R.layout.rmc_address_statistic, container, false);
-            StatisticHolder holder = new StatisticHolder(view);
-            view.setTag(holder);
+            view = LayoutInflater.from(context)
+                .inflate(R.layout.rmc_address_statistic, container, false)
+            val holder = StatisticHolder(view)
+            view.tag = holder
         } else {
-            view = LayoutInflater.from(context).inflate(R.layout.rmc_address_profit_meter, container, false);
-            ProfitMeterHolder profitMeterHolder = new ProfitMeterHolder(view);
-            view.setTag(profitMeterHolder);
+            view = LayoutInflater.from(context)
+                .inflate(R.layout.rmc_address_profit_meter, container, false)
+            val profitMeterHolder = ProfitMeterHolder(view)
+            view.tag = profitMeterHolder
         }
-        container.addView(view);
-        return view;
+        container.addView(view)
+        return view
     }
 
 
-    @Override
-    public void destroyItem(ViewGroup container, int position, Object object) {
-        container.removeView((View) object);
+    override fun destroyItem(container: ViewGroup, position: Int, `object`: Any) {
+        container.removeView(`object` as View)
     }
 
-    @Override
-    public int getCount() {
-        return 2;
-    }
+    override fun getCount(): Int = 2
 
-    @Override
-    public boolean isViewFromObject(View view, Object object) {
-        return view == object;
-    }
+    override fun isViewFromObject(view: View, `object`: Any): Boolean = view === `object`
 
-    @Override
-    public CharSequence getPageTitle(int position) {
+    override fun getPageTitle(position: Int): CharSequence =
         if (position == 0) {
-            return context.getString(R.string.rmc_basic_parameters);
+            context.getString(R.string.rmc_basic_parameters)
         } else {
-            return context.getString(R.string.rmc_profit_meter);
+            context.getString(R.string.rmc_profit_meter)
         }
-    }
 
-    @Override
-    public int getItemPosition(Object object) {
-        return POSITION_NONE;
-    }
+    override fun getItemPosition(`object`: Any): Int =
+        POSITION_NONE
 
-    class ProfitMeterHolder {
+    internal inner class ProfitMeterHolder(view: View) {
+        val binding = RmcAddressProfitMeterBinding.bind(view)
 
-        @BindView(R.id.profit_meter)
-        protected ProfitMeterView profitMeterView;
-
-        @BindView(R.id.adometr)
-        protected TextView adometr;
-
-        @BindView(R.id.speed)
-        protected TextView speed;
-
-        @BindView(R.id.accrued_value)
-        protected TextView accruedValue;
-
-        @BindView(R.id.rmc_value)
-        protected TextView rmcValue;
-
-        @BindView(R.id.rmc_value_after_dot)
-        protected TextView rmcValueAfterDot;
-
-        private Runnable updateAdo;
+        private var updateAdo: Runnable? = null
 
 
-        public ProfitMeterHolder(View view) {
-            ButterKnife.bind(this, view);
-            if(coluAccount == null) {
-                return;
-            }
-            BigDecimal rmc = coluAccount.getAccountBalance().confirmed.getValueAsBigDecimal();
-            String[] split = rmc.setScale(4, BigDecimal.ROUND_DOWN).toPlainString().split("\\.");
-            rmcValue.setText(split[0]);
-            rmcValueAfterDot.setText("." + split[1]);
-            if (poolStatisticInfo != null && poolStatisticInfo.yourRmcHashrate != 0 && poolStatisticInfo.difficulty != 0) {
-                satPerSec = BigDecimal.valueOf(poolStatisticInfo.yourRmcHashrate).multiply(BLOCK_REWARD)
-                        .divide(BigDecimal.valueOf(poolStatisticInfo.difficulty).multiply(POW_2_32), 4, BigDecimal.ROUND_UP);
-                long adotime = sharedPreferences.getLong(ADOTIME + coluAccount.getReceiveAddress().toString(), 0);
-                if(adotime != 0) {
-                    angle = (int) (sharedPreferences.getInt(ADOANGLE + coluAccount.getReceiveAddress().toString(), 0)
-                                                                    + 6 * (System.currentTimeMillis() - adotime) / 1000);
-                    value = angle / 6 * satPerSec.floatValue();
-                }
-                speed.setText(context.getString(R.string.n_sat_min, (long) (satPerSec.floatValue() * 60)));
-                accruedValue.setText(accrued.stripTrailingZeros().toPlainString() + " BTC");
-                if (updateAdo == null) {
-                    updateAdo = new Runnable() {
-                        @Override
-                        public void run() {
-                            angle = (angle + 6) % 360;
-                            SharedPreferences.Editor editor = sharedPreferences.edit();
-                            if (angle == 0) {
-                                accrued = accrued.add(BigDecimal.valueOf(value).movePointLeft(8)).setScale(8, BigDecimal.ROUND_UP);
-                                editor.putString(ACCRUED_INCOME + coluAccount.getReceiveAddress().toString(), accrued.toPlainString());
-                                accruedValue.setText(accrued.stripTrailingZeros().toPlainString() + " BTC");
-                                value = 0;
-                            } else {
-                                value += satPerSec.floatValue();
-                            }
-                            editor.putLong(ADOTIME + coluAccount.getReceiveAddress().toString(), System.currentTimeMillis());
-                            editor.putInt(ADOANGLE + coluAccount.getReceiveAddress().toString(), angle);
-                            editor.apply();
-                            adometr.setText("+" + (Math.round(value) > 0 ?
-                                    String.valueOf(Math.round(value)) : adoFormat.format(value)));
-                            profitMeterView.setAngle(angle);
-                            profitMeterView.postDelayed(this, 1000);
+        init {
+            if (coluAccount != null) {
+                val rmc = coluAccount!!.accountBalance.confirmed.valueAsBigDecimal
+                val split =
+                    rmc.setScale(4, BigDecimal.ROUND_DOWN).toPlainString().split("\\.".toRegex())
+                        .dropLastWhile { it.isEmpty() }.toTypedArray()
+                binding.rmcValue.text = split[0]
+                binding.rmcValueAfterDot.text = "." + split[1]
+                poolStatisticInfo?.let { poolStatisticInfo ->
+                    if (poolStatisticInfo.yourRmcHashrate != 0L && poolStatisticInfo.difficulty != 0L) {
+                        satPerSec =
+                            BigDecimal.valueOf(poolStatisticInfo.yourRmcHashrate).multiply(
+                                BLOCK_REWARD
+                            )
+                                .divide(
+                                    BigDecimal.valueOf(poolStatisticInfo.difficulty)
+                                        .multiply(POW_2_32),
+                                    4,
+                                    BigDecimal.ROUND_UP
+                                )
+                        val adotime =
+                            sharedPreferences.getLong(
+                                ADOTIME + coluAccount!!.receiveAddress.toString(),
+                                0
+                            )
+                        if (adotime != 0L) {
+                            angle = (sharedPreferences.getInt(
+                                ADOANGLE + coluAccount!!.receiveAddress.toString(),
+                                0
+                            )
+                                    + 6 * (System.currentTimeMillis() - adotime) / 1000).toInt()
+                            value = angle / 6 * (satPerSec?.toFloat() ?: 0f)
                         }
-                    };
-                    updateAdo.run();
+                        binding.speed.text =
+                            context.getString(
+                                R.string.n_sat_min,
+                                ((satPerSec?.toFloat() ?: 0f) * 60).toLong()
+                            )
+                        binding.accruedValue.text =
+                            accrued.stripTrailingZeros().toPlainString() + " BTC"
+                        if (updateAdo == null) {
+                            updateAdo = object : Runnable {
+                                override fun run() {
+                                    angle = (angle + 6) % 360
+                                    val editor = sharedPreferences.edit()
+                                    if (angle == 0) {
+                                        accrued = accrued.add(
+                                            BigDecimal.valueOf(value.toDouble()).movePointLeft(8)
+                                        ).setScale(8, BigDecimal.ROUND_UP)
+                                        editor.putString(
+                                            ACCRUED_INCOME + coluAccount!!.receiveAddress.toString(),
+                                            accrued.toPlainString()
+                                        )
+                                        binding.accruedValue.text =
+                                            accrued.stripTrailingZeros().toPlainString() + " BTC"
+                                        value = 0f
+                                    } else {
+                                        value += satPerSec?.toFloat() ?: 0f
+                                    }
+                                    editor.putLong(
+                                        ADOTIME + coluAccount!!.receiveAddress.toString(),
+                                        System.currentTimeMillis()
+                                    )
+                                    editor.putInt(
+                                        ADOANGLE + coluAccount!!.receiveAddress.toString(),
+                                        angle
+                                    )
+                                    editor.apply()
+                                    binding.adometr.text =
+                                        "+" + (if (Math.round(value) > 0) Math.round(value)
+                                            .toString()
+                                        else adoFormat.format(value.toDouble()))
+                                    binding.profitMeter.setAngle(angle)
+                                    binding.profitMeter.postDelayed(this, 1000)
+                                }
+                            }
+                            updateAdo?.run()
+                        }
+                    }
                 }
             }
         }
     }
 
 
-    class StatisticHolder {
+    internal inner class StatisticHolder(view: View) {
+        val binding = RmcAddressStatisticBinding.bind(view)
 
-        @BindView(R.id.tvLabel)
-        protected TextView tvLabel;
-
-        @BindView(R.id.tvAddress)
-        protected TextView tvAddress;
-
-        @BindView(R.id.tvTotalHP)
-        protected TextView tvTotalHP;
-
-        @BindView(R.id.tvUserHP)
-        protected TextView tvUserHP;
-
-        @BindView(R.id.tvTotalIssued)
-        protected TextView tvTotalIssued;
-
-
-        public StatisticHolder(View view) {
-            ButterKnife.bind(this, view);
-            String name = mbwManager.getMetadataStorage().getLabelByAccount(mbwManager.getSelectedAccount().getId());
-            tvLabel.setText(name);
-            tvAddress.setText(mbwManager.getSelectedAccount().getReceiveAddress().toString());
-            if (poolStatisticInfo != null) {
-                if (poolStatisticInfo.totalRmcHashrate != 0) {
+        init {
+            val name = mbwManager.metadataStorage.getLabelByAccount(mbwManager.selectedAccount.id)
+            binding.tvLabel.text = name
+            binding.tvAddress.text = mbwManager.selectedAccount.receiveAddress.toString()
+            poolStatisticInfo?.let { poolStatisticInfo ->
+                if (poolStatisticInfo.totalRmcHashrate != 0L) {
                     // peta flops
-                    tvTotalHP.setText(new BigDecimal(poolStatisticInfo.totalRmcHashrate).movePointLeft(15)
-                            .setScale(6, BigDecimal.ROUND_DOWN).stripTrailingZeros().toPlainString());
+                    binding.tvTotalHP.text =
+                        BigDecimal(poolStatisticInfo.totalRmcHashrate).movePointLeft(15)
+                            .setScale(6, BigDecimal.ROUND_DOWN).stripTrailingZeros()
+                            .toPlainString()
                 } else {
-                    tvTotalHP.setText(R.string.not_available);
+                    binding.tvTotalHP.setText(R.string.not_available)
                 }
-                if (poolStatisticInfo.yourRmcHashrate != 0) {
+                if (poolStatisticInfo.yourRmcHashrate != 0L) {
                     // tera flops
-                    tvUserHP.setText(new BigDecimal(poolStatisticInfo.yourRmcHashrate).movePointLeft(12)
-                            .setScale(6, BigDecimal.ROUND_DOWN).stripTrailingZeros().toPlainString());
+                    binding.tvUserHP.text =
+                        BigDecimal(poolStatisticInfo.yourRmcHashrate).movePointLeft(12)
+                            .setScale(6, BigDecimal.ROUND_DOWN).stripTrailingZeros()
+                            .toPlainString()
                 } else {
-                    tvUserHP.setText(R.string.not_available);
+                    binding.tvUserHP.setText(R.string.not_available)
                 }
             }
         }
     }
 
-    class BtcPoolStatisticsTask extends AsyncTask<Void, Void, BtcPoolStatisticsManager.PoolStatisticInfo> {
+    internal inner class BtcPoolStatisticsTask(private val coluAccount: ColuAccount?) :
+        AsyncTask<Void?, Void?, PoolStatisticInfo?>() {
 
-        private ColuAccount coluAccount;
-
-        public BtcPoolStatisticsTask(ColuAccount coluAccount) {
-            this.coluAccount = coluAccount;
+        override fun doInBackground(vararg params: Void?): PoolStatisticInfo? {
+            val btcPoolStatisticsManager = BtcPoolStatisticsManager(
+                coluAccount
+            )
+            return btcPoolStatisticsManager.statistics
         }
 
-        @Override
-        protected BtcPoolStatisticsManager.PoolStatisticInfo doInBackground(Void... params) {
-            BtcPoolStatisticsManager btcPoolStatisticsManager = new BtcPoolStatisticsManager(coluAccount);
-            return btcPoolStatisticsManager.getStatistics();
-        }
-
-        @Override
-        protected void onPostExecute(BtcPoolStatisticsManager.PoolStatisticInfo result) {
+        override fun onPostExecute(result: PoolStatisticInfo?) {
             if (result != null) {
-                SharedPreferences.Editor editor = sharedPreferences.edit();
-                if (result.totalRmcHashrate != -1) {
-                    poolStatisticInfo.totalRmcHashrate = result.totalRmcHashrate;
-                    editor.putLong(TOTAL_RMC_HASHRATE, result.totalRmcHashrate);
+                val editor = sharedPreferences.edit()
+                if (result.totalRmcHashrate != -1L) {
+                    poolStatisticInfo!!.totalRmcHashrate = result.totalRmcHashrate
+                    editor.putLong(TOTAL_RMC_HASHRATE, result.totalRmcHashrate)
                 }
-                if (result.difficulty != 0) {
-                    poolStatisticInfo.difficulty = result.difficulty;
-                    editor.putLong(DIFFICULTY, result.difficulty);
+                if (result.difficulty != 0L) {
+                    poolStatisticInfo!!.difficulty = result.difficulty
+                    editor.putLong(DIFFICULTY, result.difficulty)
                 }
-                if (result.yourRmcHashrate != -1) {
-                    poolStatisticInfo.yourRmcHashrate = result.yourRmcHashrate;
-                    editor.putLong(YOUR_RMC_HASHRATE + coluAccount.getReceiveAddress().toString(), result.yourRmcHashrate);
+                if (result.yourRmcHashrate != -1L) {
+                    poolStatisticInfo!!.yourRmcHashrate = result.yourRmcHashrate
+                    editor.putLong(
+                        YOUR_RMC_HASHRATE + coluAccount!!.receiveAddress.toString(),
+                        result.yourRmcHashrate
+                    )
                 }
-                if (result.accruedIncome != -1) {
-                    editor.putString(ACCRUED_INCOME + coluAccount.getReceiveAddress().toString()
-                            , BigDecimal.valueOf(result.accruedIncome).movePointLeft(8).setScale(8, BigDecimal.ROUND_UP).toPlainString());
+                if (result.accruedIncome != -1L) {
+                    editor.putString(
+                        ACCRUED_INCOME + coluAccount!!.receiveAddress.toString(),
+                        BigDecimal.valueOf(result.accruedIncome).movePointLeft(8)
+                            .setScale(8, BigDecimal.ROUND_UP).toPlainString()
+                    )
                 }
-                editor.apply();
-                notifyDataSetChanged();
+                editor.apply()
+                notifyDataSetChanged()
             }
         }
+    }
+
+    companion object {
+        private const val TOTAL_RMC_HASHRATE = "total_rmc_hashrate"
+        private const val YOUR_RMC_HASHRATE = "your_rmc_hashrate"
+        private const val DIFFICULTY = "difficulty"
+        private const val ACCRUED_INCOME = "accrued_income"
+        private val POW_2_32: BigDecimal = BigDecimal.valueOf(4294967296L)
+        private val BLOCK_REWARD: BigDecimal = BigDecimal.valueOf(1250000000)
+        const val PREFERENCE_RMC_PROFIT_METER: String = "rmc_profit_meter"
+        private val adoFormat = DecimalFormat("#.####")
+        const val ADOANGLE: String = "adoangle"
+        const val ADOTIME: String = "adotime"
     }
 }

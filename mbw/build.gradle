@@ -1,22 +1,12 @@
-buildscript {
-    repositories {
-        google()
-        mavenCentral()
-    }
-    dependencies {
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-//        classpath "com.squareup.sqldelight:gradle-plugin:$sqldelight_version"
-    }
-}
-
 plugins {
-    id("app.cash.sqldelight") version "$sqldelight_version"
+    alias(libs.plugins.android.application)
+    alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.ksp)
+    alias(libs.plugins.sqldelight)
 }
-apply plugin: 'com.android.application'
-apply plugin: 'kotlin-android'
-apply plugin: 'kotlin-kapt'
 apply plugin: "androidx.navigation.safeargs.kotlin"
 apply plugin: "kotlin-parcelize"
+apply plugin: 'kotlin-kapt'
 
 repositories {
     mavenCentral()
@@ -35,12 +25,10 @@ configurations.all {
         }
     }
 }
-kapt {
-    correctErrorTypes true
-    useBuildCache = true
-    javacOptions {
-        option("-Xmaxerrs", 500)
-    }
+
+ksp {
+    arg("deepLink.incremental", "true")
+    arg("deepLink.customAnnotations", "com.airbnb.AppDeepLink|com.airbnb.WebDeepLink")
 }
 
 dependencies {
@@ -61,9 +49,7 @@ dependencies {
     implementation project(includePrefix + ':androidfioserializationprovider')
 
     implementation "com.google.guava:guava:$guavaVersion"
-    implementation "com.squareup.retrofit2:retrofit:2.6.1"
-    implementation "com.squareup.retrofit2:converter-gson:2.6.1"
-    implementation "com.squareup.retrofit2:converter-jackson:2.6.1"
+    implementation libs.bundles.retrofit
     // TODO: update remaining code to retrofit2
     implementation "com.squareup.retrofit:retrofit:1.9.0"
 
@@ -75,7 +61,6 @@ dependencies {
     implementation "androidx.lifecycle:lifecycle-runtime:$lifecycle_version"
 
     implementation "androidx.lifecycle:lifecycle-extensions:2.2.0"
-//    kapt "androidx.lifecycle:lifecycle-compiler:$lifecycle_version"
 
     implementation "androidx.lifecycle:lifecycle-livedata-ktx:$lifecycle_version"
     implementation "androidx.lifecycle:lifecycle-reactivestreams-ktx:$lifecycle_version"
@@ -104,8 +89,6 @@ dependencies {
     implementation "com.google.android.material:material:$materialVersion"
     implementation "org.ocpsoft.prettytime:prettytime:3.2.5.Final"
     implementation "com.squareup.wire:wire-runtime:$wireVersion"
-    implementation "com.jakewharton:butterknife:10.1.0"
-    kapt "com.jakewharton:butterknife-compiler:10.1.0"
     implementation "com.squareup.okhttp3:logging-interceptor:3.8.1"
     implementation "com.squareup.okhttp:okhttp:$okhttpVersion"
     implementation "androidx.multidex:multidex:2.0.1"
@@ -142,29 +125,18 @@ dependencies {
     }
     implementation 'org.web3j:core:4.2.1-android'
 
-    implementation "app.cash.sqldelight:android-driver:$sqldelight_version"
+    implementation libs.sqldelight.driver
 
-    implementation("com.github.bumptech.glide:glide:4.7.1") {
+    implementation(libs.glide) {
         exclude group: "com.android.support"
     }
-    kapt "com.github.bumptech.glide:compiler:4.7.1"
+    ksp libs.glide.ksp
     implementation files("$rootDir/libs/netcipher-2.2.1.jar")
     implementation "com.airbnb.android:lottie:3.4.0"
 
-    androidTestImplementation 'androidx.test:core:1.6.1'
-    androidTestImplementation 'androidx.test:core-ktx:1.6.1'
-    androidTestImplementation 'androidx.test:runner:1.6.2'
-    androidTestImplementation 'androidx.test:rules:1.6.1'
-    androidTestImplementation 'androidx.test.ext:junit:1.2.1'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.6.1'
-    androidTestImplementation('androidx.test.espresso:espresso-contrib:3.6.1') {
-        exclude module: "protobuf-lite"
-    }
-    androidTestImplementation 'androidx.test.espresso:espresso-intents:3.6.1'
-    androidTestImplementation 'androidx.test.espresso.idling:idling-concurrent:3.6.1'
-    androidTestImplementation 'androidx.test.espresso:espresso-idling-resource:3.6.1'
-    androidTestImplementation "io.mockk:mockk:1.13.3"
-    androidTestImplementation "io.mockk:mockk-android:1.13.3"
+    androidTestImplementation libs.bundles.test.buundle
+    androidTestImplementation libs.bundles.espresso
+    androidTestImplementation libs.bundles.mockk
     androidTestImplementation project(includePrefix + ':testhelper')
 
     // Kotlin Coroutines Test

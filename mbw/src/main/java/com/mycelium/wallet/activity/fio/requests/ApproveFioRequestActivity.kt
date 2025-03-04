@@ -137,11 +137,11 @@ class ApproveFioRequestActivity : AppCompatActivity(), BroadcastResultListener {
             } else {
                 sendViewModel.init(it, intent)
                 when (binding) {
-                    is FioSendRequestActivityBindingImpl ->
+                    is FioSendRequestActivityBinding ->
                         (binding as FioSendRequestActivityBinding).sendViewModel = sendViewModel
-                    is FioSendRequestActivityEthBindingImpl ->
+                    is FioSendRequestActivityEthBinding ->
                         (binding as FioSendRequestActivityEthBinding).sendViewModel = sendViewModel as SendEthViewModel
-                    is FioSendRequestActivityFioBindingImpl ->
+                    is FioSendRequestActivityFioBinding ->
                         (binding as FioSendRequestActivityFioBinding).sendViewModel = sendViewModel as SendFioViewModel
                 }
                 initFeeView()

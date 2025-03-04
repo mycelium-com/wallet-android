@@ -1,99 +1,78 @@
-package com.mycelium.wallet.activity.view;
+package com.mycelium.wallet.activity.view
+
+import android.content.Context
+import android.view.View
+import android.widget.TextView
+import androidx.preference.Preference
+import androidx.preference.PreferenceViewHolder
+import com.mycelium.wallet.R
+import com.mycelium.wallet.activity.settings.ModulePreference
+import com.mycelium.wallet.databinding.TwoButtonPreferenceBinding
 
 
-import android.content.Context;
-import androidx.preference.Preference;
-import androidx.preference.PreferenceViewHolder;
-import android.view.View;
-import android.widget.Button;
-import android.widget.TextView;
+class TwoButtonsPreference(context: Context) : Preference(context),
+    ModulePreference {
 
-import com.mycelium.wallet.R;
-import com.mycelium.wallet.activity.settings.ModulePreference;
+    private var topButtonClickListener: View.OnClickListener? = null
+    private var bottomButtonClickListener: View.OnClickListener? = null
+    private var topButtonText: String? = null
+    private var bottomButtonText: String? = null
+    private var topButtonEnabled = false
+    private var bottomButtonEnabled = false
+    private var syncStateText: String? = null
 
-import javax.annotation.Nullable;
+    var binding: TwoButtonPreferenceBinding? = null
+    var syncState: TextView? = null
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
-
-public class TwoButtonsPreference extends Preference implements ModulePreference {
-    @BindView(R.id.top_button)
-    Button topButton;
-
-    @BindView(R.id.bottom_button)
-    Button bottomButton;
-
-    @Nullable
-    @BindView(R.id.sync_state)
-    TextView syncState;
-
-    private View.OnClickListener topButtonClickListener;
-    private View.OnClickListener bottomButtonClickListener;
-    private String topButtonText;
-    private String bottomButtonText;
-    private boolean topButtonEnabled;
-    private boolean bottomButtonEnabled;
-    private String syncStateText;
-
-    public TwoButtonsPreference(Context context) {
-        super(context);
-        setLayoutResource(R.layout.preference_layout_no_icon);
-        setWidgetLayoutResource(R.layout.two_button_preference);
+    init {
+        layoutResource = R.layout.preference_layout_no_icon
+        widgetLayoutResource = R.layout.two_button_preference
     }
 
-    @Override
-    public void onBindViewHolder(PreferenceViewHolder holder) {
-        super.onBindViewHolder(holder);
-        ButterKnife.bind(this, holder.itemView);
-        topButton.setText(topButtonText);
-        bottomButton.setText(bottomButtonText);
-        topButton.setEnabled(topButtonEnabled);
-        bottomButton.setEnabled(bottomButtonEnabled);
-        topButton.setOnClickListener(topButtonClickListener);
-        bottomButton.setOnClickListener(bottomButtonClickListener);
-
-        if (syncState != null) {
-            syncState.setText(syncStateText);
+    override fun onBindViewHolder(holder: PreferenceViewHolder) {
+        super.onBindViewHolder(holder)
+        binding = TwoButtonPreferenceBinding.bind(holder.itemView).apply {
+            topButton.text = topButtonText
+            bottomButton.text = bottomButtonText
+            topButton.isEnabled = topButtonEnabled
+            bottomButton.isEnabled = bottomButtonEnabled
+            topButton.setOnClickListener(topButtonClickListener)
+            bottomButton.setOnClickListener(bottomButtonClickListener)
         }
+        syncState = holder.itemView.findViewById(R.id.sync_state)
+        syncState?.text = syncStateText
     }
 
-    public void setTopButtonClickListener(View.OnClickListener buttonClickListener) {
-        topButtonClickListener = buttonClickListener;
+    fun setTopButtonClickListener(buttonClickListener: View.OnClickListener?) {
+        topButtonClickListener = buttonClickListener
     }
 
-    public void setBottomButtonClickListener(View.OnClickListener buttonClickListener) {
-        bottomButtonClickListener = buttonClickListener;
+    fun setBottomButtonClickListener(buttonClickListener: View.OnClickListener?) {
+        bottomButtonClickListener = buttonClickListener
     }
 
-    public void setEnabled(boolean preferenceEnabled, boolean topButtonEnabled, boolean bottomButtonEnabled) {
-        this.topButtonEnabled = topButtonEnabled;
-        this.bottomButtonEnabled = bottomButtonEnabled;
-        this.setEnabled(preferenceEnabled);
-        if (topButton != null) {
-            topButton.setEnabled(topButtonEnabled);
-        }
-        if (bottomButton != null) {
-            bottomButton.setEnabled(bottomButtonEnabled);
-        }
+    fun setEnabled(
+        preferenceEnabled: Boolean,
+        topButtonEnabled: Boolean,
+        bottomButtonEnabled: Boolean
+    ) {
+        this.topButtonEnabled = topButtonEnabled
+        this.bottomButtonEnabled = bottomButtonEnabled
+        this.isEnabled = preferenceEnabled
+        binding?.topButton?.isEnabled = topButtonEnabled
+        binding?.bottomButton?.isEnabled = bottomButtonEnabled
     }
 
-    public void setButtonsText(String topButtonText, String bottomButtonText) {
-        this.bottomButtonText = bottomButtonText;
-        this.topButtonText = topButtonText;
+    fun setButtonsText(topButtonText: String?, bottomButtonText: String?) {
+        this.bottomButtonText = bottomButtonText
+        this.topButtonText = topButtonText
 
-        if (bottomButton != null) {
-            bottomButton.setText(bottomButtonText);
-        }
-
-        if (topButton != null) {
-            topButton.setText(topButtonText);
-        }
+        binding?.bottomButton?.text = bottomButtonText
+        binding?.topButton?.text = topButtonText
     }
 
-    public void setSyncStateText(String syncStateText) {
-        this.syncStateText = syncStateText;
-        if (syncState != null) {
-            syncState.setText(syncStateText);
-        }
+    override fun setSyncStateText(syncStateText: String) {
+        this.syncStateText = syncStateText
+        syncState?.text = syncStateText
     }
 }
