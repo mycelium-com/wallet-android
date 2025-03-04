@@ -9,5 +9,5 @@ object GiftboxConstants {
     const val MC_API_KEY = "7918bf4720090ae54d8df5baebf2aea5e54effc7e0e1bf9b4c74047b77c8fe5e"
     const val MC_WEBSITE = "giftbox.mycelium"
 
-    var TEST = true
+    var TEST = false
 }
