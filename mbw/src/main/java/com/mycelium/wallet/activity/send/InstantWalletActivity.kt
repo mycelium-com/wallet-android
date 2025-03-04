@@ -103,6 +103,10 @@ class InstantWalletActivity : AppCompatActivity() {
                         val share = intent.getShare()
                         BipSsImportActivity.callMe(this, share, StringHandlerActivity.IMPORT_SSS_CONTENT_CODE)
                     }
+                    ResultType.WORD_LIST -> {
+                        val wordList = intent.getWordList()
+                        InstantMasterseedActivity.callMe(this, wordList, null)
+                    }
 
                     else -> {}
                 }

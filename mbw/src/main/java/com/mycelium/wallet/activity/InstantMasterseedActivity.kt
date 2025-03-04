@@ -32,11 +32,6 @@ class InstantMasterseedActivity : HdAccountSelectorActivity<MasterseedScanManage
         super.onCreate(savedInstanceState)
     }
 
-    override fun finish() {
-        super.finish()
-        masterseedScanManager?.stopBackgroundAccountScan()
-    }
-
     override fun setView() {
         setContentView(R.layout.activity_instant_masterseed)
     }
@@ -113,18 +108,26 @@ class InstantMasterseedActivity : HdAccountSelectorActivity<MasterseedScanManage
         const val WORDS: String = "words"
         const val MASTERSEED: String = "masterseed"
 
+
         // if password is null, the scan manager will ask the user for a password later on
         fun callMe(currentActivity: Activity, masterSeedWords: Array<String>, password: String?) {
-            val intent = Intent(currentActivity, InstantMasterseedActivity::class.java)
-                .putExtra(WORDS, masterSeedWords)
-                .putExtra(PASSWORD, password)
-            currentActivity.startActivity(intent)
+            currentActivity.selectCoin { coinType ->
+                currentActivity.startActivity(
+                    Intent(currentActivity, InstantMasterseedActivity::class.java)
+                        .putExtra(WORDS, masterSeedWords)
+                        .putExtra(PASSWORD, password)
+                        .putExtra(COIN_TYPE, coinType)
+                )
+            }
         }
 
         fun callMe(currentActivity: Activity, requestCode: Int, masterSeed: MasterSeed?) {
-            val intent = Intent(currentActivity, InstantMasterseedActivity::class.java)
-                .putExtra(MASTERSEED, masterSeed)
-            currentActivity.startActivityForResult(intent, requestCode)
+            currentActivity.selectCoin { coinType ->
+                val intent = Intent(currentActivity, InstantMasterseedActivity::class.java)
+                    .putExtra(MASTERSEED, masterSeed)
+                    .putExtra(COIN_TYPE, coinType)
+                currentActivity.startActivityForResult(intent, requestCode)
+            }
         }
     }
 }
