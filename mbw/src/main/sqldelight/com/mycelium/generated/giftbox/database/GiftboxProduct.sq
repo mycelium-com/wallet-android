@@ -1,0 +1,43 @@
+import java.math.BigDecimal;
+import kotlin.collections.List;
+import kotlin.String;
+
+CREATE TABLE IF NOT EXISTS GiftboxProduct(
+    id TEXT NOT NULL,
+    name TEXT,
+    description TEXT,
+    currency TEXT,
+    countries TEXT AS List<String> NOT NULL,
+    categories TEXT AS List<String> NOT NULL,
+    minFaceValue TEXT AS BigDecimal NOT NULL,
+    maxFaceValue TEXT AS BigDecimal NOT NULL,
+    denominations TEXT AS List<BigDecimal> NOT NULL,
+    stockStatus TEXT,
+    logoUrl TEXT,
+    cardImageUrl TEXT,
+    expiryData TEXT,
+    featuredRank INTEGER NOT NULL,
+    PRIMARY KEY (id)
+);
+
+
+selectWithLimit:
+SELECT * FROM GiftboxProduct
+WHERE
+    (name LIKE '%' || :search || '%' OR :search IS NULL OR :search == "") AND
+    (categories LIKE '%' || :category || '%' OR :category IS NULL) AND
+    (countries LIKE '%' || :country || '%' OR :country IS NULL)
+ORDER BY featuredRank ASC, name ASC LIMIT (:limit) OFFSET (:offset);
+
+insert:
+INSERT OR REPLACE INTO GiftboxProduct (id,name,description,currency,countries,categories,minFaceValue,maxFaceValue,denominations,stockStatus,logoUrl,cardImageUrl,expiryData,featuredRank)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+
+categories:
+SELECT categories FROM GiftboxProduct;
+
+countries:
+SELECT countries FROM GiftboxProduct;
+
+deleteAll:
+DELETE FROM GiftboxProduct;

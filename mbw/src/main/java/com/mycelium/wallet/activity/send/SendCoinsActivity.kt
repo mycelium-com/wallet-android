@@ -18,8 +18,10 @@ import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.widget.*
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.children
+import androidx.core.widget.NestedScrollView
 import androidx.core.widget.doOnTextChanged
 import androidx.databinding.BindingAdapter
 import androidx.databinding.InverseBindingAdapter
@@ -61,8 +63,6 @@ import org.web3j.utils.Convert
 import java.math.BigInteger
 import java.util.*
 import java.util.concurrent.TimeUnit
-import androidx.activity.viewModels
-import androidx.core.widget.NestedScrollView
 
 class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener, AmountListener {
     private val viewModel: SendCoinsViewModel by viewModels { SendCoinsFactory(account) }
@@ -158,7 +158,7 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener, AmountLi
         initFeeView()
         initFeeLvlView()
         supportActionBar?.run {
-            title = getString(R.string.send_cointype, viewModel.getAccount().coinType.symbol)
+            title = getString(R.string.send_cointype, viewModel.getAccount().coinType.symbol) + " (${viewModel.getAccount().label})"
             setHomeAsUpIndicator(R.drawable.ic_back_arrow)
             setHomeButtonEnabled(true)
             setDisplayHomeAsUpEnabled(true)
@@ -325,10 +325,10 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener, AmountLi
                                         getTransactionDataStatus().value = SendCoinsModel.TransactionDataStatus.READY
                                     }
                                 }
-                                val tvSatFeeValue = findViewById<TextView>(R.id.tvSatFeeValue)
+                                val tvSatFeeValue:TextView? = findViewById<TextView>(R.id.tvSatFeeValue)
                                 getGasPrice().observe(this@SendCoinsActivity, Observer { gp ->
                                     if (gp == null) {
-                                        tvSatFeeValue.visibility = View.GONE
+                                        tvSatFeeValue?.visibility = View.GONE
                                         bindingFeeSelector?.feeLvlList?.visibility = View.VISIBLE
                                         bindingFeeSelector?.feeValueList?.visibility = View.VISIBLE
                                         bindingFeeTitleEth?.tvFeeUpdatesTimer?.visibility = View.VISIBLE
@@ -341,10 +341,10 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener, AmountLi
                                             }
 
                                         val totalFee = Value.valueOf(account.basedOnCoinType, gasLimit * gp)
-                                        tvSatFeeValue.text =
+                                        tvSatFeeValue?.text =
                                             "${totalFee.toStringFriendlyWithUnit(getDenomination())} ${convert(totalFee)}"
 
-                                        tvSatFeeValue.visibility = View.VISIBLE
+                                        tvSatFeeValue?.visibility = View.VISIBLE
                                         bindingFeeSelector?.feeLvlList?.visibility = View.GONE
                                         bindingFeeSelector?.feeValueList?.visibility = View.GONE
                                         bindingFeeTitleEth?.tvFeeUpdatesTimer?.visibility = View.GONE
@@ -374,7 +374,7 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener, AmountLi
                                                 getDefaultGasLimit()
                                             }
                                         val totalFee = Value.valueOf(account.basedOnCoinType, gasLimit * gp)
-                                        tvSatFeeValue.text =
+                                        tvSatFeeValue?.text =
                                             "${totalFee.toStringFriendlyWithUnit(getDenomination())} ${convert(totalFee)}"
                                     }
                                 })
@@ -430,7 +430,7 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener, AmountLi
                                     this.setDropDownViewResource(R.layout.layout_send_coin_transaction_replace_dropdown)
                                 }
                             }
-//                            it.activity = this
+                            binding.activity = this
                         }
             }
             is FioAccount -> {
@@ -657,7 +657,7 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener, AmountLi
         // we could have used getTransactionsSince here instead of getTransactionSummaries
         // but for accounts with large number of transactions (>500) it would introduce quite delay
         // so we take last 25 transactions as a sort of heuristic
-        val summaries: List<TransactionSummary> = viewModel.getAccount().getTransactionSummaries(0, 25)
+        val summaries = viewModel.getAccount().getTransactionSummaries(0, 25)
         if (summaries.isEmpty()) {
             return false // user has no transactions
         }
@@ -665,25 +665,17 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener, AmountLi
             return false // latest transaction is too old
         }
         // find latest outgoing transaction
-        var outgoingTx: TransactionSummary? = null
-        for (summary in summaries) {
-            if (!summary.isIncoming) {
-                outgoingTx = summary
-                break
-            }
-        }
+        var outgoingTx = summaries.find { !it.isIncoming }
         if (outgoingTx == null) {
             return false // no outgoing transactions
         }
         // extract sent amount from the transaction
         var outgoingTxAmount = zeroValue(viewModel.getAccount().coinType)
-        for (output in outgoingTx.outputs) {
-            if (output.address == viewModel.getReceivingAddress().value) {
-                outgoingTxAmount = output.value
-            }
-        }
-        return outgoingTx.destinationAddresses.size > 0 && outgoingTx.destinationAddresses[0] == viewModel.getReceivingAddress().value &&
-                outgoingTxAmount == viewModel.getAmount().value
+        outgoingTx.outputs.find { it.address == viewModel.getReceivingAddress().value }
+            ?.let { outgoingTxAmount = it.value }
+        return outgoingTx.destinationAddresses.isNotEmpty()
+                && outgoingTx.destinationAddresses[0] == viewModel.getReceivingAddress().value
+                && outgoingTxAmount == viewModel.getAmount().value
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -795,8 +787,11 @@ fun setVisibilityAnimated(target: TextView, error: CharSequence) {
 fun setVisibilityAnimated(target: View, visible: Boolean, activity: SendCoinsActivity?) {
     if (visible) {
         target.expand {
-            activity?.findViewById<ScrollView>(R.id.root)?.let {
-                it.smoothScrollTo(0, it.measuredHeight)
+            val view = activity?.findViewById<View>(R.id.root)
+            if (view is ScrollView) {
+                view.smoothScrollTo(0, view.measuredHeight)
+            } else if (view is NestedScrollView) {
+                view.smoothScrollTo(0, view.measuredHeight)
             }
         }
     } else {

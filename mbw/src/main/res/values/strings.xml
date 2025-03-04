@@ -186,7 +186,6 @@
     <string name="cold_storage_desc">You are about to spend from a private key in cold storage. This could be a private key paper backup or a private key slip from a Bitcoin ATM. Following Formats are supported:\nPrivate Key, Master Seed, xPriv Key\n\nOnce the transaction has been sent every trace of it will be erased from the internal memory.</string>
     <string name="keep_account_address">Only delete the private key and keep as a read-only account</string>
     <string name="manual_entry">Manual Entry</string>
-    <string name="question_mark">\?</string>
     <string name="active_hd_accounts_name">Bitcoin HD</string>
     <string name="eth_accounts_name">Ethereum &amp; ERC-20</string>
     <string name="fio_accounts_name">FIO</string>
@@ -237,22 +236,6 @@
     <string name="delete_account_message_s"><![CDATA[Do you want to delete account <b>\"%1$s\"</b> holding <b>%2$s</b>?]]></string>
     <string name="delete_archived_account_message_s"><![CDATA[Do you want to delete account <b>\"%1$s\"</b>]]></string>
     <string name="confirm_delete_pk_title">Are You Sure?</string>
-    <plurals name="confirm_delete_pk_with_balance">
-        <item quantity="one">This cannot be undone!\n\nCurrent address:\n%1$s\n\nIt contains %2$s\n\nDo you want to delete it?</item>
-        <item quantity="other">This cannot be undone!\n\nCurrent addresses:\n%1$s\n\nIt contains %2$s\n\nDo you want to delete it?</item>
-    </plurals>
-    <plurals name="confirm_delete_pk_with_balance_with_label">
-        <item quantity="one">This cannot be undone!\n\n%1$s\n\nCurrent address:\n%2$s\n\nIt contains %3$s\n\nDo you want to delete it?</item>
-        <item quantity="other">This cannot be undone!\n\n%1$s\n\nCurrent addresses:\n%2$s\n\nIt contains %3$s\n\nDo you want to delete it?</item>
-    </plurals>
-    <plurals name="confirm_delete_pk_without_balance">
-        <item quantity="one">This cannot be undone!\n\nCurrent address:\n%1$s\n\nDo you want to delete it?</item>
-        <item quantity="other">This cannot be undone!\n\nCurrent addresses:\n%1$s\n\nDo you want to delete it?</item>
-    </plurals>
-    <plurals name="confirm_delete_pk_without_balance_with_label">
-        <item quantity="one">This cannot be undone!\n\n%1$s\n\nCurrent address:\n%2$s\n\nDo you want to delete it?</item>
-        <item quantity="other">This cannot be undone!\n\n%1$s\n\nCurrent addresses:\n%2$s\n\nDo you want to delete it?</item>
-    </plurals>
     <string name="verify_private_key_backup">Verify Backup</string>
     <string name="verify_backup_dialog_title">Verify Private Key Backup</string>
     <string name="verify_backup_desc">Having a proper backup is a cornerstone when managing your Bitcoin and digital assets funds.\n\nBy verifying your backup you make sure that your backup works and that you do not lose your funds if your Android device is lost or damaged.</string>
@@ -522,14 +505,6 @@
 
     <string name="cs_private_key_description">You are using a private key with the following %1$s address:</string>
     <string name="cs_address_description">You have scanned %1$s address. You can view the balance but not spend from it.</string>
-    <plurals name="contains_keys">
-        <item quantity="one">Contains %1$d private key.</item>
-        <item quantity="other">Contains %1$d private keys.</item>
-    </plurals>
-    <plurals name="contains_addresses">
-        <item quantity="one">Contains %1$d address.</item>
-        <item quantity="other">Contains %1$d addresses.</item>
-    </plurals>
     <string name="sync_total_retrieved_transactions">Syncing in progress: %1$d transactions retrieved</string>
     <string name="archiving_account_title">Archiving Account</string>
     <string name="new_version_exists">A new Version is available</string>
@@ -1244,7 +1219,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="button_done">Done</string>
     <string name="button_cancel">Cancel</string>
     <string name="transactions_loading_from_module_error">Error loading transactions from module</string>
-    <string name="bullet">&#8226;</string>
+
     <string name="select_flows">Select flows</string>
     <string name="view_more">View more</string>
     <string name="settings_show_news_all_notification">Show Media Flow notifications</string>
@@ -1320,18 +1295,6 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="preference_two_factor_title">Two-factor authentication (beta)</string>
     <string name="preference_fingerprint_summary">Accept fingerprint to unlock</string>
     <string name="preference_fingerprint_title">Fingerprint (beta)</string>
-    <plurals name="account_label">
-        <item quantity="one">Account label:\n%s</item>
-        <item quantity="other">Accounts labels:\n%s</item>
-    </plurals>
-    <plurals name="existing_accounts_found">
-        <item quantity="one">%d existing account found</item>
-        <item quantity="other">%d existing accounts found</item>
-    </plurals>
-    <plurals name="new_accounts_created">
-        <item quantity="one">%d new account created</item>
-        <item quantity="other">%d new accounts created</item>
-    </plurals>
     <string name="check_gap_bug_spannable_string">Sorry to interrupt you… \n \nWe discovered a bug in the account logic that will make problems if you someday need to restore from your 12 word backup.\n\nFor further information see here: https://wallet.mycelium.com/info/gaps \n\nMay we try to resolve it for you? Press OK, to share one address per affected account with us.</string>
     <string name="account_gap">Account Gap</string>
     <string name="address_gaps">Address gaps: </string>
@@ -1724,7 +1687,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="success1">Success</string>
     <string name="gift_card_ready">Your Gift card is ready! Gift card download link and redeem instructions are in <u>My Gift cards</u>.</string>
     <string name="return_to_payment">Back to Orders</string>
-    <string name="giftbox_failed_text">Transactions was not sent. Please check your balance, internet connection, and try again.</string>
+    <string name="giftbox_failed_text">No worries, your funds are safe. Unfortunately, the shop couldn’t issue the card due to technical difficulties. Please contact us at support@mycelium.com for assistance.</string>
     <string name="card_value1">Card value</string>
     <string name="no_results_found_for_s"><![CDATA[No results found for \"<font color="#ffffff">%s</font>\".<br/>Please check the spelling and try again.]]></string>
     <string name="no_stores_found">NO STORES FOUND</string>
@@ -1790,15 +1753,6 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="support_team_text">Please describe the issue and the steps to reproduce it. To get a complete picture of the problem, please attach the logs.</string>
     <string name="link_to_track_transaction">Exchange status</string>
     <string name="exchange_in_progress">Exchange in progress</string>
-    <plurals name="d_countries">
-        <item quantity="zero"><u>All countries</u></item>
-        <item quantity="one"><u>%d country</u></item>
-        <item quantity="other"><u>%d countries</u></item>
-    </plurals>
-    <plurals name="cards">
-        <item quantity="one">%d card</item>
-        <item quantity="other">%d cards</item>
-    </plurals>
     <string name="help_missing_tx_dialog_text" formatted="false"><![CDATA[The most common cases of missing coins are easily
                         resolved. Please read carefully before contacting support:<br><br>
                         <h4>No server connection</h4>
@@ -1882,6 +1836,10 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="message_verified_to_be_from">Message verified to be from %1$s</string>
     <string name="message_failed_to_verify">"Message failed to verify! "</string>
     <string name="input_look_ahead">Input look ahead</string>
+    <string name="card_code">Card Code:</string>
+    <string name="gift_card_load_error_title">Gift card purchases are temporarily unavailable.</string>
+    <string name="gift_card_load_error_desc">We are currently updating our stores, and the service will be back online soon. Thank you for your understanding!</string>
+    <string name="choose_blockchain">Choose blockchain</string>
     <string name="share_of">Share %1$d</string>
     <string name="total_number_of_shares">Total shares</string>
     <string name="threshold">Threshold</string>

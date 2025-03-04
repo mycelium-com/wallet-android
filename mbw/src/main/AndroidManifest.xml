@@ -30,6 +30,9 @@
         android:required="false" />
     <uses-feature android:name="android.hardware.fingerprint"
         android:required="false"/>
+    <uses-feature
+        android:name="android.hardware.usb.host"
+        android:required="false" />
 
     <queries>
         <package android:name="org.torproject.android" />

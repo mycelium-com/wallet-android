@@ -282,7 +282,7 @@ public class MbwManager {
     }
 
     private static final Bus _eventBus = new Bus();
-    private final ExternalSignatureDeviceManager _trezorManager;
+    private final TrezorManager _trezorManager;
     private final KeepKeyManager _keepkeyManager;
     private final LedgerManager _ledgerManager;
     private final WapiClientElectrumX _wapi;
@@ -310,6 +310,7 @@ public class MbwManager {
     private final WalletManager _walletManager;
     private WalletManager _tempWalletManager;
     private MasterSeedManager masterSeedManager;
+    public FioKeyManager fioKeyManager;
     private ContentResolver contentResolver;
     private final RandomSource _randomSource;
     private final EventTranslator _eventTranslator;
@@ -965,7 +966,7 @@ public class MbwManager {
 
         FioModule fioModule = new FioModule(configuration, new AbiFioSerializationProviderWrapper(), new FioApiEndpoints(configuration.getFioApiEndpoints()), new FioHistoryEndpoints(configuration.getFioHistoryEndpoints()),
                 secureKeyValueStore, new FioBacking(db, genericBacking), walletDB, networkParameters, getMetadataStorage(),
-                new FioKeyManager(new MasterSeedManager(secureKeyValueStore)), accountListener, walletManager, configuration.getFioTpid());
+                new FioKeyManager(new MasterSeedManager(secureKeyValueStore), secureKeyValueStore), accountListener, walletManager, configuration.getFioTpid());
         walletManager.add(fioModule);
 
         BitcoinVaultHDBacking bitcoinVaultBacking = new BitcoinVaultHDBacking(db, genericBacking);
@@ -1044,9 +1045,10 @@ public class MbwManager {
         walletManager.add(ethModule);
 
         Backing<FioAccountContext> fioGenericBacking = new InMemoryAccountContextsBacking<>();
+        fioKeyManager = new FioKeyManager(new MasterSeedManager(secureKeyValueStore), secureKeyValueStore);
         FioModule fioModule = new FioModule(configuration, new AbiFioSerializationProviderWrapper(), new FioApiEndpoints(configuration.getFioApiEndpoints()), new FioHistoryEndpoints(configuration.getFioHistoryEndpoints()),
                 secureKeyValueStore, fioGenericBacking, db, networkParameters, getMetadataStorage(),
-                new FioKeyManager(new MasterSeedManager(secureKeyValueStore)), accountListener, walletManager, configuration.getFioTpid());
+                fioKeyManager, accountListener, walletManager, configuration.getFioTpid());
         walletManager.add(fioModule);
         walletManager.disableTransactionHistorySynchronization();
         return walletManager;
@@ -1657,9 +1659,9 @@ public class MbwManager {
         WalletAccount account = _walletManager.getAccount(uuid);
         Preconditions.checkState(account.isActive());
         getEditor().putString(SELECTED_ACCOUNT, uuid.toString()).apply();
-        getEventBus().post(new SelectedAccountChanged(uuid));
+        mainLoopHandler.post(() -> getEventBus().post(new SelectedAccountChanged(uuid)));
         Address receivingAddress = account.getReceiveAddress();
-        getEventBus().post(new ReceivingAddressChanged(receivingAddress));
+        mainLoopHandler.post(() -> getEventBus().post(new ReceivingAddressChanged(receivingAddress)));
         _walletManager.startSynchronization(account.getId());
     }
 
@@ -1740,9 +1742,6 @@ public class MbwManager {
         if (accounts.get(Utils.getEthCoinType()) == null) {
             needsToBeCreated.add(new EthereumMasterseedConfig());
         }
-        if (accounts.get(Utils.getFIOCoinType()) == null) {
-            needsToBeCreated.add(new FIOMasterseedConfig());
-        }
         return needsToBeCreated;
     }
 
@@ -1758,7 +1757,7 @@ public class MbwManager {
         return _randomSource;
     }
 
-    public ExternalSignatureDeviceManager getTrezorManager() {
+    public TrezorManager getTrezorManager() {
         return _trezorManager;
     }
 

@@ -13,7 +13,7 @@ package com.mycelium.giftbox.client.models
 
 import android.os.Parcelable
 import com.fasterxml.jackson.annotation.JsonProperty
-import kotlinx.android.parcel.Parcelize
+import kotlinx.parcelize.Parcelize
 
 /**
  * List of products, and optionally countries and categories
@@ -23,7 +23,6 @@ import kotlinx.android.parcel.Parcelize
  * @param size Total number of results for the given parameters - can be used for paging
  */
 @Parcelize
-
 data class ProductsResponse(
     /* List of all categories */
     @JsonProperty("categories")

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <plurals name="confirm_delete_pk_with_balance">
+        <item quantity="one">¡Esto no se puede deshacer!\n\nDirección actual:\n%1$s\n\nContiene %2$s\n\n¿Quieres eliminarla?</item>
+        <item quantity="other">¡Esto no se puede deshacer!\n\nDirecciones actuales:\n%1$s\n\nContienen %2$s\n\n¿Quieres eliminarlas?</item>
+    </plurals>
+    <plurals name="confirm_delete_pk_with_balance_with_label">
+        <item quantity="one">¡Esto no se puede deshacer!\n\n%1$s\n\nDirección actual:\n%2$s\n\nContiene %3$s\n\n¿Quieres eliminarla?</item>
+        <item quantity="other">¡Esto no se puede deshacer!\n\n%1$s\n\nDirecciones actuales:\n%2$s\n\nContienen %3$s\n\n¿Quieres eliminarlas?</item>
+    </plurals>
+    <plurals name="confirm_delete_pk_without_balance">
+        <item quantity="one">¡Esto no se puede deshacer!\n\nDirección actual:\n%1$s\n\n¿Quieres eliminarla?</item>
+        <item quantity="other">¡Esto no se puede deshacer!\n\nDirecciones actuales:\n%1$s\n\n¿Quieres eliminarlas?</item>
+    </plurals>
+    <plurals name="confirm_delete_pk_without_balance_with_label">
+        <item quantity="one">¡Esto no se puede deshacer!\n\n%1$s\n\nDirección actual:\n%2$s\n\n¿Quieres eliminarla?</item>
+        <item quantity="other">¡Esto no se puede deshacer!\n\n%1$s\n\nDirecciones actuales:\n%2$s\n\n¿Quieres eliminarlas?</item>
+    </plurals>
+    <plurals name="contains_keys">
+        <item quantity="one">Contiene %1$d clave privada.</item>
+        <item quantity="other">Contiene %1$d claves privadas.</item>
+    </plurals>
+    <plurals name="contains_addresses">
+        <item quantity="one">Contiene %1$d dirección.</item>
+        <item quantity="other">Contiene %1$d direcciones.</item>
+    </plurals>
+    <plurals name="account_label">
+        <item quantity="one">Etiqueta de cuenta:\n%s</item>
+        <item quantity="other">Etiquetas de cuentas:\n%s</item>
+    </plurals>
+    <plurals name="existing_accounts_found">
+        <item quantity="one">%d cuenta existente encontrada</item>
+        <item quantity="other">%d cuentas existentes encontradas</item>
+    </plurals>
+    <plurals name="new_accounts_created">
+        <item quantity="one">%d nueva cuenta creada</item>
+        <item quantity="other">%d nuevas cuentas creadas</item>
+    </plurals>
+    <plurals name="d_countries">
+        <item quantity="zero"><u>Todos los países</u></item>
+        <item quantity="one"><u>%d país</u></item>
+        <item quantity="other"><u>%d países</u></item>
+    </plurals>
+    <plurals name="cards">
+        <item quantity="one">%d tarjeta</item>
+        <item quantity="other">%d tarjetas</item>
+    </plurals>
+</resources>

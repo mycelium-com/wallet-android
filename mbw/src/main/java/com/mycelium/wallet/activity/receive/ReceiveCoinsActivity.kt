@@ -10,7 +10,6 @@ import android.nfc.NdefRecord
 import android.nfc.NfcAdapter
 import android.nfc.tech.Ndef
 import android.os.Bundle
-import android.util.Log
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
@@ -20,6 +19,7 @@ import android.widget.ArrayAdapter
 import android.widget.PopupMenu
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.core.view.MenuProvider
 import androidx.databinding.ViewDataBinding
 import asStringRes
@@ -65,9 +65,9 @@ class ReceiveCoinsActivity : AppCompatActivity() {
 
         // TODO remove after full taproot implementation
         var addressTypes = (account as? AddressContainer)?.availableAddressTypes
-        if (addressTypes != null) {
-            addressTypes = addressTypes - AddressType.P2TR
-        }
+//        if (addressTypes != null) {
+//            addressTypes = addressTypes - AddressType.P2TR
+//        }
         if (viewModel is ReceiveBtcViewModel && (addressTypes?.size ?: 0) > 1) {
             createAddressDropdown(addressTypes!!)
         }
@@ -90,7 +90,10 @@ class ReceiveCoinsActivity : AppCompatActivity() {
             setHomeButtonEnabled(true)
             setDisplayHomeAsUpEnabled(true)
         }
-        registerReceiver(nfcReceiver, IntentFilter(NfcAdapter.ACTION_ADAPTER_STATE_CHANGED))
+        ContextCompat.registerReceiver(
+            this, nfcReceiver,
+            IntentFilter(NfcAdapter.ACTION_ADAPTER_STATE_CHANGED), ContextCompat.RECEIVER_EXPORTED
+        )
         viewModel.getReceivingAddress().observe(this) {
             bindingReceiveQr?.ivQrCode?.qrCode = viewModel.getPaymentUri()
         }

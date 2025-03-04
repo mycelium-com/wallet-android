@@ -61,7 +61,7 @@ class NewsActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(ActivityNewsBinding.inflate(layoutInflater).apply {
-
+            binding = this
         }.root)
         binding.collapsingToolbar.setStatusBarScrimColor(Color.parseColor("#1a1a1a"))
         setSupportActionBar(binding.toolbar)

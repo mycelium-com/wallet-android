@@ -47,6 +47,7 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatDelegate;
+import androidx.core.content.ContextCompat;
 import androidx.multidex.MultiDexApplication;
 
 import com.google.android.gms.common.GoogleApiAvailability;
@@ -161,7 +162,7 @@ public class WalletApplication extends MultiDexApplication implements ModuleMess
 
     private void initNetworkStateHandler(IntentFilter connectivityChangeFilter) {
         networkChangedReceiver = new NetworkChangedReceiver();
-        registerReceiver(networkChangedReceiver, connectivityChangeFilter);
+        ContextCompat.registerReceiver(this, networkChangedReceiver, connectivityChangeFilter, ContextCompat.RECEIVER_EXPORTED);
     }
 
     public List<ModuleVersionError> moduleVersionErrors = new ArrayList<>();

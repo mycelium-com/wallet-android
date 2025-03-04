@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <plurals name="account_label">
+        <item quantity="one">Kontolabel:\n%s</item>
+        <item quantity="other">Kontolabels:\n%s</item>
+    </plurals>
+    <plurals name="existing_accounts_found">
+        <item quantity="one">%d vorhandenes Konto gefunden</item>
+        <item quantity="other">%d vorhandene Konten gefunden</item>
+    </plurals>
+    <plurals name="new_accounts_created">
+        <item quantity="one">%d neues Konto erstellt</item>
+        <item quantity="other">%d neue Konten erstellt</item>
+    </plurals>
+    <plurals name="contains_keys">
+        <item quantity="one">Enthält %1$d privaten Schlüssel.</item>
+        <item quantity="other">Enthält %1$d private Schlüssel.</item>
+    </plurals>
+    <plurals name="contains_addresses">
+        <item quantity="one">Enthält %1$d Adresse.</item>
+        <item quantity="other">Enthält %1$d Adressen.</item>
+    </plurals>
+    <plurals name="confirm_delete_pk_with_balance">
+        <item quantity="one">Dies kann nicht rückgängig gemacht werden!\n\nAktuelle Adresse:\n%1$s\n\nEs enthält %2$s\n\nMöchten Sie es löschen?</item>
+        <item quantity="other">Dies kann nicht rückgängig gemacht werden!\n\nAktuelle Adressen:\n%1$s\n\nEs enthält %2$s\n\nMöchten Sie sie löschen?</item>
+    </plurals>
+    <plurals name="confirm_delete_pk_with_balance_with_label">
+        <item quantity="one">Dies kann nicht rückgängig gemacht werden!\n\n%1$s\n\nAktuelle Adresse:\n%2$s\n\nEs enthält %3$s\n\nMöchten Sie es löschen?</item>
+        <item quantity="other">Dies kann nicht rückgängig gemacht werden!\n\n%1$s\n\nAktuelle Adressen:\n%2$s\n\nEs enthält %3$s\n\nMöchten Sie sie löschen?</item>
+    </plurals>
+    <plurals name="confirm_delete_pk_without_balance">
+        <item quantity="one">Dies kann nicht rückgängig gemacht werden!\n\nAktuelle Adresse:\n%1$s\n\nMöchten Sie es löschen?</item>
+        <item quantity="other">Dies kann nicht rückgängig gemacht werden!\n\nAktuelle Adressen:\n%1$s\n\nMöchten Sie sie löschen?</item>
+    </plurals>
+    <plurals name="confirm_delete_pk_without_balance_with_label">
+        <item quantity="one">Dies kann nicht rückgängig gemacht werden!\n\n%1$s\n\nAktuelle Adresse:\n%2$s\n\nMöchten Sie es löschen?</item>
+        <item quantity="other">Dies kann nicht rückgängig gemacht werden!\n\n%1$s\n\nAktuelle Adressen:\n%2$s\n\nMöchten Sie sie löschen?</item>
+    </plurals>
+
+</resources>

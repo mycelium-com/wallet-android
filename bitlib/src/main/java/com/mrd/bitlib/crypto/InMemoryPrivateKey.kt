@@ -13,9 +13,11 @@ import com.mrd.bitlib.model.NetworkParameters
 import com.mrd.bitlib.util.ByteWriter
 import com.mrd.bitlib.util.HashUtils
 import com.mrd.bitlib.util.Sha256Hash
+import com.mrd.bitlib.util.TaprootUtils
 import java.io.Serializable
 import java.lang.IllegalArgumentException
 import java.math.BigInteger
+import java.util.Arrays
 
 /**
  * A Bitcoin private key that is kept in memory.
@@ -97,6 +99,7 @@ class InMemoryPrivateKey(
             }
             trunc
         }
+    }
 
 
     private abstract class DsaSignatureNonceGen {
@@ -107,11 +110,21 @@ class InMemoryPrivateKey(
         private val messageHash: Sha256Hash,
         private val privateKey: KeyExporter
     ) : DsaSignatureNonceGen() {
+        private val messageHash: Sha256Hash
+        private val privateKey: KeyExporter
+
+        init {
+            this.messageHash = messageHash
+            this.privateKey = privateKey
+        }
 
         // rfc6979 compliant generation of k-value for DSA
         override fun getNonce(): BigInteger {
             // Step b
             var v = ByteArray(32) { 0x01.toByte() }
+
+            var v = ByteArray(32)
+            Arrays.fill(v, 0x01.toByte())
 
             // Step c
             var k = ByteArray(32) { 0x00.toByte() }
@@ -167,6 +180,7 @@ class InMemoryPrivateKey(
             messageHash,
             DsaSignatureNonceGenDeterministic(messageHash, this)
         )
+
 
     private fun generateSignatureInternal(
         messageHash: Sha256Hash,
@@ -224,18 +238,18 @@ class InMemoryPrivateKey(
         }
     }
 
-    fun getPrivateKeyBytes(network: NetworkParameters): ByteArray {
+    fun getPrivateKeyBytes(network: NetworkParameters): ByteArray =
         if (publicKey.isCompressed) {
-            return getPrivateKeyBytesCompressed(network)
+            getBase58EncodedPrivateKeyCompressed(network)
         } else {
-            return getPrivateKeyBytesUncompressed(network)
+            getBase58EncodedPrivateKeyUncompressed(network)
         }
-    }
 
     private fun getBase58EncodedPrivateKeyUncompressed(network: NetworkParameters): String {
         val toEncode = getPrivateKeyBytesUncompressed(network)
         // Set checksum
         val checkSum = HashUtils.doubleSha256(toEncode, 0, 1 + 32).firstFourBytes()
+        System.arraycopy(checkSum, 0, toEncode, 1 + 32, 4)
         // Encode
         return Base58.encode(toEncode + checkSum)
     }
@@ -248,6 +262,7 @@ class InMemoryPrivateKey(
         val toEncode = getPrivateKeyBytesCompressed(network)
         // Set checksum
         val checkSum = HashUtils.doubleSha256(toEncode, 0, 1 + 32 + 1).firstFourBytes()
+        System.arraycopy(checkSum, 0, toEncode, 1 + 32 + 1, 4)
         // Encode
         return Base58.encode(toEncode + checkSum)
     }
@@ -256,11 +271,18 @@ class InMemoryPrivateKey(
         //network byte + key bytes(32) + compressed indicator
         ByteArray(0) + (if (network.isProdnet) 0x80.toByte() else 0xEF.toByte()) + getPrivateKeyBytes() + (0x01).toByte()
 
+    override fun makeSchnorrBitcoinSignature(message: ByteArray, merkle: ByteArray): ByteArray =
+        makeSchnorrBitcoinSignature(message, merkle, null)
 
-    override fun makeSchnorrBitcoinSignature(transactionSigningHash: Sha256Hash): ByteArray =
-        SchnorrSign(this.getPrivateKeyBytes())
-            .sign(transactionSigningHash.bytes)
-            .getSignatureBytes()
+    override fun makeSchnorrBitcoinSignature(
+        message: ByteArray,
+        merkle: ByteArray,
+        auxRand: ByteArray?
+    ): ByteArray {
+        val tweak = TaprootUtils.tweak(publicKey, merkle)
+        return SchnorrSign(TaprootUtils.tweakedPrivateKey(this.getPrivateKeyBytes(), tweak))
+            .sign(message, auxRand)
+    }
 
     companion object {
         private fun privateKey(randomSource: RandomSource): BigInteger {
@@ -327,36 +349,36 @@ class InMemoryPrivateKey(
 
         @JvmStatic
         fun fromBase58String(
-            base58: String,
+            base58: String?,
             network: NetworkParameters
-        ): Optional<InMemoryPrivateKey> =
+        ): InMemoryPrivateKey? =
             try {
-                Optional.of<InMemoryPrivateKey>(InMemoryPrivateKey(base58, network))
+                InMemoryPrivateKey(base58, network)
             } catch (e: IllegalArgumentException) {
-                Optional.absent<InMemoryPrivateKey>()
+                null
             }
 
         @JvmStatic
         fun fromBase58MiniFormat(
             base58: String?,
-            network: NetworkParameters
-        ): Optional<InMemoryPrivateKey> {
+            network: NetworkParameters?
+        ): InMemoryPrivateKey? {
             // Is it a mini private key on the format proposed by Casascius?
             if (base58 == null || base58.length < 2 || !base58.startsWith("S")) {
-                return Optional.absent<InMemoryPrivateKey?>()
+                return null
             }
             // Check that the string has a valid checksum
             val withQuestionMark = "$base58?"
             val checkHash = HashUtils.sha256(withQuestionMark.toByteArray()).firstFourBytes()
             if (checkHash[0].toInt() != 0x00) {
-                return Optional.absent<InMemoryPrivateKey?>()
+                return null
             }
             // Now get the Sha256 hash and use it as the private key
             val privateKeyBytes = HashUtils.sha256(base58.toByteArray())
             return try {
-                Optional.of<InMemoryPrivateKey>(InMemoryPrivateKey(privateKeyBytes, false))
+                InMemoryPrivateKey(privateKeyBytes, false)
             } catch (e: IllegalArgumentException) {
-                Optional.absent<InMemoryPrivateKey>()
+                null
             }
         }
     }

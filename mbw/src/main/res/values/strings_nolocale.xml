@@ -5,6 +5,8 @@
 
     <string name="contact_email">support@mycelium.com</string>
     <string name="btc">BTC</string>
+    <string name="bullet">&#8226;</string>
+    <string name="question_mark">\?</string>
 
     <string name="one">1</string>
     <string name="two">2</string>
@@ -54,6 +56,7 @@
         <item>sl</item>
         <item>sq</item>
         <item>sv</item>
+        <item>uk</item>
         <item>vi</item>
         <item>zh</item>
         <item>zh-TW</item>
@@ -81,6 +84,7 @@
         <item>Slovenščina</item>
         <item>Shqip</item>
         <item>Svenska</item>
+        <item>Українська</item>
         <item>Tiếng Việt</item>
         <item>简体中文</item>
         <item>繁体中文</item>
@@ -106,6 +110,8 @@
                 </style>
         </head><body>%6$s</body></html>]]>
     </string>
+    <string name="about_0_btc">~ 0.00 BTC</string>
+    <string name="zero_usd">0.00 USD</string>
 
     <string name="shamir_secret_sharing" translatable="false">Shamir Secret Sharing</string>
 </resources>

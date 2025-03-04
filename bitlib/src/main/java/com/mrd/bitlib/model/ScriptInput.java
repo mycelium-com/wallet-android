@@ -24,7 +24,7 @@ public class ScriptInput extends Script {
    public static final ScriptInput EMPTY = new ScriptInput(new byte[] {});
 
    public static ScriptInput fromScriptBytes(byte[] scriptBytes) throws ScriptParsingException {
-      if(isTRProgram(depush(scriptBytes))) {
+      if(isTRProgram(scriptBytes)) {
          return new ScriptInputP2TR(scriptBytes);
       }
       if (isWitnessProgram(depush(scriptBytes))) {
@@ -54,10 +54,7 @@ public class ScriptInput extends Script {
       if (scriptBytes.length < 4 || scriptBytes.length > 42) {
          return false;
       }
-      if (scriptBytes[0] != Script.OP_1) {
-         return false;
-      }
-      return true;
+       return scriptBytes[0] == Script.OP_1;
    }
 
    /**

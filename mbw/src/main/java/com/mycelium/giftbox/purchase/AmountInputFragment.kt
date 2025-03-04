@@ -13,13 +13,11 @@ import androidx.lifecycle.lifecycleScope
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import com.mycelium.giftbox.ErrorHandler
+import com.mycelium.giftbox.client.GiftboxConstants
 import com.mycelium.giftbox.client.GitboxAPI
-import com.mycelium.giftbox.client.model.MCOrderResponse
 import com.mycelium.giftbox.client.model.MCPrice
 import com.mycelium.giftbox.client.model.getCardValue
-import com.mycelium.giftbox.client.models.PriceResponse
-import com.mycelium.giftbox.purchase.viewmodel.getCurrencyId
-import com.mycelium.wallet.BuildConfig
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.NumberEntry
 import com.mycelium.wallet.R
@@ -61,6 +59,12 @@ class AmountInputFragment : Fragment(), NumberEntry.NumberEntryListener {
     private val account by lazy {
         MbwManager.getInstance(requireContext()).getWalletManager(false)
             .getAccount(args.accountId)
+    }
+
+    private val errorHandler = ErrorHandler().apply {
+        cancelListener = {
+            findNavController().navigate(AmountInputFragmentDirections.actionGiftBox())
+        }
     }
 
     private var _amount: Value? = null
@@ -230,6 +234,7 @@ class AmountInputFragment : Fragment(), NumberEntry.NumberEntryListener {
             _amount?.type?.value(value)
         }
         binding.btOk.isEnabled = false
+        _amount?.valueAsBigDecimal?.let { if(it < args.mcproduct.minFaceValue) return }
         GitboxAPI.mcGiftRepository.getPrice(lifecycleScope,
             code = args.mcproduct.id ?: "",
 //            quantity = 1,
@@ -238,7 +243,7 @@ class AmountInputFragment : Fragment(), NumberEntry.NumberEntryListener {
             success = { priceResponse ->
 //                val conversionError = priceResponse!!.status == PriceResponse.Status.eRROR
                 val maxSpendableFiat = convertToFiat(priceResponse, getMaxSpendable())
-                val insufficientFunds = _amount!!.moreThan(maxSpendableFiat!!)
+                val insufficientFunds = _amount!!.moreThan(maxSpendableFiat!!) && !GiftboxConstants.TEST
                 val exceedCardPrice = _amount!!.moreThan(
                     valueOf(
                         _amount!!.type,
@@ -272,8 +277,8 @@ class AmountInputFragment : Fragment(), NumberEntry.NumberEntryListener {
                 if (insufficientFunds /*&& !conversionError*/) {
                     Toaster(requireContext()).toast("Insufficient funds", true)
                 }
-            }, error = { _, error ->
-
+            }, error = { code, error ->
+                errorHandler.handle(requireContext(), code, error)
             },
             finally = {
             })
@@ -316,7 +321,7 @@ class AmountInputFragment : Fragment(), NumberEntry.NumberEntryListener {
 //                    }
                     trySend(response)
                 },
-                error = { _, error ->
+                error = { code, error ->
                     close()
                 },
                 finally = {

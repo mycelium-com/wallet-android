@@ -63,6 +63,7 @@ import java.util.UUID;
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 
+//TODO convert to kotlin with null checking
 public class TransactionDetailsActivity extends AppCompatActivity {
     public static final String EXTRA_TXID = "transactionID";
     public static final String ACCOUNT_ID = "accountId";
@@ -87,7 +88,7 @@ public class TransactionDetailsActivity extends AppCompatActivity {
         tx = account.getTxSummary(txid);
         coluMode = account instanceof ColuAccount;
         DetailsFragment detailsFragment = (DetailsFragment) getSupportFragmentManager().findFragmentById(R.id.spec_details_fragment);
-        if (detailsFragment == null) {
+        if (detailsFragment == null && tx != null) {
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
             if (account instanceof EthAccount || account instanceof ERC20Account) {
                 transaction.add(R.id.spec_details_fragment, EthDetailsFragment.newInstance(tx));

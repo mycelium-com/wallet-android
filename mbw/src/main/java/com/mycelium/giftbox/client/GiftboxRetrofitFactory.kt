@@ -6,7 +6,6 @@ import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import com.mycelium.bequant.remote.NullOnEmptyConverterFactory
-import com.mycelium.generated.logger.database.Logs
 import com.mycelium.giftbox.client.GiftboxConstants.MC_API_KEY
 import com.mycelium.wallet.BuildConfig
 import okhttp3.Call
@@ -18,6 +17,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.jackson.JacksonConverterFactory
 import java.text.SimpleDateFormat
 import java.util.*
+import java.util.concurrent.TimeUnit
 
 interface SignatureProvider {
     fun address(): String
@@ -38,6 +38,7 @@ object RetrofitFactory {
             .addInterceptor {
                 it.proceed(it.request().newBuilder().apply {
                     addHeader("Content-Type", "application/json")
+                    addHeader("Accept-Language", Locale.getDefault().language)
                     addHeader("x-api-key", MC_API_KEY)
 //                    addHeader("Authorization", "Basic ${GiftboxPreference.getAccessToken()}")
                     signatureProvider?.run {
@@ -68,7 +69,12 @@ object RetrofitFactory {
             .callFactory(object : Call.Factory {
                 //create client lazy on demand in background thread
                 //see https://www.zacsweers.dev/dagger-party-tricks-deferred-okhttp-init/
-                private val client by lazy { getClientBuilder(signatureProvider).build() }
+                private val client by lazy {
+                    getClientBuilder(signatureProvider)
+                        .connectTimeout(5, TimeUnit.SECONDS)
+                        .readTimeout(5, TimeUnit.SECONDS)
+                        .build()
+                }
 
                 override fun newCall(request: Request): Call = client.newCall(request)
             })

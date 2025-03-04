@@ -16,6 +16,8 @@
             android:layout_weight="10"
             android:paddingBottom="200dp" />
 
-        <include layout="@layout/startup_activity_progress" />
+        <include
+            android:id="@+id/layoutProgress"
+            layout="@layout/startup_activity_progress" />
     </LinearLayout>
 </layout>

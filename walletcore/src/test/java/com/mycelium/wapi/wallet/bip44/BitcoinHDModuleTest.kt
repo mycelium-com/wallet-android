@@ -67,4 +67,31 @@ class BitcoinHDModuleTest {
         val indexAfter = bitcoinHDModule!!.getCurrentBip44Index()
         assert(indexBefore == indexAfter)
     }
+
+    @Test
+    fun testTaproot() {
+        val backing = InMemoryBtcWalletManagerBacking() as BtcWalletManagerBacking<HDAccountContext>
+        val fakeRandomSource = mock<RandomSource>(RandomSource::class.java)
+        val store = SecureKeyValueStore(backing, fakeRandomSource)
+
+        val masterSeed = Bip39.generateSeedFromWordList(MASTER_SEED_WORDS.split(" ".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray(), "")
+        val masterSeedManager = MasterSeedManager(store)
+        masterSeedManager.configureBip32MasterSeed(masterSeed, AesKeyCipher.defaultKeyCipher())
+        // Create the base keys for the account
+        val root = HdKeyNode.fromSeed(masterSeed.bip32Seed, BipDerivationType.BIP86)
+        val keyManager = HDAccountKeyManager.createNew(
+            root,
+            NetworkParameters.testNetwork,
+            7,
+            store,
+            AesKeyCipher.defaultKeyCipher(),
+            BipDerivationType.BIP86
+        )
+
+        for (i in 0..19) {
+            keyManager?.getAddress(false, i).let {
+                System.out.println(/*"path = ${it?.bip32Path}, address = " + */it.toString())
+            }
+        }
+    }
 }

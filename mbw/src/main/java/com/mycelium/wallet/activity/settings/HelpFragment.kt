@@ -100,10 +100,13 @@ fun Fragment.boostGapLimitDialog(
                 p0: DialogInterface?,
                 p1: Int
             ) {
-                val lookAheadCount = bind.text.text.toString().toInt()
-                val mode = SyncMode.BOOSTED
-                mode.mode.lookAhead = lookAheadCount
-                mbwManager.getWalletManager(false).startSynchronization(mode, accounts.toList())
+                try {
+                    val lookAheadCount = bind.text.text.toString().toInt()
+                    val mode = SyncMode.BOOSTED
+                    mode.mode.lookAhead = lookAheadCount
+                    mbwManager.getWalletManager(false).startSynchronization(mode, accounts.toList())
+                } catch (_: NumberFormatException) {
+                }
             }
         })
         .show()

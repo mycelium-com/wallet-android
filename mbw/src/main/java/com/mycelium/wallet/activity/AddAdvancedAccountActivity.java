@@ -73,9 +73,9 @@ import com.mycelium.wallet.activity.util.ImportCoCoHDAccount;
 import com.mycelium.wallet.activity.util.ValueExtensionsKt;
 import com.mycelium.wallet.content.HandleConfigFactory;
 import com.mycelium.wallet.content.ResultType;
+import com.mycelium.wallet.databinding.AddAdvancedAccountActivityBinding;
 import com.mycelium.wallet.event.AccountChanged;
 import com.mycelium.wallet.event.AccountCreated;
-import com.mycelium.wallet.external.partner.PartnerExtKt;
 import com.mycelium.wallet.extsig.keepkey.activity.KeepKeyAccountImportActivity;
 import com.mycelium.wallet.extsig.ledger.activity.LedgerAccountImportActivity;
 import com.mycelium.wallet.extsig.trezor.activity.TrezorAccountImportActivity;
@@ -105,8 +105,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
 
 public class AddAdvancedAccountActivity extends AppCompatActivity implements ImportCoCoHDAccount.FinishListener {
    public static final int RESULT_MSG = 25;
@@ -126,18 +124,14 @@ public class AddAdvancedAccountActivity extends AppCompatActivity implements Imp
 
    private NetworkParameters _network;
 
-   @BindView(R.id.btGenerateNewBchSingleKey)
-   View btGenerateNewBchSingleKey;
-
-   @BindView(R.id.btCreateFioLegacyAccount)
-   View btCreateFioLegacyAccount;
+   private AddAdvancedAccountActivityBinding binding;
 
    @Override
    public void onCreate(Bundle savedInstanceState) {
       getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
       super.onCreate(savedInstanceState);
-      setContentView(R.layout.add_advanced_account_activity);
-      ButterKnife.bind(this);
+      binding = AddAdvancedAccountActivityBinding.inflate(getLayoutInflater());
+      setContentView(binding.getRoot());
       getSupportActionBar().setTitle(R.string.add_unrelated_account_title);
       getSupportActionBar().setDisplayHomeAsUpEnabled(true);
       final Activity activity = AddAdvancedAccountActivity.this;
@@ -157,10 +151,10 @@ public class AddAdvancedAccountActivity extends AppCompatActivity implements Imp
 
       findViewById(R.id.btLedger).setOnClickListener(view -> LedgerAccountImportActivity.callMe(activity, LEDGER_RESULT_CODE));
 
-      btGenerateNewBchSingleKey.setVisibility(View.GONE);
+      binding.btGenerateNewBchSingleKey.setVisibility(View.GONE);
 
-      btCreateFioLegacyAccount.setOnClickListener(view -> {
-         FioKeyManager fioKeyManager = new FioKeyManager(_mbwManager.getMasterSeedManager());
+      binding.btCreateFioLegacyAccount.setOnClickListener(view -> {
+         FioKeyManager fioKeyManager = _mbwManager.fioKeyManager;
          HdKeyNode legacyFioNode = fioKeyManager.getLegacyFioNode();
          //since uuid is used for account creation we can check hdKeynode uuid for account existence
          if (_mbwManager.getWalletManager(false).getAccount(legacyFioNode.getUuid()) == null) {
@@ -328,10 +322,10 @@ public class AddAdvancedAccountActivity extends AppCompatActivity implements Imp
          }
       } else if (requestCode == CREATE_RESULT_CODE && resultCode == Activity.RESULT_OK) {
          String base58Key = intent.getStringExtra("base58key");
-         Optional<InMemoryPrivateKey> key = InMemoryPrivateKey.fromBase58String(base58Key, _network);
-         if (key.isPresent()) {
+         InMemoryPrivateKey key = InMemoryPrivateKey.fromBase58String(base58Key, _network);
+         if (key != null) {
             // This is a new key - there is no existing backup
-            returnAccount(key.get(), MetadataStorage.BackupState.UNKNOWN, AccountType.SA);
+            returnAccount(key, MetadataStorage.BackupState.UNKNOWN, AccountType.SA);
          } else {
             throw new RuntimeException("Creating private key from string unexpectedly failed.");
          }
@@ -346,8 +340,8 @@ public class AddAdvancedAccountActivity extends AppCompatActivity implements Imp
          finishOk((UUID) intent.getSerializableExtra("account"), false);
       } else if (requestCode == StringHandlerActivity.IMPORT_SSS_CONTENT_CODE && resultCode == Activity.RESULT_OK) {
          String base58Key = intent.getStringExtra(RESULT_SECRET);
-         Optional<InMemoryPrivateKey> key = InMemoryPrivateKey.fromBase58String(base58Key, _network);
-         returnAccount(key.get(), MetadataStorage.BackupState.IGNORED, AccountType.Unknown);
+         InMemoryPrivateKey key = InMemoryPrivateKey.fromBase58String(base58Key, _network);
+         returnAccount(key, MetadataStorage.BackupState.IGNORED, AccountType.Unknown);
          //
       } else {
          super.onActivityResult(requestCode, resultCode, intent);
