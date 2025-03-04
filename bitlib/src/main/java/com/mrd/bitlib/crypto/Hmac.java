@@ -27,7 +27,7 @@ public class Hmac {
    private static final int SHA512_BLOCK_SIZE = 128;
 
    public static byte[] hmacSha256(byte[] key, byte[] message) {
-      MessageDigest digest = HashUtils.getSha512Digest();
+      MessageDigest digest = HashUtils.getSha256Digest();
 //      try {
 //         digest = MessageDigest.getInstance(SHA256);
 //      } catch (NoSuchAlgorithmException e) {

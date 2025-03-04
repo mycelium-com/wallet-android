@@ -41,7 +41,7 @@ abstract class PrivateKey : BitcoinSigner, Serializable {
     }
 
     // Sign the message deterministic, according to rfc6979
-    protected abstract fun generateSignature(message: Sha256Hash): Signature
+    abstract fun generateSignature(message: Sha256Hash): Signature
 
     override fun hashCode(): Int {
         return publicKey.hashCode()
