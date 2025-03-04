@@ -232,7 +232,6 @@ class InMemoryPrivateKey(
         val toEncode = getPrivateKeyBytesUncompressed(network)
         // Set checksum
         val checkSum = HashUtils.doubleSha256(toEncode, 0, 1 + 32).firstFourBytes()
-        System.arraycopy(checkSum, 0, toEncode, 1 + 32, 4)
         // Encode
         return Base58.encode(toEncode + checkSum)
     }
@@ -245,7 +244,6 @@ class InMemoryPrivateKey(
         val toEncode = getPrivateKeyBytesCompressed(network)
         // Set checksum
         val checkSum = HashUtils.doubleSha256(toEncode, 0, 1 + 32 + 1).firstFourBytes()
-        System.arraycopy(checkSum, 0, toEncode, 1 + 32 + 1, 4)
         // Encode
         return Base58.encode(toEncode + checkSum)
     }

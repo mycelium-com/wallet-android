@@ -64,7 +64,6 @@ import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
 import com.mycelium.wallet.activity.AccountCreatorHelper.AccountCreationObserver
 import com.mycelium.wallet.activity.AccountCreatorHelper.CreateAccountAsyncTask
-import com.mycelium.wallet.activity.StartupActivity.ConfigureSeedAsyncTask
 import com.mycelium.wallet.activity.export.DecryptBip38PrivateKeyActivity
 import com.mycelium.wallet.activity.modern.ModernMain
 import com.mycelium.wallet.activity.modern.Toaster
@@ -90,13 +89,10 @@ import com.mycelium.wapi.wallet.AesKeyCipher
 import com.mycelium.wapi.wallet.KeyCipher.InvalidKeyCipher
 import com.mycelium.wapi.wallet.btc.bip44.AdditionalHDAccountConfig
 import com.mycelium.wapi.wallet.eth.EthereumMasterseedConfig
-import com.mycelium.wapi.wallet.fio.FIOMasterseedConfig
-import com.mycelium.wapi.wallet.manager.Config
 import com.squareup.otto.Bus
 import com.squareup.otto.Subscribe
 import java.io.FileNotFoundException
 import java.io.IOException
-import java.lang.RuntimeException
 import java.lang.ref.WeakReference
 import java.util.UUID
 import java.util.concurrent.TimeUnit
@@ -293,28 +289,21 @@ class StartupActivity : AppCompatActivity(), AccountCreationObserver {
     private val delayedFinish: Runnable = object : Runnable {
         override fun run() {
             val manager = _mbwManager
-            val isUnlockPinRequired = manager != null && manager.isUnlockPinRequired
-            if (isUnlockPinRequired) {
+            if (manager != null && manager.isUnlockPinRequired) {
                 // set a click handler to the background, so that
                 // if the PIN-Pad closes, you can reopen it by touching the background
-
+                val delayRunnable = this
                 window.decorView.findViewById<View?>(android.R.id.content)
-                    .setOnClickListener(object : View.OnClickListener {
-                        override fun onClick(view: View?) {
-                            delayedFinish.run()
-                        }
-                    })
-
-                val start = object : Runnable {
-                    override fun run() {
-                        _mbwManager!!.setStartUpPinUnlocked(true)
-                        start()
-                    }
-                }
+                    ?.setOnClickListener { delayRunnable.run() }
 
                 // set the pin dialog to not cancelable
-                _pinDialog =
-                    _mbwManager!!.runPinProtectedFunction(this@StartupActivity, start, false)
+                _pinDialog = manager.runPinProtectedFunction(
+                    this@StartupActivity,
+                    {
+                        manager.setStartUpPinUnlocked(true)
+                        start()
+                    }, false
+                )
             } else {
                 start()
             }
