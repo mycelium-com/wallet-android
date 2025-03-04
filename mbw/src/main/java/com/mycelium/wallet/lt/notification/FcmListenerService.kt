@@ -28,6 +28,7 @@ import com.mycelium.wallet.activity.ActionActivity
 import com.mycelium.wallet.activity.PinProtectedActivity
 import com.mycelium.wallet.activity.modern.ModernMain
 import com.mycelium.wallet.activity.settings.SettingsPreference.mediaFlowEnabled
+import com.mycelium.wallet.checkPushPermission
 import com.mycelium.wallet.external.mediaflow.NewsSyncUtils.handle
 import com.mycelium.wallet.lt.activity.LtMainActivity
 
@@ -101,12 +102,18 @@ class FcmListenerService : FirebaseMessagingService() {
                                 builder.setStyle(NotificationCompat.BigPictureStyle()
                                         .setBigContentTitle(remoteMessage.notification?.title)
                                         .bigPicture(resource))
-                                NotificationManagerCompat.from(this@FcmListenerService).notify(ID_ADS_NOTIFICATION, builder.build())
+                                this@FcmListenerService.checkPushPermission({
+                                    NotificationManagerCompat.from(this@FcmListenerService)
+                                        .notify(ID_ADS_NOTIFICATION, builder.build())
+                                })
+
                             }
                         })
             }
         } else {
-            NotificationManagerCompat.from(this).notify(ID_ADS_NOTIFICATION, builder.build())
+            this@FcmListenerService.checkPushPermission({
+                NotificationManagerCompat.from(this).notify(ID_ADS_NOTIFICATION, builder.build())
+            })
         }
     }
 
@@ -209,7 +216,9 @@ class FcmListenerService : FirebaseMessagingService() {
         }
 
         // Notify
-        NotificationManagerCompat.from(this).notify(ID_TRADE_NOTIFICATION, builder.build())
+        this.checkPushPermission({
+            NotificationManagerCompat.from(this).notify(ID_TRADE_NOTIFICATION, builder.build())
+        })
     }
 
     private fun showAdNotification(type: String) {
@@ -250,7 +259,9 @@ class FcmListenerService : FirebaseMessagingService() {
         }
 
         // Notify
-        NotificationManagerCompat.from(this).notify(ID_TRADE_AD_ACTIVITY_NOTIFICATION, builder.build())
+        this.checkPushPermission({
+            NotificationManagerCompat.from(this).notify(ID_TRADE_AD_ACTIVITY_NOTIFICATION, builder.build())
+        })
     }
 
     companion object {
