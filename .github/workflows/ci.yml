@@ -40,9 +40,9 @@ jobs:
         path: |
           ~/.gradle/caches
           ~/.gradle/wrapper
-          key: gradle-${{ runner.os }}-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-          restore-keys: |
-            gradle-${{ runner.os }}-
+        key: gradle-${{ runner.os }}-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+        restore-keys: |
+          gradle-${{ runner.os }}-
 
     - run: ./gradlew --no-daemon --build-cache --parallel --configure-on-demand clean test mbw:assembleProdnetDebug mbw:assembleBtctestnetDebug
 
