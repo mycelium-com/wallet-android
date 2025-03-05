@@ -52,6 +52,7 @@ retrofit-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref 
 sqldelight-driver = { module = "app.cash.sqldelight:android-driver", version.ref = "sqldelight" }
 glide = { group = "com.github.bumptech.glide", name = "glide", version.ref = "glide" }
 glide-ksp = { module = "com.github.bumptech.glide:ksp", version.ref = "glide" }
+kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version = "1.10.1" }
 test-core-ktx = { module = "androidx.test:core-ktx", version.ref = "test-core" }
 test-core = { module = "androidx.test:core", version.ref = "test-core" }
 test-junit = { module = "androidx.test.ext:junit", version.ref = "junit" }

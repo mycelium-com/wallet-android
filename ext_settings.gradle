@@ -7,7 +7,6 @@ ext {
     androidTargetSdkVersion = 34
     junitVersion = '4.12'
     kotlin_version = '2.0.21'
-    coroutines_version = "1.3.0-M2"
     gsonVersion = '2.8.5'
     findBugsVersion = '3.0.1'
     okhttpVersion = '2.7.5'
@@ -17,7 +16,6 @@ ext {
     materialVersion = '1.1.0-alpha10'
     wireVersion = '1.6.1'
     constraintLayoutVersion = '1.1.3'
-    kotlinCoroutinesVersion = '1.3.2'
     httpClientJacksonVersion = '1.19.0'
     jacksonAnnotationsVersion = '2.9.5'
     // 2.9.9. was downgraded to 2.9.6 due to runtime crash "NoSuchMethodError" on android api 23

@@ -18,7 +18,7 @@ dependencies {
     implementation "com.fasterxml.jackson.core:jackson-databind:$jacksonDatabindVersion"
     implementation "com.google.http-client:google-http-client-jackson2:$httpClientJacksonVersion"
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutines_version"
+    implementation libs.kotlinx.coroutines.android
     implementation "com.google.code.gson:gson:$gsonVersion"
 
     // SQDelight

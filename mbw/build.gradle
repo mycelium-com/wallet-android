@@ -96,7 +96,7 @@ dependencies {
     implementation project(includePrefix + ":wallet-android-modularization-tools:modularization-lib")
 
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$kotlinCoroutinesVersion"
+    implementation libs.kotlinx.coroutines.android
     implementation "com.github.tony19:logback-android-core:1.1.1-6"
     implementation "com.google.http-client:google-http-client-jackson2:$httpClientJacksonVersion"
     implementation "com.fasterxml.jackson.core:jackson-databind:$jacksonDatabindVersion"

@@ -8,7 +8,7 @@ dependencies {
 
     implementation "com.fasterxml.jackson.core:jackson-annotations:$jacksonAnnotationsVersion"
     implementation "com.fasterxml.jackson.core:jackson-databind:$jacksonDatabindVersion"
-    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$kotlinCoroutinesVersion"
+    implementation libs.kotlinx.coroutines.android
     implementation "com.squareup.okhttp:okhttp:$okhttpVersion"
     implementation libs.guava
     implementation "com.google.code.findbugs:annotations:$findBugsVersion"
