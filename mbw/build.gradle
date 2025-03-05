@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.ksp)
     alias(libs.plugins.naviagation)
     alias(libs.plugins.sqldelight)
+    alias(libs.plugins.google.services)
 }
 apply plugin: "kotlin-parcelize"
 apply plugin: 'kotlin-kapt'
@@ -415,5 +416,3 @@ android {
 
     ndkVersion '21.1.6352462'
 }
-
-apply plugin: 'com.google.gms.google-services'

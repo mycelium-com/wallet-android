@@ -23,7 +23,6 @@ ext {
     // 2.9.9. was downgraded to 2.9.6 due to runtime crash "NoSuchMethodError" on android api 23
     // the solution got from https://github.com/FasterXML/jackson-module-kotlin/issues/218#issuecomment-470900330
     jacksonDatabindVersion = '2.9.6'
-    nav_version = '2.5.0'
     // latest version is 1.4.3 but that changes the api somehow
     sqldelight_version = '2.0.0'
 

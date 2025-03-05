@@ -66,6 +66,8 @@ kotlin-jvm = { id = 'org.jetbrains.kotlin.jvm', version.ref = "kotlin" }
 ksp = { id = "com.google.devtools.ksp", version = "2.0.21-1.0.28" }
 naviagation = { id = "androidx.navigation.safeargs.kotlin", version.ref = "navigation" }
 sqldelight = { id = "app.cash.sqldelight", version.ref = "sqldelight" }
+google-services = { id = "com.google.gms.google-services", version = "4.4.2" }
+doka = { id = "org.jetbrains.dokka", version = "2.0.0" }
 
 [bundles]
 android-test-bundle = ["test-core-ktx", "test-core", "test-junit", "test-rules", "test-runner"]
