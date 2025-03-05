@@ -1,26 +1,11 @@
-apply plugin: 'com.android.library'
-apply plugin: 'kotlin-android'
-
-buildscript {
-    repositories {
-        mavenCentral()
-        google()
-    }
-
-    dependencies {
-        classpath "com.android.tools.build:gradle:$gradleVersion"
-    }
-}
-
-repositories {
-    mavenCentral()
-    google()
+plugins {
+    alias(libs.plugins.android.library)
+    alias(libs.plugins.kotlin.android)
 }
 
 dependencies {
-    implementation "androidx.legacy:legacy-support-v4:$xLegacyVersion"
-    implementation 'androidx.core:core:1.10.0'
-    implementation "com.google.protobuf:protobuf-java:$protoBufVersion"
+    implementation libs.androidx.core
+    implementation libs.protobuf.java
 
     testImplementation libs.junit
 }

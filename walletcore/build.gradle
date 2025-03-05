@@ -29,9 +29,8 @@ dependencies {
     // SQDelight
     implementation "app.cash.sqldelight:sqlite-driver:$sqldelight_version"
     implementation "app.cash.sqldelight:primitive-adapters:$sqldelight_version"
-    implementation "app.cash.sqldelight:rxjava2-extensions:$sqldelight_version"
 
-    implementation 'org.bitcoinj:bitcoinj-core:0.14.5'
+    implementation libs.bitcoinj.core
 
     // Ethereum
     implementation 'org.web3j:core:4.2.1-android'

@@ -1,18 +1,35 @@
 [versions]
+bitcoinjCore = "0.14.5"
+bouncycastle = "1.64"
+coreKtx = "1.13.1"
+firebaseBomVersion = "33.10.0"
 guava = "32.1.3-android"
 junitVersion = "4.13.2"
+lifecycle = "2.8.7"
 mockkAndroid = "1.13.3"
 navigation = "2.8.8"
+protoBufVersion = "3.6.1"
+recyclerViewVersion = "1.2.1"
 retrofit = "2.6.1"
 test-core = "1.6.2"
 espresso = "3.6.1"
 glide = "5.0.0-rc01"
 junit = "1.2.1"
 kotlin = '2.0.21'
-androidGradlePlugin = "8.7.1"
-sqldelight = "2.0.0"
+androidGradlePlugin = "8.8.2"
+sqldelight = "2.0.2"
 
 [libraries]
+androidx-core = { module = "androidx.core:core-ktx", version.ref = "coreKtx" }
+bitcoinj-core = { module = "org.bitcoinj:bitcoinj-core", version.ref = "bitcoinjCore" }
+bouncycastle-bcpkix = { module = "org.bouncycastle:bcpkix-jdk15on", version.ref = "bouncycastle" }
+bouncycastle-bcprov = { module = "org.bouncycastle:bcprov-jdk15on", version.ref = "bouncycastle" }
+protobuf-java = { module = "com.google.protobuf:protobuf-java", version.ref = "protoBufVersion" }
+recyclerview = { module = "androidx.recyclerview:recyclerview", version.ref = "recyclerViewVersion" }
+firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBomVersion" }
+firebase-analytics = { module = "com.google.firebase:firebase-analytics-ktx" }
+firebase-dynamic-links = { module = "com.google.firebase:firebase-dynamic-links" }
+firebase-messaging = { module = "com.google.firebase:firebase-messaging-ktx" }
 espresso-contrib = { module = "androidx.test.espresso:espresso-contrib", version.ref = "espresso" }
 espresso-core = { module = "androidx.test.espresso:espresso-core", version.ref = "espresso" }
 espresso-idling-resource = { module = "androidx.test.espresso:espresso-idling-resource", version.ref = "espresso" }
@@ -20,6 +37,10 @@ espresso-intents = { module = "androidx.test.espresso:espresso-intents", version
 espresso-idling-concurrent = { module = "androidx.test.espresso.idling:idling-concurrent", version.ref = "espresso" }
 guava = { module = "com.google.guava:guava", version.ref = "guava" }
 junit = { module = "junit:junit", version.ref = "junitVersion" }
+lifecycle-runtime = { module = "androidx.lifecycle:lifecycle-runtime", version.ref = "lifecycle" }
+lifecycle-livedata-ktx = { module = "androidx.lifecycle:lifecycle-livedata-ktx", version.ref = "lifecycle" }
+lifecycle-reactivestreams = { module = "androidx.lifecycle:lifecycle-reactivestreams", version.ref = "lifecycle" }
+lifecycle-reactivestreams-ktx = { module = "androidx.lifecycle:lifecycle-reactivestreams-ktx", version.ref = "lifecycle" }
 mockk = { module = "io.mockk:mockk", version.ref = "mockkAndroid" }
 mockk-android = { module = "io.mockk:mockk-android", version.ref = "mockkAndroid" }
 navigation-dynamic-features-fragment = { module = "androidx.navigation:navigation-dynamic-features-fragment", version.ref = "navigation" }
@@ -37,7 +58,6 @@ test-junit = { module = "androidx.test.ext:junit", version.ref = "junit" }
 test-rules = { module = "androidx.test:rules", version.ref = "test-core" }
 test-runner = { module = "androidx.test:runner", version.ref = "test-core" }
 
-
 [plugins]
 android-application = { id = "com.android.application", version.ref = "androidGradlePlugin" }
 android-library = { id = "com.android.library", version.ref = "androidGradlePlugin" }
@@ -49,7 +69,9 @@ sqldelight = { id = "app.cash.sqldelight", version.ref = "sqldelight" }
 
 [bundles]
 android-test-bundle = ["test-core-ktx", "test-core", "test-junit", "test-rules", "test-runner"]
+firebase-bom = ["firebase-analytics", "firebase-dynamic-links", "firebase-messaging"]
 espresso = ["espresso-contrib", "espresso-core", "espresso-idling-resource", "espresso-intents", "espresso-idling-concurrent"]
 mockk = ["mockk", "mockk-android"]
 retrofit = ["retrofit", "retrofit-jackson", "retrofit-gson"]
 navigation = ["navigation-dynamic-features-fragment", "navigation-fragment-ktx", "navigation-ui-ktx"]
+lifecycle = ["lifecycle-runtime", "lifecycle-livedata-ktx", "lifecycle-reactivestreams", "lifecycle-reactivestreams-ktx"]

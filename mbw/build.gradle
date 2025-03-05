@@ -51,28 +51,21 @@ dependencies {
     implementation "androidx.activity:activity-ktx:1.3.1"
     implementation "androidx.appcompat:appcompat:$appCompatVersion"
     implementation 'androidx.constraintlayout:constraintlayout:2.1.0'
-    implementation "androidx.legacy:legacy-support-v4:$xLegacyVersion"
-    implementation "androidx.lifecycle:lifecycle-runtime:$lifecycle_version"
 
+    implementation libs.bundles.lifecycle
     implementation "androidx.lifecycle:lifecycle-extensions:2.2.0"
 
-    implementation "androidx.lifecycle:lifecycle-livedata-ktx:$lifecycle_version"
-    implementation "androidx.lifecycle:lifecycle-reactivestreams-ktx:$lifecycle_version"
-    implementation "androidx.lifecycle:lifecycle-reactivestreams:$lifecycle_version"
-
-    //not upgrading. This will be replaced with firebase
-    implementation "com.google.android.gms:play-services-base:10.2.1"
-    implementation "com.google.android.gms:play-services-gcm:10.2.1"
-    implementation "com.google.firebase:firebase-messaging:23.1.1"
+    implementation(platform(libs.firebase.bom))
+    implementation libs.bundles.firebase.bom
     implementation "com.google.code.findbugs:annotations:$findBugsVersion"
     implementation "com.squareup:otto:$ottoVersion"
 
     implementation 'androidx.browser:browser:1.5.0'
     implementation "androidx.biometric:biometric:1.1.0"
-    implementation "androidx.core:core-ktx:1.6.0"
+    implementation libs.androidx.core
     implementation "androidx.fragment:fragment-ktx:1.3.6"
     implementation "androidx.vectordrawable:vectordrawable-animated:1.1.0"
-    implementation "androidx.recyclerview:recyclerview:$recyclerViewVersion"
+    implementation libs.recyclerview
     implementation "androidx.gridlayout:gridlayout:1.0.0"
     implementation "androidx.preference:preference:1.1.1"
     implementation "androidx.work:work-runtime-ktx:$workManagerVersion"
@@ -84,15 +77,13 @@ dependencies {
     implementation "com.squareup.okhttp3:logging-interceptor:3.8.1"
     implementation "com.squareup.okhttp:okhttp:$okhttpVersion"
     implementation "commons-codec:commons-codec:1.10"
-    implementation "com.google.protobuf:protobuf-java:$protoBufVersion"
+    implementation libs.protobuf.java
     implementation "androidx.constraintlayout:constraintlayout:$constraintLayoutVersion"
       //USED BY KYC only, have to be reviewed later
     implementation "com.googlecode.libphonenumber:libphonenumber:8.12.2"
     implementation "com.nulab-inc:zxcvbn:1.3.0"
 
 
-    implementation 'com.google.firebase:firebase-dynamic-links-ktx:19.1.0'
-    implementation 'com.google.firebase:firebase-analytics-ktx:17.5.0'
     implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'
     // Because RxAndroid releases are few and far between, it is recommended you also
     // explicitly depend on RxJava's latest version for bug fixes and new features.
@@ -109,7 +100,7 @@ dependencies {
     implementation "com.google.http-client:google-http-client-jackson2:$httpClientJacksonVersion"
     implementation "com.fasterxml.jackson.core:jackson-databind:$jacksonDatabindVersion"
     implementation "com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonDatabindVersion"
-    implementation 'org.bouncycastle:bcprov-jdk15on:1.64'
+    implementation libs.bouncycastle.bcprov
     implementation("org.bitcoinj:orchid:1.2.1") {
         exclude(module: 'slf4j-api')
     }
@@ -128,11 +119,10 @@ dependencies {
     testImplementation libs.junit
 
 //  android test block
+    androidTestImplementation project(includePrefix + ':testhelper')
     androidTestImplementation libs.bundles.android.test.bundle
     androidTestImplementation libs.bundles.espresso
     androidTestImplementation libs.bundles.mockk
-    androidTestImplementation project(includePrefix + ':testhelper')
-
     // Kotlin Coroutines Test
     androidTestImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:1.10.1"
 }

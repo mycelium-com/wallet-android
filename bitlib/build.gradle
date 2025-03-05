@@ -17,12 +17,12 @@ repositories {
 }
 
 dependencies {
-    implementation "com.google.protobuf:protobuf-java:$protoBufVersion"
+    implementation libs.protobuf.java
     implementation "com.fasterxml.jackson.core:jackson-annotations:$jacksonAnnotationsVersion"
     implementation "com.fasterxml.jackson.core:jackson-databind:$jacksonDatabindVersion"
     implementation libs.guava
-    implementation 'org.bouncycastle:bcprov-jdk15on:1.64'
-    implementation 'org.bouncycastle:bcpkix-jdk15on:1.64'
+    implementation libs.bouncycastle.bcprov
+    implementation libs.bouncycastle.bcpkix
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
 
     testImplementation "junit:junit:$junitVersion"

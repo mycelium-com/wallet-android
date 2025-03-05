@@ -1,26 +1,11 @@
-apply plugin: 'com.android.library'
-apply plugin: 'kotlin-android'
-
-buildscript {
-    repositories {
-        mavenCentral()
-        google()
-    }
-
-    dependencies {
-        classpath "com.android.tools.build:gradle:$gradleVersion"
-    }
-}
-
-repositories {
-    mavenCentral()
-    google()
+plugins {
+    alias(libs.plugins.android.library)
+    alias(libs.plugins.kotlin.android)
 }
 
 dependencies {
-    implementation "androidx.legacy:legacy-support-v4:$xLegacyVersion"
-    implementation 'androidx.core:core:1.10.0'
     implementation project(includePrefix + ':libs:nordpol')
+    implementation libs.androidx.core
     implementation libs.guava
 }
 
@@ -31,18 +16,6 @@ android {
 
     buildFeatures {
         aidl true
-    }
-
-    sourceSets {
-        main {
-            manifest.srcFile 'AndroidManifest.xml'
-            java.srcDirs = ['src/main/java']
-            resources.srcDirs = ['src/main/java']
-            aidl.srcDirs = ['src/main/java']
-            renderscript.srcDirs = ['src/main/java']
-            res.srcDirs = ['res']
-            assets.srcDirs = ['assets']
-        }
     }
 
     defaultConfig {

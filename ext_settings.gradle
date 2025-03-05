@@ -1,7 +1,6 @@
 // keep that file in sync with ext_settings.gradle in the internal big repository
 ext {
-    guavaVersion = '23.0-android'
-    gradleVersion = '8.7.1'
+    gradleVersion = '8.8.1'
     androidCompileSdkVersion = 34
     androidSdkBuildVersion = '34.0.0'
     androidMinSdkVersion = 21
@@ -9,18 +8,14 @@ ext {
     junitVersion = '4.12'
     kotlin_version = '2.0.21'
     coroutines_version = "1.3.0-M2"
-    lifecycle_version = "2.8.6"
     gsonVersion = '2.8.5'
     findBugsVersion = '3.0.1'
     okhttpVersion = '2.7.5'
     ottoVersion = '1.3.4'
-    recyclerViewVersion = '1.2.1'
     workManagerVersion = '2.7.1'
     appCompatVersion = '1.1.0'
-    xLegacyVersion = '1.0.0'
     materialVersion = '1.1.0-alpha10'
     wireVersion = '1.6.1'
-    protoBufVersion = '3.6.1'
     constraintLayoutVersion = '1.1.3'
     kotlinCoroutinesVersion = '1.3.2'
     httpClientJacksonVersion = '1.19.0'
