@@ -1,7 +1,10 @@
 [versions]
+guava = "32.1.3-android"
+junitVersion = "4.13.2"
 mockkAndroid = "1.13.3"
+navigation = "2.8.8"
 retrofit = "2.6.1"
-test-core = "1.6.1"
+test-core = "1.6.2"
 espresso = "3.6.1"
 glide = "5.0.0-rc01"
 junit = "1.2.1"
@@ -15,8 +18,13 @@ espresso-core = { module = "androidx.test.espresso:espresso-core", version.ref =
 espresso-idling-resource = { module = "androidx.test.espresso:espresso-idling-resource", version.ref = "espresso" }
 espresso-intents = { module = "androidx.test.espresso:espresso-intents", version.ref = "espresso" }
 espresso-idling-concurrent = { module = "androidx.test.espresso.idling:idling-concurrent", version.ref = "espresso" }
+guava = { module = "com.google.guava:guava", version.ref = "guava" }
+junit = { module = "junit:junit", version.ref = "junitVersion" }
 mockk = { module = "io.mockk:mockk", version.ref = "mockkAndroid" }
 mockk-android = { module = "io.mockk:mockk-android", version.ref = "mockkAndroid" }
+navigation-dynamic-features-fragment = { module = "androidx.navigation:navigation-dynamic-features-fragment", version.ref = "navigation" }
+navigation-fragment-ktx = { module = "androidx.navigation:navigation-fragment-ktx", version.ref = "navigation" }
+navigation-ui-ktx = { module = "androidx.navigation:navigation-ui-ktx", version.ref = "navigation" }
 retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
 retrofit-jackson = { module = "com.squareup.retrofit2:converter-jackson", version.ref = "retrofit" }
 retrofit-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "retrofit" }
@@ -34,11 +42,14 @@ test-runner = { module = "androidx.test:runner", version.ref = "test-core" }
 android-application = { id = "com.android.application", version.ref = "androidGradlePlugin" }
 android-library = { id = "com.android.library", version.ref = "androidGradlePlugin" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+kotlin-jvm = { id = 'org.jetbrains.kotlin.jvm', version.ref = "kotlin" }
 ksp = { id = "com.google.devtools.ksp", version = "2.0.21-1.0.28" }
+naviagation = { id = "androidx.navigation.safeargs.kotlin", version.ref = "navigation" }
 sqldelight = { id = "app.cash.sqldelight", version.ref = "sqldelight" }
 
 [bundles]
-test-buundle = ["test-core-ktx", "test-core", "test-junit", "test-rules", "test-runner"]
+android-test-bundle = ["test-core-ktx", "test-core", "test-junit", "test-rules", "test-runner"]
 espresso = ["espresso-contrib", "espresso-core", "espresso-idling-resource", "espresso-intents", "espresso-idling-concurrent"]
 mockk = ["mockk", "mockk-android"]
 retrofit = ["retrofit", "retrofit-jackson", "retrofit-gson"]
+navigation = ["navigation-dynamic-features-fragment", "navigation-fragment-ktx", "navigation-ui-ktx"]

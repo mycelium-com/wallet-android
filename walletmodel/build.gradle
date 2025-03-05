@@ -9,14 +9,11 @@ repositories {
 dependencies {
     implementation project(includePrefix + ':bitlib')
 
-    testImplementation "junit:junit:$junitVersion"
-    testImplementation "org.mockito:mockito-core:2.25.0"
-
     implementation "com.fasterxml.jackson.core:jackson-annotations:$jacksonAnnotationsVersion"
     implementation "com.fasterxml.jackson.core:jackson-databind:$jacksonDatabindVersion"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$kotlinCoroutinesVersion"
     implementation "com.squareup.okhttp:okhttp:$okhttpVersion"
-    implementation "com.google.guava:guava:$rootProject.guavaVersion"
+    implementation libs.guava
     implementation "com.google.code.findbugs:annotations:$findBugsVersion"
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     implementation "com.google.code.gson:gson:$gsonVersion"

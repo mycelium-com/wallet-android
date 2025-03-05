@@ -1,18 +1,8 @@
-buildscript {
-    repositories {
-        google()
-        mavenCentral()
-    }
-    dependencies {
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-//        classpath "com.squareup.sqldelight:gradle-plugin:$sqldelight_version"
-    }
-}
 plugins {
-    id("app.cash.sqldelight") version "$sqldelight_version"
+    id 'java'
+    alias(libs.plugins.kotlin.jvm)
+    alias(libs.plugins.sqldelight)
 }
-apply plugin: 'java'
-apply plugin: 'kotlin'
 apply from: 'integration-test.gradle'
 
 repositories {
@@ -27,7 +17,7 @@ dependencies {
     implementation project(includePrefix + ':wapi')
     implementation project(includePrefix + ':fiosdk')
 
-    implementation "com.google.guava:guava:$rootProject.guavaVersion"
+    implementation libs.guava
     implementation "com.fasterxml.jackson.core:jackson-core:2.9.5"
     implementation "com.fasterxml.jackson.core:jackson-annotations:$jacksonAnnotationsVersion"
     implementation "com.fasterxml.jackson.core:jackson-databind:$jacksonDatabindVersion"
@@ -46,7 +36,6 @@ dependencies {
     // Ethereum
     implementation 'org.web3j:core:4.2.1-android'
 
-    testImplementation "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
     testImplementation "junit:junit:$junitVersion"
     testImplementation "org.mockito:mockito-core:2.23.0"
 }
@@ -58,8 +47,6 @@ sqldelight {
         }
     }
 }
-
-
 
 compileKotlin {
     kotlinOptions {

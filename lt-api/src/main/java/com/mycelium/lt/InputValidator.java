@@ -25,15 +25,15 @@ public class InputValidator {
    private static final CharMatcher VALID_USER_CHARS =
          inRange('a', 'z')
                .or(inRange('A', 'Z'))
-               .or(DIGIT)
-               .or(WHITESPACE)
+               .or(digit())
+               .or(whitespace())
                .or(anyOf("._-"));
 
 
    public static boolean isValidTraderName(String name) {
       // Allow a-z, A-Z, 0-9, dot, underbar, and dash
       return name != null && name.length() >= MINIMUM_TRADER_NAME_LENGTH && name.length() <= MAXIMUM_TRADER_NAME_LENGTH
-            && WHITESPACE.trimFrom(name).equals(name) // must not
+            && whitespace().trimFrom(name).equals(name) // must not
             // start or
             // end with
             // whitespace

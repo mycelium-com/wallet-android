@@ -15,7 +15,7 @@ dependencies {
     implementation project(includePrefix +':walletmodel')
     implementation project(includePrefix +':walletcore')
 
-    implementation "com.google.guava:guava:$rootProject.guavaVersion"
+    implementation libs.guava
     implementation "com.fasterxml.jackson.core:jackson-core:2.9.5"
     implementation "com.fasterxml.jackson.core:jackson-annotations:$jacksonAnnotationsVersion"
     implementation "com.fasterxml.jackson.core:jackson-databind:$jacksonDatabindVersion"
@@ -23,8 +23,6 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
 
 //    implementation "com.squareup.sqldelight:sqlite-driver:$sqldelight_version"
-
-    runtimeOnly 'org.jetbrains.kotlin:kotlin-reflect:1.3.72'
 
     testImplementation "junit:junit:$junitVersion"
     testImplementation "org.mockito:mockito-core:2.23.0"

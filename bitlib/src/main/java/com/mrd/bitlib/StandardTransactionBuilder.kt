@@ -5,11 +5,9 @@ import com.google.common.base.Function
 import com.google.common.base.Preconditions
 import com.google.common.collect.Multimap
 import com.google.common.collect.Multimaps
-import com.google.common.collect.Ordering
 import com.mrd.bitlib.StandardTransactionBuilder.BtcOutputTooSmallException
 import com.mrd.bitlib.StandardTransactionBuilder.InsufficientBtcException
 import com.mrd.bitlib.StandardTransactionBuilder.UnableToBuildTransactionException
-import com.mrd.bitlib.StandardTransactionBuilder.UnableToBuildTransactionException.BuildError
 import com.mrd.bitlib.crypto.IPrivateKeyRing
 import com.mrd.bitlib.crypto.IPublicKeyRing
 import com.mrd.bitlib.model.AddressType
@@ -32,11 +30,6 @@ import com.mrd.bitlib.model.TransactionInput
 import com.mrd.bitlib.model.TransactionOutput
 import com.mrd.bitlib.model.UnspentTransactionOutput
 import com.mrd.bitlib.util.HexUtils
-import com.mrd.bitlib.util.TaprootUtils.Companion.sigHash
-import org.bouncycastle.util.encoders.Hex
-import java.lang.Exception
-import java.lang.RuntimeException
-import java.util.Collections
 import java.util.LinkedList
 import java.util.Locale
 import java.util.Random
@@ -240,19 +233,19 @@ open class StandardTransactionBuilder(val network: NetworkParameters) {
         funding: List<UnspentTransactionOutput>,
         outputSum: Long
     ): List<UnspentTransactionOutput> {
-        val largestToSmallest = Ordering.natural<Comparable<*>?>().reverse<Comparable<*>?>()
-            .onResultOf<UnspentTransactionOutput?>(object :
-                Function<UnspentTransactionOutput, Comparable<*>?> {
-                override fun apply(input: UnspentTransactionOutput?): Comparable<*>? = input?.value
-            }).sortedCopy<UnspentTransactionOutput?>(funding)
+//        val largestToSmallest = Ordering.natural<Comparable<*>?>().reverse<Comparable<*>?>()
+//            .onResultOf<UnspentTransactionOutput?>(object :
+//                Function<UnspentTransactionOutput, Comparable<*>?> {
+//                override fun apply(input: UnspentTransactionOutput?): Comparable<*>? = input?.value
+//            }).sortedCopy<UnspentTransactionOutput?>(funding)
+        val largestToSmallest = funding.sortedByDescending { it.value }
 
         var target: Long = 0
         largestToSmallest.forEachIndexed { i, output ->
             target += output.value
             if (target >= outputSum) {
                 val ret = largestToSmallest.subList(0, i + 1)
-                ret.shuffle()
-                return ret
+                return ret.shuffled()
             }
         }
         return largestToSmallest

@@ -23,7 +23,7 @@ repositories {
 
 dependencies {
     implementation project(includePrefix + ':bitlib')
-    implementation "com.google.guava:guava:$rootProject.guavaVersion"
+    implementation libs.guava
     testImplementation "junit:junit:$junitVersion"
 }
 

@@ -22,7 +22,7 @@ dependencies {
     implementation 'androidx.core:core:1.10.0'
     implementation "com.google.protobuf:protobuf-java:$protoBufVersion"
 
-    testImplementation "junit:junit:$junitVersion"
+    testImplementation libs.junit
 }
 
 android {

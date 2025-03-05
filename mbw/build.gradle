@@ -2,26 +2,21 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.ksp)
+    alias(libs.plugins.naviagation)
     alias(libs.plugins.sqldelight)
 }
-apply plugin: "androidx.navigation.safeargs.kotlin"
 apply plugin: "kotlin-parcelize"
 apply plugin: 'kotlin-kapt'
-
-repositories {
-    mavenCentral()
-    google()
-}
 
 configurations {
     compile.exclude group: 'org.apache.httpcomponents', module: 'httpclient'
 }
 
-configurations.all {
+configurations.configureEach {
     resolutionStrategy.eachDependency { DependencyResolveDetails details ->
         if (details.requested.group == "com.google.guava"
                 && details.requested.name == "guava") {
-            details.useTarget("com.google.guava:guava:$guavaVersion")
+            details.useTarget(libs.guava)
         }
     }
 }
@@ -32,7 +27,6 @@ ksp {
 }
 
 dependencies {
-    testImplementation "junit:junit:$junitVersion"
 
     implementation project(includePrefix + ':walletmodel')
     implementation project(includePrefix + ':wapi')
@@ -48,7 +42,7 @@ dependencies {
     implementation project(includePrefix + ':fiosdk')
     implementation project(includePrefix + ':androidfioserializationprovider')
 
-    implementation "com.google.guava:guava:$guavaVersion"
+    implementation libs.guava
     implementation libs.bundles.retrofit
     // TODO: update remaining code to retrofit2
     implementation "com.squareup.retrofit:retrofit:1.9.0"
@@ -82,16 +76,13 @@ dependencies {
     implementation "androidx.gridlayout:gridlayout:1.0.0"
     implementation "androidx.preference:preference:1.1.1"
     implementation "androidx.work:work-runtime-ktx:$workManagerVersion"
-    implementation "androidx.navigation:navigation-fragment-ktx:$nav_version"
-    implementation "androidx.navigation:navigation-ui-ktx:$nav_version"
-    implementation "androidx.navigation:navigation-dynamic-features-fragment:$nav_version"
+    implementation libs.bundles.navigation
     implementation "androidx.viewpager2:viewpager2:1.1.0-beta01"
     implementation "com.google.android.material:material:$materialVersion"
     implementation "org.ocpsoft.prettytime:prettytime:3.2.5.Final"
     implementation "com.squareup.wire:wire-runtime:$wireVersion"
     implementation "com.squareup.okhttp3:logging-interceptor:3.8.1"
     implementation "com.squareup.okhttp:okhttp:$okhttpVersion"
-    implementation "androidx.multidex:multidex:2.0.1"
     implementation "commons-codec:commons-codec:1.10"
     implementation "com.google.protobuf:protobuf-java:$protoBufVersion"
     implementation "androidx.constraintlayout:constraintlayout:$constraintLayoutVersion"
@@ -112,7 +103,6 @@ dependencies {
 
     implementation project(includePrefix + ":wallet-android-modularization-tools:modularization-lib")
 
-    implementation "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$kotlinCoroutinesVersion"
     implementation "com.github.tony19:logback-android-core:1.1.1-6"
@@ -134,15 +124,17 @@ dependencies {
     implementation files("$rootDir/libs/netcipher-2.2.1.jar")
     implementation "com.airbnb.android:lottie:3.4.0"
 
-    androidTestImplementation libs.bundles.test.buundle
+//  unit test block
+    testImplementation libs.junit
+
+//  android test block
+    androidTestImplementation libs.bundles.android.test.bundle
     androidTestImplementation libs.bundles.espresso
     androidTestImplementation libs.bundles.mockk
     androidTestImplementation project(includePrefix + ':testhelper')
 
     // Kotlin Coroutines Test
     androidTestImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:1.10.1"
-    // For instrumented tests
-    androidTestImplementation "org.mockito:mockito-android:4.8.0"
 }
 
 sqldelight {
@@ -210,8 +202,6 @@ android {
     defaultConfig {
         versionCode 3180200
         versionName '3.18.2.0'
-
-        multiDexEnabled true
 
         minSdkVersion androidMinSdkVersion
         targetSdkVersion androidTargetSdkVersion
