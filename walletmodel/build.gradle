@@ -1,9 +1,6 @@
-apply plugin: 'java'
-apply plugin: 'kotlin'
-
-repositories {
-    mavenCentral()
-    google()
+plugins {
+    id 'java'
+    alias(libs.plugins.kotlin.jvm)
 }
 
 dependencies {
@@ -17,15 +14,6 @@ dependencies {
     implementation "com.google.code.findbugs:annotations:$findBugsVersion"
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     implementation "com.google.code.gson:gson:$gsonVersion"
-}
-
-buildscript {
-    repositories {
-        mavenCentral()
-    }
-    dependencies {
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-    }
 }
 
 compileKotlin {
