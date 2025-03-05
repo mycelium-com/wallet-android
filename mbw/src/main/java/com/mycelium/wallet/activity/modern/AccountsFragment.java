@@ -79,7 +79,6 @@ import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.AddAccountActivity;
 import com.mycelium.wallet.activity.AddAdvancedAccountActivity;
 import com.mycelium.wallet.activity.MessageSigningActivity;
-import com.mycelium.wallet.activity.export.ExportAsQrActivity;
 import com.mycelium.wallet.activity.export.ShamirSharingActivity;
 import com.mycelium.wallet.activity.export.VerifyBackupActivity;
 import com.mycelium.wallet.activity.fio.AboutFIOProtocolDialog;
@@ -292,48 +291,47 @@ public class AccountsFragment extends Fragment {
         }
     }
 
+    private Value getPotentialBalance(WalletAccount account) {
+        if (account.isArchived()) {
+            return null;
+        } else {
+            return account.getAccountBalance().getSpendable();
+        }
+    }
+
     private void deleteAccount(final WalletAccount accountToDelete) {
         checkNotNull(accountToDelete);
-        final List<WalletAccount> linkedAccounts = new ArrayList<>();
-        if (accountToDelete instanceof EthAccount) {
-            linkedAccounts.addAll(getLinkedERC20Accounts(accountToDelete));
-        } else if (accountToDelete instanceof ERC20Account) {
-            linkedAccounts.add(getLinkedEthAccount(accountToDelete));
-        } else {
-            if (getLinkedAccount(accountToDelete) != null) {
-                linkedAccounts.add(getLinkedAccount(accountToDelete));
-            }
-        }
+        final List<WalletAccount> linkedAccounts = getLinkedAccounts(accountToDelete);
 
         Collection<WalletAccount> accountsToInterrupt = new HashSet<>();
         accountsToInterrupt.add(accountToDelete);
         accountsToInterrupt.addAll(linkedAccounts);
         interruptSync(accountsToInterrupt);
 
-        final View checkBoxView = View.inflate(getActivity(), R.layout.delkey_checkbox, null);
-        final CheckBox keepAddrCheckbox = checkBoxView.findViewById(R.id.checkbox);
-        keepAddrCheckbox.setText(getString(R.string.keep_account_address));
-        keepAddrCheckbox.setChecked(false);
+//        final View checkBoxView = View.inflate(getActivity(), R.layout.delkey_checkbox, null);
+//        final CheckBox keepAddrCheckbox = checkBoxView.findViewById(R.id.checkbox);
+//        keepAddrCheckbox.setText(getString(R.string.keep_account_address));
+//        keepAddrCheckbox.setChecked(false);
 
-        final AlertDialog.Builder deleteDialog = new AlertDialog.Builder(getActivity());
-        deleteDialog.setTitle(R.string.delete_account_title);
-        deleteDialog.setMessage(Html.fromHtml(createDeleteDialogText(accountToDelete, linkedAccounts)));
+//        final AlertDialog.Builder deleteDialog = new AlertDialog.Builder(getActivity());
+//        deleteDialog.setTitle(R.string.delete_account_title);
+//        deleteDialog.setMessage(Html.fromHtml(createDeleteDialogText(accountToDelete, linkedAccounts)));
 
-        // add checkbox only for SingleAddressAccounts and only if a private key is present
+//        // add checkbox only for SingleAddressAccounts and only if a private key is present
         final boolean hasPrivateData = (accountToDelete instanceof ExportableAccount
                 && ((ExportableAccount) accountToDelete).getExportData(AesKeyCipher.defaultKeyCipher()).getPrivateData().isPresent());
+//
+//        if (accountToDelete instanceof SingleAddressAccount && hasPrivateData) {
+//            deleteDialog.setView(checkBoxView);
+//        }
+//
+//        if (accountToDelete instanceof ColuAccount && accountToDelete.canSpend()) {
+//            Log.d(TAG, "Preparing to delete a colu account.");
+//            deleteDialog.setView(checkBoxView);
+//        }
 
-        if (accountToDelete instanceof SingleAddressAccount && hasPrivateData) {
-            deleteDialog.setView(checkBoxView);
-        }
-
-        if (accountToDelete instanceof ColuAccount && accountToDelete.canSpend()) {
-            Log.d(TAG, "Preparing to delete a colu account.");
-            deleteDialog.setView(checkBoxView);
-        }
-
-        deleteDialog.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface arg0, int arg1) {
+//        deleteDialog.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+//            public void onClick(DialogInterface arg0, int arg1) {
                 Log.d(TAG, "Entering onClick delete");
                 if (accountToDelete.getId().equals(localTraderManager.getLocalTraderAccountId())) {
                     localTraderManager.unsetLocalTraderAccount();
@@ -368,7 +366,7 @@ public class AccountsFragment extends Fragment {
                         }
                     }
                     if (accountToDelete.isActive() && potentialBalance != null && potentialBalance.moreThanZero()) {
-                        if (label.length() != 0) {
+                        if (!label.isEmpty()) {
                             message = getResources().getQuantityString(R.plurals.confirm_delete_pk_with_balance_with_label,
                                     !(accountToDelete instanceof SingleAddressAccount) ? 1 : 0,
                                     getResources().getQuantityString(R.plurals.account_label, labelCount, label),
@@ -379,7 +377,7 @@ public class AccountsFragment extends Fragment {
                                     getBalanceString(accountToDelete.getCoinType(), accountToDelete.getAccountBalance()));
                         }
                     } else {
-                        if (label.length() != 0) {
+                        if (!label.isEmpty()) {
                             message = getResources().getQuantityString(R.plurals.confirm_delete_pk_without_balance_with_label,
                                     !(accountToDelete instanceof SingleAddressAccount) ? 1 : 0,
                                     getResources().getQuantityString(R.plurals.account_label, labelCount, label), address);
@@ -393,7 +391,7 @@ public class AccountsFragment extends Fragment {
                     confirmDeleteDialog.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface arg0, int arg1) {
                             Log.d(TAG, "In deleteFragment onClick");
-                            if (keepAddrCheckbox.isChecked() && accountToDelete instanceof SingleAddressAccount) {
+                            if (/*keepAddrCheckbox.isChecked()*/false && accountToDelete instanceof SingleAddressAccount) {
                                 try {
                                     //Check if this SingleAddress account is related with ColuAccount
                                     WalletAccount linkedColuAccount = Utils.getLinkedAccount(accountToDelete, walletManager.getAccounts());
@@ -421,7 +419,7 @@ public class AccountsFragment extends Fragment {
                                             walletManager.deleteAccount(linkedAccount.getId());
                                             _storage.deleteAccountMetadata(linkedAccount.getId());
                                         }
-                                        if (keepAddrCheckbox.isChecked()) {
+                                        if (false /*keepAddrCheckbox.isChecked()*/) {
                                             ColuAccountContext context = ((ColuAccount) accountToDelete).getContext();
                                             ColuMain coluMain = (ColuMain) accountToDelete.getCoinType();
                                             Config config = new AddressColuConfig(context.getAddress().get(AddressType.P2PKH), coluMain);
@@ -481,17 +479,124 @@ public class AccountsFragment extends Fragment {
                     eventBus.post(new AccountChanged(accountToDelete.getId()));
                     _toaster.toast(R.string.account_deleted, false);
                 }
-            }
+//            }
 
-            private Value getPotentialBalance(WalletAccount account) {
-                if (account.isArchived()) {
-                    return null;
-                } else {
-                    return account.getAccountBalance().getSpendable();
-                }
+//        });
+//        deleteDialog.setNegativeButton(R.string.no, null).show();
+    }
+
+    private void deletePrivateKey(final WalletAccount accountToDelete) {
+        checkNotNull(accountToDelete);
+        final List<WalletAccount> linkedAccounts = getLinkedAccounts(accountToDelete);
+
+        Log.d(TAG, "Entering onClick delete");
+        if (accountToDelete.getId().equals(localTraderManager.getLocalTraderAccountId())) {
+            localTraderManager.unsetLocalTraderAccount();
+        }
+
+        Value potentialBalance = getPotentialBalance(accountToDelete);
+        AlertDialog.Builder confirmDeleteDialog = new AlertDialog.Builder(getActivity());
+        confirmDeleteDialog.setTitle(R.string.confirm_delete_pk_title);
+
+        // Set the message. There are four combinations, with and without label, with and without BTC amount.
+        String label = _mbwManager.getMetadataStorage().getLabelByAccount(accountToDelete.getId());
+        int labelCount = 1;
+        if (!linkedAccounts.isEmpty()) {
+            label += ", " + _mbwManager.getMetadataStorage().getLabelByAccount(linkedAccounts.get(0).getId());
+            labelCount++;
+        }
+        String message;
+
+        // For active accounts we check whether there is money on them before deleting. we don't know if there
+        // is money on archived accounts
+        String address;
+        if (accountToDelete instanceof SingleAddressAccount) {
+            Map<AddressType, BitcoinAddress> addressMap = ((SingleAddressAccount) accountToDelete).getPublicKey().
+                    getAllSupportedAddresses(_mbwManager.getNetwork());
+            address = TextUtils.join("\n\n", addressMap.values());
+        } else {
+            Address receivingAddress = accountToDelete.getReceiveAddress();
+            if (receivingAddress != null) {
+                address = AddressUtils.toMultiLineString(receivingAddress.toString());
+            } else {
+                address = "";
             }
-        });
-        deleteDialog.setNegativeButton(R.string.no, null).show();
+        }
+        if (accountToDelete.isActive() && potentialBalance != null && potentialBalance.moreThanZero()) {
+            if (!label.isEmpty()) {
+                message = getResources().getQuantityString(R.plurals.confirm_delete_pk_with_balance_with_label,
+                        !(accountToDelete instanceof SingleAddressAccount) ? 1 : 0,
+                        getResources().getQuantityString(R.plurals.account_label, labelCount, label),
+                        address, getBalanceString(accountToDelete.getCoinType(), accountToDelete.getAccountBalance()));
+            } else {
+                message = getResources().getQuantityString(R.plurals.confirm_delete_pk_with_balance,
+                        !(accountToDelete instanceof SingleAddressAccount) ? 1 : 0,
+                        getBalanceString(accountToDelete.getCoinType(), accountToDelete.getAccountBalance()));
+            }
+        } else {
+            if (!label.isEmpty()) {
+                message = getResources().getQuantityString(R.plurals.confirm_delete_pk_without_balance_with_label,
+                        !(accountToDelete instanceof SingleAddressAccount) ? 1 : 0,
+                        getResources().getQuantityString(R.plurals.account_label, labelCount, label), address);
+            } else {
+                message = getResources().getQuantityString(R.plurals.confirm_delete_pk_without_balance,
+                        !(accountToDelete instanceof SingleAddressAccount) ? 1 : 0, address);
+            }
+        }
+        confirmDeleteDialog
+                .setMessage(message)
+                .setPositiveButton(R.string.yes, (arg0, arg1) -> {
+                    Log.d(TAG, "In deleteFragment onClick");
+                    if (accountToDelete instanceof SingleAddressAccount) {
+                        try {
+                            //Check if this SingleAddress account is related with ColuAccount
+                            WalletAccount linkedColuAccount = Utils.getLinkedAccount(accountToDelete, walletManager.getAccounts());
+                            if (linkedColuAccount instanceof ColuAccount) {
+                                walletManager.deleteAccount(linkedColuAccount.getId());
+                                walletManager.deleteAccount(accountToDelete.getId());
+                                ColuAccountContext context = ((ColuAccount) linkedColuAccount).getContext();
+                                ColuMain coluMain = (ColuMain) linkedColuAccount.getCoinType();
+                                Config config = new AddressColuConfig(context.getAddress().get(AddressType.P2PKH), coluMain);
+                                _storage.deleteAccountMetadata(linkedColuAccount.getId());
+                                walletManager.createAccounts(config);
+                            } else {
+                                ((SingleAddressAccount) accountToDelete).forgetPrivateKey(AesKeyCipher.defaultKeyCipher());
+                            }
+                            _toaster.toast(R.string.private_key_deleted, false);
+                        } catch (KeyCipher.InvalidKeyCipher e) {
+                            throw new RuntimeException(e);
+                        }
+                    } else {
+                        //Check if this SingleAddress account is related with ColuAccount
+                        WalletAccount linkedColuAccount = Utils.getLinkedAccount(accountToDelete, walletManager.getAccounts());
+                        if (linkedColuAccount instanceof ColuAccount) {
+                            walletManager.deleteAccount(linkedColuAccount.getId());
+                            _storage.deleteAccountMetadata(linkedColuAccount.getId());
+                        }
+                        walletManager.deleteAccount(accountToDelete.getId());
+                        _storage.deleteAccountMetadata(accountToDelete.getId());
+                        _mbwManager.setSelectedAccount(_mbwManager.getWalletManager(false).getActiveSpendingAccounts().get(0).getId());
+                        _toaster.toast(R.string.account_deleted, false);
+                    }
+                    finishCurrentActionMode();
+                    eventBus.post(new AccountChanged(accountToDelete.getId()));
+                }).setNegativeButton(R.string.no, null)
+                .show();
+    }
+
+    @NonNull
+    private List<WalletAccount> getLinkedAccounts(WalletAccount accountToDelete) {
+        final List<WalletAccount> linkedAccounts = new ArrayList<>();
+        if (accountToDelete instanceof EthAccount) {
+            linkedAccounts.addAll(getLinkedERC20Accounts(accountToDelete));
+        } else if (accountToDelete instanceof ERC20Account) {
+            linkedAccounts.add(getLinkedEthAccount(accountToDelete));
+        } else {
+            if (getLinkedAccount(accountToDelete) != null) {
+                linkedAccounts.add(getLinkedAccount(accountToDelete));
+            }
+        }
+        return linkedAccounts;
     }
 
     private EthAccount getLinkedEthAccount(WalletAccount account) {
@@ -729,6 +834,11 @@ public class AccountsFragment extends Fragment {
                     item.setShowAsAction(AccountViewModel.showBackupMissingWarning(_mbwManager.getSelectedAccount(), _mbwManager) ?
                             MenuItem.SHOW_AS_ACTION_IF_ROOM : MenuItem.SHOW_AS_ACTION_NEVER);
                 }
+                MenuItem dropPriKeyItem = menu.findItem(R.id.miDropPrivateKey);
+                if (dropPriKeyItem != null) {
+                    final WalletAccount account = requireFocusedAccount();
+                    dropPriKeyItem.setVisible(account.canSpend());
+                }
                 return true;
             }
 
@@ -753,8 +863,11 @@ public class AccountsFragment extends Fragment {
                     case R.id.miSetLabel:
                         setLabelOnAccount(accountListAdapter.getFocusedAccount(), "", true);
                         return true;
+                    case R.id.miDropPrivateKey:
+                        dropPrivateKey();
+                        return true;
                     case R.id.miDeleteRecord:
-                        deleteSelected();
+                        deleteSelectedAccount();
                         return true;
                     case R.id.miArchive:
                         archiveSelected();
@@ -914,7 +1027,7 @@ public class AccountsFragment extends Fragment {
         }
     }
 
-    private void deleteSelected() {
+    private void deleteSelectedAccount() {
         if (!isAdded()) {
             return;
         }
@@ -924,6 +1037,18 @@ public class AccountsFragment extends Fragment {
             return;
         }
         runPinProtected(() -> deleteAccount(account));
+    }
+
+    private void dropPrivateKey() {
+        if (!isAdded()) {
+            return;
+        }
+        final WalletAccount account = requireFocusedAccount();
+        if (account.isActive() && accountProtected(account)) {
+            _toaster.toast(R.string.keep_one_active, false);
+            return;
+        }
+        runPinProtected(() -> deletePrivateKey(account));
     }
 
     private void rescan() {

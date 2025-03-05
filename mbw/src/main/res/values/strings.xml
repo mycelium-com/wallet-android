@@ -1849,4 +1849,5 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="shamir_share_hint"><![CDATA[Total shares: a number of parts to split the private key into.\n\nThreshold: a number of parts needed to reconstruct the private key.]]></string>
     <string name="not_valid_value">Not valid value</string>
     <string name="total_shares_limit">Total shares must be less than 65535</string>
+    <string name="delete_private_key">Delete private key</string>
 </resources>
