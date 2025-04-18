@@ -1,47 +1,45 @@
-package com.mycelium.wapi.wallet;
+package com.mycelium.wapi.wallet
 
-import com.mrd.bitlib.crypto.RandomSource;
-import com.mrd.bitlib.util.BitUtils;
-import com.mrd.bitlib.util.HexUtils;
-import com.mycelium.wapi.wallet.btc.InMemoryBtcWalletManagerBacking;
+import com.mrd.bitlib.crypto.RandomSource
+import com.mrd.bitlib.util.BitUtils
+import com.mrd.bitlib.util.HexUtils
+import com.mycelium.wapi.wallet.KeyCipher.InvalidKeyCipher
+import com.mycelium.wapi.wallet.btc.InMemoryBtcWalletManagerBacking
+import org.junit.Assert
+import org.junit.Test
+import java.security.SecureRandom
 
-import org.junit.Test;
+class SecureKeyValueStoreTest {
+    private class MyRandomSource : RandomSource {
+        var _rnd: SecureRandom = SecureRandom(byteArrayOf(42))
 
-import java.security.SecureRandom;
+        override fun nextBytes(bytes: ByteArray?) {
+            _rnd.nextBytes(bytes)
+        }
+    }
 
-import static org.junit.Assert.assertTrue;
+    @Test
+    @Throws(InvalidKeyCipher::class)
+    fun storeAndRetrieveEncrypted() {
+        val store = SecureKeyValueStore(InMemoryBtcWalletManagerBacking(), MyRandomSource())
+        val cipher: KeyCipher? = AesKeyCipher.defaultKeyCipher()
+        store.encryptAndStoreValue(ID_1, VALUE_1, cipher)
+        val result = store.getDecryptedValue(ID_1, cipher)
+        Assert.assertTrue(BitUtils.areEqual(result, VALUE_1))
+    }
 
-public class SecureKeyValueStoreTest {
-   private static final byte[] ID_1 = HexUtils.toBytes("000102030405060708090a0b0c0d0e0f");
-   private static final byte[] VALUE_1 = HexUtils.toBytes("0123456789abcdef");
+    @Test
+    @Throws(InvalidKeyCipher::class)
+    fun storeAndRetrievePlaintext() {
+        val store = SecureKeyValueStore(InMemoryBtcWalletManagerBacking(), MyRandomSource())
+        store.storePlaintextValue(ID_1, VALUE_1)
+        val result = store.getPlaintextValue(ID_1)
+        Assert.assertTrue(BitUtils.areEqual(result, VALUE_1))
+    }
 
-   private static class MyRandomSource implements RandomSource {
-      SecureRandom _rnd;
 
-      MyRandomSource() {
-         _rnd = new SecureRandom(new byte[]{42});
-      }
-
-      @Override
-      public void nextBytes(byte[] bytes) {
-         _rnd.nextBytes(bytes);
-      }
-   }
-
-   @Test
-   public void storeAndRetrieveEncrypted() throws KeyCipher.InvalidKeyCipher {
-      SecureKeyValueStore store = new SecureKeyValueStore(new InMemoryBtcWalletManagerBacking(), new MyRandomSource());
-      KeyCipher cipher = AesKeyCipher.defaultKeyCipher();
-      store.encryptAndStoreValue(ID_1, VALUE_1, cipher);
-      byte[] result = store.getDecryptedValue(ID_1, cipher);
-      assertTrue(BitUtils.areEqual(result, VALUE_1));
-   }
-
-   @Test
-   public void storeAndRetrievePlaintext() throws KeyCipher.InvalidKeyCipher {
-      SecureKeyValueStore store = new SecureKeyValueStore(new InMemoryBtcWalletManagerBacking(), new MyRandomSource());
-      store.storePlaintextValue(ID_1, VALUE_1);
-      byte[] result = store.getPlaintextValue(ID_1);
-      assertTrue(BitUtils.areEqual(result, VALUE_1));
-   }
+    companion object {
+        private val ID_1: ByteArray = HexUtils.toBytes("000102030405060708090a0b0c0d0e0f")
+        private val VALUE_1: ByteArray = HexUtils.toBytes("0123456789abcdef")
+    }
 }

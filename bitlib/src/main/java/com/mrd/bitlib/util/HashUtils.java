@@ -42,18 +42,12 @@ public class HashUtils {
       return new Sha256Hash(digest.digest());
    }
 
-   private static MessageDigest sha256Digest;
-
    public static MessageDigest getSha256Digest() {
-      if (sha256Digest == null) {
-         try {
-            sha256Digest = MessageDigest.getInstance(SHA256);
-         } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException(e); //cannot happen
-         }
+      try {
+         return MessageDigest.getInstance(SHA256);
+      } catch (NoSuchAlgorithmException e) {
+         throw new RuntimeException(e); //cannot happen
       }
-      sha256Digest.reset();
-      return sha256Digest;
    }
 
    public static Sha256Hash doubleSha256(byte[] data) {
@@ -93,17 +87,12 @@ public class HashUtils {
       return new Sha512Hash(digest.digest());
    }
 
-   private static MessageDigest sha512Digest;
-
    public static MessageDigest getSha512Digest() {
-      if(sha512Digest == null) {
-         try {
-            return MessageDigest.getInstance(SHA512);
-         } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException(e); //cannot happen
-         }
+      try {
+         return MessageDigest.getInstance(SHA512);
+      } catch (NoSuchAlgorithmException e) {
+         throw new RuntimeException(e); //cannot happen
       }
-      return sha512Digest;
    }
 
    /**

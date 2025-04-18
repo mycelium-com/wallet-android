@@ -6,7 +6,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.mrd.bitlib.crypto.Bip39
 import com.mycelium.giftbox.client.model.MCProductInfo
 import com.mycelium.wallet.MbwManager
-import com.mycelium.wallet.activity.StartupActivity.mainAccounts
+import com.mycelium.wallet.activity.StartupActivity.Companion.mainAccounts
 import com.mycelium.wapi.wallet.AesKeyCipher
 import org.junit.Before
 import org.junit.Test
