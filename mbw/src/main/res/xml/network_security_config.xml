@@ -10,5 +10,8 @@
         <domain includeSubdomains="true">greymass.com</domain>
         <domain includeSubdomains="true">reg.bequant.io</domain>
         <domain includeSubdomains="true">boatarde.xyz</domain>
+        <domain includeSubdomains="true">10.0.2.2</domain>
+        <domain includeSubdomains="true">168.231.104.95</domain>
+        <domain includeSubdomains="true">localhost</domain>
     </domain-config>
 </network-security-config>

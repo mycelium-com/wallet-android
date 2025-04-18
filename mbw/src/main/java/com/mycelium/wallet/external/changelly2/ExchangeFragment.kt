@@ -482,9 +482,10 @@ class ExchangeFragment : Fragment(), BackListener {
         if (viewModel.fromCurrency.value?.symbol != null && viewModel.toCurrency.value?.symbol != null) {
             rateJob?.cancel()
             viewModel.rateLoading.value = true
-            rateJob = Changelly2Repository.fixRate(lifecycleScope,
+            rateJob = Changelly2Repository.getFixRateForAmount(lifecycleScope,
                     Util.trimTestnetSymbolDecoration(viewModel.fromCurrency.value?.symbol!!),
                     Util.trimTestnetSymbolDecoration(viewModel.toCurrency.value?.symbol!!),
+                    BigDecimal.ONE,
                     { result ->
                         val data = result?.result?.firstOrNull()
                         if (data != null) {

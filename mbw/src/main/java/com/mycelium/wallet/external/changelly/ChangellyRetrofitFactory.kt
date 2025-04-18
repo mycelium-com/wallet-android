@@ -11,8 +11,6 @@ import java.util.concurrent.TimeUnit
 import javax.net.ssl.SSLContext
 
 object ChangellyRetrofitFactory {
-    private const val VIPER_BASE_URL = "https://changelly-viper.mycelium.com/v2/"
-    private const val CHANGELLY_BASE_URL = "https://api.changelly.com/v2/"
 
     private val userKeyPair by lazy { UserKeysManager.userSignKeys }
 
@@ -46,7 +44,7 @@ object ChangellyRetrofitFactory {
 
     val viperApi: ChangellyAPIService by lazy {
         Retrofit.Builder()
-            .baseUrl(VIPER_BASE_URL)
+            .baseUrl(ExchangeKeys.VIPER_BASE_URL)
             .addConverterFactory(GsonConverterFactory.create())
             .client(getViperHttpClient())
             .build()
@@ -55,7 +53,7 @@ object ChangellyRetrofitFactory {
 
     val changellyApi: ChangellyAPIService =
         Retrofit.Builder()
-            .baseUrl(CHANGELLY_BASE_URL)
+            .baseUrl(ExchangeKeys.CHANGELLY_BASE_URL)
             .addConverterFactory(GsonConverterFactory.create())
             .client(getChangellyHttpClient())
             .build()

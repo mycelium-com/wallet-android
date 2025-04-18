@@ -52,6 +52,7 @@ public class HashUtils {
             throw new RuntimeException(e); //cannot happen
          }
       }
+      sha256Digest.reset();
       return sha256Digest;
    }
 

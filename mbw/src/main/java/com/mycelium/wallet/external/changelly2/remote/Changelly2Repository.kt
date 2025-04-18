@@ -47,18 +47,6 @@ object Changelly2Repository {
             api.getFixRateForAmount(exportSymbol(from), exportSymbol(to), amount)
         }, success, error, finally)
 
-    fun fixRate(
-        scope: CoroutineScope,
-        from: String,
-        to: String,
-        success: (ChangellyListResponse<FixRate>?) -> Unit,
-        error: (Int, String) -> Unit,
-        finally: (() -> Unit)? = null
-    ) =
-        doRequest(scope, {
-            changellyApi.getFixRate(exportSymbol(from), exportSymbol(to))
-        }, success, error, finally)
-
     suspend fun createFixTransaction(
         rateId: String,
         from: String,
