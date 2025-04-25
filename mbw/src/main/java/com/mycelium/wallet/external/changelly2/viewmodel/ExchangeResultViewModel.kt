@@ -10,7 +10,6 @@ import com.mycelium.wallet.activity.util.toStringFriendlyWithUnit
 import com.mycelium.wallet.external.changelly.model.ChangellyTransaction
 import java.math.BigDecimal
 import java.text.DateFormat
-import java.util.*
 
 
 class ExchangeResultViewModel : ViewModel() {
@@ -42,7 +41,7 @@ class ExchangeResultViewModel : ViewModel() {
         txId.value = result.id
         spendValue.value = "${result.amountExpectedFrom} ${result.currencyFrom.toUpperCase()}"
         getValue.value = "${result.amountExpectedTo} ${result.currencyTo.toUpperCase()}"
-        date.value = DateFormat.getDateInstance(DateFormat.LONG).format(Date(result.createdAt / 1000L))
+        date.value = DateFormat.getDateInstance(DateFormat.LONG).format(result.createdAt)
         spendValueFiat.value = getFiatValue(result.amountExpectedFrom, result.currencyFrom)
         getValueFiat.value = getFiatValue(result.amountExpectedTo, result.currencyTo)
         isExchangeComplete.value = result.status == "finished"

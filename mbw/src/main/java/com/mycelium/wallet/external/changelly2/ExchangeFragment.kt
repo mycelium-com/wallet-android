@@ -12,6 +12,7 @@ import android.view.animation.LinearInterpolator
 import android.view.animation.OvershootInterpolator
 import android.view.animation.RotateAnimation
 import androidx.appcompat.app.AlertDialog
+import androidx.core.content.edit
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
@@ -99,7 +100,7 @@ class ExchangeFragment : Fragment(), BackListener {
                     ?.map { it.ticker }
                     ?.toSet()?.let {
                         viewModel.currencies = it
-                        pref.getStringSet(KEY_SUPPORT_COINS, it)
+                        pref.edit { putStringSet(KEY_SUPPORT_COINS, it) }
                     }
         })
     }
@@ -482,10 +483,11 @@ class ExchangeFragment : Fragment(), BackListener {
         if (viewModel.fromCurrency.value?.symbol != null && viewModel.toCurrency.value?.symbol != null) {
             rateJob?.cancel()
             viewModel.rateLoading.value = true
+            val fromAmount = viewModel.sellValue.value?.toBigDecimal() ?: BigDecimal.ONE
             rateJob = Changelly2Repository.getFixRateForAmount(lifecycleScope,
                     Util.trimTestnetSymbolDecoration(viewModel.fromCurrency.value?.symbol!!),
                     Util.trimTestnetSymbolDecoration(viewModel.toCurrency.value?.symbol!!),
-                    BigDecimal.ONE,
+                fromAmount,
                     { result ->
                         val data = result?.result?.firstOrNull()
                         if (data != null) {
