@@ -63,7 +63,7 @@
                     app:layout_constraintTop_toTopOf="parent"
                     bind:accountAddress="@{vm.fromAddress}"
                     bind:accountLabel="@{vm.fromAccount.label}"
-                    bind:balance="@{ValueExtensionsKt.toStringFriendlyWithUnit(vm.fromAccount.accountBalance.spendable, Denomination.UNIT)}"
+                    bind:balance="@{vm.fromSendable}"
                     bind:balanceFiat="@{vm.fromFiatBalance}"
                     bind:chain="@{vm.fromChain}"
                     bind:coinType="@{vm.fromCurrency}"

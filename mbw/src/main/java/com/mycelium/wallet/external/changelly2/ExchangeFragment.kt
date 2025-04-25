@@ -276,10 +276,12 @@ class ExchangeFragment : Fragment(), BackListener {
         viewModel.fromCurrency.observe(viewLifecycleOwner) { coin ->
             binding?.sellLayout?.coinIcon?.let {
                 Glide.with(it).clear(it)
-                Glide.with(it)
+                coin?.let { coin ->
+                    Glide.with(it)
                         .load(iconPath(coin))
                         .apply(RequestOptions().transforms(CircleCrop()))
                         .into(it)
+                }
             }
             updateExchangeRate()
         }

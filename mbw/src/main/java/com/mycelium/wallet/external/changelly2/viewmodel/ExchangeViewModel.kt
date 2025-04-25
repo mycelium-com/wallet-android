@@ -7,6 +7,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.map
 import androidx.lifecycle.viewModelScope
 import com.mrd.bitlib.TransactionUtils
+import com.mycelium.view.Denomination
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
@@ -53,7 +54,7 @@ class ExchangeViewModel(application: Application) : AndroidViewModel(application
 
     val toAccount = MediatorLiveData<WalletAccount<*>>().apply {
         addSource(fromAccount) {
-            if (value?.coinType == it.coinType) {
+            if (value?.coinType == it?.coinType) {
                 viewModelScope.launch { postValue(getToAccountForInit()) }
             }
         }
@@ -110,19 +111,27 @@ class ExchangeViewModel(application: Application) : AndroidViewModel(application
 
 
     val fromCurrency = fromAccount.map {
-        it.coinType
+        it?.coinType
     }
     val fromAddress = fromAccount.map {
-        it.receiveAddress.toString()
+        it?.receiveAddress?.toString()
     }
     val fromChain = fromAccount.map {
-        if (it.basedOnCoinType != it.coinType) it.basedOnCoinType.name else ""
+        if (it?.basedOnCoinType != it?.coinType) it?.basedOnCoinType?.name else ""
     }
     val fromFiatBalance = fromAccount.map {
-        mbwManager.exchangeRateManager
+        it?.let {
+            mbwManager.exchangeRateManager
                 .get(it.accountBalance.spendable, mbwManager.getFiatCurrency(it.coinType))
                 ?.toStringFriendlyWithUnit()
+        }
     }
+    val fromSendable = fromAccount.map {
+        it?.let {
+            it.accountBalance.spendable.toStringFriendlyWithUnit()
+        }
+    }
+
     val toCurrency = toAccount.map {
         it?.coinType ?: Utils.getBtcCoinType()
     }
