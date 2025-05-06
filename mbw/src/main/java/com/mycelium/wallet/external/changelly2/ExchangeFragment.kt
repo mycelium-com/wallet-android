@@ -330,7 +330,7 @@ class ExchangeFragment : Fragment(), BackListener {
 
     private fun createFixTransaction(changellyOnly: Boolean = false){
         lifecycleScope.launch {
-            launch {
+            val loaderJob = launch {
                 delay(1000)
                 withContext(Dispatchers.Main) { loader(true) }
             }
@@ -381,6 +381,7 @@ class ExchangeFragment : Fragment(), BackListener {
                     else -> showErrorNotificationDialog(e.message)
                 }
             } finally {
+                loaderJob.cancel()
                 withContext(Dispatchers.Main) { loader(false) }
             }
         }
@@ -471,12 +472,13 @@ class ExchangeFragment : Fragment(), BackListener {
 
     private fun sendTx(txId: String, createTx: Transaction) {
         viewLifecycleOwner.lifecycleScope.launch(Dispatchers.Default) {
-            launch {
+            val loaderJob = launch {
                 delay(1000)
                 withContext(Dispatchers.Main) { loader(true) }
             }
             viewModel.fromAccount.value?.let { account ->
                 account.signTx(createTx, AesKeyCipher.defaultKeyCipher())
+                loaderJob.cancel()
                 launch(Dispatchers.Main) {
                     loader(false)
                     viewModel.changellyTx = txId

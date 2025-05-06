@@ -277,7 +277,7 @@ class BalanceFragment : Fragment() {
                     R.string.balance_rate,
                     account.coinType.symbol,
                     _mbwManager!!.getFiatCurrency(account.coinType).symbol,
-                    value.toString()
+                    value.toFriendlyString()
                 )
             }
             binding?.tvBtcRate?.visibility = View.VISIBLE

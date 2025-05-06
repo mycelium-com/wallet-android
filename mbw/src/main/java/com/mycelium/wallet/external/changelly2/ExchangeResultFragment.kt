@@ -25,8 +25,11 @@ import com.mycelium.wallet.external.partner.openLink
 import com.mycelium.wallet.startCoroutineTimer
 import com.mycelium.wapi.wallet.AddressUtils
 import com.mycelium.wapi.wallet.TransactionSummary
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.text.DateFormat
 import java.util.Date
 import java.util.UUID
@@ -88,8 +91,11 @@ class ExchangeResultFragment : DialogFragment() {
     }
 
     private fun update(txId: String) {
-        loader(true)
         lifecycleScope.launch {
+            val loaderJob = launch {
+                delay(1000)
+                withContext(Dispatchers.Main) { loader(true) }
+            }
             try {
                 val transaction = Changelly2Repository.getTransaction(txId)
                 val result = transaction.result?.firstOrNull { it.id == txId }
@@ -102,6 +108,7 @@ class ExchangeResultFragment : DialogFragment() {
             } catch (e: Exception) {
                 showErrorDialog(e.message)
             } finally {
+                loaderJob.cancel()
                 loader(false)
             }
         }
