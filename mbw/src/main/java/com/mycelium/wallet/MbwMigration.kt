@@ -1,7 +1,6 @@
 package com.mycelium.wallet
 
 import android.content.SharedPreferences
-import android.util.Log
 import androidx.core.content.edit
 import com.google.gson.GsonBuilder
 import com.mrd.bitlib.model.AddressType
@@ -57,7 +56,7 @@ class MbwMigration(
         if (fromVersion < 3030000) {
             migratePreferences()
         }
-        if (fromVersion < 3190001) {
+        if (fromVersion < 3190000) {
             migrateTaproot()
         }
         preferences.edit { putInt("upToDateVersion", 3190000) }
@@ -65,7 +64,6 @@ class MbwMigration(
 
     fun migrateTaproot() {
         walletManager.getActiveMasterseedHDAccounts().filterIsInstance<HDAccount>().forEach { account ->
-            Log.e("!!!!", "migrateTaproot" + account.id)
             walletManager.createAccounts(TaprootMigrationHDAccountConfig(account))
         }
     }
