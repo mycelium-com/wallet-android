@@ -1527,9 +1527,9 @@
     <string name="gift_card_load_error_desc">Wir aktualisieren derzeit unsere Shops, und der Service wird bald wieder verfügbar sein. Vielen Dank für Ihr Verständnis!</string>
     <string name="delete_private_key">Nur-Anzeige erstellen</string>
     <string name="delete_account">Konto löschen</string>
-    <string name="delete_private_key_title">Konto in Nur-Anzeige umwandeln?</string>
+    <string name="delete_private_key_title">Konto in Nur-Anzeige umwandeln</string>
     <string name="delete_private_key_message">
-    Schützen Sie Ihre Gelder, indem Sie Ihr Konto auf „Nur-Anzeige“ umstellen. \n
+    <b>Schützen Sie Ihre Gelder, indem Sie Ihr Konto auf „Nur-Anzeige“ umstellen.</b> \n\n
     Aus Sicherheitsgründen wird empfohlen, die privaten Schlüssel von Konten, auf denen sich größere Geldbeträge befinden, vom Gerät zu löschen. Dies ist nur für SA-Konten (Single Address) möglich. Zur besseren Verständlichkeit können Sie „SA“ als „Sparkonto“ betrachten.
 </string>
     <string name="confirm_delete_private_key_message">Bevor Sie den privaten Schlüssel löschen, stellen Sie sicher, dass Sie eine Offline-Sicherung davon an einem sicheren Ort aufbewahren. Sie benötigen diese, um den privaten Schlüssel nach dem Löschen wiederherzustellen und erneut Transaktionen mit diesem Konto durchzuführen.</string>

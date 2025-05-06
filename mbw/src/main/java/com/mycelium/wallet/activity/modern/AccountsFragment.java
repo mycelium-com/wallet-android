@@ -308,7 +308,7 @@ public class AccountsFragment extends Fragment {
         keepAddrCheckbox.setChecked(false);
 
         final AlertDialog.Builder deleteDialog = new AlertDialog.Builder(getActivity());
-        deleteDialog.setTitle(R.string.delete_account_title);
+        deleteDialog.setTitle(R.string.delete_account);
         deleteDialog.setMessage(Html.fromHtml(createDeleteDialogText(accountToDelete, linkedAccounts)));
 
 //        // add checkbox only for SingleAddressAccounts and only if a private key is present
@@ -494,7 +494,7 @@ public class AccountsFragment extends Fragment {
         deleteDialog.setTitle(R.string.delete_private_key_title);
         deleteDialog.setMessage(R.string.delete_private_key_message);
 
-        deleteDialog.setPositiveButton(R.string.yes, (arg0, arg1) -> {
+        deleteDialog.setPositiveButton(R.string.button_continue, (arg0, arg1) -> {
             Log.d(TAG, "Entering onClick delete");
             if (accountToDelete.getId().equals(localTraderManager.getLocalTraderAccountId())) {
                 localTraderManager.unsetLocalTraderAccount();

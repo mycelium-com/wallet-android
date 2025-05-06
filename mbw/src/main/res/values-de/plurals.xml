@@ -21,12 +21,12 @@
         <item quantity="other">Enthält %1$d Adressen.</item>
     </plurals>
     <plurals name="confirm_delete_pk_with_balance">
-        <item quantity="one">Dies kann nicht rückgängig gemacht werden!\n\nAktuelle Adresse:\n%1$s\n\nEs enthält %2$s\n\nMöchten Sie es löschen?</item>
-        <item quantity="other">Dies kann nicht rückgängig gemacht werden!\n\nAktuelle Adressen:\n%1$s\n\nEs enthält %2$s\n\nMöchten Sie sie löschen?</item>
+        <item quantity="one">Dies kann nicht rückgängig gemacht werden!\n\nAktuelle Adresse:\n%1$s\n\nEs enthält %2$s\n\n</item>
+        <item quantity="other">Dies kann nicht rückgängig gemacht werden!\n\nAktuelle Adressen:\n%1$s\n\nEs enthält %2$s\n\n</item>
     </plurals>
     <plurals name="confirm_delete_pk_with_balance_with_label">
-        <item quantity="one">Dies kann nicht rückgängig gemacht werden!\n\n%1$s\n\nAktuelle Adresse:\n%2$s\n\nEs enthält %3$s\n\nMöchten Sie es löschen?</item>
-        <item quantity="other">Dies kann nicht rückgängig gemacht werden!\n\n%1$s\n\nAktuelle Adressen:\n%2$s\n\nEs enthält %3$s\n\nMöchten Sie sie löschen?</item>
+        <item quantity="one">Dies kann nicht rückgängig gemacht werden!\n\n%1$s\n\nAktuelle Adresse:\n%2$s\n\nEs enthält %3$s\n\n</item>
+        <item quantity="other">Dies kann nicht rückgängig gemacht werden!\n\n%1$s\n\nAktuelle Adressen:\n%2$s\n\nEs enthält %3$s\n\n</item>
     </plurals>
     <plurals name="confirm_delete_pk_without_balance">
         <item quantity="one">Dies kann nicht rückgängig gemacht werden!\n\nAktuelle Adresse:\n%1$s\n\nMöchten Sie es löschen?</item>
