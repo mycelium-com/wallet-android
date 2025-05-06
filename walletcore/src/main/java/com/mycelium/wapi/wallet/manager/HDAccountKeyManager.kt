@@ -23,9 +23,13 @@ import com.mrd.bitlib.crypto.PublicKey
 import com.mrd.bitlib.model.hdpath.HdKeyPath
 import com.mrd.bitlib.util.BitUtils
 import com.mrd.bitlib.util.ByteReader
-import com.mycelium.wapi.wallet.*
+import com.mycelium.wapi.wallet.Address
+import com.mycelium.wapi.wallet.CommonNetworkParameters
+import com.mycelium.wapi.wallet.KeyCipher
+import com.mycelium.wapi.wallet.SecureKeyValueStore
+import com.mycelium.wapi.wallet.SecureSubKeyValueStore
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
-import java.util.*
+import java.util.UUID
 
 /**
  * Management functions for keys associated with a BIP44 account.

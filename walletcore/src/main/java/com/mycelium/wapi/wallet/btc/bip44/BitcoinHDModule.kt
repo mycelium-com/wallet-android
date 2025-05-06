@@ -7,10 +7,22 @@ import com.mrd.bitlib.crypto.RandomSource
 import com.mrd.bitlib.model.BitcoinAddress
 import com.mrd.bitlib.model.NetworkParameters
 import com.mycelium.wapi.api.Wapi
-import com.mycelium.wapi.wallet.*
+import com.mycelium.wapi.wallet.AccountIndexesContext
 import com.mycelium.wapi.wallet.AesKeyCipher
+import com.mycelium.wapi.wallet.CurrencySettings
+import com.mycelium.wapi.wallet.KeyCipher
 import com.mycelium.wapi.wallet.KeyCipher.InvalidKeyCipher
-import com.mycelium.wapi.wallet.btc.*
+import com.mycelium.wapi.wallet.LoadingProgressStatus
+import com.mycelium.wapi.wallet.LoadingProgressTracker
+import com.mycelium.wapi.wallet.LoadingProgressUpdater
+import com.mycelium.wapi.wallet.SecureKeyValueStore
+import com.mycelium.wapi.wallet.WalletAccount
+import com.mycelium.wapi.wallet.WalletManager
+import com.mycelium.wapi.wallet.btc.AbstractBtcAccount
+import com.mycelium.wapi.wallet.btc.BTCSettings
+import com.mycelium.wapi.wallet.btc.Bip44BtcAccountBacking
+import com.mycelium.wapi.wallet.btc.BtcWalletManagerBacking
+import com.mycelium.wapi.wallet.btc.InMemoryBtcWalletManagerBacking
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext.Companion.ACCOUNT_TYPE_FROM_MASTERSEED
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext.Companion.ACCOUNT_TYPE_UNRELATED_X_PRIV
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext.Companion.ACCOUNT_TYPE_UNRELATED_X_PUB
@@ -23,8 +35,7 @@ import com.mycelium.wapi.wallet.manager.Config
 import com.mycelium.wapi.wallet.manager.WalletModule
 import com.mycelium.wapi.wallet.masterseed.MasterSeedManager
 import com.mycelium.wapi.wallet.metadata.IMetaDataStorage
-import java.util.*
-import kotlin.collections.ArrayList
+import java.util.UUID
 
 
 class BitcoinHDModule(internal val backing: BtcWalletManagerBacking<HDAccountContext>,
@@ -65,27 +76,7 @@ class BitcoinHDModule(internal val backing: BtcWalletManagerBacking<HDAccountCon
             if (loadingProgressUpdater.status.state == LoadingProgressStatus.State.LOADING) {
                 LoadingProgressTracker.setStatus(LoadingProgressStatus(LoadingProgressStatus.State.MIGRATING))
             }
-            val keyManagerMap = HashMap<BipDerivationType, HDAccountKeyManager>()
-
-            loadKeyManagers(context, keyManagerMap)
-
-            val accountBacking = backing.getBip44AccountBacking(context.id)
-            val account: WalletAccount<*>
-            when (context.accountType) {
-                ACCOUNT_TYPE_UNRELATED_X_PUB ->
-                    account = HDPubOnlyAccount(context, keyManagerMap, networkParameters, accountBacking, _wapi)
-                ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_TREZOR ->
-                    account = HDAccountExternalSignature(context, keyManagerMap, networkParameters, accountBacking, _wapi,
-                            signatureProviders!!.get(ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_TREZOR), settings.changeAddressModeReference)
-                ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_LEDGER ->
-                    account = HDAccountExternalSignature(context, keyManagerMap, networkParameters, accountBacking, _wapi,
-                            signatureProviders!!.get(ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_LEDGER), settings.changeAddressModeReference)
-                ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_KEEPKEY ->
-                    account = HDAccountExternalSignature(context, keyManagerMap, networkParameters, accountBacking, _wapi,
-                            signatureProviders!!.get(ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_KEEPKEY), settings.changeAddressModeReference)
-                else -> account = HDAccount(context, keyManagerMap, networkParameters, accountBacking, _wapi,
-                        settings.changeAddressModeReference)
-            }
+            val account: WalletAccount<*> = loadAccount(context)
             result[account.id] = account
             account.label = readLabel(account.id)
             accounts[account.id] = account as HDAccount
@@ -101,6 +92,29 @@ class BitcoinHDModule(internal val backing: BtcWalletManagerBacking<HDAccountCon
             LoadingProgressTracker.setStatus(LoadingProgressStatus(state, counter++, contexts.size))
         }
         return result
+    }
+
+    private fun loadAccount(context: HDAccountContext): WalletAccount<*> {
+        val keyManagerMap = HashMap<BipDerivationType, HDAccountKeyManager>()
+
+        loadKeyManagers(context, keyManagerMap)
+
+        val accountBacking = backing.getBip44AccountBacking(context.id)
+        return when (context.accountType) {
+            ACCOUNT_TYPE_UNRELATED_X_PUB ->
+                HDPubOnlyAccount(context, keyManagerMap, networkParameters, accountBacking, _wapi)
+            ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_TREZOR ->
+                HDAccountExternalSignature(context, keyManagerMap, networkParameters, accountBacking, _wapi,
+                    signatureProviders!!.get(ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_TREZOR), settings.changeAddressModeReference)
+            ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_LEDGER ->
+                HDAccountExternalSignature(context, keyManagerMap, networkParameters, accountBacking, _wapi,
+                    signatureProviders!!.get(ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_LEDGER), settings.changeAddressModeReference)
+            ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_KEEPKEY ->
+                HDAccountExternalSignature(context, keyManagerMap, networkParameters, accountBacking, _wapi,
+                    signatureProviders!!.get(ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_KEEPKEY), settings.changeAddressModeReference)
+            else -> HDAccount(context, keyManagerMap, networkParameters, accountBacking, _wapi,
+                settings.changeAddressModeReference)
+        }
     }
 
     private fun loadKeyManagers(context: HDAccountContext, keyManagerMap: HashMap<BipDerivationType, HDAccountKeyManager>) {
@@ -188,8 +202,7 @@ class BitcoinHDModule(internal val backing: BtcWalletManagerBacking<HDAccountCon
 
                 // Create the base keys for the account
                 val keyManagerMap = HashMap<BipDerivationType, HDAccountKeyManager>()
-                // TODO remove filter { it != BipDerivationType.BIP86 } after full taproot implementation
-                for (derivationType in BipDerivationType.values()/*.filter { it != BipDerivationType.BIP86 }*/) {
+                for (derivationType in BipDerivationType.entries) {
                     // Generate the root private key
                     val root = HdKeyNode.fromSeed(masterSeed.bip32Seed, derivationType)
                     keyManagerMap[derivationType] = HDAccountKeyManager.createNew(root, networkParameters, accountIndex,
@@ -216,6 +229,31 @@ class BitcoinHDModule(internal val backing: BtcWalletManagerBacking<HDAccountCon
                     backing.setTransactionSuccessful()
                 } finally {
                     backing.endTransaction()
+                }
+            }
+            is TaprootMigrationHDAccountConfig -> {
+                val context = backing.getBip44AccountContext(config.account.id)
+
+                if (context.indexesMap.keys.contains(BipDerivationType.BIP86)) return config.account
+
+                val masterSeed = MasterSeedManager.getMasterSeed(secureStore, AesKeyCipher.defaultKeyCipher())
+                val accountIndex = config.account.accountIndex
+                val root = HdKeyNode.fromSeed(masterSeed.bip32Seed, BipDerivationType.BIP86)
+                HDAccountKeyManager.createNew(
+                    root, networkParameters, accountIndex,
+                    secureStore, AesKeyCipher.defaultKeyCipher(), BipDerivationType.BIP86
+                )
+
+
+                result = if (!context.indexesMap.keys.contains(BipDerivationType.BIP86)) {
+                    context.indexesMap[BipDerivationType.BIP86] = AccountIndexesContext(-1, -1, 0)
+                    try {
+                        context.persist(backing.getBip44AccountBacking(context.id))
+                    } catch (e: Exception) {
+                    }
+                    loadAccount(context)
+                } else {
+                    config.account
                 }
             }
             is ExternalSignaturesAccountConfig -> {
@@ -282,6 +320,7 @@ class BitcoinHDModule(internal val backing: BtcWalletManagerBacking<HDAccountCon
             is ExternalSignaturesAccountConfig ->
                 signatureProviders!!.get(cfg.provider.biP44AccountType).labelOrDefault + " #" + (cfg.hdKeyNodes[0].index + 1)
             is UnrelatedHDAccountConfig -> if (cfg.hdKeyNodes[0].isPrivateHdKeyNode) "Account 1" else "Imported"
+            is TaprootMigrationHDAccountConfig -> cfg.account.label
             else -> throw IllegalArgumentException("Unsupported config")
         }
     }
@@ -312,7 +351,8 @@ class BitcoinHDModule(internal val backing: BtcWalletManagerBacking<HDAccountCon
     override fun canCreateAccount(config: Config): Boolean {
         return config is UnrelatedHDAccountConfig ||
                 (config is AdditionalHDAccountConfig && canCreateAdditionalBip44Account()) ||
-                config is ExternalSignaturesAccountConfig
+                config is ExternalSignaturesAccountConfig ||
+                config is TaprootMigrationHDAccountConfig
     }
 
 

@@ -67,6 +67,12 @@ public class InMemoryBtcWalletManagerBacking implements BtcWalletManagerBacking<
    }
 
    @Override
+   public HDAccountContext getBip44AccountContext(UUID accountId) {
+      HDAccountContext result = _bip44Contexts.get(accountId);
+      return result != null ? new HDAccountContext(_bip44Contexts.get(accountId)) : null;
+   }
+
+   @Override
    public void createBip44AccountContext(HDAccountContext context) {
       _bip44Contexts.put(context.getId(), new HDAccountContext(context));
       _backings.put(context.getId(), new InMemoryBtcAccountBacking());

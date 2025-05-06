@@ -234,6 +234,7 @@ import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 
 import fiofoundation.io.fiosdk.errors.FIOError;
+import kotlin.Unit;
 import kotlin.jvm.Synchronized;
 
 public class MbwManager {
@@ -412,7 +413,16 @@ public class MbwManager {
         _walletManager = createWalletManager(_applicationContext, _environment, db);
         contentResolver = createContentResolver(getNetwork());
 
-        migrate();
+        new MbwMigration(
+                new SqliteBtcWalletManagerBacking(evilContext),
+                getPreferences(), getExchangeDataPreferences(),
+                _applicationContext.getSharedPreferences("data", Context.MODE_PRIVATE),
+                _applicationContext.getSharedPreferences("selected", Context.MODE_PRIVATE),
+                _walletManager, _environment, _localTraderManager,
+                (UUID accountId) -> {
+                    setSelectedAccount(accountId);
+                    return Unit.INSTANCE;
+                }).migrate();
         SqlDriver rateDriver = new AndroidSqliteDriver(RatesDB.Companion.getSchema(), _applicationContext, "exchange.db");
         RatesDB ratesDB = RatesDB.Companion.invoke(rateDriver);
         _exchangeRateManager = new ExchangeRateManager(_applicationContext, _wapi, new RatesBacking(ratesDB));
@@ -697,151 +707,6 @@ public class MbwManager {
         }
     }
 
-    /**
-     * One time migration tasks that require more than what is at hands on the DB level can be
-     * migrated here.
-     */
-    private void migrate() {
-        int fromVersion = getPreferences().getInt("upToDateVersion", 0);
-        if (fromVersion < 20021) {
-            migrateOldKeys();
-        }
-        if (fromVersion < 2120029) {
-            // set default address type to P2PKH for uncompressed SA accounts
-            for (UUID accountId : _walletManager.getAccountIds()) {
-                WalletAccount account = _walletManager.getAccount(accountId);
-                if (account instanceof SingleAddressAccount) {
-                    PublicKey pubKey = ((SingleAddressAccount) account).getPublicKey();
-                    if (pubKey != null && !pubKey.isCompressed()) {
-                        ((SingleAddressAccount) account).setDefaultAddressType(AddressType.P2PKH);
-                    }
-                }
-            }
-        }
-        if (fromVersion < 3030000) {
-            migratePreferences();
-        }
-        getPreferences().edit().putInt("upToDateVersion", 3030000).apply();
-    }
-
-    /**
-     * put previously single values into map-like values where key is a coin type
-     * i.e. "mbtc" -> {"Bitcoin": "mbtc"}
-     */
-    private void migratePreferences() {
-        Gson gson = new GsonBuilder().create();
-
-        // Miner fee
-        String oldFee = getPreferences().getString(Constants.MINER_FEE_SETTING, null);
-        if (oldFee != null) {
-            Map<String, MinerFee> newFee = new HashMap<>();
-            newFee.put(Utils.getBtcCoinType().getName(), MinerFee.fromString(oldFee));
-            getEditor().putString(Constants.MINER_FEE_SETTING, gson.toJson(newFee)).commit();
-        }
-
-        // Block explorer
-        String oldExplorer = getPreferences().getString("BlockExplorer", null);
-        if (oldExplorer != null) {
-            Map<String, String> newExplorer = new HashMap<>();
-            for (Map.Entry<String, List<BlockExplorer>> entry : _environment.getBlockExplorerMap().entrySet()) {
-                newExplorer.put(entry.getKey(), entry.getValue().get(0).getIdentifier());
-            }
-            newExplorer.put(Utils.getBtcCoinType().getName(), oldExplorer);
-            getEditor().remove("BlockExplorer") // don't use old name anymore
-                    .putString(Constants.BLOCK_EXPLORERS, gson.toJson(newExplorer)).commit();
-        }
-
-        // Denomination
-        String oldDenomination = getPreferences().getString("BitcoinDenomination", null);
-        if (oldDenomination != null) {
-            Map<String, Denomination> newDenomination = new HashMap<>();
-            newDenomination.put(Utils.getBtcCoinType().getName(), Denomination.fromString(oldDenomination));
-            getEditor().remove("BitcoinDenomination") // don't use old name anymore
-                    .putString(Constants.DENOMINATION_SETTING, gson.toJson(newDenomination)).commit();
-        }
-
-        // Exchange rates source (different preference file)
-        SharedPreferences exchangeSourcePref = _applicationContext.getSharedPreferences(Constants.EXCHANGE_DATA, Activity.MODE_PRIVATE);
-        String oldSource = exchangeSourcePref.getString(Constants.EXCHANGE_RATE_SETTING, null);
-        if (oldSource != null) {
-            Map<String, String> newSource = new HashMap<>();
-            newSource.put(Utils.getBtcCoinType().getSymbol(), oldSource);
-            exchangeSourcePref.edit().putString(Constants.EXCHANGE_RATE_SETTING, gson.toJson(newSource)).apply();
-        }
-    }
-
-    private void migrateOldKeys() {
-        // We only migrate old keys if we don't have any accounts yet - otherwise, migration has already taken place
-        if (!_walletManager.getAccountIds().isEmpty()) {
-            return;
-        }
-
-        // Get the local trader address, may be null
-        BitcoinAddress localTraderAddress = _localTraderManager.getLocalTraderAddress();
-        if (localTraderAddress == null) {
-            _localTraderManager.unsetLocalTraderAccount();
-        }
-
-        //check which address was the last recently selected one
-        SharedPreferences prefs = _applicationContext.getSharedPreferences("selected", Context.MODE_PRIVATE);
-        String lastAddress = prefs.getString("last", null);
-
-        // Migrate all existing records to accounts
-        List<Record> records = loadClassicRecords();
-
-        for (Record record : records) {
-            // Create an account from this record
-            UUID account;
-            if (record.hasPrivateKey()) {
-                account = _walletManager.createAccounts(new PrivateSingleConfig(record.key, AesKeyCipher.defaultKeyCipher())).get(0);
-            } else {
-                account = _walletManager.createAccounts(new PublicSingleConfig(record.key.getPublicKey())).get(0);
-            }
-
-            //check whether this was the selected record
-            if (record.address.toString().equals(lastAddress)) {
-                setSelectedAccount(account);
-            }
-
-            //check whether the record was archived
-            if (record.tag.equals(Record.Tag.ARCHIVE)) {
-                _walletManager.getAccount(account).archiveAccount();
-            }
-
-            // See if we need to migrate this account to local trader
-            if (BitcoinAddress.fromString(record.address.toString()).equals(localTraderAddress)) {
-                if (record.hasPrivateKey()) {
-                    _localTraderManager.setLocalTraderData(account, record.key, BitcoinAddress.fromString(record.address.toString()),
-                            _localTraderManager.getNickname());
-                } else {
-                    _localTraderManager.unsetLocalTraderAccount();
-                }
-            }
-        }
-    }
-
-    private List<Record> loadClassicRecords() {
-        SharedPreferences prefs = _applicationContext.getSharedPreferences("data", Context.MODE_PRIVATE);
-        List<Record> recordList = new LinkedList<>();
-
-        // Load records
-        String records = prefs.getString("records", "");
-        for (String one : records.split(",")) {
-            one = one.trim();
-            if (one.length() == 0) {
-                continue;
-            }
-            Record record = Record.fromSerializedString(one);
-            if (record != null) {
-                recordList.add(record);
-            }
-        }
-
-        // Sort all records
-        Collections.sort(recordList);
-        return recordList;
-    }
-
     private AccountListener accountListener = new AccountListener() {
         @Override
         public void receivingAddressChanged(@NotNull WalletAccount<?> walletAccount, @NotNull Address receivingAddress) {
@@ -1117,6 +982,10 @@ public class MbwManager {
 
     private SharedPreferences getPreferences() {
         return _applicationContext.getSharedPreferences(Constants.SETTINGS_NAME, Activity.MODE_PRIVATE);
+    }
+
+    private SharedPreferences getExchangeDataPreferences() {
+        return _applicationContext.getSharedPreferences(Constants.EXCHANGE_DATA, Activity.MODE_PRIVATE);
     }
 
     public List<AssetInfo> getCurrencyList() {

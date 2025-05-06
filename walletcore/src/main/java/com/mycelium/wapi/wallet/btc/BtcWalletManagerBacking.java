@@ -37,6 +37,8 @@ public interface BtcWalletManagerBacking<AccountContext>
 
     List<HDAccountContext> loadBip44AccountContexts();
 
+    HDAccountContext getBip44AccountContext(UUID accountId);
+
     Bip44BtcAccountBacking getBip44AccountBacking(UUID accountId);
 
     void deleteBip44AccountContext(UUID accountId);
