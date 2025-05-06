@@ -3,7 +3,7 @@ ext {
     gradleVersion = '8.8.1'
     androidCompileSdkVersion = 34
     androidSdkBuildVersion = '34.0.0'
-    androidMinSdkVersion = 21
+    androidMinSdkVersion = 24
     androidTargetSdkVersion = 34
     junitVersion = '4.12'
     kotlin_version = '2.0.21'

@@ -3,6 +3,7 @@ package com.mycelium.wallet.activity.modern.adapter
 import android.annotation.SuppressLint
 import android.content.Context
 import android.text.Html
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -43,7 +44,12 @@ class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
     private val walletManager = mbwManager.getWalletManager(false)
 
     val focusedAccount: WalletAccount<out Address>?
-        get() = focusedAccountId?.let { walletManager.getAccount(it) }
+        get() = (focusedAccountId?.let {
+            Log.e("!!!!", "focusedAccountId=$it")
+            walletManager.getAccount(it)
+        }).apply {
+            Log.e("!!!!", "focusedAccountId1=$this")
+        }
 
     init {
         listModel.accountsData.observe(fragment, Observer { accountsGroupModels ->
@@ -98,6 +104,7 @@ class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
     }
 
     fun setFocusedAccountId(focusedAccountId: UUID?) {
+        Log.e("!!!!", "setFocusedAccountId=$focusedAccountId")
         if (this.focusedAccountId == null) {
             this.focusedAccountId = mbwManager.selectedAccount.id
         }

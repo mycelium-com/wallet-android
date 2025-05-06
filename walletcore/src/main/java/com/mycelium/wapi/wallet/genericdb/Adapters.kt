@@ -10,10 +10,32 @@ import com.mrd.bitlib.crypto.BipDerivationType
 import com.mrd.bitlib.model.AddressType
 import com.mrd.bitlib.model.OutPoint
 import com.mrd.bitlib.util.Sha256Hash
-import com.mycelium.generated.wallet.database.*
+import com.mycelium.generated.wallet.database.AccountBacking
+import com.mycelium.generated.wallet.database.AccountContext
+import com.mycelium.generated.wallet.database.BTCVAccountBacking
+import com.mycelium.generated.wallet.database.BTCVContext
+import com.mycelium.generated.wallet.database.BTCVOutgoingTx
+import com.mycelium.generated.wallet.database.BTCVPtxo
+import com.mycelium.generated.wallet.database.BTCVRefersPtxo
+import com.mycelium.generated.wallet.database.BTCVTransaction
+import com.mycelium.generated.wallet.database.BTCVUtxo
+import com.mycelium.generated.wallet.database.Erc20Context
 import com.mycelium.generated.wallet.database.EthAccountBacking
+import com.mycelium.generated.wallet.database.EthContext
+import com.mycelium.generated.wallet.database.FeeEstimation
+import com.mycelium.generated.wallet.database.FioAccountBacking
+import com.mycelium.generated.wallet.database.FioContext
+import com.mycelium.generated.wallet.database.FioKnownNames
+import com.mycelium.generated.wallet.database.FioNameAccountMappings
+import com.mycelium.generated.wallet.database.FioOtherBlockchainTransactions
+import com.mycelium.generated.wallet.database.FioRequestsReceivedBacking
+import com.mycelium.generated.wallet.database.FioRequestsSentBacking
 import com.mycelium.wapi.wallet.AccountIndexesContext
-import com.mycelium.wapi.wallet.coins.*
+import com.mycelium.wapi.wallet.coins.AssetInfo
+import com.mycelium.wapi.wallet.coins.Balance
+import com.mycelium.wapi.wallet.coins.COINS
+import com.mycelium.wapi.wallet.coins.CryptoCurrency
+import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.fio.FIODomain
 import com.mycelium.wapi.wallet.fio.FioName
 import com.mycelium.wapi.wallet.fio.FioRequestStatus
@@ -22,8 +44,7 @@ import fiofoundation.io.fiosdk.models.fionetworkprovider.FundsRequestContent
 import fiofoundation.io.fiosdk.models.fionetworkprovider.RecordObtDataContent
 import java.math.BigDecimal
 import java.math.BigInteger
-import java.util.*
-import kotlin.collections.HashMap
+import java.util.UUID
 
 
 object Adapters {
@@ -82,7 +103,7 @@ object Adapters {
             childNodes.add(value.pendingReceiving.value)
             childNodes.add(value.pendingSending.value)
             childNodes.add(value.pendingChange.value)
-            rootNode.set("Balance", childNodes)
+            rootNode.set<ArrayNode>("Balance", childNodes)
             rootNode.put("Asset", value.confirmed.type.id)
             return rootNode.toString()
         }

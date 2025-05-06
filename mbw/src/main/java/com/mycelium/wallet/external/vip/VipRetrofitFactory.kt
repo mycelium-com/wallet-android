@@ -7,8 +7,11 @@ import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import java.security.KeyStore
 import java.util.concurrent.TimeUnit
 import javax.net.ssl.SSLContext
+import javax.net.ssl.TrustManagerFactory
+import javax.net.ssl.X509TrustManager
 
 class VipRetrofitFactory {
     private companion object {
@@ -19,7 +22,13 @@ class VipRetrofitFactory {
 
     private fun getHttpClient(): OkHttpClient {
         val sslContext = SSLContext.getInstance("TLSv1.3")
-        sslContext.init(null, null, null)
+
+        val trustManagerFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm())
+        trustManagerFactory.init(null as KeyStore?)
+        val trustManagers = trustManagerFactory.trustManagers
+        val trustManager = trustManagers.first { it is X509TrustManager } as X509TrustManager
+
+        sslContext.init(null, arrayOf(trustManager), null)
         return OkHttpClient.Builder()
             .apply {
                 connectTimeout(3, TimeUnit.SECONDS)
@@ -30,7 +39,7 @@ class VipRetrofitFactory {
                  * Those classes include special optimizations that can be lost
                  * if the implementations are decorated.
                  */
-                @Suppress("DEPRECATION") sslSocketFactory(sslContext.socketFactory)
+                sslSocketFactory(sslContext.socketFactory, trustManager)
                 addInterceptor(DigitalSignatureInterceptor(userKeyPair))
                 if (!BuildConfig.DEBUG) return@apply
                 addInterceptor(HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY))

@@ -47,6 +47,18 @@ object Changelly2Repository {
             api.getFixRateForAmount(exportSymbol(from), exportSymbol(to), amount)
         }, success, error, finally)
 
+    fun fixRate(
+        scope: CoroutineScope,
+        from: String,
+        to: String,
+        success: (ChangellyListResponse<FixRate>?) -> Unit,
+        error: (Int, String) -> Unit,
+        finally: (() -> Unit)? = null
+    ) =
+        doRequest(scope, {
+            changellyApi.getFixRate(exportSymbol(from), exportSymbol(to))
+        }, success, error, finally)
+
     suspend fun createFixTransaction(
         rateId: String,
         from: String,
@@ -133,13 +145,13 @@ fun ChangellyTransaction.fixedCurrencyFrom() =
 fun ChangellyTransaction.fixedCurrencyTo() =
     importSymbol(currencyTo)
 
-private fun importSymbol(currency: String) =
-    if (currency.equals("USDT20", true)) "USDT"
+fun importSymbol(currency: String) =
+    if (currency.equals("USDT", true)) "USDT20"
     else currency
 
-private fun exportSymbol(currency: String) =
-    if (currency.equals("USDT", true)) "USDT20".toLowerCase()
-    else currency.toLowerCase()
+private fun exportSymbol(currency: String) = currency
+//    if (currency.equals("USDT20", true) && isVip) "usdt"
+//    else currency.lowercase()
 
 class ViperUnexpectedException(e: Exception) : Exception(e)
 class ViperStatusException(e: Exception) : Exception(e)

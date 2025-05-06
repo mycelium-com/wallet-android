@@ -2,7 +2,7 @@ package com.mycelium.wallet.external.changelly
 
 import android.util.Base64
 import okhttp3.Interceptor
-import okhttp3.MediaType
+import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.Request
 import okhttp3.RequestBody
 import okhttp3.Response
@@ -40,7 +40,7 @@ class ChangellyInterceptor : Interceptor {
 
         val params = getParamsFromRequest(request)
         val method = getMethodFromRequest(request)
-        val baseUrl = request.url().toString().substringBefore(method)
+        val baseUrl = request.url.toString().substringBefore(method)
 
         val requestBodyJson = JSONObject().apply {
             put("id", "test")
@@ -51,7 +51,7 @@ class ChangellyInterceptor : Interceptor {
 
         val messageBytes = requestBodyJson.toString().toByteArray()
 
-        val mediaType = MediaType.parse("application/json; charset=UTF-8")
+        val mediaType = "application/json; charset=UTF-8".toMediaType()
         val requestBody = RequestBody.create(mediaType, messageBytes)
         val newRequest = request.newBuilder()
             .url("$baseUrl#$method")
@@ -63,15 +63,15 @@ class ChangellyInterceptor : Interceptor {
         return chain.proceed(newRequest)
     }
 
-    private fun getMethodFromRequest(request: Request) = request.url().pathSegments().last()
+    private fun getMethodFromRequest(request: Request) = request.url.pathSegments.last()
 
     private fun getParamsFromRequest(request: Request): JSONObject = JSONObject().apply {
-        request.url().queryParameterNames().forEach { name ->
-            val values = request.url().queryParameterValues(name)
+        request.url.queryParameterNames.forEach { name ->
+            val values = request.url.queryParameterValues(name)
             if (values.size > 1) {
                 put(name, JSONArray(values))
             } else {
-                val param = request.url().queryParameter(name)
+                val param = request.url.queryParameter(name)
                 val value = param?.let {
                     if (name == "from" || name == "to") it.toLowerCase(Locale.ROOT) else it
                 }

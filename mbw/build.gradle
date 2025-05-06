@@ -105,7 +105,7 @@ dependencies {
     implementation("org.bitcoinj:orchid:1.2.1") {
         exclude(module: 'slf4j-api')
     }
-    implementation 'org.web3j:core:4.2.1-android'
+    implementation libs.bundles.web3j
 
     implementation libs.sqldelight.driver
 
@@ -151,17 +151,18 @@ android {
     buildFeatures {
         viewBinding true
         dataBinding true
+        buildConfig true
     }
     configurations {
         all*.exclude module: 'jcip-annotations'
         all*.exclude module: 'jsr305'
         all*.exclude group: 'com.google.guava', module: 'listenablefuture'
     }
-    kotlinOptions {
-        jvmTarget = '1.8'
-    }
 
     packagingOptions {
+        exclude 'META-INF/FastDoubleParser-NOTICE'
+        exclude 'META-INF/FastDoubleParser-LICENSE'
+        exclude 'META-INF/versions/9/OSGI-INF/MANIFEST.MF'
         exclude 'META-INF/LICENSE.md'
         exclude 'META-INF/LICENSE-notice.md'
         exclude 'META-INF/LICENSE'
@@ -180,27 +181,28 @@ android {
         // bitcoinj brings in a native library for x86_64, which seems to confuse the playstore upload - just strip the file
         // still relevant 2021-03-31
         exclude 'lib/x86_64/darwin/libscrypt.dylib'
+        resources {
+            excludes += "/META-INF/DISCLAIMER"
+        }
     }
 
     compileOptions {
-        sourceCompatibility = 'VERSION_1_8'
-        targetCompatibility = 'VERSION_1_8'
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
 
     compileSdk androidCompileSdkVersion
     buildToolsVersion androidSdkBuildVersion
 
     defaultConfig {
-        versionCode 3180200
-        versionName '3.18.2.0'
+        versionCode 3190000
+        versionName '3.19.0.0'
 
         minSdkVersion androidMinSdkVersion
         targetSdkVersion androidTargetSdkVersion
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary true
     }
-
-    kotlinOptions { jvmTarget = "1.8" }
 
     signingConfigs {
         release {

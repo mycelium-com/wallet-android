@@ -15,7 +15,7 @@ class EthAddress(cryptoCurrency: CryptoCurrency, val addressString: String) : Ad
 
     override fun getSubType() = "default"
 
-    override fun getBytes() = address.toUint160().toString().toByteArray()
+    override fun getBytes() = address.toUint().toString().toByteArray()
 
     override fun toString() = addressString
 

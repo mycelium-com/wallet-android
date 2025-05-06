@@ -85,6 +85,7 @@ import com.mycelium.wallet.activity.fio.AboutFIOProtocolDialog;
 import com.mycelium.wallet.activity.fio.registername.RegisterFioNameActivity;
 import com.mycelium.wallet.activity.modern.adapter.AccountListAdapter;
 import com.mycelium.wallet.activity.modern.event.SelectTab;
+import com.mycelium.wallet.activity.modern.helper.AccountsActionModeCallback;
 import com.mycelium.wallet.activity.modern.helper.FioHelper;
 import com.mycelium.wallet.activity.modern.model.accounts.AccountViewModel;
 import com.mycelium.wallet.activity.util.EnterAddressLabelUtil;
@@ -150,6 +151,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+
+import kotlin.Unit;
 
 public class AccountsFragment extends Fragment {
     public static final int ADD_RECORD_RESULT_CODE = 0;
@@ -818,111 +821,67 @@ public class AccountsFragment extends Fragment {
 
         AppCompatActivity parent = (AppCompatActivity) requireActivity();
 
-        Callback actionMode = new Callback() {
-            @Override
-            public boolean onCreateActionMode(ActionMode actionMode, Menu menu) {
-                for (Integer res : menus) {
-                    actionMode.getMenuInflater().inflate(res, menu);
-                }
-                return true;
-            }
-
-            @Override
-            public boolean onPrepareActionMode(ActionMode actionMode, Menu menu) {
-                MenuItem item = menu.findItem(R.id.miMakeBackup);
-                if (item != null) {
-                    item.setShowAsAction(AccountViewModel.showBackupMissingWarning(_mbwManager.getSelectedAccount(), _mbwManager) ?
-                            MenuItem.SHOW_AS_ACTION_IF_ROOM : MenuItem.SHOW_AS_ACTION_NEVER);
-                }
-                MenuItem dropPriKeyItem = menu.findItem(R.id.miDropPrivateKey);
-                if (dropPriKeyItem != null) {
-                    final WalletAccount account = requireFocusedAccount();
-                    dropPriKeyItem.setVisible(account.canSpend());
-                }
-                return true;
-            }
-
-            @Override
-            public boolean onActionItemClicked(ActionMode actionMode, MenuItem menuItem) {
-                switch (menuItem.getItemId()) {
-                    case R.id.miMapFioAddress:
-                        RegisterFioNameActivity.start(requireContext(), account.getId());
-                        return true;
-                    case R.id.miMapToFio:
-                        FioHelper.chooseAccountToMap(requireActivity(), requireFocusedAccount());
-                        return true;
-                    case R.id.miFIORequests:
-                        MbwManager.getEventBus().post(new SelectTab(ModernMain.TAB_FIO_REQUESTS));
-                        return true;
-                    case R.id.miAboutFIOProtocol:
-                        new AboutFIOProtocolDialog().show(getParentFragmentManager(), "modal");
-                        break;
-                    case R.id.miActivate:
-                        activateSelected();
-                        return true;
-                    case R.id.miSetLabel:
-                        setLabelOnAccount(accountListAdapter.getFocusedAccount(), "", true);
-                        return true;
-                    case R.id.miDropPrivateKey:
-                        dropPrivateKey();
-                        return true;
-                    case R.id.miDeleteRecord:
-                        deleteSelectedAccount();
-                        return true;
-                    case R.id.miArchive:
-                        archiveSelected();
-                        return true;
-                    case R.id.miHideUnusedAccount:
-                        hideSelected();
-                        return true;
-                    case R.id.miExport:
-                        exportSelectedPrivateKey();
-                        return true;
-                    case R.id.miSignMessage:
-                        signMessage();
-                        return true;
-                    case R.id.miDetach:
-                        detachFromLocalTrader();
-                        return true;
-                    case R.id.miShowOutputs:
-                        showOutputs();
-                        return true;
-                    case R.id.miMakeBackup:
-                        makeBackup();
-                        return true;
-                    case R.id.miSingleKeyBackupVerify:
-                        verifySingleKeyBackup();
-                        return true;
-                    case R.id.miShamirBackup:
-                        shamirExportSelectedPrivateKey();
-                        return true;
-                    case R.id.miRescan:
-                        // If we are synchronizing, show "Synchronizing, please wait..." to avoid blocking behavior
-                        if (requireFocusedAccount().isSyncing()) {
-                            _toaster.toast(R.string.synchronizing_please_wait, false);
+        currentActionMode = parent.startSupportActionMode(new AccountsActionModeCallback(
+                requireContext(),
+                menus,
+                _mbwManager,
+                account,
+                (action) -> {
+                    runPinProtected(action);
+                    return Unit.INSTANCE;
+                },
+                (itemId) -> {
+                    switch (itemId) {
+                        case R.id.miAboutFIOProtocol:
+                            new AboutFIOProtocolDialog().show(getParentFragmentManager(), "modal");
+                            break;
+                        case R.id.miActivate:
+                            activateSelected();
                             return true;
-                        }
-                        rescan();
-                        return true;
-                    case R.id.miBoostGap:
-                        boostGapLimitDialog(AccountsFragment.this, _mbwManager, account);
-                        return true;
-                    default:
-                        return false;
-                }
-                return false;
-            }
+                        case R.id.miSetLabel:
+                            setLabelOnAccount(accountListAdapter.getFocusedAccount(), "", true);
+                            return true;
+                        case R.id.miDropPrivateKey:
+                            dropPrivateKey();
+                            return true;
+                        case R.id.miDeleteRecord:
+                            deleteSelectedAccount();
+                            return true;
+                        case R.id.miArchive:
+                            archiveSelected();
+                            return true;
+                        case R.id.miHideUnusedAccount:
+                            hideSelected();
+                            return true;
+                        case R.id.miExport:
+                            exportSelectedPrivateKey();
+                            return true;
+                        case R.id.miSignMessage:
+                            signMessage();
+                            return true;
+                        case R.id.miDetach:
+                            detachFromLocalTrader();
+                            return true;
+                        case R.id.miMakeBackup:
+                            makeBackup();
+                            return true;
+                        case R.id.miSingleKeyBackupVerify:
+                            verifySingleKeyBackup();
+                            return true;
+                        case R.id.miBoostGap:
+                            boostGapLimitDialog(AccountsFragment.this, _mbwManager, account);
+                            return true;
+                    }
+                    return false;
+                },
+                () -> {
+                    currentActionMode = null;
+                    if (accountListAdapter.getFocusedAccount() != null) {
+                        accountListAdapter.setFocusedAccountId(null);
+                    }
+                    return Unit.INSTANCE;
+                }));
 
-            @Override
-            public void onDestroyActionMode(ActionMode actionMode) {
-                currentActionMode = null;
-                // Loose focus
-                if (accountListAdapter.getFocusedAccount() != null) {
-                    accountListAdapter.setFocusedAccountId(null);
-                }
-            }
-        };
-        currentActionMode = parent.startSupportActionMode(actionMode);
         // Late set the focused record. We have to do this after
         // startSupportActionMode above, as it calls onDestroyActionMode when
         // starting for some reason, and this would clear the focus and force
@@ -962,14 +921,6 @@ public class AccountsFragment extends Fragment {
                 Utils.pinProtectedBackup(getActivity());
             }
         }
-    }
-
-    private void showOutputs() {
-        WalletAccount account = requireFocusedAccount();
-        account.interruptSync();
-        Intent intent = new Intent(getActivity(), UnspentOutputsActivity.class)
-                .putExtra("account", account.getId());
-        startActivity(intent);
     }
 
     private void signMessage() {
@@ -1051,47 +1002,12 @@ public class AccountsFragment extends Fragment {
         runPinProtected(() -> deletePrivateKey(account));
     }
 
-    private void rescan() {
-        if (!isAdded()) {
-            return;
-        }
-        WalletAccount<?> account = requireFocusedAccount();
-        account.dropCachedData();
-        _mbwManager.getWalletManager(false)
-                .startSynchronization(SyncMode.FULL_SYNC_CURRENT_ACCOUNT_FORCED, Collections.singletonList(account));
-    }
-
     private void exportSelectedPrivateKey() {
         if (!isAdded()) {
             return;
         }
         runPinProtected(() -> Utils.exportSelectedAccount(getActivity()));
     }
-
-
-    private void shamirExportSelectedPrivateKey() {
-        if (!isAdded()) {
-            return;
-        }
-        runPinProtected(() -> {
-            final WalletAccount account = MbwManager.getInstance(requireContext()).getSelectedAccount();
-            androidx.appcompat.app.AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
-            builder.setMessage(R.string.export_account_data_warning).setCancelable(true)
-                    .setPositiveButton(R.string.yes, (dialog, id) -> {
-                        dialog.dismiss();
-                        account.interruptSync();
-                        try {
-                            InMemoryPrivateKey privateKey = account.getPrivateKey(AesKeyCipher.defaultKeyCipher());
-                            ShamirSharingActivity.callMe(requireActivity(), privateKey);
-                        } catch (KeyCipher.InvalidKeyCipher e) {
-                            _toaster.toast("Something went wrong", false);
-                        }
-                    }).setNegativeButton(R.string.no, null);
-            androidx.appcompat.app.AlertDialog alertDialog = builder.create();
-            alertDialog.show();
-        });
-    }
-
 
     private void detachFromLocalTrader() {
         if (!isAdded()) {

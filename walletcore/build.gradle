@@ -1,5 +1,6 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
 plugins {
-    id 'java'
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.sqldelight)
 }
@@ -25,10 +26,16 @@ dependencies {
     implementation "app.cash.sqldelight:sqlite-driver:$sqldelight_version"
     implementation "app.cash.sqldelight:primitive-adapters:$sqldelight_version"
 
-    implementation libs.bitcoinj.core
+    implementation(libs.bitcoinj.core) {
+        exclude group: "org.bouncycastle", module: "bcprov-jdk15to18"
+        exclude group: "com.google.protobuf", module: "protobuf-javalite"
+    }
 
     // Ethereum
-    implementation 'org.web3j:core:4.2.1-android'
+    implementation libs.bundles.web3j
+
+//    implementation libs.bouncycastle.bcprov
+    implementation libs.bouncycastle.bcpkix
 
     testImplementation "junit:junit:$junitVersion"
     testImplementation "org.mockito:mockito-core:2.23.0"
@@ -43,14 +50,14 @@ sqldelight {
 }
 
 compileKotlin {
-    kotlinOptions {
-        jvmTarget = "1.8"
+    compilerOptions {
+        jvmTarget.set(JvmTarget.JVM_17)
     }
 }
 
 compileTestKotlin {
-    kotlinOptions {
-        jvmTarget = "1.8"
+    compilerOptions {
+        jvmTarget.set(JvmTarget.JVM_17)
     }
 }
 

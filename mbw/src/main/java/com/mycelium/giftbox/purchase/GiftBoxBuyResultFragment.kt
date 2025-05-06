@@ -4,7 +4,12 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.text.Html
-import android.view.*
+import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
+import android.view.View
+import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
@@ -22,8 +27,6 @@ import com.mycelium.giftbox.cards.viewmodel.GiftBoxViewModel
 import com.mycelium.giftbox.client.GitboxAPI
 import com.mycelium.giftbox.client.model.MCOrderCommon
 import com.mycelium.giftbox.client.model.MCOrderResponse
-import com.mycelium.giftbox.client.model.MCOrderStatusResponse
-import com.mycelium.giftbox.client.models.OrderResponse
 import com.mycelium.giftbox.client.models.Status
 import com.mycelium.giftbox.loadImage
 import com.mycelium.giftbox.purchase.viewmodel.GiftboxBuyResultViewModel
@@ -49,7 +52,7 @@ import com.mycelium.wapi.wallet.eth.EthAccount
 import com.mycelium.wapi.wallet.fio.FioAccount
 import kotlinx.coroutines.Job
 import java.text.DateFormat
-import java.util.*
+import java.util.Date
 import java.util.concurrent.TimeUnit
 
 
@@ -251,6 +254,8 @@ class GiftBoxBuyResultFragment : Fragment() {
                 binding?.orderScheme?.paidIcon?.setImageResource(R.drawable.ic_vertical_stepper_done)
                 binding?.orderScheme?.paidIcon?.setBackgroundResource(R.drawable.vertical_stepper_view_item_circle_completed)
                 binding?.orderScheme?.line1?.setBackgroundColor(resources.getColor(R.color.bequant_green))
+                binding?.orderScheme?.paymentTitle?.text = getString(R.string.payment_confirmed)
+                binding?.orderScheme?.paymentTitle?.setTextColor(resources.getColor(R.color.giftbox_state_title_ok))
                 binding?.orderScheme?.paymentIcon?.setImageResource(R.drawable.ic_vertical_stepper_done)
                 binding?.orderScheme?.paymentIcon?.setBackgroundResource(R.drawable.vertical_stepper_view_item_circle_completed)
                 binding?.orderScheme?.paymentText?.text = Html.fromHtml(paymentText)

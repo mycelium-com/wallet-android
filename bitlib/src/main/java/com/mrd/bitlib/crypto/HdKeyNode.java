@@ -36,7 +36,6 @@ import com.mrd.bitlib.util.ByteWriter;
 import org.bouncycastle.math.ec.ECPoint;
 import org.jetbrains.annotations.Nullable;
 
-import jdk.internal.net.http.common.Log;
 
 /**
  * Implementation of BIP 32 HD wallet key derivation.

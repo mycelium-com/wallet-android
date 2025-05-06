@@ -3,7 +3,7 @@ package com.mycelium.wallet.external.changelly
 import com.mrd.bitlib.lambdaworks.crypto.Base64
 import com.mrd.bitlib.util.HexUtils
 import okhttp3.Interceptor
-import okhttp3.MediaType
+import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.Request
 import okhttp3.RequestBody
 import okhttp3.Response
@@ -38,36 +38,33 @@ class ChangellyHeaderInterceptor : Interceptor {
         Security.addProvider(BouncyCastleProvider())
     }
 
-    @Throws(IOException::class)
-    override fun intercept(chain: Interceptor.Chain): Response? {
+    @Throws(IOException::class, JSONException::class)
+    override fun intercept(chain: Interceptor.Chain): Response {
         var request = chain.request()
-        val messageBytes: ByteArray = try {
-            val params = getParamsFromRequest(request)
-            val requestBodyJson = JSONObject()
-                .put("id", UUID.randomUUID().toString())
-                .put("jsonrpc", "2.0")
-                .put("method", getMethodFromRequest(request))
-                .put("params", params)
-            val dd = requestBodyJson.toString()
-                .replace(",", ", ")
-                .replace(":", ": ")
-            dd.toByteArray()
-        } catch (e: JSONException) {
-            e.printStackTrace()
-            return null
-        }
+
+        val params = getParamsFromRequest(request)
+        val requestBodyJson = JSONObject()
+            .put("id", UUID.randomUUID().toString())
+            .put("jsonrpc", "2.0")
+            .put("method", getMethodFromRequest(request))
+            .put("params", params)
+        val dd = requestBodyJson.toString()
+            .replace(",", ", ")
+            .replace(":", ": ")
+        val messageBytes: ByteArray = dd.toByteArray()
+
         request = try {
             val privateKey = getPrivateKeys(PRIVATE_KEY)
             val signData = encrypt(messageBytes, privateKey)
             request.newBuilder()
                 .delete()
-                .url(ExchangeKeys.CHANGELLY_BASE_URL)
+                .url(ExchangeKeys.EXCHANGE_BASE_URL)
                 .addHeader(X_API_KEY, PUBLIC_KEY_BASE64)
                 .addHeader(X_API_SIGNATURE, Base64.encodeToString(signData, false))
                 .addHeader(CONTENT_TYPE, "application/json")
                 .post(
                     RequestBody.create(
-                        MediaType.parse("application/json; charset=UTF-8"),
+                        "application/json; charset=UTF-8".toMediaType(),
                         messageBytes
                     )
                 )
@@ -103,19 +100,19 @@ class ChangellyHeaderInterceptor : Interceptor {
     }
 
     private fun getMethodFromRequest(request: Request): String {
-        val pathSegments = request.url().pathSegments()
+        val pathSegments = request.url.pathSegments
         return pathSegments[pathSegments.size - 1]
     }
 
     @Throws(JSONException::class)
     private fun getParamsFromRequest(request: Request): JSONObject {
         val params = JSONObject()
-        for (name in request.url().queryParameterNames()) {
-            val values = request.url().queryParameterValues(name)
+        for (name in request.url.queryParameterNames) {
+            val values = request.url.queryParameterValues(name)
             if (values.size > 1) {
                 params.put(name, JSONArray(values))
             } else {
-                val value = request.url().queryParameter(name)
+                val value = request.url.queryParameter(name)
                 params.put(name, value)
             }
         }

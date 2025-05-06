@@ -51,6 +51,7 @@ import com.mycelium.wallet.external.changelly.model.ChangellyTransactionOffer
 import com.mycelium.wallet.external.changelly2.remote.Changelly2Repository
 import com.mycelium.wallet.external.changelly2.remote.ViperStatusException
 import com.mycelium.wallet.external.changelly2.remote.ViperUnexpectedException
+import com.mycelium.wallet.external.changelly2.remote.importSymbol
 import com.mycelium.wallet.external.changelly2.viewmodel.ExchangeViewModel
 import com.mycelium.wallet.external.partner.openLink
 import com.mycelium.wallet.startCoroutineTimer
@@ -64,9 +65,11 @@ import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.erc20.ERC20Account
 import com.mycelium.wapi.wallet.eth.EthAccount
 import com.mycelium.wapi.wallet.eth.EthAddress
+import com.mycelium.wapi.wallet.fiat.coins.FiatType
 import com.squareup.otto.Subscribe
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import retrofit2.HttpException
@@ -97,7 +100,7 @@ class ExchangeFragment : Fragment(), BackListener {
         Changelly2Repository.supportCurrenciesFull(lifecycleScope, {
             it?.result
                     ?.filter { it.fixRateEnabled && it.enabled }
-                    ?.map { it.ticker }
+                    ?.map { importSymbol(it.ticker) }
                     ?.toSet()?.let {
                         viewModel.currencies = it
                         pref.edit { putStringSet(KEY_SUPPORT_COINS, it) }
@@ -321,13 +324,16 @@ class ExchangeFragment : Fragment(), BackListener {
             viewModel.sellValue.value = binding?.sellLayout?.coinValue?.text?.toString()
         }
         binding?.policyTerms?.setOnClickListener {
-            openLink(CHANGELLY_TERM_OF_USER)
+            openLink(viewModel.exchangeInfo.value?.termsOfUseLink)
         }
     }
 
     private fun createFixTransaction(changellyOnly: Boolean = false){
-        loader(true)
         lifecycleScope.launch {
+            launch {
+                delay(1000)
+                withContext(Dispatchers.Main) { loader(true) }
+            }
             try {
                 val response = Changelly2Repository.createFixTransaction(
                     viewModel.exchangeInfo.value?.id!!,
@@ -347,7 +353,6 @@ class ExchangeFragment : Fragment(), BackListener {
                         val amount = result.amountExpectedFrom.toPlainString()
                         val unsignedTx = prepareTx(addressTo, amount)
                         withContext(Dispatchers.Main) {
-                            loader(false)
                             if (unsignedTx != null) {
                                 acceptDialog(unsignedTx, response) {
                                     sendTx(result.id!!, unsignedTx)
@@ -356,11 +361,9 @@ class ExchangeFragment : Fragment(), BackListener {
                         }
                     }
                 } else {
-                    loader(false)
                     showErrorNotificationDialog(response.error?.message)
                 }
             } catch (e: Exception) {
-                loader(false)
                 when (e) {
                     is HttpException -> showErrorNotificationDialog(e.message())
                     is ViperStatusException -> showViperErrorDialog(
@@ -377,6 +380,8 @@ class ExchangeFragment : Fragment(), BackListener {
                     )
                     else -> showErrorNotificationDialog(e.message)
                 }
+            } finally {
+                withContext(Dispatchers.Main) { loader(false) }
             }
         }
     }
@@ -465,8 +470,11 @@ class ExchangeFragment : Fragment(), BackListener {
             }
 
     private fun sendTx(txId: String, createTx: Transaction) {
-        loader(true)
         viewLifecycleOwner.lifecycleScope.launch(Dispatchers.Default) {
+            launch {
+                delay(1000)
+                withContext(Dispatchers.Main) { loader(true) }
+            }
             viewModel.fromAccount.value?.let { account ->
                 account.signTx(createTx, AesKeyCipher.defaultKeyCipher())
                 launch(Dispatchers.Main) {
@@ -485,7 +493,14 @@ class ExchangeFragment : Fragment(), BackListener {
         if (viewModel.fromCurrency.value?.symbol != null && viewModel.toCurrency.value?.symbol != null) {
             rateJob?.cancel()
             viewModel.rateLoading.value = true
-            val fromAmount = viewModel.sellValue.value?.toBigDecimal() ?: BigDecimal.ONE
+            val fromAmount = try {
+                viewModel.sellValue.value?.toBigDecimal()!!
+            } catch (_: Exception) {
+                viewModel.mbwManager.exchangeRateManager.get(
+                    FiatType("USD").value("100"),
+                    viewModel.fromCurrency.value
+                )?.valueAsBigDecimal ?: BigDecimal.ONE
+            }
             rateJob = Changelly2Repository.getFixRateForAmount(lifecycleScope,
                     Util.trimTestnetSymbolDecoration(viewModel.fromCurrency.value?.symbol!!),
                     Util.trimTestnetSymbolDecoration(viewModel.toCurrency.value?.symbol!!),
@@ -501,13 +516,13 @@ class ExchangeFragment : Fragment(), BackListener {
                             )
                             viewModel.errorRemote.value = ""
                         } else {
+                            viewModel.exchangeInfo.postValue(null)
                             viewModel.errorRemote.value = result?.error?.message ?: ""
                         }
                     },
                     { code, msg ->
-                        if(code != 400) {
-                            viewModel.errorRemote.value = msg
-                        }
+                        viewModel.exchangeInfo.postValue(null)
+                        viewModel.errorRemote.value = msg
                     },
                     {
                         viewModel.rateLoading.value = false
@@ -547,13 +562,15 @@ class ExchangeFragment : Fragment(), BackListener {
                                         viewModel.exchangeInfo.value = it
                                         viewModel.errorRemote.value = ""
                                     } ?: run {
+                                        viewModel.exchangeInfo.postValue(null)
                                         viewModel.errorRemote.value = result?.error?.message ?: ""
                                     }
                                 },
                                 { code, msg ->
-                                    if(code != 400) {
-                                        viewModel.errorRemote.value = msg
-                                    }
+//                                    if(code != 400) {
+                                    viewModel.exchangeInfo.postValue(null)
+                                    viewModel.errorRemote.value = msg
+//                                    } else {}
                                 },
                                 {
                                     viewModel.rateLoading.value = false
@@ -621,11 +638,12 @@ class ExchangeFragment : Fragment(), BackListener {
             val history = pref.getStringSet(KEY_HISTORY, null) ?: setOf()
             val txId = viewModel.changellyTx
             val createTx = result.txid
-            pref.edit().putStringSet(KEY_HISTORY, history + txId)
-                    .putString("tx_id_${txId}", createTx)
-                    .putString("account_from_id_${txId}", fromAccountId?.toString())
-                    .putString("account_to_id_${txId}", toAccountId?.toString())
-                    .apply()
+            pref.edit {
+                putStringSet(KEY_HISTORY, history + txId)
+                putString("tx_id_${txId}", createTx)
+                putString("account_from_id_${txId}", fromAccountId?.toString())
+                putString("account_to_id_${txId}", toAccountId?.toString())
+            }
 
             ExchangeResultFragment().apply {
                 arguments = Bundle().apply {

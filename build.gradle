@@ -1,4 +1,5 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     alias(libs.plugins.android.application) apply false
@@ -18,12 +19,24 @@ apply from: 'ext_settings.gradle'
 allprojects {
     tasks.withType(JavaCompile).configureEach {
         options.compilerArgs << "-Xlint:deprecation,unchecked"
-        sourceCompatibility = 1.8
-        targetCompatibility = 1.8
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
     tasks.withType(KotlinCompile).configureEach {
-        kotlinOptions {
-            jvmTarget = "1.8"
+//        kotlinOptions.jvmTarget = "17"
+        compilerOptions {
+            jvmTarget.set(JvmTarget.JVM_17)
+            freeCompilerArgs.add("-java-parameters")
+        }
+    }
+}
+
+subprojects {
+    plugins.withId("org.jetbrains.kotlin.jvm") {
+        kotlin {
+            jvmToolchain {
+                languageVersion.set(JavaLanguageVersion.of(17))
+            }
         }
     }
 }

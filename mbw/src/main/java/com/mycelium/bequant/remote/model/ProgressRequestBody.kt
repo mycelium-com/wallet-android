@@ -3,6 +3,7 @@ package com.mycelium.bequant.remote.model
 import android.os.Handler
 import android.os.Looper
 import okhttp3.MediaType
+import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody
 import okio.BufferedSink
 import java.io.File
@@ -12,7 +13,7 @@ class ProgressRequestBody(private val file: File, private val contentType: Strin
     val handler = Handler(Looper.getMainLooper())
     var progressListener: ((Long, Long) -> Unit)? = null
 
-    override fun contentType(): MediaType? = MediaType.parse("$contentType/*")
+    override fun contentType(): MediaType? = "$contentType/*".toMediaType()
 
     override fun contentLength(): Long = file.length()
 

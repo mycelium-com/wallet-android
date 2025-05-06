@@ -1,6 +1,5 @@
 package com.mycelium.wallet.activity.export
 
-import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
@@ -206,7 +205,7 @@ class ShamirSharingActivity : AppCompatActivity() {
         }
 
         @JvmStatic
-        fun callMe(current: Activity, privateKey: InMemoryPrivateKey) =
+        fun callMe(current: Context, privateKey: InMemoryPrivateKey) =
             current.startActivity(
                 Intent(current, ShamirSharingActivity::class.java)
                     .putExtra("data", getData(current, privateKey))

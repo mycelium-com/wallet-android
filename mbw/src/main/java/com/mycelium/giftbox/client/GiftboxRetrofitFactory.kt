@@ -45,7 +45,7 @@ object RetrofitFactory {
                         addHeader("wallet-address", signatureProvider.address())
                         val body = try {
                             Buffer().apply {
-                                it.request().body()?.writeTo(this)
+                                it.request().body?.writeTo(this)
                             }.readUtf8()
                         } catch (e: Exception) {
                             Log.e("Giftbox", "Error getting signature", e)

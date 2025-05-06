@@ -12,6 +12,7 @@ import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
 import com.mycelium.wallet.WalletApplication
+import com.mycelium.wallet.activity.util.toFriendlyString
 import com.mycelium.wallet.activity.util.toStringFriendlyWithUnit
 import com.mycelium.wallet.activity.util.toStringWithUnit
 import com.mycelium.wallet.external.changelly.model.FixRate
@@ -51,6 +52,8 @@ class ExchangeViewModel(application: Application) : AndroidViewModel(application
     val rateLoading = MutableLiveData(false)
     var changellyTx: String? = null
     var swapDirection = 0
+
+    val provider = exchangeInfo.map { it?.provider }
 
     val toAccount = MediatorLiveData<WalletAccount<*>>().apply {
         addSource(fromAccount) {
@@ -156,15 +159,22 @@ class ExchangeViewModel(application: Application) : AndroidViewModel(application
 //    }
 
     val exchangeRateFrom = exchangeInfo.map {
-        "1 ${it.from.toUpperCase()} = "
+        (it?.from?.uppercase() ?: fromCurrency.value?.symbol)?.let { "1 $it" }
     }
 
     val exchangeRateToValue = exchangeInfo.map {
-        it.result.toPlainString()
+        if (it?.result != null && it.result != BigDecimal.ZERO)
+            " = " + it.result.stripTrailingZeros().toPlainString()
+        else
+            " ~ " + mbwManager.exchangeRateManager.get(
+                fromCurrency.value?.value("1"),
+                toCurrency.value
+            )?.toFriendlyString(Denomination.UNIT)
+                ?: N_A
     }
 
     val exchangeRateToCurrency = exchangeInfo.map {
-        it.to.toUpperCase()
+        it?.to?.uppercase() ?: toCurrency.value?.symbol
     }
 
     val fiatSellValue = sellValue.map {
@@ -174,7 +184,7 @@ class ExchangeViewModel(application: Application) : AndroidViewModel(application
                         .get(fromCurrency.value?.value(it), mbwManager.getFiatCurrency(fromCurrency.value))
                         ?.toStringFriendlyWithUnit()?.let { "≈$it" }
             } catch (e: NumberFormatException) {
-                "N/A"
+                N_A
             }
         } else {
             ""
@@ -187,7 +197,7 @@ class ExchangeViewModel(application: Application) : AndroidViewModel(application
                         .get(toCurrency.value?.value(it), mbwManager.getFiatCurrency(toCurrency.value))
                         ?.toStringFriendlyWithUnit()?.let { "≈$it" }
             } catch (e: NumberFormatException) {
-                "N/A"
+                N_A
             }
         } else {
             ""
@@ -335,10 +345,11 @@ class ExchangeViewModel(application: Application) : AndroidViewModel(application
             }
 
     fun isSupported(coinType: CryptoCurrency) =
-            currencies.contains(Util.trimTestnetSymbolDecoration(coinType.symbol).toLowerCase())
+            currencies.map { it.lowercase() }.contains(Util.trimTestnetSymbolDecoration(coinType.symbol).lowercase())
 
     companion object {
         const val TAG_ETH_TOP_UP = "<hiden type=\"TAG_ETH_TOP_UP\"/>"
+        const val N_A = "N/A"
     }
 
     fun reset() {

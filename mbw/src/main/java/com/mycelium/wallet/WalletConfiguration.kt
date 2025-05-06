@@ -8,7 +8,13 @@ import com.mrd.bitlib.model.NetworkParameters
 import com.mycelium.net.HttpEndpoint
 import com.mycelium.net.HttpsEndpoint
 import com.mycelium.net.TorHttpsEndpoint
-import com.mycelium.wallet.external.partner.model.*
+import com.mycelium.wallet.external.partner.model.AccountsContent
+import com.mycelium.wallet.external.partner.model.BalanceContent
+import com.mycelium.wallet.external.partner.model.BuySellContent
+import com.mycelium.wallet.external.partner.model.CommonContent
+import com.mycelium.wallet.external.partner.model.MainMenuContent
+import com.mycelium.wallet.external.partner.model.MediaFlowContent
+import com.mycelium.wallet.external.partner.model.PartnersLocalized
 import com.mycelium.wapi.api.ServerElectrumListChangedListener
 import com.mycelium.wapi.api.jsonrpc.TcpEndpoint
 import com.mycelium.wapi.wallet.IServerFioEventsPublisher
@@ -384,7 +390,9 @@ class WalletConfiguration(private val prefs: SharedPreferences,
         const val TCP_TLS_PREFIX = "tcp-tls://"
         const val AMAZON_S3_STORAGE_ADDRESS = "https://wallet-config.mycelium.com"
 
-        val TOKENS = listOf(
+        val TOKENS = listOfNotNull(
+            if (BuildConfig.DEBUG)
+                TokenData("PayPal USD", "PYUSD", 18, "", "0xCaC524BcA292aaade2DF8A05cC58F0a65B1B3bB9") else null,
                 //            TokenData("FAUCET", "FAU", 18, "0x55296f69f40Ea6d20E478533C15A6B08B654E759", "0xBA62BCfcAaFc6622853cca2BE6Ac7d845BC0f2Dc"),
                 //            TokenData("WEENUS", "WEENUS", 18, "0x2823589Ae095D99bD64dEeA80B4690313e2fB519", "0xaFF4481D10270F50f203E0763e2597776068CBc5"),
                 //            TokenData("XEENUS", "XEENUS", 18, "0xeEf5E2d8255E973d587217f9509B416b41CA5870", "0x022E292b44B5a146F2e8ee36Ff44D3dd863C915c"),

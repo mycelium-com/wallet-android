@@ -1,15 +1,22 @@
 package com.mycelium.bequant.remote.repositories
 
-import com.mycelium.bequant.BequantPreference
-import com.mycelium.bequant.BequantConstants
 import com.mycelium.bequant.BequantConstants.KYC_ENDPOINT
+import com.mycelium.bequant.BequantPreference
 import com.mycelium.bequant.remote.BequantKYCApiService
 import com.mycelium.bequant.remote.NullOnEmptyConverterFactory
 import com.mycelium.bequant.remote.client.RetrofitFactory.objectMapper
 import com.mycelium.bequant.remote.doRequest
-import com.mycelium.bequant.remote.model.*
+import com.mycelium.bequant.remote.model.BequantUserEvent
+import com.mycelium.bequant.remote.model.KYCApplicant
+import com.mycelium.bequant.remote.model.KYCCreateRequest
+import com.mycelium.bequant.remote.model.KYCDocument
+import com.mycelium.bequant.remote.model.KYCResponse
+import com.mycelium.bequant.remote.model.KYCStatus
+import com.mycelium.bequant.remote.model.OnceToken
+import com.mycelium.bequant.remote.model.ProgressRequestBody
+import com.mycelium.bequant.remote.model.StatusMessage
 import kotlinx.coroutines.CoroutineScope
-import okhttp3.MediaType
+import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
 import okhttp3.OkHttpClient
 import okhttp3.RequestBody
@@ -17,7 +24,7 @@ import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.jackson.JacksonConverterFactory
 import java.io.File
-import java.util.*
+import java.util.Date
 
 
 class KYCRepository {
@@ -86,8 +93,8 @@ class KYCRepository {
             val fileBody = ProgressRequestBody(file, "image")
             fileBody.progressListener = progress
             val multipartBody = MultipartBody.Part.createFormData("file", file.name, fileBody)
-            val typeBody = RequestBody.create(MediaType.parse("text/plain"), type.toString())
-            val countryBody = RequestBody.create(MediaType.parse("text/plain"), country)
+            val typeBody = RequestBody.create("text/plain".toMediaType(), type.toString())
+            val countryBody = RequestBody.create("text/plain".toMediaType(), country)
             service.uploadFile(BequantPreference.getKYCToken(), typeBody, countryBody, multipartBody)
         }, {
             success()
@@ -103,8 +110,8 @@ class KYCRepository {
             fileMap.forEach {
                 val fileBody = ProgressRequestBody(it.key, "image")
                 val multipartBody = MultipartBody.Part.createFormData("file", it.key.name, fileBody)
-                val type = RequestBody.create(MediaType.parse("text/plain"), it.value.toString())
-                val countryRequestBody = RequestBody.create(MediaType.parse("text/plain"), country)
+                val type = RequestBody.create("text/plain".toMediaType(), it.value.toString())
+                val countryRequestBody = RequestBody.create("text/plain".toMediaType(), country)
                 result = service.uploadFile(BequantPreference.getKYCToken(), type, countryRequestBody, multipartBody)
             }
             result

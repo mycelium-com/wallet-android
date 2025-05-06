@@ -4,12 +4,26 @@ import com.mrd.bitlib.crypto.InMemoryPrivateKey
 import com.mrd.bitlib.util.HexUtils
 import com.mycelium.wapi.SyncStatus
 import com.mycelium.wapi.SyncStatusInfo
-import com.mycelium.wapi.wallet.*
+import com.mycelium.wapi.wallet.AccountListener
+import com.mycelium.wapi.wallet.Address
+import com.mycelium.wapi.wallet.BroadcastResult
+import com.mycelium.wapi.wallet.BroadcastResultType
+import com.mycelium.wapi.wallet.Fee
+import com.mycelium.wapi.wallet.KeyCipher
+import com.mycelium.wapi.wallet.SyncMode
+import com.mycelium.wapi.wallet.SyncPausable
+import com.mycelium.wapi.wallet.Transaction
+import com.mycelium.wapi.wallet.TransactionData
 import com.mycelium.wapi.wallet.btc.FeePerKbFee
 import com.mycelium.wapi.wallet.coins.Balance
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.erc20.coins.ERC20Token
-import com.mycelium.wapi.wallet.eth.*
+import com.mycelium.wapi.wallet.eth.AbstractEthERC20Account
+import com.mycelium.wapi.wallet.eth.EthAccount
+import com.mycelium.wapi.wallet.eth.EthAddress
+import com.mycelium.wapi.wallet.eth.EthBlockchainService
+import com.mycelium.wapi.wallet.eth.EthTransaction
+import com.mycelium.wapi.wallet.eth.EthTransactionData
 import com.mycelium.wapi.wallet.exceptions.BuildTransactionException
 import com.mycelium.wapi.wallet.exceptions.InsufficientFundsException
 import com.mycelium.wapi.wallet.exceptions.InsufficientFundsForFeeException
@@ -26,7 +40,7 @@ import org.web3j.tx.Transfer
 import org.web3j.utils.Numeric
 import java.io.IOException
 import java.math.BigInteger
-import java.util.*
+import java.util.UUID
 import java.util.concurrent.TimeUnit
 import java.util.logging.Level
 
@@ -247,7 +261,7 @@ class ERC20Account(private val chainId: Byte,
             return true
         } catch (e: IOException) {
             lastSyncInfo = SyncStatusInfo(SyncStatus.ERROR)
-            logger.log(Level.SEVERE, "Error retrieving ETH/ERC-20 transaction history: ${e.javaClass} ${e.localizedMessage}")
+            logger.log(Level.SEVERE, "ERC20Account Error retrieving ETH/ERC-20 transaction history: ${e.javaClass} ${e.localizedMessage}")
             return false
         }
     }

@@ -10,21 +10,43 @@ import okhttp3.RequestBody
 import java.io.IOException
 import java.math.BigInteger
 import java.net.URL
+import java.util.concurrent.TimeUnit
 
 class EthBlockchainService(private var endpoints: List<HttpEndpoint>)
     : ServerEthListChangedListener {
     private val mapper = ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
 
+    private fun client(urlString: String): String {
+        val client = OkHttpClient.Builder()
+            .connectTimeout(10, TimeUnit.SECONDS)
+            .readTimeout(15, TimeUnit.SECONDS)
+            .build()
+
+        val request = Request.Builder()
+            .url(urlString)
+            .header("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7")
+            .header("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36")
+            .header("Cookie", "1.2.1.1-LL1qWmhY.0qWKFykqLT7i.DX4iccL.JgAPm0jgaxV_xn_wBBLRb5ZLWI1Yt4C608nqjNktlSMKO61H.6gNv0ge5wAjS8LE9pXqxymaMu.35DZaBMJ5KzDKNIeiWK883dwOQ.mO7PA1B3HC3eBMqSHQtycN4GFP7lab_KwfRDbzigYB8N4A0.Yun5XwC7I7lIhfd_NGFkTz_SMmUDlQn8yrtleZIzYwQtg_bafyWkHsCCeOGhOegcznjn1rpcqEDFlUkIP.BlE0xQZIDPmtNQTQpL391rtSGJDf5JMTiTSCZ1GRDswkLnpTaoSfoc3MBYC5dySfeeA7nR04HVU_8Awg; secondary_coin=USD=false; _gcl_au=1.1.119604374.1746113132; _ga_34JWL0HY2X=GS1.1.1746113132.1.0.1746113132.0.0.1140827049; _ga=GA1.1.1989444470.1746113132; FPID=FPID2.2.qIJg2M10tpoHtla%2FlWDjKc7SZu%2BmkWnuk5NaBSkDgvQ%3D.1746113132; FPLC=zvt2ud4j%2BNwn9cU5EmCpf7JWHIGEcGDyViNL8z5NkMV6LklcRVZX70poOTqBNwSh%2BHkO9Kq%2F%2BgLJjN80g9A4G7hCZI0nm3KrmOM4ABisl0g4TP0HNfm%2Fy%2B3jkhe1Sw%3D%3D; FPAU=1.1.119604374.1746113132")
+            .build()
+
+        val response = client.newCall(request).execute()
+        if (!response.isSuccessful) throw IOException("Unexpected code $response")
+        val body = response.body?.string() ?: throw IOException("Empty body")
+        return body
+    }
+
     @Throws(IOException::class)
-    private fun fetchTransactions(address: String): List<Tx> {
-        var urlString = "${endpoints.random()}/api/v2/address/$address?details=txs"
+    private fun fetchTransactions(address: String, contractAddress: String? = null): List<Tx> {
+        val contractAddressSegment = if(contractAddress != null) "&contract=$contractAddress" else ""
+        var urlString = "${endpoints.random()}/api/v2/address/$address?details=txs" + contractAddressSegment
+
         val result: MutableList<Tx> = mutableListOf()
 
-        val initialResponse = mapper.readValue(URL(urlString), Response::class.java)
+        val initialResponse = mapper.readValue(client(urlString), Response::class.java)
         result.addAll(initialResponse.transactions)
         for (i in 2..initialResponse.totalPages) {
-            urlString = "${endpoints.random()}/api/v2/address/$address?details=txs&page=$i"
-            val response = mapper.readValue(URL(urlString), Response::class.java)
+            urlString = "${endpoints.random()}/api/v2/address/$address?details=txs&page=$i" + contractAddressSegment
+            val response = mapper.readValue(client(urlString), Response::class.java)
             result.addAll(response.transactions)
         }
         return result
@@ -39,14 +61,14 @@ class EthBlockchainService(private var endpoints: List<HttpEndpoint>)
                 .build()
         val response = client.newCall(request).execute()
 
-        val result = mapper.readValue(response.body()!!.string(), SendTxResponse::class.java)
+        val result = mapper.readValue(response.body!!.string(), SendTxResponse::class.java)
         return SendResult(result.result != null, result.error)
     }
 
     fun getBlockHeight(): BigInteger {
         val urlString = "${endpoints.random()}/api/"
 
-        return mapper.readValue(URL(urlString), ApiResponse::class.java).blockbook!!.bestHeight
+        return mapper.readValue(client(urlString), ApiResponse::class.java).blockbook!!.bestHeight
     }
 
     fun getNonce(address: String): BigInteger {
@@ -69,9 +91,9 @@ class EthBlockchainService(private var endpoints: List<HttpEndpoint>)
 
     fun getTransactions(address: String, contractAddress: String? = null): List<Tx> {
         return if (contractAddress != null) {
-            fetchTransactions(address).filter { tx -> tx.getTokenTransfer(contractAddress, address) != null }
+            fetchTransactions(address, contractAddress).filter { tx -> tx.getTokenTransfer(contractAddress, address) != null }
         } else {
-            fetchTransactions(address)
+            fetchTransactions(address, contractAddress)
         }
     }
 
