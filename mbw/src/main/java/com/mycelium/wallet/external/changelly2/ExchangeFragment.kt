@@ -523,8 +523,10 @@ class ExchangeFragment : Fragment(), BackListener {
                         }
                     },
                     { code, msg ->
-                        viewModel.exchangeInfo.postValue(null)
-                        viewModel.errorRemote.value = msg
+                        if (viewModel.mbwManager.getWalletManager(false).isNetworkConnected) {
+                            viewModel.exchangeInfo.postValue(null)
+                            viewModel.errorRemote.value = msg
+                        }
                     },
                     {
                         viewModel.rateLoading.value = false
@@ -555,29 +557,30 @@ class ExchangeFragment : Fragment(), BackListener {
                     if (fromAmount > BigDecimal.ZERO) {
                         amountJob?.cancel()
                         viewModel.rateLoading.value = true
-                        amountJob = Changelly2Repository.getFixRateForAmount(lifecycleScope,
-                                Util.trimTestnetSymbolDecoration(viewModel.fromCurrency.value?.symbol!!),
-                                Util.trimTestnetSymbolDecoration(viewModel.toCurrency.value?.symbol!!),
-                                fromAmount,
-                                { result ->
-                                    result?.result?.firstOrNull()?.let {
-                                        viewModel.exchangeInfo.value = it
-                                        viewModel.errorRemote.value = ""
-                                    } ?: run {
-                                        viewModel.exchangeInfo.postValue(null)
-                                        viewModel.errorRemote.value = result?.error?.message ?: ""
-                                    }
-                                },
-                                { code, msg ->
-//                                    if(code != 400) {
+                        amountJob = Changelly2Repository.getFixRateForAmount(
+                            lifecycleScope,
+                            Util.trimTestnetSymbolDecoration(viewModel.fromCurrency.value?.symbol!!),
+                            Util.trimTestnetSymbolDecoration(viewModel.toCurrency.value?.symbol!!),
+                            fromAmount,
+                            { result ->
+                                result?.result?.firstOrNull()?.let {
+                                    viewModel.exchangeInfo.value = it
+                                    viewModel.errorRemote.value = ""
+                                } ?: run {
+                                    viewModel.exchangeInfo.postValue(null)
+                                    viewModel.errorRemote.value = result?.error?.message ?: ""
+                                }
+                            },
+                            { code, msg ->
+                                if (viewModel.mbwManager.getWalletManager(false).isNetworkConnected) {
                                     viewModel.exchangeInfo.postValue(null)
                                     viewModel.errorRemote.value = msg
-//                                    } else {}
-                                },
-                                {
-                                    viewModel.rateLoading.value = false
-                                    refreshRateCounter()
-                                })
+                                }
+                            },
+                            {
+                                viewModel.rateLoading.value = false
+                                refreshRateCounter()
+                            })
                         prevAmount = fromAmount
                     } else {
                         updateExchangeRate()

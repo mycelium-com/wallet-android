@@ -1849,5 +1849,15 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="shamir_share_hint"><![CDATA[Total shares: a number of parts to split the private key into.\n\nThreshold: a number of parts needed to reconstruct the private key.]]></string>
     <string name="not_valid_value">Not valid value</string>
     <string name="total_shares_limit">Total shares must be less than 65535</string>
-    <string name="delete_private_key">Delete private key</string>
+    <string name="delete_private_key">Make Watch-only</string>
+    <string name="delete_account">Delete Account</string>
+    <string name="delete_private_key_title">Make Account Watch-only?</string>
+    <string name="delete_private_key_message">
+        Secure your funds by making your account "watch-only" \n
+        For security reasons, it is recommended to delete the private keys of accounts that store critical amounts for you from the device. This is only possible for SA (Single Address) accounts. For convenience, you can think of ‘SA’ as ‘Savings Account’.
+    </string>
+    <string name="confirm_delete_private_key_message">Before deleting the private key, make sure you have its backup stored offline and in a safe place. You will need it to restore the private key after deletion and to send transactions from this account again.</string>
+    <string name="confirm_delete_private_key_message_end">Do you want to make it watch-only?</string>
+    <string name="confirm_delete_account_message_end">Do you want to delete it?</string>
+    <string name="i_know_what_iam_doing">I know what I’m doing</string>
 </resources>

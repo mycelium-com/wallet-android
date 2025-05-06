@@ -1498,4 +1498,14 @@
     <string name="vip_code_discount_title">Скидки на обмен криптовалюты на криптовалюту</string>
     <string name="vip_code_discount_description">Комиссия за обмен снижается на 25%.</string>
     <string name="apply_vip_code">Применить</string>
+    <string name="delete_private_key">Только для просмотра</string>
+    <string name="delete_account">Удалить аккаунт</string>
+    <string name="delete_private_key_title">Сделать аккаунт только для просмотра?</string>
+    <string name="delete_private_key_message">
+        Обезопасьте свои средства, сделав ваш аккаунт "только для просмотра". \n\n
+        В целях безопасности рекомендуется удалять с устройства приватные ключи аккаунтов, на которых хранятся критически важные для вас суммы. Это возможно только для SA (Single Address) аккаунтов. Для удобства можно воспринимать "SA" как "Savings Account".</string>
+    <string name="confirm_delete_private_key_message">Перед удалением приватного ключа убедитесь, что у вас есть его резервная копия, хранящаяся офлайн и в надёжном месте. Она вам нужна для того, чтобы вы могли восстановить приватный ключ после удаления и опять отправлять транзакции с этого аккаунта.</string>
+    <string name="confirm_delete_private_key_message_end">Вы хотите сделать его "только для просмотра"?</string>
+    <string name="confirm_delete_account_message_end">Вы хотите удалить его?</string>
+    <string name="i_know_what_iam_doing">Я понимаю, что я делаю</string>
 </resources>

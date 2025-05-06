@@ -17,6 +17,7 @@ import com.mycelium.wallet.activity.modern.event.SelectTab
 import com.mycelium.wallet.activity.modern.model.accounts.AccountViewModel.Companion.showBackupMissingWarning
 import com.mycelium.wapi.wallet.Address
 import com.mycelium.wapi.wallet.AesKeyCipher
+import com.mycelium.wapi.wallet.ExportableAccount
 import com.mycelium.wapi.wallet.KeyCipher.InvalidKeyCipher
 import com.mycelium.wapi.wallet.SyncMode
 import com.mycelium.wapi.wallet.WalletAccount
@@ -46,7 +47,10 @@ class AccountsActionModeCallback(
                 MenuItem.SHOW_AS_ACTION_IF_ROOM else MenuItem.SHOW_AS_ACTION_NEVER
         )
         val dropPriKeyItem = menu?.findItem(R.id.miDropPrivateKey)
-        dropPriKeyItem?.isVisible = account.canSpend()
+        //        // add checkbox only for SingleAddressAccounts and only if a private key is present
+        val hasPrivateData = (account is ExportableAccount
+                && (account as ExportableAccount).getExportData(AesKeyCipher.defaultKeyCipher()).privateData.isPresent)
+        dropPriKeyItem?.isVisible = hasPrivateData
         return true
     }
 
