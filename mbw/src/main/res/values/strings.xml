@@ -1854,11 +1854,12 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="delete_private_key_title">Make Account Watch-only</string>
     <string name="delete_private_key_message">
         <b>Secure your funds by making your account "watch-only"</b> \n\n
-        For security reasons, it is recommended to delete the private keys of accounts that store critical amounts for you from the device. This is only possible for SA (Single Address) accounts. For convenience, you can think of ‘SA’ as ‘Savings Account’.
+        For security reasons, it is recommended to delete the private keys of accounts that store critical amounts for you from the device. This is only possible for SA (Single Address) accounts. For convenience, you can think of ‘SA’ as ‘Savings Account’.\n\n
+        <b>This account will be available for viewing only: you will be able to see the balance and incoming bitcoins, but not send funds</b>
     </string>
-    <string name="confirm_delete_private_key_message">Before deleting the private key, make sure you have its backup stored offline and in a safe place. You will need it to restore the private key after deletion and to send transactions from this account again.</string>
+    <string name="confirm_delete_private_key_message">Before deleting the private key, make sure you have its backup stored offline and in a safe place. You will have to \"add it back\" from backup  when you need  to spend the bitcoins from this account.</string>
     <string name="confirm_delete_private_key_message_end">Do you want to make it watch-only?</string>
     <string name="confirm_delete_account_message_end">Do you want to delete it?</string>
     <string name="i_know_what_iam_doing">I know what I’m doing</string>
-    <string name="delete_private_key_checkbox">Delete the private key, making the account watch-only (This account will be available for viewing only: you will be able to see the balance and incoming bitcoins, but not send funds).</string>
+    <string name="delete_private_key_checkbox">Delete the private key, making the account watch-only.</string>
 </resources>

@@ -1106,9 +1106,9 @@
     <string name="exchange_bch_to_btc">ОБМЕНЯТЬ BCH НА BTC</string>
     <string name="single_address_backup_missing">КОШЕЛЁК НЕ МОЖЕТ БЫТЬ ВОССТАНОВЛЕН БЕЗ РЕЗЕРВНОЙ КОПИИ! ЕСЛИ ВЫ ПОТЕРЯЕТЕ ВАШУ РЕЗЕРВНУЮ КОПИЮ, МЫ НЕ СМОЖЕМ ПОМОЧЬ ВАМ ВОССТАНОВИТЬ КОШЕЛЁК! НЕТ РЕЗЕРВНОЙ КОПИИ – НЕТ МОНЕТ!</string>
     <string name="wallet_backup_missing">КОШЕЛЁК НЕ МОЖЕТ БЫТЬ ВОССТАНОВЛЕН БЕЗ РЕЗЕРВНОЙ КОПИИ! ЕСЛИ ВЫ ПОТЕРЯЕТЕ ВАШУ РЕЗЕРВНУЮ КОПИЮ, МЫ НЕ СМОЖЕМ ПОМОЧЬ ВАМ ВОССТАНОВИТЬ КОШЕЛЁК! НЕТ РЕЗЕРВНОЙ КОПИИ – НЕТ МОНЕТ!</string>
-    <string name="backup">РЕЗЕРВНАЯ КОПИЯ</string>
+    <string name="backup">Сделать бэкап</string>
     <string name="backup_later">Позже</string>
-    <string name="backup_now">Сохранить</string>
+    <string name="backup_now">Сделать бэкап</string>
     <string name="bch_module_description">Используйте модуль BCH, чтобы вернуть свои BCH и обменять их на BTC</string>
     <string name="install_bch_module">Установить модуль Bitcoin Cash</string>
     <string name="continue_without_bch">Продолжить без BCH</string>
@@ -1167,7 +1167,7 @@
     <string name="save_receipt">Сохранить подтверждение</string>
     <string name="single_address_account">Аккаунт с одиночным адресом</string>
     <string name="exchange">Обмен</string>
-    <string name="singlekey_verify_notice">Вы уже сделали резервную копию вашего аккаунта с одиночным адресом. Чтобы убедиться, что вы сделали это правильно, проверьте вашу резервную копию. Если при создании резервной копии была ошибка, вы можете навсегда потерять ваши средства.</string>
+    <string name="singlekey_verify_notice">Вы уже сделали бэкап. Чтобы убедиться, что вы сделали это правильно, его нужно проверить. Если при создании бэкапа была ошибка, ваши BTC могут быть потеряны навсегда.</string>
     <string name="backup_not_verified">Резервная копия не проверена</string>
     <string name="i_understand_the_risks">Я понимаю риски</string>
     <string name="this_is_read_only_account">Это аккаунт только для чтения. Чтобы потратить средства, необходимо импортировать соответствующий приватный ключ.\nВы можете сделать это, выбрав вкладку «Аккаунты» > «Добавить новый аккаунт» > «Дополнительно» и выбрав опцию сканирования или вставки ключа из буфера обмена.</string>
@@ -1498,15 +1498,16 @@
     <string name="vip_code_discount_title">Скидки на обмен криптовалюты на криптовалюту</string>
     <string name="vip_code_discount_description">Комиссия за обмен снижается на 25%.</string>
     <string name="apply_vip_code">Применить</string>
-    <string name="delete_private_key">Сделать Только для просмотра</string>
+    <string name="delete_private_key">Сделать \"Только для просмотра\"</string>
     <string name="delete_account">Удалить аккаунт</string>
     <string name="delete_private_key_title">Сделать аккаунт "только для просмотра"</string>
     <string name="delete_private_key_message">
         <b>Обезопасьте свои средства, сделав ваш аккаунт "только для просмотра".</b> \n\n
-        В целях безопасности рекомендуется удалять с устройства приватные ключи аккаунтов, на которых хранятся критически важные для вас суммы. Это возможно только для SA (Single Address) аккаунтов. Для удобства можно воспринимать \'SA\' как \'Savings Account\' (Cберегательный Cчет).</string>
+        В целях безопасности рекомендуется удалять с устройства приватные ключи аккаунтов, на которых хранятся критически важные для вас суммы. Это возможно только для SA (Single Address) аккаунтов. Для удобства можно воспринимать \'SA\' как \'Savings Account\' (Cберегательный Cчет).\n\n
+        <b>Этот аккаунт будет доступен только для просмотра: вы сможете видеть баланс и поступления биткойнов, но не отправлять средства</b></string>
     <string name="confirm_delete_private_key_message">Перед удалением приватного ключа убедитесь, что у вас есть его резервная копия, хранящаяся офлайн и в надёжном месте. Она вам нужна для того, чтобы вы могли восстановить приватный ключ после удаления и опять отправлять транзакции с этого аккаунта.</string>
     <string name="confirm_delete_private_key_message_end">Вы хотите сделать его "только для просмотра"?</string>
     <string name="confirm_delete_account_message_end">Вы хотите удалить его?</string>
     <string name="i_know_what_iam_doing">Я понимаю, что я делаю</string>
-    <string name="delete_private_key_checkbox">Удалить приватный ключ, оставив аккаунт только для просмотра (Этот аккаунт будет доступен только для просмотра: вы сможете видеть баланс и поступления биткойнов, но не отправлять средства).</string>
+    <string name="delete_private_key_checkbox">Удалить приватный ключ, оставив аккаунт только для просмотра.</string>
 </resources>
