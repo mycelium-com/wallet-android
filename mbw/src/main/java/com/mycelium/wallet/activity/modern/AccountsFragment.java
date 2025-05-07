@@ -503,8 +503,11 @@ public class AccountsFragment extends Fragment {
             keepAddrCheckbox.setText(getString(R.string.delete_private_key_checkbox));
             keepAddrCheckbox.setChecked(false);
 
+            Balance balance = checkNotNull(accountToDelete.getAccountBalance());
+            String valueString = getBalanceString(accountToDelete.getCoinType(), balance);
             final AlertDialog deleteDialog2 = new AlertDialog.Builder(getActivity())
-                    .setMessage(R.string.confirm_delete_private_key_message)
+                    .setMessage(getString(R.string.delete_pk_message, accountToDelete.getLabel(), valueString) + "\n\n" +
+                            getString(R.string.confirm_delete_private_key_message))
                     .setView(checkBoxView)
                     .setPositiveButton(R.string.yes, (arg2, arg3) -> {
                         Log.d(TAG, "Entering onClick delete");

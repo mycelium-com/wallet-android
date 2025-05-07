@@ -1510,4 +1510,5 @@
     <string name="confirm_delete_account_message_end">Вы хотите удалить его?</string>
     <string name="i_know_what_iam_doing">Я понимаю, что я делаю</string>
     <string name="delete_private_key_checkbox">Удалить приватный ключ, оставив аккаунт только для просмотра.</string>
+    <string name="delete_pk_message">Вы хотите удалить приватный ключ аккаунта <b>"%1$s"</b> с балансом <b>%2$s</b>?</string>
 </resources>
