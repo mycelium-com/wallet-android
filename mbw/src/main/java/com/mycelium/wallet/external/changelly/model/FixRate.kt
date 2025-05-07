@@ -15,6 +15,5 @@ data class FixRate(
     val amountFrom: BigDecimal?,
     val amountTo: BigDecimal?,
     val networkFee: BigDecimal?,
-    val provider: String? = null,
     val termsOfUseLink: String? = CHANGELLY_TERM_OF_USER
 )

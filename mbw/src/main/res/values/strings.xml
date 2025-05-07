@@ -1835,7 +1835,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="add_address">Add address</string>
     <string name="message_verified_to_be_from">Message verified to be from %1$s</string>
     <string name="message_failed_to_verify">"Message failed to verify! "</string>
-    <string name="input_look_ahead">Input look ahead</string>
+    <string name="input_look_ahead">Search depth (addresses)</string>
     <string name="card_code">Card Code:</string>
     <string name="gift_card_load_error_title">Gift card purchases are temporarily unavailable.</string>
     <string name="gift_card_load_error_desc">We are currently updating our stores, and the service will be back online soon. Thank you for your understanding!</string>
@@ -1860,4 +1860,5 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="confirm_delete_private_key_message_end">Do you want to make it watch-only?</string>
     <string name="confirm_delete_account_message_end">Do you want to delete it?</string>
     <string name="i_know_what_iam_doing">I know what I’m doing</string>
+    <string name="delete_private_key_checkbox">Delete the private key, making the account watch-only (This account will be available for viewing only: you will be able to see the balance and incoming bitcoins, but not send funds).</string>
 </resources>

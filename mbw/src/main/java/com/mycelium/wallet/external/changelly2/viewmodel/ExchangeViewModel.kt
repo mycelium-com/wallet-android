@@ -53,8 +53,6 @@ class ExchangeViewModel(application: Application) : AndroidViewModel(application
     var changellyTx: String? = null
     var swapDirection = 0
 
-    val provider = exchangeInfo.map { it?.provider }
-
     val toAccount = MediatorLiveData<WalletAccount<*>>().apply {
         addSource(fromAccount) {
             if (value?.coinType == it?.coinType) {

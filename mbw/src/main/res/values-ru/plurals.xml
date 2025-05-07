@@ -25,10 +25,10 @@
         <item quantity="other">Содержит %1$d адресов.</item>
     </plurals>
     <plurals name="account_label">
-        <item quantity="one">Метка аккаунта:\n%s</item>
-        <item quantity="few">Метки аккаунтов:\n%s</item>
-        <item quantity="many">Метки аккаунтов:\n%s</item>
-        <item quantity="other">Метки аккаунтов:\n%s</item>
+        <item quantity="one">Имя аккаунта:\n%s</item>
+        <item quantity="few">Имена аккаунтов:\n%s</item>
+        <item quantity="many">Имена аккаунтов:\n%s</item>
+        <item quantity="other">Имена аккаунтов:\n%s</item>
     </plurals>
     <plurals name="existing_accounts_found">
         <item quantity="one">%d существующий аккаунт найден</item>
