@@ -1862,5 +1862,5 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="confirm_delete_account_message_end">Do you want to delete it?</string>
     <string name="i_know_what_iam_doing">I know what I’m doing</string>
     <string name="delete_private_key_checkbox">Delete the private key, making the account watch-only.</string>
-    <string name="delete_pk_message">Do you want to delete accounts private key <b>\"%1$s\"</b> holding <b>%2$s</b>?</string>
+    <string name="delete_pk_message"><![CDATA[Do you want to delete the account <b>\"%1$s\"</b> private key holding <b>%2$s</b>?]]></string>
 </resources>

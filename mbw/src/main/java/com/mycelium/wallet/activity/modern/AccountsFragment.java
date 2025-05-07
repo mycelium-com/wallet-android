@@ -506,8 +506,10 @@ public class AccountsFragment extends Fragment {
             Balance balance = checkNotNull(accountToDelete.getAccountBalance());
             String valueString = getBalanceString(accountToDelete.getCoinType(), balance);
             final AlertDialog deleteDialog2 = new AlertDialog.Builder(getActivity())
-                    .setMessage(getString(R.string.delete_pk_message, accountToDelete.getLabel(), valueString) + "\n\n" +
+                    .setMessage(Html.fromHtml(getString(R.string.delete_pk_message, accountToDelete.getLabel(), valueString)
+                            + "<br/><br/>" +
                             getString(R.string.confirm_delete_private_key_message))
+                    )
                     .setView(checkBoxView)
                     .setPositiveButton(R.string.yes, (arg2, arg3) -> {
                         Log.d(TAG, "Entering onClick delete");

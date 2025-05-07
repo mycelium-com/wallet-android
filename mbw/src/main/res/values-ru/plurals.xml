@@ -1,16 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <plurals name="confirm_delete_pk_with_balance">
         <item quantity="one">Это действие нельзя отменить!\n\nТекущий адрес:\n%1$s\n\nОн содержит %2$s\n\nВы хотите удалить его?</item>
         <item quantity="few">Это действие нельзя отменить!\n\nТекущие адреса:\n%1$s\n\nОни содержат %2$s\n\nВы хотите удалить их?</item>
         <item quantity="many">Это действие нельзя отменить!\n\nТекущие адреса:\n%1$s\n\nОни содержат %2$s\n\nВы хотите удалить их?</item>
         <item quantity="other">Это действие нельзя отменить!\n\nТекущие адреса:\n%1$s\n\nОни содержат %2$s\n\nВы хотите удалить их?</item>
     </plurals>
+    <plurals name="confirm_delete_pk_with_balance_with_label" tools:ignore="MissingQuantity">
+        <item quantity="one">Это действие нельзя отменить!\n\n%1$s\n\nТекущий адрес:\n%2$s\n\nОн содержит %3$s\n\n</item>
+        <item quantity="other">Это действие нельзя отменить!!\n\n%1$s\n\nТекущие адреса:\n%2$s\n\nОни содержат %3$s\n\n</item>
+    </plurals>
     <plurals name="confirm_delete_pk_without_balance">
         <item quantity="one">Это действие нельзя отменить!\n\nТекущий адрес:\n%1$s\n\nВы хотите удалить его?</item>
         <item quantity="few">Это действие нельзя отменить!\n\nТекущие адреса:\n%1$s\n\nВы хотите удалить их?</item>
         <item quantity="many">Это действие нельзя отменить!\n\nТекущие адреса:\n%1$s\n\nВы хотите удалить их?</item>
         <item quantity="other">Это действие нельзя отменить!\n\nТекущие адреса:\n%1$s\n\nВы хотите удалить их?</item>
+    </plurals>
+    <plurals name="confirm_delete_pk_without_balance_with_label" tools:ignore="MissingQuantity">
+        <item quantity="one">Это действие нельзя отменить!\n\n%1$s\n\nТекущий адрес:\n%2$s\n\n</item>
+        <item quantity="other">Это действие нельзя отменить!\n\n%1$s\n\nТекущие адреса:\n%2$s\n\n</item>
     </plurals>
     <plurals name="contains_keys">
         <item quantity="one">Содержит %1$d приватный ключ.</item>
