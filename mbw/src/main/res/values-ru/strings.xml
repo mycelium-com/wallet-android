@@ -99,9 +99,9 @@
     <string name="name">Имя</string>
     <string name="ok">ОК</string>
     <string name="cancel">Отмена</string>
-    <string name="edit_address_label_title">Редактировать метку адреса</string>
-    <string name="enter_address_label_title">Введите метку адреса</string>
-    <string name="enter_transaction_label_title">Введите метку транзакции</string>
+    <string name="edit_address_label_title">Редактировать имя адреса</string>
+    <string name="enter_address_label_title">Введите имя адреса</string>
+    <string name="enter_transaction_label_title">Введите имя транзакции</string>
     <string name="set_label">Установить метку</string>
     <string name="show_details">Показать детали</string>
     <string name="transaction_details">Детали транзакции</string>
@@ -588,8 +588,8 @@
     <string name="unable_to_clear_clipboard">Не удалось очистить буфер обмена</string>
     <string name="unable_to_set_clipboard">Не удалось установить строку в буфере обмена</string>
     <string name="select_spending_account">Выберите аккаунт для трат</string>
-    <string name="enter_account_label_title">Введите метку аккаунта</string>
-    <string name="edit_account_label_title">Редактировать метку аккаунта</string>
+    <string name="enter_account_label_title">Введите имя аккаунта</string>
+    <string name="edit_account_label_title">Редактировать имя аккаунта</string>
     <string name="seed_already_configured">Невозможно импортировать: мастер-сид уже настроен</string>
     <string name="backup_words_title">Резервная копия мастер-сида</string>
     <string name="verify_words_title">Проверка мастер-сида</string>
@@ -617,7 +617,7 @@
     <string name="pref_legacy_backup_verify_title">Проверить резервную копию Legacy</string>
     <string name="pref_legacy_backup_verify_summary">Проверить существующую резервную копию Legacy</string>
     <string name="error_no_browser">Невозможно перейти на сайт, браузер не найден на телефоне</string>
-    <string name="transaction_label_title">Метка транзакции</string>
+    <string name="transaction_label_title">Имя транзакции</string>
     <string name="no_spending_records">У вас нет аккаунтов с возможностью трат.\n\nЧтобы потратить средства, вам нужен аккаунт с приватным ключом. В настоящее время нет активных HD-аккаунтов Bitcoin или аккаунтов с одиночными адресами с приватными ключами. Пожалуйста, активируйте или импортируйте аккаунт с приватным ключом для выполнения трат.</string>
     <string name="select_key_for_signing">Выберите ключ для подписи</string>
     <string name="playstore_link_label">Ссылка на Play Store</string>
