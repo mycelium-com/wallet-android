@@ -314,8 +314,9 @@ public class AccountsFragment extends Fragment {
 //        // add checkbox only for SingleAddressAccounts and only if a private key is present
         final boolean hasPrivateData = (accountToDelete instanceof ExportableAccount
                 && ((ExportableAccount) accountToDelete).getExportData(AesKeyCipher.defaultKeyCipher()).getPrivateData().isPresent());
+        boolean deleteCheckbox = accountToDelete instanceof SingleAddressAccount && hasPrivateData;
 
-        if (accountToDelete instanceof SingleAddressAccount && hasPrivateData) {
+        if (deleteCheckbox) {
             deleteDialog.setView(checkBoxView);
         }
 
@@ -475,13 +476,15 @@ public class AccountsFragment extends Fragment {
         deleteDialog.setNegativeButton(R.string.no, null);
         AlertDialog dialog = deleteDialog.create();
         // Disable the positive button until the checkbox is checked
-        dialog.setOnShowListener(dialogInterface -> {
-            final android.widget.Button yesButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
-            yesButton.setEnabled(false);
-            keepAddrCheckbox.setOnCheckedChangeListener((buttonView, isChecked) -> {
-                yesButton.setEnabled(isChecked);
+        if(deleteCheckbox) {
+            dialog.setOnShowListener(dialogInterface -> {
+                final android.widget.Button yesButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+                yesButton.setEnabled(false);
+                keepAddrCheckbox.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                    yesButton.setEnabled(isChecked);
+                });
             });
-        });
+        }
         dialog.show();
     }
 

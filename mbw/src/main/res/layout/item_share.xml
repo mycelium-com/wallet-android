@@ -43,7 +43,7 @@
         app:layout_constraintTop_toBottomOf="@id/tvLabel"
         tools:text="@tools:sample/lorem" />
 
-    <ImageButton
+    <ImageView
         android:id="@+id/sharePrint"
         android:layout_width="24dp"
         android:layout_height="24dp"
@@ -51,6 +51,8 @@
         android:layout_marginEnd="@dimen/size_x2"
         android:background="?attr/selectableItemBackgroundBorderless"
         android:src="@drawable/ic_print"
+        android:scaleType="centerInside"
+        android:padding="2dp"
         app:layout_constraintEnd_toStartOf="@id/shareQr"
         app:layout_constraintTop_toBottomOf="@id/tvShare" />
 
@@ -62,6 +64,8 @@
         android:layout_marginEnd="@dimen/size_x2"
         android:background="?attr/selectableItemBackgroundBorderless"
         android:src="@drawable/ic_share_24px"
+        android:scaleType="centerInside"
+        android:padding="2dp"
         app:layout_constraintEnd_toStartOf="@id/shareCopy"
         app:layout_constraintTop_toBottomOf="@id/tvShare"
         app:tint="@color/black" />
@@ -73,6 +77,8 @@
         android:layout_marginTop="@dimen/size_x4"
         android:background="?attr/selectableItemBackgroundBorderless"
         android:src="@drawable/ic_content_copy_black"
+        android:scaleType="centerInside"
+        android:padding="2dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tvShare" />
 </androidx.constraintlayout.widget.ConstraintLayout>
