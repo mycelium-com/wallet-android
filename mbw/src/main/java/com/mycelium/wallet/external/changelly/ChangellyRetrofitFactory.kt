@@ -45,6 +45,8 @@ object ChangellyRetrofitFactory {
 
     private fun getChangellyHttpClient(): OkHttpClient {
         return OkHttpClient.Builder().apply {
+            connectTimeout(15, TimeUnit.SECONDS)
+            readTimeout(15, TimeUnit.SECONDS)
             addInterceptor(ChangellyInterceptor())
             if (!BuildConfig.DEBUG) return@apply
             addInterceptor(HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY))
