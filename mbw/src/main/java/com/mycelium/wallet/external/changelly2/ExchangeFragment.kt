@@ -604,7 +604,9 @@ class ExchangeFragment : Fragment(), BackListener {
                     binding?.progress?.setImageDrawable(RingDrawable(counter * 360f / 30f, Color.parseColor("#777C80")))
                 } else {
                     counterJob?.cancel()
-                    updateAmount()
+                    if(isResumed) {
+                        updateAmount()
+                    }
                 }
             } else {
                 counterJob?.cancel()
