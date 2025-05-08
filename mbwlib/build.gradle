@@ -1,4 +1,6 @@
-apply plugin: 'java'
+plugins {
+    id 'java'
+}
 
 repositories {
     mavenCentral()
@@ -7,13 +9,13 @@ repositories {
 
 dependencies {
     implementation project(includePrefix +':bitlib')
-    implementation "com.google.guava:guava:$rootProject.guavaVersion"
+    implementation libs.guava
     // otto bus is deprecated in favor of rx but is cleaner with its annotations and type checking
     implementation "com.squareup:otto:$ottoVersion"
     implementation "com.squareup.okhttp:okhttp:$okhttpVersion"
     implementation "com.squareup.wire:wire-runtime:$wireVersion"
 
-    implementation 'org.bouncycastle:bcprov-jdk15on:1.64'
+    implementation libs.bouncycastle.bcprov
     implementation files("$rootDir/libs/netcipher-2.2.1.jar")
 
     testImplementation "junit:junit:$junitVersion"

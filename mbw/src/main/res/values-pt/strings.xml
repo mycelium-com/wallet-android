@@ -1051,4 +1051,16 @@
     <string name="card_code">Código do cartão:</string>
     <string name="gift_card_load_error_title">Las compras de tarjetas de regalo están temporalmente fuera de servicio.</string>
     <string name="gift_card_load_error_desc">Estamos actualizando nuestras tiendas, y el servicio estará disponible nuevamente pronto. ¡Gracias por su comprensión!</string>
+
+    <string name="delete_private_key">Tornar somente leitura</string>
+    <string name="delete_account">Excluir Conta</string>
+    <string name="delete_private_key_title">Tornar Conta somente leitura</string>
+    <string name="delete_private_key_message">
+        <b>Proteja seus fundos tornando sua conta \'somente leitura\'</b> \n\n
+        Por razões de segurança, é recomendável excluir as chaves privadas das contas que armazenam valores críticos em seu dispositivo. Isso é possível apenas para contas SA (Single Address). Para facilitar, pense em ‘SA’ como ‘Conta Poupança’.
+    </string>
+    <string name="confirm_delete_private_key_message">Antes de excluir a chave privada, certifique-se de ter um backup dela armazenado offline e em local seguro. Você precisará dele para restaurar a chave privada após a exclusão e para enviar transações novamente a partir desta conta.</string>
+    <string name="confirm_delete_private_key_message_end">Deseja torná-la somente leitura?</string>
+    <string name="confirm_delete_account_message_end">Deseja excluí-la?</string>
+    <string name="i_know_what_iam_doing">Sei o que estou fazendo</string>
 </resources>

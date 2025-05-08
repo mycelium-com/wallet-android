@@ -1,5 +1,7 @@
-apply plugin: 'java'
-apply plugin: 'kotlin'
+plugins {
+    id 'java'
+    alias(libs.plugins.kotlin.jvm)
+}
 
 def defaultEncoding = 'UTF-8'
 compileJava {
@@ -15,39 +17,20 @@ repositories {
 }
 
 dependencies {
-    implementation "com.google.protobuf:protobuf-java:$protoBufVersion"
+    implementation libs.protobuf.java
     implementation "com.fasterxml.jackson.core:jackson-annotations:$jacksonAnnotationsVersion"
     implementation "com.fasterxml.jackson.core:jackson-databind:$jacksonDatabindVersion"
-    implementation "com.google.guava:guava:$rootProject.guavaVersion"
-    implementation 'org.bouncycastle:bcprov-jdk15on:1.64'
-    implementation 'org.bouncycastle:bcpkix-jdk15on:1.64'
+    implementation libs.guava
+    implementation libs.bouncycastle.bcprov
+    implementation libs.bouncycastle.bcpkix
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
 
     testImplementation "junit:junit:$junitVersion"
     testImplementation project(path: ':testhelper')
 }
 
-buildscript {
-    repositories {
-        mavenCentral()
-    }
-    dependencies {
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-    }
-}
-
-compileKotlin {
-    kotlinOptions {
-        jvmTarget = "1.8"
-    }
-}
-
-compileTestKotlin {
-    kotlinOptions {
-        jvmTarget = "1.8"
-    }
-}
-
-kapt {
-    useBuildCache = true
-}
+//compileTestKotlin {
+//    kotlinOptions {
+//        jvmTarget = "11"
+//    }
+//}

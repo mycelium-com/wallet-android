@@ -7,10 +7,12 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.map
 import androidx.lifecycle.viewModelScope
 import com.mrd.bitlib.TransactionUtils
+import com.mycelium.view.Denomination
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
 import com.mycelium.wallet.WalletApplication
+import com.mycelium.wallet.activity.util.toFriendlyString
 import com.mycelium.wallet.activity.util.toStringFriendlyWithUnit
 import com.mycelium.wallet.activity.util.toStringWithUnit
 import com.mycelium.wallet.external.changelly.model.FixRate
@@ -53,7 +55,7 @@ class ExchangeViewModel(application: Application) : AndroidViewModel(application
 
     val toAccount = MediatorLiveData<WalletAccount<*>>().apply {
         addSource(fromAccount) {
-            if (value?.coinType == it.coinType) {
+            if (value?.coinType == it?.coinType) {
                 viewModelScope.launch { postValue(getToAccountForInit()) }
             }
         }
@@ -110,19 +112,27 @@ class ExchangeViewModel(application: Application) : AndroidViewModel(application
 
 
     val fromCurrency = fromAccount.map {
-        it.coinType
+        it?.coinType
     }
     val fromAddress = fromAccount.map {
-        it.receiveAddress.toString()
+        it?.receiveAddress?.toString()
     }
     val fromChain = fromAccount.map {
-        if (it.basedOnCoinType != it.coinType) it.basedOnCoinType.name else ""
+        if (it?.basedOnCoinType != it?.coinType) it?.basedOnCoinType?.name else ""
     }
     val fromFiatBalance = fromAccount.map {
-        mbwManager.exchangeRateManager
+        it?.let {
+            mbwManager.exchangeRateManager
                 .get(it.accountBalance.spendable, mbwManager.getFiatCurrency(it.coinType))
                 ?.toStringFriendlyWithUnit()
+        }
     }
+    val fromSendable = fromAccount.map {
+        it?.let {
+            it.accountBalance.spendable.toStringFriendlyWithUnit()
+        }
+    }
+
     val toCurrency = toAccount.map {
         it?.coinType ?: Utils.getBtcCoinType()
     }
@@ -147,15 +157,22 @@ class ExchangeViewModel(application: Application) : AndroidViewModel(application
 //    }
 
     val exchangeRateFrom = exchangeInfo.map {
-        "1 ${it.from.toUpperCase()} = "
+        (it?.from?.uppercase() ?: fromCurrency.value?.symbol)?.let { "1 $it" }
     }
 
     val exchangeRateToValue = exchangeInfo.map {
-        it.result.toPlainString()
+        if (it?.result != null && it.result != BigDecimal.ZERO)
+            " = " + it.result.stripTrailingZeros().toPlainString()
+        else
+            " ~ " + mbwManager.exchangeRateManager.get(
+                fromCurrency.value?.value("1"),
+                toCurrency.value
+            )?.toFriendlyString(Denomination.UNIT)
+                ?: N_A
     }
 
     val exchangeRateToCurrency = exchangeInfo.map {
-        it.to.toUpperCase()
+        it?.to?.uppercase() ?: toCurrency.value?.symbol
     }
 
     val fiatSellValue = sellValue.map {
@@ -165,7 +182,7 @@ class ExchangeViewModel(application: Application) : AndroidViewModel(application
                         .get(fromCurrency.value?.value(it), mbwManager.getFiatCurrency(fromCurrency.value))
                         ?.toStringFriendlyWithUnit()?.let { "≈$it" }
             } catch (e: NumberFormatException) {
-                "N/A"
+                N_A
             }
         } else {
             ""
@@ -178,7 +195,7 @@ class ExchangeViewModel(application: Application) : AndroidViewModel(application
                         .get(toCurrency.value?.value(it), mbwManager.getFiatCurrency(toCurrency.value))
                         ?.toStringFriendlyWithUnit()?.let { "≈$it" }
             } catch (e: NumberFormatException) {
-                "N/A"
+                N_A
             }
         } else {
             ""
@@ -326,10 +343,11 @@ class ExchangeViewModel(application: Application) : AndroidViewModel(application
             }
 
     fun isSupported(coinType: CryptoCurrency) =
-            currencies.contains(Util.trimTestnetSymbolDecoration(coinType.symbol).toLowerCase())
+            currencies.map { it.lowercase() }.contains(Util.trimTestnetSymbolDecoration(coinType.symbol).lowercase())
 
     companion object {
         const val TAG_ETH_TOP_UP = "<hiden type=\"TAG_ETH_TOP_UP\"/>"
+        const val N_A = "N/A"
     }
 
     fun reset() {

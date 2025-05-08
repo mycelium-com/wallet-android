@@ -15,10 +15,10 @@ import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.fio.requests.ApproveFioRequestActivity
 import com.mycelium.wallet.activity.util.toStringWithUnit
+import com.mycelium.wallet.checkPushPermission
 import com.mycelium.wallet.event.SyncStopped
 import com.mycelium.wapi.wallet.Util
 import com.mycelium.wapi.wallet.Util.getCoinByChain
-import com.mycelium.wapi.wallet.coins.AssetInfo
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.fio.FioAccount
 import com.mycelium.wapi.wallet.fio.FioGroup
@@ -82,16 +82,25 @@ object FioRequestNotificator {
                     setTextViewText(R.id.amount, context.getString(R.string.amount_label_s, amount.toStringWithUnit()))
                     setTextViewText(R.id.memo, it.deserializedContent?.memo)
                 }
-                NotificationManagerCompat.from(context).notify(fioRequestNotificationId + it.fioRequestId.toInt(),
-                        createNotification(context)
-                                .setStyle(NotificationCompat.DecoratedCustomViewStyle())
-                                .setCustomContentView(smallView)
-                                .setCustomBigContentView(bigView)
-                                .setContentIntent(PendingIntent.getService(context, 0,
-                                        createSingleFIORequestIntent(context, it),
-                                        PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT))
-                                .setGroup(fioRequestNotificationGroup)
-                                .build())
+                        context.checkPushPermission({
+                            NotificationManagerCompat.from(context).notify(
+                                fioRequestNotificationId + it.fioRequestId.toInt(),
+                                createNotification(context)
+                                    .setStyle(NotificationCompat.DecoratedCustomViewStyle())
+                                    .setCustomContentView(smallView)
+                                    .setCustomBigContentView(bigView)
+                                    .setContentIntent(
+                                        PendingIntent.getService(
+                                            context, 0,
+                                            createSingleFIORequestIntent(context, it),
+                                            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+                                        )
+                                    )
+                                    .setGroup(fioRequestNotificationGroup)
+                                    .build()
+                            )
+                        })
+
                 preferences.edit().putBoolean(it.fioRequestId.toString(), true).apply()
             }
         }

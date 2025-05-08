@@ -1,24 +1,10 @@
-buildscript {
-    repositories {
-        google()
-        mavenCentral()
-    }
-    dependencies {
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-//        classpath "com.squareup.sqldelight:gradle-plugin:$sqldelight_version"
-    }
-}
-plugins {
-    id("app.cash.sqldelight") version "$sqldelight_version"
-}
-apply plugin: 'java'
-apply plugin: 'kotlin'
-apply from: 'integration-test.gradle'
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
-repositories {
-    mavenCentral()
-    google()
+plugins {
+    alias(libs.plugins.kotlin.jvm)
+    alias(libs.plugins.sqldelight)
 }
+apply from: 'integration-test.gradle'
 
 dependencies {
     implementation project(includePrefix + ':mbwlib')
@@ -27,26 +13,30 @@ dependencies {
     implementation project(includePrefix + ':wapi')
     implementation project(includePrefix + ':fiosdk')
 
-    implementation "com.google.guava:guava:$rootProject.guavaVersion"
+    implementation libs.guava
     implementation "com.fasterxml.jackson.core:jackson-core:2.9.5"
     implementation "com.fasterxml.jackson.core:jackson-annotations:$jacksonAnnotationsVersion"
     implementation "com.fasterxml.jackson.core:jackson-databind:$jacksonDatabindVersion"
     implementation "com.google.http-client:google-http-client-jackson2:$httpClientJacksonVersion"
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutines_version"
+    implementation libs.kotlinx.coroutines.android
     implementation "com.google.code.gson:gson:$gsonVersion"
 
     // SQDelight
     implementation "app.cash.sqldelight:sqlite-driver:$sqldelight_version"
     implementation "app.cash.sqldelight:primitive-adapters:$sqldelight_version"
-    implementation "app.cash.sqldelight:rxjava2-extensions:$sqldelight_version"
 
-    implementation 'org.bitcoinj:bitcoinj-core:0.14.5'
+    implementation(libs.bitcoinj.core) {
+        exclude group: "org.bouncycastle", module: "bcprov-jdk15to18"
+        exclude group: "com.google.protobuf", module: "protobuf-javalite"
+    }
 
     // Ethereum
-    implementation 'org.web3j:core:4.2.1-android'
+    implementation libs.bundles.web3j
 
-    testImplementation "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
+//    implementation libs.bouncycastle.bcprov
+    implementation libs.bouncycastle.bcpkix
+
     testImplementation "junit:junit:$junitVersion"
     testImplementation "org.mockito:mockito-core:2.23.0"
 }
@@ -59,17 +49,15 @@ sqldelight {
     }
 }
 
-
-
 compileKotlin {
-    kotlinOptions {
-        jvmTarget = "1.8"
+    compilerOptions {
+        jvmTarget.set(JvmTarget.JVM_17)
     }
 }
 
 compileTestKotlin {
-    kotlinOptions {
-        jvmTarget = "1.8"
+    compilerOptions {
+        jvmTarget.set(JvmTarget.JVM_17)
     }
 }
 

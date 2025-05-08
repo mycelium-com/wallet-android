@@ -1,9 +1,10 @@
 package com.mycelium.wallet.extsig.keepkey.activity
 
 import android.app.Activity.RESULT_OK
-import android.content.Context
+import android.content.Intent
 import android.widget.ListView
 import androidx.lifecycle.Lifecycle
+import androidx.test.core.app.ApplicationProvider
 import androidx.test.core.app.launchActivityForResult
 import androidx.test.espresso.Espresso.onData
 import androidx.test.espresso.Espresso.onView
@@ -13,30 +14,21 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.mrd.bitlib.crypto.Bip39
 import com.mrd.bitlib.crypto.BipDerivationType
 import com.mrd.bitlib.crypto.HdKeyNode
-import com.mrd.bitlib.model.NetworkParameters
 import com.mrd.bitlib.model.hdpath.HdKeyPath
 import com.mycelium.wallet.CommonKeys
-import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
-import com.mycelium.wallet.activity.HdAccountSelectorActivity
+import com.mycelium.wallet.Utils
+import com.mycelium.wallet.activity.HdAccountSelectorActivity.Companion.COIN_TYPE
 import com.mycelium.wallet.activity.awaitCondition
-import com.mycelium.wallet.extsig.common.ExternalSignatureDeviceManager
-import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext
-import com.satoshilabs.trezor.lib.ExternalSignatureDevice
-import com.satoshilabs.trezor.lib.KeepKey
-import com.squareup.otto.Bus
+import io.mockk.every
+import io.mockk.mockkObject
 import org.hamcrest.CoreMatchers.anything
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.Mock
-import org.mockito.MockitoAnnotations
 
 @RunWith(AndroidJUnit4::class)
 class KeepKeyAccountImportActivityTest {
-
-    @Mock
-    lateinit var keepKey: KeepKey
 
     lateinit var hdRootNodes: Map<BipDerivationType, HdKeyNode>
 
@@ -46,22 +38,32 @@ class KeepKeyAccountImportActivityTest {
         hdRootNodes = BipDerivationType.entries.associateWith {
             HdKeyNode.fromSeed(masterSeed.bip32Seed, it)
         }
-        MockitoAnnotations.openMocks(this)
     }
 
     @Test
     fun testAccountSelection() {
-        launchActivityForResult<KeepKeyAccountImportActivity>().use { scenario ->
-            scenario.moveToState(Lifecycle.State.RESUMED)
+        val intent = Intent(
+            ApplicationProvider.getApplicationContext(),
+            KeepKeyAccountImportActivity::class.java
+        ).putExtra(COIN_TYPE, Utils.getBtcCoinType())
+        launchActivityForResult<KeepKeyAccountImportActivity>(intent).use { scenario ->
+            scenario.moveToState(Lifecycle.State.CREATED)
             scenario.onActivity { activity ->
-                // Replace the dependency with a fake or mock
-                initScanManager(activity)
+                mockkObject(activity.masterseedScanManager!!)
+
+                every { activity.masterseedScanManager!!["onBeforeScan"]() } returns true
+                every {
+                    activity.masterseedScanManager!!.getAccountPubKeyNode(any(), any())
+                } answers {
+                    val keyPath = firstArg<HdKeyPath>()
+                    val derivationType = secondArg<BipDerivationType>()
+                    hdRootNodes[derivationType]?.createChildNode(keyPath)
+                }
             }
-            // click ok on dialog, btc selected
-            onView(withId(android.R.id.button1)).perform(click())
+            scenario.moveToState(Lifecycle.State.RESUMED)
 
             // click first account from loaded list
-            awaitCondition(10000) {
+            awaitCondition(30000) {
                 var count = 0
                 onView(withId(R.id.lvAccounts)).check { view, _ ->
                     val listView = view as ListView
@@ -80,37 +82,6 @@ class KeepKeyAccountImportActivityTest {
             assert(resultCode == RESULT_OK)
             assert(resultData.hasExtra("account"))
             scenario.close()
-        }
-    }
-
-    fun initScanManager(activity: HdAccountSelectorActivity<*>) {
-        class FakeKeepKeyManager(
-            context: Context,
-            network: NetworkParameters,
-            eventBus: Bus
-        ) : ExternalSignatureDeviceManager(context, network, eventBus) {
-            override fun createDevice(): ExternalSignatureDevice =
-                keepKey
-
-            override fun onBeforeScan(): Boolean = true
-
-            override fun getBIP44AccountType(): Int =
-                HDAccountContext.ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_KEEPKEY
-
-            override fun getAccountPubKeyNode(
-                keyPath: HdKeyPath,
-                derivationType: BipDerivationType
-            ): HdKeyNode? =
-                hdRootNodes[derivationType]?.createChildNode(keyPath)
-        }
-
-        val mbwManager = MbwManager.getInstance(activity)
-        HdAccountSelectorActivity::class.java.getDeclaredField("masterseedScanManager").apply {
-            isAccessible = true
-            set(
-                activity,
-                FakeKeepKeyManager(activity, mbwManager.network, MbwManager.getEventBus())
-            )
         }
     }
 }

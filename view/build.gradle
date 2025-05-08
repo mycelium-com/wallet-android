@@ -1,9 +1,6 @@
-apply plugin: 'com.android.library'
-apply plugin: 'kotlin-android'
-
-repositories {
-    google()
-    mavenCentral()
+plugins {
+    alias(libs.plugins.android.library)
+    alias(libs.plugins.kotlin.android)
 }
 
 android {
@@ -21,10 +18,19 @@ android {
         }
     }
     namespace 'com.mycelium.view'
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    kotlinOptions {
+        jvmTarget = "17"
+    }
 }
 
 dependencies {
-    implementation "androidx.recyclerview:recyclerview:$recyclerViewVersion"
+    implementation libs.recyclerview
     implementation "androidx.appcompat:appcompat:$appCompatVersion"
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 }

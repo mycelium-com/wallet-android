@@ -25,7 +25,6 @@ import com.mycelium.wallet.external.changelly2.remote.fixedCurrencyFrom
 import com.mycelium.wallet.external.changelly2.remote.fixedCurrencyTo
 import kotlinx.coroutines.launch
 import java.text.DateFormat
-import java.util.Date
 import java.util.UUID
 
 
@@ -88,7 +87,7 @@ class HistoryFragment : DialogFragment() {
                         it.amountExpectedTo.toString(),
                         it.fixedCurrencyFrom(),
                         it.fixedCurrencyTo(),
-                        historyDateFormat.format(Date(it.createdAt / 1000L)),
+                        historyDateFormat.format(it.createdAt),
                         it.getReadableStatus()
                     )
                 })

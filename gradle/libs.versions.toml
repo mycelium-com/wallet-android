@@ -1,0 +1,86 @@
+[versions]
+bitcoinjCore = "0.17"
+bouncycastle = "1.79"
+web3j = "4.12.3"
+coreKtx = "1.13.1"
+firebaseBomVersion = "33.10.0"
+guava = "32.1.3-android"
+junitVersion = "4.13.2"
+lifecycle = "2.8.7"
+mockkAndroid = "1.13.3"
+navigation = "2.8.8"
+protoBufVersion = "3.6.1"
+recyclerViewVersion = "1.2.1"
+retrofit = "2.6.1"
+test-core = "1.6.1"
+espresso = "3.6.1"
+glide = "5.0.0-rc01"
+junit = "1.2.1"
+kotlin = '2.0.21'
+androidGradlePlugin = "8.8.2"
+sqldelight = "2.0.2"
+
+[libraries]
+androidx-core = { module = "androidx.core:core-ktx", version.ref = "coreKtx" }
+bitcoinj-core = { module = "org.bitcoinj:bitcoinj-core", version.ref = "bitcoinjCore" }
+bouncycastle-bcpkix = { module = "org.bouncycastle:bcpkix-jdk18on", version.ref = "bouncycastle" }
+bouncycastle-bcprov = { module = "org.bouncycastle:bcprov-jdk18on", version.ref = "bouncycastle" }
+web3j-core = { module = "org.web3j:core", version.ref = "web3j" }
+web3j-abi = { module = "org.web3j:abi", version.ref = "web3j" }
+web3j-crypto = { module = "org.web3j:crypto", version.ref = "web3j" }
+web3j-utils = { module = "org.web3j:utils", version.ref = "web3j" }
+protobuf-java = { module = "com.google.protobuf:protobuf-java", version.ref = "protoBufVersion" }
+recyclerview = { module = "androidx.recyclerview:recyclerview", version.ref = "recyclerViewVersion" }
+firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBomVersion" }
+firebase-analytics = { module = "com.google.firebase:firebase-analytics-ktx" }
+firebase-dynamic-links = { module = "com.google.firebase:firebase-dynamic-links" }
+firebase-messaging = { module = "com.google.firebase:firebase-messaging-ktx" }
+espresso-contrib = { module = "androidx.test.espresso:espresso-contrib", version.ref = "espresso" }
+espresso-core = { module = "androidx.test.espresso:espresso-core", version.ref = "espresso" }
+espresso-idling-resource = { module = "androidx.test.espresso:espresso-idling-resource", version.ref = "espresso" }
+espresso-intents = { module = "androidx.test.espresso:espresso-intents", version.ref = "espresso" }
+espresso-idling-concurrent = { module = "androidx.test.espresso.idling:idling-concurrent", version.ref = "espresso" }
+guava = { module = "com.google.guava:guava", version.ref = "guava" }
+junit = { module = "junit:junit", version.ref = "junitVersion" }
+lifecycle-runtime = { module = "androidx.lifecycle:lifecycle-runtime", version.ref = "lifecycle" }
+lifecycle-livedata-ktx = { module = "androidx.lifecycle:lifecycle-livedata-ktx", version.ref = "lifecycle" }
+lifecycle-reactivestreams = { module = "androidx.lifecycle:lifecycle-reactivestreams", version.ref = "lifecycle" }
+lifecycle-reactivestreams-ktx = { module = "androidx.lifecycle:lifecycle-reactivestreams-ktx", version.ref = "lifecycle" }
+mockk = { module = "io.mockk:mockk", version.ref = "mockkAndroid" }
+mockk-android = { module = "io.mockk:mockk-android", version.ref = "mockkAndroid" }
+navigation-dynamic-features-fragment = { module = "androidx.navigation:navigation-dynamic-features-fragment", version.ref = "navigation" }
+navigation-fragment-ktx = { module = "androidx.navigation:navigation-fragment-ktx", version.ref = "navigation" }
+navigation-ui-ktx = { module = "androidx.navigation:navigation-ui-ktx", version.ref = "navigation" }
+retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
+retrofit-jackson = { module = "com.squareup.retrofit2:converter-jackson", version.ref = "retrofit" }
+retrofit-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "retrofit" }
+sqldelight-driver = { module = "app.cash.sqldelight:android-driver", version.ref = "sqldelight" }
+glide = { group = "com.github.bumptech.glide", name = "glide", version.ref = "glide" }
+glide-ksp = { module = "com.github.bumptech.glide:ksp", version.ref = "glide" }
+kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version = "1.10.1" }
+test-core-ktx = { module = "androidx.test:core-ktx", version.ref = "test-core" }
+test-core = { module = "androidx.test:core", version.ref = "test-core" }
+test-junit = { module = "androidx.test.ext:junit", version.ref = "junit" }
+test-rules = { module = "androidx.test:rules", version.ref = "test-core" }
+test-runner = { module = "androidx.test:runner", version.ref = "test-core" }
+
+[plugins]
+android-application = { id = "com.android.application", version.ref = "androidGradlePlugin" }
+android-library = { id = "com.android.library", version.ref = "androidGradlePlugin" }
+kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+kotlin-jvm = { id = 'org.jetbrains.kotlin.jvm', version.ref = "kotlin" }
+ksp = { id = "com.google.devtools.ksp", version = "2.0.21-1.0.28" }
+naviagation = { id = "androidx.navigation.safeargs.kotlin", version.ref = "navigation" }
+sqldelight = { id = "app.cash.sqldelight", version.ref = "sqldelight" }
+google-services = { id = "com.google.gms.google-services", version = "4.4.2" }
+doka = { id = "org.jetbrains.dokka", version = "2.0.0" }
+
+[bundles]
+android-test-bundle = ["test-core-ktx", "test-core", "test-junit", "test-rules", "test-runner"]
+firebase-bom = ["firebase-analytics", "firebase-dynamic-links", "firebase-messaging"]
+espresso = ["espresso-contrib", "espresso-core", "espresso-idling-resource", "espresso-intents", "espresso-idling-concurrent"]
+mockk = ["mockk", "mockk-android"]
+retrofit = ["retrofit", "retrofit-jackson", "retrofit-gson"]
+navigation = ["navigation-dynamic-features-fragment", "navigation-fragment-ktx", "navigation-ui-ktx"]
+lifecycle = ["lifecycle-runtime", "lifecycle-livedata-ktx", "lifecycle-reactivestreams", "lifecycle-reactivestreams-ktx"]
+web3j = ["web3j-core", "web3j-abi", "web3j-crypto", "web3j-utils"]

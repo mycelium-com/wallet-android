@@ -60,8 +60,11 @@ class InstantKeepKeyActivity : InstantExtSigActivity<KeepKeyManager>() {
 
     companion object {
         fun callMe(currentActivity: Activity, requestCode: Int) {
-            val intent = Intent(currentActivity, InstantKeepKeyActivity::class.java)
-            currentActivity.startActivityForResult(intent, requestCode)
+            currentActivity.selectCoin {
+                currentActivity.startActivityForResult(
+                    Intent(currentActivity, InstantKeepKeyActivity::class.java), requestCode
+                )
+            }
         }
     }
 }

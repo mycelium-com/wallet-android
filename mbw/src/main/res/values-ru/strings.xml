@@ -99,9 +99,9 @@
     <string name="name">Имя</string>
     <string name="ok">ОК</string>
     <string name="cancel">Отмена</string>
-    <string name="edit_address_label_title">Редактировать метку адреса</string>
-    <string name="enter_address_label_title">Введите метку адреса</string>
-    <string name="enter_transaction_label_title">Введите метку транзакции</string>
+    <string name="edit_address_label_title">Редактировать имя адреса</string>
+    <string name="enter_address_label_title">Введите имя адреса</string>
+    <string name="enter_transaction_label_title">Введите имя транзакции</string>
     <string name="set_label">Установить метку</string>
     <string name="show_details">Показать детали</string>
     <string name="transaction_details">Детали транзакции</string>
@@ -588,8 +588,8 @@
     <string name="unable_to_clear_clipboard">Не удалось очистить буфер обмена</string>
     <string name="unable_to_set_clipboard">Не удалось установить строку в буфере обмена</string>
     <string name="select_spending_account">Выберите аккаунт для трат</string>
-    <string name="enter_account_label_title">Введите метку аккаунта</string>
-    <string name="edit_account_label_title">Редактировать метку аккаунта</string>
+    <string name="enter_account_label_title">Введите имя аккаунта</string>
+    <string name="edit_account_label_title">Редактировать имя аккаунта</string>
     <string name="seed_already_configured">Невозможно импортировать: мастер-сид уже настроен</string>
     <string name="backup_words_title">Резервная копия мастер-сида</string>
     <string name="verify_words_title">Проверка мастер-сида</string>
@@ -617,7 +617,7 @@
     <string name="pref_legacy_backup_verify_title">Проверить резервную копию Legacy</string>
     <string name="pref_legacy_backup_verify_summary">Проверить существующую резервную копию Legacy</string>
     <string name="error_no_browser">Невозможно перейти на сайт, браузер не найден на телефоне</string>
-    <string name="transaction_label_title">Метка транзакции</string>
+    <string name="transaction_label_title">Имя транзакции</string>
     <string name="no_spending_records">У вас нет аккаунтов с возможностью трат.\n\nЧтобы потратить средства, вам нужен аккаунт с приватным ключом. В настоящее время нет активных HD-аккаунтов Bitcoin или аккаунтов с одиночными адресами с приватными ключами. Пожалуйста, активируйте или импортируйте аккаунт с приватным ключом для выполнения трат.</string>
     <string name="select_key_for_signing">Выберите ключ для подписи</string>
     <string name="playstore_link_label">Ссылка на Play Store</string>
@@ -1106,9 +1106,9 @@
     <string name="exchange_bch_to_btc">ОБМЕНЯТЬ BCH НА BTC</string>
     <string name="single_address_backup_missing">КОШЕЛЁК НЕ МОЖЕТ БЫТЬ ВОССТАНОВЛЕН БЕЗ РЕЗЕРВНОЙ КОПИИ! ЕСЛИ ВЫ ПОТЕРЯЕТЕ ВАШУ РЕЗЕРВНУЮ КОПИЮ, МЫ НЕ СМОЖЕМ ПОМОЧЬ ВАМ ВОССТАНОВИТЬ КОШЕЛЁК! НЕТ РЕЗЕРВНОЙ КОПИИ – НЕТ МОНЕТ!</string>
     <string name="wallet_backup_missing">КОШЕЛЁК НЕ МОЖЕТ БЫТЬ ВОССТАНОВЛЕН БЕЗ РЕЗЕРВНОЙ КОПИИ! ЕСЛИ ВЫ ПОТЕРЯЕТЕ ВАШУ РЕЗЕРВНУЮ КОПИЮ, МЫ НЕ СМОЖЕМ ПОМОЧЬ ВАМ ВОССТАНОВИТЬ КОШЕЛЁК! НЕТ РЕЗЕРВНОЙ КОПИИ – НЕТ МОНЕТ!</string>
-    <string name="backup">РЕЗЕРВНАЯ КОПИЯ</string>
-    <string name="backup_later">Сохранить позже</string>
-    <string name="backup_now">Сохранить сейчас</string>
+    <string name="backup">Сделать бэкап</string>
+    <string name="backup_later">Позже</string>
+    <string name="backup_now">Сделать бэкап</string>
     <string name="bch_module_description">Используйте модуль BCH, чтобы вернуть свои BCH и обменять их на BTC</string>
     <string name="install_bch_module">Установить модуль Bitcoin Cash</string>
     <string name="continue_without_bch">Продолжить без BCH</string>
@@ -1167,7 +1167,7 @@
     <string name="save_receipt">Сохранить подтверждение</string>
     <string name="single_address_account">Аккаунт с одиночным адресом</string>
     <string name="exchange">Обмен</string>
-    <string name="singlekey_verify_notice">Вы уже сделали резервную копию вашего аккаунта с одиночным адресом. Чтобы убедиться, что вы сделали это правильно, проверьте вашу резервную копию. Если при создании резервной копии была ошибка, вы можете навсегда потерять ваши средства.</string>
+    <string name="singlekey_verify_notice">Вы уже сделали бэкап. Чтобы убедиться, что вы сделали это правильно, его нужно проверить. Если при создании бэкапа была ошибка, ваши BTC могут быть потеряны навсегда.</string>
     <string name="backup_not_verified">Резервная копия не проверена</string>
     <string name="i_understand_the_risks">Я понимаю риски</string>
     <string name="this_is_read_only_account">Это аккаунт только для чтения. Чтобы потратить средства, необходимо импортировать соответствующий приватный ключ.\nВы можете сделать это, выбрав вкладку «Аккаунты» > «Добавить новый аккаунт» > «Дополнительно» и выбрав опцию сканирования или вставки ключа из буфера обмена.</string>
@@ -1386,6 +1386,16 @@
     <string name="gift_card_load_error_title">Покупка подарочных карточек временно недоступна.</string>
     <string name="gift_card_load_error_desc">Мы обновляем наши магазины, и сервис скоро снова будет доступен. Спасибо за понимание!</string>
 
+    <string name="share_of">Доля %1$d</string>
+    <string name="total_number_of_shares">Общее количество долей</string>
+    <string name="threshold">Порог</string>
+    <string name="total_shares_count_too_high">Слишком большое количество долей, это займет время</string>
+    <string name="every_1000_shares_20mb">\nкаждые 1000 долей ≈ 20 МБ</string>
+    <string name="generate_shares">Создать Shares</string>
+    <string name="shamir_share_hint"><![CDATA[Общее количество долей: количество частей, на которые будет разделен приватный ключ.\n\nПорог: количество частей, необходимое для восстановления приватного ключа.]]></string>
+    <string name="not_valid_value">Недопустимое значение</string>
+    <string name="total_shares_limit">Общее количество долей должно быть меньше 65535</string>
+
     <!--old translation-->
     <string name="exchange_sending">АДРЕС\nОТПРАВКИ</string>
     <string name="exchange_receiving">АДРЕС\nПОЛУЧЕНИЯ</string>
@@ -1488,4 +1498,17 @@
     <string name="vip_code_discount_title">Скидки на обмен криптовалюты на криптовалюту</string>
     <string name="vip_code_discount_description">Комиссия за обмен снижается на 25%.</string>
     <string name="apply_vip_code">Применить</string>
+    <string name="delete_private_key">Сделать \"Только для просмотра\"</string>
+    <string name="delete_account">Удалить аккаунт</string>
+    <string name="delete_private_key_title">Сделать аккаунт "только для просмотра"</string>
+    <string name="delete_private_key_message">
+        <b>Обезопасьте свои средства, сделав ваш аккаунт "только для просмотра".</b> \n\n
+        В целях безопасности рекомендуется удалять с устройства приватные ключи аккаунтов, на которых хранятся критически важные для вас суммы. Это возможно только для SA (Single Address) аккаунтов. Для удобства можно воспринимать \'SA\' как \'Savings Account\' (Cберегательный Cчет).\n\n
+        <b>Этот аккаунт будет доступен только для просмотра: вы сможете видеть баланс и поступления биткойнов, но не отправлять средства</b></string>
+    <string name="confirm_delete_private_key_message">Перед удалением приватного ключа убедитесь, что у вас есть его резервная копия, хранящаяся офлайн и в надёжном месте. Она вам нужна для того, чтобы вы могли восстановить приватный ключ после удаления и опять отправлять транзакции с этого аккаунта.</string>
+    <string name="confirm_delete_private_key_message_end">Вы хотите сделать его "только для просмотра"?</string>
+    <string name="confirm_delete_account_message_end">Вы хотите удалить его?</string>
+    <string name="i_know_what_iam_doing">Я понимаю, что я делаю</string>
+    <string name="delete_private_key_checkbox">Удалить приватный ключ, оставив аккаунт только для просмотра.</string>
+    <string name="delete_pk_message"><![CDATA[Вы хотите удалить приватный ключ аккаунта <b>"%1$s"</b> с балансом <b>%2$s</b>?]]></string>
 </resources>

@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_shamir_share"
+    android:padding="@dimen/size_x4">
+
+    <com.mycelium.wallet.activity.util.QrImageView
+        android:id="@+id/qrImageView"
+        android:layout_width="@dimen/small_qrcode"
+        android:layout_height="@dimen/small_qrcode"
+        android:layout_marginEnd="@dimen/size_x4"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/tvLabel"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/size_x4"
+        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+        android:textColor="@color/textPrimaryInverse"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/qrImageView"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="Share 1" />
+
+    <TextView
+        android:id="@+id/tvShare"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/size_x4"
+        android:layout_marginTop="8dp"
+        android:drawablePadding="8dp"
+        android:paddingEnd="@dimen/size_x4"
+        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+        android:textColor="@color/textPrimaryInverse"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/qrImageView"
+        app:layout_constraintTop_toBottomOf="@id/tvLabel"
+        tools:text="@tools:sample/lorem" />
+
+    <ImageView
+        android:id="@+id/sharePrint"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_marginTop="@dimen/size_x4"
+        android:layout_marginEnd="@dimen/size_x2"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:src="@drawable/ic_print"
+        android:scaleType="centerInside"
+        android:padding="2dp"
+        app:layout_constraintEnd_toStartOf="@id/shareQr"
+        app:layout_constraintTop_toBottomOf="@id/tvShare" />
+
+    <ImageButton
+        android:id="@+id/shareQr"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_marginTop="@dimen/size_x4"
+        android:layout_marginEnd="@dimen/size_x2"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:src="@drawable/ic_share_24px"
+        android:scaleType="centerInside"
+        android:padding="2dp"
+        app:layout_constraintEnd_toStartOf="@id/shareCopy"
+        app:layout_constraintTop_toBottomOf="@id/tvShare"
+        app:tint="@color/black" />
+
+    <ImageButton
+        android:id="@+id/shareCopy"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_marginTop="@dimen/size_x4"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:src="@drawable/ic_content_copy_black"
+        android:scaleType="centerInside"
+        android:padding="2dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tvShare" />
+</androidx.constraintlayout.widget.ConstraintLayout>

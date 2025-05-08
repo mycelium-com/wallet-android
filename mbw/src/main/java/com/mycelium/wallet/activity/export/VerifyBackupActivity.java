@@ -118,8 +118,8 @@ public class VerifyBackupActivity extends AppCompatActivity {
 
    private boolean hasPrivateKeyOnClipboard() {
       String clipboardString = Utils.getClipboardString(this);
-      Optional<InMemoryPrivateKey> pk = InMemoryPrivateKey.fromBase58String(clipboardString, _mbwManager.getNetwork());
-      return pk.isPresent();
+      InMemoryPrivateKey pk = InMemoryPrivateKey.fromBase58String(clipboardString, _mbwManager.getNetwork());
+      return pk != null;
    }
 
    @Override
@@ -187,9 +187,9 @@ public class VerifyBackupActivity extends AppCompatActivity {
    }
 
    private void verifyClipboardPrivateKey(String keyString) {
-      Optional<InMemoryPrivateKey> pk = InMemoryPrivateKey.fromBase58String(keyString, _mbwManager.getNetwork());
-      if (pk.isPresent()) {
-         verify(pk.get());
+      InMemoryPrivateKey pk = InMemoryPrivateKey.fromBase58String(keyString, _mbwManager.getNetwork());
+      if (pk != null) {
+         verify(pk);
          return;
       }
 

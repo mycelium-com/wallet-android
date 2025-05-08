@@ -1,5 +1,6 @@
 package com.mycelium.wallet.external.changelly.model
 
+import com.mycelium.wallet.external.changelly2.ExchangeFragment.Companion.CHANGELLY_TERM_OF_USER
 import java.math.BigDecimal
 
 data class FixRate(
@@ -14,4 +15,5 @@ data class FixRate(
     val amountFrom: BigDecimal?,
     val amountTo: BigDecimal?,
     val networkFee: BigDecimal?,
+    val termsOfUseLink: String? = CHANGELLY_TERM_OF_USER
 )

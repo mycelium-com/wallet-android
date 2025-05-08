@@ -26,9 +26,15 @@ import com.mycelium.wapi.wallet.fio.FioModule
 import com.mycelium.wapi.wallet.fio.FioName
 import com.mycelium.wapi.wallet.fio.GetPubAddressResponse
 import fiofoundation.io.fiosdk.isFioAddress
-import okhttp3.*
+import okhttp3.Call
+import okhttp3.Callback
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.RequestBody
+import okhttp3.Response
 import java.io.IOException
-import java.util.*
+import java.util.Locale
 
 class ManualAddressEntry : AppCompatActivity() {
     private var coinAddress: Address? = null
@@ -164,12 +170,12 @@ class ManualAddressEntry : AppCompatActivity() {
 
         val request = Request.Builder()
                 .url("${fioEndpoints.getCurrentApiEndpoint().baseUrl}chain/get_pub_address")
-                .post(RequestBody.create(MediaType.parse("application/json"), requestBody))
+                .post(RequestBody.create("application/json".toMediaType(), requestBody))
                 .build()
         client.newCall(request).enqueue(object : Callback {
             override fun onResponse(call: Call, response: Response) {
                 noConnection = false
-                val reply = response.body()!!.string()
+                val reply = response.body!!.string()
                 val result = mapper.readValue(reply, GetPubAddressResponse::class.java)
                 result.publicAddress?.let { npbaString ->
                     fioModule.addKnownName(FioName(address))
@@ -192,13 +198,13 @@ class ManualAddressEntry : AppCompatActivity() {
         val requestBody = """{"fio_name":"$address"}"""
         val request = Request.Builder()
                 .url("${fioEndpoints.getCurrentApiEndpoint().baseUrl}chain/avail_check")
-                .post(RequestBody.create(MediaType.parse("application/json"), requestBody))
+                .post(RequestBody.create("application/json".toMediaType(), requestBody))
                 .build()
         client.newCall(request).enqueue(object : Callback {
             override fun onResponse(call: Call, response: Response) {
                 fioQueryCounter--
                 noConnection = false
-                val reply = response.body()!!.string()
+                val reply = response.body!!.string()
                 fioNameRegistered[address] = reply.contains("1") //.contains(""""is_registered":1""")
                 runOnUiThread { updateUI() }
             }

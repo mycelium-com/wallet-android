@@ -15,9 +15,9 @@ dependencies {
     testImplementation "org.mockito:mockito-core:2.23.0"
     implementation "com.fasterxml.jackson.core:jackson-annotations:$jacksonAnnotationsVersion"
     implementation "com.fasterxml.jackson.core:jackson-databind:$jacksonDatabindVersion"
-    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$kotlinCoroutinesVersion"
+    implementation libs.kotlinx.coroutines.android
     implementation "com.squareup.okhttp:okhttp:$okhttpVersion"
-    implementation "com.google.guava:guava:$rootProject.guavaVersion"
+    implementation libs.guava
     implementation "com.google.code.findbugs:annotations:$findBugsVersion"
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     implementation "com.google.code.gson:gson:$gsonVersion"
@@ -30,8 +30,4 @@ buildscript {
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
-}
-
-kapt {
-    useBuildCache = true
 }

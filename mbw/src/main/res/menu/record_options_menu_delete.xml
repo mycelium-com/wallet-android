@@ -3,8 +3,14 @@
       xmlns:yourapp="http://schemas.android.com/apk/res-auto">
 
     <item
+            android:id="@+id/miDropPrivateKey"
+            android:title="@string/delete_private_key"
+            android:icon="@drawable/holo_dark_ic_action_discard"
+            yourapp:showAsAction="withText"/>
+
+    <item
             android:id="@+id/miDeleteRecord"
-            android:title="@string/delete"
+            android:title="@string/delete_account"
             android:icon="@drawable/holo_dark_ic_action_discard"
             yourapp:showAsAction="withText"/>
 

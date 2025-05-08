@@ -223,21 +223,22 @@
                 android:text="@{vm.trackLinkText}"
                 android:textSize="14sp"
                 android:textColor="@color/exchange_link_text_color"
+                android:visibility="gone"
                 android:enabled="@{!vm.trackLink.isEmpty()}"
                 app:layout_constraintStart_toStartOf="@id/startGuidline"
                 app:layout_constraintTop_toBottomOf="@id/toLabel"
                 tools:text="@string/link_to_track_transaction"/>
 
-            <ImageView
-                android:id="@+id/trackLinkWait"
-                android:layout_width="12dp"
-                android:layout_height="12dp"
-                android:layout_marginStart="8dp"
-                android:src="@drawable/ic_progress"
-                android:visibility="@{vm.trackInProgress ? View.VISIBLE : View.GONE}"
-                app:layout_constraintBottom_toBottomOf="@id/trackLink"
-                app:layout_constraintStart_toEndOf="@id/trackLink"
-                app:layout_constraintTop_toTopOf="@id/trackLink" />
+<!--            <ImageView-->
+<!--                android:id="@+id/trackLinkWait"-->
+<!--                android:layout_width="12dp"-->
+<!--                android:layout_height="12dp"-->
+<!--                android:layout_marginStart="8dp"-->
+<!--                android:src="@drawable/ic_progress"-->
+<!--                android:visibility="@{vm.trackInProgress ? View.VISIBLE : View.GONE}"-->
+<!--                app:layout_constraintBottom_toBottomOf="@id/trackLink"-->
+<!--                app:layout_constraintStart_toEndOf="@id/trackLink"-->
+<!--                app:layout_constraintTop_toTopOf="@id/trackLink" />-->
 
 
             <TextView

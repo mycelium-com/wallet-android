@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    package="com.mycelium.wallet">
+    xmlns:tools="http://schemas.android.com/tools">
     <!-- basics -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -216,7 +215,6 @@
             android:name=".activity.receive.ReceiveCoinsActivity"
             android:theme="@style/MyceliumFIOMapping" />
         <activity android:name=".simplex.SimplexMainActivity" />
-        <activity android:name=".external.changelly.ChangellyOfferActivity" />
         <activity
             android:name=".lt.activity.LtMainActivity"
             android:launchMode="singleInstance" />
@@ -338,6 +336,8 @@
             android:name="com.mycelium.bequant.exchange.SelectCoinActivity"
             android:theme="@style/BequantSign"
             android:windowSoftInputMode="stateHidden" />
+        <activity android:name=".activity.export.ShamirSharingActivity"
+            android:label="@string/shamir_secret_sharing"/>
         <activity
             android:name="com.mycelium.bequant.sign.SignActivity"
             android:launchMode="singleInstance"

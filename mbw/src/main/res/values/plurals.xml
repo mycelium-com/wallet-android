@@ -1,20 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <plurals name="confirm_delete_pk_with_balance">
-        <item quantity="one">This cannot be undone!\n\nCurrent address:\n%1$s\n\nIt contains %2$s\n\nDo you want to delete it?</item>
-        <item quantity="other">This cannot be undone!\n\nCurrent addresses:\n%1$s\n\nIt contains %2$s\n\nDo you want to delete it?</item>
+        <item quantity="one">This cannot be undone!\n\nCurrent address:\n%1$s\n\nIt contains %2$s\n\n</item>
+        <item quantity="other">This cannot be undone!\n\nCurrent addresses:\n%1$s\n\nIt contains %2$s\n\n</item>
     </plurals>
     <plurals name="confirm_delete_pk_with_balance_with_label">
-        <item quantity="one">This cannot be undone!\n\n%1$s\n\nCurrent address:\n%2$s\n\nIt contains %3$s\n\nDo you want to delete it?</item>
-        <item quantity="other">This cannot be undone!\n\n%1$s\n\nCurrent addresses:\n%2$s\n\nIt contains %3$s\n\nDo you want to delete it?</item>
+        <item quantity="one">This cannot be undone!\n\n%1$s\n\nCurrent address:\n%2$s\n\nIt contains %3$s\n\n</item>
+        <item quantity="other">This cannot be undone!\n\n%1$s\n\nCurrent addresses:\n%2$s\n\nIt contains %3$s\n\n</item>
     </plurals>
     <plurals name="confirm_delete_pk_without_balance">
-        <item quantity="one">This cannot be undone!\n\nCurrent address:\n%1$s\n\nDo you want to delete it?</item>
-        <item quantity="other">This cannot be undone!\n\nCurrent addresses:\n%1$s\n\nDo you want to delete it?</item>
+        <item quantity="one">This cannot be undone!\n\nCurrent address:\n%1$s\n\n</item>
+        <item quantity="other">This cannot be undone!\n\nCurrent addresses:\n%1$s\n\n</item>
     </plurals>
     <plurals name="confirm_delete_pk_without_balance_with_label">
-        <item quantity="one">This cannot be undone!\n\n%1$s\n\nCurrent address:\n%2$s\n\nDo you want to delete it?</item>
-        <item quantity="other">This cannot be undone!\n\n%1$s\n\nCurrent addresses:\n%2$s\n\nDo you want to delete it?</item>
+        <item quantity="one">This cannot be undone!\n\n%1$s\n\nCurrent address:\n%2$s\n\n</item>
+        <item quantity="other">This cannot be undone!\n\n%1$s\n\nCurrent addresses:\n%2$s\n\n</item>
     </plurals>
     <plurals name="contains_keys">
         <item quantity="one">Contains %1$d private key.</item>

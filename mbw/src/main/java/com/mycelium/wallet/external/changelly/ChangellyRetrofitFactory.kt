@@ -7,18 +7,25 @@ import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import java.security.KeyStore
 import java.util.concurrent.TimeUnit
 import javax.net.ssl.SSLContext
+import javax.net.ssl.TrustManagerFactory
+import javax.net.ssl.X509TrustManager
 
 object ChangellyRetrofitFactory {
-    private const val VIPER_BASE_URL = "https://changelly-viper.mycelium.com/v2/"
-    private const val CHANGELLY_BASE_URL = "https://api.changelly.com/v2/"
 
     private val userKeyPair by lazy { UserKeysManager.userSignKeys }
 
     private fun getViperHttpClient(): OkHttpClient {
         val sslContext = SSLContext.getInstance("TLSv1.3")
-        sslContext.init(null, null, null)
+
+        val trustManagerFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm())
+        trustManagerFactory.init(null as KeyStore?)
+        val trustManagers = trustManagerFactory.trustManagers
+        val trustManager = trustManagers.first { it is X509TrustManager } as X509TrustManager
+
+        sslContext.init(null, arrayOf(trustManager), null)
         return OkHttpClient.Builder().apply {
             connectTimeout(3, TimeUnit.SECONDS)
             // sslSocketFactory uses system defaults X509TrustManager, so deprecation suppressed
@@ -28,7 +35,7 @@ object ChangellyRetrofitFactory {
              * Those classes include special optimizations that can be lost
              * if the implementations are decorated.
              */
-            @Suppress("DEPRECATION") sslSocketFactory(sslContext.socketFactory)
+            sslSocketFactory(sslContext.socketFactory, trustManager)
             addInterceptor(ChangellyInterceptor())
             addInterceptor(DigitalSignatureInterceptor(userKeyPair))
             if (!BuildConfig.DEBUG) return@apply
@@ -38,6 +45,8 @@ object ChangellyRetrofitFactory {
 
     private fun getChangellyHttpClient(): OkHttpClient {
         return OkHttpClient.Builder().apply {
+            connectTimeout(15, TimeUnit.SECONDS)
+            readTimeout(15, TimeUnit.SECONDS)
             addInterceptor(ChangellyInterceptor())
             if (!BuildConfig.DEBUG) return@apply
             addInterceptor(HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY))
@@ -46,7 +55,7 @@ object ChangellyRetrofitFactory {
 
     val viperApi: ChangellyAPIService by lazy {
         Retrofit.Builder()
-            .baseUrl(VIPER_BASE_URL)
+            .baseUrl(ExchangeKeys.VIPER_BASE_URL)
             .addConverterFactory(GsonConverterFactory.create())
             .client(getViperHttpClient())
             .build()
@@ -55,7 +64,7 @@ object ChangellyRetrofitFactory {
 
     val changellyApi: ChangellyAPIService =
         Retrofit.Builder()
-            .baseUrl(CHANGELLY_BASE_URL)
+            .baseUrl(ExchangeKeys.EXCHANGE_BASE_URL)
             .addConverterFactory(GsonConverterFactory.create())
             .client(getChangellyHttpClient())
             .build()

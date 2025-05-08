@@ -13,6 +13,7 @@ class TokensTest {
 //        Log.e("!!!", WalletConfiguration.TOKENS.joinToString { it.symbol + " " + it.name })
 
         Log.e("!!!", "size = " + WalletConfiguration.TOKENS.size)
+        Log.e("!!!", WalletConfiguration.TOKENS.joinToString { it.symbol })
         Log.e("!!!", WalletConfiguration.TOKENS.joinToString { it.symbol + " = " + it.prodAddress })
     }
 }

@@ -1,5 +1,10 @@
 package com.mycelium.wallet
 
+import android.Manifest.permission.POST_NOTIFICATIONS
+import android.content.Context
+import android.content.pm.PackageManager
+import android.os.Build
+import androidx.core.content.ContextCompat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -23,7 +28,7 @@ inline fun startCoroutineTimer(
     }
 }
 
-fun <E> List<E>.randomOrNull(): E? = if (size > 0) random() else null
+fun <E> List<E>.randomOrNull(): E? = if (isNotEmpty()) random() else null
 
 /**
  * Updates the [MutableStateFlow.value] atomically using the specified [function] of its value.
@@ -37,5 +42,21 @@ inline fun <T> MutableStateFlow<T>.update(function: (T) -> T) {
         if (compareAndSet(prevValue, nextValue)) {
             return
         }
+    }
+}
+
+fun Context.checkPushPermission(run: () -> Unit, noPermission: () -> Unit = {}) {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        if (ContextCompat.checkSelfPermission(
+                this,
+                POST_NOTIFICATIONS
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
+            run()
+        } else {
+            noPermission()
+        }
+    } else {
+        run()
     }
 }

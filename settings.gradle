@@ -1,3 +1,19 @@
+pluginManagement {
+    repositories {
+        google()
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+    }
+}
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.PREFER_SETTINGS)
+    repositories {
+        mavenCentral()
+        google()
+        maven { url 'https://jitpack.io' }
+    }
+}
 include ':testhelper'
 include ':view'
 include 'bitlib'
@@ -6,7 +22,7 @@ include 'walletmodel'
 include 'walletcore'
 include 'wapi'
 include 'mbwlib'
-include 'backuputil'
+//include 'backuputil'
 
 //on the servers, we don't want to build android projects
 //    nano /etc/profile.d/env.sh
@@ -21,7 +37,7 @@ if (System.getenv()['MYCELIUM_BUILD_SYSTEM'] == 'server') {
     include 'libs:nordpol'
     include 'btchip'
     include 'LVL'
-    include 'backuputil'
+//    include 'backuputil'
     include 'wallet-console'
     include 'androidfioserializationprovider'
     project(':androidfioserializationprovider').projectDir = file('fiosdk_kotlin/androidfioserializationprovider')

@@ -16,7 +16,7 @@ import okio.Buffer
 import retrofit2.Retrofit
 import retrofit2.converter.jackson.JacksonConverterFactory
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Locale
 import java.util.concurrent.TimeUnit
 
 interface SignatureProvider {
@@ -45,7 +45,7 @@ object RetrofitFactory {
                         addHeader("wallet-address", signatureProvider.address())
                         val body = try {
                             Buffer().apply {
-                                it.request().body()?.writeTo(this)
+                                it.request().body?.writeTo(this)
                             }.readUtf8()
                         } catch (e: Exception) {
                             Log.e("Giftbox", "Error getting signature", e)
@@ -71,8 +71,8 @@ object RetrofitFactory {
                 //see https://www.zacsweers.dev/dagger-party-tricks-deferred-okhttp-init/
                 private val client by lazy {
                     getClientBuilder(signatureProvider)
-                        .connectTimeout(5, TimeUnit.SECONDS)
-                        .readTimeout(5, TimeUnit.SECONDS)
+                        .connectTimeout(15, TimeUnit.SECONDS)
+                        .readTimeout(15, TimeUnit.SECONDS)
                         .build()
                 }
 

@@ -63,7 +63,7 @@
                     app:layout_constraintTop_toTopOf="parent"
                     bind:accountAddress="@{vm.fromAddress}"
                     bind:accountLabel="@{vm.fromAccount.label}"
-                    bind:balance="@{ValueExtensionsKt.toStringFriendlyWithUnit(vm.fromAccount.accountBalance.spendable, Denomination.UNIT)}"
+                    bind:balance="@{vm.fromSendable}"
                     bind:balanceFiat="@{vm.fromFiatBalance}"
                     bind:chain="@{vm.fromChain}"
                     bind:coinType="@{vm.fromCurrency}"
@@ -102,32 +102,32 @@
                     android:background="@drawable/bg_coin_value"
                     app:layout_constraintBottom_toBottomOf="@id/exchangeRateFrom"
                     app:layout_constraintEnd_toEndOf="@id/progress"
-                    app:layout_constraintStart_toStartOf="@id/iconFix"
+                    app:layout_constraintStart_toStartOf="@id/exchangeRateFrom"
                     app:layout_constraintTop_toTopOf="@id/exchangeRateFrom" />
 
-                <androidx.appcompat.widget.AppCompatImageView
-                    android:id="@+id/iconFix"
-                    android:layout_width="10dp"
-                    android:layout_height="wrap_content"
-                    app:srcCompat="@drawable/ic_lock"
-                    android:layout_marginStart="32dp"
-                    app:layout_constraintBottom_toBottomOf="@id/exchangeRateToCurrency"
-                    app:layout_constraintStart_toStartOf="@id/startGuidline"
-                    app:layout_constraintTop_toTopOf="@id/exchangeRateToCurrency" />
+<!--                <androidx.appcompat.widget.AppCompatImageView-->
+<!--                    android:id="@+id/iconFix"-->
+<!--                    android:layout_width="10dp"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    app:srcCompat="@drawable/ic_lock"-->
+<!--                    android:layout_marginStart="32dp"-->
+<!--                    app:layout_constraintBottom_toBottomOf="@id/exchangeRateToCurrency"-->
+<!--                    app:layout_constraintStart_toStartOf="@id/startGuidline"-->
+<!--                    app:layout_constraintTop_toTopOf="@id/exchangeRateToCurrency" />-->
 
                 <TextView
                     android:id="@+id/exchangeRateFrom"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="24dp"
-                    android:layout_marginStart="8dp"
+                    android:layout_marginStart="32dp"
                     android:drawablePadding="4dp"
                     android:paddingTop="4dp"
                     android:paddingBottom="4dp"
                     android:text="@{vm.exchangeRateFrom}"
                     android:textSize="14sp"
                     android:textColor="#888888"
-                    app:layout_constraintStart_toEndOf="@id/iconFix"
+                    app:layout_constraintStart_toEndOf="@id/startGuidline"
                     app:layout_constraintTop_toBottomOf="@id/sellLayout"
                     bind:text="1 BTC = " />
 
@@ -174,6 +174,7 @@
                     app:layout_constraintEnd_toStartOf="@id/swapAccount"
                     app:layout_constraintStart_toEndOf="@id/exchangeRateToCurrency"
                     app:layout_constraintTop_toTopOf="@id/exchangeRateToCurrency" />
+
                 <!--                </LinearLayout>-->
 
                 <androidx.appcompat.widget.AppCompatImageView

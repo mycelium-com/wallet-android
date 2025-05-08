@@ -2,6 +2,7 @@ package com.mycelium.wallet.external.changelly.model
 
 import java.io.Serializable
 import java.math.BigDecimal
+import java.util.Date
 
 class ChangellyTransaction(
     val id: String,
@@ -14,5 +15,5 @@ class ChangellyTransaction(
     val moneyReceived: String,
     val currencyTo: String,
     val payoutAddress: String,
-    val createdAt: Long,
+    val createdAt: Date,
 ) : Serializable

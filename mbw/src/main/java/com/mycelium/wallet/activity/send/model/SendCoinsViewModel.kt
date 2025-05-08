@@ -55,7 +55,6 @@ import com.squareup.otto.Subscribe
 import org.bitcoin.protocols.payments.PaymentACK
 import java.util.*
 import java.util.regex.Pattern
-import kotlin.reflect.jvm.internal.ReflectProperties.Val
 
 
 

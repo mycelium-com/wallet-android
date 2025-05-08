@@ -22,11 +22,6 @@ abstract class LedgerAccountSelectorActivity : HdAccountSelectorActivity<LedgerM
     override fun initMasterseedManager(): LedgerManager =
         MbwManager.getInstance(this).ledgerManager
 
-    override fun finish() {
-        super.finish()
-        masterseedScanManager?.stopBackgroundAccountScan()
-    }
-
     override fun updateUi() {
         if ((masterseedScanManager?.currentState != AccountScanManager.Status.initializing) &&
             (masterseedScanManager?.currentState != AccountScanManager.Status.unableToScan)

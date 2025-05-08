@@ -12,7 +12,7 @@ import org.bouncycastle.crypto.signers.ECDSASigner
 class DigitalSignatureInterceptor(private val keyPair: AsymmetricCipherKeyPair) : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
         val originalRequest = chain.request()
-        val requestBody = originalRequest.body() ?: return chain.proceed(originalRequest)
+        val requestBody = originalRequest.body ?: return chain.proceed(originalRequest)
         val requestBodyJson = try {
             val buffer = Buffer()
             requestBody.writeTo(buffer)

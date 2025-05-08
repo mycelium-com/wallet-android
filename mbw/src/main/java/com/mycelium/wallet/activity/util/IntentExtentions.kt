@@ -2,6 +2,10 @@ package com.mycelium.wallet.activity.util
 
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
+import android.view.Window
+import android.view.WindowInsets
+import android.view.WindowManager
 import androidx.fragment.app.FragmentManager
 import com.google.common.base.Preconditions
 import com.mrd.bitlib.crypto.Bip39
@@ -75,7 +79,22 @@ fun Intent.getBitIdRequest(): BitIDSignRequest {
     checkType(ResultType.BIT_ID_REQUEST)
     return getSerializableExtra(RESULT_BIT_ID_REQUEST) as BitIDSignRequest
 }
+fun Intent.getWordList(): Array<String> {
+    checkType(ResultType.WORD_LIST)
+    return getStringArrayExtra(RESULT_WORD_LIST)!!
+}
 
 private fun Intent.checkType(type: ResultType) {
     Preconditions.checkState(type === getSerializableExtra(RESULT_TYPE_KEY))
+}
+
+fun Window.setupFullscreen() {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+        insetsController?.hide(WindowInsets.Type.statusBars())
+    } else {
+        setFlags(
+            WindowManager.LayoutParams.FLAG_FULLSCREEN,
+            WindowManager.LayoutParams.FLAG_FULLSCREEN
+        )
+    }
 }

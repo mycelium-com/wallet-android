@@ -1835,9 +1835,32 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="add_address">Add address</string>
     <string name="message_verified_to_be_from">Message verified to be from %1$s</string>
     <string name="message_failed_to_verify">"Message failed to verify! "</string>
-    <string name="input_look_ahead">Input look ahead</string>
+    <string name="input_look_ahead">Search depth (addresses)</string>
     <string name="card_code">Card Code:</string>
     <string name="gift_card_load_error_title">Gift card purchases are temporarily unavailable.</string>
     <string name="gift_card_load_error_desc">We are currently updating our stores, and the service will be back online soon. Thank you for your understanding!</string>
     <string name="choose_blockchain">Choose blockchain</string>
+    <string name="share_of">Share %1$d</string>
+    <string name="total_number_of_shares">Total shares</string>
+    <string name="threshold">Threshold</string>
+    <string name="total_shares_count_too_high">Total shares count too high, this take a while</string>
+    <string name="every_1000_shares_20mb">\nevery 1000 shares = ~20MB</string>
+    <string name="generate_shares">Generate shares</string>
+    <string name="shamir_share_hint"><![CDATA[Total shares: a number of parts to split the private key into.\n\nThreshold: a number of parts needed to reconstruct the private key.]]></string>
+    <string name="not_valid_value">Not valid value</string>
+    <string name="total_shares_limit">Total shares must be less than 65535</string>
+    <string name="delete_private_key">Make Watch-only</string>
+    <string name="delete_account">Delete Account</string>
+    <string name="delete_private_key_title">Make Account Watch-only</string>
+    <string name="delete_private_key_message">
+        <b>Secure your funds by making your account "watch-only"</b> \n\n
+        For security reasons, it is recommended to delete the private keys of accounts that store critical amounts for you from the device. This is only possible for SA (Single Address) accounts. For convenience, you can think of ‘SA’ as ‘Savings Account’.\n\n
+        <b>This account will be available for viewing only: you will be able to see the balance and transactions, but sending bitcoins won’t be possible.</b>
+    </string>
+    <string name="confirm_delete_private_key_message">Before deleting the private key, make sure you have its backup stored offline and in a safe place. You will have to \"add it back\" from backup  when you need  to spend the bitcoins from this account.</string>
+    <string name="confirm_delete_private_key_message_end">Do you want to make it watch-only?</string>
+    <string name="confirm_delete_account_message_end">Do you want to delete it?</string>
+    <string name="i_know_what_iam_doing">I know what I’m doing</string>
+    <string name="delete_private_key_checkbox">Delete the private key, making the account watch-only.</string>
+    <string name="delete_pk_message"><![CDATA[Do you want to delete the account <b>\"%1$s\"</b> private key holding <b>%2$s</b>?]]></string>
 </resources>

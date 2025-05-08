@@ -1,50 +1,43 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
+plugins {
+    alias(libs.plugins.android.application) apply false
+    alias(libs.plugins.android.library) apply false
+    alias(libs.plugins.kotlin.android) apply false
+    alias(libs.plugins.ksp) apply false
+    alias(libs.plugins.naviagation) apply false
+    alias(libs.plugins.google.services) apply false
+
+    alias(libs.plugins.kotlin.jvm) apply false
+    alias(libs.plugins.doka) apply false
+}
 apply from: 'tools.gradle'
-apply plugin: 'kotlin'
-apply plugin: 'kotlin-kapt'
 apply from: 'integration-test.gradle'
-
-repositories {
-    mavenCentral()
-    google()
-}
-
-buildscript {
-    apply from: 'ext_settings.gradle'
-    repositories {
-        google()
-        mavenCentral()
-    }
-    dependencies {
-        classpath "com.android.tools.build:gradle:$gradleVersion"
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-        classpath 'com.google.gms:google-services:4.4.2'
-        classpath "org.jetbrains.dokka:dokka-gradle-plugin:0.10.0"
-        classpath "androidx.navigation:navigation-safe-args-gradle-plugin:$nav_version"
-    }
-}
-
-kapt {
-    useBuildCache = true
-}
+apply from: 'ext_settings.gradle'
 
 allprojects {
     tasks.withType(JavaCompile).configureEach {
         options.compilerArgs << "-Xlint:deprecation,unchecked"
-        sourceCompatibility = 1.8
-        targetCompatibility = 1.8
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
     tasks.withType(KotlinCompile).configureEach {
-        kotlinOptions {
-            jvmTarget = "1.8"
+//        kotlinOptions.jvmTarget = "17"
+        compilerOptions {
+            jvmTarget.set(JvmTarget.JVM_17)
+            freeCompilerArgs.add("-java-parameters")
         }
     }
+}
 
-    repositories {
-        mavenCentral()
-        google()
-        maven { url 'https://jitpack.io' }
+subprojects {
+    plugins.withId("org.jetbrains.kotlin.jvm") {
+        kotlin {
+            jvmToolchain {
+                languageVersion.set(JavaLanguageVersion.of(17))
+            }
+        }
     }
 }
 
@@ -52,7 +45,7 @@ def props = new Properties()
 try {
     //this allows having a drive with the keys to be mounted for releases, only.
     props.load(new FileInputStream("keys.properties"))
-} catch(Exception ignore) {
+} catch (Exception ignore) {
 }
 props.each {
     key, val -> extensions."$key" = val

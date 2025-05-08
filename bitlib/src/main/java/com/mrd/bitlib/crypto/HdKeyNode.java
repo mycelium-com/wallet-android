@@ -32,9 +32,10 @@ import com.mrd.bitlib.util.BitUtils;
 import com.mrd.bitlib.util.ByteReader;
 import com.mrd.bitlib.util.ByteReader.InsufficientBytesException;
 import com.mrd.bitlib.util.ByteWriter;
+
+import org.bouncycastle.math.ec.ECPoint;
 import org.jetbrains.annotations.Nullable;
 
-import jdk.internal.net.http.common.Log;
 
 /**
  * Implementation of BIP 32 HD wallet key derivation.
@@ -318,12 +319,21 @@ public class HdKeyNode implements Serializable {
          InMemoryPrivateKey key = new InMemoryPrivateKey(privateKeyBytes, true);
          return new HdKeyNode(key, lR, _depth + 1, getFingerprint(), index, derivationType);
       } else {
-         Point q = Parameters.G.multiply(m).add(Parameters.curve.decodePoint(_publicKey.getPublicKeyBytes()));
-         if (q.isInfinity()) {
-            throw new KeyGenerationException("An unlikely thing happened: Invalid key point at infinity");
+         if(Parameters.USE_BOUNCY) {
+            ECPoint q = Parameters._G.multiply(m).add(Parameters._curve.decodePoint(_publicKey.getPublicKeyBytes())).normalize();
+            if (q.isInfinity()) {
+               throw new KeyGenerationException("An unlikely thing happened: Invalid key point at infinity");
+            }
+            PublicKey newPublicKey = new PublicKey(q.getEncoded(true));
+            return new HdKeyNode(newPublicKey, lR, _depth + 1, getFingerprint(), index, derivationType);
+         } else {
+            Point q = Parameters.G.multiply(m).add(Parameters.curve.decodePoint(_publicKey.getPublicKeyBytes()));
+            if (q.isInfinity()) {
+               throw new KeyGenerationException("An unlikely thing happened: Invalid key point at infinity");
+            }
+            PublicKey newPublicKey = new PublicKey(new Point(Parameters.curve, q.getX(), q.getY(), true).getEncoded());
+            return new HdKeyNode(newPublicKey, lR, _depth + 1, getFingerprint(), index, derivationType);
          }
-         PublicKey newPublicKey = new PublicKey(new Point(Parameters.curve, q.getX(), q.getY(), true).getEncoded());
-         return new HdKeyNode(newPublicKey, lR, _depth + 1, getFingerprint(), index, derivationType);
       }
    }
 

@@ -1,5 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog>
+    <release version="3.19.0.0" versioncode="3190000">
+        <change>Full Taproot Support – Smaller, cheaper, and more private Bitcoin transactions</change>
+        <change>Lower Miner Fees – Optimized transaction fee</change>
+        <change>Hardware Wallet Fixes – Improved stability and compatibility</change>
+        <change>Pectra Update for Ethereum – Upgraded for better performance</change>
+        <change>Single Address accounts - more intuitive turning into "Watch-only" account, separated deletion flow</change>
+        <change>Shamir's Secret Sharing (Shamir Export Key) for Single Address accounts - up to 64 000 shares</change>
+    </release>
     <release version="3.18.2.0" versioncode="3180200">
         <change>Gift Cards can now be bought with BTC again</change>
         <change>Improved overall app performance</change>

@@ -5,14 +5,35 @@ import com.mrd.bitlib.FeeEstimatorBuilder
 import com.mrd.bitlib.crypto.BipDerivationType
 import com.mrd.bitlib.crypto.InMemoryPrivateKey
 import com.mrd.bitlib.crypto.PublicKey
-import com.mrd.bitlib.model.*
+import com.mrd.bitlib.model.AddressType
+import com.mrd.bitlib.model.BitcoinAddress
+import com.mrd.bitlib.model.BitcoinTransaction
+import com.mrd.bitlib.model.NetworkParameters
+import com.mrd.bitlib.model.OutPoint
 import com.mrd.bitlib.util.HexUtils
 import com.mrd.bitlib.util.Sha256Hash
 import com.mycelium.wapi.SyncStatus
 import com.mycelium.wapi.SyncStatusInfo
 import com.mycelium.wapi.api.Wapi
 import com.mycelium.wapi.model.TransactionOutputEx
-import com.mycelium.wapi.wallet.*
+import com.mycelium.wapi.wallet.AccountListener
+import com.mycelium.wapi.wallet.Address
+import com.mycelium.wapi.wallet.AddressUtils
+import com.mycelium.wapi.wallet.BroadcastResult
+import com.mycelium.wapi.wallet.BroadcastResultType
+import com.mycelium.wapi.wallet.ConfirmationRiskProfileLocal
+import com.mycelium.wapi.wallet.ExportableAccount
+import com.mycelium.wapi.wallet.Fee
+import com.mycelium.wapi.wallet.InputViewModel
+import com.mycelium.wapi.wallet.KeyCipher
+import com.mycelium.wapi.wallet.OutputViewModel
+import com.mycelium.wapi.wallet.SyncMode
+import com.mycelium.wapi.wallet.SyncPausableAccount
+import com.mycelium.wapi.wallet.Transaction
+import com.mycelium.wapi.wallet.TransactionData
+import com.mycelium.wapi.wallet.TransactionSummary
+import com.mycelium.wapi.wallet.WalletAccount
+import com.mycelium.wapi.wallet.WalletBacking
 import com.mycelium.wapi.wallet.btc.BtcAddress
 import com.mycelium.wapi.wallet.btc.FeePerKbFee
 import com.mycelium.wapi.wallet.btc.coins.BitcoinMain
@@ -26,10 +47,13 @@ import com.mycelium.wapi.wallet.colu.json.AddressTransactionsInfo
 import com.mycelium.wapi.wallet.colu.json.ColuBroadcastTxHex
 import com.mycelium.wapi.wallet.colu.json.Tx
 import org.apache.commons.codec.binary.Hex
-import org.bitcoinj.core.ECKey
+import org.bitcoinj.base.BitcoinNetwork
+import org.bitcoinj.base.ScriptType
+import org.bitcoinj.crypto.ECKey
 import org.bitcoinj.script.ScriptBuilder
 import java.io.IOException
-import java.util.*
+import java.nio.ByteBuffer
+import java.util.UUID
 
 class ColuAccount(val context: ColuAccountContext, val privateKey: InMemoryPrivateKey?
                   , private val type: CryptoCurrency
@@ -51,6 +75,8 @@ class ColuAccount(val context: ColuAccountContext, val privateKey: InMemoryPriva
         get() = listOfNotNull(linkedAccount)
 
     override fun isSpendingUnconfirmed(tx: Transaction): Boolean = false
+
+    override fun hasHadActivity(): Boolean = getTransactionSummaries(0, 1).isNotEmpty()
 
     override fun getTx(txid: ByteArray): Transaction {
         val txJson = accountBacking.getTx(Sha256Hash(txid))
@@ -317,24 +343,25 @@ class ColuAccount(val context: ColuAccountContext, val privateKey: InMemoryPriva
         }
 
 
-        val id =
+        val network =
                 when (networkParameters.networkType){
-                    NetworkParameters.NetworkType.PRODNET -> org.bitcoinj.core.NetworkParameters.ID_MAINNET
-                    NetworkParameters.NetworkType.TESTNET -> org.bitcoinj.core.NetworkParameters.ID_TESTNET
-                    NetworkParameters.NetworkType.REGTEST -> TODO()
+                    NetworkParameters.NetworkType.PRODNET -> BitcoinNetwork.MAINNET
+                    NetworkParameters.NetworkType.TESTNET -> BitcoinNetwork.TESTNET
+                    NetworkParameters.NetworkType.REGTEST -> BitcoinNetwork.REGTEST
                 }
-        val parameters = org.bitcoinj.core.NetworkParameters.fromID(id)
-        val signTx = org.bitcoinj.core.Transaction(parameters, txBytes)
+//        val parameters = BitcoinNetworkParams.fromID(id)
+//        BitcoinNetwork.fromString()
+        val signTx = org.bitcoinj.core.Transaction.read(ByteBuffer.wrap(txBytes))
 
         val privateKeyBytes = coluAccount.getPrivateKey(keyCipher).privateKeyBytes
         val publicKeyBytes = coluAccount.getPrivateKey(keyCipher).publicKey.publicKeyBytes
         val ecKey = ECKey.fromPrivateAndPrecalculatedPublic(privateKeyBytes, publicKeyBytes)
 
-        val inputScript = ScriptBuilder.createOutputScript(ecKey.toAddress(parameters))
+        val inputScript = ScriptBuilder.createOutputScript(ecKey.toAddress(ScriptType.P2PKH, network))
         for (i in 0 until signTx.inputs.size) {
             val signature = signTx.calculateSignature(i, ecKey, inputScript, org.bitcoinj.core.Transaction.SigHash.ALL, false)
             val scriptSig = ScriptBuilder.createInputScript(signature, ecKey)
-            signTx.getInput(i.toLong()).scriptSig = scriptSig
+//            signTx.getInput(i.toLong()).scriptSig = scriptSig
         }
 
         val signedTransactionBytes = signTx.bitcoinSerialize()

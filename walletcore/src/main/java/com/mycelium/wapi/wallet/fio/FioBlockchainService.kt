@@ -14,12 +14,16 @@ import fiofoundation.io.fiosdk.models.fionetworkprovider.RecordObtDataContent
 import fiofoundation.io.fiosdk.models.fionetworkprovider.response.GetObtDataResponse
 import fiofoundation.io.fiosdk.utilities.HashUtils
 import fiofoundation.io.fiosdk.utilities.Utils
-import okhttp3.*
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.RequestBody
 import java.math.BigDecimal
 import java.math.BigInteger
 import java.security.MessageDigest
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Locale
+import java.util.TimeZone
 
 class FioBlockchainService(private val coinType: CryptoCurrency,
                            private val fioEndpoints: FioEndpoints,
@@ -40,12 +44,12 @@ class FioBlockchainService(private val coinType: CryptoCurrency,
         }
         val request = Request.Builder()
                 .url(fioEndpoints.getCurrentApiEndpoint().baseUrl + "chain/get_obt_data")
-                .post(RequestBody.create(MediaType.parse("application/json"), requestBody))
+                .post(RequestBody.create("application/json".toMediaType(), requestBody))
                 .build()
 
         val response = client.newCall(request).execute()
         val gson = GsonBuilder().serializeNulls().create()
-        val result = gson.fromJson(response.body()!!.string(), GetObtDataResponse::class.java)
+        val result = gson.fromJson(response.body!!.string(), GetObtDataResponse::class.java)
         for (item in result.records) {
             try {
                 val pubkey = if (item.payeeFioPublicKey.equals(ownerPublicKey, true)) item.payerFioPublicKey else item.payeeFioPublicKey
@@ -63,10 +67,10 @@ class FioBlockchainService(private val coinType: CryptoCurrency,
         val requestBody = "{\"account_name\":\"$accountName\", \"pos\":$pos, \"offset\":$offset}"
         val request = Request.Builder()
                 .url(fioEndpoints.getCurrentHistoryEndpoint().baseUrl + "history/get_actions")
-                .post(RequestBody.create(MediaType.parse("application/json"), requestBody))
+                .post(RequestBody.create("application/json".toMediaType(), requestBody))
                 .build()
         val response = client.newCall(request).execute()
-        val result = mapper.readValue(response.body()!!.string(), GetActionsResponse::class.java)
+        val result = mapper.readValue(response.body!!.string(), GetActionsResponse::class.java)
         return result.actions
     }
 
@@ -107,7 +111,7 @@ class FioBlockchainService(private val coinType: CryptoCurrency,
                 .post(RequestBody.create(null, ""))
                 .build()
         val response = client.newCall(request).execute()
-        val result = mapper.readValue(response.body()!!.string(), GetBlockInfoResponse::class.java)
+        val result = mapper.readValue(response.body!!.string(), GetBlockInfoResponse::class.java)
         return result.lastIrreversibleBlockNum.toBigInteger()
     }
 
@@ -206,10 +210,10 @@ class FioBlockchainService(private val coinType: CryptoCurrency,
             val requestBody = """{"account_name":"$actor"}"""
             val request = Request.Builder()
                     .url(fioEndpoints.getCurrentApiEndpoint().baseUrl + "chain/get_account")
-                    .post(RequestBody.create(MediaType.parse("application/json"), requestBody))
+                    .post(RequestBody.create("application/json".toMediaType(), requestBody))
                     .build()
             val response = client.newCall(request).execute()
-            val result = mapper.readValue(response.body()!!.string(), GetAccountResponse::class.java)
+            val result = mapper.readValue(response.body!!.string(), GetAccountResponse::class.java)
             return result.permissions[0].requiredAuth!!.keys[0].key
         }
 
@@ -229,10 +233,10 @@ class FioBlockchainService(private val coinType: CryptoCurrency,
                     |}""".trimMargin()
             val request = Request.Builder()
                     .url(fioEndpoints.getCurrentApiEndpoint().baseUrl + "chain/get_table_rows")
-                    .post(RequestBody.create(MediaType.parse("application/json"), requestBody))
+                    .post(RequestBody.create("application/json".toMediaType(), requestBody))
                     .build()
             val response = client.newCall(request).execute()
-            val body = response.body()!!.string()
+            val body = response.body!!.string()
             return mapper.readValue(body, GetPubAddressesResponse::class.java).rows.firstOrNull()?.addresses
                     ?: listOf()
         }
@@ -242,10 +246,10 @@ class FioBlockchainService(private val coinType: CryptoCurrency,
             val requestBody = """{"fio_address":"$fioAddress","chain_code":"$chainCode","token_code":"$tokenCode"}"""
             val request = Request.Builder()
                     .url(fioEndpoints.getCurrentApiEndpoint().baseUrl + "chain/get_pub_address")
-                    .post(RequestBody.create(MediaType.parse("application/json"), requestBody))
+                    .post(RequestBody.create("application/json".toMediaType(), requestBody))
                     .build()
             val response = client.newCall(request).execute()
-            return mapper.readValue(response.body()!!.string(), GetPubAddressResponse::class.java)
+            return mapper.readValue(response.body!!.string(), GetPubAddressResponse::class.java)
         }
 
         @JvmStatic
@@ -253,11 +257,11 @@ class FioBlockchainService(private val coinType: CryptoCurrency,
             val requestBody = """{"end_point":"$endpointName","fio_address":"$fioAddress"}"""
             val request = Request.Builder()
                     .url(fioEndpoints.getCurrentApiEndpoint().baseUrl + "chain/get_fee")
-                    .post(RequestBody.create(MediaType.parse("application/json"), requestBody))
+                    .post(RequestBody.create("application/json".toMediaType(), requestBody))
                     .build()
 
             val response = client.newCall(request).execute()
-            val result = mapper.readValue(response.body()!!.string(), GetFeeResponse::class.java)
+            val result = mapper.readValue(response.body!!.string(), GetFeeResponse::class.java)
             return result.fee
         }
 
@@ -266,10 +270,10 @@ class FioBlockchainService(private val coinType: CryptoCurrency,
             val requestBody = """{"fio_name":"$fioNameOrDomain"}"""
             val request = Request.Builder()
                     .url(fioEndpoints.getCurrentApiEndpoint().baseUrl + "chain/avail_check")
-                    .post(RequestBody.create(MediaType.parse("application/json"), requestBody))
+                    .post(RequestBody.create("application/json".toMediaType(), requestBody))
                     .build()
             val response = client.newCall(request).execute()
-            val result = mapper.readValue(response.body()!!.string(), AvailCheckResponse::class.java)
+            val result = mapper.readValue(response.body!!.string(), AvailCheckResponse::class.java)
             return result.isAvailable
         }
 
@@ -278,10 +282,10 @@ class FioBlockchainService(private val coinType: CryptoCurrency,
             val requestBody = """{"fio_public_key":"$publicKey"}"""
             val request = Request.Builder()
                     .url(fioEndpoints.getCurrentApiEndpoint().baseUrl + "chain/get_fio_names")
-                    .post(RequestBody.create(MediaType.parse("application/json"), requestBody))
+                    .post(RequestBody.create("application/json".toMediaType(), requestBody))
                     .build()
             val response = client.newCall(request).execute()
-            return mapper.readValue(response.body()!!.string(), GetFIONamesResponse::class.java)
+            return mapper.readValue(response.body!!.string(), GetFIONamesResponse::class.java)
         }
 
         @JvmStatic
@@ -297,10 +301,10 @@ class FioBlockchainService(private val coinType: CryptoCurrency,
                                   "json": true}"""
             val request = Request.Builder()
                     .url(fioEndpoints.getCurrentApiEndpoint().baseUrl + "chain/get_table_rows")
-                    .post(RequestBody.create(MediaType.parse("application/json"), requestBody))
+                    .post(RequestBody.create("application/json".toMediaType(), requestBody))
                     .build()
             val response = client.newCall(request).execute()
-            val result = mapper.readValue(response.body()!!.string(), GetFioNamesTableRowsResponse::class.java)
+            val result = mapper.readValue(response.body!!.string(), GetFioNamesTableRowsResponse::class.java)
             return result.rows?.firstOrNull { it.name == fioName }?.bundleeligiblecountdown
         }
 

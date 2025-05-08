@@ -145,13 +145,13 @@ fun ChangellyTransaction.fixedCurrencyFrom() =
 fun ChangellyTransaction.fixedCurrencyTo() =
     importSymbol(currencyTo)
 
-private fun importSymbol(currency: String) =
-    if (currency.equals("USDT20", true)) "USDT"
+fun importSymbol(currency: String) =
+    if (currency.equals("USDT", true)) "USDT20"
     else currency
 
-private fun exportSymbol(currency: String) =
-    if (currency.equals("USDT", true)) "USDT20".toLowerCase()
-    else currency.toLowerCase()
+private fun exportSymbol(currency: String) = currency
+//    if (currency.equals("USDT20", true) && isVip) "usdt"
+//    else currency.lowercase()
 
 class ViperUnexpectedException(e: Exception) : Exception(e)
 class ViperStatusException(e: Exception) : Exception(e)

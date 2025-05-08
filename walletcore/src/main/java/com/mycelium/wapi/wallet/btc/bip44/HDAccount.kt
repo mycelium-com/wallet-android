@@ -4,13 +4,16 @@ import com.google.common.base.Optional
 import com.google.common.base.Preconditions
 import com.google.common.collect.BiMap
 import com.google.common.collect.HashBiMap
-import com.google.common.collect.ImmutableList
 import com.google.common.collect.Lists
 import com.mrd.bitlib.crypto.BipDerivationType
 import com.mrd.bitlib.crypto.BipDerivationType.Companion.getDerivationTypeByAddress
 import com.mrd.bitlib.crypto.InMemoryPrivateKey
 import com.mrd.bitlib.crypto.PublicKey
-import com.mrd.bitlib.model.*
+import com.mrd.bitlib.model.AddressType
+import com.mrd.bitlib.model.BitcoinAddress
+import com.mrd.bitlib.model.BitcoinTransaction
+import com.mrd.bitlib.model.NetworkParameters
+import com.mrd.bitlib.model.ScriptOutput
 import com.mrd.bitlib.util.Sha256Hash
 import com.mycelium.wapi.SyncStatus
 import com.mycelium.wapi.SyncStatusInfo
@@ -18,18 +21,30 @@ import com.mycelium.wapi.api.Wapi
 import com.mycelium.wapi.api.WapiException
 import com.mycelium.wapi.api.request.QueryTransactionInventoryRequest
 import com.mycelium.wapi.model.TransactionEx
-import com.mycelium.wapi.wallet.*
+import com.mycelium.wapi.wallet.Address
+import com.mycelium.wapi.wallet.AesKeyCipher
+import com.mycelium.wapi.wallet.BroadcastResult
+import com.mycelium.wapi.wallet.ExportableAccount
+import com.mycelium.wapi.wallet.KeyCipher
 import com.mycelium.wapi.wallet.KeyCipher.InvalidKeyCipher
+import com.mycelium.wapi.wallet.LoadingProgressTracker
+import com.mycelium.wapi.wallet.SyncMode
+import com.mycelium.wapi.wallet.Transaction
 import com.mycelium.wapi.wallet.WalletManager.Event
-import com.mycelium.wapi.wallet.btc.*
-import java.util.*
+import com.mycelium.wapi.wallet.btc.AbstractBtcAccount
+import com.mycelium.wapi.wallet.btc.Bip44BtcAccountBacking
+import com.mycelium.wapi.wallet.btc.BtcAddress
+import com.mycelium.wapi.wallet.btc.BtcTransaction
+import com.mycelium.wapi.wallet.btc.ChangeAddressMode
+import com.mycelium.wapi.wallet.btc.Reference
+import java.util.UUID
 import java.util.concurrent.TimeUnit
 import java.util.logging.Level
 import kotlin.math.max
 import kotlin.math.min
 
 open class HDAccount(
-        protected var context: HDAccountContext,
+        protected val context: HDAccountContext,
         protected val keyManagerMap: MutableMap<BipDerivationType, HDAccountKeyManager>,
         network: NetworkParameters,
         protected val backing: Bip44BtcAccountBacking,
@@ -178,7 +193,7 @@ open class HDAccount(
      *
      * @return true if this account has ever had any activity, false otherwise
      */
-    fun hasHadActivity(): Boolean {
+    override fun hasHadActivity(): Boolean {
         // public method that needs no synchronization
         return derivePaths.any { context.getLastExternalIndexWithActivity(it) != -1 }
     }

@@ -21,6 +21,7 @@ import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
 import java.util.Date;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 public class GetExchangeRate {
@@ -42,7 +43,7 @@ public class GetExchangeRate {
 
     // multiply the source value by this rate, to get the target value
     public BigDecimal getRate() {
-        if (getTargetPrice() == null || getSourcePrice() == null) {
+        if (getTargetPrice() == null || getSourcePrice() == null || BigDecimal.ZERO.equals(getSourcePrice())) {
             return null;
         }
         return getTargetPrice().divide(getSourcePrice(), 10, RoundingMode.HALF_UP);
@@ -89,7 +90,9 @@ public class GetExchangeRate {
                 targetPrice = BigDecimal.valueOf(targetExchangeRate.price);
             }
         }
-        if (sourcePrice == null && targetPrice == null) {
+        if(BigDecimal.ONE.equals(sourcePrice) && BigDecimal.ONE.equals(targetPrice)) {
+            priceAccross("USD");
+        } else if (sourcePrice == null && targetPrice == null) {
             priceAccross(Utils.getBtcCoinType().getSymbol());
         }
         return this;
@@ -99,11 +102,21 @@ public class GetExchangeRate {
         sourceExchangeRate = exchangeRateManager.getExchangeRate(coin, sourceCurrency);
         if (sourceExchangeRate != null && sourceExchangeRate.price != null) {
             sourcePrice = BigDecimal.valueOf(sourceExchangeRate.price);
+        } else {
+            sourceExchangeRate = exchangeRateManager.getExchangeRate(sourceCurrency, coin);
+            if (sourceExchangeRate != null && sourceExchangeRate.price != null) {
+                sourcePrice = BigDecimal.ONE.divide(BigDecimal.valueOf(sourceExchangeRate.price), 10, RoundingMode.HALF_UP);
+            }
         }
 
         targetExchangeRate = exchangeRateManager.getExchangeRate(coin, targetCurrency);
         if (targetExchangeRate != null && targetExchangeRate.price != null) {
             targetPrice = BigDecimal.valueOf(targetExchangeRate.price);
+        } else {
+            targetExchangeRate = exchangeRateManager.getExchangeRate(targetCurrency, coin);
+            if (targetExchangeRate != null && targetExchangeRate.price != null) {
+                targetPrice = BigDecimal.ONE.divide(BigDecimal.valueOf(targetExchangeRate.price), 10, RoundingMode.HALF_UP);
+            }
         }
     }
 

@@ -98,7 +98,7 @@
                 android:id="@+id/tvFee"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:paddingStart="4dp"
+                android:layout_marginStart="@dimen/size_x1"
                 android:paddingEnd="1dp"
                 android:textSize="18sp"
                 tools:text="123123 Loading..." />
@@ -111,4 +111,27 @@
                 android:visibility="gone" />
         </LinearLayout>
     </TableRow>
+    <TableRow
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="5dip">
+
+        <TextView
+            android:id="@+id/txSizeLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Size"
+            android:textSize="18sp" />
+
+        <TextView
+            android:id="@+id/txSize"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            tools:text="100 vB"
+            android:layout_marginStart="@dimen/size_x1"
+            android:textSize="18sp" />
+    </TableRow>
+
 </TableLayout>

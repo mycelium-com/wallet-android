@@ -20,7 +20,7 @@ import com.mrd.bitlib.crypto.BipDerivationType
 import com.mrd.bitlib.model.AddressType
 import com.mycelium.wapi.wallet.AccountIndexesContext
 import com.mycelium.wapi.wallet.btc.Bip44BtcAccountBacking
-import java.util.*
+import java.util.UUID
 
 /**
  * The abstract context of an account
@@ -31,9 +31,10 @@ class HDAccountContext @JvmOverloads constructor(
         @Volatile private var isArchived: Boolean,
         private var blockHeight: Int = 0,
         private var lastDiscovery: Long = 0,
-        // TODO remove filter { it != BipDerivationType.BIP86 } after full taproot implementation
-        val indexesMap: MutableMap<BipDerivationType, AccountIndexesContext> = createNewIndexesContexts(BipDerivationType.values()
-            .asIterable().filter { it != BipDerivationType.BIP86 }),
+        val indexesMap: MutableMap<BipDerivationType, AccountIndexesContext> = createNewIndexesContexts(
+            BipDerivationType.entries
+            .asIterable()
+        ),
         val accountType: Int = ACCOUNT_TYPE_FROM_MASTERSEED,
         val accountSubId: Int = 0,
         defaultAddressType: AddressType = AddressType.P2SH_P2WPKH

@@ -5,7 +5,16 @@ import com.mrd.bitlib.util.BitUtils
 import com.mrd.bitlib.util.HexUtils
 import com.mycelium.wapi.SyncStatus
 import com.mycelium.wapi.SyncStatusInfo
-import com.mycelium.wapi.wallet.*
+import com.mycelium.wapi.wallet.AccountListener
+import com.mycelium.wapi.wallet.Address
+import com.mycelium.wapi.wallet.BroadcastResult
+import com.mycelium.wapi.wallet.BroadcastResultType
+import com.mycelium.wapi.wallet.Fee
+import com.mycelium.wapi.wallet.KeyCipher
+import com.mycelium.wapi.wallet.SyncMode
+import com.mycelium.wapi.wallet.SyncPausable
+import com.mycelium.wapi.wallet.Transaction
+import com.mycelium.wapi.wallet.TransactionData
 import com.mycelium.wapi.wallet.btc.FeePerKbFee
 import com.mycelium.wapi.wallet.coins.Balance
 import com.mycelium.wapi.wallet.coins.Value
@@ -16,14 +25,19 @@ import com.mycelium.wapi.wallet.exceptions.InsufficientFundsException
 import com.mycelium.wapi.wallet.genericdb.EthAccountBacking
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import org.web3j.crypto.*
+import org.web3j.crypto.Credentials
+import org.web3j.crypto.ECKeyPair
+import org.web3j.crypto.RawTransaction
+import org.web3j.crypto.Sign
+import org.web3j.crypto.TransactionEncoder
+import org.web3j.crypto.TransactionUtils
 import org.web3j.tx.Transfer
 import org.web3j.utils.Convert
 import org.web3j.utils.Numeric
 import java.io.IOException
 import java.math.BigInteger
 import java.nio.charset.StandardCharsets
-import java.util.*
+import java.util.UUID
 import java.util.concurrent.TimeUnit
 import java.util.logging.Level
 
@@ -45,7 +59,7 @@ class EthAccount(private val chainId: Byte,
     fun updateEnabledTokens() {
         accountContext.updateEnabledTokens()
     }
-    fun hasHadActivity(): Boolean =
+    override fun hasHadActivity(): Boolean =
             accountBalance.spendable.isPositive() || accountContext.nonce > BigInteger.ZERO
 
     @Throws(InsufficientFundsException::class, BuildTransactionException::class)
@@ -175,7 +189,7 @@ class EthAccount(private val chainId: Byte,
             return true
         } catch (e: IOException) {
             lastSyncInfo = SyncStatusInfo(SyncStatus.ERROR)
-            logger.log(Level.SEVERE, "Error retrieving ETH/ERC-20 transaction history: ${e.javaClass} ${e.localizedMessage}")
+            logger.log(Level.SEVERE, "EthAccount: Error retrieving ETH/ERC-20 transaction history: ${e.javaClass} ${e.localizedMessage}")
             return false
         }
     }

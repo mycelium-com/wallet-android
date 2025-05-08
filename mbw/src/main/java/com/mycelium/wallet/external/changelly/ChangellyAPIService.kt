@@ -1,7 +1,6 @@
 package com.mycelium.wallet.external.changelly
 
 import com.mycelium.wallet.external.changelly.model.ChangellyCurrency
-import com.mycelium.wallet.external.changelly.model.ChangellyGetExchangeAmountResponse
 import com.mycelium.wallet.external.changelly.model.ChangellyListResponse
 import com.mycelium.wallet.external.changelly.model.ChangellyResponse
 import com.mycelium.wallet.external.changelly.model.ChangellyTransaction
@@ -18,10 +17,6 @@ import java.math.BigDecimal
  */
 interface ChangellyAPIService {
 
-    // end data classes
-    @POST("getCurrencies")
-    fun getCurrencies(): Call<ChangellyResponse<List<String>>>
-
     // {"jsonrpc":"2.0","id":"test","result":"0.03595702"}
     @Deprecated(
         "Use getFixRateForAmount for limits. A full-fledged replacement of these methods is also coming soon",
@@ -32,13 +27,6 @@ interface ChangellyAPIService {
         @Query("from") from: String,
         @Query("to") to: String,
     ): Call<ChangellyResponse<Double>>
-
-    @POST("getExchangeAmount")
-    fun getExchangeAmount(
-        @Query("from") from: String,
-        @Query("to") to: String,
-        @Query("amountFrom") amount: Double,
-    ): Call<ChangellyResponse<ChangellyGetExchangeAmountResponse>>
 
     //{
     // "jsonrpc":"2.0",

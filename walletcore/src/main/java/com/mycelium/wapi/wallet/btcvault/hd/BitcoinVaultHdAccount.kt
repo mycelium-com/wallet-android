@@ -730,7 +730,7 @@ class BitcoinVaultHdAccount(protected var accountContext: BitcoinVaultHDAccountC
      *
      * @return true if this account has ever had any activity, false otherwise
      */
-    fun hasHadActivity(): Boolean {
+    override fun hasHadActivity(): Boolean {
         // public method that needs no synchronization
         return derivePaths.any { accountContext.getLastExternalIndexWithActivity(it) != -1 }
     }

@@ -112,4 +112,6 @@
     </string>
     <string name="about_0_btc">~ 0.00 BTC</string>
     <string name="zero_usd">0.00 USD</string>
+
+    <string name="shamir_secret_sharing" translatable="false">Shamir Secret Sharing</string>
 </resources>

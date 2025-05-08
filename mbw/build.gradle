@@ -1,50 +1,33 @@
-buildscript {
-    repositories {
-        google()
-        mavenCentral()
-    }
-    dependencies {
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-//        classpath "com.squareup.sqldelight:gradle-plugin:$sqldelight_version"
-    }
-}
-
 plugins {
-    id("app.cash.sqldelight") version "$sqldelight_version"
+    alias(libs.plugins.android.application)
+    alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.ksp)
+    alias(libs.plugins.naviagation)
+    alias(libs.plugins.sqldelight)
+    alias(libs.plugins.google.services)
 }
-apply plugin: 'com.android.application'
-apply plugin: 'kotlin-android'
-apply plugin: 'kotlin-kapt'
-apply plugin: "androidx.navigation.safeargs.kotlin"
 apply plugin: "kotlin-parcelize"
-
-repositories {
-    mavenCentral()
-    google()
-}
+apply plugin: 'kotlin-kapt'
 
 configurations {
     compile.exclude group: 'org.apache.httpcomponents', module: 'httpclient'
 }
 
-configurations.all {
+configurations.configureEach {
     resolutionStrategy.eachDependency { DependencyResolveDetails details ->
         if (details.requested.group == "com.google.guava"
                 && details.requested.name == "guava") {
-            details.useTarget("com.google.guava:guava:$guavaVersion")
+            details.useTarget(libs.guava)
         }
     }
 }
-kapt {
-    correctErrorTypes true
-    useBuildCache = true
-    javacOptions {
-        option("-Xmaxerrs", 500)
-    }
+
+ksp {
+    arg("deepLink.incremental", "true")
+    arg("deepLink.customAnnotations", "com.airbnb.AppDeepLink|com.airbnb.WebDeepLink")
 }
 
 dependencies {
-    testImplementation "junit:junit:$junitVersion"
 
     implementation project(includePrefix + ':walletmodel')
     implementation project(includePrefix + ':wapi')
@@ -60,10 +43,8 @@ dependencies {
     implementation project(includePrefix + ':fiosdk')
     implementation project(includePrefix + ':androidfioserializationprovider')
 
-    implementation "com.google.guava:guava:$guavaVersion"
-    implementation "com.squareup.retrofit2:retrofit:2.6.1"
-    implementation "com.squareup.retrofit2:converter-gson:2.6.1"
-    implementation "com.squareup.retrofit2:converter-jackson:2.6.1"
+    implementation libs.guava
+    implementation libs.bundles.retrofit
     // TODO: update remaining code to retrofit2
     implementation "com.squareup.retrofit:retrofit:1.9.0"
 
@@ -71,54 +52,39 @@ dependencies {
     implementation "androidx.activity:activity-ktx:1.3.1"
     implementation "androidx.appcompat:appcompat:$appCompatVersion"
     implementation 'androidx.constraintlayout:constraintlayout:2.1.0'
-    implementation "androidx.legacy:legacy-support-v4:$xLegacyVersion"
-    implementation "androidx.lifecycle:lifecycle-runtime:$lifecycle_version"
 
+    implementation libs.bundles.lifecycle
     implementation "androidx.lifecycle:lifecycle-extensions:2.2.0"
-//    kapt "androidx.lifecycle:lifecycle-compiler:$lifecycle_version"
 
-    implementation "androidx.lifecycle:lifecycle-livedata-ktx:$lifecycle_version"
-    implementation "androidx.lifecycle:lifecycle-reactivestreams-ktx:$lifecycle_version"
-    implementation "androidx.lifecycle:lifecycle-reactivestreams:$lifecycle_version"
-
-    //not upgrading. This will be replaced with firebase
-    implementation "com.google.android.gms:play-services-base:10.2.1"
-    implementation "com.google.android.gms:play-services-gcm:10.2.1"
-    implementation "com.google.firebase:firebase-messaging:23.1.1"
+    implementation(platform(libs.firebase.bom))
+    implementation libs.bundles.firebase.bom
     implementation "com.google.code.findbugs:annotations:$findBugsVersion"
     implementation "com.squareup:otto:$ottoVersion"
 
     implementation 'androidx.browser:browser:1.5.0'
     implementation "androidx.biometric:biometric:1.1.0"
-    implementation "androidx.core:core-ktx:1.6.0"
+    implementation libs.androidx.core
     implementation "androidx.fragment:fragment-ktx:1.3.6"
     implementation "androidx.vectordrawable:vectordrawable-animated:1.1.0"
-    implementation "androidx.recyclerview:recyclerview:$recyclerViewVersion"
+    implementation libs.recyclerview
     implementation "androidx.gridlayout:gridlayout:1.0.0"
     implementation "androidx.preference:preference:1.1.1"
     implementation "androidx.work:work-runtime-ktx:$workManagerVersion"
-    implementation "androidx.navigation:navigation-fragment-ktx:$nav_version"
-    implementation "androidx.navigation:navigation-ui-ktx:$nav_version"
-    implementation "androidx.navigation:navigation-dynamic-features-fragment:$nav_version"
+    implementation libs.bundles.navigation
     implementation "androidx.viewpager2:viewpager2:1.1.0-beta01"
     implementation "com.google.android.material:material:$materialVersion"
     implementation "org.ocpsoft.prettytime:prettytime:3.2.5.Final"
     implementation "com.squareup.wire:wire-runtime:$wireVersion"
-    implementation "com.jakewharton:butterknife:10.1.0"
-    kapt "com.jakewharton:butterknife-compiler:10.1.0"
     implementation "com.squareup.okhttp3:logging-interceptor:3.8.1"
     implementation "com.squareup.okhttp:okhttp:$okhttpVersion"
-    implementation "androidx.multidex:multidex:2.0.1"
     implementation "commons-codec:commons-codec:1.10"
-    implementation "com.google.protobuf:protobuf-java:$protoBufVersion"
+    implementation libs.protobuf.java
     implementation "androidx.constraintlayout:constraintlayout:$constraintLayoutVersion"
       //USED BY KYC only, have to be reviewed later
     implementation "com.googlecode.libphonenumber:libphonenumber:8.12.2"
     implementation "com.nulab-inc:zxcvbn:1.3.0"
 
 
-    implementation 'com.google.firebase:firebase-dynamic-links-ktx:19.1.0'
-    implementation 'com.google.firebase:firebase-analytics-ktx:17.5.0'
     implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'
     // Because RxAndroid releases are few and far between, it is recommended you also
     // explicitly depend on RxJava's latest version for bug fixes and new features.
@@ -129,46 +95,37 @@ dependencies {
 
     implementation project(includePrefix + ":wallet-android-modularization-tools:modularization-lib")
 
-    implementation "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$kotlinCoroutinesVersion"
+    implementation libs.kotlinx.coroutines.android
     implementation "com.github.tony19:logback-android-core:1.1.1-6"
     implementation "com.google.http-client:google-http-client-jackson2:$httpClientJacksonVersion"
     implementation "com.fasterxml.jackson.core:jackson-databind:$jacksonDatabindVersion"
     implementation "com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonDatabindVersion"
-    implementation 'org.bouncycastle:bcprov-jdk15on:1.64'
+    implementation libs.bouncycastle.bcprov
     implementation("org.bitcoinj:orchid:1.2.1") {
         exclude(module: 'slf4j-api')
     }
-    implementation 'org.web3j:core:4.2.1-android'
+    implementation libs.bundles.web3j
 
-    implementation "app.cash.sqldelight:android-driver:$sqldelight_version"
+    implementation libs.sqldelight.driver
 
-    implementation("com.github.bumptech.glide:glide:4.7.1") {
+    implementation(libs.glide) {
         exclude group: "com.android.support"
     }
-    kapt "com.github.bumptech.glide:compiler:4.7.1"
+    ksp libs.glide.ksp
     implementation files("$rootDir/libs/netcipher-2.2.1.jar")
     implementation "com.airbnb.android:lottie:3.4.0"
 
-    androidTestImplementation 'androidx.test:core:1.6.1'
-    androidTestImplementation 'androidx.test:core-ktx:1.6.1'
-    androidTestImplementation 'androidx.test:runner:1.6.2'
-    androidTestImplementation 'androidx.test:rules:1.6.1'
-    androidTestImplementation 'androidx.test.ext:junit:1.2.1'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.6.1'
-    androidTestImplementation('androidx.test.espresso:espresso-contrib:3.6.1') {
-        exclude module: "protobuf-lite"
-    }
-    androidTestImplementation 'androidx.test.espresso:espresso-intents:3.6.1'
-    androidTestImplementation 'androidx.test.espresso.idling:idling-concurrent:3.6.1'
-    androidTestImplementation 'androidx.test.espresso:espresso-idling-resource:3.6.1'
-    androidTestImplementation project(includePrefix + ':testhelper')
+//  unit test block
+    testImplementation libs.junit
 
+//  android test block
+    androidTestImplementation project(includePrefix + ':testhelper')
+    androidTestImplementation libs.bundles.android.test.bundle
+    androidTestImplementation libs.bundles.espresso
+    androidTestImplementation libs.bundles.mockk
     // Kotlin Coroutines Test
     androidTestImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:1.10.1"
-    // For instrumented tests
-    androidTestImplementation "org.mockito:mockito-android:4.8.0"
 }
 
 sqldelight {
@@ -194,17 +151,20 @@ android {
     buildFeatures {
         viewBinding true
         dataBinding true
+        buildConfig true
     }
     configurations {
         all*.exclude module: 'jcip-annotations'
         all*.exclude module: 'jsr305'
         all*.exclude group: 'com.google.guava', module: 'listenablefuture'
     }
-    kotlinOptions {
-        jvmTarget = '1.8'
-    }
 
     packagingOptions {
+        exclude 'META-INF/FastDoubleParser-NOTICE'
+        exclude 'META-INF/FastDoubleParser-LICENSE'
+        exclude 'META-INF/versions/9/OSGI-INF/MANIFEST.MF'
+        exclude 'META-INF/LICENSE.md'
+        exclude 'META-INF/LICENSE-notice.md'
         exclude 'META-INF/LICENSE'
         exclude 'META-INF/NOTICE'
         exclude 'META-INF/DEPENDENCIES'
@@ -221,29 +181,28 @@ android {
         // bitcoinj brings in a native library for x86_64, which seems to confuse the playstore upload - just strip the file
         // still relevant 2021-03-31
         exclude 'lib/x86_64/darwin/libscrypt.dylib'
+        resources {
+            excludes += "/META-INF/DISCLAIMER"
+        }
     }
 
     compileOptions {
-        sourceCompatibility = 'VERSION_1_8'
-        targetCompatibility = 'VERSION_1_8'
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
 
     compileSdk androidCompileSdkVersion
     buildToolsVersion androidSdkBuildVersion
 
     defaultConfig {
-        versionCode 3180200
-        versionName '3.18.2.0'
-
-        multiDexEnabled true
+        versionCode 3190000
+        versionName '3.19.0.0'
 
         minSdkVersion androidMinSdkVersion
         targetSdkVersion androidTargetSdkVersion
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary true
     }
-
-    kotlinOptions { jvmTarget = "1.8" }
 
     signingConfigs {
         release {
@@ -459,5 +418,3 @@ android {
 
     ndkVersion '21.1.6352462'
 }
-
-apply plugin: 'com.google.gms.google-services'

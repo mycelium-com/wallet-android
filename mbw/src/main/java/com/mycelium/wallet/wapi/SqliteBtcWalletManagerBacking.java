@@ -45,6 +45,8 @@ import android.database.sqlite.SQLiteStatement;
 import android.util.ArrayMap;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import com.google.gson.Gson;
@@ -221,19 +223,7 @@ public class SqliteBtcWalletManagerBacking implements BtcWalletManagerBacking<Si
                null, null, null, null, "accountIndex", null);
 
          while (cursor.moveToNext()) {
-            UUID id = SQLiteQueryWithBlobs.uuidFromBytes(cursor.getBlob(0));
-            int accountIndex = cursor.getInt(1);
-            boolean isArchived = cursor.getInt(2) == 1;
-            int blockHeight = cursor.getInt(3);
-            Type type = new TypeToken<Map<BipDerivationType, AccountIndexesContext>>() {}.getType();
-            Map<BipDerivationType, AccountIndexesContext> indexesContextMap = gson.fromJson(cursor.getString(4), type);
-            long lastDiscovery = cursor.getLong(5);
-            int accountType = cursor.getInt(6);
-            int accountSubId = (int) cursor.getLong(7);
-
-            AddressType defaultAddressType = gson.fromJson(cursor.getString(8), AddressType.class);
-            list.add(new HDAccountContext(id, accountIndex, isArchived, blockHeight, lastDiscovery, indexesContextMap,
-                    accountType, accountSubId, defaultAddressType));
+            list.add(getHdAccountContext(cursor));
          }
          return list;
       } finally {
@@ -241,6 +231,46 @@ public class SqliteBtcWalletManagerBacking implements BtcWalletManagerBacking<Si
             cursor.close();
          }
       }
+   }
+
+   public HDAccountContext getBip44AccountContext(UUID accountId) {
+      HDAccountContext result = null;
+      Cursor cursor = null;
+      try {
+         SQLiteQueryWithBlobs blobQuery = new SQLiteQueryWithBlobs(_database);
+         blobQuery.bindBlob(1, SQLiteQueryWithBlobs.uuidToBytes(accountId));
+         cursor = blobQuery.query(
+                 false, "bip44",
+                 new String[]{"id", "accountIndex", "archived", "blockheight",
+                         "indexContexts", "lastDiscovery", "accountType", "accountSubId", "addressType"},
+                 "id = ?", null, null, null, "accountIndex", null);
+
+         if (cursor.moveToNext()) {
+            result = getHdAccountContext(cursor);
+         }
+      } finally {
+         if (cursor != null) {
+            cursor.close();
+         }
+      }
+      return result;
+   }
+
+   @NonNull
+   private HDAccountContext getHdAccountContext(Cursor cursor) {
+      UUID id = SQLiteQueryWithBlobs.uuidFromBytes(cursor.getBlob(0));
+      int accountIndex = cursor.getInt(1);
+      boolean isArchived = cursor.getInt(2) == 1;
+      int blockHeight = cursor.getInt(3);
+      Type type = new TypeToken<Map<BipDerivationType, AccountIndexesContext>>() {}.getType();
+      Map<BipDerivationType, AccountIndexesContext> indexesContextMap = gson.fromJson(cursor.getString(4), type);
+      long lastDiscovery = cursor.getLong(5);
+      int accountType = cursor.getInt(6);
+      int accountSubId = (int) cursor.getLong(7);
+
+      AddressType defaultAddressType = gson.fromJson(cursor.getString(8), AddressType.class);
+      return new HDAccountContext(id, accountIndex, isArchived, blockHeight, lastDiscovery, indexesContextMap,
+              accountType, accountSubId, defaultAddressType);
    }
 
    @Override

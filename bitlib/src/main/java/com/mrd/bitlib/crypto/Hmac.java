@@ -17,10 +17,8 @@
 package com.mrd.bitlib.crypto;
 
 import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 
-import com.mrd.bitlib.util.BitUtils;
-import com.mrd.bitlib.util.HexUtils;
+import com.mrd.bitlib.util.HashUtils;
 
 public class Hmac {
    private static final String SHA256 = "SHA-256";
@@ -29,24 +27,24 @@ public class Hmac {
    private static final int SHA512_BLOCK_SIZE = 128;
 
    public static byte[] hmacSha256(byte[] key, byte[] message) {
-      MessageDigest digest;
-      try {
-         digest = MessageDigest.getInstance(SHA256);
-      } catch (NoSuchAlgorithmException e) {
-         // Only happens if the platform does not support SHA-256
-         throw new RuntimeException(e);
-      }
+      MessageDigest digest = HashUtils.getSha256Digest();
+//      try {
+//         digest = MessageDigest.getInstance(SHA256);
+//      } catch (NoSuchAlgorithmException e) {
+//         // Only happens if the platform does not support SHA-256
+//         throw new RuntimeException(e);
+//      }
       return hmac(digest, SHA256_BLOCK_SIZE, key, message);
    }
 
    public static byte[] hmacSha512(byte[] key, byte[] message) {
-      MessageDigest digest;
-      try {
-         digest = MessageDigest.getInstance(SHA512);
-      } catch (NoSuchAlgorithmException e) {
-         // Only happens if the platform does not support SHA-512
-         throw new RuntimeException(e);
-      }
+      MessageDigest digest = HashUtils.getSha512Digest();
+//      try {
+//         digest = MessageDigest.getInstance(SHA512);
+//      } catch (NoSuchAlgorithmException e) {
+//         // Only happens if the platform does not support SHA-512
+//         throw new RuntimeException(e);
+//      }
       return hmac(digest, SHA512_BLOCK_SIZE, key, message);
    }
 

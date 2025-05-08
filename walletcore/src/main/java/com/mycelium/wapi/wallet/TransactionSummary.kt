@@ -8,36 +8,31 @@ import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.eth.EthAccount
 import java.io.Serializable
 
-open class TransactionSummary(var type: CryptoCurrency,
-                              var id: ByteArray, protected var hash: ByteArray,
-                              var transferred: Value,
-                              var timestamp: Long,
-                              var height: Int,
-                              var confirmations: Int,
-                              var isQueuedOutgoing: Boolean,
-                              var inputs: List<InputViewModel>,
-                              var outputs: List<OutputViewModel>,
-                              var destinationAddresses: List<Address>,
-                              risk: ConfirmationRiskProfileLocal?,
-                              rawSize: Int, fee: Value?) : Serializable,
+open class TransactionSummary(
+    var type: CryptoCurrency,
+    var id: ByteArray, protected var hash: ByteArray,
+    var transferred: Value,
+    var timestamp: Long,
+    var height: Int,
+    var confirmations: Int,
+    var isQueuedOutgoing: Boolean,
+    var inputs: List<InputViewModel>,
+    var outputs: List<OutputViewModel>,
+    var destinationAddresses: List<Address>,
+    risk: ConfirmationRiskProfileLocal?,
+    val rawSize: Int,
+    val fee: Value?,
+    val vSize: Int = 0,
+) : Serializable,
     Comparable<TransactionSummary> {
-    var rawSize: Int
-        protected set
 
     @Transient
     var confirmationRiskProfile: Optional<ConfirmationRiskProfileLocal> =
         Optional.fromNullable(risk)
-    var fee: Value?
-        protected set
     val isIncoming: Boolean
         get() = transferred.moreOrEqualThanZero()
     val idHex: String
         get() = HexUtils.toHex(id)
-
-    init {
-        this.rawSize = rawSize
-        this.fee = fee
-    }
 
 //    fun getType(): AssetInfo {
 //        return type
