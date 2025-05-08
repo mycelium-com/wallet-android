@@ -1521,7 +1521,7 @@
     <string name="add_address">Adresse hinzufügen</string>
     <string name="message_verified_to_be_from">Nachricht wurde erfolgreich verifiziert von %1$s</string>
     <string name="message_failed_to_verify">"Nachricht konnte nicht verifiziert werden!"</string>
-    <string name="input_look_ahead">Input look ahead</string>
+    <string name="input_look_ahead">Search depth (addresses)</string>
     <string name="card_code">Kartencode:</string>
     <string name="gift_card_load_error_title">Geschenkkartenkäufe sind momentan nicht verfügbar.</string>
     <string name="gift_card_load_error_desc">Wir aktualisieren derzeit unsere Shops, und der Service wird bald wieder verfügbar sein. Vielen Dank für Ihr Verständnis!</string>
