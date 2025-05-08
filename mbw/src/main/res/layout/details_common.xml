@@ -8,7 +8,7 @@
 
     <TableLayout
         android:id="@+id/main_table"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:shrinkColumns="1">
 
@@ -28,8 +28,9 @@
 
             <com.mycelium.wallet.activity.util.TransactionDetailsLabel
                 android:id="@+id/tvHash"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_weight="1"
                 android:paddingStart="4dp"
                 android:paddingEnd="4dp" />
 
@@ -51,8 +52,9 @@
 
             <TextView
                 android:id="@+id/tvConfirmed"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_weight="1"
                 android:paddingStart="4dp"
                 android:textSize="18sp"
                 tools:text="in Block #123456" />

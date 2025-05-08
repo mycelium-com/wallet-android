@@ -55,6 +55,8 @@ class ChangellyInterceptor : Interceptor {
         val requestBody = RequestBody.create(mediaType, messageBytes)
         val newRequest = request.newBuilder()
             .url("$baseUrl#$method")
+            .addHeader("Content-Type", "application/json")
+            .addHeader("Accept-Language", Locale.getDefault().language)
             .addHeader(API_HEADER_KEY, ChangellyHeaderInterceptor.PUBLIC_KEY_BASE64)
             .addHeader(SIGN_HEADER_KEY, getSignature(messageBytes))
             .post(requestBody)
