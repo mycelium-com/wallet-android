@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<network-security-config>
+<network-security-config xmlns:tools="http://schemas.android.com/tools">
     <domain-config cleartextTrafficPermitted="true">
         <domain includeSubdomains="true">testnet.api.coloredcoins.org</domain>
         <domain includeSubdomains="true">coloredcoins-test.mycelium.com</domain>
@@ -11,7 +11,5 @@
         <domain includeSubdomains="true">reg.bequant.io</domain>
         <domain includeSubdomains="true">boatarde.xyz</domain>
         <domain includeSubdomains="true">mbwexchange.com</domain>
-        <domain includeSubdomains="true">10.0.2.2</domain>
-        <domain includeSubdomains="true">localhost</domain>
     </domain-config>
 </network-security-config>

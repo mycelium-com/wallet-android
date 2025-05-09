@@ -18,8 +18,8 @@ repositories {
 
 dependencies {
     implementation libs.protobuf.java
-    implementation "com.fasterxml.jackson.core:jackson-annotations:$jacksonAnnotationsVersion"
-    implementation "com.fasterxml.jackson.core:jackson-databind:$jacksonDatabindVersion"
+    implementation libs.jackson.annotations
+    implementation libs.jackson.databind
     implementation libs.guava
     implementation libs.bouncycastle.bcprov
     implementation libs.bouncycastle.bcpkix

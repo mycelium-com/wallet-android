@@ -1,5 +1,6 @@
 package com.mycelium.wallet.external.changelly
 
+import android.os.Build
 import com.mycelium.wallet.BuildConfig
 import com.mycelium.wallet.UserKeysManager
 import com.mycelium.wallet.external.DigitalSignatureInterceptor
@@ -8,8 +9,10 @@ import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.security.KeyStore
+import java.security.cert.X509Certificate
 import java.util.concurrent.TimeUnit
 import javax.net.ssl.SSLContext
+import javax.net.ssl.TrustManager
 import javax.net.ssl.TrustManagerFactory
 import javax.net.ssl.X509TrustManager
 
@@ -44,13 +47,36 @@ object ChangellyRetrofitFactory {
     }
 
     private fun getChangellyHttpClient(): OkHttpClient {
-        return OkHttpClient.Builder().apply {
-            connectTimeout(15, TimeUnit.SECONDS)
-            readTimeout(15, TimeUnit.SECONDS)
-            addInterceptor(ChangellyInterceptor())
-            if (!BuildConfig.DEBUG) return@apply
-            addInterceptor(HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY))
-        }.build()
+        val sslContext = SSLContext.getInstance("TLS")
+
+        val trustManagerFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm())
+        trustManagerFactory.init(null as KeyStore?)
+        val trustManagers = trustManagerFactory.trustManagers
+        val trustManager = trustManagers.first { it is X509TrustManager } as X509TrustManager
+
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.O) {
+            sslContext.init(null, arrayOf(trustManager), null)
+        } else {
+            val trustAllCerts = arrayOf<TrustManager>(
+                object : X509TrustManager {
+                    override fun checkClientTrusted(chain: Array<out X509Certificate>?, authType: String?) {}
+                    override fun checkServerTrusted(chain: Array<out X509Certificate>?, authType: String?) {}
+                    override fun getAcceptedIssuers(): Array<X509Certificate> = arrayOf()
+                }
+            )
+            sslContext.init(null, trustAllCerts, null)
+        }
+
+        return OkHttpClient.Builder()
+            .connectTimeout(15, TimeUnit.SECONDS)
+            .readTimeout(15, TimeUnit.SECONDS)
+            .sslSocketFactory(sslContext.socketFactory, trustManager)
+            .addInterceptor(ChangellyInterceptor()).apply {
+                if (BuildConfig.DEBUG) {
+                    addInterceptor(HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY))
+                }
+            }
+            .build()
     }
 
     val viperApi: ChangellyAPIService by lazy {

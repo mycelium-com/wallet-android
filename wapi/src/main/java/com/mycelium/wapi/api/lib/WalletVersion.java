@@ -29,7 +29,8 @@ public class WalletVersion {
    private static void readVersions() {
       ObjectMapper mapper = new ObjectMapper();
       try {
-         latestVersionsEx = mapper.readValue(walletVersionsSource, new TypeReference<Map<String, HashSet<WalletVersion>>>(){});
+         latestVersionsEx = mapper.readValue(walletVersionsSource, new TypeReference<>() {
+         });
       } catch (IOException ignored) {
       }
    }

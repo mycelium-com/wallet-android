@@ -6,8 +6,8 @@ plugins {
 dependencies {
     implementation project(includePrefix + ':bitlib')
 
-    implementation "com.fasterxml.jackson.core:jackson-annotations:$jacksonAnnotationsVersion"
-    implementation "com.fasterxml.jackson.core:jackson-databind:$jacksonDatabindVersion"
+    implementation libs.jackson.annotations
+    implementation libs.jackson.databind
     implementation libs.kotlinx.coroutines.android
     implementation "com.squareup.okhttp:okhttp:$okhttpVersion"
     implementation libs.guava

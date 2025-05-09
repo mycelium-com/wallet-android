@@ -1,6 +1,7 @@
 [versions]
 bitcoinjCore = "0.17"
 bouncycastle = "1.79"
+jackson = "2.9.6"
 web3j = "4.12.3"
 coreKtx = "1.13.1"
 firebaseBomVersion = "33.10.0"
@@ -25,6 +26,10 @@ androidx-core = { module = "androidx.core:core-ktx", version.ref = "coreKtx" }
 bitcoinj-core = { module = "org.bitcoinj:bitcoinj-core", version.ref = "bitcoinjCore" }
 bouncycastle-bcpkix = { module = "org.bouncycastle:bcpkix-jdk18on", version.ref = "bouncycastle" }
 bouncycastle-bcprov = { module = "org.bouncycastle:bcprov-jdk18on", version.ref = "bouncycastle" }
+jackson-annotations = { module = "com.fasterxml.jackson.core:jackson-annotations", version.ref = "jackson" }
+jackson-core = { module = "com.fasterxml.jackson.core:jackson-core", version.ref = "jackson" }
+jackson-databind = { module = "com.fasterxml.jackson.core:jackson-databind", version.ref = "jackson" }
+jackson-module-kotlin = { module = "com.fasterxml.jackson.module:jackson-module-kotlin", version.ref = "jackson" }
 web3j-core = { module = "org.web3j:core", version.ref = "web3j" }
 web3j-abi = { module = "org.web3j:abi", version.ref = "web3j" }
 web3j-crypto = { module = "org.web3j:crypto", version.ref = "web3j" }

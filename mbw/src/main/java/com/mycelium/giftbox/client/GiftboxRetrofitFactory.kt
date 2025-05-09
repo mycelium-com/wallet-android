@@ -1,5 +1,6 @@
 package com.mycelium.giftbox.client
 
+import android.os.Build
 import android.util.Log
 import com.fasterxml.jackson.core.JsonParser
 import com.fasterxml.jackson.databind.DeserializationFeature
@@ -15,9 +16,15 @@ import okhttp3.logging.HttpLoggingInterceptor
 import okio.Buffer
 import retrofit2.Retrofit
 import retrofit2.converter.jackson.JacksonConverterFactory
+import java.security.KeyStore
+import java.security.cert.X509Certificate
 import java.text.SimpleDateFormat
 import java.util.Locale
 import java.util.concurrent.TimeUnit
+import javax.net.ssl.SSLContext
+import javax.net.ssl.TrustManager
+import javax.net.ssl.TrustManagerFactory
+import javax.net.ssl.X509TrustManager
 
 interface SignatureProvider {
     fun address(): String
@@ -33,8 +40,29 @@ object RetrofitFactory {
         .configure(JsonParser.Feature.AUTO_CLOSE_SOURCE, true)
         .setDateFormat(SimpleDateFormat("yyyy-MM-dd", Locale.US))
 
-    private fun getClientBuilder(signatureProvider: SignatureProvider? = null): OkHttpClient.Builder =
-        OkHttpClient().newBuilder()
+    private fun getClientBuilder(signatureProvider: SignatureProvider? = null): OkHttpClient.Builder {
+        val sslContext = SSLContext.getInstance("TLS")
+
+        val trustManagerFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm())
+        trustManagerFactory.init(null as KeyStore?)
+        val trustManagers = trustManagerFactory.trustManagers
+        val trustManager = trustManagers.first { it is X509TrustManager } as X509TrustManager
+
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.O) {
+            sslContext.init(null, arrayOf(trustManager), null)
+        } else {
+            val trustAllCerts = arrayOf<TrustManager>(
+                object : X509TrustManager {
+                    override fun checkClientTrusted(chain: Array<out X509Certificate>?, authType: String?) {}
+                    override fun checkServerTrusted(chain: Array<out X509Certificate>?, authType: String?) {}
+                    override fun getAcceptedIssuers(): Array<X509Certificate> = arrayOf()
+                }
+            )
+            sslContext.init(null, trustAllCerts, null)
+        }
+
+        return OkHttpClient().newBuilder()
+            .sslSocketFactory(sslContext.socketFactory, trustManager)
             .addInterceptor {
                 it.proceed(it.request().newBuilder().apply {
                     addHeader("Content-Type", "application/json")
@@ -62,6 +90,7 @@ object RetrofitFactory {
                     })
                 }
             }
+    }
 
 
     fun getRetrofit(url: String, signatureProvider: SignatureProvider? = null): Retrofit =
