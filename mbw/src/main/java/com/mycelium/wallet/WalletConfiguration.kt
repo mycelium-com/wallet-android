@@ -27,11 +27,13 @@ import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import okhttp3.OkHttpClient
 import retrofit2.Call
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
 import java.io.InputStreamReader
+import java.util.concurrent.TimeUnit
 import java.util.logging.Level
 import java.util.logging.Logger
 
@@ -115,9 +117,16 @@ class WalletConfiguration(private val prefs: SharedPreferences,
             val oldFioTpid = tpid
             try {
                 val gson = GsonBuilder().setDateFormat("yyyy-MM-dd'T'HH:mm:ssZ").create()
+
+                val httpClient = OkHttpClient.Builder()
+                    .connectTimeout(15, TimeUnit.SECONDS)
+                    .readTimeout(15, TimeUnit.SECONDS)
+                    .configureSSLSocket()
+                    .build()
                 val service = Retrofit.Builder()
                         .baseUrl(AMAZON_S3_STORAGE_ADDRESS)
                         .addConverterFactory(GsonConverterFactory.create(gson))
+                    .client(httpClient)
                         .build()
                         .create(MyceliumNodesApi::class.java)
                 val resp =
