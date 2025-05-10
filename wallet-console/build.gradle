@@ -16,9 +16,9 @@ dependencies {
     implementation project(includePrefix +':walletcore')
 
     implementation libs.guava
-    implementation "com.fasterxml.jackson.core:jackson-core:2.9.5"
-    implementation "com.fasterxml.jackson.core:jackson-annotations:$jacksonAnnotationsVersion"
-    implementation "com.fasterxml.jackson.core:jackson-databind:$jacksonDatabindVersion"
+    implementation libs.jackson.core
+    implementation libs.jackson.annotations
+    implementation libs.jackson.databind
     implementation "com.google.http-client:google-http-client-jackson2:$httpClientJacksonVersion"
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
 

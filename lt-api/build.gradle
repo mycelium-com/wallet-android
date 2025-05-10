@@ -11,7 +11,7 @@ dependencies {
 
     implementation libs.guava
     implementation "com.squareup.okhttp:okhttp:$okhttpVersion"
-    implementation "com.fasterxml.jackson.core:jackson-annotations:$jacksonAnnotationsVersion"
-    implementation "com.fasterxml.jackson.core:jackson-databind:$jacksonDatabindVersion"
+    implementation libs.jackson.annotations
+    implementation libs.jackson.databind
     testImplementation "junit:junit:$junitVersion"
 }

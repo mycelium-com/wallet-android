@@ -9,6 +9,13 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
+import okhttp3.OkHttpClient
+import java.security.KeyStore
+import java.security.cert.X509Certificate
+import javax.net.ssl.SSLContext
+import javax.net.ssl.TrustManager
+import javax.net.ssl.TrustManagerFactory
+import javax.net.ssl.X509TrustManager
 
 inline fun startCoroutineTimer(
     scope: CoroutineScope,
@@ -59,4 +66,28 @@ fun Context.checkPushPermission(run: () -> Unit, noPermission: () -> Unit = {}) 
     } else {
         run()
     }
+}
+
+fun OkHttpClient.Builder.configureSSLSocket(): OkHttpClient.Builder {
+    val sslContext = SSLContext.getInstance("TLS")
+
+    val trustManagerFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm())
+    trustManagerFactory.init(null as KeyStore?)
+    val trustManagers = trustManagerFactory.trustManagers
+    val trustManager = trustManagers.first { it is X509TrustManager } as X509TrustManager
+
+    if (Build.VERSION.SDK_INT > Build.VERSION_CODES.N_MR1) {
+        sslContext.init(null, arrayOf(trustManager), null)
+    } else {
+        val trustAllCerts = arrayOf<TrustManager>(
+            object : X509TrustManager {
+                override fun checkClientTrusted(chain: Array<out X509Certificate>?, authType: String?) {}
+                override fun checkServerTrusted(chain: Array<out X509Certificate>?, authType: String?) {}
+                override fun getAcceptedIssuers(): Array<X509Certificate> = arrayOf()
+            }
+        )
+        sslContext.init(null, trustAllCerts, null)
+    }
+    this.sslSocketFactory(sslContext.socketFactory, trustManager)
+    return this
 }

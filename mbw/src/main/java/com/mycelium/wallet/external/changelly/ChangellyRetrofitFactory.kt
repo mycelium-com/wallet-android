@@ -2,6 +2,7 @@ package com.mycelium.wallet.external.changelly
 
 import com.mycelium.wallet.BuildConfig
 import com.mycelium.wallet.UserKeysManager
+import com.mycelium.wallet.configureSSLSocket
 import com.mycelium.wallet.external.DigitalSignatureInterceptor
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -43,15 +44,17 @@ object ChangellyRetrofitFactory {
         }.build()
     }
 
-    private fun getChangellyHttpClient(): OkHttpClient {
-        return OkHttpClient.Builder().apply {
-            connectTimeout(15, TimeUnit.SECONDS)
-            readTimeout(15, TimeUnit.SECONDS)
-            addInterceptor(ChangellyInterceptor())
-            if (!BuildConfig.DEBUG) return@apply
-            addInterceptor(HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY))
-        }.build()
-    }
+    private fun getChangellyHttpClient(): OkHttpClient =
+        OkHttpClient.Builder()
+            .connectTimeout(15, TimeUnit.SECONDS)
+            .readTimeout(15, TimeUnit.SECONDS)
+            .configureSSLSocket()
+            .addInterceptor(ChangellyInterceptor()).apply {
+                if (BuildConfig.DEBUG) {
+                    addInterceptor(HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY))
+                }
+            }
+            .build()
 
     val viperApi: ChangellyAPIService by lazy {
         Retrofit.Builder()

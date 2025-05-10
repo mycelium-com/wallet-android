@@ -8,6 +8,7 @@ import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import com.mycelium.bequant.remote.NullOnEmptyConverterFactory
 import com.mycelium.giftbox.client.GiftboxConstants.MC_API_KEY
 import com.mycelium.wallet.BuildConfig
+import com.mycelium.wallet.configureSSLSocket
 import okhttp3.Call
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -33,8 +34,10 @@ object RetrofitFactory {
         .configure(JsonParser.Feature.AUTO_CLOSE_SOURCE, true)
         .setDateFormat(SimpleDateFormat("yyyy-MM-dd", Locale.US))
 
-    private fun getClientBuilder(signatureProvider: SignatureProvider? = null): OkHttpClient.Builder =
-        OkHttpClient().newBuilder()
+    private fun getClientBuilder(signatureProvider: SignatureProvider? = null): OkHttpClient.Builder {
+
+        return OkHttpClient().newBuilder()
+            .configureSSLSocket()
             .addInterceptor {
                 it.proceed(it.request().newBuilder().apply {
                     addHeader("Content-Type", "application/json")
@@ -62,6 +65,7 @@ object RetrofitFactory {
                     })
                 }
             }
+    }
 
 
     fun getRetrofit(url: String, signatureProvider: SignatureProvider? = null): Retrofit =

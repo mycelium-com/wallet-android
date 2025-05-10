@@ -255,6 +255,9 @@ class BitcoinHDModule(internal val backing: BtcWalletManagerBacking<HDAccountCon
                 } else {
                     config.account
                 }
+                accounts[result.id] = result as HDAccount
+                result.setEventHandler(eventHandler)
+                return result
             }
             is ExternalSignaturesAccountConfig -> {
                 val accountIndex = config.accountIndex
@@ -296,7 +299,7 @@ class BitcoinHDModule(internal val backing: BtcWalletManagerBacking<HDAccountCon
             }
             else -> throw IllegalStateException("Account can't be created")
         }
-        accounts[result.id] = result as HDAccount
+        accounts[result.id] = result
         result.setEventHandler(eventHandler)
 
         result.label = createLabel(config, result.id)

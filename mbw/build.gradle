@@ -14,10 +14,16 @@ configurations {
 }
 
 configurations.configureEach {
-    resolutionStrategy.eachDependency { DependencyResolveDetails details ->
-        if (details.requested.group == "com.google.guava"
-                && details.requested.name == "guava") {
-            details.useTarget(libs.guava)
+    resolutionStrategy {
+        force 'com.fasterxml.jackson.core:jackson-core:2.9.6'
+        force 'com.fasterxml.jackson.core:jackson-databind:2.9.6'
+        force 'com.fasterxml.jackson.core:jackson-annotations:2.9.6'
+
+        eachDependency { DependencyResolveDetails details ->
+            if (details.requested.group == "com.google.guava"
+                    && details.requested.name == "guava") {
+                details.useTarget(libs.guava)
+            }
         }
     }
 }
@@ -99,8 +105,8 @@ dependencies {
     implementation libs.kotlinx.coroutines.android
     implementation "com.github.tony19:logback-android-core:1.1.1-6"
     implementation "com.google.http-client:google-http-client-jackson2:$httpClientJacksonVersion"
-    implementation "com.fasterxml.jackson.core:jackson-databind:$jacksonDatabindVersion"
-    implementation "com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonDatabindVersion"
+    implementation libs.jackson.databind
+    implementation libs.jackson.module.kotlin
     implementation libs.bouncycastle.bcprov
     implementation("org.bitcoinj:orchid:1.2.1") {
         exclude(module: 'slf4j-api')
@@ -195,8 +201,8 @@ android {
     buildToolsVersion androidSdkBuildVersion
 
     defaultConfig {
-        versionCode 3190000
-        versionName '3.19.0.0'
+        versionCode 3190100
+        versionName '3.19.1.0'
 
         minSdkVersion androidMinSdkVersion
         targetSdkVersion androidTargetSdkVersion

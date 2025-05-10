@@ -1581,7 +1581,7 @@ xmlКопировать кодтехнічні причини. Спробуйт�
     <string name="add_address">Додати адресу</string>
     <string name="message_verified_to_be_from">Повідомлення підтверджено, що воно від %1$s</string>
     <string name="message_failed_to_verify">"Не вдалося перевірити повідомлення!"</string>
-    <string name="input_look_ahead">Вхідний прогноз</string>
+    <string name="input_look_ahead">Глибина аналізу адресів</string>
     <string name="delete_private_key">Зробити \"Лише для перегляду\"</string>
     <string name="delete_account">Видалити акаунт</string>
     <string name="delete_private_key_title">Зробити акаунт "лише для перегляду"</string>

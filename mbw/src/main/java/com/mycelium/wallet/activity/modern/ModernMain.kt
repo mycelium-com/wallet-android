@@ -78,11 +78,13 @@ import com.mycelium.wapi.wallet.fio.FioModule
 import com.mycelium.wapi.wallet.manager.State
 import com.squareup.otto.Subscribe
 import info.guardianproject.netcipher.proxy.OrbotHelper
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import java.util.Date
 import java.util.Objects
-import java.util.Timer
-import java.util.TimerTask
 import java.util.concurrent.TimeUnit
 
 class ModernMain : AppCompatActivity(), BackHandler {
@@ -103,7 +105,7 @@ class ModernMain : AppCompatActivity(), BackHandler {
     private var _lastSync: Long = 0
     private var _isAppStart = true
     private var counter = 0
-    private var balanceRefreshTimer: Timer? = null
+    private var balanceRefreshTimer: Job? = null
 
     val backListeners = mutableListOf<BackListener>()
 
@@ -201,6 +203,11 @@ class ModernMain : AppCompatActivity(), BackHandler {
         })
     }
 
+    fun selectedTab(): String {
+        val index = binding.pager.currentItem
+        return mTabsAdapter!!.getPageTag(index)
+    }
+
     fun selectTab(tabTag: String) {
         val selectTab = mTabsAdapter!!.indexOf(tabTag)
         if(selectTab != -1) {
@@ -232,14 +239,12 @@ class ModernMain : AppCompatActivity(), BackHandler {
                         .putExtras(getIntent().extras!!))
             }
             MainActions.ACTION_ACCOUNTS -> {
-                mAccountsTab!!.select()
-                binding.pager.currentItem = mTabsAdapter!!.indexOf(TAB_ACCOUNTS)
+                selectTab(TAB_ACCOUNTS)
             }
             MainActions.ACTION_TXS -> {
-                mTransactionsTab!!.select()
-                binding.pager.currentItem = mTabsAdapter!!.indexOf(TAB_HISTORY)
+                selectTab(TAB_HISTORY)
             }
-            MainActions.ACTION_EXCHANGE.toLowerCase(), MainActions.ACTION_EXCHANGE -> {
+            MainActions.ACTION_EXCHANGE.lowercase(), MainActions.ACTION_EXCHANGE -> {
                 selectTab(TAB_EXCHANGE)
             }
             MainActions.ACTION_BALANCE -> {
@@ -313,10 +318,6 @@ class ModernMain : AppCompatActivity(), BackHandler {
         }
     }
 
-    protected fun stopBalanceRefreshTimer() {
-        balanceRefreshTimer?.cancel()
-    }
-
     @Subscribe
     fun malformedOutgoingTransactionFound(event: MalformedOutgoingTransactionsFound) {
         if (mbwManager.isShowQueuedTransactionsRemovalAlert) {
@@ -342,10 +343,10 @@ class ModernMain : AppCompatActivity(), BackHandler {
             val h = Handler()
             h.postDelayed({ mbwManager.versionManager.checkForUpdate() }, 50)
         }
-        stopBalanceRefreshTimer()
-        balanceRefreshTimer = Timer()
-        balanceRefreshTimer!!.scheduleAtFixedRate(object : TimerTask() {
-            override fun run() {
+        balanceRefreshTimer?.cancel()
+        balanceRefreshTimer = lifecycleScope.launch(Dispatchers.Default) {
+            delay(100)
+            while (isActive) {
                 if (Utils.isConnected(applicationContext)) {
                     mbwManager.exchangeRateManager.requestRefresh()
 
@@ -353,25 +354,25 @@ class ModernMain : AppCompatActivity(), BackHandler {
                     // accounts
                     // otherwise just run a normal sync for all accounts
                     val lastFullSync = mbwManager.metadataStorage.lastFullSync
-                    if (lastFullSync.isPresent
-                            && Date().time - lastFullSync.get() < MIN_FULLSYNC_INTERVAL) {
+                    if (lastFullSync.isPresent && Date().time - lastFullSync.get() < MIN_FULLSYNC_INTERVAL) {
                         mbwManager.getWalletManager(false)
-                                .startSynchronization(SyncMode.NORMAL_ALL_ACCOUNTS_FORCED)
+                            .startSynchronization(SyncMode.NORMAL_ALL_ACCOUNTS_FORCED)
                     } else {
                         mbwManager.getWalletManager(false).startSynchronization(SyncMode.FULL_SYNC_ALL_ACCOUNTS)
                         mbwManager.metadataStorage.setLastFullSync(Date().time)
                     }
                     _lastSync = Date().time
                 }
+                delay(MIN_AUTOSYNC_INTERVAL.toLong())
             }
-        }, 100, MIN_AUTOSYNC_INTERVAL.toLong())
+        }
         supportInvalidateOptionsMenu()
         updateNetworkConnectionState()
         super.onStart()
     }
 
     override fun onStop() {
-        stopBalanceRefreshTimer()
+        balanceRefreshTimer?.cancel()
         MbwManager.getEventBus().unregister(this)
         mbwManager.versionManager.closeDialog()
         super.onStop()
@@ -383,14 +384,14 @@ class ModernMain : AppCompatActivity(), BackHandler {
                return
             }
         }
-        if (mBalanceTab?.isSelected == true) {
+        if (selectedTab() == TAB_BALANCE) {
             // this is not finishing on Android 6 LG G4, so the pin on startup is not
             // requested.
             // commented out code above doesn't do the trick, neither.
             mbwManager.setStartUpPinUnlocked(false)
             super.onBackPressed()
         } else {
-            mBalanceTab?.select()
+            selectTab(TAB_BALANCE)
         }
     }
 
