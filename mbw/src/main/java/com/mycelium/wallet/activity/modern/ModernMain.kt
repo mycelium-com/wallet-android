@@ -239,14 +239,12 @@ class ModernMain : AppCompatActivity(), BackHandler {
                         .putExtras(getIntent().extras!!))
             }
             MainActions.ACTION_ACCOUNTS -> {
-                mAccountsTab!!.select()
-                binding.pager.currentItem = mTabsAdapter!!.indexOf(TAB_ACCOUNTS)
+                selectTab(TAB_ACCOUNTS)
             }
             MainActions.ACTION_TXS -> {
-                mTransactionsTab!!.select()
-                binding.pager.currentItem = mTabsAdapter!!.indexOf(TAB_HISTORY)
+                selectTab(TAB_HISTORY)
             }
-            MainActions.ACTION_EXCHANGE.toLowerCase(), MainActions.ACTION_EXCHANGE -> {
+            MainActions.ACTION_EXCHANGE.lowercase(), MainActions.ACTION_EXCHANGE -> {
                 selectTab(TAB_EXCHANGE)
             }
             MainActions.ACTION_BALANCE -> {
