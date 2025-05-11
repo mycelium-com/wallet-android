@@ -321,7 +321,7 @@ open class HDAccount(
         try {
             if (mode.mode in arrayOf(SyncMode.Mode.FULL_SYNC, SyncMode.Mode.BOOSTED)) {
                 // Discover new addresses once in a while
-                if (!discovery()) {
+                if (!discovery(mode)) {
                     return false
                 }
             }
@@ -338,14 +338,14 @@ open class HDAccount(
     private fun needsDiscovery() = !isArchived &&
             context.getLastDiscovery() + FORCED_DISCOVERY_INTERVAL_MS < System.currentTimeMillis()
 
-    private suspend fun discovery(): Boolean {
+    private suspend fun discovery(mode: SyncMode): Boolean {
         try {
             // discovered as in "discovered maybe something. further exploration is needed."
             // thus, method is done once discovered is empty.
             var discovered = derivePaths.toSet()
             do {
                 if (!maySync) { return false }
-                discovered = doDiscovery(discovered)
+                discovered = doDiscovery(mode, discovered)
             } while (discovered.isNotEmpty())
         } catch (e: WapiException) {
             _logger.log(Level.SEVERE, "Server connection failed with error code: " + e.errorCode, e)
@@ -368,24 +368,26 @@ open class HDAccount(
      * @throws com.mycelium.wapi.api.WapiException
      */
     @Throws(WapiException::class)
-    private suspend fun doDiscovery(derivePaths: Set<BipDerivationType>): Set<BipDerivationType> {
+    private suspend fun doDiscovery(mode: SyncMode, derivePaths: Set<BipDerivationType>): Set<BipDerivationType> {
         // Ensure that all addresses in the look ahead window have been created
-        ensureAddressIndexes()
-        return doDiscoveryForAddresses(derivePaths.flatMap { getAddressesToDiscover(it) })
+        val lookAhead = if (mode.mode == SyncMode.Mode.BOOSTED) mode.mode.lookAhead else -1
+        ensureAddressIndexes(lookAhead)
+        return doDiscoveryForAddresses(derivePaths.flatMap { getAddressesToDiscover(it, lookAhead) })
     }
 
-    private fun getAddressesToDiscover(derivationType: BipDerivationType): List<BitcoinAddress> {
+    private fun getAddressesToDiscover(derivationType: BipDerivationType, lookAhead: Int = -1): List<BitcoinAddress> {
         // getAddressesToDiscover has to progress covering all addresses while last address with
         // activity might advance in jumps from sending to oneself from an old UTXO address to one
         // 30 later.
         // Make look ahead address list
+        val externalLookAhead = max(lookAhead, EXTERNAL_FULL_ADDRESS_LOOK_AHEAD_LENGTH)
         val lastExternalIndex = min(context.getLastExternalIndexWithActivity(derivationType), safeLastExternalIndex[derivationType] ?: 0)
         val lastInternalIndex = min(context.getLastInternalIndexWithActivity(derivationType), safeLastInternalIndex[derivationType] ?: 0)
-        safeLastExternalIndex[derivationType] = lastExternalIndex + EXTERNAL_FULL_ADDRESS_LOOK_AHEAD_LENGTH
+        safeLastExternalIndex[derivationType] = lastExternalIndex + externalLookAhead
         safeLastInternalIndex[derivationType] = lastInternalIndex + INTERNAL_FULL_ADDRESS_LOOK_AHEAD_LENGTH
         val lookAhead =
                 (externalAddresses[derivationType]!!.filter {
-                    lastExternalIndex <= it.value && it.value <= lastExternalIndex + EXTERNAL_FULL_ADDRESS_LOOK_AHEAD_LENGTH
+                    lastExternalIndex <= it.value && it.value <= lastExternalIndex + externalLookAhead
                 } + internalAddresses[derivationType]!!.filter {
                     lastInternalIndex <= it.value && it.value <= lastInternalIndex + INTERNAL_FULL_ADDRESS_LOOK_AHEAD_LENGTH
                 }).map { it.key }
