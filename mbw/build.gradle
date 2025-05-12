@@ -205,8 +205,8 @@ android {
     buildToolsVersion androidSdkBuildVersion
 
     defaultConfig {
-        versionCode 3190200
-        versionName '3.19.2.0'
+        versionCode 3190300
+        versionName '3.19.3.0'
 
         minSdkVersion androidMinSdkVersion
         targetSdkVersion androidTargetSdkVersion
