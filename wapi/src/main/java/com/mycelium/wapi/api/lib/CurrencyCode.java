@@ -47,7 +47,7 @@ public enum CurrencyCode {
    AFN("AFN", "Afghan Afghani"), //
    ALL("ALL", "Albanian Lek"), //
    AMD("AMD", "Armenian Dram"), //
-   ANG("ANG", "Netherlands Antillean Guilder"), //
+   ANG("ANG", "Netherlands Antillean Guilder"), // replaced by XCG
    AOA("AOA", "Angolan Kwanza"), //
    ARS("ARS", "Argentine Peso"), //
    AUD("AUD", "Australian Dollar"), //
@@ -200,6 +200,7 @@ public enum CurrencyCode {
    XAR("XAR", "Argentine Peso Blue Rate"), //
    XAU("XAU", "Gold (troy ounce)"), //
    XCD("XCD", "East Caribbean Dollar"), //
+   XCG("XCG", "Caribbean guilder"), //
    XDR("XDR", "Special Drawing Rights"), //
    XOF("XOF", "CFA Franc BCEAO"), //
    XPF("XPF", "CFP Franc"), //
