@@ -20,6 +20,7 @@ junit = "1.2.1"
 kotlin = '2.0.21'
 androidGradlePlugin = "8.8.2"
 sqldelight = "2.0.2"
+playServicesBase = "18.7.0"
 
 [libraries]
 androidx-core = { module = "androidx.core:core-ktx", version.ref = "coreKtx" }
@@ -37,7 +38,6 @@ web3j-utils = { module = "org.web3j:utils", version.ref = "web3j" }
 protobuf-java = { module = "com.google.protobuf:protobuf-java", version.ref = "protoBufVersion" }
 recyclerview = { module = "androidx.recyclerview:recyclerview", version.ref = "recyclerViewVersion" }
 firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBomVersion" }
-firebase-analytics = { module = "com.google.firebase:firebase-analytics-ktx" }
 firebase-dynamic-links = { module = "com.google.firebase:firebase-dynamic-links" }
 firebase-messaging = { module = "com.google.firebase:firebase-messaging-ktx" }
 espresso-contrib = { module = "androidx.test.espresso:espresso-contrib", version.ref = "espresso" }
@@ -68,6 +68,7 @@ test-core = { module = "androidx.test:core", version.ref = "test-core" }
 test-junit = { module = "androidx.test.ext:junit", version.ref = "junit" }
 test-rules = { module = "androidx.test:rules", version.ref = "test-core" }
 test-runner = { module = "androidx.test:runner", version.ref = "test-core" }
+play-services-base = { group = "com.google.android.gms", name = "play-services-base", version.ref = "playServicesBase" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "androidGradlePlugin" }
@@ -82,7 +83,7 @@ doka = { id = "org.jetbrains.dokka", version = "2.0.0" }
 
 [bundles]
 android-test-bundle = ["test-core-ktx", "test-core", "test-junit", "test-rules", "test-runner"]
-firebase-bom = ["firebase-analytics", "firebase-dynamic-links", "firebase-messaging"]
+firebase-bom = ["firebase-dynamic-links", "firebase-messaging"]
 espresso = ["espresso-contrib", "espresso-core", "espresso-idling-resource", "espresso-intents", "espresso-idling-concurrent"]
 mockk = ["mockk", "mockk-android"]
 retrofit = ["retrofit", "retrofit-jackson", "retrofit-gson"]
