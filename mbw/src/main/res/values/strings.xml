@@ -8,7 +8,7 @@
     <string name="add_unrelated_account_title">Add Unrelated Account</string>
     <string name="import_seed_title">Import Master Seed</string>
     <string name="import_words_title">Enter Word List</string>
-    <string name="add_account_desc">Mycelium supports Bitcoin HD Accounts, Bitcoin Single Address Accounts and Ethereum Account. All created Bitcoin HD Accounts and Ethereum Account are based on the same Master Seed.</string>
+    <string name="add_account_desc">\tMycelium supports Bitcoin HD, Bitcoin Single Address, Ethereum, and ERC20 Accounts.\n\n\tAll Bitcoin HD, Ethereum, and ERC20 Accounts are created from the same Master Seed and can be restored from it  (12 words that should be written down by you on paper and stored in a safe place).</string>
     <string name="add_single_acc_info">In order to add a Single Address Account based on a private key or a read-only address, please click the Advanced button below.</string>
     <string name="scan_desc">Scan Bitcoin address, private key or HD Bitcoin-Account.</string>
     <string name="scan_seed">Scan Master Seed from Mycelium Backup</string>
@@ -759,7 +759,7 @@
     <string name="button_changelog">Changelog</string>
     <string name="hint_type_to_filter">start typing to filter list</string>
     <string name="info_add_account_keep_backup_secure">Info: All Bitcoin HD Accounts and Ethereum Account are derived from your Master Seed - if you keep your 12-Words-Backup secure, you can restore all your Bitcoin HD Accounts and Ethereum Account with it.</string>
-    <string name="warning_add_account_no_backup">Warning: You have not a confirmed backup of your Master Seed. All your Bitcoin HD Accounts and Ethereum Account are derived from it. They are only secure and recoverable if you have a valid and safe Backup.</string>
+    <string name="warning_add_account_no_backup">WARNING: You don\'t have a verified backup of your Master Seed. All your Bitcoin HD, Ethereum, and ERC20 Accounts are derived from it. They are only secure and recoverable if you have valid and verified Backup stored offline in a safe place.</string>
     <string name="transaction_from_address_prefix">From: %s</string>
     <string name="transaction_to_address_prefix">To: %s</string>
     <string name="tor_state_init">Tor init</string>

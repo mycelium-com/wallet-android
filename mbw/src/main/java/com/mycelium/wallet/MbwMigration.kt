@@ -56,10 +56,10 @@ class MbwMigration(
         if (fromVersion < 3030000) {
             migratePreferences()
         }
-        if (fromVersion < 319010) {
+        if (fromVersion < 3190200) {
             migrateTaproot()
         }
-        preferences.edit { putInt("upToDateVersion", 3190100) }
+        preferences.edit { putInt("upToDateVersion", 3190200) }
     }
 
     fun migrateTaproot() {
