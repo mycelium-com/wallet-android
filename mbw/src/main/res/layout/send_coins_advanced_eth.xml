@@ -75,6 +75,30 @@
             app:layout_constraintTop_toBottomOf="@id/spinner" />
 
         <TextView
+            android:id="@+id/tvNonceValueLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="@string/nonce"
+            android:textColor="@color/fio_white_alpha_0_6"
+            android:textSize="14sp"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/spinner" />
+
+        <com.mycelium.wallet.activity.send.view.CustomEditText
+            android:id="@+id/etNonce"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:inputType="number"
+            android:minWidth="220dp"
+            android:textSize="14sp"
+            android:imeOptions="actionDone"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvNonceValueLabel" />
+
+        <TextView
             android:id="@+id/tvGasLimitLabel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -83,7 +107,7 @@
             android:textColor="@color/fio_white_alpha_0_6"
             android:textSize="14sp"
             app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/spinner" />
+            app:layout_constraintTop_toBottomOf="@id/etNonce" />
 
         <ImageView
             android:id="@+id/ic_info_gas_limit"

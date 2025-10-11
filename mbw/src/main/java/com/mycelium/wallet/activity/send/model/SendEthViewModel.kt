@@ -26,6 +26,13 @@ open class SendEthViewModel(application: Application) : SendCoinsViewModel(appli
     override fun init(account: WalletAccount<*>, intent: Intent) {
         super.init(account, intent)
         model = SendEthModel(getApplication(), account, intent)
+        val ethModel = model as SendEthModel
+        if (isAdvancedBlockExpanded.value == null) {
+            isAdvancedBlockExpanded.value = false
+        }
+        if (ethModel.nonce.value != null) {
+            isAdvancedBlockExpanded.value = true
+        }
     }
 
     override fun processAssetUri(uri: AssetUri) {
@@ -84,6 +91,8 @@ open class SendEthViewModel(application: Application) : SendCoinsViewModel(appli
     fun getGasLimitStatus() = (model as SendEthModel).gasLimitStatus
 
     fun getDenomination() = (model as SendEthModel).denomination
+
+    fun getNonce() = (model as SendEthModel).nonce
 
     fun getDefaultGasLimit(): BigInteger = (model as SendEthModel).account.let {
         if (it is ERC20Account) {

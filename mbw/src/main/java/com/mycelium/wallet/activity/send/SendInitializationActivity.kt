@@ -21,6 +21,7 @@ import com.mycelium.wapi.wallet.interruptSync
 import com.squareup.otto.Subscribe
 import java.lang.NullPointerException
 import java.util.*
+import java.math.BigInteger
 
 class SendInitializationActivity : AppCompatActivity() {
     private val mbwManager: MbwManager = MbwManager.getInstance(WalletApplication.getInstance())
@@ -30,6 +31,7 @@ class SendInitializationActivity : AppCompatActivity() {
     private var synchronizingHandler: Handler? = null
     private var slowNetworkHandler: Handler? = null
     private var rawPr: ByteArray? = null
+    private var transactionNonce: BigInteger? = null
     public override fun onCreate(savedInstanceState: Bundle?) {
         requestWindowFeature(Window.FEATURE_NO_TITLE)
         super.onCreate(savedInstanceState)
@@ -40,6 +42,7 @@ class SendInitializationActivity : AppCompatActivity() {
         uri = intent.getSerializableExtra("uri") as? AssetUri
         rawPr = intent.getByteArrayExtra("rawPr")
         isColdStorage = intent.getBooleanExtra("isColdStorage", false)
+        transactionNonce = intent.getSerializableExtra(SendCoinsActivity.TRANSACTION_NONCE) as? BigInteger
         val crashHint = intent.extras!!.keySet().joinToString() + " (account id was $accountId)"
         val walletManager = mbwManager.getWalletManager(isColdStorage)
         account = walletManager.getAccount(accountId)
@@ -132,6 +135,7 @@ class SendInitializationActivity : AppCompatActivity() {
                 uri != null -> getIntent(this, account.id, uri!!, false)
                 else -> SendCoinsActivity.getIntent(this, account.id, false)
             }.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT)
+            transactionNonce?.let { intent.putExtra(SendCoinsActivity.TRANSACTION_NONCE, it) }
             startActivity(intent)
         }
         finish()

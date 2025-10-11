@@ -26,6 +26,7 @@ import com.mycelium.wapi.content.AssetUri
 import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.btc.FeePerKbFee
 import com.mycelium.wapi.wallet.coins.Value
+import com.mycelium.wapi.wallet.eth.EthAccount
 import com.mycelium.wapi.wallet.exceptions.BuildTransactionException
 import com.mycelium.wapi.wallet.exceptions.InsufficientFundsException
 import com.mycelium.wapi.wallet.exceptions.InsufficientFundsForFeeException
@@ -442,7 +443,7 @@ abstract class SendCoinsModel(
         })
     }
 
-    private fun getRequestedAmountFormatted(): String {
+    open fun getRequestedAmountFormatted(): String {
         return if (Value.isNullOrZero(amount.value)) {
             ""
         } else if (transactionStatus.value == TransactionStatus.OUTPUT_TOO_SMALL
@@ -464,7 +465,7 @@ abstract class SendCoinsModel(
         }
     }
 
-    private fun formatValue(value: Value?): String {
+    open fun formatValue(value: Value?): String {
         return if (Value.isNullOrZero(value)) {
             ""
         } else {
@@ -476,7 +477,7 @@ abstract class SendCoinsModel(
         }
     }
 
-    private fun getValueInAccountCurrency(): Value {
+    protected fun getValueInAccountCurrency(): Value {
         return if (amount.value?.type == account.coinType) {
             amount.value!!
         } else {
@@ -505,7 +506,9 @@ abstract class SendCoinsModel(
                 paymentRequestHandler.value?.hasValidPaymentRequest() == true -> {
                     handlePaymentRequest(toSend)
                 }
-                receivingAddress.value != null && !toSend.isZero() && transactionDataStatus.value != TransactionDataStatus.TYPING -> {
+                receivingAddress.value != null &&
+                        (account is EthAccount || !toSend.isZero()) &&
+                        transactionDataStatus.value != TransactionDataStatus.TYPING -> {
                     // createTx potentially takes long, if server interaction is involved
                     transaction = account.createTx(receivingAddress.value!!, toSend, FeePerKbFee(selectedFee.value!!), transactionData.value)
                     spendingUnconfirmed.postValue(account.isSpendingUnconfirmed(transaction!!))

@@ -41,6 +41,7 @@ import com.mycelium.wapi.wallet.coins.Value.Companion.isNullOrZero
 import com.mycelium.wapi.wallet.coins.Value.Companion.valueOf
 import com.mycelium.wapi.wallet.erc20.ERC20Account
 import com.mycelium.wapi.wallet.erc20.ERC20Account.Companion.TOKEN_TRANSFER_GAS_LIMIT
+import com.mycelium.wapi.wallet.eth.AbstractEthERC20Account
 import com.mycelium.wapi.wallet.eth.EthTransactionData
 import com.mycelium.wapi.wallet.exceptions.BuildTransactionException
 import com.mycelium.wapi.wallet.exceptions.InsufficientFundsException
@@ -172,7 +173,7 @@ class GetAmountActivity : AppCompatActivity(), NumberEntryListener {
     }
 
     fun onOkClick() {
-        if (isNullOrZero(viewModel.amount.value) && isSendMode) {
+        if ((viewModel.account !is AbstractEthERC20Account && isNullOrZero(viewModel.amount.value)) && isSendMode) {
             return
         }
 
@@ -398,12 +399,15 @@ class GetAmountActivity : AppCompatActivity(), NumberEntryListener {
 
     private fun checkEntry() {
         if (isSendMode) {
-            if (isNullOrZero(viewModel.amount.value)) {
+            if ((viewModel.account is AbstractEthERC20Account && viewModel.amount.value != null) || !isNullOrZero(
+                    viewModel.amount.value
+                )
+            ) {
+                checkTransaction()
+            } else {
                 // Nothing entered
                 binding.tvAmount.setTextColor(resources.getColor(R.color.white))
                 binding.btOk.isEnabled = false
-            } else {
-                checkTransaction()
             }
         } else {
             binding.btOk.isEnabled = checkAmount()
@@ -426,7 +430,7 @@ class GetAmountActivity : AppCompatActivity(), NumberEntryListener {
     private fun validateAmount(value: Value?): AmountValidation {
         if (value == null) {
             return AmountValidation.ExchangeRateNotAvailable
-        } else if (value.equalZero()) {
+        } else if (value.lessThanZero()) {
             return AmountValidation.Ok //entering a fiat value + exchange is not availible
         }
         try {
@@ -478,7 +482,7 @@ class GetAmountActivity : AppCompatActivity(), NumberEntryListener {
                 // }
             }
             // Enable/disable Ok button
-            binding.btOk.isEnabled = result == AmountValidation.Ok && !viewModel.amount.value!!.isZero()
+            binding.btOk.isEnabled = result == AmountValidation.Ok && (viewModel.account is AbstractEthERC20Account || !viewModel.amount.value!!.isZero())
         }
     }
 

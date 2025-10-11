@@ -6,6 +6,7 @@ import androidx.lifecycle.MutableLiveData
 import com.mycelium.wallet.MinerFee
 import com.mycelium.wallet.Utils
 import com.mycelium.wallet.activity.send.NoneItem
+import com.mycelium.wallet.activity.send.SendCoinsActivity
 import com.mycelium.wallet.activity.send.SpinnerItem
 import com.mycelium.wallet.activity.send.TransactionItem
 import com.mycelium.wallet.activity.send.view.SelectableRecyclerView
@@ -19,7 +20,7 @@ import com.mycelium.wapi.wallet.eth.EthTransactionData
 import com.mycelium.wapi.wallet.eth.coins.EthCoin
 import org.web3j.utils.Convert
 import java.math.BigInteger
-import java.util.*
+import java.util.Date
 
 class SendErc20Model(application: Application,
                      account: ERC20Account,
@@ -28,20 +29,33 @@ class SendErc20Model(application: Application,
     var txItems: List<SpinnerItem> = emptyList()
     val showGasLimitError: MutableLiveData<Boolean> = MutableLiveData()
 
+    val nonce: MutableLiveData<BigInteger?> = object : MutableLiveData<BigInteger?>() {
+        override fun setValue(value: BigInteger?) {
+            if (value != this.value) {
+                super.setValue(value)
+                val oldData = (transactionData.value as? EthTransactionData) ?: EthTransactionData()
+                transactionData.value = EthTransactionData(value, oldData.gasLimit, oldData.inputData, oldData.suggestedGasPrice)
+            }
+        }
+    }
+
     val selectedTxItem: MutableLiveData<SpinnerItem> = object : MutableLiveData<SpinnerItem>() {
         override fun setValue(value: SpinnerItem) {
             if (value != this.value) {
                 super.setValue(value)
                 val oldData = (transactionData.value as? EthTransactionData) ?: EthTransactionData()
                 when (value) {
-                    is NoneItem ->
+                    is NoneItem -> {
+                        nonce.value = null
                         transactionData.value = EthTransactionData(null, oldData.gasLimit, oldData.inputData, null)
+                    }
                     is TransactionItem -> {
                         val tx = value.tx as EthTransactionSummary
                         val suggestedGasPrice = if (tx.fee != null) {
                             val oldFeePlusSomething = tx.fee!!.value / tx.gasUsed + Convert.toWei("10", Convert.Unit.GWEI).toBigInteger()
                             selectedFee.value?.value?.max(oldFeePlusSomething) ?: oldFeePlusSomething
                         } else null
+                        nonce.value = tx.nonce
                         transactionData.value = EthTransactionData(tx.nonce, oldData.gasLimit, oldData.inputData, suggestedGasPrice)
                     }
                 }
@@ -74,6 +88,9 @@ class SendErc20Model(application: Application,
     init {
         populateTxItems()
         selectedTxItem.value = NoneItem()
+        (intent.getSerializableExtra(SendCoinsActivity.TRANSACTION_NONCE) as? BigInteger)?.let {
+            nonce.value = it
+        }
         showGasLimitError.value = false
     }
 
@@ -114,4 +131,27 @@ class SendErc20Model(application: Application,
                     FeeLvlItem(fee, "~$duration", SelectableRecyclerView.SRVAdapter.VIEW_TYPE_ITEM)
                 }
     }
+
+    override fun getRequestedAmountFormatted(): String =
+        if (amount.value == null) {
+            ""
+        } else if (transactionStatus.value == TransactionStatus.OUTPUT_TOO_SMALL
+            || transactionStatus.value == TransactionStatus.INSUFFICIENT_FUNDS
+            || transactionStatus.value == TransactionStatus.INSUFFICIENT_FUNDS_FOR_FEE
+        ) {
+            getValueInAccountCurrency().toStringWithUnit(mbwManager.getDenomination(account.coinType))
+        } else {
+            formatValue(amount.value)
+        }
+
+    override fun formatValue(value: Value?): String =
+        if (value == null) {
+            ""
+        } else {
+            if (value.type == account.coinType) {
+                value.toStringWithUnit(mbwManager.getDenomination(account.coinType))
+            } else {
+                "~ ${value.toStringWithUnit()}"
+            }
+        }
 }
