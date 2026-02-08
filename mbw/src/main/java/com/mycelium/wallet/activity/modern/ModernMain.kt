@@ -150,7 +150,7 @@ class ModernMain : AppCompatActivity(), BackHandler {
             tab.text = mTabsAdapter?.getPageTitle(position) //"OBJECT ${(position + 1)}"
         }.attach()
         if (mediaFlowEnabled) {
-            mNewsTab = binding.pagerTabs.newTab().setText(getString(R.string.media_flow)).setCustomView(R.layout.layout_exchange_tab)
+            mNewsTab = binding.pagerTabs.newTab().setText(getString(R.string.media_flow))
             mTabsAdapter!!.addTab(mNewsTab!!, NewsFragment::class.java, null, TAB_NEWS)
         }
         if(isContentEnabled(ChangellyConstants.PARTNER_ID_CHANGELLY)) {
@@ -199,9 +199,6 @@ class ModernMain : AppCompatActivity(), BackHandler {
         }
         ModularisationVersionHelper.notifyWrongModuleVersion(this)
         handleIntent(intent)
-
-        val tab = mTabsAdapter!!.indexOf(TAB_EXCHANGE)
-        binding.pagerTabs.getTabAt(tab)?.setCustomView(R.layout.layout_exchange_tab)
 
         lifecycleScope.launchWhenResumed {
             ChangeLog.showIfNewVersion(this@ModernMain, supportFragmentManager)
