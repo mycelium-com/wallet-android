@@ -11,5 +11,6 @@
         <domain includeSubdomains="true">reg.bequant.io</domain>
         <domain includeSubdomains="true">boatarde.xyz</domain>
         <domain includeSubdomains="true">mbwexchange.com</domain>
+        <domain includeSubdomains="true">mbwswaps.com</domain>
     </domain-config>
 </network-security-config>

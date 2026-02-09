@@ -638,6 +638,11 @@ class TransactionHistoryFragment : Fragment() {
                     true
                 }
 
+                R.id.miExportHistory -> {
+                    shareTransactionHistory()
+                    true
+                }
+
                 else -> false
             }
     }
