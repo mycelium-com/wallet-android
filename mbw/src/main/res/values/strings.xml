@@ -591,6 +591,7 @@
     <string name="enter_account_label_title">Enter Account Label</string>
     <string name="edit_account_label_title">Edit Account Label</string>
     <string name="seed_already_configured">Cannot import: master seed is already configured</string>
+    <string name="master_seed_not_configured">Master seed is not configured</string>
     <string name="backup_words_title">Master Seed Backup</string>
     <string name="verify_words_title">Master Seed Verification</string>
     <string name="wordlist_backup_description">THIS IS IMPORTANT\n\nYou are about to back up your master seed.\n\nAfter making a backup you should set a PIN to prevent anyone that briefly holds your phone from making another backup and steal your current and future funds.\n\nYou will be shown a list of words, one after another. Write those words down using pen and paper, and store them in a safe place.</string>

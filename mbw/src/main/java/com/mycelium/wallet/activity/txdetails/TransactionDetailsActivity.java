@@ -101,7 +101,11 @@ public class TransactionDetailsActivity extends AppCompatActivity {
             }
             transaction.commit();
         }
-        updateUi();
+        if (tx != null) {
+            updateUi();
+        } else {
+            finish();
+        }
     }
 
     private void updateUi() {

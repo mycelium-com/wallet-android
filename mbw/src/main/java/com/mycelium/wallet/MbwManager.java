@@ -200,6 +200,7 @@ import com.mycelium.wapi.wallet.manager.FeeEstimations;
 import com.mycelium.wapi.wallet.manager.WalletListener;
 import com.mycelium.wapi.wallet.masterseed.MasterSeedManager;
 import com.mycelium.wapi.wallet.providers.BtcFeeProvider;
+import com.mycelium.wapi.wallet.providers.BtcvFeeProvider;
 import com.mycelium.wapi.wallet.providers.EthFeeProvider;
 import com.mycelium.wapi.wallet.providers.FeeProvider;
 import com.mycelium.wapi.wallet.providers.FioFeeProvider;
@@ -846,6 +847,7 @@ public class MbwManager {
                 environment.getBTCVNetwork(),
                 walletDB, btcvWapi, (BTCSettings) currenciesSettingsMap.get(BitcoinVaultHDModule.ID),
                 getMetadataStorage(), accountListener));
+         walletManager.getFeeEstimations().addProvider(new BtcvFeeProvider(isTestnet, btcvWapi, feeBacking));
 
         walletManager.add(new InvestmentModule(getMetadataStorage()));
         walletManager.init();
