@@ -285,6 +285,27 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener, AmountLi
                                     bindingAdvEth?.advancedBlock?.layoutParams?.height = ViewGroup.LayoutParams.WRAP_CONTENT
                                     bindingAdvEth?.advancedBlock?.requestLayout()
                                 })
+                                bindingAdvEth?.etNonce?.doOnTextChanged { _, _, _, _ ->
+                                    if (bindingAdvEth?.etNonce?.hasFocus() == true) {
+                                        getNonce().value = null
+                                        getTransactionDataStatus().value = SendCoinsModel.TransactionDataStatus.TYPING
+                                    }
+                                }
+                                bindingAdvEth?.etNonce?.setOnEditorActionListener { textView, actionId, _ ->
+                                    if (actionId == EditorInfo.IME_ACTION_DONE) {
+                                        textView.clearFocus()
+                                    }
+                                    false
+                                }
+                                bindingAdvEth?.etNonce?.setOnFocusChangeListener { _, hasFocus ->
+                                    if (!hasFocus) {
+                                        val nonceText = bindingAdvEth?.etNonce?.text.toString()
+                                        getNonce().value = if (nonceText.isEmpty()) null else BigInteger(nonceText)
+                                        getTransactionDataStatus().value = SendCoinsModel.TransactionDataStatus.READY
+                                    } else {
+                                        getTransactionDataStatus().value = SendCoinsModel.TransactionDataStatus.TYPING
+                                    }
+                                }
                                 bindingAdvEth?.etGasLimit?.doOnTextChanged { _, _, _, _ ->
                                         // reset gas limit and therefore UI state
                                         getGasLimit().value = null
@@ -348,6 +369,16 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener, AmountLi
                                         bindingFeeSelector?.feeLvlList?.visibility = View.GONE
                                         bindingFeeSelector?.feeValueList?.visibility = View.GONE
                                         bindingFeeTitleEth?.tvFeeUpdatesTimer?.visibility = View.GONE
+                                    }
+                                })
+                                getNonce().observe(this@SendCoinsActivity, Observer { nonceValue ->
+                                    val nonceField = bindingAdvEth?.etNonce
+                                    if (nonceField != null && nonceField.hasFocus()) {
+                                        return@Observer
+                                    }
+                                    val newText = nonceValue?.toString() ?: ""
+                                    if (nonceField != null && nonceField.text.toString() != newText) {
+                                        nonceField.setText(newText)
                                     }
                                 })
                                 getGasLimit().observe(this@SendCoinsActivity, Observer { gl ->
@@ -417,6 +448,8 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener, AmountLi
                                 }
                                 isAdvancedBlockExpanded.observe(this@SendCoinsActivity, Observer { isExpanded ->
                                     if (!isExpanded) {
+                                        bindingAdvEth?.etNonce?.setText("")
+                                        getNonce().value = null
                                         bindingAdvEth?.etGasLimit?.setText("")
                                         getGasLimit().value = null
                                         bindingAdvEth?.gasPrice?.setText("")
@@ -452,7 +485,7 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener, AmountLi
     override fun dispatchTouchEvent(event: MotionEvent): Boolean {
         if (event.action == MotionEvent.ACTION_DOWN) {
             val v = currentFocus
-            if (v is EditText && v.id == R.id.etGasLimit) {
+            if (v is EditText && (v.id == R.id.etGasLimit || v.id == R.id.etNonce)) {
                 val outRect = Rect()
                 v.getGlobalVisibleRect(outRect)
                 if (!outRect.contains(event.rawX.toInt(), event.rawY.toInt())) {
@@ -738,6 +771,7 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener, AmountLi
         const val SIGNED_TRANSACTION = "signedTransaction"
         const val TRANSACTION_FIAT_VALUE = "transaction_fiat_value"
         const val BATCH_HASH_PREFIX = "batch_"
+        internal const val TRANSACTION_NONCE = "transactionNonce"
 
         @JvmStatic
         fun getIntent(currentActivity: Activity, account: UUID, isColdStorage: Boolean): Intent =

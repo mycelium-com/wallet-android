@@ -5,22 +5,26 @@ import com.mrd.bitlib.model.NetworkParameters
 import com.mrd.bitlib.model.hdpath.HdKeyPath
 import com.mrd.bitlib.util.HexUtils
 import com.mycelium.generated.wallet.database.WalletDB
-
-import com.mycelium.wapi.wallet.*
+import com.mycelium.wapi.wallet.AccountListener
+import com.mycelium.wapi.wallet.AesKeyCipher
+import com.mycelium.wapi.wallet.CurrencySettings
+import com.mycelium.wapi.wallet.KeyCipher
+import com.mycelium.wapi.wallet.SecureKeyValueStore
+import com.mycelium.wapi.wallet.WalletAccount
+import com.mycelium.wapi.wallet.WalletManager
 import com.mycelium.wapi.wallet.coins.Balance
 import com.mycelium.wapi.wallet.eth.coins.EthMain
 import com.mycelium.wapi.wallet.eth.coins.EthTest
-
-import com.mycelium.wapi.wallet.genericdb.EthAccountBacking
 import com.mycelium.wapi.wallet.genericdb.Backing
+import com.mycelium.wapi.wallet.genericdb.EthAccountBacking
 import com.mycelium.wapi.wallet.manager.Config
 import com.mycelium.wapi.wallet.manager.WalletModule
 import com.mycelium.wapi.wallet.masterseed.MasterSeedManager
 import com.mycelium.wapi.wallet.metadata.IMetaDataStorage
 import org.web3j.crypto.Credentials
 import org.web3j.crypto.Keys
-import org.web3j.tx.ChainId
-import java.util.*
+import org.web3j.tx.ChainIdLong
+import java.util.UUID
 
 class EthereumModule(
         private val secureStore: SecureKeyValueStore,
@@ -35,7 +39,7 @@ class EthereumModule(
     val password = ""
     fun getBip44Path(accountIndex: Int): HdKeyPath = HdKeyPath.valueOf("m/44'/60'/$accountIndex'/0/0")
     private val coinType = if (networkParameters.isProdnet) EthMain else EthTest
-    private val chainId = if (networkParameters.isProdnet) ChainId.MAINNET else CHAIN_ID_GOERLI
+    private val chainId: Long = if (networkParameters.isProdnet) ChainIdLong.MAINNET else ChainIdLong.SEPOLIA
 
     private val accounts = mutableMapOf<UUID, EthAccount>()
     override val id = ID
@@ -177,7 +181,6 @@ class EthereumModule(
             ?: -1
 
     companion object {
-        private const val CHAIN_ID_GOERLI: Byte = 5
         const val ID: String = "Ethereum"
     }
 }

@@ -37,6 +37,7 @@ import com.mycelium.wallet.activity.modern.Toaster
 import com.mycelium.wallet.activity.send.BroadcastDialog
 import com.mycelium.wallet.activity.send.SendCoinsActivity
 import com.mycelium.wallet.activity.send.SignTransactionActivity
+import com.mycelium.wallet.activity.send.SendInitializationActivity
 import com.mycelium.wallet.activity.txdetails.TransactionDetailsActivity
 import com.mycelium.wallet.activity.util.EnterAddressLabelUtil
 import com.mycelium.wallet.activity.util.EnterAddressLabelUtil.AddressLabelChangedHandler
@@ -47,6 +48,7 @@ import com.mycelium.wallet.event.*
 import com.mycelium.wapi.api.WapiException
 import com.mycelium.wapi.model.TransactionEx
 import com.mycelium.wapi.wallet.*
+import com.mycelium.wapi.wallet.EthTransactionSummary
 import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount
 import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount
 import com.mycelium.wapi.wallet.btc.AbstractBtcAccount
@@ -328,6 +330,12 @@ class TransactionHistoryFragment : Fragment() {
                     private fun updateActionBar(actionMode: ActionMode, menu: Menu) {
                         Preconditions.checkNotNull(menu.findItem(R.id.miShowDetails))
                         Preconditions.checkNotNull(menu.findItem(R.id.miAddToAddressBook)).isVisible = !record.isIncoming && record.destinationAddresses.size > 0
+                        val replaceItem = Preconditions.checkNotNull(menu.findItem(R.id.miReplaceTransaction))
+                        val ethSummary = record as? EthTransactionSummary
+                        val canReplaceTx = (model.account.value is AbstractEthERC20Account)
+                                && ethSummary?.nonce != null
+                                && !record.isIncoming
+                                && record.confirmations == 0
                         if (model.account.value is Bip44BCHAccount || model.account.value is SingleAddressBCHAccount
                                 || model.account.value is AbstractEthERC20Account || model.account.value is FioAccount) {
                             Preconditions.checkNotNull(menu.findItem(R.id.miCancelTransaction)).isVisible = false
@@ -345,6 +353,7 @@ class TransactionHistoryFragment : Fragment() {
                         if (model.account.value is AbstractEthERC20Account) {
                             Preconditions.checkNotNull(menu.findItem(R.id.miDeleteUnconfirmedTransaction)).isVisible = record.confirmations == 0
                         }
+                        replaceItem.isVisible = canReplaceTx
                         currentActionMode = actionMode
                         binding?.lvTransactionHistory?.setItemChecked(position, true)
                     }
@@ -369,6 +378,22 @@ class TransactionHistoryFragment : Fragment() {
                                     val address = record.destinationAddresses[0]
                                     EnterAddressLabelUtil.enterAddressLabel(requireContext(), model.storage,
                                             address, defaultName, addressLabelChanged)
+                                }
+                            }
+                            R.id.miReplaceTransaction -> {
+                                val walletAccount = model.account.value
+                                val ethSummary = record as? EthTransactionSummary
+                                val nonce = ethSummary?.nonce
+                                if (walletAccount is AbstractEthERC20Account && nonce != null && !record.isIncoming && record.confirmations == 0) {
+                                    val isColdStorage = model.mbwManager
+                                        .getWalletManager(true)
+                                        .hasAccount(walletAccount.id)
+                                    val intent = SendInitializationActivity
+                                        .getIntent(requireActivity(), walletAccount.id, isColdStorage)
+                                        .putExtra(SendCoinsActivity.TRANSACTION_NONCE, nonce)
+                                    startActivity(intent)
+                                    finishActionMode()
+                                    return true
                                 }
                             }
                             R.id.miCancelTransaction -> AlertDialog.Builder(context)
