@@ -831,6 +831,7 @@
     <string name="share_transaction_history">Share transaction history</string>
     <string name="transaction_history_title">Transaction history</string>
     <string name="menu_item_cancel_transaction">Cancel transaction</string>
+    <string name="menu_item_replace_transaction">Cancel / replace transaction</string>
     <string name="menu_item_rebroadcast_transaction">Rebroadcast transaction</string>
     <string name="menu_item_delete_unconfirmed_transaction">Delete unconfirmed transaction</string>
     <string name="menu_item_bump_mining_fee">Bump Fee (CPFP)</string>

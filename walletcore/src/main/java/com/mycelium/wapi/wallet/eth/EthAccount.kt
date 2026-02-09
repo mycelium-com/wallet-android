@@ -41,7 +41,7 @@ import java.util.UUID
 import java.util.concurrent.TimeUnit
 import java.util.logging.Level
 
-class EthAccount(private val chainId: Byte,
+class EthAccount(private val chainId: Long,
                  private val accountContext: EthAccountContext,
                  credentials: Credentials? = null,
                  backing: EthAccountBacking,
@@ -95,7 +95,7 @@ class EthAccount(private val chainId: Byte,
         val hexValue = Numeric.toHexString(signedMessage)
         request.apply {
             signedHex = hexValue
-            txHash = TransactionUtils.generateTransactionHash(rawTransaction, chainId, credentials)
+            txHash = TransactionUtils.generateTransactionHash(rawTransaction, credentials)
             txBinary = TransactionEncoder.encode(rawTransaction)!!
         }
     }
