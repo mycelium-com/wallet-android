@@ -1,5 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog>
+    <release version="3.21.0" versioncode="3210000">
+        <change>Fixed exchange service issues</change>
+        <change>Added ability to cancel and replace pending Ethereum transactions</change>
+        <change>Fixed transaction history export</change>
+        <change>Added decimal input support for gas price</change>
+        <change>Stability improvements</change>
+    </release>
     <release version="3.20.0.3" versioncode="3200003">
         <change>Fixed outdated miners' fee issue for ETH and ERC20 tokens</change>
         <change>Improved overall app performance</change>
