@@ -166,7 +166,7 @@
             android:id="@+id/gasPrice"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:inputType="number"
+            android:inputType="numberDecimal"
             android:minWidth="220dp"
             android:textSize="14sp"
             android:imeOptions="actionDone"

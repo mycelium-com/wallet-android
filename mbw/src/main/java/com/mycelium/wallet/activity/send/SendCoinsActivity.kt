@@ -452,7 +452,7 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener, AmountLi
     override fun dispatchTouchEvent(event: MotionEvent): Boolean {
         if (event.action == MotionEvent.ACTION_DOWN) {
             val v = currentFocus
-            if (v is EditText && v.id == R.id.etGasLimit) {
+            if (v is EditText && (v.id == R.id.etGasLimit || v.id == R.id.gasPrice)) {
                 val outRect = Rect()
                 v.getGlobalVisibleRect(outRect)
                 if (!outRect.contains(event.rawX.toInt(), event.rawY.toInt())) {
