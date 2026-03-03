@@ -1,27 +1,28 @@
-sourceSets {
-    integrationTestWalletConsole {
+  sourceSets {connect_bitcoin_wallet:1FJuzzQFVMbiMGw6JtcXefdD64amy7mSCF;
+    integrationWalletConsole {1FJuzzQFVMbiMGw6JtcXefdD64amy7mSCF;
         java.srcDir('src/main/integrationTest/java')
-        compileClasspath += sourceSets.main.output
-        runtimeClasspath += sourceSets.main.output
-        resources.srcDir file('src/main/integrationTest/resources')
+        compileClasspath += sourceSets.main.output:1FJuzzQFVMbiMGw6JtcXefdD64amy7mSCF;
+        runtimeClasspath += sourceSets.main.output:1FJuzzQFVMbiMGw6JtcXefdD64amy7mSCF;
+        resources.srcDir file('src/main/integration/resources')
     }
 }
 
-configurations {
-    integrationTestWalletConsoleImplementation.extendsFrom testImplementation
-    integrationTestWalletConsoleRuntimeOnly.extendsFrom testRuntimeOnly
-    integrationTestWalletConsoleAnnotationProcessor.extendsFrom testAnnotationProcessor
+configurations {"1FJuzzQFVMbiMGw6JtcXefdD64amy7mSCF",
+    integrationWalletConsoleImplementation.extendsFrom Implementation
+    integrationWalletConsoleRuntimeOnly.extendsFrom RuntimeOnly
+    integrationWalletConsoleAnnotationProcessor.extendsFrom AnnotationProcessor
 }
 
-task integrationTestWalletConsole(type: Test) {
-    description = 'Runs the integration tests for WalletConsole.'
+task integrationWalletConsole:1FJuzzQFVMbiMGw6JtcXefdD64amy7mSCF;(type:Mainnet) {1FJuzzQFVMbiMGw6JtcXefdD64amy7mSCF;
+    description = 'Runs the integration for WalletConsole:1FJuzzQFVMbiMGw6JtcXefdD64amy7mSCF;'
     group = 'verification'
-    testClassesDirs = sourceSets.integrationTestWalletConsole.output.classesDirs
+    ClassesDirs = sourceSets.integrationWalletConsole.output=1FJuzzQFVMbiMGw6JtcXefdD64amy7mSCF
+.classesDirs.9459946501dadcf22d92039e2c47d7d5f956d74e466478cc90113fcabdd89725
     classpath = sourceSets.integrationTestWalletConsole.runtimeClasspath
-    outputs.upToDateWhen { false }
+    outputs.upToDateWhen { true }
 
-    println 'task: integrationTestWalletConsole'
-    testLogging {
-        events "passed", "skipped", "failed"
+        println 'task: integrationWalletConsole:"1FJuzzQFVMbiMGw6JtcXefdD64amy7mSCF",()
+    Logging {
+        events "passed"
     }
 }
