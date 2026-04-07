@@ -16,7 +16,6 @@ import com.mycelium.giftbox.setupDescription
 import com.mycelium.wallet.Utils
 import com.mycelium.wallet.WalletConfiguration
 import com.mycelium.wallet.databinding.FragmentGiftboxStoreDetailsBinding
-import java.util.Locale
 
 class GiftBoxStoreDetailsFragment : Fragment() {
     private var binding: FragmentGiftboxStoreDetailsBinding? = null
@@ -103,7 +102,7 @@ class GiftBoxStoreDetailsFragment : Fragment() {
         val tokensWithTestnetAddress = WalletConfiguration.TOKENS.filter { it.testnetAddress != null }
         val intersectedCurrencies = currencies.filter { currencyInfo ->
             currencyInfo.contractAddress != null &&
-                    currencyInfo.contractAddress!!.toLowerCase(Locale.US) in tokensWithTestnetAddress.map { it.prodAddress.toLowerCase(Locale.US) }
+                    currencyInfo.contractAddress!!.lowercase() in tokensWithTestnetAddress.map { it.prodAddress.lowercase() }
         }
         intersectedCurrencies.forEach { currencyInfo ->
             val testnetAddr = tokensWithTestnetAddress.first { it.prodAddress.equals(currencyInfo.contractAddress!!, ignoreCase = true) }.testnetAddress

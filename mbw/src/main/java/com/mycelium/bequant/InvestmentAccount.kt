@@ -9,14 +9,23 @@ import com.mycelium.wallet.Utils
 import com.mycelium.wallet.activity.settings.SettingsPreference
 import com.mycelium.wapi.SyncStatus
 import com.mycelium.wapi.SyncStatusInfo
-import com.mycelium.wapi.wallet.*
+import com.mycelium.wapi.wallet.Address
+import com.mycelium.wapi.wallet.BroadcastResult
+import com.mycelium.wapi.wallet.Fee
+import com.mycelium.wapi.wallet.KeyCipher
+import com.mycelium.wapi.wallet.OutputViewModel
+import com.mycelium.wapi.wallet.SyncMode
+import com.mycelium.wapi.wallet.Transaction
+import com.mycelium.wapi.wallet.TransactionData
+import com.mycelium.wapi.wallet.TransactionSummary
+import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.btc.BtcAddress
 import com.mycelium.wapi.wallet.coins.Balance
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.coins.Value
 import kotlinx.coroutines.runBlocking
 import java.math.BigDecimal
-import java.util.*
+import java.util.UUID
 import kotlin.math.pow
 import com.mycelium.bequant.remote.trading.model.Balance as BequantBalance
 
@@ -126,7 +135,7 @@ class InvestmentAccount : WalletAccount<BtcAddress> {
                 }.reduceRight { bigDecimal, acc -> acc.plus(bigDecimal) }
 
                 if (currencySum == BigDecimal.ZERO) continue
-                if (currency!!.toUpperCase(Locale.US) == "BTC") {
+                if (currency!!.uppercase() == "BTC") {
                     btcTotal += currencySum
                     continue
                 }

@@ -98,7 +98,7 @@ class RegisterFioNameStep1Fragment : Fragment() {
         binding?.inputEditText?.filters = arrayOf<InputFilter>(
                 object : AllCaps() {
                     override fun filter(source: CharSequence, start: Int, end: Int, dest: Spanned, dstart: Int, dend: Int): CharSequence {
-                        return source.toString().toLowerCase(Locale.US)
+                        return source.toString().lowercase()
                     }
                 }
         )

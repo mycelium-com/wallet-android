@@ -1,0 +1,19 @@
+<resources>
+    <!-- Support Chat -->
+    <string name="support_chat_title">Підтримка</string>
+    <string name="support_chat_empty_title">Повідомлень поки немає</string>
+    <string name="support_chat_empty_subtitle">Розпочніть розмову з нашою командою підтримки</string>
+    <string name="support_chat_input_hint">Введіть повідомлення...</string>
+    <string name="support_chat_send">Надіслати</string>
+    <string name="support_chat_loading">Завантаження повідомлень...</string>
+    <string name="support_chat_loading_more">Завантаження...</string>
+    <string name="support_chat_error_generic">Щось пішло не так</string>
+    <string name="support_chat_error_retry">Повторити</string>
+    <string name="support_chat_fab_description">Відкрити чат підтримки</string>
+    <string name="support_chat_rate_limit_error">Забагато повідомлень. Зачекайте трохи.</string>
+    <string name="support_chat_message_too_long">Повідомлення занадто довге</string>
+    <string name="support_chat_today">Сьогодні</string>
+    <string name="support_chat_yesterday">Вчора</string>
+    <string name="support_chat_response_time_notice">Відповідь може зайняти до 24 годин</string>
+    <string name="support_chat_attach_image">Прикріпити зображення</string>
+</resources>

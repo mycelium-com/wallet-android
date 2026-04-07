@@ -18,12 +18,33 @@ recyclerViewVersion = "1.2.1"
 retrofit = "2.6.1"
 test-core = "1.6.1"
 espresso = "3.6.1"
-glide = "5.0.0-rc01"
+glide = "5.0.5"
 junit = "1.2.1"
-kotlin = '2.0.21'
+kotlin = "2.3.0"
 androidGradlePlugin = "8.12.1"
 sqldelight = "2.0.2"
 playServicesBase = "18.7.0"
+
+compose-multiplatform = "1.10.1"
+
+# KMP dependencies (supportChat module)
+ksp = "2.3.5"
+kotlinInject = "0.9.0"
+kotlinxSerializationJson = "1.10.0"
+kotlinxDatetime = "0.7.1"
+kermit = "2.0.8"
+trustCore = "4.6.0"
+firebase-gitlive-sdk = "2.4.0"
+kotest = "6.1.3"
+turbine = "1.2.1"
+kotlinx-coroutines = "1.10.2"
+coil = "3.4.0"
+ktor = "3.4.1"
+androidx-activityCompose = "1.12.4"
+navigation-kmp = "2.9.2"
+androidx-lifecycle-kmp = "2.9.6"
+compose-material3 = "1.9.0"
+materialIconsExtended = "1.7.3"
 
 [libraries]
 androidx-core = { module = "androidx.core:core-ktx", version.ref = "coreKtx" }
@@ -73,12 +94,51 @@ test-rules = { module = "androidx.test:rules", version.ref = "test-core" }
 test-runner = { module = "androidx.test:runner", version.ref = "test-core" }
 play-services-base = { group = "com.google.android.gms", name = "play-services-base", version.ref = "playServicesBase" }
 
+# KMP libraries (supportChat module)
+compose-foundation = { module = "org.jetbrains.compose.foundation:foundation", version.ref = "compose-multiplatform" }
+compose-components-resources = { module = "org.jetbrains.compose.components:components-resources", version.ref = "compose-multiplatform" }
+compose-preview = { module = "org.jetbrains.compose.ui:ui-tooling-preview", version.ref = "compose-multiplatform" }
+compose-material-icons-extended = { module = "org.jetbrains.compose.material:material-icons-extended", version.ref = "materialIconsExtended" }
+compose-material3 = { module = "org.jetbrains.compose.material3:material3", version.ref = "compose-material3" }
+compose-runtime = { module = "org.jetbrains.compose.runtime:runtime", version.ref = "compose-multiplatform" }
+compose-ui = { module = "org.jetbrains.compose.ui:ui", version.ref = "compose-multiplatform" }
+kotlin-inject-runtime-kmp = { module = "me.tatarka.inject:kotlin-inject-runtime-kmp", version.ref = "kotlinInject" }
+kotlin-inject-compiler-ksp = { module = "me.tatarka.inject:kotlin-inject-compiler-ksp", version.ref = "kotlinInject" }
+kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
+kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinxDatetime" }
+kotlinx-coroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }
+kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinx-coroutines" }
+kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "kotlin" }
+kotlin-test = { group = "org.jetbrains.kotlin", name = "kotlin-test", version.ref = "kotlin" }
+kermit = { module = "co.touchlab:kermit", version.ref = "kermit" }
+gitlive-firebase-firestore = { module = "dev.gitlive:firebase-firestore", version.ref = "firebase-gitlive-sdk" }
+gitlive-firebase-functions = { module = "dev.gitlive:firebase-functions", version.ref = "firebase-gitlive-sdk" }
+gitlive-firebase-messaging-kmp = { module = "dev.gitlive:firebase-messaging", version.ref = "firebase-gitlive-sdk" }
+navigation-compose = { module = "org.jetbrains.androidx.navigation:navigation-compose", version.ref = "navigation-kmp" }
+androidx-lifecycle-viewmodel = { group = "org.jetbrains.androidx.lifecycle", name = "lifecycle-viewmodel-compose", version.ref = "androidx-lifecycle-kmp" }
+kotest-framework-engine = { module = "io.kotest:kotest-framework-engine", version.ref = "kotest" }
+kotest-assertions-core = { module = "io.kotest:kotest-assertions-core", version.ref = "kotest" }
+kotest-property = { module = "io.kotest:kotest-property", version.ref = "kotest" }
+turbine = { module = "app.cash.turbine:turbine", version.ref = "turbine" }
+coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coil" }
+coil-network-ktor = { module = "io.coil-kt.coil3:coil-network-ktor3", version.ref = "coil" }
+ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
+ktor-client-android = { module = "io.ktor:ktor-client-android", version.ref = "ktor" }
+ktor-client-content-negotiation = { module = "io.ktor:ktor-client-content-negotiation", version.ref = "ktor" }
+ktor-serialization-kotlinx-json = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktor" }
+androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "androidx-activityCompose" }
+
 [plugins]
+kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
+composeMultiplatform = { id = "org.jetbrains.compose", version.ref = "compose-multiplatform" }
+composeCompiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+
 android-application = { id = "com.android.application", version.ref = "androidGradlePlugin" }
 android-library = { id = "com.android.library", version.ref = "androidGradlePlugin" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-jvm = { id = 'org.jetbrains.kotlin.jvm', version.ref = "kotlin" }
-ksp = { id = "com.google.devtools.ksp", version = "2.0.21-1.0.28" }
+ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 naviagation = { id = "androidx.navigation.safeargs.kotlin", version.ref = "navigation" }
 sqldelight = { id = "app.cash.sqldelight", version.ref = "sqldelight" }
 google-services = { id = "com.google.gms.google-services", version = "4.4.2" }
@@ -93,3 +153,5 @@ retrofit = ["retrofit", "retrofit-jackson", "retrofit-gson"]
 navigation = ["navigation-dynamic-features-fragment", "navigation-fragment-ktx", "navigation-ui-ktx"]
 lifecycle = ["lifecycle-runtime", "lifecycle-livedata-ktx", "lifecycle-reactivestreams", "lifecycle-reactivestreams-ktx"]
 web3j = ["web3j-core", "web3j-abi", "web3j-crypto", "web3j-utils"]
+compose = ["compose-runtime", "compose-foundation", "compose-material3", "compose-material-icons-extended", "compose-ui", "compose-components-resources", "compose-preview"]
+kotest = ["kotest-framework-engine", "kotest-assertions-core", "kotest-property"]

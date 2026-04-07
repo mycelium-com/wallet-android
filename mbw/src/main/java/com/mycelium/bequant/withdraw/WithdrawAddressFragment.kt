@@ -10,7 +10,6 @@ import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.observe
 import com.mycelium.bequant.withdraw.viewmodel.WithdrawAddressViewModel
 import com.mycelium.bequant.withdraw.viewmodel.WithdrawViewModel
 import com.mycelium.wallet.R
@@ -25,7 +24,6 @@ import com.mycelium.wallet.content.actions.AddressAction
 import com.mycelium.wallet.content.actions.UriAction
 import com.mycelium.wallet.databinding.FragmentBequantWithdrawAddressBinding
 import com.mycelium.wapi.wallet.AddressUtils
-import java.util.*
 
 
 class WithdrawAddressFragment : Fragment() {
@@ -56,7 +54,7 @@ class WithdrawAddressFragment : Fragment() {
 
         viewModel.address.observe(viewLifecycleOwner) {
             val currency = parentViewModel?.currency?.value
-            val validAddress = when (currency?.toLowerCase(Locale.US)) {
+            val validAddress = when (currency?.lowercase()) {
                 "btc" -> AddressUtils.from(Utils.getBtcCoinType(), it) != null
                 "eth" -> AddressUtils.from(Utils.getEthCoinType(), it) != null
                 else -> true

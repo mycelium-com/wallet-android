@@ -1,0 +1,19 @@
+<resources>
+    <!-- Support Chat -->
+    <string name="support_chat_title">Msaada</string>
+    <string name="support_chat_empty_title">Hakuna ujumbe bado</string>
+    <string name="support_chat_empty_subtitle">Anza mazungumzo na timu yetu ya msaada</string>
+    <string name="support_chat_input_hint">Andika ujumbe...</string>
+    <string name="support_chat_send">Tuma</string>
+    <string name="support_chat_loading">Inapakia ujumbe...</string>
+    <string name="support_chat_loading_more">Inapakia zaidi...</string>
+    <string name="support_chat_error_generic">Kitu kimekwenda vibaya</string>
+    <string name="support_chat_error_retry">Jaribu tena</string>
+    <string name="support_chat_fab_description">Fungua mazungumzo ya msaada</string>
+    <string name="support_chat_rate_limit_error">Ujumbe mwingi sana. Tafadhali subiri kabla ya kutuma.</string>
+    <string name="support_chat_message_too_long">Ujumbe ni mrefu sana</string>
+    <string name="support_chat_today">Leo</string>
+    <string name="support_chat_yesterday">Jana</string>
+    <string name="support_chat_response_time_notice">Majibu yanaweza kuchukua hadi masaa 24</string>
+    <string name="support_chat_attach_image">Ambatisha picha</string>
+</resources>

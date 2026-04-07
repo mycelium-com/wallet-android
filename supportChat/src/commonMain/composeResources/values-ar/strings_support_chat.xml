@@ -1,0 +1,19 @@
+<resources>
+    <!-- Support Chat -->
+    <string name="support_chat_title">الدعم</string>
+    <string name="support_chat_empty_title">لا توجد رسائل بعد</string>
+    <string name="support_chat_empty_subtitle">ابدأ محادثة مع فريق الدعم</string>
+    <string name="support_chat_input_hint">اكتب رسالة...</string>
+    <string name="support_chat_send">إرسال</string>
+    <string name="support_chat_loading">جارٍ تحميل الرسائل...</string>
+    <string name="support_chat_loading_more">جارٍ تحميل المزيد...</string>
+    <string name="support_chat_error_generic">حدث خطأ ما</string>
+    <string name="support_chat_error_retry">إعادة المحاولة</string>
+    <string name="support_chat_fab_description">فتح محادثة الدعم</string>
+    <string name="support_chat_rate_limit_error">رسائل كثيرة جداً. يرجى الانتظار قبل الإرسال.</string>
+    <string name="support_chat_message_too_long">الرسالة طويلة جداً</string>
+    <string name="support_chat_today">اليوم</string>
+    <string name="support_chat_yesterday">أمس</string>
+    <string name="support_chat_response_time_notice">قد تستغرق الردود ما يصل إلى 24 ساعة</string>
+    <string name="support_chat_attach_image">إرفاق صورة</string>
+</resources>

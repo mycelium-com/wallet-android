@@ -403,6 +403,10 @@
             </intent-filter>
         </activity>
         <activity android:name=".activity.ActionActivity" />
+        <activity
+            android:name=".activity.supportchat.SupportChatActivity"
+            android:theme="@style/Theme.AppCompat.NoActionBar"
+            android:windowSoftInputMode="adjustResize" />
     </application>
 
 </manifest>

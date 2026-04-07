@@ -1,0 +1,19 @@
+<resources>
+    <!-- Support Chat -->
+    <string name="support_chat_title">Ondersteuning</string>
+    <string name="support_chat_empty_title">Nog geen berichten</string>
+    <string name="support_chat_empty_subtitle">Start een gesprek met ons ondersteuningsteam</string>
+    <string name="support_chat_input_hint">Typ een bericht...</string>
+    <string name="support_chat_send">Versturen</string>
+    <string name="support_chat_loading">Berichten laden...</string>
+    <string name="support_chat_loading_more">Meer laden...</string>
+    <string name="support_chat_error_generic">Er is iets misgegaan</string>
+    <string name="support_chat_error_retry">Opnieuw proberen</string>
+    <string name="support_chat_fab_description">Ondersteuningschat openen</string>
+    <string name="support_chat_rate_limit_error">Te veel berichten. Wacht even voordat u verzendt.</string>
+    <string name="support_chat_message_too_long">Bericht is te lang</string>
+    <string name="support_chat_today">Vandaag</string>
+    <string name="support_chat_yesterday">Gisteren</string>
+    <string name="support_chat_response_time_notice">Reacties kunnen tot 24 uur duren</string>
+    <string name="support_chat_attach_image">Afbeelding bijvoegen</string>
+</resources>

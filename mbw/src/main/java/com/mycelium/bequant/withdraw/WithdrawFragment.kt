@@ -21,7 +21,6 @@ import com.mycelium.wallet.R
 import com.mycelium.wallet.databinding.FragmentBequantWithdrawBinding
 import com.mycelium.wapi.wallet.SyncMode
 import java.math.BigDecimal
-import java.util.*
 
 
 class WithdrawFragment : Fragment() {
@@ -62,7 +61,7 @@ class WithdrawFragment : Fragment() {
     }
 
     private fun getSupportedByMycelium(currency: String): Boolean =
-            currency.toLowerCase(Locale.US) in listOf("eth", "btc")
+            currency.lowercase() in listOf("eth", "btc")
 
     private fun withdraw() {
         val moneyToWithdraw = BigDecimal(viewModel.amount.value)

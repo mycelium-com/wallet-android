@@ -16,7 +16,6 @@ import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.fio.registerdomain.viewmodel.RegisterFioDomainViewModel
 import com.mycelium.wallet.activity.util.toStringWithUnit
 import com.mycelium.wallet.databinding.FragmentRegisterFioDomainStep1Binding
-import java.util.*
 
 class RegisterFioDomainStep1Fragment : Fragment() {
     private val viewModel: RegisterFioDomainViewModel by activityViewModels()
@@ -53,7 +52,7 @@ class RegisterFioDomainStep1Fragment : Fragment() {
         binding?.inputEditText?.filters = arrayOf<InputFilter>(
                 object : InputFilter.AllCaps() {
                     override fun filter(source: CharSequence, start: Int, end: Int, dest: Spanned, dstart: Int, dend: Int): CharSequence {
-                        return source.toString().toLowerCase(Locale.US)
+                        return source.toString().lowercase()
                     }
                 }
         )

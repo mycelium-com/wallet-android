@@ -1,0 +1,19 @@
+<resources>
+    <!-- Support Chat -->
+    <string name="support_chat_title">সাপোর্ট</string>
+    <string name="support_chat_empty_title">এখনো কোনো বার্তা নেই</string>
+    <string name="support_chat_empty_subtitle">আমাদের সাপোর্ট টিমের সাথে কথোপকথন শুরু করুন</string>
+    <string name="support_chat_input_hint">একটি বার্তা লিখুন...</string>
+    <string name="support_chat_send">পাঠান</string>
+    <string name="support_chat_loading">বার্তা লোড হচ্ছে...</string>
+    <string name="support_chat_loading_more">আরো লোড হচ্ছে...</string>
+    <string name="support_chat_error_generic">কিছু একটা সমস্যা হয়েছে</string>
+    <string name="support_chat_error_retry">পুনরায় চেষ্টা করুন</string>
+    <string name="support_chat_fab_description">সাপোর্ট চ্যাট খুলুন</string>
+    <string name="support_chat_rate_limit_error">অনেক বেশি বার্তা পাঠানো হয়েছে। অনুগ্রহ করে কিছুক্ষণ অপেক্ষা করুন।</string>
+    <string name="support_chat_message_too_long">বার্তাটি অনেক বড়</string>
+    <string name="support_chat_today">আজ</string>
+    <string name="support_chat_yesterday">গতকাল</string>
+    <string name="support_chat_response_time_notice">উত্তর পেতে ২৪ ঘণ্টা পর্যন্ত সময় লাগতে পারে</string>
+    <string name="support_chat_attach_image">ছবি সংযুক্ত করুন</string>
+</resources>

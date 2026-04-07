@@ -138,7 +138,7 @@ abstract class SendCoinsViewModel(application: Application) : AndroidViewModel(a
                 .getActiveFioAccount(payerFioName.value ?: return)
                 // If there is no FioAccount, we are done here.
                 ?: return
-        val tokenCode = getAccount().coinType.symbol.toUpperCase(Locale.US)
+        val tokenCode = getAccount().coinType.symbol.uppercase()
         val chainCode = if (getAccount() is ERC20Account) "ETH" else tokenCode
 
         if (payeeFioName.value != null) {

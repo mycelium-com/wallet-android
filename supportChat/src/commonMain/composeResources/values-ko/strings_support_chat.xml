@@ -1,0 +1,19 @@
+<resources>
+    <!-- Support Chat -->
+    <string name="support_chat_title">고객지원</string>
+    <string name="support_chat_empty_title">메시지가 없습니다</string>
+    <string name="support_chat_empty_subtitle">고객지원팀과 대화를 시작하세요</string>
+    <string name="support_chat_input_hint">메시지 입력...</string>
+    <string name="support_chat_send">보내기</string>
+    <string name="support_chat_loading">메시지 로딩 중...</string>
+    <string name="support_chat_loading_more">더 불러오는 중...</string>
+    <string name="support_chat_error_generic">문제가 발생했습니다</string>
+    <string name="support_chat_error_retry">다시 시도</string>
+    <string name="support_chat_fab_description">고객지원 채팅 열기</string>
+    <string name="support_chat_rate_limit_error">메시지가 너무 많습니다. 잠시 기다려 주세요.</string>
+    <string name="support_chat_message_too_long">메시지가 너무 깁니다</string>
+    <string name="support_chat_today">오늘</string>
+    <string name="support_chat_yesterday">어제</string>
+    <string name="support_chat_response_time_notice">응답에 최대 24시간이 소요될 수 있습니다</string>
+    <string name="support_chat_attach_image">이미지 첨부</string>
+</resources>

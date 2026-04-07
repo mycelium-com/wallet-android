@@ -7,13 +7,17 @@ import com.mycelium.wapi.wallet.btc.coins.BitcoinMain
 import com.mycelium.wapi.wallet.btc.coins.BitcoinTest
 import com.mycelium.wapi.wallet.btcvault.coins.BitcoinVaultMain
 import com.mycelium.wapi.wallet.btcvault.coins.BitcoinVaultTest
-import com.mycelium.wapi.wallet.colu.coins.*
+import com.mycelium.wapi.wallet.colu.coins.MASSCoin
+import com.mycelium.wapi.wallet.colu.coins.MASSCoinTest
+import com.mycelium.wapi.wallet.colu.coins.MTCoin
+import com.mycelium.wapi.wallet.colu.coins.MTCoinTest
+import com.mycelium.wapi.wallet.colu.coins.RMCCoin
+import com.mycelium.wapi.wallet.colu.coins.RMCCoinTest
 import com.mycelium.wapi.wallet.eth.coins.EthMain
 import com.mycelium.wapi.wallet.eth.coins.EthTest
 import com.mycelium.wapi.wallet.fiat.coins.FiatType
 import com.mycelium.wapi.wallet.fio.coins.FIOMain
 import com.mycelium.wapi.wallet.fio.coins.FIOTest
-import java.util.*
 
 val COINS_SET = setOf(
         BitcoinMain, BitcoinTest,
@@ -28,7 +32,7 @@ val COINS_SET = setOf(
 
 val COINS = COINS_SET.associateBy { it.id }
 
-val SYMBOL_COIN_MAP = COINS_SET.associateBy { it.symbol.toUpperCase(Locale.US) }
+val SYMBOL_COIN_MAP = COINS_SET.associateBy { it.symbol.uppercase() }
 
 fun String.toAssetInfo(): AssetInfo? =
         when {

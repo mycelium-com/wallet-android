@@ -54,10 +54,21 @@ import com.mycelium.wallet.activity.settings.SettingsPreference.getMainMenuConte
 import com.mycelium.wallet.activity.settings.SettingsPreference.getPartnersLocalized
 import com.mycelium.wallet.activity.settings.SettingsPreference.isContentEnabled
 import com.mycelium.wallet.activity.settings.SettingsPreference.mediaFlowEnabled
+import com.mycelium.wallet.activity.supportchat.SupportChatActivity
+import com.mycelium.wallet.activity.supportchat.SupportChatDependencies
 import com.mycelium.wallet.activity.util.collapse
 import com.mycelium.wallet.activity.util.expand
 import com.mycelium.wallet.checkPushPermission
 import com.mycelium.wallet.databinding.ModernMainBinding
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.platform.ViewCompositionStrategy
+import com.mycelium.supportchat.ui.components.SupportChatFab
 import com.mycelium.wallet.event.FeatureWarningsAvailable
 import com.mycelium.wallet.event.MalformedOutgoingTransactionsFound
 import com.mycelium.wallet.event.NetworkConnectionStateChanged
@@ -200,6 +211,8 @@ class ModernMain : AppCompatActivity(), BackHandler {
         ModularisationVersionHelper.notifyWrongModuleVersion(this)
         handleIntent(intent)
 
+        setupSupportChatFab()
+
         lifecycleScope.launchWhenResumed {
             ChangeLog.showIfNewVersion(this@ModernMain, supportFragmentManager)
         }
@@ -219,6 +232,38 @@ class ModernMain : AppCompatActivity(), BackHandler {
                 REQUEST_CODE_NOTIFICATION
             )
         })
+    }
+
+    private fun setupSupportChatFab() {
+        binding.supportChatFab.apply {
+            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+            setContent {
+                MaterialTheme {
+                    var unreadCount by remember { mutableIntStateOf(0) }
+                    val shouldAnimate = !SupportChatDependencies.hasAnimatedThisSession
+
+                    LaunchedEffect(Unit) {
+                        try {
+                            SupportChatDependencies.identityManager.initialize()
+                            SupportChatDependencies.chatRepository.observeUnreadCount()
+                                .collect { count -> unreadCount = count }
+                        } catch (_: Exception) {
+                            // Identity initialization may fail if wallet is locked
+                        }
+                    }
+
+                    SupportChatFab(
+                        unreadCount = unreadCount,
+                        onClick = { SupportChatActivity.start(this@ModernMain) },
+                        shouldAutoAnimate = shouldAnimate
+                    )
+
+                    LaunchedEffect(Unit) {
+                        SupportChatDependencies.hasAnimatedThisSession = true
+                    }
+                }
+            }
+        }
     }
 
     fun selectedTab(): String {

@@ -3,7 +3,6 @@ package com.mycelium.wallet.activity.modern.adapter
 import android.annotation.SuppressLint
 import android.content.Context
 import android.text.Html
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -20,14 +19,28 @@ import com.mycelium.bequant.remote.repositories.Api
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.modern.RecordRowBuilder
-import com.mycelium.wallet.activity.modern.adapter.holder.*
+import com.mycelium.wallet.activity.modern.adapter.holder.AccountViewHolder
+import com.mycelium.wallet.activity.modern.adapter.holder.ArchivedGroupTitleViewHolder
+import com.mycelium.wallet.activity.modern.adapter.holder.GroupTitleViewHolder
+import com.mycelium.wallet.activity.modern.adapter.holder.InvestmentViewHolder
+import com.mycelium.wallet.activity.modern.adapter.holder.TotalViewHolder
 import com.mycelium.wallet.activity.modern.model.ViewAccountModel
-import com.mycelium.wallet.activity.modern.model.accounts.*
-import com.mycelium.wallet.activity.modern.model.accounts.AccountListItem.Type.*
+import com.mycelium.wallet.activity.modern.model.accounts.AccountInvestmentViewModel
+import com.mycelium.wallet.activity.modern.model.accounts.AccountListItem
+import com.mycelium.wallet.activity.modern.model.accounts.AccountListItem.Type.ACCOUNT_TYPE
+import com.mycelium.wallet.activity.modern.model.accounts.AccountListItem.Type.GROUP_ARCHIVED_TITLE_TYPE
+import com.mycelium.wallet.activity.modern.model.accounts.AccountListItem.Type.GROUP_TITLE_TYPE
+import com.mycelium.wallet.activity.modern.model.accounts.AccountListItem.Type.INVESTMENT_TYPE
+import com.mycelium.wallet.activity.modern.model.accounts.AccountListItem.Type.TOTAL_BALANCE_TYPE
+import com.mycelium.wallet.activity.modern.model.accounts.AccountListItem.Type.UNKNOWN
+import com.mycelium.wallet.activity.modern.model.accounts.AccountViewModel
+import com.mycelium.wallet.activity.modern.model.accounts.AccountsGroupModel
+import com.mycelium.wallet.activity.modern.model.accounts.AccountsListModel
+import com.mycelium.wallet.activity.modern.model.accounts.TotalViewModel
 import com.mycelium.wallet.exchange.ValueSum
 import com.mycelium.wapi.wallet.Address
 import com.mycelium.wapi.wallet.WalletAccount
-import java.util.*
+import java.util.UUID
 
 class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
     : ListAdapter<AccountListItem, RecyclerView.ViewHolder>(ItemListDiffCallback()) {
@@ -59,7 +72,7 @@ class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
         refreshList(accountsGroupsList)
 
         Api.accountRepository.accountBalanceGet(fragment.lifecycleScope, {
-            val find = it?.find { it.currency?.toLowerCase() == "btc" }
+            val find = it?.find { it.currency?.lowercase() == "btc" }
         }, { _, _ ->
 
         }, {

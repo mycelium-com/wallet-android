@@ -239,13 +239,13 @@ class ExchangeViewModel(application: Application) : AndroidViewModel(application
                     exchangeInfo.value?.minFrom != null && amount < exchangeInfo.value?.minFrom  -> {
                         errorTransaction.value = res.getString(R.string.exchange_min_msg,
                                 exchangeInfo.value?.minFrom?.stripTrailingZeros()?.toPlainString(),
-                                exchangeInfo.value?.from?.toUpperCase())
+                                exchangeInfo.value?.from?.uppercase())
                         false
                     }
                     exchangeInfo.value?.maxFrom != null && amount > exchangeInfo.value?.maxFrom -> {
                         errorTransaction.value = res.getString(R.string.exchange_max_msg,
                                 exchangeInfo.value?.maxFrom?.stripTrailingZeros()?.toPlainString(),
-                                exchangeInfo.value?.from?.toUpperCase())
+                                exchangeInfo.value?.from?.uppercase())
                         false
                     }
                     else -> checkValidTransaction() != null

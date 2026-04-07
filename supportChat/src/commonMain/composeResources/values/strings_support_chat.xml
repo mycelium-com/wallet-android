@@ -1,0 +1,19 @@
+<resources>
+    <!-- Support Chat -->
+    <string name="support_chat_title">Support</string>
+    <string name="support_chat_empty_title">No messages yet</string>
+    <string name="support_chat_empty_subtitle">Start a conversation with our support team</string>
+    <string name="support_chat_input_hint">Type a message...</string>
+    <string name="support_chat_send">Send</string>
+    <string name="support_chat_loading">Loading messages...</string>
+    <string name="support_chat_loading_more">Loading more...</string>
+    <string name="support_chat_error_generic">Something went wrong</string>
+    <string name="support_chat_error_retry">Retry</string>
+    <string name="support_chat_fab_description">Open support chat</string>
+    <string name="support_chat_rate_limit_error">Too many messages. Please wait before sending.</string>
+    <string name="support_chat_message_too_long">Message is too long</string>
+    <string name="support_chat_today">Today</string>
+    <string name="support_chat_yesterday">Yesterday</string>
+    <string name="support_chat_response_time_notice">Responses may take up to 24 hours</string>
+    <string name="support_chat_attach_image">Attach image</string>
+</resources>
