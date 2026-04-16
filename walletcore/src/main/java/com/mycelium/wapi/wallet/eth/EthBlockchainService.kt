@@ -33,15 +33,15 @@ class EthBlockchainService(private var endpoints: List<HttpEndpoint>)
 
     @Throws(IOException::class)
     private fun fetchTransactions(address: String, contractAddress: String? = null): List<Tx> {
-        val contractAddressSegment = if(contractAddress != null) "&contract=$contractAddress" else ""
-        var urlString = "${endpoints.random()}/api/v2/address/$address?details=txs" + contractAddressSegment
+//        val contractAddressSegment = if(contractAddress != null) "&contract=$contractAddress" else ""
+        var urlString = "${endpoints.random()}/api/v2/address/$address?details=txs"  //+ contractAddressSegment
 
         val result: MutableList<Tx> = mutableListOf()
 
         val initialResponse = mapper.readValue(client(urlString), Response::class.java)
         result.addAll(initialResponse.transactions)
         for (i in 2..initialResponse.totalPages) {
-            urlString = "${endpoints.random()}/api/v2/address/$address?details=txs&page=$i" + contractAddressSegment
+            urlString = "${endpoints.random()}/api/v2/address/$address?details=txs&page=$i" //+ contractAddressSegment
             val response = mapper.readValue(client(urlString), Response::class.java)
             result.addAll(response.transactions)
         }
