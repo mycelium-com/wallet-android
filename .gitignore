@@ -4,6 +4,7 @@ tmp
 __artifacts_temp
 build.properties
 .DS_Store
+.kotlin
 classes
 /alfaBank.log
 build/
