@@ -40,9 +40,30 @@ abstract class AbstractEthERC20Account(coinType: CryptoCurrency,
 
     @Throws(IOException::class)
     protected suspend fun getNewNonce(): BigInteger {
-        val nonce = withContext(Dispatchers.IO) { blockchainService.getNonce(receivingAddress.addressString) }
+        val address = receivingAddress.addressString
+        val serverNonce = withContext(Dispatchers.IO) { blockchainService.getNonce(address) }
+        // Blockbook's `nonce` field is confirmed-only. Pending outgoing txs
+        // (including stuck ones that haven't yet been dropped from mempools)
+        // must push us past them, otherwise we collide. We must NOT simply add
+        // the total unconfirmed count because that includes incoming txs.
+        // Scan the full address tx list for unconfirmed outgoing and take the
+        // highest nonce. Covers the shared-address case where pending USDT
+        // contract calls live in the EthAccount's view but not the ERC20
+        // account's local backing.
+        val maxPendingOutgoingNonce = try {
+            withContext(Dispatchers.IO) { blockchainService.getTransactions(address) }
+                .filter { it.confirmations.signum() == 0 && it.from.equals(address, true) }
+                .map { it.nonce }
+                .maxOrNull()
+        } catch (e: IOException) {
+            null
+        }
+        val nonce = if (maxPendingOutgoingNonce != null && maxPendingOutgoingNonce >= serverNonce)
+            maxPendingOutgoingNonce + BigInteger.ONE
+        else
+            serverNonce
         setNonce(nonce)
-        return getNonce()
+        return nonce
     }
 
     override suspend fun synchronize(mode: SyncMode?): Boolean {
@@ -69,6 +90,15 @@ abstract class AbstractEthERC20Account(coinType: CryptoCurrency,
             syncing = false
         }
         return synced
+    }
+
+    // Advance local nonce past a just-broadcast tx. Prevents the next send
+    // from reusing the same nonce before the server has indexed this one.
+    fun bumpNonceAfterBroadcast(broadcastNonce: BigInteger) {
+        val next = broadcastNonce + BigInteger.ONE
+        if (next > getNonce()) {
+            setNonce(next)
+        }
     }
 
     abstract suspend fun doSynchronization(mode: SyncMode?): Boolean

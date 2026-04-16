@@ -70,7 +70,10 @@ class EthBlockchainService(private var endpoints: List<HttpEndpoint>)
     fun getNonce(address: String): BigInteger {
         val urlString = "${endpoints.random()}/api/v2/address/$address?details=basic"
         val result = mapper.readValue(URL(urlString), AccountBasicInfoResponse::class.java)
-        return result.nonce + BigInteger.valueOf(result.unconfirmedTxs)
+        // Blockbook's `nonce` is the next nonce to use; `unconfirmedTxs` counts
+        // ALL unconfirmed txs at the address (including incoming), so adding it
+        // over-counts and produces gaps that leave sent txs stuck in the mempool.
+        return result.nonce
     }
 
     fun getBalance(address: String): BalanceResponse {
@@ -188,6 +191,23 @@ class Tx {
                 }
             }
 
+    // For pending txs where tokenTransfers is empty, decode ERC20
+    // transfer(address,uint256) from ethereumSpecific.data.
+    // Selector 0xa9059cbb = transfer(address,uint256)
+    fun getPendingTokenTransfer(contractAddress: String, ownerAddress: String): TokenTransfer? {
+        if (tokenTransfers.isNotEmpty()) return getTokenTransfer(contractAddress, ownerAddress)
+        if (to == null || !to.equals(contractAddress, true)) return null
+        val data = ethereumSpecific?.data ?: return null
+        val hex = data.removePrefix("0x")
+        if (hex.length < 136) return null
+        val selector = hex.substring(0, 8)
+        if (!selector.equals("a9059cbb", true)) return null
+        val recipientAddress = "0x" + hex.substring(32, 72)
+        val amount = BigInteger(hex.substring(72, 136), 16)
+        if (!from.equals(ownerAddress, true) && !recipientAddress.equals(ownerAddress, true)) return null
+        return TokenTransfer(from, recipientAddress, contractAddress, "", "", amount)
+    }
+
     override fun toString(): String {
         return """{'txid':$txid,'from':$from,'to':$to,'blockHeight':$blockHeight,'confirmations':$confirmations,
             |'blockTime':$blockTime,'value':$value,'fees':$fees,'nonce':$nonce,'gasLimit':$gasLimit,
@@ -223,6 +243,7 @@ private class EthereumSpecific {
     val gasLimit: BigInteger = BigInteger.ZERO
     val gasUsed: BigInteger = BigInteger.ZERO
     val gasPrice: BigInteger = BigInteger.ZERO
+    val data: String? = null
     val status: Boolean = true
 }
 

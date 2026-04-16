@@ -202,8 +202,8 @@ android {
     compileSdk = libs.versions.android.compileSdk.get().toInteger()
 
     defaultConfig {
-        versionCode 3210000
-        versionName '3.21.0.0'
+        versionCode 3210004
+        versionName '3.21.0.4-debug'
 
         minSdk = libs.versions.android.minSdk.get().toInteger()
         targetSdk = libs.versions.android.targetSdk.get().toInteger()

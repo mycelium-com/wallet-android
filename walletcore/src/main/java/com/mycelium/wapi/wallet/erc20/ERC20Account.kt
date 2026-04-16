@@ -58,6 +58,7 @@ class ERC20Account(private val chainId: Byte,
 
     override fun createTx(address: Address, amount: Value, fee: Fee, data: TransactionData?): Transaction {
         val ethTxData = (data as? EthTransactionData)
+        val nonce = ethTxData?.nonce ?: accountContext.nonce
         val gasLimit = ethTxData?.gasLimit ?: BigInteger.valueOf(TOKEN_TRANSFER_GAS_LIMIT)
         val gasPrice = ethTxData?.suggestedGasPrice?.let {
             Value.valueOf(basedOnCoinType, it)
@@ -76,7 +77,7 @@ class ERC20Account(private val chainId: Byte,
         }
 
         return EthTransaction(basedOnCoinType, address.toString(), Value.zeroValue(basedOnCoinType),
-            gasPrice.value, accountContext.nonce, gasLimit, inputData, estimatedGasUsed,  amount)
+            gasPrice.value, nonce, gasLimit, inputData, estimatedGasUsed,  amount)
     }
 
     private fun getInputData(address: String, value: BigInteger): String {
@@ -109,7 +110,12 @@ class ERC20Account(private val chainId: Byte,
             backing.putTransaction(-1, System.currentTimeMillis() / 1000, "0x" + HexUtils.toHex(tx.txHash),
                     tx.signedHex!!, receivingAddress.addressString, tx.toAddress,
                     Value.valueOf(basedOnCoinType, tx.tokenValue!!.value), Value.valueOf(basedOnCoinType, tx.gasPrice * tx.gasLimit), 0,
-                    accountContext.nonce, tx.gasPrice, true, null, true, tx.gasLimit, tx.estimatedGasUsed.toBigInteger())
+                    tx.nonce, tx.gasPrice, true, null, true, tx.gasLimit, tx.estimatedGasUsed.toBigInteger())
+            bumpNonceAfterBroadcast(tx.nonce)
+            // ERC20 shares an on-chain address with its parent EthAccount, so
+            // bump there too to prevent the next ETH or token send from reusing
+            // this nonce before the next sync.
+            ethAcc.bumpNonceAfterBroadcast(tx.nonce)
             return BroadcastResult(BroadcastResultType.SUCCESS)
         } catch (e: Exception) {
             return when (e) {
@@ -240,19 +246,40 @@ class ERC20Account(private val chainId: Byte,
             //TODO convert backing.putTransaction to backing.putTransactions
             remoteTransactions.forEach { tx ->
                 tx.getTokenTransfer(token.contractAddress, receivingAddress.addressString)?.also { tokenTransfer ->
+                    val gasForFee = tx.gasUsed?.takeIf { it.signum() > 0 } ?: tx.gasLimit
                     backing.putTransaction(tx.blockHeight.toInt(), tx.blockTime, tx.txid, "", tokenTransfer.from,
                             tokenTransfer.to, Value.valueOf(basedOnCoinType, tokenTransfer.value),
-                            Value.valueOf(basedOnCoinType, tx.gasPrice * (tx.gasUsed
-                                    ?: typicalEstimatedTransactionSize.toBigInteger())),
+                            Value.valueOf(basedOnCoinType, tx.gasPrice * gasForFee),
                             tx.confirmations.toInt(), tx.nonce, tx.gasPrice, true, null, tx.success, tx.gasLimit, tx.gasUsed)
                 }
             }
+            // For pending txs, blockbook's contract-filtered response won't
+            // include tokenTransfers (the contract hasn't executed yet). Fetch
+            // the full (unfiltered) address tx list once and use it both to
+            // re-create pending token-transfer records from input data, and to
+            // prevent premature deletion of locally-broadcast pending txs.
+            val remoteTransactionsIds = remoteTransactions.map { it.txid }.toSet()
+            val allAddressTxs = try {
+                withContext(Dispatchers.IO) { blockchainService.getTransactions(receivingAddress.addressString) }
+            } catch (_: IOException) { emptyList() }
+            allAddressTxs
+                .filter { tx -> tx.confirmations.signum() == 0 && !remoteTransactionsIds.contains(tx.txid) }
+                .forEach { tx ->
+                    tx.getPendingTokenTransfer(token.contractAddress, receivingAddress.addressString)?.also { tokenTransfer ->
+                        val gasForFee = tx.gasUsed?.takeIf { it.signum() > 0 } ?: tx.gasLimit
+                        backing.putTransaction(tx.blockHeight.toInt(), tx.blockTime, tx.txid, "", tokenTransfer.from,
+                                tokenTransfer.to, Value.valueOf(basedOnCoinType, tokenTransfer.value),
+                                Value.valueOf(basedOnCoinType, tx.gasPrice * gasForFee),
+                                tx.confirmations.toInt(), tx.nonce, tx.gasPrice, true, null, tx.success, tx.gasLimit, tx.gasUsed)
+                    }
+                }
             val localTxs = getUnconfirmedTransactions()
             // remove such transactions that are not on server anymore
             // this could happen if transaction was replaced by another e.g.
-            val remoteTransactionsIds = remoteTransactions.map { it.txid }
+            val allKnownTxIds = remoteTransactionsIds + allAddressTxs.map { it.txid }.toSet()
             val toRemove = localTxs.filter { localTx ->
-                !remoteTransactionsIds.contains("0x" + HexUtils.toHex(localTx.id))
+                val txid = "0x" + HexUtils.toHex(localTx.id)
+                !allKnownTxIds.contains(txid)
                         && (System.currentTimeMillis() / 1000 - localTx.timestamp > TimeUnit.SECONDS.toSeconds(150))
             }
             toRemove.map { "0x" + HexUtils.toHex(it.id) }.forEach {

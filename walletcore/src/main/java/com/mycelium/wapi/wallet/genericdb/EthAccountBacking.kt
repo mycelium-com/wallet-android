@@ -121,10 +121,14 @@ class EthAccountBacking(val walletDB: WalletDB, private val uuid: UUID, private 
     fun putTransactions(remoteTransactions: List<Tx>, coinType: CryptoCurrency, typicalEstimatedTransactionSize: BigInteger) {
         walletDB.transaction {
             remoteTransactions.forEach { tx ->
+                // For pending txs, blockbook returns gasUsed=0 (not null), so the
+                // elvis operator on the original code computed fee = gasPrice * 0
+                // = 0. Use gasLimit as the upper-bound estimate until the tx mines
+                // and a real gasUsed is available.
+                val gasForFee = tx.gasUsed?.takeIf { it.signum() > 0 } ?: tx.gasLimit
                 putTransaction(tx.blockHeight.toInt(), tx.blockTime, tx.txid, "", tx.from, tx.to,
                         Value.valueOf(coinType, tx.value),
-                        Value.valueOf(coinType, tx.gasPrice * (tx.gasUsed
-                                ?: typicalEstimatedTransactionSize)),
+                        Value.valueOf(coinType, tx.gasPrice * gasForFee),
                         tx.confirmations.toInt(), tx.nonce, tx.gasPrice, tx.tokenTransfers.isNotEmpty(),
                         Value.valueOf(coinType, tx.internalValue ?: BigInteger.ZERO),
                         tx.success, tx.gasLimit, tx.gasUsed)
@@ -172,7 +176,7 @@ class EthAccountBacking(val walletDB: WalletDB, private val uuid: UUID, private 
         }
         val destAddresses = listOf(if (to.isEmpty()) contractCreationAddress else EthAddress(currency, to))
         val transferred = if (token != null) getTokenTransferred(ownerAddress, from, to, convertedValue)
-                          else getEthTransferred(ownerAddress, from, to, convertedValue, fee, success, internalValue)
+                          else getEthTransferred(ownerAddress, from, to, convertedValue, fee, success, internalValue, hasTokenTransfers)
         return EthTransactionSummary(EthAddress(currency, from), EthAddress(currency, to), nonce,
                 convertedValue, internalValue, gasLimit, gasUsed, gasPrice ?: (fee.value / gasUsed), hasTokenTransfers, currency, HexUtils.toBytes(txid.substring(2)),
                 HexUtils.toBytes(txid.substring(2)), transferred, timestamp, if (blockNumber == Int.MAX_VALUE) -1 else blockNumber,
@@ -199,7 +203,18 @@ class EthAccountBacking(val walletDB: WalletDB, private val uuid: UUID, private 
     }
 
     private fun getEthTransferred(ownerAddress: String, from: String, to: String, value: Value,
-                                  fee: Value, success: Boolean, internalValue: Value?): Value {
+                                  fee: Value, success: Boolean, internalValue: Value?,
+                                  hasTokenTransfers: Boolean): Value {
+        // Outgoing 0-value ETH tx from the user — necessarily a contract call
+        // (or 0-ETH self-noop). Either way, the only ETH-side impact is the
+        // miner fee. Don't trust `internalValue` here: some blockbook
+        // responses for pending/failed contract calls surface token-related
+        // amounts there, which would otherwise flip the tx to appear as
+        // incoming. We can't gate on hasTokenTransfers because pending contract
+        // calls don't yet have the tokenTransfers array populated by blockbook.
+        if (value.isZero() && from.equals(ownerAddress, true) && !to.equals(ownerAddress, true)) {
+            return -fee
+        }
         return if (from.equals(ownerAddress, true) && !to.equals(ownerAddress, true)) {
             // outgoing
             if (success) -value - fee + (internalValue ?: Value.zeroValue(currency)) else -fee

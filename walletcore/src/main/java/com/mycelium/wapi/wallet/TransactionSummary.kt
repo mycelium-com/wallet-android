@@ -76,6 +76,8 @@ open class TransactionSummary(
 
 fun TransactionSummary.isMinerFeeTx(account: WalletAccount<*>): Boolean =
     (this as? EthTransactionSummary)?.run {
-        account is EthAccount && !isIncoming
-                && value.isZero() && hasTokenTransfers
+        // hasTokenTransfers is unreliable for pending contract calls (blockbook
+        // doesn't populate the tokenTransfers array until the tx mines), so
+        // treat any outgoing 0-value ETH tx as a fee-only row.
+        account is EthAccount && !isIncoming && value.isZero()
     } ?: false
