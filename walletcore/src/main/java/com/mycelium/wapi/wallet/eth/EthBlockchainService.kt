@@ -31,18 +31,38 @@ class EthBlockchainService(private var endpoints: List<HttpEndpoint>)
         return body
     }
 
+    // Stream-parse to avoid OOM on accounts with large tx histories (loading
+    // the full body as a String can require 100+ MB before parsing starts).
+    private fun <T> streamedRequest(urlString: String, type: Class<T>): T {
+        val client = OkHttpClient.Builder()
+            .connectTimeout(10, TimeUnit.SECONDS)
+            .readTimeout(30, TimeUnit.SECONDS)
+            .build()
+        val request = Request.Builder().url(urlString).build()
+        val response = client.newCall(request).execute()
+        if (!response.isSuccessful) {
+            response.close()
+            throw IOException("Unexpected code $response")
+        }
+        val body = response.body ?: throw IOException("Empty body")
+        return body.use { mapper.readValue(it.byteStream(), type) }
+    }
+
     @Throws(IOException::class)
     private fun fetchTransactions(address: String, contractAddress: String? = null): List<Tx> {
-//        val contractAddressSegment = if(contractAddress != null) "&contract=$contractAddress" else ""
-        var urlString = "${endpoints.random()}/api/v2/address/$address?details=txs"  //+ contractAddressSegment
+        val contractAddressSegment = if (contractAddress != null) "&contract=$contractAddress" else ""
+        // Cap page size so a single page response is always bounded. Smaller
+        // pages also let us stop early when we only need recent txs.
+        val pageSize = 200
+        var urlString = "${endpoints.random()}/api/v2/address/$address?details=txs&pageSize=$pageSize" + contractAddressSegment
 
         val result: MutableList<Tx> = mutableListOf()
 
-        val initialResponse = mapper.readValue(client(urlString), Response::class.java)
+        val initialResponse = streamedRequest(urlString, Response::class.java)
         result.addAll(initialResponse.transactions)
         for (i in 2..initialResponse.totalPages) {
-            urlString = "${endpoints.random()}/api/v2/address/$address?details=txs&page=$i" //+ contractAddressSegment
-            val response = mapper.readValue(client(urlString), Response::class.java)
+            urlString = "${endpoints.random()}/api/v2/address/$address?details=txs&pageSize=$pageSize&page=$i" + contractAddressSegment
+            val response = streamedRequest(urlString, Response::class.java)
             result.addAll(response.transactions)
         }
         return result
@@ -96,6 +116,16 @@ class EthBlockchainService(private var endpoints: List<HttpEndpoint>)
         }
     }
 
+    // Blockbook's /api/v2/address/{addr}?details=txs list silently drops
+    // pending txs. The default (no `details`) endpoint returns a `txids` array
+    // that does include recent pending ones at the top. Use this to discover
+    // hashes we then fetch individually via getTransaction().
+    @Throws(IOException::class)
+    fun getAddressTxids(address: String): List<String> {
+        val url = "${endpoints.random()}/api/v2/address/$address?details=txids&pageSize=50"
+        return streamedRequest(url, AddressTxidsResponse::class.java).txids
+    }
+
     fun feeEstimation(block: Int): FeeResult {
         val urlString = "${endpoints.random()}/api/v2/estimatefee/$block"
         return mapper.readValue(URL(urlString), FeeResult::class.java)
@@ -132,6 +162,10 @@ private class SendTxResponse {
 private class Response {
     var transactions: List<Tx> = emptyList()
     val totalPages: Int = 0
+}
+
+private class AddressTxidsResponse {
+    val txids: List<String> = emptyList()
 }
 
 class Tx {
@@ -196,7 +230,11 @@ class Tx {
     // Selector 0xa9059cbb = transfer(address,uint256)
     fun getPendingTokenTransfer(contractAddress: String, ownerAddress: String): TokenTransfer? {
         if (tokenTransfers.isNotEmpty()) return getTokenTransfer(contractAddress, ownerAddress)
-        if (to == null || !to.equals(contractAddress, true)) return null
+        // Note: we intentionally don't check `to == contractAddress` here.
+        // Blockbook synthesizes vout[0] as the token RECIPIENT for ERC20
+        // transfers, not the contract, so that check would always fail for
+        // pending ERC20 sends. The caller is responsible for scoping to
+        // relevant contracts.
         val data = ethereumSpecific?.data ?: return null
         val hex = data.removePrefix("0x")
         if (hex.length < 136) return null
