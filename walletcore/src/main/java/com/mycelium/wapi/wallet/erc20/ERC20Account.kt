@@ -253,58 +253,34 @@ class ERC20Account(private val chainId: Byte,
                             tx.confirmations.toInt(), tx.nonce, tx.gasPrice, true, null, tx.success, tx.gasLimit, tx.gasUsed)
                 }
             }
+            // For pending txs, blockbook's contract-filtered response won't
+            // include tokenTransfers (the contract hasn't executed yet). Fetch
+            // the full (unfiltered) address tx list once and use it both to
+            // re-create pending token-transfer records from input data, and to
+            // prevent premature deletion of locally-broadcast pending txs.
             val remoteTransactionsIds = remoteTransactions.map { it.txid }.toSet()
-
-            // Blockbook's contract-filtered response excludes pending contract
-            // calls (no tokenTransfers yet). Also, the address?details=txs
-            // endpoint silently drops pending txs entirely. Walk the `txids`
-            // array from the default address endpoint (which DOES include
-            // pending at the top) and fetch any unknown txid individually.
-            val candidateTxids = try {
-                withContext(Dispatchers.IO) { blockchainService.getAddressTxids(receivingAddress.addressString) }
+            val allAddressTxs = try {
+                withContext(Dispatchers.IO) { blockchainService.getTransactions(receivingAddress.addressString) }
             } catch (_: IOException) { emptyList() }
-            val locallyKnownTxids = getUnconfirmedTransactions()
-                .map { "0x" + HexUtils.toHex(it.id) }
-                .toSet()
-            candidateTxids.asSequence()
-                .filter { it !in remoteTransactionsIds && it !in locallyKnownTxids }
-                .take(MAX_PENDING_SCAN)
-                .forEach { txid ->
-                    try {
-                        val tx = withContext(Dispatchers.IO) { blockchainService.getTransaction(txid) }
-                        if (tx.confirmations.signum() != 0) return@forEach
-                        val tokenTransfer = tx.getTokenTransfer(token.contractAddress, receivingAddress.addressString)
-                            ?: tx.getPendingTokenTransfer(token.contractAddress, receivingAddress.addressString)
-                        tokenTransfer?.also { t ->
-                            val gasForFee = tx.gasUsed?.takeIf { it.signum() > 0 } ?: tx.gasLimit
-                            backing.putTransaction(tx.blockHeight.toInt(), tx.blockTime, tx.txid, "", t.from,
-                                    t.to, Value.valueOf(basedOnCoinType, t.value),
-                                    Value.valueOf(basedOnCoinType, tx.gasPrice * gasForFee),
-                                    tx.confirmations.toInt(), tx.nonce, tx.gasPrice, true, null, tx.success, tx.gasLimit, tx.gasUsed)
-                        }
-                    } catch (_: IOException) { /* skip, try next sync */ }
+            allAddressTxs
+                .filter { tx -> tx.confirmations.signum() == 0 && !remoteTransactionsIds.contains(tx.txid) }
+                .forEach { tx ->
+                    tx.getPendingTokenTransfer(token.contractAddress, receivingAddress.addressString)?.also { tokenTransfer ->
+                        val gasForFee = tx.gasUsed?.takeIf { it.signum() > 0 } ?: tx.gasLimit
+                        backing.putTransaction(tx.blockHeight.toInt(), tx.blockTime, tx.txid, "", tokenTransfer.from,
+                                tokenTransfer.to, Value.valueOf(basedOnCoinType, tokenTransfer.value),
+                                Value.valueOf(basedOnCoinType, tx.gasPrice * gasForFee),
+                                tx.confirmations.toInt(), tx.nonce, tx.gasPrice, true, null, tx.success, tx.gasLimit, tx.gasUsed)
+                    }
                 }
-
             val localTxs = getUnconfirmedTransactions()
-            // Remove local pending records only after confirming via the per-tx
-            // endpoint that the tx is no longer alive. Blockbook's address-
-            // level indexes can lose the association between address and a
-            // pending tx even while the per-tx endpoint still has it, so we
-            // can't rely on address-level absence to delete.
+            // remove such transactions that are not on server anymore
+            // this could happen if transaction was replaced by another e.g.
+            val allKnownTxIds = remoteTransactionsIds + allAddressTxs.map { it.txid }.toSet()
             val toRemove = localTxs.filter { localTx ->
-                if (System.currentTimeMillis() / 1000 - localTx.timestamp <= TimeUnit.SECONDS.toSeconds(150)) return@filter false
                 val txid = "0x" + HexUtils.toHex(localTx.id)
-                if (remoteTransactionsIds.contains(txid) || candidateTxids.contains(txid)) return@filter false
-                try {
-                    val tx = withContext(Dispatchers.IO) { blockchainService.getTransaction(txid) }
-                    // If per-tx endpoint knows it, don't delete regardless of
-                    // confirmation state — address index will eventually catch
-                    // up when it mines.
-                    false
-                } catch (_: IOException) {
-                    // Unknown to blockbook — truly dropped or replaced.
-                    true
-                }
+                !allKnownTxIds.contains(txid)
+                        && (System.currentTimeMillis() / 1000 - localTx.timestamp > TimeUnit.SECONDS.toSeconds(150))
             }
             toRemove.map { "0x" + HexUtils.toHex(it.id) }.forEach {
                 backing.deleteTransaction(it)
@@ -341,6 +317,5 @@ class ERC20Account(private val chainId: Byte,
     companion object {
         const val TOKEN_TRANSFER_GAS_LIMIT = 90_000L
         val AVG_TOKEN_TRANSFER_GAS = (Transfer.GAS_LIMIT.toLong() + TOKEN_TRANSFER_GAS_LIMIT) / 2
-        private const val MAX_PENDING_SCAN = 20
     }
 }

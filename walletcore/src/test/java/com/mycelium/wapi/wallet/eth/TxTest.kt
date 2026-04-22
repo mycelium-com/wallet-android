@@ -71,14 +71,10 @@ class TxTest {
     }
 
     @Test
-    fun `getPendingTokenTransfer decodes regardless of outer to field`() {
-        // Blockbook synthesizes vout[0] as token recipient (not contract) for
-        // ERC20 transfers, so the function must not gate on tx.to matching the
-        // contract address. Caller scopes to the relevant contract.
-        val tx = mapper.readValue(buildTxJson(to = recipientAddress), Tx::class.java)
-        val transfer = tx.getPendingTokenTransfer(contractAddress, ownerAddress)
-        assertNotNull(transfer)
-        assertEquals(BigInteger("50000000"), transfer!!.value)
+    fun `getPendingTokenTransfer returns null for wrong contract`() {
+        val tx = mapper.readValue(buildTxJson(), Tx::class.java)
+        val transfer = tx.getPendingTokenTransfer("0xwrongcontract", ownerAddress)
+        assertNull(transfer)
     }
 
     @Test
