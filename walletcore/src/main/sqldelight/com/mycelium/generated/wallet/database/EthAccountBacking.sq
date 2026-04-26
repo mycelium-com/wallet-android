@@ -17,6 +17,7 @@ CREATE TABLE IF NOT EXISTS EthAccountBacking (
     success INTEGER AS Boolean NOT NULL DEFAULT 1,
     internalValue TEXT AS Value,
     hasTokenTransfers INTEGER AS Boolean NOT NULL DEFAULT 0,
+    status TEXT NOT NULL DEFAULT 'PENDING',
     PRIMARY KEY (txid, uuid),
     FOREIGN KEY (txid, uuid)
             REFERENCES AccountBacking (txid, uuid)
@@ -26,7 +27,7 @@ CREATE TABLE IF NOT EXISTS EthAccountBacking (
 
 selectTransactionSummaries:
 SELECT eb.txid, b.currency, b.blockNumber, b.timestamp, b.value, b.fee, b.confirmations,
-    eb.fromAddress, eb.toAddress, eb.nonce, eb.gasLimit, eb.gasUsed, eb.gasPrice, eb.success, eb.internalValue, eb.hasTokenTransfers
+    eb.fromAddress, eb.toAddress, eb.nonce, eb.gasLimit, eb.gasUsed, eb.gasPrice, eb.success, eb.internalValue, eb.hasTokenTransfers, eb.status
 FROM EthAccountBacking AS eb
     INNER JOIN AccountBacking AS b
     ON eb.uuid = b.uuid AND eb.txid = b.txid
@@ -38,7 +39,7 @@ FROM EthAccountBacking AS eb
 
 selectTransactionSummariesSince:
 SELECT eb.txid, b.currency, b.blockNumber, b.timestamp, b.value, b.fee, b.confirmations,
-    eb.fromAddress, eb.toAddress, eb.nonce, eb.gasLimit, eb.gasUsed, eb.gasPrice, eb.success, eb.internalValue, eb.hasTokenTransfers
+    eb.fromAddress, eb.toAddress, eb.nonce, eb.gasLimit, eb.gasUsed, eb.gasPrice, eb.success, eb.internalValue, eb.hasTokenTransfers, eb.status
 FROM EthAccountBacking AS eb
     INNER JOIN AccountBacking AS b
     ON eb.uuid = b.uuid AND eb.txid = b.txid
@@ -47,7 +48,7 @@ FROM EthAccountBacking AS eb
 
 selectTransactionSummaryById:
 SELECT eb.txid, b.currency, b.blockNumber, b.timestamp, b.value, b.fee, b.confirmations,
-     eb.fromAddress, eb.toAddress, eb.nonce, eb.gasLimit, eb.gasUsed, eb.gasPrice, eb.success, eb.internalValue, eb.hasTokenTransfers
+     eb.fromAddress, eb.toAddress, eb.nonce, eb.gasLimit, eb.gasUsed, eb.gasPrice, eb.success, eb.internalValue, eb.hasTokenTransfers, eb.status
 FROM EthAccountBacking AS eb
     INNER JOIN AccountBacking AS b
     ON eb.uuid = b.uuid AND eb.txid = b.txid
@@ -55,7 +56,7 @@ FROM EthAccountBacking AS eb
 
 selectUnconfirmedTransactions:
 SELECT eb.txid, b.currency, b.blockNumber, b.timestamp,
-           b.value, b.fee, b.confirmations, eb.fromAddress, eb.toAddress, eb.nonce, eb.gasLimit, eb.gasUsed, eb.gasPrice, eb.hasTokenTransfers
+           b.value, b.fee, b.confirmations, eb.fromAddress, eb.toAddress, eb.nonce, eb.gasLimit, eb.gasUsed, eb.gasPrice, eb.hasTokenTransfers, eb.status
 FROM EthAccountBacking AS eb
     INNER JOIN AccountBacking AS b
     ON eb.uuid = b.uuid AND eb.txid = b.txid
@@ -63,8 +64,8 @@ FROM EthAccountBacking AS eb
 
 insertTransaction:
 INSERT OR REPLACE INTO EthAccountBacking(txid, uuid, fromAddress, toAddress, nonce, gasLimit, gasPrice,
-                                         success, internalValue, hasTokenTransfers)
-VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+                                         success, internalValue, hasTokenTransfers, status)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
 
 updateGasUsed:
 UPDATE EthAccountBacking
@@ -75,6 +76,14 @@ updateNonce:
 UPDATE EthAccountBacking
 SET nonce = (?)
 WHERE uuid = (?) AND txid = (?);
+
+updateStatus:
+UPDATE EthAccountBacking
+SET status = (?)
+WHERE uuid = (?) AND txid = (?);
+
+selectStatus:
+SELECT status FROM EthAccountBacking WHERE uuid = (?) AND txid = (?);
 
 deleteTransaction:
 DELETE FROM EthAccountBacking

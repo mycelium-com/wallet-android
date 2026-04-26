@@ -27,10 +27,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.web3j.crypto.Credentials
 import org.web3j.crypto.ECKeyPair
+import org.web3j.crypto.Hash
 import org.web3j.crypto.RawTransaction
 import org.web3j.crypto.Sign
 import org.web3j.crypto.TransactionEncoder
-import org.web3j.crypto.TransactionUtils
 import org.web3j.tx.Transfer
 import org.web3j.utils.Convert
 import org.web3j.utils.Numeric
@@ -38,7 +38,6 @@ import java.io.IOException
 import java.math.BigInteger
 import java.nio.charset.StandardCharsets
 import java.util.UUID
-import java.util.concurrent.TimeUnit
 import java.util.logging.Level
 
 class EthAccount(private val chainId: Long,
@@ -95,7 +94,12 @@ class EthAccount(private val chainId: Long,
         val hexValue = Numeric.toHexString(signedMessage)
         request.apply {
             signedHex = hexValue
-            txHash = TransactionUtils.generateTransactionHash(rawTransaction, credentials)
+            // The on-chain txid is keccak256 over the actually-broadcast bytes.
+            // web3j's TransactionUtils.generateTransactionHash without chainId
+            // recomputes signMessage in legacy (pre-EIP-155) form, which produces
+            // a different hash than what the network indexes — the next sync then
+            // pulls the real hash and we end up with two rows for the same tx.
+            txHash = Hash.sha3(signedMessage)
             txBinary = TransactionEncoder.encode(rawTransaction)!!
         }
     }
@@ -120,6 +124,69 @@ class EthAccount(private val chainId: Long,
             return BroadcastResult(BroadcastResultType.NO_SERVER_CONNECTION)
         }
         return BroadcastResult(BroadcastResultType.SUCCESS)
+    }
+
+    override fun ethFeeSpendable(): Value = accountBalance.spendable
+
+    override suspend fun cancelTransaction(
+        record: com.mycelium.wapi.wallet.EthTransactionSummary,
+        estimate: CancelEstimate,
+    ): BroadcastResult {
+        val signingCredentials = credentials
+            ?: return BroadcastResult("Account has no credentials", BroadcastResultType.REJECT_INVALID_TX_PARAMS)
+
+        // Cancel pattern: 0-value self-transfer at the same nonce. If the
+        // sending account has an EIP-7702 delegate set, the delegate code
+        // runs with empty calldata when `to == self`. We over-provision
+        // gasLimit so a benign fallback() can complete; with only the 21000
+        // intrinsic budget the delegate would out-of-gas immediately.
+        // Unused gas is refunded; if the delegate actively reverts, the
+        // larger budget burns more — we accept this tradeoff because the
+        // alternative (sending to a different address) carries permanent
+        // foot-gun risk if a future code change lets a non-zero value slip
+        // through.
+        val rawTransaction = RawTransaction.createTransaction(
+            estimate.nonce,
+            estimate.newGasPrice,
+            estimate.gasLimit,
+            receivingAddress.addressString,
+            BigInteger.ZERO,
+            "",
+        )
+        val signedBytes = TransactionEncoder.signMessage(rawTransaction, chainId, signingCredentials)
+        val signedHex = Numeric.toHexString(signedBytes)
+        val cancelTxHash = Hash.sha3(signedBytes)
+
+        return try {
+            val result = withContext(Dispatchers.IO) { blockchainService.sendTransaction(signedHex) }
+            if (!result.success) {
+                return BroadcastResult(result.message, BroadcastResultType.REJECT_INVALID_TX_PARAMS)
+            }
+            val cancelTxid = "0x" + HexUtils.toHex(cancelTxHash)
+            backing.putTransaction(
+                -1,
+                System.currentTimeMillis() / 1000,
+                cancelTxid,
+                signedHex,
+                receivingAddress.addressString,
+                receivingAddress.addressString,
+                Value.zeroValue(coinType),
+                valueOf(coinType, estimate.newGasPrice * estimate.gasLimit),
+                0,
+                estimate.nonce,
+                estimate.newGasPrice,
+                gasLimit = estimate.gasLimit,
+            )
+            // Mark the original as CANCELED locally so the UI updates immediately.
+            // The next sync's reconcileLocalPending() will reconfirm this once
+            // the cancel mines.
+            backing.markTransactionStatus("0x" + HexUtils.toHex(record.id), EthTxStatus.CANCELED)
+            bumpNonceAfterBroadcast(estimate.nonce)
+            updateBalanceCache()
+            BroadcastResult(BroadcastResultType.SUCCESS)
+        } catch (e: IOException) {
+            BroadcastResult(BroadcastResultType.NO_SERVER_CONNECTION)
+        }
     }
 
     override val coinType
@@ -176,23 +243,45 @@ class EthAccount(private val chainId: Long,
         try {
             val remoteTransactions = withContext(Dispatchers.IO) { blockchainService.getTransactions(receivingAddress.addressString) }
             backing.putTransactions(remoteTransactions, coinType, typicalEstimatedTransactionSize.toBigInteger())
-            val localTxs = getUnconfirmedTransactions()
-            // remove such transactions that are not on server anymore
-            // this could happen if transaction was replaced by another e.g.
-            val remoteTransactionsIds = remoteTransactions.map { it.txid }
-            val toRemove = localTxs.filter { localTx ->
-                !remoteTransactionsIds.contains("0x" + HexUtils.toHex(localTx.id))
-                        && (System.currentTimeMillis() / 1000 - localTx.timestamp > TimeUnit.SECONDS.toSeconds(150))
-            }
-            toRemove.map { "0x" + HexUtils.toHex(it.id) }.forEach {
-                backing.deleteTransaction(it)
-            }
+            val remoteTransactionsIds = remoteTransactions.map { it.txid }.toSet()
+
+            // Blockbook's address?details=txs endpoint silently drops pending
+            // txs at times. Walk the txids endpoint (which DOES include
+            // pending at the top) and fetch any unknown txid via the per-tx
+            // endpoint so we don't lose visibility of in-flight sends.
+            val candidateTxids = try {
+                withContext(Dispatchers.IO) { blockchainService.getAddressTxids(receivingAddress.addressString) }
+            } catch (_: IOException) { emptyList() }
+            val locallyKnownTxids = getUnconfirmedTransactions()
+                .map { "0x" + HexUtils.toHex(it.id) }
+                .toSet()
+            candidateTxids.asSequence()
+                .filter { it !in remoteTransactionsIds && it !in locallyKnownTxids }
+                .take(MAX_PENDING_SCAN)
+                .forEach { txid ->
+                    try {
+                        val tx = withContext(Dispatchers.IO) { blockchainService.getTransaction(txid) }
+                        if (tx.confirmations.signum() != 0) return@forEach
+                        backing.putTransactions(listOf(tx), coinType, typicalEstimatedTransactionSize.toBigInteger())
+                    } catch (_: IOException) { /* skip, try next sync */ }
+                }
+
+            // Replace the old "delete after 150s if missing" logic. We now
+            // keep the row and mark it REPLACED / CANCELED / DROPPED
+            // depending on what the address history reveals. Pass the
+            // already-fetched address tx list so the helper doesn't refetch.
+            val knownAlive = remoteTransactionsIds + candidateTxids
+            reconcileLocalPending(remoteTransactions, knownAlive)
             return true
         } catch (e: IOException) {
             lastSyncInfo = SyncStatusInfo(SyncStatus.ERROR)
             logger.log(Level.SEVERE, "EthAccount: Error retrieving ETH/ERC-20 transaction history: ${e.javaClass} ${e.localizedMessage}")
             return false
         }
+    }
+
+    companion object {
+        private const val MAX_PENDING_SCAN = 20
     }
 
     override fun archiveAccount() {

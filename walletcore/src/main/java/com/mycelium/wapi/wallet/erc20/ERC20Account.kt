@@ -19,11 +19,13 @@ import com.mycelium.wapi.wallet.coins.Balance
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.erc20.coins.ERC20Token
 import com.mycelium.wapi.wallet.eth.AbstractEthERC20Account
+import com.mycelium.wapi.wallet.eth.CancelEstimate
 import com.mycelium.wapi.wallet.eth.EthAccount
 import com.mycelium.wapi.wallet.eth.EthAddress
 import com.mycelium.wapi.wallet.eth.EthBlockchainService
 import com.mycelium.wapi.wallet.eth.EthTransaction
 import com.mycelium.wapi.wallet.eth.EthTransactionData
+import com.mycelium.wapi.wallet.eth.EthTxStatus
 import com.mycelium.wapi.wallet.exceptions.BuildTransactionException
 import com.mycelium.wapi.wallet.exceptions.InsufficientFundsException
 import com.mycelium.wapi.wallet.exceptions.InsufficientFundsForFeeException
@@ -33,15 +35,14 @@ import kotlinx.coroutines.withContext
 import org.web3j.abi.FunctionEncoder
 import org.web3j.abi.datatypes.generated.Uint256
 import org.web3j.crypto.Credentials
+import org.web3j.crypto.Hash
 import org.web3j.crypto.RawTransaction
 import org.web3j.crypto.TransactionEncoder
-import org.web3j.crypto.TransactionUtils
 import org.web3j.tx.Transfer
 import org.web3j.utils.Numeric
 import java.io.IOException
 import java.math.BigInteger
 import java.util.UUID
-import java.util.concurrent.TimeUnit
 import java.util.logging.Level
 
 
@@ -96,7 +97,10 @@ class ERC20Account(private val chainId: Byte,
         val hexValue = Numeric.toHexString(signedMessage)
         request.apply {
             signedHex = hexValue
-            txHash = TransactionUtils.generateTransactionHash(rawTransaction, chainId, credentials)
+            // keccak256 over the actual signed bytes — same hash the network
+            // computes. web3j's helper takes chainId as Byte which would
+            // truncate for any testnet chainId > 127.
+            txHash = Hash.sha3(signedMessage)
             txBinary = TransactionEncoder.encode(rawTransaction)!!
         }
     }
@@ -126,6 +130,26 @@ class ERC20Account(private val chainId: Byte,
                 }
             }
         }
+    }
+
+    override fun ethFeeSpendable(): Value = ethAcc.accountBalance.spendable
+
+    override suspend fun cancelTransaction(
+        record: com.mycelium.wapi.wallet.EthTransactionSummary,
+        estimate: CancelEstimate,
+    ): BroadcastResult {
+        // Cancel of an ERC20 send is still an ETH self-transfer at the same
+        // nonce, so the actual signing/broadcast lives on the parent
+        // EthAccount. We additionally mirror the CANCELED status into our
+        // own backing — the per-token sync only sees token transfers, so the
+        // generic replacement detection won't otherwise pick it up here.
+        val result = ethAcc.cancelTransaction(record, estimate)
+        if (result.resultType == BroadcastResultType.SUCCESS) {
+            backing.markTransactionStatus("0x" + HexUtils.toHex(record.id), EthTxStatus.CANCELED)
+            bumpNonceAfterBroadcast(estimate.nonce)
+            updateBalanceCache()
+        }
+        return result
     }
 
     override val coinType: ERC20Token
@@ -226,7 +250,11 @@ class ERC20Account(private val chainId: Byte,
 
     private fun getPendingReceiving(): BigInteger = backing.getUnconfirmedTransactions(receivingAddress.addressString)
             .filter {
-                !it.sender.addressString.equals(receiveAddress.addressString, true)
+                // Only live pending counts toward balance. REPLACED / CANCELED
+                // / DROPPED rows still have confirmations=0 but no funds will
+                // arrive, so they must not inflate the pending balance.
+                it.status == EthTxStatus.PENDING
+                        && !it.sender.addressString.equals(receiveAddress.addressString, true)
                         && it.receiver.addressString.equals(receiveAddress.addressString, true)
             }
             .map { it.value.value }
@@ -234,7 +262,8 @@ class ERC20Account(private val chainId: Byte,
 
     private fun getPendingSending(): BigInteger = backing.getUnconfirmedTransactions(receivingAddress.addressString)
             .filter {
-                it.sender.addressString.equals(receiveAddress.addressString, true)
+                it.status == EthTxStatus.PENDING
+                        && it.sender.addressString.equals(receiveAddress.addressString, true)
                         && !it.receiver.addressString.equals(receiveAddress.addressString, true)
             }
             .map { it.value.value }
@@ -285,30 +314,13 @@ class ERC20Account(private val chainId: Byte,
                     } catch (_: IOException) { /* skip, try next sync */ }
                 }
 
-            val localTxs = getUnconfirmedTransactions()
-            // Remove local pending records only after confirming via the per-tx
-            // endpoint that the tx is no longer alive. Blockbook's address-
-            // level indexes can lose the association between address and a
-            // pending tx even while the per-tx endpoint still has it, so we
-            // can't rely on address-level absence to delete.
-            val toRemove = localTxs.filter { localTx ->
-                if (System.currentTimeMillis() / 1000 - localTx.timestamp <= TimeUnit.SECONDS.toSeconds(150)) return@filter false
-                val txid = "0x" + HexUtils.toHex(localTx.id)
-                if (remoteTransactionsIds.contains(txid) || candidateTxids.contains(txid)) return@filter false
-                try {
-                    val tx = withContext(Dispatchers.IO) { blockchainService.getTransaction(txid) }
-                    // If per-tx endpoint knows it, don't delete regardless of
-                    // confirmation state — address index will eventually catch
-                    // up when it mines.
-                    false
-                } catch (_: IOException) {
-                    // Unknown to blockbook — truly dropped or replaced.
-                    true
-                }
-            }
-            toRemove.map { "0x" + HexUtils.toHex(it.id) }.forEach {
-                backing.deleteTransaction(it)
-            }
+            // Mark stale local pending txs as REPLACED / CANCELED / DROPPED
+            // instead of deleting. The helper queries the full ETH-level
+            // address history to find a confirmed replacement with the same
+            // from+nonce, then falls back to per-tx endpoint to confirm
+            // disappearance before marking DROPPED.
+            val knownAlive = remoteTransactionsIds + candidateTxids.toSet()
+            reconcileLocalPending(knownAliveTxids = knownAlive)
             return true
         } catch (e: IOException) {
             lastSyncInfo = SyncStatusInfo(SyncStatus.ERROR)

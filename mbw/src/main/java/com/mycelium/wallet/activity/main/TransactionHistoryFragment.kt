@@ -58,6 +58,7 @@ import com.mycelium.wapi.wallet.coins.Value.Companion.isNullOrZero
 import com.mycelium.wapi.wallet.coins.Value.Companion.valueOf
 import com.mycelium.wapi.wallet.colu.ColuAccount
 import com.mycelium.wapi.wallet.eth.AbstractEthERC20Account
+import com.mycelium.wapi.wallet.eth.EthTxStatus
 import com.mycelium.wapi.wallet.fio.FIOOBTransaction
 import com.mycelium.wapi.wallet.fio.FioAccount
 import com.squareup.otto.Subscribe
@@ -331,11 +332,14 @@ class TransactionHistoryFragment : Fragment() {
                         Preconditions.checkNotNull(menu.findItem(R.id.miShowDetails))
                         Preconditions.checkNotNull(menu.findItem(R.id.miAddToAddressBook)).isVisible = !record.isIncoming && record.destinationAddresses.size > 0
                         val replaceItem = Preconditions.checkNotNull(menu.findItem(R.id.miReplaceTransaction))
+                        val cancelEthItem = Preconditions.checkNotNull(menu.findItem(R.id.miCancelTransactionEth))
                         val ethSummary = record as? EthTransactionSummary
-                        val canReplaceTx = (model.account.value is AbstractEthERC20Account)
+                        val isLiveEthPendingOutgoing = (model.account.value is AbstractEthERC20Account)
                                 && ethSummary?.nonce != null
+                                && ethSummary.status == EthTxStatus.PENDING
                                 && !record.isIncoming
                                 && record.confirmations == 0
+                                && model.account.value?.canSpend() == true
                         if (model.account.value is Bip44BCHAccount || model.account.value is SingleAddressBCHAccount
                                 || model.account.value is AbstractEthERC20Account || model.account.value is FioAccount) {
                             Preconditions.checkNotNull(menu.findItem(R.id.miCancelTransaction)).isVisible = false
@@ -353,7 +357,8 @@ class TransactionHistoryFragment : Fragment() {
                         if (model.account.value is AbstractEthERC20Account) {
                             Preconditions.checkNotNull(menu.findItem(R.id.miDeleteUnconfirmedTransaction)).isVisible = record.confirmations == 0
                         }
-                        replaceItem.isVisible = canReplaceTx
+                        replaceItem.isVisible = isLiveEthPendingOutgoing
+                        cancelEthItem.isVisible = isLiveEthPendingOutgoing
                         currentActionMode = actionMode
                         binding?.lvTransactionHistory?.setItemChecked(position, true)
                     }
@@ -392,6 +397,15 @@ class TransactionHistoryFragment : Fragment() {
                                         .getIntent(requireActivity(), walletAccount.id, isColdStorage)
                                         .putExtra(SendCoinsActivity.TRANSACTION_NONCE, nonce)
                                     startActivity(intent)
+                                    finishActionMode()
+                                    return true
+                                }
+                            }
+                            R.id.miCancelTransactionEth -> {
+                                val walletAccount = model.account.value
+                                val ethSummary = record as? EthTransactionSummary
+                                if (walletAccount is AbstractEthERC20Account && ethSummary != null) {
+                                    CancelEthTxDialog.show(this@TransactionHistoryFragment, walletAccount, ethSummary)
                                     finishActionMode()
                                     return true
                                 }

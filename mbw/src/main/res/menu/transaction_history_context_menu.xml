@@ -24,6 +24,11 @@
             android:title="@string/menu_item_cancel_transaction"/>
 
     <item
+        android:id="@+id/miCancelTransactionEth"
+        yourapp:showAsAction="ifRoom|withText"
+        android:title="@string/menu_item_cancel_transaction_eth"/>
+
+    <item
         android:id="@+id/miReplaceTransaction"
         yourapp:showAsAction="ifRoom|withText"
         android:title="@string/menu_item_replace_transaction"/>

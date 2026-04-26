@@ -46,6 +46,7 @@ import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.activity.util.TransactionConfirmationsDisplay;
 import com.mycelium.wallet.activity.util.TransactionDetailsLabel;
+import com.mycelium.wapi.wallet.EthTransactionSummary;
 import com.mycelium.wapi.wallet.TransactionSummary;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
@@ -53,6 +54,7 @@ import com.mycelium.wapi.wallet.btcvault.hd.BitcoinVaultHdAccount;
 import com.mycelium.wapi.wallet.colu.ColuAccount;
 import com.mycelium.wapi.wallet.erc20.ERC20Account;
 import com.mycelium.wapi.wallet.eth.EthAccount;
+import com.mycelium.wapi.wallet.eth.EthTxStatus;
 import com.mycelium.wapi.wallet.fio.FioAccount;
 
 import java.text.DateFormat;
@@ -128,13 +130,47 @@ public class TransactionDetailsActivity extends AppCompatActivity {
         TransactionConfirmationsDisplay confirmationsDisplay = findViewById(R.id.tcdConfirmations);
         TextView confirmationsCount = findViewById(R.id.tvConfirmations);
 
+        // For ETH/ERC20, the lifecycle status overrides the
+        // confirmations-only view: a tx may have confirmations=0 not because
+        // it's pending but because it was REPLACED / CANCELED / DROPPED, and
+        // a tx with confirmations>0 may have FAILED on-chain.
+        EthTxStatus ethStatus = (tx instanceof EthTransactionSummary)
+                ? ((EthTransactionSummary) tx).getStatus()
+                : null;
+
         if (tx != null && tx.isQueuedOutgoing()) {
             confirmationsDisplay.setNeedsBroadcast();
             confirmationsCount.setText("");
             confirmed = getResources().getString(R.string.transaction_not_broadcasted_info);
+        } else if (ethStatus != null && ethStatus != EthTxStatus.PENDING && ethStatus != EthTxStatus.CONFIRMED) {
+            confirmationsCount.setText("");
+            switch (ethStatus) {
+                case FAILED:
+                    confirmationsDisplay.setFailed();
+                    confirmed = getResources().getString(R.string.tx_status_failed);
+                    break;
+                case REPLACED:
+                    confirmationsDisplay.setReplaced();
+                    confirmed = getResources().getString(R.string.tx_status_replaced);
+                    break;
+                case CANCELED:
+                    confirmationsDisplay.setCanceled();
+                    confirmed = getResources().getString(R.string.tx_status_canceled);
+                    break;
+                case DROPPED:
+                    confirmationsDisplay.setDropped();
+                    confirmed = getResources().getString(R.string.tx_status_dropped);
+                    break;
+                default:
+                    // unreachable — guarded by the outer condition
+                    break;
+            }
         } else {
             confirmationsDisplay.setConfirmations(confirmations);
             confirmationsCount.setText(String.valueOf(confirmations));
+            if (ethStatus == EthTxStatus.PENDING && confirmations == 0) {
+                confirmed = getResources().getString(R.string.tx_status_pending);
+            }
         }
 
         ((TextView) findViewById(R.id.tvConfirmed)).setText(confirmed);

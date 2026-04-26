@@ -22,10 +22,12 @@ import com.mycelium.wallet.activity.util.ValueExtensionsKt;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.wallet.Address;
 import com.mycelium.wapi.wallet.AddressUtils;
+import com.mycelium.wapi.wallet.EthTransactionSummary;
 import com.mycelium.wapi.wallet.TransactionSummary;
 import com.mycelium.wapi.wallet.TransactionSummaryKt;
 import com.mycelium.wapi.wallet.coins.AssetInfo;
 import com.mycelium.wapi.wallet.coins.Value;
+import com.mycelium.wapi.wallet.eth.EthTxStatus;
 
 import java.text.DateFormat;
 import java.util.ArrayList;
@@ -178,9 +180,40 @@ public class TransactionArrayAdapter extends ArrayAdapter<TransactionSummary> {
       // Show confirmations indicator
       int confirmations = record.getConfirmations();
       TransactionConfirmationsDisplay tcdConfirmations = rowView.findViewById(R.id.tcdConfirmations);
+      // For ETH/ERC20, the lifecycle status overrides the confirmations-only
+      // view: a row may have confirmations=0 because it was REPLACED /
+      // CANCELED / DROPPED rather than because it's still pending, and a row
+      // with confirmations>0 may have FAILED on-chain.
+      EthTxStatus ethStatus = (record instanceof EthTransactionSummary)
+              ? ((EthTransactionSummary) record).getStatus()
+              : null;
+      String confirmationsText = null;
       if (record.isQueuedOutgoing()) {
          // Outgoing, not broadcasted
          tcdConfirmations.setNeedsBroadcast();
+         confirmationsText = _context.getResources().getString(R.string.transaction_not_broadcasted_info);
+      } else if (ethStatus != null && ethStatus != EthTxStatus.PENDING && ethStatus != EthTxStatus.CONFIRMED) {
+         switch (ethStatus) {
+            case FAILED:
+               tcdConfirmations.setFailed();
+               confirmationsText = _context.getResources().getString(R.string.tx_status_failed);
+               break;
+            case REPLACED:
+               tcdConfirmations.setReplaced();
+               confirmationsText = _context.getResources().getString(R.string.tx_status_replaced);
+               break;
+            case CANCELED:
+               tcdConfirmations.setCanceled();
+               confirmationsText = _context.getResources().getString(R.string.tx_status_canceled);
+               break;
+            case DROPPED:
+               tcdConfirmations.setDropped();
+               confirmationsText = _context.getResources().getString(R.string.tx_status_dropped);
+               break;
+            default:
+               tcdConfirmations.setConfirmations(confirmations);
+               break;
+         }
       } else {
          tcdConfirmations.setConfirmations(confirmations);
       }
@@ -189,10 +222,7 @@ public class TransactionArrayAdapter extends ArrayAdapter<TransactionSummary> {
       TextView tvLabel = rowView.findViewById(R.id.tvTransactionLabel);
       String label = _storage.getLabelByTransaction(record.getIdHex());
       // if we have no txLabel show the confirmation state instead - to keep they layout ballanced
-      String confirmationsText;
-      if (record.isQueuedOutgoing()) {
-         confirmationsText = _context.getResources().getString(R.string.transaction_not_broadcasted_info);
-      } else {
+      if (confirmationsText == null) {
          if (confirmations > 6) {
             confirmationsText = _context.getResources().getString(R.string.confirmed);
          } else {
