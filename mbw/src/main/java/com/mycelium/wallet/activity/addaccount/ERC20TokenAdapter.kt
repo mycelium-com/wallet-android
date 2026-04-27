@@ -35,7 +35,7 @@ class ERC20TokenAdapter(val alreadyAdded: List<ERC20Token>)
         val symbol = token.symbol
         try {
             // get input stream
-            val ims: InputStream = holder.binding.ivIcon.resources.assets.open("token-logos/" + symbol?.toLowerCase() + "_logo.png")
+            val ims: InputStream = holder.binding.ivIcon.resources.assets.open("token-logos/" + symbol.lowercase() + "_logo.png")
             // load image as Drawable
             icon = Drawable.createFromStream(ims, null)
         } catch (e: IOException) {

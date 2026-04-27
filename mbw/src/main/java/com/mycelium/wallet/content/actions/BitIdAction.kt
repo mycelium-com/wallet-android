@@ -4,15 +4,13 @@ import android.net.Uri
 import com.mrd.bitlib.model.NetworkParameters
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.StringHandlerActivity
-import com.mycelium.wallet.bitid.BitIDAuthenticationActivity
 import com.mycelium.wallet.bitid.BitIDSignRequest
 import com.mycelium.wallet.content.Action
-import java.util.*
 
 
 class BitIdAction : Action {
     override fun handle(handlerActivity: StringHandlerActivity, content: String): Boolean {
-        if (!content.toLowerCase(Locale.US).startsWith("bitid:")) {
+        if (!content.lowercase().startsWith("bitid:")) {
             return false
         }
         val request = BitIDSignRequest.parse(Uri.parse(content))
@@ -26,6 +24,6 @@ class BitIdAction : Action {
     }
 
     override fun canHandle(network: NetworkParameters, content: String): Boolean {
-        return content.toLowerCase().startsWith("bitid:")
+        return content.lowercase().startsWith("bitid:")
     }
 }

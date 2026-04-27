@@ -17,7 +17,7 @@ repositories {
 }
 
 dependencies {
-    implementation libs.protobuf.java
+    compileOnly libs.protobuf.java
     implementation libs.jackson.annotations
     implementation libs.jackson.databind
     implementation libs.guava

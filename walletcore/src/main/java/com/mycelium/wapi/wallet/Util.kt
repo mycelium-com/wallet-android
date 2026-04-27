@@ -2,13 +2,15 @@ package com.mycelium.wapi.wallet
 
 import com.mrd.bitlib.model.NetworkParameters
 import com.mycelium.wapi.wallet.coins.AssetInfo
-import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.coins.SYMBOL_COIN_MAP
 import com.mycelium.wapi.wallet.coins.Value
 import java.math.BigDecimal
 import java.math.BigInteger
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Calendar
+import java.util.Date
+import java.util.Locale
+import java.util.TimeZone
 
 object Util {
     /**
@@ -48,7 +50,7 @@ object Util {
             SYMBOL_COIN_MAP.filter {
                 if (networkParameters.isProdnet) it.value.id.contains("main")
                 else it.value.id.contains("test")
-            }[symbol.toUpperCase(Locale.US)]
+            }[symbol.uppercase()]
 
     @JvmStatic
     fun strToBigInteger(coinType: AssetInfo, amountStr: String): BigInteger =

@@ -5,7 +5,7 @@ plugins {
 
 dependencies {
     implementation libs.androidx.core
-    implementation libs.protobuf.java
+    compileOnly libs.protobuf.java
 
     testImplementation libs.junit
 }

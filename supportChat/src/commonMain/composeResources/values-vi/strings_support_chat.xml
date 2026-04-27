@@ -1,0 +1,19 @@
+<resources>
+    <!-- Support Chat -->
+    <string name="support_chat_title">Hỗ trợ</string>
+    <string name="support_chat_empty_title">Chưa có tin nhắn</string>
+    <string name="support_chat_empty_subtitle">Bắt đầu cuộc trò chuyện với đội ngũ hỗ trợ của chúng tôi</string>
+    <string name="support_chat_input_hint">Nhập tin nhắn...</string>
+    <string name="support_chat_send">Gửi</string>
+    <string name="support_chat_loading">Đang tải tin nhắn...</string>
+    <string name="support_chat_loading_more">Đang tải thêm...</string>
+    <string name="support_chat_error_generic">Đã xảy ra lỗi</string>
+    <string name="support_chat_error_retry">Thử lại</string>
+    <string name="support_chat_fab_description">Mở chat hỗ trợ</string>
+    <string name="support_chat_rate_limit_error">Quá nhiều tin nhắn. Vui lòng đợi trước khi gửi.</string>
+    <string name="support_chat_message_too_long">Tin nhắn quá dài</string>
+    <string name="support_chat_today">Hôm nay</string>
+    <string name="support_chat_yesterday">Hôm qua</string>
+    <string name="support_chat_response_time_notice">Phản hồi có thể mất đến 24 giờ</string>
+    <string name="support_chat_attach_image">Đính kèm hình ảnh</string>
+</resources>

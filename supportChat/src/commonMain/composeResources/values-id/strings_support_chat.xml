@@ -1,0 +1,19 @@
+<resources>
+    <!-- Support Chat -->
+    <string name="support_chat_title">Dukungan</string>
+    <string name="support_chat_empty_title">Belum ada pesan</string>
+    <string name="support_chat_empty_subtitle">Mulai percakapan dengan tim dukungan kami</string>
+    <string name="support_chat_input_hint">Ketik pesan...</string>
+    <string name="support_chat_send">Kirim</string>
+    <string name="support_chat_loading">Memuat pesan...</string>
+    <string name="support_chat_loading_more">Memuat lebih banyak...</string>
+    <string name="support_chat_error_generic">Terjadi kesalahan</string>
+    <string name="support_chat_error_retry">Coba lagi</string>
+    <string name="support_chat_fab_description">Buka chat dukungan</string>
+    <string name="support_chat_rate_limit_error">Terlalu banyak pesan. Harap tunggu sebelum mengirim.</string>
+    <string name="support_chat_message_too_long">Pesan terlalu panjang</string>
+    <string name="support_chat_today">Hari ini</string>
+    <string name="support_chat_yesterday">Kemarin</string>
+    <string name="support_chat_response_time_notice">Balasan dapat memakan waktu hingga 24 jam</string>
+    <string name="support_chat_attach_image">Lampirkan gambar</string>
+</resources>

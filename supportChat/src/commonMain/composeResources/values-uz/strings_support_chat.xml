@@ -1,0 +1,19 @@
+<resources>
+    <!-- Support Chat -->
+    <string name="support_chat_title">Qo'llab-quvvatlash</string>
+    <string name="support_chat_empty_title">Hali xabarlar yo'q</string>
+    <string name="support_chat_empty_subtitle">Qo'llab-quvvatlash jamoamiz bilan suhbat boshlang</string>
+    <string name="support_chat_input_hint">Xabar yozing...</string>
+    <string name="support_chat_send">Yuborish</string>
+    <string name="support_chat_loading">Xabarlar yuklanmoqda...</string>
+    <string name="support_chat_loading_more">Ko'proq yuklanmoqda...</string>
+    <string name="support_chat_error_generic">Nimadir noto'g'ri ketdi</string>
+    <string name="support_chat_error_retry">Qayta urinish</string>
+    <string name="support_chat_fab_description">Qo'llab-quvvatlash chatini ochish</string>
+    <string name="support_chat_rate_limit_error">Juda ko'p xabar. Iltimos, yuborishdan oldin kuting.</string>
+    <string name="support_chat_message_too_long">Xabar juda uzun</string>
+    <string name="support_chat_today">Bugun</string>
+    <string name="support_chat_yesterday">Kecha</string>
+    <string name="support_chat_response_time_notice">Javob 24 soatgacha vaqt olishi mumkin</string>
+    <string name="support_chat_attach_image">Rasm biriktirish</string>
+</resources>

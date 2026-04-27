@@ -1,0 +1,19 @@
+<resources>
+    <!-- Support Chat -->
+    <string name="support_chat_title">Suporta</string>
+    <string name="support_chat_empty_title">Wala pang mga mensahe</string>
+    <string name="support_chat_empty_subtitle">Magsimula ng pag-uusap sa aming koponan ng suporta</string>
+    <string name="support_chat_input_hint">Mag-type ng mensahe...</string>
+    <string name="support_chat_send">Ipadala</string>
+    <string name="support_chat_loading">Naglo-load ng mga mensahe...</string>
+    <string name="support_chat_loading_more">Naglo-load pa...</string>
+    <string name="support_chat_error_generic">May nangyaring mali</string>
+    <string name="support_chat_error_retry">Subukan muli</string>
+    <string name="support_chat_fab_description">Buksan ang chat ng suporta</string>
+    <string name="support_chat_rate_limit_error">Masyadong maraming mensahe. Mangyaring maghintay bago magpadala.</string>
+    <string name="support_chat_message_too_long">Masyadong mahaba ang mensahe</string>
+    <string name="support_chat_today">Ngayong araw</string>
+    <string name="support_chat_yesterday">Kahapon</string>
+    <string name="support_chat_response_time_notice">Ang mga tugon ay maaaring tumagal ng hanggang 24 na oras</string>
+    <string name="support_chat_attach_image">Mag-attach ng larawan</string>
+</resources>

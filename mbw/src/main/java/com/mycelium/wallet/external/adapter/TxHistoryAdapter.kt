@@ -34,8 +34,8 @@ class TxHistoryAdapter : ListAdapter<TxItem, RecyclerView.ViewHolder>(DiffCallba
         val item = getItem(position)
         h.binding.status.text = item.status.capitalize()
         h.binding.date.text = item.date
-        h.binding.amountFrom.text = "${item.amountFrom} ${item.currencyFrom.toUpperCase()}"
-        h.binding.amountTo.text = "${item.amountTo} ${item.currencyTo.toUpperCase()}"
+        h.binding.amountFrom.text = "${item.amountFrom} ${item.currencyFrom.uppercase()}"
+        h.binding.amountTo.text = "${item.amountTo} ${item.currencyTo.uppercase()}"
 
         Glide.with(h.binding.iconFrom).clear(h.binding.iconFrom)
         Glide.with(h.binding.iconFrom)

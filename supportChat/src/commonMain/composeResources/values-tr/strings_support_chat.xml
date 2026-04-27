@@ -1,0 +1,19 @@
+<resources>
+    <!-- Support Chat -->
+    <string name="support_chat_title">Destek</string>
+    <string name="support_chat_empty_title">Henüz mesaj yok</string>
+    <string name="support_chat_empty_subtitle">Destek ekibimizle bir sohbet başlatın</string>
+    <string name="support_chat_input_hint">Bir mesaj yazın...</string>
+    <string name="support_chat_send">Gönder</string>
+    <string name="support_chat_loading">Mesajlar yükleniyor...</string>
+    <string name="support_chat_loading_more">Daha fazla yükleniyor...</string>
+    <string name="support_chat_error_generic">Bir şeyler yanlış gitti</string>
+    <string name="support_chat_error_retry">Tekrar Dene</string>
+    <string name="support_chat_fab_description">Destek sohbetini aç</string>
+    <string name="support_chat_rate_limit_error">Çok fazla mesaj. Lütfen göndermeden önce bekleyin.</string>
+    <string name="support_chat_message_too_long">Mesaj çok uzun</string>
+    <string name="support_chat_today">Bugün</string>
+    <string name="support_chat_yesterday">Dün</string>
+    <string name="support_chat_response_time_notice">Yanıtlar 24 saate kadar sürebilir</string>
+    <string name="support_chat_attach_image">Görsel ekle</string>
+</resources>

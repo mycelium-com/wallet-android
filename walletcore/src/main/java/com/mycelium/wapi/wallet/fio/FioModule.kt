@@ -5,7 +5,13 @@ import com.mrd.bitlib.crypto.InMemoryPrivateKey
 import com.mrd.bitlib.model.NetworkParameters
 import com.mrd.bitlib.model.hdpath.HdKeyPath
 import com.mycelium.generated.wallet.database.WalletDB
-import com.mycelium.wapi.wallet.*
+import com.mycelium.wapi.wallet.AccountListener
+import com.mycelium.wapi.wallet.AesKeyCipher
+import com.mycelium.wapi.wallet.IServerFioEventsPublisher
+import com.mycelium.wapi.wallet.KeyCipher
+import com.mycelium.wapi.wallet.SecureKeyValueStore
+import com.mycelium.wapi.wallet.WalletAccount
+import com.mycelium.wapi.wallet.WalletManager
 import com.mycelium.wapi.wallet.coins.Balance
 import com.mycelium.wapi.wallet.fio.FioAccountContext.Companion.ACCOUNT_TYPE_FROM_MASTERSEED
 import com.mycelium.wapi.wallet.fio.FioAccountContext.Companion.ACCOUNT_TYPE_UNRELATED_X_PRIV
@@ -20,7 +26,11 @@ import fiofoundation.io.fiosdk.FIOSDK
 import fiofoundation.io.fiosdk.errors.FIOError
 import fiofoundation.io.fiosdk.models.TokenPublicAddress
 import java.text.DateFormat
-import java.util.*
+import java.util.Collections
+import java.util.Date
+import java.util.LinkedList
+import java.util.Locale
+import java.util.UUID
 
 class FioModule(
         private val serverFioEventsPublisher: IServerFioEventsPublisher,
@@ -123,8 +133,8 @@ class FioModule(
                 }.toMap().toMutableMap()
         // We begin with creating a list of addresses for FIO blockchain mapping transaction
         accounts.forEach {
-            val chainCode = it.basedOnCoinType.symbol.toUpperCase(Locale.US)
-            val tokenCode = it.coinType.symbol.toUpperCase(Locale.US)
+            val chainCode = it.basedOnCoinType.symbol.uppercase()
+            val tokenCode = it.coinType.symbol.uppercase()
             val currentTokenAddress = oldMappings.remove("$tokenCode-$chainCode")
             if (currentTokenAddress?.publicAddress != it.receiveAddress.toString()) {
                 tokenPublicAddresses.add(TokenPublicAddress(it.receiveAddress.toString(),
@@ -151,7 +161,7 @@ class FioModule(
         walletDB.fioNameAccountMappingsQueries.deleteAllMappings(fioName)
         accounts.forEach {
             walletDB.fioNameAccountMappingsQueries.insertMapping(fioName, it.receiveAddress.toString(),
-                    it.basedOnCoinType.symbol.toUpperCase(Locale.US), it.coinType.symbol.toUpperCase(Locale.US), it.id)
+                    it.basedOnCoinType.symbol.uppercase(), it.coinType.symbol.uppercase(), it.id)
         }
     }
 

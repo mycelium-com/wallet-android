@@ -53,10 +53,10 @@ class SelectAccountFragment : Fragment(R.layout.fragment_bequant_select_account)
                 R.string.active_bitcoin_sa_group_name to walletManager.getBTCSingleAddressAccounts())
         val ethWallets = listOf(R.string.eth_accounts_name to walletManager.getEthAccounts())
         val walletsAccounts = mutableListOf<Pair<Int,List<WalletAccount<*>>>>()
-        if (args.currency?.toLowerCase() == "btc") {
+        if (args.currency?.lowercase() == "btc") {
             walletsAccounts+=btcWallets
         }
-        if (args.currency?.toLowerCase() == "eth") {
+        if (args.currency?.lowercase() == "eth") {
             walletsAccounts+=ethWallets
         }
         if(args.currency.isNullOrEmpty()){

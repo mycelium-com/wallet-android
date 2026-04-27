@@ -38,7 +38,6 @@ import com.mycelium.wallet.external.mediaflow.model.Content
 import com.mycelium.wallet.external.mediaflow.model.News
 import org.json.JSONException
 import org.json.JSONObject
-import java.util.Locale
 import java.util.concurrent.TimeUnit
 import kotlin.random.Random
 
@@ -111,7 +110,7 @@ object NewsSyncUtils {
             val dataObject = JSONObject(data)
             val operation = dataObject.getString(MEDIA_OPERATION)
             if (dataObject.has(ID)) {
-                when (operation.toLowerCase(Locale.ROOT)) {
+                when (operation.lowercase()) {
                     OPERATION_DELETE -> delete(context, dataObject.getString(ID))
                     OPERATION_PUBLISH -> {
                         if (dataObject.has(TITLE)) {
