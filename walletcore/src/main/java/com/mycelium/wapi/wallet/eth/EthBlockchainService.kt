@@ -50,18 +50,20 @@ class EthBlockchainService(private var endpoints: List<HttpEndpoint>)
 
     @Throws(IOException::class)
     private fun fetchTransactions(address: String, contractAddress: String? = null): List<Tx> {
-        val contractAddressSegment = if (contractAddress != null) "&contract=$contractAddress" else ""
+        // Blockbook has a bug with `&contract=...` filtering — server returns 0 txs/balance.
+        // Fetch all address txs and rely on client-side filtering in getTransactions().
+        // val contractAddressSegment = if (contractAddress != null) "&contract=$contractAddress" else ""
         // Cap page size so a single page response is always bounded. Smaller
         // pages also let us stop early when we only need recent txs.
         val pageSize = 200
-        var urlString = "${endpoints.random()}/api/v2/address/$address?details=txs&pageSize=$pageSize" + contractAddressSegment
+        var urlString = "${endpoints.random()}/api/v2/address/$address?details=txs&pageSize=$pageSize" //+ contractAddressSegment
 
         val result: MutableList<Tx> = mutableListOf()
 
         val initialResponse = streamedRequest(urlString, Response::class.java)
         result.addAll(initialResponse.transactions)
         for (i in 2..initialResponse.totalPages) {
-            urlString = "${endpoints.random()}/api/v2/address/$address?details=txs&pageSize=$pageSize&page=$i" + contractAddressSegment
+            urlString = "${endpoints.random()}/api/v2/address/$address?details=txs&pageSize=$pageSize&page=$i" //+ contractAddressSegment
             val response = streamedRequest(urlString, Response::class.java)
             result.addAll(response.transactions)
         }
