@@ -20,7 +20,7 @@ import com.mycelium.wapi.wallet.manager.WalletModule
 import com.mycelium.wapi.wallet.metadata.IMetaDataStorage
 import org.web3j.crypto.Credentials
 import org.web3j.crypto.Keys
-import org.web3j.tx.ChainId
+import org.web3j.tx.ChainIdLong
 import java.util.*
 
 class ERC20Module(
@@ -35,7 +35,7 @@ class ERC20Module(
     private val accounts = mutableMapOf<UUID, ERC20Account>()
     override val id = ID
     private val ethCoinType = if (networkParameters.isProdnet) EthMain else EthTest
-    private val chainId = if (networkParameters.isProdnet) ChainId.MAINNET else CHAIN_ID_GOERLI
+    private val chainId: Long = if (networkParameters.isProdnet) ChainIdLong.MAINNET else ChainIdLong.SEPOLIA
 
     override fun createAccount(config: Config): WalletAccount<*> {
         val result: WalletAccount<*>
@@ -139,7 +139,6 @@ class ERC20Module(
     }
 
     companion object {
-        private const val CHAIN_ID_GOERLI: Byte = 5
         const val ID: String = "ERC20"
     }
 }

@@ -46,7 +46,7 @@ import java.util.UUID
 import java.util.logging.Level
 
 
-class ERC20Account(private val chainId: Byte,
+class ERC20Account(private val chainId: Long,
                    private val accountContext: ERC20AccountContext,
                    private val token: ERC20Token,
                    val ethAcc: EthAccount,
@@ -97,9 +97,7 @@ class ERC20Account(private val chainId: Byte,
         val hexValue = Numeric.toHexString(signedMessage)
         request.apply {
             signedHex = hexValue
-            // keccak256 over the actual signed bytes — same hash the network
-            // computes. web3j's helper takes chainId as Byte which would
-            // truncate for any testnet chainId > 127.
+            // keccak256 over the actual signed bytes — same hash the network computes.
             txHash = Hash.sha3(signedMessage)
             txBinary = TransactionEncoder.encode(rawTransaction)!!
         }
