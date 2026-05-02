@@ -72,7 +72,7 @@ dependencies {
 
     implementation(platform(libs.firebase.bom))
     implementation libs.bundles.firebase.bom
-    implementation "com.google.code.findbugs:annotations:$findBugsVersion"
+    implementation "com.google.code.findbugs:jsr305:3.0.2"
     implementation "com.squareup:otto:$ottoVersion"
 
     implementation 'androidx.browser:browser:1.5.0'

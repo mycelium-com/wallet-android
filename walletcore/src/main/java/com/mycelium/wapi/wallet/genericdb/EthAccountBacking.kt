@@ -178,12 +178,26 @@ class EthAccountBacking(val walletDB: WalletDB, private val uuid: UUID, private 
     }
 
     /**
-     * Update only the local lifecycle status without touching any on-chain
-     * fields. Used to mark txs REPLACED / CANCELED / DROPPED without losing
-     * the historical record.
+     * Update the local lifecycle status. Used to mark txs REPLACED / CANCELED
+     * / DROPPED without losing the historical record. When [blockNumber] /
+     * [timestamp] are supplied (typical for REPLACED / CANCELED — the values
+     * come from the replacement tx; for DROPPED — current tip / now), the
+     * row's on-chain placeholders are also rewritten so it sorts by time in
+     * the history list instead of staying pinned at the top with the
+     * pending-tx MAX_VALUE blockNumber.
      */
-    fun markTransactionStatus(txid: String, status: EthTxStatus) {
-        ethQueries.updateStatus(status.name, uuid, txid)
+    fun markTransactionStatus(
+        txid: String,
+        status: EthTxStatus,
+        blockNumber: Int? = null,
+        timestamp: Long? = null,
+    ) {
+        walletDB.transaction {
+            ethQueries.updateStatus(status.name, uuid, txid)
+            if (blockNumber != null && timestamp != null) {
+                queries.updateBlockNumberAndTimestamp(blockNumber, timestamp, uuid, txid)
+            }
+        }
     }
 
     private fun updateGasUsed(txid: String, gasUsed: BigInteger, fee: Value) {

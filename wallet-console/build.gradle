@@ -55,7 +55,9 @@ sourceSets {
     }
 }
 
-mainClassName = "com.mycelium.WalletConsole"
+application {
+    mainClass = "com.mycelium.WalletConsole"
+}
 
 jar {
     manifest {

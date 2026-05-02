@@ -8,7 +8,6 @@ android {
 
     defaultConfig {
         minSdk = libs.versions.android.minSdk.get().toInteger()
-        targetSdk = libs.versions.android.targetSdk.get().toInteger()
     }
 
     buildTypes {
@@ -25,6 +24,12 @@ android {
 
     kotlinOptions {
         jvmTarget = "17"
+    }
+    lint {
+        targetSdk 36
+    }
+    testOptions {
+        targetSdk 36
     }
 }
 

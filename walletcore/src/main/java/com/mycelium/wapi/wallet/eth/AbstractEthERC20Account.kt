@@ -76,21 +76,30 @@ abstract class AbstractEthERC20Account(coinType: CryptoCurrency,
      * account-level sync no longer sees, instead of deleting it.
      *
      * Resolution order (per local pending tx):
-     *  1. Within grace period — leave as PENDING; mempools can be slow.
-     *  2. Per-tx endpoint still returns it — leave as PENDING regardless of
-     *     the address index. Blockbook's address index drops associations
-     *     before the per-tx record actually disappears.
-     *  3. A confirmed remote tx exists with the same `from + nonce` but a
+     *  1. A confirmed remote tx exists with the same `from + nonce` but a
      *     different hash — REPLACED (CANCELED if the replacement is a
-     *     0-value self-transfer, the canonical RBF cancel pattern).
-     *  4. Otherwise — DROPPED.
+     *     0-value self-transfer, the canonical RBF cancel pattern). This
+     *     check runs unconditionally: it does not respect the grace period
+     *     and does not skip txids in `knownAliveTxids`. A confirmed
+     *     replacement is decisive — the original cannot also mine, no
+     *     matter what blockbook's stale indexes still claim.
+     *  2. Within grace period (and no replacement found) — leave as
+     *     PENDING; mempools can be slow.
+     *  3. Caller said this txid is alive in the current sync — leave as
+     *     PENDING. Without a confirmed replacement we cannot tell whether
+     *     it will eventually mine.
+     *  4. Per-tx endpoint still returns it — leave as PENDING.
+     *  5. Otherwise — DROPPED.
      *
      * @param fullAddressTxs full address tx history, used to detect
      *                       replacements. Pass `null` to fetch on demand.
      * @param knownAliveTxids txids that the caller has already verified are
      *                        live this sync (e.g. found in address?details=txids
-     *                        or fetched via per-tx endpoint). These are
-     *                        skipped without further checks.
+     *                        or fetched via per-tx endpoint). These gate the
+     *                        DROPPED branch only — they do NOT block
+     *                        replacement detection, since blockbook can keep
+     *                        listing a replaced tx in its txids cache for
+     *                        long after a confirmed replacement has landed.
      */
     protected suspend fun reconcileLocalPending(
         fullAddressTxs: List<Tx>? = null,
@@ -102,26 +111,20 @@ abstract class AbstractEthERC20Account(coinType: CryptoCurrency,
         val now = System.currentTimeMillis() / 1000
         val ownerAddress = receivingAddress.addressString
 
-        val candidates = pending.filter { tx ->
-            val txid = "0x" + HexUtils.toHex(tx.id)
-            txid !in knownAliveTxids && now - tx.timestamp >= DROP_GRACE_SECONDS
-        }
-        if (candidates.isEmpty()) return
-
         val addressTxs = fullAddressTxs ?: try {
             withContext(Dispatchers.IO) { blockchainService.getTransactions(ownerAddress) }
         } catch (_: IOException) { emptyList() }
 
         var anyMarked = false
-        for (localTx in candidates) {
+        for (localTx in pending) {
             val txid = "0x" + HexUtils.toHex(localTx.id)
-            // (2) Per-tx endpoint check — authoritative.
-            try {
-                withContext(Dispatchers.IO) { blockchainService.getTransaction(txid) }
-                continue
-            } catch (_: IOException) { /* truly unknown; fall through */ }
 
-            // (3) Replacement detection.
+            // (1) Replacement detection — strongest signal. A confirmed
+            // remote tx with same from+nonce as our pending means the
+            // original was bumped out of the mempool. This runs even within
+            // the grace period and even when blockbook's address indexes
+            // still list the original txid, because the original CANNOT
+            // also mine at the same nonce.
             val localNonce = localTx.nonce
             val replacement = if (localNonce != null) {
                 addressTxs.firstOrNull { remote ->
@@ -131,15 +134,44 @@ abstract class AbstractEthERC20Account(coinType: CryptoCurrency,
                             && remote.nonce == localNonce
                 }
             } else null
-
-            val newStatus = when {
-                replacement == null -> EthTxStatus.DROPPED
-                replacement.value.signum() == 0
-                        && (replacement.to?.equals(replacement.from, true) == true) ->
+            if (replacement != null) {
+                val newStatus = if (replacement.value.signum() == 0
+                        && (replacement.to?.equals(replacement.from, true) == true))
                     EthTxStatus.CANCELED
-                else -> EthTxStatus.REPLACED
+                else
+                    EthTxStatus.REPLACED
+                // Adopt the replacement's blockNumber/timestamp so the
+                // resolved tx sorts next to its replacement in the history
+                // list — otherwise it stays pinned at the top with the
+                // pending-tx MAX_VALUE blockNumber.
+                backing.markTransactionStatus(
+                    txid,
+                    newStatus,
+                    blockNumber = replacement.blockHeight.toInt(),
+                    timestamp = replacement.blockTime,
+                )
+                anyMarked = true
+                continue
             }
-            backing.markTransactionStatus(txid, newStatus)
+
+            // No replacement seen. Below this point we only mark DROPPED,
+            // and only when we're confident the tx is gone from mempools.
+            if (now - localTx.timestamp < DROP_GRACE_SECONDS) continue
+            if (txid in knownAliveTxids) continue
+            try {
+                withContext(Dispatchers.IO) { blockchainService.getTransaction(txid) }
+                continue
+            } catch (_: IOException) { /* truly unknown; fall through */ }
+
+            // Use current tip + now as the DROPPED tx's effective slot —
+            // there's no replacement to inherit from, but anchoring it to
+            // "now" keeps it from sticking at the top of the list.
+            backing.markTransactionStatus(
+                txid,
+                EthTxStatus.DROPPED,
+                blockNumber = getBlockChainHeight(),
+                timestamp = now,
+            )
             anyMarked = true
         }
 

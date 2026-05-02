@@ -15,6 +15,8 @@ import com.mycelium.wallet.event.BalanceChanged
 import com.mycelium.wapi.wallet.BroadcastResult
 import com.mycelium.wapi.wallet.BroadcastResultType
 import com.mycelium.wapi.wallet.EthTransactionSummary
+import com.mycelium.wapi.wallet.SyncMode
+import com.mycelium.wapi.wallet.erc20.ERC20Account
 import com.mycelium.wapi.wallet.eth.AbstractEthERC20Account
 import com.mycelium.wapi.wallet.eth.CancelEstimate
 import kotlinx.coroutines.Dispatchers
@@ -137,6 +139,19 @@ object CancelEthTxDialog {
             BroadcastResultType.SUCCESS -> {
                 toaster.toast(R.string.cancel_eth_tx_success, false)
                 MbwManager.getEventBus().post(BalanceChanged(account.id))
+                // Kick off a sync so reconcileLocalPending can pick up the
+                // confirmed cancel as a replacement for the original. ERC20
+                // cancels live in the parent ETH account's tx list, so we
+                // also sync the parent — otherwise the EthAccount view of
+                // the ERC20 send would stay PENDING until the next
+                // periodic sync.
+                val mbw = MbwManager.getInstance(ctx)
+                val accounts = buildList {
+                    add(account)
+                    (account as? ERC20Account)?.ethAcc?.let { add(it) }
+                }
+                mbw.getWalletManager(false)
+                    .startSynchronization(SyncMode.NORMAL_FORCED, accounts)
             }
             BroadcastResultType.NO_SERVER_CONNECTION ->
                 toaster.toast(R.string.cancel_eth_tx_no_connection, false)

@@ -25,13 +25,24 @@ CREATE TABLE IF NOT EXISTS EthAccountBacking (
 );
 
 
+-- ORDER BY note: pending txs are stored with blockNumber = Int.MAX_VALUE
+-- (2147483647) so they sort to the top. Once a tx flips to a terminal
+-- status (CANCELED / REPLACED / DROPPED) it must NOT keep that top slot —
+-- mark*Status updates the row with the replacement's blockNumber going
+-- forward, but legacy rows can still carry MAX_VALUE. Clamp to 0 here so
+-- the list sorts by time even if migration data is stale.
+
 selectTransactionSummaries:
 SELECT eb.txid, b.currency, b.blockNumber, b.timestamp, b.value, b.fee, b.confirmations,
     eb.fromAddress, eb.toAddress, eb.nonce, eb.gasLimit, eb.gasUsed, eb.gasPrice, eb.success, eb.internalValue, eb.hasTokenTransfers, eb.status
 FROM EthAccountBacking AS eb
     INNER JOIN AccountBacking AS b
     ON eb.uuid = b.uuid AND eb.txid = b.txid
-        WHERE eb.uuid = (:uuid) ORDER BY b.blockNumber DESC, b.timestamp DESC
+        WHERE eb.uuid = (:uuid)
+        ORDER BY (CASE WHEN eb.status = 'PENDING' THEN b.blockNumber
+                       WHEN b.blockNumber = 2147483647 THEN 0
+                       ELSE b.blockNumber END) DESC,
+                 b.timestamp DESC
         LIMIT (:limit) OFFSET (:offset);
 
 
@@ -44,7 +55,10 @@ FROM EthAccountBacking AS eb
     INNER JOIN AccountBacking AS b
     ON eb.uuid = b.uuid AND eb.txid = b.txid
         WHERE eb.uuid = (:uuid) AND b.timestamp > (:timestamp)
-        ORDER BY b.blockNumber DESC, b.timestamp DESC;
+        ORDER BY (CASE WHEN eb.status = 'PENDING' THEN b.blockNumber
+                       WHEN b.blockNumber = 2147483647 THEN 0
+                       ELSE b.blockNumber END) DESC,
+                 b.timestamp DESC;
 
 selectTransactionSummaryById:
 SELECT eb.txid, b.currency, b.blockNumber, b.timestamp, b.value, b.fee, b.confirmations,
@@ -60,7 +74,11 @@ SELECT eb.txid, b.currency, b.blockNumber, b.timestamp,
 FROM EthAccountBacking AS eb
     INNER JOIN AccountBacking AS b
     ON eb.uuid = b.uuid AND eb.txid = b.txid
-        WHERE eb.uuid = (:uuid) AND b.confirmations = 0 ORDER BY b.blockNumber DESC, b.timestamp DESC;
+        WHERE eb.uuid = (:uuid) AND b.confirmations = 0
+        ORDER BY (CASE WHEN eb.status = 'PENDING' THEN b.blockNumber
+                       WHEN b.blockNumber = 2147483647 THEN 0
+                       ELSE b.blockNumber END) DESC,
+                 b.timestamp DESC;
 
 insertTransaction:
 INSERT OR REPLACE INTO EthAccountBacking(txid, uuid, fromAddress, toAddress, nonce, gasLimit, gasPrice,

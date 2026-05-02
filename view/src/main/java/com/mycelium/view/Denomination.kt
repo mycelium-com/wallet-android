@@ -47,7 +47,7 @@ enum class Denomination(val scale: Int, private val asciiString: String, private
     companion object {
         @JvmStatic
         fun fromString(string: String): Denomination? {
-            return when (string.toLowerCase()) {
+            return when (string.lowercase()) {
                 "btc"//back compatibility
                     , "unit" -> UNIT
                 "mbtc"//back compatibility
