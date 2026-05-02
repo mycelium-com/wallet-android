@@ -1,0 +1,297 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
+    <string name="sending">Отправляется %1$s</string>
+    <string name="receiving">Получение %1$s</string>
+    <string name="confirmations">%d подтверждений</string>
+    <string name="send">Отправить</string>
+    <string name="send_cointype">Отправить %1$s</string>
+    <string name="receive">Получить</string>
+    <string name="receive_cointype">Получить %1$s</string>
+    <string name="amount_hint">0.00</string>
+    <string name="amount_hint_denomination">0.00 %1$s</string>
+    <string name="enter_recipient_title">Отправить кому</string>
+    <string name="enter_recipient_hint">%1$s адрес или имя FIO</string>
+    <string name="enter_recipient_description">Введите %1$s адрес или имя FIO</string>
+    <string name="recipient_title">Введите адрес получателя:</string>
+    <string name="amount_label">Сумма:</string>
+    <string name="amount_label_s">Сумма: %s</string>
+    <string name="amount_title">Сумма</string>
+    <string name="enter_amount_title">Введите сумму:</string>
+    <string name="crypto_address">Адрес %1$s:</string>
+    <string name="max_btc">Доступно: %1$s</string>
+    <string name="max_fiat">Доступно: %1$s %2$s</string>
+    <string name="s_payment_request">%s запрос на оплату</string>
+    <string name="share_address">Поделиться адресом</string>
+    <string name="share_address_and_amount">Поделиться адресом и суммой</string>
+    <string name="s_fio_request">%s запрос FIO</string>
+    <string name="qr_code">QR-код</string>
+    <string name="my_addresses">Мои адреса</string>
+    <string name="insufficient_funds">Недостаточно средств</string>
+    <string name="tx_build_error">Неизвестная ошибка при создании транзакции.</string>
+    <string name="insufficient_funds_for_fee">Недостаточно средств для оплаты комиссии</string>
+    <string name="amount_too_small">Сумма слишком мала</string>
+    <string name="unable_to_build_tx">Не удалось создать транзакцию. %s</string>
+    <string name="no_utxo">Транзакция не содержит UTXO для формирования дочерней транзакции или UTXO уже потрачено</string>
+    <string name="parent_needs_no_boosting">Родительская транзакция не нуждается в ускорении</string>
+    <string name="amount_too_small_short">Сумма должна превышать %s (сетевой лимит)</string>
+    <string name="miner_fee_label">Комиссия майнера</string>
+    <string name="miner_fee_title">Комиссия майнера</string>
+    <string name="history_row_miner_fee_label">Комиссия за транзакцию</string>
+    <string name="synchronizing">Синхронизация</string>
+    <string name="transaction_not_sent">Не удалось отправить транзакцию</string>
+    <string name="transaction_not_sent_nonstandard">Не удалось отправить транзакцию из-за ошибки:\n%1$s\nСообщите об этом в техподдержку.\nСырые данные транзакции скопированы в буфер обмена, при возможности приложите их к запросу.</string>
+    <string name="transaction_not_sent_small_fee">Не удалось отправить транзакцию. Комиссия слишком мала. Попробуйте установить более высокую.</string>
+    <string name="queue_transaction_message">Не удалось отправить транзакцию.\nХотите поставить её в очередь, чтобы она отправилась автоматически, когда вы будете онлайн?</string>
+    <string name="transaction_sent">Транзакция отправлена.</string>
+    <string name="copy_address_to_clipboard">Копировать адрес в буфер обмена</string>
+    <string name="copy_amount_to_clipboard">Копировать сумму в буфер обмена</string>
+    <string name="bitcoin_address_title">Bitcoin-адрес</string>
+    <string name="invalid_bitcoin_uri">Недопустимый Bitcoin URI</string>
+    <string name="unrecognized_format">Нераспознанный формат</string>
+    <string name="no_transaction_records">Эта страница показывает вашу историю транзакций.\n\nВ настоящее время нет транзакций для отображения.</string>
+    <string name="too_many_transaction_records">Невозможно загрузить всю историю транзакций аккаунта из-за её большого объёма. Рассмотрите возможность перевода средств на новый аккаунт.</string>
+    <string name="no_address_book_records">Эта страница показывает вашу адресную книгу.\n\nВаша адресная книга пуста.</string>
+    <string name="edit_address_label_title">Редактировать имя адреса</string>
+    <string name="enter_address_label_title">Введите имя адреса</string>
+    <string name="enter_transaction_label_title">Введите имя транзакции</string>
+    <string name="transaction_details">Детали транзакции</string>
+    <string name="confirmed">Подтверждено</string>
+    <string name="confirmed_in_block">В блоке #%1$d</string>
+    <string name="gas_limit">Лимит газа</string>
+    <string name="gas_used">Использовано газа</string>
+    <string name="gas_price">Цена газа</string>
+    <string name="eth_internal_transfer">(%s был переведён вызывающему)</string>
+    <string name="replace_transaction">Транзакция для замены:</string>
+    <string name="delete_address_confirmation">Вы уверены, что хотите удалить этот адрес из адресной книги?</string>
+    <string name="payment_request">Запрос на оплату</string>
+    <string name="my_own_address_warning"><![CDATA[<font color="#ffff00">Примечание: Вы отправляете на один из ваших собственных адресов.</font>]]></string>
+    <string name="scan_address_book_desc">Сканировать адрес.</string>
+
+    <string name="address_label_not_unique">В адресной книге уже есть адрес с таким именем</string>
+    <string name="tap_qr_code_desc">Нажатие на QR-код может улучшить сканирование</string>
+    <string name="receiver_address_hint">1Адрес1234\n567890abcdef\nghijklmnop</string>
+    <string name="signing_transaction">Подписание транзакции</string>
+    <string name="broadcasting_transaction">Отправка транзакции</string>
+    <string name="transaction_rejected_message">Транзакция была отклонена сетью. Это указывает на то, что ваш кошелёк не синхронизирован</string>
+    <string name="transaction_rejected_double_spending_message">Не удалось отправить транзакцию из-за проблемы двойной траты или маллеабельности.</string>
+    <string name="transaction_rejected_malformed">Подписание транзакции не удалось.\nПожалуйста, сообщите об этом в техподдержку.\nСырые данные транзакции были скопированы в буфер обмена, если возможно, приложите их к вашему запросу.\n%s</string>
+    <string name="transaction_rejected_invalid_tx_params">Сеть отклонила транзакцию. Пожалуйста, проверьте параметры транзакции и попробуйте снова. Ошибка: %1$s</string>
+    <string name="enter_bitcoin_address">Введите Bitcoin-адрес</string>
+    <string name="recipient_invalid">Недопустимый адрес или имя FIO</string>
+    <string name="recipient_has_no_such_address">%1$s не имеет связанного адреса %2$s</string>
+    <string name="recipient_valid">Получатель действителен</string>
+    <string name="using_address_from_clipboard">Использование адреса из буфера обмена</string>
+    <string name="foreign_addresses">Адресная книга</string>
+    <string name="sending_addresses">Адресная книга</string>
+    <string name="share_payment_request">Поделиться запросом на оплату</string>
+    <string name="share_bitcoin_address">Поделиться Bitcoin-адресом</string>
+    <string name="optional_amount">Необязательная сумма</string>
+    <string name="show_qr_code_menu">Показать QR-код</string>
+    <string name="tab_transactions">Транзакции</string>
+    <string name="tab_addresses">Адресная книга</string>
+    <string name="scan_qr_code">Сканировать QR-код</string>
+    <string name="send_bitcoins">Отправить биткоины</string>
+    <string name="sync_total_retrieved_transactions">Синхронизация в процессе: извлечено %1$d транзакций</string>
+    <string name="copy_signature">Копировать подпись в буфер обмена</string>
+    <string name="share_signature">Поделиться текстом и подписью</string>
+    <string name="amount_changed">Сумма отправления была обновлена из QR-кода</string>
+    <string name="transaction_not_broadcasted_info">Не удалось передать транзакцию</string>
+    <string name="transaction_label_title">Имя транзакции</string>
+    <string name="select_key_for_signing">Выберите ключ для подписи</string>
+    <string name="miner_fee_lowprio_name">Низкий приоритет</string>
+    <string name="miner_fee_economic_name">Экономичный</string>
+    <string name="miner_fee_normal_name">Обычный</string>
+    <string name="miner_fee_priority_name">Приоритетный</string>
+    <string name="miner_fee_lowprio_desc">Внимание: Использование низкоприоритетного расписания комиссий экспериментально и может привести к транзакциям, которые никогда не будут подтверждены. Используйте на свой страх и риск.</string>
+    <string name="miner_fee_economic_desc">Внимание: Использование экономичной комиссии майнера может занять очень много времени для подтверждения. Используйте на свой страх и риск.</string>
+    <string name="miner_fee_normal_desc">С обычным расписанием комиссий майнера вы можете ожидать, что ваши транзакции будут подтверждены в следующих нескольких блоках.</string>
+    <string name="miner_fee_priority_desc">С расписанием приоритетной комиссии вы можете ожидать, что ваша транзакция будет подтверждена в одном или двух блоках.</string>
+    <string name="new_bitcoin_address_created">Сгенерирован новый случайный приватный ключ с следующими Bitcoin-адресами:</string>
+    <string name="transaction_from_address_prefix">От: %s</string>
+    <string name="transaction_to_address_prefix">К: %s</string>
+    <string name="retrieving_pubkey_address">Получение следующего неиспользованного адреса…</string>
+    <string name="tx_details_num_confirmations">Подтверждения</string>
+    <string name="remove_queued_transaction">Вы действительно хотите удалить эту транзакцию из очереди и предотвратить её отправку?</string>
+    <string name="remove_queued_transaction_title">Очередь транзакции</string>
+    <string name="remove_queued_transaction_hint">Ваш баланс будет скорректирован после следующей синхронизации с сетью</string>
+    <string name="remove_queued_transaction_error">Не удалось удалить транзакцию</string>
+    <string name="payment_request_unable_to_read_payment_request">Не удалось прочитать запрос на оплату</string>
+    <string name="payment_request_not_sent_expired">Платёж не отправлен — запрос на оплату уже истёк!</string>
+    <string name="payment_request_no_amount_specified">сумма не указана</string>
+    <string name="payment_request_unable_to_verify">Не удалось проверить</string>
+    <string name="payment_request_unsigned_request">Не подписанный запрос</string>
+    <string name="payment_request_signature_okay">Подпись в порядке</string>
+    <string name="payment_request_invalid_signature">Недействительная подпись</string>
+    <string name="payment_request_fetching_payment_request">Получение запроса на оплату</string>
+    <string name="payment_request_title">Запрос на оплату</string>
+    <string name="payment_request_merchant">Продавец</string>
+    <string name="payment_request_signature">Подпись</string>
+    <string name="payment_request_amount_to_pay">Сумма к оплате</string>
+    <string name="payment_request_message">Сообщение</string>
+    <string name="payment_request_created">Создано</string>
+    <string name="payment_request_expires">Истекает</string>
+    <string name="payment_request_message_to_merchant">Ваше сообщение продавцу (необязательно)</string>
+
+    <string name="payment_request_error_while_getting_ack">Не удалось отправить платёж на сервер продавца.\n%s\n\nПлатёж не будет отправлен.</string>
+    <string name="payment_request_warning_no_sig">Источник этого запроса на оплату не может быть проверен, так как он не содержит подписи.\n\nПожалуйста, будьте очень осторожны, так как кто-то может перехватить запрос и изменить адреса выплат.</string>
+    <string name="label_cold_storage_external_signing">Подписать с помощью:</string>
+    <string name="label_unverified_recipient">Непроверенный получатель</string>
+    <string name="nfc_payment_request_hint">Поместите ваш телефон спинкой к спинке с другим устройством, поддерживающим NFC, чтобы поделиться этим запросом на оплату</string>
+    <string name="payment_request_over_tor">" (через Tor)"</string>
+    <string name="cancel_transaction">Отменить транзакцию</string>
+    <string name="share_transaction_history">Поделиться историей транзакций</string>
+    <string name="transaction_history_title">История транзакций</string>
+    <string name="menu_item_cancel_transaction">Отменить транзакцию</string>
+    <string name="menu_item_rebroadcast_transaction">Повторно отправить транзакцию</string>
+    <string name="menu_item_delete_unconfirmed_transaction">Удалить неподтверждённую транзакцию</string>
+    <string name="delete_unconfirmed_transaction_title">Удалить неподтверждённую транзакцию</string>
+    <string name="warning_delete_unconfirmed_transaction">ВНИМАНИЕ: Это удалит транзакцию только из локального приложения. Эта функция не может отменить транзакцию и предотвратить её подтверждение. Она полезна только в случае, если сеть уже забыла транзакцию из-за её долгого неподтверждения. В таком случае вы можете удалить её, чтобы снова получить доступ к средствам. После удаления вам нужно будет выполнить синхронизацию. Если сеть всё ещё знает о транзакции, она появится снова сразу после синхронизации.\n\nВы хотите удалить транзакцию из локального кеша?</string>
+    <string name="rebroadcast_transaction_title">Повторно отправить транзакцию</string>
+    <string name="bump_fee_title">Увеличить комиссию майнера (CPFP)</string>
+    <string name="description_rebroadcast_transaction">Повторно отправьте эту транзакцию на сервер для её распространения. Это может быть полезно, если вы подозреваете, что сеть не распространила вашу транзакцию или она была удалена, например, из-за долгого неподтверждения. Вы хотите повторно отправить эту транзакцию?</string>
+    <string name="description_bump_fee_placeholder">Отправьте транзакцию, которая увеличивает комиссию для этой неподтверждённой транзакции.\n\nХотите потратить… Загрузка…</string>
+    <string name="sending_assets">Отправка %s активов.</string>
+    <string name="asset_failed_to_broadcast">%s не удалось отправить транзакцию.</string>
+    <string name="incoming_payment">"Входящий платёж: %s"</string>
+    <string name="warning_amount_does_not_match">Предупреждение: сумма не совпадает!</string>
+    <string name="requires_btc_amount">Транзакция Colored Coin невозможна. Вам нужно небольшое
+        количество BTC для оплаты комиссии майнера. Пожалуйста, пополните один из ваших
+        Bitcoin-адресов и попробуйте снова.
+    </string>
+    <string name="address_title">%s адрес</string>
+    <string name="share_x_address">Поделиться адресом %s</string>
+    <string name="enter_address">Введите адрес %s</string>
+    <string name="address_valid">Адрес %s действителен</string>
+    <string name="address_invalid">Адрес %s недействителен</string>
+    <string name="tips_rmc_check_address">Если вы отправили цифровые активы на случайный Bitcoin-адрес, они не уничтожены.\nДля их восстановления у вас есть два варианта:\n1) Используйте API Colored Coins для ручного возврата активов на адрес, управляемый кошельком Mycelium.\n2) Подайте заявку в службу поддержки Mycelium для восстановления активов. За эту услугу могут взиматься дополнительные сборы. Вы получите подробную информацию после обращения в службу поддержки.\n\nВ обоих случаях у вас должен быть приватный ключ адреса, на который вы отправили цифровые активы.</string>
+    <string name="restore_address_as">Восстановить адрес как</string>
+    <string name="miner_fee_custom">Пользовательская</string>
+    <string name="miner_fee_custom_desc">С пользовательской комиссией мы не можем гарантировать, сколько времени займёт транзакция</string>
+    <string name="fee_is_zero">Транзакция может никогда не состояться!</string>
+    <string name="fee_change_warning" formatted="false"><![CDATA[Ваш <font color=\"#4583de\">сдача</font> меньше минимального лимита сети Bitcoin. Общая комиссия будет увеличена до %s%s!]]></string>
+    <string name="fee_change_description">Сдача — это то, что остаётся от вашего выхода после отправки транзакции. Текущая сдача меньше минимального лимита сети Bitcoin (0,0000546 BTC).\nВы можете решить эту проблему следующим образом:\n
+    1) уменьшить сумму отправки, чтобы получить сдачу назад;\n
+    2) увеличить сумму отправки до максимума;\n
+    3) отрегулировать комиссию майнера, чтобы соответствовать лимиту сети.</string>
+    <string name="share_transaction_manually">Поделиться транзакцией вручную</string>
+    <string name="share_transaction_manually_title">Поделиться транзакцией вручную</string>
+    <string name="share_transaction_manually_description">Вы хотите поделиться сырой транзакцией через буфер обмена, электронную почту или другие средства? Эта операция обычно безопасна, но не является необходимой. Мы добавили эту функцию для отладки, если транзакция не может быть передана.</string>
+    <string name="share_transaction">Поделиться транзакцией</string>
+    <string name="amount_to_receive">Получение</string>
+
+    <string name="bch_you_can_transaction_on_explorer"><![CDATA[Вы можете проверить ваши транзакции на <font color=\"#4583de\">https://www.blocktrail.com/%s</font>]]></string>
+    <string name="given_rates_includes_transaction_fee">Указанный курс включает комиссию за транзакцию</string>
+    <string name="payment_in_progress">Платеж в обработке</string>
+    <string name="erc20_highest_possible_fee_info"><![CDATA[Это максимальная комиссия, которую, возможно, придется заплатить за отправку транзакции с <b>ETH %s</b>. Однако, скорее всего, комиссия не превысит %s%s. Подробнее см. <u>расчет комиссии майнеров</u>.]]></string>
+    <string name="all_ethereum_network_transactions">Все транзакции в сети Ethereum требуют наличие ETH для оплаты комиссии майнеров.</string>
+    <string name="miner_fee_erc20_info_title">Комиссия майнеров (ERC-20)</string>
+    <string name="miner_fee_erc20_info">Все транзакции в сети Ethereum требуют наличие ETH для оплаты комиссии майнеров. Комиссия майнеров = Gas Limit * Gas Price (Gwei/Gas)\n\nЧтобы обеспечить максимально возможную оценку комиссии, Mycelium использует 90 000 единиц в качестве значения Gas Limit по умолчанию, учитывая сложность обработки транзакций ERC-20.\n\nСреднее количество газа, затрачиваемое майнерами на каждую транзакцию, составляет около 55 500 единиц.\n\nФактическая комиссия может быть меньше или равна, в зависимости от того, сколько газа уйдёт на обработку транзакции.</string>
+    <string name="gas_limit_erc20_info_title">Gas Limit (ERC-20)</string>
+    <string name="gas_limit_erc20_info">Mycelium использует 90 000 единиц в качестве значения Gas Limit по умолчанию, учитывая сложность обработки транзакций ERC-20.\n\nСреднее количество газа, затрачиваемого майнерами на каждую транзакцию, составляет около 55 500 единиц.\n\nВы можете установить меньшее значение Gas Limit, однако Mycelium не может гарантировать, что транзакция будет обработана на таких условиях.</string>
+    <string name="gas_limit_helper">Минимум 21 000 единиц</string>
+    <string name="gas_limit_warning">Вы установили Gas Limit ниже 90 000 единиц. Это может быть недостаточно для обработки вашей транзакции в сети Ethereum, при этом газ все равно будет потрачен.</string>
+    <string name="gas_limit_error">Минимальный Gas Limit для транзакций в сети Ethereum составляет 21 000 единиц.</string>
+    <string name="next_fee_update_in_s">Следующее обновление через %ds</string>
+    <string name="received">Получено</string>
+    <string name="link_to_track_transaction">Статус обмена</string>
+    <string name="help_missing_tx_dialog_text" formatted="false"><![CDATA[Самые распространенные ситуации с «пропавшими» монетами часто решаются легко.
+                        Пожалуйста, внимательно прочитайте, прежде чем обращаться в поддержку:<br><br>
+                        <h4>Нет соединения с сервером</h4>
+                        Когда кошелек не может связаться с серверами, он не может правильно отобразить ваш
+                        баланс и может даже показывать 0BTC, если вы пытались перезагрузить аккаунт.
+                        <b>Не паникуйте.</b> Проверьте интернет-соединение или, если проблемы на наших серверах,
+                        наши инженеры уже работают над их устранением.
+                        В любом случае, пока вы не видите транзакции, в которой ваши средства покинули кошелек,
+                        ваши средства все еще находятся в кошельке и защищены вашей резервной копией из 12 слов,
+                        которая в худшем случае совместима со многими другими Bitcoin-кошельками.
+                        Не пытайтесь удалять и переустанавливать приложение, если вы не на 100% уверены,
+                        что у вас есть все резервные копии.
+                        <h4>Кошелек, восстановленный с помощью "12 слов + пароль", при этом пароль — это PIN</h4>
+                        Если вы вводите неправильный пароль, то ошибки не произойдет, но
+                        будет восстановлен другой, пустой кошелек. <b>Попробуйте восстановить свой кошелек,
+                        указав только "12 слов".</b>
+                        <h4>Монеты на "Аккаунт 2"</h4>
+                        Если вы восстановили кошелек из резервной копии, в котором было больше, чем просто "Аккаунт 1",
+                        вам нужно вручную воссоздать недостающие аккаунты, чтобы они снова появились.
+                        Для этого <b>перейдите на вкладку
+                        "Аккаунты" и создайте "новый" аккаунт</b>.
+                        <h4>Монеты находятся за пределами стандартного «look-ahead» или «gap limit»:</h4>
+                        Если вы использовали сторонние инструменты для получения монет, например
+                        BTC-Pay Server, кошелек, проверяющий только 20 будущих адресов за последним неиспользованным,
+                        может не найти эти транзакции. <b>Нажмите
+                        «Boost Gap Limit»</b> ниже, чтобы проверить, так ли это.
+                        Это позволит проверить 200 адресов во всех активных аккаунтах один раз.]]></string>
+    <string name="missing_tx_text">Наиболее распространенные случаи «пропавших» монет и способы их решения.</string>
+    <string name="send_fee_hint"><b>ВНИМАНИЕ.</b> Транзакции с комиссией майнеров низкого приоритета могут никогда не подтвердиться или подтверждаться в течение многих часов или даже дней. Не выбирайте низкий приоритет, если вы не понимаете, как работает сеть биткоина.</string>
+    <string name="transactions">Транзакции</string>
+    <string name="no_transaction_details">Проверьте в обозревателе блоков используя ссылку на hash транзакции.</string>
+    <string name="address_type">Тип адреса</string>
+    <string name="change_address_type">Тип адреса для сдачи</string>
+    <string name="transaction_options_advanced_users">Параметры транзакции</string>
+    <string name="tx_replace_info_title">Заменяемая транзакция</string>
+    <string name="transaction_gas_limit">Лимит Газа для транзакции</string>
+    <string name="transaction_input_data">Входные данные транзакции</string>
+    <string name="tx_replacae_info_desc">Выберите неподтвержденную транзакцию, которую вы хотите заменить.\nВознаграждение майнеру у заменяющей транзакции должно быть больше, чем у транзакции, выбранной для замены.</string>
+    <string name="gas_limit_info_title">Лимит газа</string>
+    <string name="gas_limit_info_desc">Максимальное количество газа доступное для ETH-транзакции. Для стандартной ETH-транзакции этот лимит равен 21000.\nДля транзакции с использованием контракта (ERC-20) лимит газа может быть выше и ограничивается лимитом газа на блок.</string>
+    <string name="total_amount">Сумма:</string>
+    <string name="miner_fee">Вознаграждение майнеров:</string>
+    <string name="spendable">Можно потратить:</string>
+    <string name="tx_not_sent">Не удалось отправить транзакцию</string>
+    <string name="payment_confirmed">Транзакция подтверждена</string>
+    <string name="show_transaction_details"><![CDATA[Показать детали транзакции >]]></string>
+    <string name="show_transaction_details_hide">Показать детали транзакции (скрыть)</string>
+    <string name="return_to_payment">Вернуться в заказы</string>
+    <string name="address_gaps">Разрывы адресов: </string>
+    <string name="blockchain_transaction_id">ID транзакции в блокчейне:</string>
+    <string name="bundled_transactions">Связанные транзакции:</string>
+    <string name="cancel_eth_tx_amount">Исходная сумма</string>
+    <string name="cancel_eth_tx_broadcasting">Отправка отмены…</string>
+    <string name="cancel_eth_tx_confirm">Отменить транзакцию</string>
+    <string name="cancel_eth_tx_description">Будет отправлена новая транзакция с тем же nonce, которая ничего не делает, кроме замены ожидающей. Отмена удастся, только если она подтвердится раньше оригинала.</string>
+    <string name="cancel_eth_tx_dismiss">Оставить транзакцию</string>
+    <string name="cancel_eth_tx_eth_balance">Баланс ETH</string>
+    <string name="cancel_eth_tx_failed">Ошибка отмены: %1$s</string>
+    <string name="cancel_eth_tx_fee_diff">Дополнительная стоимость</string>
+    <string name="cancel_eth_tx_insufficient_eth">Недостаточно ETH на этом аккаунте для оплаты комиссии за отмену.</string>
+    <string name="cancel_eth_tx_load_failed">Не удалось оценить комиссию за отмену. Проверьте подключение и попробуйте снова.</string>
+    <string name="cancel_eth_tx_loading">Оценка комиссии за отмену…</string>
+    <string name="cancel_eth_tx_new_fee">Комиссия за отмену</string>
+    <string name="cancel_eth_tx_no_connection">Нет соединения с сервером. Попробуйте позже.</string>
+    <string name="cancel_eth_tx_old_fee">Исходная комиссия</string>
+    <string name="cancel_eth_tx_recipient">Исходный получатель</string>
+    <string name="cancel_eth_tx_success">Отмена отправлена.</string>
+    <string name="cancel_eth_tx_title">Отменить транзакцию?</string>
+    <string name="cancel_eth_tx_warning">Если оригинальная транзакция подтвердится первой, отмена не удастся, и вы заплатите только за газ отмены.</string>
+    <string name="change_address_description">В Bitcoin вы всегда тратите полную сумму, полученную в предыдущей транзакции. Чтобы заплатить точные суммы, вы отправляете сумму, превышающую платёж, на новый адрес в вашем кошельке. Это и есть адрес для сдачи.\n\nВнешний наблюдатель обычно не может определить, отправили ли вы сумму получателю или себе как сдачу.</string>
+    <string name="check_change_address"><![CDATA[К сожалению, <b>Trezor model T</b> не поддерживает проверку принадлежности адреса вашему кошельку, но он может сгенерировать новый адрес из вашего master seed и показать его на экране. Подробнее об этой проблеме Trezor см. на <a href="https://github.com/trezor/trezor-core/issues/380">GitHub Trezor</a>.<br><br>Пожалуйста, проверьте адрес на экране Trezor и сравните его с адресом в разделе сводки. Он будет использован как адрес для сдачи, который вам нужно подтвердить отдельным выходом позже.]]></string>
+    <string name="default_address_type_desc">Настройка адреса для сдачи</string>
+    <string name="failed_transaction_removal_message">Транзакция окончательно не была отправлена. Вы можете оставить её для дальнейшего изучения или удалить. Удалить неудачные транзакции сейчас?</string>
+    <string name="failed_transaction_removal_title">Удаление неудачных транзакций</string>
+    <string name="menu_item_cancel_transaction_eth">Отменить транзакцию</string>
+    <string name="menu_item_replace_transaction">Заменить транзакцию</string>
+    <string name="no_transaction_loading">Загрузка…</string>
+    <string name="no_transaction_retry">Повторить</string>
+    <string name="not_correct_address_type">Неверный тип адреса</string>
+    <string name="only_send_btc_to_this_address">Отправляйте на этот адрес только %s. Отправка любого другого цифрового актива приведёт к безвозвратной потере.</string>
+    <string name="payment_uri_unsupported_token">Токен, запрошенный в payment uri, не поддерживается</string>
+    <string name="please_fill_proof_of_address">Заполните личную информацию так, как она указана в документе, подтверждающем адрес.</string>
+    <string name="proof_of_address">Подтверждение адреса</string>
+    <string name="provide_your_recovery_e_mail_address">Укажите ниже ваш e-mail для восстановления. Мы отправим вам безопасную ссылку и инструкции по сбросу пароля.</string>
+    <string name="receive_title_fio">FIO Public Key</string>
+    <string name="residential_address">Адрес проживания</string>
+    <string name="send_fio_request">Отправить FIO запрос</string>
+    <string name="send_mail">Отправить письмо…</string>
+    <string name="show_address_path">Показать путь адреса</string>
+    <string name="signing_transaction_instruction">Режим совместимости со смешанной тратой</string>
+    <string name="stale_fee_warning">Курсы комиссий старше 2ч! Действуйте с осторожностью!</string>
+    <string name="thank_you_for_signing_up_with_bequant">Спасибо за регистрацию в Bequant!</string>
+    <string name="transactions_loading_from_module_error">Ошибка загрузки транзакций из модуля</string>
+    <string name="tx_status_canceled">Отменено</string>
+    <string name="tx_status_dropped">Удалено из mempool</string>
+    <string name="tx_status_failed">Ошибка (откатано в блокчейне)</string>
+    <string name="tx_status_pending">В ожидании</string>
+    <string name="tx_status_replaced">Заменено</string>
+    <string name="what_is_address_type">Что такое тип адреса?</string>
+    <string name="what_is_address_type_description"><![CDATA[Существует три формата Bitcoin-адресов:<p><b>P2PKH — Legacy</b>, начинающийся с \"%1$s\".</p><p><b>P2SH — SegWit совместимый</b>, начинающийся с \"%2$s\". По умолчанию.</p><p><b>Bech32 — SegWit native</b>, начинающийся с \"%3$s\".</p><p>Используйте <b>P2SH</b> или <b>Bech32</b> для получения средств, если хотите в будущем отправлять SegWit транзакции с низкой комиссией.</p><p>Bech32 — самый новый и экономичный стандарт, но он пока не получил широкого распространения, поэтому не все смогут отправить bitcoin на него. Поскольку Bech32 пока используется не широко, blockchain-аналитикам может быть проще обнаружить ваш денежный поток.</p>]]></string>
+</resources>

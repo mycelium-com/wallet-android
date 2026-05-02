@@ -1,0 +1,295 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
+    <string name="pref_exchange_source">Exchange source</string>
+    <string name="pref_exchange_source_with_value">Exchange Source (%1$s)</string>
+    <string name="pref_exchange_source_summary">Select the source for obtaining exchange rates between cryptocurrency and fiat currencies</string>
+    <string name="exchange_source_not_available">Exchange rate not available for %1$s</string>
+    <string name="no_exchange_available">No Exchange available for Account</string>
+    <string name="verify_private_key_backup">Verify Backup</string>
+    <string name="verify_backup_dialog_title">Verify Private Key Backup</string>
+    <string name="verify_backup_desc">Having a proper backup is a cornerstone when managing your Bitcoin and digital assets funds.\n\nBy verifying your backup you make sure that your backup works and that you do not lose your funds if your Android device is lost or damaged.</string>
+    <string name="verify_backup_scan_desc">Verify your backup by scanning the private key or master seed QR code.\nSeveral formats are accepted, including the Mycelium encrypted paper backup.</string>
+    <string name="verify_backup_clipboard_desc">Verify private key backup by taking the private key from the clipboard.</string>
+    <string name="verify_backup_num_keys">You have %1$s keys that have never been verified.</string>
+    <string name="verify_backup_one_key">You have 1 key that has never been verified.</string>
+    <string name="verify_backup_master_seed">Your master seed has not been verified.</string>
+    <string name="verify_backup_no_such_record">The private key does not match any of your Bitcoin addresses.</string>
+    <string name="verify_backup_ok">Private key backup successfully verified for the following account: \n\n%1$s\n\nAddresses:\n\n%2$s</string>
+    <string name="verify_backup_title">Backup and Verify</string>
+    <string name="verify_backup_message_text_1">Having a proper backup is a cornerstone when managing your Bitcoin funds.\nYou have one or more Bitcoin private keys or a master seed where the backup has not been verified.\n\nPlease select the Backup option to make a back up.</string>
+    <string name="verify_backup_message_text_2">Then select the Verify Backup option and verify your backup.</string>
+    <!-- LT end -->
+
+    <string name="cs_private_key_description">You are using a private key with the following %1$s address:</string>
+    <string name="cs_address_description">You have scanned %1$s address. You can view the balance but not spend from it.</string>
+    <string name="verify_backup_seed_des">Verify master seed backup by scanning the QR code.</string>
+    <string name="verify_backup_ok_message">The backup was successfully verified.</string>
+    <string name="verify_words_title">Master Seed Verification</string>
+    <string name="verify_word_wrong">You typed the wrong word, please try again</string>
+    <string name="verify_wordlist_success">Your word list backup has successfully been verified. Store the backup in a safe place, your funds depend on it!\n\nYou have not configured a PIN!\nNow is a good time to do so.\n\nYou can configure a PIN in the Settings menu.</string>
+    <string name="verify_wordlist_success_pin_already_set">Your word list backup has successfully been verified. Store the backup in a safe place, your funds depend on it!</string>
+    <string name="colu_mass_account_notes">Add a Critical Mass Network account</string>
+    <string name="colu_add_mass_account">Add Mass Account</string>
+    <string name="colu_account_notes">Store digital assets in Mycelium.</string>
+    <string name="colu_add_cc_account">Add Digital Asset Account</string>
+    <string name="colu_select_an_account_type">Please select a Colored Coin account type</string>
+    <string name="colu_create_account">Create %s Account</string>
+    <string name="colu_creating_account">Creating %s Account</string>
+    <string name="colu_mycelium_tokens">Mycelium Tokens</string>
+    <string name="colu_mass_tokens">Mass Tokens</string>
+    <string name="colu_unable_to_create_account">Unable to create Colored Coin account</string>
+    <!--<string name="colu_tos_link">Open Colu Terms and Conditions</string>-->
+    <!-- <string name="colu_tos_link_url">https://www.colu.com/TOS</string>-->
+    <!--<string name="colu_tos">By clicking "OK" you agree to use Colored Coin technology, third party-->
+    <!--blockchain technology developer. All your interactions with Colu are outside of-->
+    <!--Mycelium’s control and are subject to Colu’s T&amp;C and Privacy Policy.-->
+    <!--Please read them carefully before providing any personal information.-->
+    <!--MYCELIUM ACCEPTS NO RESPONSIBILITY AND WILL NOT BE LIABLE FOR ANY LOSS-->
+    <!--OR DAMAGE WHATSOEVER SUFFERED AS A RESULT OF ACCESSING, USE OF, OR-->
+    <!--RELIANCE UPON COLU’S INFORMATION AND SERVICES.</string>-->
+    <!--    <string name="colu_backup_info">Your Colu account access-key gets derived from your masterseed. If you have a valid backup, the access to your Colu account is also included.</string>  -->
+    <string name="colu_backup_info">Your Colored Coin account access key is generated and stored independently from your other accounts. You will need to back it up separately from your main account.</string>
+    <string name="colu_failed_to_prepare">Failed to prepare Colored Coin transaction! Make sure you have funded one of your Bitcoin accounts with BTC ( up to $100) to perform transactions.</string>
+    <string name="colu_succeeded_to_broadcast">Transaction sent.</string>
+    <string name="buy_one">Buy one…</string>
+    <!-- Credit Card End-->
+
+    <string name="gd_buy_sell_button">Buy / Sell Bitcoin</string>
+
+    <!-- Simplex start -->
+    <string name="si_buy_sell">Debit / credit card</string>
+    <string name="si_buy_sell_description">Buy bitcoin safely and easily using your credit card.</string>
+    <string name="buy_with_cc_spend_only_warning_title">Receive only account</string>
+    <string name="buy_with_cc_spend_only_warning">The current selected account is receive-only.\n\nAre you sure you want to use this account to buy your bitcoin?</string>
+    <string name="buy_sell_select_activity_warning">The feature is not available for selected account type.</string>
+    <string name="gd_buy_sell_rmc_button">Buy RMC</string>
+    <string name="rmc_seems_like_no_account">Seems like you still have no RMC account.   Hit the button below to generate one</string>
+    <string name="rmc_generate_new_account">Generate new RMC account</string>
+    <string name="rmc_you_buying">You are buying</string>
+    <string name="rmc_your_new_account">Your new RMC account</string>
+    <string name="rmc_use_this_account_to_receive_your_rmc">Use this account to receive your RMC?</string>
+    <string name="rmc_yes">Yes</string>
+    <string name="rmc_no">No</string>
+    <string name="rmc_return_of_investment">Return on Investment</string>
+    <string name="rmc_not_forgot_active_day">To get maximum return <font color="#ff8838">do not miss the day</font>\nwhen it becomes active. <font color="#4583de">Set reminder?</font></string>
+    <string name="rmc_select_account_for_receive_rmc">Select account for receive RMC</string>
+    <string name="rmc_send_warning" formatted="false">%1$s is an asset (token) issued on Bitcoin blockchain as  colored coin.
+%1$s transaction is a bitcoin transaction and requires miner\'s fee in order to be included in a block.
+To be able to send %1$s token to another %1$s address you need to top up your %1$s address with a small amount of BTC which will be used to fund your transaction.
+You can either add miner\'s fee from any account with bitcoins every time you make %1$s transaction or top up your %1$s account with a little bit more btc so you will not have to fund (means spend on miner\'s fee) each time you make %1$s transaction.</string>
+    <string name="rmc_reminder">RMC reminder</string>
+    <string name="rmc_active_in_159_days">Active in %d days</string>
+    <string name="rmc_remind_by_email">Remind by email</string>
+    <string name="rmc_recieve_push_notification">Receive push notification</string>
+    <string name="rmc_add_to_google_calendar">Add to Google calendar</string>
+    <string name="rmc_account">Account:</string>
+    <string name="rmc_activate_rmc">Activate RMC for maximum Return</string>
+    <string name="rmc_activate">RMC activate</string>
+    <string name="partner_more_info"><u>Your privacy is our top priority</u></string>
+    <string name="partner_more_info_text">
+        Mycelium is one of the most trusted and useful mobile bitcoin wallets.<br />
+        Developing, maintaining and supporting this product is not free.<br />
+        Partner links and logos are statically embedded in the app and do not depend on any ad network.
+        Their presence can not be used for tracking users that do not click them.
+        No money is made by displaying these partner links or when users click on them.
+        Referrals happen only when users decide to make a purchase on our partner websites.
+    </string>
+    <string name="rmc_payment_success">Payment is successful! You will get your assets after three confirmations.</string>
+    <string name="rmc_please_enter_amount">Please enter amount</string>
+    <string name="rmc_minimum_amount_to_buy_is_0_1_rmc">Minimum amount to buy is 0.1 RMC</string>
+    <string name="rmc_price_fluctations">RMC price in BTC/ETH is approximate due to exchange rate fluctuations. Final RMC price will be set in a payment request.</string>
+    <string name="colu_before_sending_make_sure">Before sending your digital assets make sure you are sending to digital assets address but not the random bitcoin address. Click <font color="#4583de">here</font> to see the procedure to restore your digital assets.</string>
+    <string name="rmc_bitcoin_acc_what_is_it">"RMC bitcoin" is a "Bitcoin Single Address" account linked to your RMC account.
+This account allows you to spend BTC, received from the RMC pool.
+All new bitcoins, mined by the pool, are proportionally distributed among RMC bitcoin accounts.
+        \n
+        In order to protect your assets from accidentally being "burned" while spendingAmount BTC from your "RMC Bitcoin" linked account, digital assets unspent transaction outputs (UTXO) and corresponding technical transactions (so-called "dust") are not taken into account.</string>
+    <string name="colu_error_deleting">Got an error while deleting Colored Coin account</string>
+    <string name="rmc_please_select_receiving_account">Please select receiving account</string>
+    <string name="verify_message">Verify Message</string>
+    <string name="changelly_description">Exchange your other coins for Bitcoin</string>
+    <string name="changelly_setting_show_button_summary">Show Changelly option</string>
+    <string name="changelly_retry">Try again</string>
+    <string name="changelly_choose_your_currency">Select exchange options</string>
+    <string name="changelly_selected_currency">Selected currency: </string>
+    <string name="changelly_amount">Amount</string>
+    <string name="changelly_min_amount">Min amount:</string>
+    <string name="changelly_request">Request offer</string>
+    <string name="changelly_loading">Loading</string>
+    <string name="changelly_offer">Estimated BTC:</string>
+    <string name="changelly_take_offer">Continue</string>
+    <string name="changelly_unavailable">Service unavailable</string>
+    <string name="changelly_offer_title">Complete exchange operation</string>
+    <string name="changelly_from">From:</string>
+    <string name="changelly_convert_from">To convert</string>
+    <string name="changelly_to">To:</string>
+    <string name="changelly_estimated_to">to receive (estimate):</string>
+    <string name="changelly_rate">Estimated rate:</string>
+    <string name="changelly_send_to">Send to:</string>
+    <string name="changelly_please_send_funds">Please send the funds to the following address:</string>
+    <string name="changelly_created_at">Created at:</string>
+    <string name="changelly_validity">Valid until:</string>
+    <string name="changelly_loading_currencies">Loading currencies…</string>
+    <string name="changelly_copy_to_clipboard">Copy address to clipboard</string>
+    <string name="changelly_tandc">Agree with <a href="https://www.changelly.com/terms-of-use">Changelly Terms of Use</a></string>
+    <string name="rmc_profit_meter">RMC profit meter</string>
+    <string name="rmc_basic_parameters">RMC basic parameters</string>
+    <string name="amount_to_exchange">Exchanging</string>
+    <string name="enter_exchange_amount">Enter exchange amount</string>
+    <string name="exchange_in_order_to_complete">In order to complete exchange operation, you need to send the selected amount to the address below.</string>
+    <string name="exchange_to_do_so">Step 1. Copy the address above.\nStep 2. Open your wallet where you store the currency you are exchanging and paste the address.\nStep 3. Copy and paste the exchanging amount below.</string>
+    <string name="exchange_after_transaction">After your transaction is confirmed, your funds will be sent to your receiving account.</string>
+    <string name="exchange_altcoins_to_btc">EXCHANGE</string>
+    <string name="exchange_minimum_amount">Minimum exchangeable amount is %1$s %2$s.</string>
+    <string name="press_exchange_button_below_to_confirm">Press Exchange button below to confirm</string>
+    <string name="exchange_bch_to_btc">EXCHANGE BCH TO BTC</string>
+    <string name="coco_addresses_scanned">%d addresses have been scanned</string>
+    <string name="coco_service_unavailable">Colored Coins service is unavailable!</string>
+    <string name="coco_found">Digital assets have been found!</string>
+    <string name="coco_not_found">Digital assets have not been found!</string>
+    <string name="coco_scan_warning">You are about to retrieve Colored Coins based digital assets from the BIP32 private key.\nFor that, you must have an active network connection!</string>
+    <string name="exchange_rate_unavailable">Exchange rate is temporarily unavailable.</string>
+    <string name="exchange_service_unavailable">Exchange service is temporarily unavailable.\nPlease try again later.</string>
+    <string name="you_exchange_order_placed">Your exchange order is in progress. BTC will be sent after this transaction gets 12 confirmations.</string>
+    <string name="exchange_order_date">Date: %s</string>
+    <string name="exchange_order_exchanging">Exchanging: %s BCH</string>
+    <string name="exchange_order_receiving">Receiving: %s BTC</string>
+    <string name="exchange">Exchange</string>
+    <string name="exchange_rate_unavailable_msg">An exchange rate is temporarily unavailable.\nPlease check your network connection and try again or get back later.</string>
+    <string name="receiving_exchange">receiving</string>
+    <string name="exchange_sending">SENDING\nADDRESS</string>
+    <string name="exchange_receiving">RECEIVING\nADDRESS</string>
+    <string name="partner_fiopresale">FIO Address Presale</string>
+    <string name="partner_fiopresale_short">Your key to a better blockchain experience</string>
+    <string name="partner_fiopresale_info" />
+    <string name="sepa_buy_sell_description">Buy/sell bitcoin using Single Euro Payments Area.</string>
+    <string name="sepa_buy_sell_settings_description">Show SEPA buy/sell option</string>
+    <string name="changelly_indicate_extra">Please don’t forget to indicate the %s before sending funds.</string>
+    <string name="changelly_memo_id_name">memo</string>
+    <string name="changelly_destination_tag">Destination Tag</string>
+    <string name="changelly_message_name">Message</string>
+    <string name="changelly_extra_id">Extra Id</string>
+    <string name="exchange_operation_id_s">Exchange operation ID: %s</string>
+    <string name="exchange_to_do_so_memo">Step 4. Copy and paste the memo below.</string>
+    <string name="exchange_to_do_so_end">Step 5. Send funds.</string>
+    <string name="buy_ethereum">BUY / SELL ETH</string>
+    <string name="sepa_eth_buy_sell_description">Buy/Sell ETH using Single Euro Payment Area.</string>
+    <string name="si_buy_sell_s_description">Buy %s safely and easily using your debit / credit card.</string>
+    <string name="buy_eth">BUY ETH</string>
+    <string name="buy_bitcoin">BUY BITCOIN</string>
+    <string name="dialog_title_buy_sell_eth_sepa">Buy or Sell ETH using SEPA</string>
+    <string name="dialog_sepa_buy_sell_btc">Buy or Sell Bitcoin using SEPA</string>
+    <string name="bequant_secure_custodial_storage">Secure custodial storage\nfor crypto on the go</string>
+    <string name="bequant_secure_mobile_access">Secure Mobile or Web\naccess</string>
+    <string name="bequant_over_70_trading_pairs">Over 70 trading pairs\nincluding fiat currencies</string>
+    <string name="bequant_reliable_support">Reliable support service</string>
+    <string name="bequant_dont_fret_about_losing_your_phone">Don\'t fret about losing your phone - access\nyour crypto assets from any mobile or web\ndevice with our secure login process.</string>
+    <string name="bequant_exchange_withdraw">Exchange, withdraw and deposit</string>
+    <string name="bequant_exchange_completed_pending">Transaction is pending</string>
+    <string name="bequant_exchange_completed_note">Note that it might take a while to process the transaction. Once the transaction is completed, your balance will be updated</string>
+    <string name="bequant_offers_you_the_most_trusted_secure">Bequant offers you the most trusted, secure\nand convenient way to exchange, withdraw\nand deposit the world\'s top traded\ncryptocurrencies and fiat, all within one app.</string>
+    <string name="bequant_professional_support">Professional Support teams based\nin London and Malta</string>
+    <string name="bequant_choose_service">Choose service</string>
+    <string name="bequant_mycelium_wallet">Mycelium Wallet</string>
+    <string name="bequant_account_description_accounts_list">Buy, sell, trade over 25+\ncoins with lowest spreads</string>
+    <string name="bequant_account_description_add_account">Gain secure access to over 20 major digital\ncoins and instantly and safely exchange,\nwithdraw and deposit coins to any address\nof your choice. Powered by Bequant, an\ninstitutional-grade exchange platform with\ntop liquidity and top-of-the-line security.</string>
+    <string name="bequant_order_rejected">Your order was rejected</string>
+    <string name="bequant_exchange_temporary_closed">Exchange temporary closed</string>
+    <string name="bequant_contact_support">Contact Support</string>
+    <string name="bequant_sign_up">Sign Up</string>
+    <string name="bequant_sign_in">Sign In</string>
+    <string name="bequant_page_title_two_factor_auth">Two-factor Auth</string>
+    <string name="bequant_exchange_summary_you_get_estimated">You get (estimated)</string>
+    <string name="bequant_password_weak">Weak</string>
+    <string name="bequant_password_strong">Strong</string>
+    <string name="bequant_password_very_strong">Very Strong</string>
+    <string name="bequant_page_title_backup_code">Backup Code</string>
+    <string name="bequant_page_title_setup_code">Setup Code</string>
+    <string name="bequant_page_title_reset_password">Reset password</string>
+    <string name="verify_via_email">Verify via Email</string>
+    <string name="bequant_s_deposit_address">%s Deposit Address</string>
+    <string name="bequant_s_deposit_tag">%s Deposit Tag</string>
+    <string name="bequant_deposit">Deposit</string>
+    <string name="bequant_custodial_wallet_s">Investment Account (%s)</string>
+    <string name="bequant_trading_account">Trading Account</string>
+    <string name="bequant_application_submit_time">Application submitted: %s</string>
+    <string name="bequant_application_submit_time_left">Estimated review time: %dh left</string>
+    <string name="bequant_email_empty_error">Email shouldn\'t be empty</string>
+    <string name="bequant_field_empty_error">Can\'t be empty</string>
+    <string name="bequant_turn_2fa_deposit">Turn on 2FA to make a deposit</string>
+    <string name="bequant_enable_2fa">You need to enable two-factor authentication</string>
+    <string name="bequant_turn_2fa">Turn on 2FA to secure your account</string>
+    <string name="bequant_recommend_enable_2fa">We strongly recommend enabling two-factor authentication</string>
+    <string name="bequant_turn_2fa_withdraw">Turn on 2FA to withdraw</string>
+    <string name="bequant_you_send">You send</string>
+    <string name="bequant_you_get">You get</string>
+    <string name="bequant_password_fair">Fair</string>
+    <string name="bequant_password_good">Good</string>
+    <string name="bequant_kyc_verify_title">Verify your account</string>
+    <string name="bequant_kyc_verify_button">Get verified</string>
+    <string name="bequant_kyc_verify_message">Dear customer, please note that in order to use the platform, i.e. make deposits, withdraws and trading, you are required to be verified through our KYC procedure.\n\nAfter the verification is finished you will be granted with the equivalent of 100 BTC daily and unlimited monthly withdrawals.</string>
+    <string name="bequant_fiat_tx_not_supported">Fiat transactions are not yet supported directly in the mycelium app.\n\nIf you wish to deposit or withdraw fiat please go to <font color="#F2E868"><u>bequant.io</u></font> and follow the simple instructions on the platform.</string>
+    <string name="buy_crypto_safely">Buy and sell %s safely and easily using your debit/credit card.</string>
+    <string name="buy_sell_s_button">BUY / SELL %s</string>
+    <string name="gift_card_amount">Gift card amount:</string>
+    <string name="gift_cards_with_discount">Gift cards</string>
+    <string name="giftbox_pin_code">Pin Code:</string>
+    <string name="delete_gift_card">Delete gift card?</string>
+    <string name="delete_gift_card_msg">Are you sure you want to delete this gift card?</string>
+    <string name="redeemed_gift_cards">REDEEMED GIFT CARDS</string>
+    <string name="gift_cards">Gift Cards</string>
+    <string name="share_gift_card_text">Hello there!\nYou recently purchased gift cards:\n%s\nAmount: %s %s</string>
+    <string name="gift_card_d">Gift card:</string>
+    <string name="giftbox_promo_action">Buy Gift Card</string>
+    <string name="giftbox_promo_title">Save on buying with\nBTC and ETH!</string>
+    <string name="giftbox_promo_mark">New</string>
+    <string name="giftcard_order_title">Gift card order</string>
+    <string name="buy_gift_card">Buy gift card</string>
+    <string name="giftbox_amount_title">Gift card amount</string>
+    <string name="mygiftcards">My gift cards</string>
+    <string name="successfully_paid_gift_card">You have successfully sent the transaction to pay for the Gift card!</string>
+    <string name="gift_card_after_confirmed"><![CDATA[Your Gift card will become available after the transaction is confirmed by the network. Confirmation status can be tracked in your wallet <u>transaction list</u>.]]></string>
+    <string name="gift_card_ready">Your Gift card is ready! Gift card download link and redeem instructions are in <u>My Gift cards</u>.</string>
+    <string name="giftbox_failed_text">No worries, your funds are safe. Unfortunately, the shop couldn’t issue the card due to technical difficulties. Please contact us at %s for assistance.</string>
+    <string name="no_purchased_gift_card">YOU HAVE NOT PURCHASED\nANY GIFT CARD YET</string>
+    <string name="no_gift_cards_linked">Get started by exploring stores catalog or check the status of your Orders.</string>
+    <string name="gift_card_info">Gift Card information</string>
+    <string name="gift_cards_menu">Gift Cards</string>
+    <string name="exchange_history">Exchange History</string>
+    <string name="tab_exchange_title">EXCHANGE</string>
+    <string name="exchange_min_msg">The amount is lower than the exchange minimum of %s %s</string>
+    <string name="exchange_max_msg">The amount is more than the exchange maximum of %s %s</string>
+    <string name="settings_exchange_quick_exchange_title">Exchange Confirmation</string>
+    <string name="settings_exchange_quick_exchange_summary">Show confirmation dialog before exchange</string>
+    <string name="exchange_accept_dialog_title">Exchange</string>
+    <string name="exchange_accept_dialog_msg">You send: %s %s\nMiners fee: %s\n\nYou get: %s %s</string>
+    <string name="changelly_receiving">Receiving</string>
+    <string name="changelly_received">Received</string>
+    <string name="changelly_error_rate_expired">Exchange rate is outdated, please try again.</string>
+    <string name="exchange_in_progress">Exchange in progress</string>
+    <string name="giftcard_coin_not_acceptable">%s coin don\'t acceptable.\nPlease contact with support.</string>
+    <string name="giftbox_expired_text"><![CDATA[The order expired. Please contact the support - <font color="#4583de">%s</font>]]></string>
+    <string name="vip_code_hint">Enter your personal VIP code</string>
+    <string name="vip_code_who_can_get_title">Who is eligible for VIP status</string>
+    <string name="vip_code_who_can_get">Mycelium token holders\nSU7 Max giveaway participants\nLoyal MyceIium users who received а personal\ninvitation</string>
+    <string name="vip_code_granted_status">You have been granted Mycelium VIP status.</string>
+    <string name="vip_code_discount_title">Discounts on crypto to crypto swaps</string>
+    <string name="vip_code_discount_description">The exchange commission is reduced by 25%.</string>
+    <string name="vip_code_limits_title">No limits</string>
+    <string name="vip_code_limits_description">You can swap any amounts now.</string>
+    <string name="vip_code_privacy_related_notice">And one VERY IMPORTANT privacy related thing you should already be aware of.</string>
+    <string name="vip_code_invalid">Code is not valid</string>
+    <string name="vip_title">Get the VIP experience</string>
+    <string name="vip_menu_text">VIP</string>
+    <string name="vip_title_success">You are all set!</string>
+    <string name="vip_exchange_unexpected_alert_title">Ooops, something went wrong</string>
+    <string name="vip_exchange_expired_title">Vip SWAP is not available</string>
+    <string name="vip_exchange_status_expired_alert_message">Your VIP status has expired, so regular (non-VIP) rates now apply.</string>
+    <string name="vip_exchange_unexpected_alert_message">VIP service is currently not available due to technical reasons. Try again later or proceed without VIP benefits.</string>
+    <string name="vip_unexpected_alert_title">VIP service is currently unavailable</string>
+    <string name="vip_unexpected_alert_message">Please try again later</string>
+    <string name="vip_alert_proceed">Yes, proceed</string>
+    <string name="vip_alert_cancel">Cancel</string>
+    <string name="gift_card_load_error_title">Gift card purchases are temporarily unavailable.</string>
+    <string name="gift_card_load_error_desc">We are currently updating our stores, and the service will be back online soon. Thank you for your understanding!</string>
+</resources>
