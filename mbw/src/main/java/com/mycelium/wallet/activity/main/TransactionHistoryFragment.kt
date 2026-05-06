@@ -111,14 +111,17 @@ class TransactionHistoryFragment : Fragment() {
                 history.clear()
                 history.addAll(transaction)
                 adapter?.sort { ts1, ts2 ->
-                    if (ts1.confirmations == 0 && ts2.confirmations == 0) {
-                        ts2.timestamp.compareTo(ts1.timestamp)
-                    } else if (ts1.confirmations == 0) {
-                        -1
-                    } else if (ts2.confirmations == 0) {
-                        1
-                    } else {
-                        ts2.timestamp.compareTo(ts1.timestamp)
+                    // Only LIVE pending pins to the top. ETH/ERC20 rows that
+                    // ended up REPLACED / CANCELED / DROPPED still carry
+                    // confirmations=0, but they are no longer in flight, so
+                    // they must sort by timestamp like any historical row.
+                    val a1 = ts1.isLivePending()
+                    val a2 = ts2.isLivePending()
+                    when {
+                        a1 && a2 -> ts2.timestamp.compareTo(ts1.timestamp)
+                        a1 -> -1
+                        a2 -> 1
+                        else -> ts2.timestamp.compareTo(ts1.timestamp)
                     }
                 }
                 adapter?.notifyDataSetChanged()
@@ -665,4 +668,9 @@ class TransactionHistoryFragment : Fragment() {
         private const val SIGN_TRANSACTION_REQUEST_CODE = 0x12f4
         private const val OFFSET = 20
     }
+}
+
+private fun TransactionSummary.isLivePending(): Boolean = when (this) {
+    is EthTransactionSummary -> status == EthTxStatus.PENDING
+    else -> confirmations == 0
 }

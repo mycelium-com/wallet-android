@@ -405,7 +405,7 @@
         <activity android:name=".activity.ActionActivity" />
         <activity
             android:name=".activity.supportchat.SupportChatActivity"
-            android:theme="@style/Theme.AppCompat.NoActionBar"
+            android:theme="@style/MyceliumModern.NoActionBar"
             android:windowSoftInputMode="adjustResize" />
     </application>
 

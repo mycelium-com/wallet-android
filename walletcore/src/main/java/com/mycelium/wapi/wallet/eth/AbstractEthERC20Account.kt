@@ -213,6 +213,42 @@ abstract class AbstractEthERC20Account(coinType: CryptoCurrency,
         }
     }
 
+    /**
+     * After broadcasting a replacement, flip any local PENDING outgoing tx
+     * sharing the same nonce (with a different hash) to REPLACED so the UI
+     * reflects it immediately, without waiting for the next sync to spot the
+     * confirmed replacement. The next reconcileLocalPending() will reaffirm
+     * this once the new tx mines.
+     *
+     * Anchors the REPLACED row to (current tip, now) so it stops sorting at
+     * the top with the pending-tx MAX_VALUE blockNumber and instead sits
+     * next to the replacement in the history list. When the replacement
+     * mines, reconcileLocalPending() will overwrite these placeholders with
+     * the replacement's real blockNumber/timestamp.
+     */
+    fun markPendingReplacedByNonce(nonce: BigInteger, newTxid: String) {
+        val sender = receivingAddress.addressString
+        val replaced = getLivePendingTransactions()
+            .asSequence()
+            .filter { it.nonce == nonce }
+            .filter { it.sender.addressString.equals(sender, true) }
+            .map { "0x" + HexUtils.toHex(it.id) }
+            .filter { it != newTxid }
+            .toList()
+        if (replaced.isEmpty()) return
+        val now = System.currentTimeMillis() / 1000
+        val tip = getBlockChainHeight()
+        replaced.forEach {
+            backing.markTransactionStatus(
+                it,
+                EthTxStatus.REPLACED,
+                blockNumber = tip,
+                timestamp = now,
+            )
+        }
+        updateBalanceCache()
+    }
+
     abstract suspend fun doSynchronization(mode: SyncMode?): Boolean
     abstract fun setNonce(nonce: BigInteger)
     abstract fun getNonce(): BigInteger

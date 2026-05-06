@@ -109,14 +109,18 @@ class ERC20Account(private val chainId: Long,
             if (!result.success) {
                 return BroadcastResult(result.message, BroadcastResultType.REJECT_INVALID_TX_PARAMS)
             }
-            backing.putTransaction(-1, System.currentTimeMillis() / 1000, "0x" + HexUtils.toHex(tx.txHash),
+            val newTxid = "0x" + HexUtils.toHex(tx.txHash)
+            backing.putTransaction(-1, System.currentTimeMillis() / 1000, newTxid,
                     tx.signedHex!!, receivingAddress.addressString, tx.toAddress,
                     Value.valueOf(basedOnCoinType, tx.tokenValue!!.value), Value.valueOf(basedOnCoinType, tx.gasPrice * tx.gasLimit), 0,
                     tx.nonce, tx.gasPrice, true, null, true, tx.gasLimit, tx.estimatedGasUsed.toBigInteger())
+            markPendingReplacedByNonce(tx.nonce, newTxid)
             bumpNonceAfterBroadcast(tx.nonce)
             // ERC20 shares an on-chain address with its parent EthAccount, so
             // bump there too to prevent the next ETH or token send from reusing
-            // this nonce before the next sync.
+            // this nonce before the next sync, and mirror the REPLACED marking
+            // since the nonce is shared across both accounts' backings.
+            ethAcc.markPendingReplacedByNonce(tx.nonce, newTxid)
             ethAcc.bumpNonceAfterBroadcast(tx.nonce)
             return BroadcastResult(BroadcastResultType.SUCCESS)
         } catch (e: Exception) {
