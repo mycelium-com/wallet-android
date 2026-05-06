@@ -61,12 +61,14 @@ import com.mycelium.wallet.activity.util.expand
 import com.mycelium.wallet.checkPushPermission
 import com.mycelium.wallet.databinding.ModernMainBinding
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.darkColorScheme
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import com.mycelium.supportchat.ui.components.SupportChatFab
 import com.mycelium.wallet.event.FeatureWarningsAvailable
@@ -238,7 +240,12 @@ class ModernMain : AppCompatActivity(), BackHandler {
         binding.supportChatFab.apply {
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
             setContent {
-                MaterialTheme {
+                MaterialTheme(
+                    colorScheme = darkColorScheme(
+                        primary = Color(0xFF5AA7E6),
+                        onPrimary = Color.White,
+                    )
+                ) {
                     var unreadCount by remember { mutableIntStateOf(0) }
                     val shouldAnimate = !SupportChatDependencies.hasAnimatedThisSession
 
