@@ -2,11 +2,13 @@ package com.mycelium.supportchat.ui.components
 
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.ui.graphics.Color
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.SupportAgent
 import androidx.compose.material3.Badge
@@ -65,11 +67,17 @@ fun SupportChatFab(
     shouldAutoAnimate: Boolean = true,
     modifier: Modifier = Modifier
 ) {
-    // Auto-animation: expand after delay, then collapse after visibility duration
+    // Initial auto-expand after delay (one-shot)
     LaunchedEffect(shouldAutoAnimate) {
         if (shouldAutoAnimate) {
             delay(DELAY_BEFORE_EXPAND_MS)
             onExpandedChange(true)
+        }
+    }
+
+    // Auto-collapse after visibility duration whenever expanded (auto or by tap)
+    LaunchedEffect(isExpanded) {
+        if (isExpanded) {
             delay(VISIBLE_DURATION_MS)
             onExpandedChange(false)
         }
@@ -90,7 +98,9 @@ fun SupportChatFab(
     )
 
     Box(
-        modifier = modifier.offset(x = offsetX),
+        modifier = modifier
+            .size(FAB_SIZE_EXPANDED)
+            .offset(x = offsetX),
         contentAlignment = Alignment.Center
     ) {
         FloatingActionButton(
@@ -101,10 +111,12 @@ fun SupportChatFab(
                     onExpandedChange(true)
                 }
             },
-            modifier = Modifier.size(fabSize),
+            modifier = Modifier
+                .size(fabSize)
+                .border(width = 1.dp, color = Color.White, shape = CircleShape),
             shape = CircleShape,
-            containerColor = MaterialTheme.colorScheme.primary,
-            contentColor = MaterialTheme.colorScheme.onPrimary
+            containerColor = Color.Black,
+            contentColor = Color.White
         ) {
             Icon(
                 imageVector = Icons.Default.SupportAgent,
