@@ -1,5 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog>
+    <release version="3.22.0.0" versioncode="3220000">
+        <change>In-App Support Chat — Talk to the Mycelium team without ever leaving the wallet, now with image attachments so you can share screenshots in a tap</change>
+        <change>Live Ethereum Transaction Status — Track your ETH and ERC-20 transfers in real time, right from your transaction list</change>
+        <change>Smarter Cancel &amp; Replace — A reworked flow makes cancelling or speeding up pending Ethereum transactions clearer and more reliable</change>
+        <change>Rock-Solid Pending Transactions — ETH and ERC-20 transfers stay visible with accurate fees from the moment you send until they confirm</change>
+        <change>Stability improvements and bug fixes</change>
+    </release>
     <release version="3.21.0" versioncode="3210000">
         <change>Fixed exchange service issues</change>
         <change>Added ability to cancel and replace pending Ethereum transactions</change>
