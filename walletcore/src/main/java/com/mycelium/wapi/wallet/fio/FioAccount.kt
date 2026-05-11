@@ -6,7 +6,21 @@ import com.mrd.bitlib.crypto.InMemoryPrivateKey
 import com.mrd.bitlib.util.HexUtils
 import com.mycelium.wapi.SyncStatus
 import com.mycelium.wapi.SyncStatusInfo
-import com.mycelium.wapi.wallet.*
+import com.mycelium.wapi.wallet.AccountListener
+import com.mycelium.wapi.wallet.Address
+import com.mycelium.wapi.wallet.BroadcastResult
+import com.mycelium.wapi.wallet.BroadcastResultType
+import com.mycelium.wapi.wallet.ExportableAccount
+import com.mycelium.wapi.wallet.Fee
+import com.mycelium.wapi.wallet.KeyCipher
+import com.mycelium.wapi.wallet.OutputViewModel
+import com.mycelium.wapi.wallet.SyncMode
+import com.mycelium.wapi.wallet.SyncPausableAccount
+import com.mycelium.wapi.wallet.Transaction
+import com.mycelium.wapi.wallet.TransactionData
+import com.mycelium.wapi.wallet.TransactionSummary
+import com.mycelium.wapi.wallet.WalletAccount
+import com.mycelium.wapi.wallet.WalletManager
 import com.mycelium.wapi.wallet.btc.FeePerKbFee
 import com.mycelium.wapi.wallet.coins.Balance
 import com.mycelium.wapi.wallet.coins.COINS_SET
@@ -29,7 +43,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.math.BigInteger
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Date
+import java.util.Locale
+import java.util.TimeZone
+import java.util.UUID
 import java.util.logging.Level
 import java.util.logging.Logger
 
@@ -358,8 +375,8 @@ class FioAccount(private val fioBlockchainService: FioBlockchainService,
         } ?: return
 
         val mappings = walletManager.getAllActiveAccounts().flatMap { account ->
-            val chainCode = account.basedOnCoinType.symbol.toUpperCase(Locale.US)
-            val tokenCode = account.coinType.symbol.toUpperCase(Locale.US)
+            val chainCode = account.basedOnCoinType.symbol.uppercase()
+            val tokenCode = account.coinType.symbol.uppercase()
             accountContext.registeredFIONames?.map {  fioName ->
                 val publicAddress = account.coinType.parseAddress(fioNameMappings[fioName.name]!!["$chainCode-$tokenCode"])
                 if(account.isMineAddress(publicAddress))

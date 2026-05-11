@@ -9,6 +9,68 @@
     <string name="bullet" translatable="false">&#8226;</string>
     <string name="question_mark" translatable="false">\?</string>
 
+    <string name="export_toggle_xpub" translatable="false">xpub</string>
+    <string name="export_toggle_ypub" translatable="false">ypub</string>
+    <string name="export_toggle_zpub" translatable="false">zpub</string>
+    <string name="export_toggle_xprv" translatable="false">xprv</string>
+    <string name="export_toggle_yprv" translatable="false">yprv</string>
+    <string name="export_toggle_zprv" translatable="false">zprv</string>
+    <string name="export_toggle_p2sh" translatable="false">P2SH</string>
+    <string name="export_toggle_p2wpkh" translatable="false">P2WPKH</string>
+    <string name="export_toggle_legacy" translatable="false">Legacy (P2PKH)</string>
+
+    <!-- URLs -->
+    <string name="source_url" translatable="false">https://github.com/mycelium-com/wallet</string>
+    <string name="homepage_url" translatable="false">https://mycelium.com</string>
+    <string name="partner_fiopresale_url" translatable="false">https://fio.sale/mycelium</string>
+    <string name="buy_fio_token_link" translatable="false">https://www.binance.com/en/trade/FIO_BTC?layout=pro</string>
+    <string name="mycelium_com" translatable="false">mycelium.com</string>
+
+    <!-- Brand / product names -->
+    <string name="trezor" translatable="false">Trezor</string>
+    <string name="keepkey" translatable="false">KeepKey</string>
+    <string name="ledger" translatable="false">Ledger</string>
+    <string name="changelly" translatable="false">Changelly</string>
+    <string name="mycelium" translatable="false">Mycelium</string>
+    <string name="app_short_name" translatable="false">Mycelium</string>
+    <string name="myceliumwalletbugreports" translatable="false">MyceliumWalletBugReports</string>
+
+    <!-- Currency / asset canonical names -->
+    <string name="bitcoin_name" translatable="false">Bitcoin</string>
+    <string name="ethereum_name" translatable="false">Ethereum</string>
+    <string name="fio_accounts_name" translatable="false">FIO</string>
+    <string name="colu_rmc_tokens" translatable="false">RMC</string>
+    <string name="bitcoin_cash_name" translatable="false">Bitcoin Cash</string>
+    <string name="eth_accounts_name" translatable="false">Ethereum &amp; ERC-20</string>
+    <string name="active_hd_accounts_name" translatable="false">Bitcoin HD</string>
+    <string name="btcv_hd_accounts_name" translatable="false">Bitcoin Vault HD</string>
+    <string name="active_bitcoin_sa_group_name" translatable="false">Bitcoin SA</string>
+
+    <!-- Address-type / blockchain technical identifiers -->
+    <string name="p2pkh_short" translatable="false">P2PKH</string>
+    <string name="p2sh_short" translatable="false">P2SH</string>
+    <string name="bech_short" translatable="false">Bech32</string>
+    <string name="bech32m_short" translatable="false">Bech32m</string>
+    <string name="bech32m" translatable="false">Taproot (Bech32m)</string>
+    <string name="p2pkh" translatable="false">Legacy (P2PKH)</string>
+    <string name="warning_reason_rbf" translatable="false">RBF</string>
+    <string name="bitcoin_cash_module_short" translatable="false">BCH</string>
+    <string name="nonce" translatable="false">Nonce</string>
+    <string name="cancel_eth_tx_nonce" translatable="false">Nonce</string>
+
+    <!-- Tickers / acronyms -->
+    <string name="changelly_bch" translatable="false">BCH</string>
+    <string name="changelly_btc" translatable="false">BTC</string>
+    <string name="kyc" translatable="false">KYC</string>
+    <string name="sepa_buy_sell_title" translatable="false">SEPA</string>
+
+    <!-- Pure format patterns (no translatable text) -->
+    <string name="rate" translatable="false">1 %1$s ~ %2$s</string>
+    <string name="balance_rate" translatable="false">1 %1$s ~ %2$s %3$s</string>
+    <string name="value_currency" translatable="false">%1$s %2$s</string>
+    <string name="lt_status_text" translatable="false">%1$s</string>
+    <string name="total_rmc_issued_value" translatable="false">25000</string>
+
     <string name="one">1</string>
     <string name="two">2</string>
     <string name="three">3</string>

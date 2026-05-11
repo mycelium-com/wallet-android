@@ -58,6 +58,7 @@ import com.mycelium.wapi.wallet.coins.Value.Companion.isNullOrZero
 import com.mycelium.wapi.wallet.coins.Value.Companion.valueOf
 import com.mycelium.wapi.wallet.colu.ColuAccount
 import com.mycelium.wapi.wallet.eth.AbstractEthERC20Account
+import com.mycelium.wapi.wallet.eth.EthTxStatus
 import com.mycelium.wapi.wallet.fio.FIOOBTransaction
 import com.mycelium.wapi.wallet.fio.FioAccount
 import com.squareup.otto.Subscribe
@@ -110,14 +111,17 @@ class TransactionHistoryFragment : Fragment() {
                 history.clear()
                 history.addAll(transaction)
                 adapter?.sort { ts1, ts2 ->
-                    if (ts1.confirmations == 0 && ts2.confirmations == 0) {
-                        ts2.timestamp.compareTo(ts1.timestamp)
-                    } else if (ts1.confirmations == 0) {
-                        -1
-                    } else if (ts2.confirmations == 0) {
-                        1
-                    } else {
-                        ts2.timestamp.compareTo(ts1.timestamp)
+                    // Only LIVE pending pins to the top. ETH/ERC20 rows that
+                    // ended up REPLACED / CANCELED / DROPPED still carry
+                    // confirmations=0, but they are no longer in flight, so
+                    // they must sort by timestamp like any historical row.
+                    val a1 = ts1.isLivePending()
+                    val a2 = ts2.isLivePending()
+                    when {
+                        a1 && a2 -> ts2.timestamp.compareTo(ts1.timestamp)
+                        a1 -> -1
+                        a2 -> 1
+                        else -> ts2.timestamp.compareTo(ts1.timestamp)
                     }
                 }
                 adapter?.notifyDataSetChanged()
@@ -331,11 +335,14 @@ class TransactionHistoryFragment : Fragment() {
                         Preconditions.checkNotNull(menu.findItem(R.id.miShowDetails))
                         Preconditions.checkNotNull(menu.findItem(R.id.miAddToAddressBook)).isVisible = !record.isIncoming && record.destinationAddresses.size > 0
                         val replaceItem = Preconditions.checkNotNull(menu.findItem(R.id.miReplaceTransaction))
+                        val cancelEthItem = Preconditions.checkNotNull(menu.findItem(R.id.miCancelTransactionEth))
                         val ethSummary = record as? EthTransactionSummary
-                        val canReplaceTx = (model.account.value is AbstractEthERC20Account)
+                        val isLiveEthPendingOutgoing = (model.account.value is AbstractEthERC20Account)
                                 && ethSummary?.nonce != null
+                                && ethSummary.status == EthTxStatus.PENDING
                                 && !record.isIncoming
                                 && record.confirmations == 0
+                                && model.account.value?.canSpend() == true
                         if (model.account.value is Bip44BCHAccount || model.account.value is SingleAddressBCHAccount
                                 || model.account.value is AbstractEthERC20Account || model.account.value is FioAccount) {
                             Preconditions.checkNotNull(menu.findItem(R.id.miCancelTransaction)).isVisible = false
@@ -353,7 +360,8 @@ class TransactionHistoryFragment : Fragment() {
                         if (model.account.value is AbstractEthERC20Account) {
                             Preconditions.checkNotNull(menu.findItem(R.id.miDeleteUnconfirmedTransaction)).isVisible = record.confirmations == 0
                         }
-                        replaceItem.isVisible = canReplaceTx
+                        replaceItem.isVisible = isLiveEthPendingOutgoing
+                        cancelEthItem.isVisible = isLiveEthPendingOutgoing
                         currentActionMode = actionMode
                         binding?.lvTransactionHistory?.setItemChecked(position, true)
                     }
@@ -392,6 +400,15 @@ class TransactionHistoryFragment : Fragment() {
                                         .getIntent(requireActivity(), walletAccount.id, isColdStorage)
                                         .putExtra(SendCoinsActivity.TRANSACTION_NONCE, nonce)
                                     startActivity(intent)
+                                    finishActionMode()
+                                    return true
+                                }
+                            }
+                            R.id.miCancelTransactionEth -> {
+                                val walletAccount = model.account.value
+                                val ethSummary = record as? EthTransactionSummary
+                                if (walletAccount is AbstractEthERC20Account && ethSummary != null) {
+                                    CancelEthTxDialog.show(this@TransactionHistoryFragment, walletAccount, ethSummary)
                                     finishActionMode()
                                     return true
                                 }
@@ -651,4 +668,9 @@ class TransactionHistoryFragment : Fragment() {
         private const val SIGN_TRANSACTION_REQUEST_CODE = 0x12f4
         private const val OFFSET = 20
     }
+}
+
+private fun TransactionSummary.isLivePending(): Boolean = when (this) {
+    is EthTransactionSummary -> status == EthTxStatus.PENDING
+    else -> confirmations == 0
 }

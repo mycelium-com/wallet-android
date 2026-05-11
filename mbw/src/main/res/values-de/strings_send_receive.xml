@@ -1,0 +1,292 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
+    <string name="sending">Sende %1$s</string>
+    <string name="receiving">Empfange %1$s</string>
+    <string name="confirmations">%d Bestätigungen</string>
+    <string name="send">Senden</string>
+    <string name="send_cointype">%1$s senden</string>
+    <string name="receive">Empfangen</string>
+    <string name="receive_cointype">%1$s empfangen</string>
+    <string name="amount_hint">0,00</string>
+    <string name="amount_hint_denomination">0,00 %1$s</string>
+    <string name="enter_recipient_title">Senden an</string>
+    <string name="enter_recipient_hint">%1$s-Adresse oder FIO-Name</string>
+    <string name="enter_recipient_description">%1$s-Adresse oder FIO-Name eingeben</string>
+    <string name="recipient_title">Empfängeradresse eingeben:</string>
+    <string name="amount_label">Betrag:</string>
+    <string name="amount_label_s">Betrag: %s</string>
+    <string name="amount_title">Betrag</string>
+    <string name="enter_amount_title">Betrag eingeben:</string>
+    <string name="crypto_address">%1$s-Adresse:</string>
+    <string name="max_btc">Verfügbar: %1$s</string>
+    <string name="max_fiat">Verfügbar: %1$s %2$s</string>
+    <string name="s_payment_request">%s Zahlungsanforderung</string>
+    <string name="share_address">Adresse teilen</string>
+    <string name="share_address_and_amount">Adresse und Betrag teilen</string>
+    <string name="s_fio_request">%s FIO-Anforderung</string>
+    <string name="qr_code">QR-Code</string>
+    <string name="my_addresses">Meine Adressen</string>
+    <string name="insufficient_funds">Unzureichendes Guthaben</string>
+    <string name="tx_build_error">Unbekannter Fehler beim Erstellen der Transaktion.</string>
+    <string name="insufficient_funds_for_fee">Nicht genug Guthaben, um die Gebühr zu zahlen</string>
+    <string name="amount_too_small">Der zu sendende Betrag ist zu klein</string>
+    <string name="unable_to_build_tx">Transaktion konnte nicht erstellt werden. %s</string>
+    <string name="no_utxo">Transaktion hat keine UTXO, um eine Folgetransaktion zu bilden, oder UTXO wurde bereits ausgegeben</string>
+    <string name="parent_needs_no_boosting">Elterntransaktion benötigt keine Erhöhung</string>
+    <string name="amount_too_small_short">Betrag muss %s (Netzwerklimit) überschreiten</string>
+    <string name="miner_fee_label">Miner-Gebühren</string>
+    <string name="miner_fee_title">Miner-Gebühr</string>
+    <string name="history_row_miner_fee_label">Transaktionsgebühr</string>
+    <string name="synchronizing">Synchronisiere</string>
+    <string name="transaction_not_sent">Transaktion konnte nicht gesendet werden</string>
+    <string name="transaction_not_sent_nonstandard">Transaktion konnte aufgrund eines Fehlers nicht gesendet werden:\n%1$s\nBitte melden Sie diesen Vorfall dem technischen Support.\nRohtransaktion wurde in die Zwischenablage kopiert; wenn möglich, fügen Sie sie Ihrer Anfrage bei.</string>
+    <string name="transaction_not_sent_small_fee">Transaktion konnte nicht gesendet werden. Die Gebühr ist zu niedrig. Bitte versuchen Sie, eine höhere Gebühr einzustellen.</string>
+    <string name="queue_transaction_message">Transaktion konnte nicht gesendet werden.\nMöchten Sie die Transaktion in die Warteschlange stellen, damit sie automatisch gesendet wird, sobald Sie online sind?</string>
+    <string name="transaction_sent">Transaktion gesendet.</string>
+    <string name="copy_address_to_clipboard">Adresse in die Zwischenablage kopieren</string>
+
+    <string name="copy_amount_to_clipboard">Betrag in die Zwischenablage kopieren</string>
+    <string name="bitcoin_address_title">Bitcoin-Adresse</string>
+    <string name="invalid_bitcoin_uri">Ungültige Bitcoin-URI</string>
+    <string name="unrecognized_format">Unbekanntes Format</string>
+    <string name="no_transaction_records">Diese Seite zeigt Ihre Transaktionshistorie.\n\nDerzeit gibt es keine Transaktionen anzuzeigen.</string>
+    <string name="too_many_transaction_records">Der gesamte Transaktionsverlauf des Kontos kann aufgrund seiner Größe nicht abgerufen werden. Erwägen Sie, Gelder auf ein neues Konto zu übertragen.</string>
+    <string name="no_address_book_records">Diese Seite zeigt Ihr Adressbuch.\n\nIhr Adressbuch ist leer.</string>
+    <string name="edit_address_label_title">Adresslabel bearbeiten</string>
+    <string name="enter_address_label_title">Adresslabel eingeben</string>
+    <string name="enter_transaction_label_title">Transaktionslabel eingeben</string>
+    <string name="transaction_details">Transaktionsdetails</string>
+    <string name="confirmed">Bestätigt</string>
+    <string name="confirmed_in_block">In Block #%1$d</string>
+    <string name="gas_limit">Gaslimit</string>
+    <string name="gas_used">Verwendetes Gas</string>
+    <string name="gas_price">Gaspreis</string>
+    <string name="eth_internal_transfer">(%s wurde an den Anrufer übertragen)</string>
+    <string name="replace_transaction">Zu ersetzende Transaktion:</string>
+    <string name="delete_address_confirmation">Möchten Sie diese Adresse aus Ihrem Adressbuch löschen?</string>
+    <string name="payment_request">Zahlungsanforderung</string>
+    <string name="my_own_address_warning"><![CDATA[<font color="#ffff00">Hinweis: Sie senden an eine Ihrer eigenen Adressen.</font>]]></string>
+    <string name="scan_address_book_desc">Adresse scannen.</string>
+    <string name="address_label_not_unique">Das Adressbuch enthält eine andere Adresse mit diesem Namen</string>
+    <string name="tap_qr_code_desc">Das Antippen des QR-Codes kann das Scannen verbessern</string>
+    <string name="receiver_address_hint">1Adresse1234\n567890abcdef\nghijklmnop</string>
+    <string name="signing_transaction">Transaktion wird signiert</string>
+    <string name="broadcasting_transaction">Transaktion wird gesendet</string>
+    <string name="transaction_rejected_message">Die Transaktion wurde vom Netzwerk abgelehnt. Dies deutet darauf hin, dass Ihre Wallet nicht synchronisiert ist</string>
+    <string name="transaction_rejected_double_spending_message">Transaktion konnte aufgrund eines Double-Spend- oder Malleabilitätsproblems nicht gesendet werden.</string>
+    <string name="transaction_rejected_malformed">Signierung der Transaktion fehlgeschlagen.\nBitte melden Sie diesen Vorfall dem technischen Support.\nDie Rohtransaktion wurde in die Zwischenablage kopiert. Falls möglich, fügen Sie sie Ihrer Anfrage bei.\n%s</string>
+    <string name="transaction_rejected_invalid_tx_params">Die Transaktion wurde vom Netzwerk abgelehnt. Bitte überprüfen Sie die Transaktionsparameter und versuchen Sie es erneut. Fehler: %1$s</string>
+    <string name="enter_bitcoin_address">Bitcoin-Adresse eingeben</string>
+    <string name="recipient_invalid">Ungültige Adresse oder FIO-Name</string>
+    <string name="recipient_has_no_such_address">%1$s hat keine %2$s-Adresse verbunden</string>
+    <string name="recipient_valid">Empfänger gültig</string>
+    <string name="using_address_from_clipboard">Verwende Adresse aus der Zwischenablage</string>
+    <string name="foreign_addresses">Adressbuch</string>
+    <string name="sending_addresses">Adressbuch</string>
+    <string name="share_payment_request">Zahlungsanforderung teilen</string>
+    <string name="share_bitcoin_address">Bitcoin-Adresse teilen</string>
+    <string name="optional_amount">Optionale Menge</string>
+    <string name="show_qr_code_menu">QR-Code anzeigen</string>
+    <string name="tab_transactions">Transaktionen</string>
+    <string name="tab_addresses">Adressbuch</string>
+    <string name="scan_qr_code">QR-Code scannen</string>
+    <string name="send_bitcoins">Bitcoins senden</string>
+    <string name="sync_total_retrieved_transactions">Synchronisation im Gange: %1$d Transaktionen abgerufen</string>
+    <string name="copy_signature">Signatur in die Zwischenablage kopieren</string>
+    <string name="share_signature">Text + Signatur teilen</string>
+    <string name="amount_changed">Der zu sendende Betrag wurde aus dem QR-Code aktualisiert</string>
+    <string name="transaction_not_broadcasted_info">Senden nicht möglich</string>
+    <string name="transaction_label_title">Transaktionslabel</string>
+    <string name="select_key_for_signing">Schlüssel zum Signieren auswählen</string>
+    <string name="miner_fee_lowprio_name">Niedrige Priorität</string>
+    <string name="miner_fee_economic_name">Wirtschaftlich</string>
+    <string name="miner_fee_normal_name">Normal</string>
+    <string name="miner_fee_priority_name">Priorität</string>
+    <string name="miner_fee_lowprio_desc">Warnung: Die Verwendung des Low-Prio-Gebührenplans ist experimentell und kann zu Transaktionen führen, die niemals bestätigt werden. Verwenden Sie dies auf eigenes Risiko.</string>
+    <string name="miner_fee_economic_desc">Warnung: Die Verwendung der wirtschaftlichen Miner-Gebühr kann sehr lange dauern, um bestätigt zu werden. Verwenden Sie dies auf eigenes Risiko.</string>
+    <string name="miner_fee_normal_desc">Mit dem normalen Miner-Gebührenplan können Sie erwarten, dass Ihre Transaktionen innerhalb der nächsten Blöcke bestätigt werden.</string>
+    <string name="miner_fee_priority_desc">Mit dem Gebührenplan für Priorität können Sie erwarten, dass Ihre Transaktion innerhalb von ein oder zwei Blöcken bestätigt wird.</string>
+    <string name="new_bitcoin_address_created">Ein neuer zufälliger privater Schlüssel wurde mit den folgenden Bitcoin-Adressen generiert:</string>
+    <string name="transaction_from_address_prefix">Von: %s</string>
+    <string name="transaction_to_address_prefix">An: %s</string>
+    <string name="retrieving_pubkey_address">Nächste ungenutzte Adresse wird abgerufen…</string>
+    <string name="tx_details_num_confirmations">Bestätigungen</string>
+    <string name="remove_queued_transaction">Möchten Sie diese Transaktion aus der Warteschlange entfernen und das Senden verhindern?</string>
+    <string name="remove_queued_transaction_title">Warteschlange für Transaktion</string>
+    <string name="remove_queued_transaction_hint">Ihr Guthaben wird nach der nächsten Synchronisation mit dem Netzwerk korrigiert</string>
+    <string name="remove_queued_transaction_error">Transaktion konnte nicht entfernt werden</string>
+    <string name="payment_request_unable_to_read_payment_request">Zahlungsanforderung konnte nicht gelesen werden</string>
+    <string name="payment_request_not_sent_expired">Zahlung nicht gesendet – Zahlungsanforderung ist bereits abgelaufen!</string>
+    <string name="payment_request_no_amount_specified">kein Betrag angegeben</string>
+    <string name="payment_request_unable_to_verify">Überprüfung nicht möglich</string>
+    <string name="payment_request_unsigned_request">Unsignierte Anforderung</string>
+    <string name="payment_request_signature_okay">Signatur in Ordnung</string>
+    <string name="payment_request_invalid_signature">Ungültige Signatur</string>
+    <string name="payment_request_fetching_payment_request">Zahlungsanforderung wird abgerufen</string>
+    <string name="payment_request_title">Zahlungsanforderung</string>
+    <string name="payment_request_merchant">Händler</string>
+    <string name="payment_request_signature">Signatur</string>
+    <string name="payment_request_amount_to_pay">Zu zahlender Betrag</string>
+    <string name="payment_request_message">Nachricht</string>
+    <string name="payment_request_created">Erstellt</string>
+    <string name="payment_request_expires">Läuft ab</string>
+    <string name="payment_request_message_to_merchant">Ihre Nachricht an den Händler (optional)</string>
+    <string name="payment_request_error_while_getting_ack">Zahlung konnte nicht an den Händler-Server gesendet werden.\n%s\n\nDie Zahlung wird nicht gesendet.</string>
+    <string name="payment_request_warning_no_sig">Der Ursprung dieser Zahlungsanforderung kann nicht überprüft werden, da sie keine Signatur hat.\n\nSeien Sie sehr vorsichtig, da möglicherweise jemand diese abfängt und die Auszahlungsadressen ändert.</string>
+    <string name="label_cold_storage_external_signing">Signieren mit:</string>
+    <string name="label_unverified_recipient">Nicht verifizierter Empfänger</string>
+    <string name="nfc_payment_request_hint">Platzieren Sie Ihr Telefon Rücken an Rücken mit einem anderen NFC-fähigen Gerät, um diese Zahlungsanforderung zu teilen</string>
+    <string name="payment_request_over_tor">" (über Tor)"</string>
+    <string name="cancel_transaction">Transaktion abbrechen</string>
+    <string name="share_transaction_history">Transaktionshistorie teilen</string>
+    <string name="transaction_history_title">Transaktionshistorie</string>
+    <string name="menu_item_cancel_transaction">Transaktion abbrechen</string>
+    <string name="menu_item_rebroadcast_transaction">Transaktion erneut senden</string>
+    <string name="menu_item_delete_unconfirmed_transaction">Unbestätigte Transaktion löschen</string>
+    <string name="delete_unconfirmed_transaction_title">Unbestätigte Transaktion löschen</string>
+    <string name="warning_delete_unconfirmed_transaction">WARNUNG: Dies wird die Transaktion nur aus der lokalen App löschen. Diese Funktion kann eine Transaktion nicht rückgängig machen und verhindern, dass sie bestätigt wird. Sie ist nur nützlich, wenn das Netzwerk die Transaktion bereits vergessen hat, weil sie nicht lange genug bestätigt wurde. In diesem Fall können Sie sie löschen, um erneut auf die Gelder zuzugreifen. Sie müssen nach dem Löschen synchronisieren. Wenn das Netzwerk die Transaktion noch kennt, wird sie direkt nach der Synchronisation erneut angezeigt.\n\nMöchten Sie die Transaktion aus dem lokalen Cache löschen?</string>
+    <string name="rebroadcast_transaction_title">Transaktion erneut senden</string>
+    <string name="bump_fee_title">Mining-Gebühr erhöhen (CPFP)</string>
+    <string name="description_rebroadcast_transaction">Senden Sie diese Transaktion erneut an den Server, um sie zu übertragen. Dies kann verwendet werden, wenn Sie vermuten, dass das Netzwerk Ihre Transaktion nicht verbreitet oder sie verworfen hat, zum Beispiel weil sie nicht lange genug bestätigt wurde. Möchten Sie diese Transaktion erneut senden?</string>
+    <string name="description_bump_fee_placeholder">Senden Sie eine Transaktion, die die Gebühr für diese unbestätigte Transaktion erhöht.\n\nMöchten Sie ausgeben… Wird geladen…</string>
+    <string name="sending_assets">%s Vermögenswerte werden gesendet.</string>
+    <string name="asset_failed_to_broadcast">%s konnte die Transaktion nicht senden.</string>
+    <string name="incoming_payment">"Eingehende Zahlung: %s"</string>
+    <string name="warning_amount_does_not_match">Warnung: Betrag stimmt nicht überein!</string>
+    <string name="requires_btc_amount">Transaktion mit Colored Coin kann nicht durchgeführt werden. Sie benötigen eine kleine Menge BTC, um die Miner-Gebühr zu zahlen. Bitte finanzieren Sie eine Ihrer Bitcoin-Adressen und versuchen Sie es erneut.</string>
+    <string name="address_title">%s Adresse</string>
+    <string name="share_x_address">%s-Adresse teilen</string>
+    <string name="enter_address">Adresse %s eingeben</string>
+    <string name="address_valid">%s-Adresse gültig</string>
+    <string name="address_invalid">Ungültige %s-Adresse</string>
+    <string name="tips_rmc_check_address">Wenn Sie digitale Vermögenswerte an eine zufällige Bitcoin-Adresse gesendet haben, sind sie nicht zerstört.\nUm sie wiederherzustellen, haben Sie zwei Möglichkeiten:\n1) Verwenden Sie die Colored Coins API, um Ihre Vermögenswerte manuell an die von Mycelium Wallet verwaltete Adresse zurückzusenden.\n2) Reichen Sie ein Ticket beim Mycelium Wallet-Support ein, um Ihre Vermögenswerte wiederherzustellen. Für diesen Service können zusätzliche Gebühren anfallen. Sie erhalten detaillierte Informationen nach Kontaktaufnahme mit dem Support.\n\nIn beiden Fällen müssen Sie den privaten Schlüssel der Adresse besitzen, an die Sie digitale Vermögenswerte gesendet haben.</string>
+    <string name="restore_address_as">Adresse wiederherstellen als</string>
+    <string name="miner_fee_custom">Benutzerdefiniert</string>
+    <string name="miner_fee_custom_desc">Mit der benutzerdefinierten Gebühr können wir nicht garantieren, wie lange die Transaktion dauern wird</string>
+    <string name="fee_is_zero">Die Transaktion könnte nie durchgeführt werden!</string>
+    <string name="fee_change_warning" formatted="false"><![CDATA[Ihr <font color="#4583de">Wechselgeld</font> liegt unter dem Bitcoin-Netzwerklimit für Ausgaben. Die Gesamtgebühr wird auf %s%s erhöht!]]></string>
+    <string name="fee_change_description">Wechselgeld ist das, was nach dem Senden der Transaktion von Ihrem Ausgang übrig bleibt. Das aktuelle Wechselgeld liegt unter dem Bitcoin-Netzwerklimit für Ausgaben (0,0000546 BTC).\nSie können dieses Problem lösen, indem Sie:\n
+    1) den Sendebetrag verringern, um Ihr Wechselgeld zurückzuerhalten;\n
+    2) den Sendebetrag auf ein Maximum erhöhen;\n
+    3) die Miner-Gebühr anpassen, um das Netzwerk-Ausgabelimit zu erfüllen.</string>
+    <string name="share_transaction_manually">Transaktion manuell teilen</string>
+    <string name="share_transaction_manually_title">Transaktion manuell teilen</string>
+    <string name="share_transaction_manually_description">Möchten Sie die Rohtransaktion über die Zwischenablage, E-Mail oder andere Mittel teilen? Diese Operation ist normalerweise sicher, aber nicht notwendig. Wir haben diese Funktion für Debugging-Zwecke hinzugefügt, wenn die Transaktion nicht übertragen werden kann.</string>
+    <string name="share_transaction">Transaktion teilen</string>
+    <string name="amount_to_receive">Empfang</string>
+    <string name="bch_you_can_transaction_on_explorer"><![CDATA[Sie können Ihre Transaktionen auf <font color="#4583de">https://www.blocktrail.com/%s</font> überprüfen]]></string>
+    <string name="given_rates_includes_transaction_fee">Angegebener Kurs enthält die Transaktionsgebühr</string>
+    <string name="blockchain_transaction_id">Blockchain-Transaktions-ID:</string>
+    <string name="what_is_address_type">Was ist ein Adresstyp?</string>
+    <string name="what_is_address_type_description"><![CDATA[Es gibt drei Bitcoin-Adressformate:<p><b>P2PKH – Legacy</b>, beginnt mit \"%1$s\".</p><p><b>P2SH – SegWit-kompatibel</b>, beginnt mit \"%2$s\". Dies ist der Standard.</p><p><b>Bech32 – SegWit-native</b>, beginnt mit \"%3$s\".</p><p>Verwenden Sie entweder <b>P2SH</b> oder <b>Bech32</b>, um Gelder zu empfangen, wenn Sie in Zukunft kostengünstige SegWit-Transaktionen senden möchten.</p><p>Bech32 ist der neueste und kostengünstigste Standard, aber er ist noch nicht weit verbreitet, sodass nicht jeder Bitcoins daran senden kann. Da Bech32 noch nicht weit verbreitet ist, könnte es für Blockchain-Analysten etwas einfacher sein, Ihren Geldfluss zu entdecken.</p>]]></string>
+    <string name="transactions">Transaktionen</string>
+    <string name="show_address_path">Adresspfad anzeigen</string>
+    <string name="no_transaction_details">Überprüfen Sie im Block-Explorer mit dem obigen Hash-Link.</string>
+    <string name="no_transaction_loading">Lädt…</string>
+    <string name="transactions_loading_from_module_error">Fehler beim Laden von Transaktionen aus dem Modul</string>
+    <string name="default_address_type_desc">Präferenzen für Wechseladressen einstellen</string>
+    <string name="address_type">Adresstyp</string>
+    <string name="change_address_type">Typ der Wechseladresse ändern</string>
+    <string name="change_address_description">Im Bitcoin-Netzwerk geben Sie immer den gesamten Betrag aus, den Sie in einer früheren Transaktion erhalten haben. Um genaue Beträge zu bezahlen, senden Sie den Betrag, der den zu zahlenden Betrag übersteigt, an eine neue Adresse in Ihrer Wallet. Das ist die Wechseladresse.\n\nEin externer Beobachter kann normalerweise nicht erkennen, ob eine Transaktion den gezahlten Betrag oder den Betrag enthält, den Sie als Wechselgeld an sich selbst gesendet haben.</string>
+    <string name="stale_fee_warning">Die Gebührenraten sind älter als 2 Stunden! Mit Vorsicht fortfahren!</string>
+    <string name="check_change_address"><![CDATA[Leider unterstützt <b>Trezor model T</b> nicht die Überprüfung, ob eine Adresse zu Ihrer Wallet gehört, kann jedoch eine neue Adresse aus Ihrem Master-Seed generieren und auf dem Bildschirm anzeigen. Weitere Informationen zu diesem Trezor-Problem finden Sie auf <a href=\"https://github.com/trezor/trezor-core/issues/380\">Trezors GitHub</a>.<br><br>Bitte überprüfen Sie Ihre Adresse auf dem Trezor-Bildschirm und vergleichen Sie sie mit der in der Zusammenfassungssektion. Diese wird als Wechseladresse verwendet, die Sie später als separaten Ausgang bestätigen müssen.]]></string>
+    <string name="signing_transaction_instruction">Kompatibilitätsmodus für gemischte Ausgaben</string>
+    <string name="failed_transaction_removal_title">Entfernen fehlgeschlagener Transaktionen</string>
+    <string name="failed_transaction_removal_message">Eine Transaktion konnte nicht dauerhaft gesendet werden. Sie können die Transaktion für weitere Untersuchungen behalten oder löschen. Möchten Sie fehlgeschlagene Transaktionen jetzt löschen?</string>
+    <string name="no_transaction_retry">Erneut versuchen</string>
+    <string name="address_gaps">Adresslücken: </string>
+    <string name="not_correct_address_type">Nicht korrekter Adresstyp</string>
+    <string name="payment_uri_unsupported_token">Das in der Zahlungs-URI angeforderte Token wird nicht unterstützt</string>
+    <string name="total_amount">Gesamtbetrag:</string>
+    <string name="miner_fee">Miner-Gebühren:</string>
+    <string name="spendable">Verfügbar:</string>
+    <string name="payment_in_progress">Zahlung wird bearbeitet</string>
+    <string name="payment_confirmed">Transaktion bestätigt</string>
+    <string name="return_to_payment">Zurück zu Bestellungen</string>
+    <string name="tx_not_sent">Transaktion wurde nicht gesendet</string>
+    <string name="show_transaction_details"><![CDATA[Transaktionsdetails anzeigen >]]></string>
+    <string name="show_transaction_details_hide">Transaktionsdetails ausblenden</string>
+    <string name="erc20_highest_possible_fee_info"><![CDATA[Dies ist die maximal mögliche Gebühr, die für das Versenden der Transaktion von <b>ETH %s</b> anfallen kann. Höchstwahrscheinlich wird die Gebühr jedoch %s%s nicht überschreiten. Weitere Details finden Sie unter <u>Miner-Gebühren-Berechnung</u>.]]></string>
+    <string name="all_ethereum_network_transactions">Alle Transaktionen im Ethereum-Netzwerk erfordern ETH zur Bezahlung der Miner-Gebühren.</string>
+    <string name="miner_fee_erc20_info_title">Miner-Gebühr (ERC-20)</string>
+    <string name="miner_fee_erc20_info">Alle Transaktionen im Ethereum-Netzwerk erfordern ETH zur Bezahlung der Miner-Gebühren. Miner-Gebühr = Gas Limit * Gas Price (Gwei/Gas)\n\nUm Ihnen die höchstmögliche Gebührenschätzung zu bieten, verwendet Mycelium standardmäßig 90.000 Einheiten als maximales Gas Limit, da ERC-20-Transaktionen komplex zu verarbeiten sind.\n\nDurchschnittlich werden von Minern etwa 55.500 Einheiten Gas pro Transaktion verbraucht.\n\nDie tatsächliche Gebühr kann geringer oder gleich sein, abhängig davon, wie viel Gas für die Verarbeitung der Transaktion tatsächlich benötigt wird.</string>
+    <string name="gas_limit_erc20_info_title">Gas Limit (ERC-20)</string>
+    <string name="gas_limit_erc20_info">Mycelium verwendet standardmäßig 90.000 Einheiten als maximales Gas Limit, da ERC-20-Transaktionen komplex zu verarbeiten sind.\n\nDurchschnittlich werden von Minern etwa 55.500 Einheiten Gas pro Transaktion verbraucht.\n\nSie können ein niedrigeres Gas Limit festlegen, aber Mycelium kann nicht garantieren, dass die Transaktion unter diesen Bedingungen verarbeitet wird.</string>
+    <string name="gas_limit_helper">Mindestens 21.000 Einheiten</string>
+    <string name="gas_limit_warning">Sie haben ein Gas Limit unter 90.000 Einheiten festgelegt. Dies könnte für die Verarbeitung Ihrer Transaktion im Ethereum-Netzwerk unzureichend sein, während Gas trotzdem verbraucht wird.</string>
+    <string name="gas_limit_error">Das minimale Gas Limit für Transaktionen im Ethereum-Netzwerk beträgt 21.000 Einheiten.</string>
+    <string name="next_fee_update_in_s">Nächstes Update in %ds</string>
+    <string name="received">Empfangen</string>
+    <string name="link_to_track_transaction">Tauschstatus</string>
+    <string name="help_missing_tx_dialog_text" formatted="false"><![CDATA[Die häufigsten Gründe für „fehlende“ Coins lassen sich meist leicht beheben.
+                        Bitte lesen Sie die folgenden Punkte sorgfältig, bevor Sie den Support kontaktieren:<br><br>
+                        <h4>Keine Serververbindung</h4>
+                        Wenn die Wallet nicht mit den Servern kommunizieren kann, kann sie Ihr
+                        Guthaben nicht korrekt anzeigen und ggf. sogar 0BTC anzeigen, wenn Sie versucht haben,
+                        das Konto erneut zu laden.
+                        <b>Keine Panik.</b> Überprüfen Sie Ihre Internetverbindung oder, falls unsere Server Probleme haben,
+                        arbeiten unsere Techniker bereits an der Lösung.
+                        Solange Sie keine Transaktion sehen, in der Ihre Mittel die Wallet verlassen haben,
+                        befinden sich Ihre Coins noch in der Wallet und sind durch Ihr 12-Wörter-Backup geschützt,
+                        das im schlimmsten Fall auch mit den meisten anderen Bitcoin-Wallets kompatibel ist.
+                        Versuchen Sie nicht, die App zu löschen und neu zu installieren, es sei denn,
+                        Sie sind zu 100 % sicher, dass Sie alle Backups haben.
+                        <h4>Wallet mit „12 Wörtern + Passwort“ wiederhergestellt, dabei PIN als Passwort verwendet</h4>
+                        Wenn Sie ein falsches Passwort eingeben, gibt es keine Fehlermeldung, aber
+                        es wird eine andere, leere Wallet wiederhergestellt. <b>Versuchen Sie, Ihre Wallet
+                        nur mit den „12 Wörtern“ wiederherzustellen.</b>
+                        <h4>Coins befinden sich in „Konto 2“</h4>
+                        Wenn Sie eine Wallet aus einem Backup wiederherstellen, in der sich mehr als nur „Konto 1“ befand,
+                        müssen Sie manuell die fehlenden Konten erneut erstellen, um sie wiederzufinden.
+                        Gehen Sie dazu <b>zum Tab „Konten“ und erstellen Sie ein „neues“ Konto</b>.
+                        <h4>Coins liegen außerhalb des standardmäßigen „Look-Ahead“ oder „Gap Limit“:</h4>
+                        Wenn Sie Tools von Drittanbietern zum Empfangen von Coins genutzt haben, z. B.
+                        BTC-Pay Server, durchsucht die Wallet nur 20 zukünftige Adressen hinter der letzten ungenutzten.
+                        <b>Klicken Sie unten auf
+                        „Boost Gap Limit“</b>, um zu prüfen, ob dies der Fall ist.
+                        Dadurch werden einmalig 200 Adressen auf allen aktiven Konten geprüft.]]></string>
+    <string name="missing_tx_text">Die häufigsten Gründe für „fehlende“ Coins und wie sie sich beheben lassen.</string>
+    <string name="send_fee_hint"><b>ACHTUNG.</b> Transaktionen mit niedrigen Miner-Gebühren haben möglicherweise keine oder sehr späte Bestätigungen, was Stunden oder sogar Tage dauern kann. Wählen Sie keine niedrige Priorität, wenn Sie nicht genau wissen, wie das Bitcoin-Netzwerk funktioniert.</string>
+    <string name="bundled_transactions">Gebündelte Transaktionen:</string>
+    <string name="cancel_eth_tx_amount">Ursprünglicher Betrag</string>
+    <string name="cancel_eth_tx_broadcasting">Stornierung wird gesendet…</string>
+    <string name="cancel_eth_tx_confirm">Transaktion stornieren</string>
+    <string name="cancel_eth_tx_description">Eine neue Transaktion mit derselben Nonce wird gesendet, die nichts tut, außer die ausstehende zu ersetzen. Die Stornierung gelingt nur, wenn sie vor dem Original bestätigt wird.</string>
+    <string name="cancel_eth_tx_dismiss">Transaktion behalten</string>
+    <string name="cancel_eth_tx_eth_balance">ETH-Guthaben</string>
+    <string name="cancel_eth_tx_failed">Stornierung fehlgeschlagen: %1$s</string>
+    <string name="cancel_eth_tx_fee_diff">Zusätzliche Kosten</string>
+    <string name="cancel_eth_tx_insufficient_eth">Nicht genügend ETH auf diesem Konto, um die Stornierungsgebühr zu zahlen.</string>
+    <string name="cancel_eth_tx_load_failed">Stornierungsgebühr konnte nicht geschätzt werden. Überprüfen Sie Ihre Verbindung und versuchen Sie es erneut.</string>
+    <string name="cancel_eth_tx_loading">Stornierungsgebühr wird geschätzt…</string>
+    <string name="cancel_eth_tx_new_fee">Stornierungsgebühr</string>
+    <string name="cancel_eth_tx_no_connection">Keine Serververbindung. Versuchen Sie es später erneut.</string>
+    <string name="cancel_eth_tx_old_fee">Ursprüngliche Gebühr</string>
+    <string name="cancel_eth_tx_recipient">Ursprünglicher Empfänger</string>
+    <string name="cancel_eth_tx_success">Stornierung gesendet.</string>
+    <string name="cancel_eth_tx_title">Transaktion stornieren?</string>
+    <string name="cancel_eth_tx_warning">Wenn die ursprüngliche Transaktion zuerst bestätigt wird, schlägt die Stornierung fehl, und Sie zahlen nur das Gas für die Stornierung.</string>
+    <string name="gas_limit_info_desc">Maximale Gas-Menge für die Transaktion. Für normale ETH-Überweisungen beträgt der Wert 21.000.\nFür Verträge ist dieser Wert höher und durch das Block-Gas-Limit begrenzt.</string>
+    <string name="gas_limit_info_title">Gas-Limit</string>
+    <string name="menu_item_cancel_transaction_eth">Transaktion stornieren</string>
+    <string name="menu_item_replace_transaction">Transaktion ersetzen</string>
+    <string name="only_send_btc_to_this_address">Senden Sie nur %s an diese Adresse. Das Senden anderer digitaler Vermögenswerte führt zu einem dauerhaften Verlust.</string>
+    <string name="please_fill_proof_of_address">Bitte geben Sie Ihre persönlichen Daten so ein, wie sie auf dem Adressnachweis erscheinen.</string>
+    <string name="proof_of_address">Adressnachweis</string>
+    <string name="provide_your_recovery_e_mail_address">Geben Sie unten Ihre Wiederherstellungs-E-Mail-Adresse an. Wir senden Ihnen einen sicheren Link und Anweisungen zum Zurücksetzen Ihres Passworts.</string>
+    <string name="receive_title_fio">FIO Public Key</string>
+    <string name="residential_address">Wohnadresse</string>
+    <string name="send_fio_request">FIO-Anfrage senden</string>
+    <string name="send_mail">E-Mail senden…</string>
+    <string name="thank_you_for_signing_up_with_bequant">Vielen Dank für Ihre Registrierung bei Bequant!</string>
+    <string name="transaction_gas_limit">Gas-Limit (Einheiten):</string>
+    <string name="transaction_input_data">Input Data:</string>
+    <string name="transaction_options_advanced_users"><![CDATA[Transaktionsoptionen <i>(für fortgeschrittene Benutzer)</i>]]></string>
+    <string name="tx_replacae_info_desc">Wählen Sie eine unbestätigte Transaktion aus, die Sie ersetzen möchten.\nDie Miner-Gebühr der Ersatztransaktion muss höher als die Gebühr der ausgewählten unbestätigten Transaktion sein.</string>
+    <string name="tx_replace_info_title">Zu ersetzende Transaktion</string>
+    <string name="tx_status_canceled">Storniert</string>
+    <string name="tx_status_dropped">Aus dem Mempool entfernt</string>
+    <string name="tx_status_failed">Fehlgeschlagen (on-chain rückgängig gemacht)</string>
+    <string name="tx_status_pending">Ausstehend</string>
+    <string name="tx_status_replaced">Ersetzt</string>
+</resources>

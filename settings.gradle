@@ -6,6 +6,9 @@ pluginManagement {
         }
     }
 }
+plugins {
+    id 'org.gradle.toolchains.foojay-resolver-convention' version '0.10.0'
+}
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.PREFER_SETTINGS)
     repositories {
@@ -23,6 +26,11 @@ include 'walletcore'
 include 'wapi'
 include 'mbwlib'
 //include 'backuputil'
+
+include(":common")
+include(":commonView")
+
+include ':supportChat'
 
 //on the servers, we don't want to build android projects
 //    nano /etc/profile.d/env.sh

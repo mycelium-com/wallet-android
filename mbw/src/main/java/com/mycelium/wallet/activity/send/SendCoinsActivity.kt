@@ -736,6 +736,23 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener, AmountLi
             }
             result.putExtra(Constants.TRANSACTION_FIAT_VALUE_KEY, fiat)
                     .putExtra(Constants.TRANSACTION_ID_INTENT_KEY, hash)
+
+            // If this was an ETH/ERC20 replace (user picked an existing
+            // pending tx from the dropdown to reuse its nonce), force a
+            // sync so reconcileLocalPending picks up the confirmed
+            // replacement and marks the original as REPLACED. ERC20
+            // replacements live in the parent ETH account's tx list, so
+            // also sync the parent — mirrors CancelEthTxDialog.
+            val ethVm = viewModel as? SendEthViewModel
+            if (ethVm?.getSelectedTxItem()?.value is TransactionItem) {
+                val acc = ethVm.getAccount()
+                val accounts = buildList {
+                    add(acc)
+                    (acc as? ERC20Account)?.ethAcc?.let { add(it) }
+                }
+                mbwManager.getWalletManager(false)
+                        .startSynchronization(SyncMode.NORMAL_FORCED, accounts)
+            }
         }
         val resultType = if (broadcastResult.resultType == BroadcastResultType.SUCCESS) {
             Activity.RESULT_OK

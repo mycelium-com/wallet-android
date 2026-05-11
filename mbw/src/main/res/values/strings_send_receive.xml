@@ -1,0 +1,295 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
+    <string name="sending">Sending %1$s</string>
+    <string name="receiving">Receiving %1$s</string>
+    <string name="confirmations">%d Confirmations</string>
+    <string name="send">Send</string>
+    <string name="send_cointype">Send %1$s</string>
+    <string name="receive">Receive</string>
+    <string name="receive_cointype">Receive %1$s</string>
+    <string name="amount_hint">0.00</string>
+    <string name="amount_hint_denomination">0.00 %1$s</string>
+    <string name="enter_recipient_title">Send to</string>
+    <string name="enter_recipient_hint">%1$s Address or FIO Name</string>
+    <string name="enter_recipient_description">Enter %1$s Address or FIO Name</string>
+    <string name="recipient_title">Enter recipient address:</string>
+    <string name="amount_label">Amount:</string>
+    <string name="amount_label_s">Amount: %s</string>
+    <string name="amount_title">Amount</string>
+    <string name="enter_amount_title">Enter Amount:</string>
+    <string name="crypto_address">%1$s Address:</string>
+    <string name="max_btc">Spendable: %1$s</string>
+    <string name="max_fiat">Spendable: %1$s %2$s</string>
+    <string name="s_payment_request">%s Payment Request</string>
+    <string name="share_address">Share Address</string>
+    <string name="share_address_and_amount">Share Address and Amount</string>
+    <string name="s_fio_request">%s FIO Request</string>
+    <string name="qr_code">QR Code</string>
+    <string name="my_addresses">My Addresses</string>
+    <string name="insufficient_funds">Insufficient funds</string>
+    <string name="tx_build_error">Unknown error while building transaction.</string>
+    <string name="insufficient_funds_for_fee">Insufficient funds to pay fee</string>
+    <string name="amount_too_small">The amount you are sending is too small</string>
+    <string name="unable_to_build_tx">Unable to build transaction. %s</string>
+    <string name="no_utxo">Transaction has no utxo to form a child transaction or utxo has been already spent</string>
+    <string name="parent_needs_no_boosting">Parent needs no boosting</string>
+    <string name="amount_too_small_short">Amount must exceed %s (network limit)</string>
+    <string name="miner_fee_label">Miner fees</string>
+    <string name="miner_fee_title">Miner Fee</string>
+    <string name="history_row_miner_fee_label">Transaction fee</string>
+    <string name="synchronizing">Synchronizing</string>
+    <string name="transaction_not_sent">Failed to broadcast transaction</string>
+    <string name="transaction_not_sent_nonstandard">Failed to broadcast transaction because of an error:\n%1$s\nPlease report this incident to tech support.\nRaw transaction was copied to clipboard, if possible please attach it to your request.</string>
+    <string name="transaction_not_sent_small_fee">Failed to broadcast transaction. Fee is too small. Please try setting a higher one.</string>
+    <string name="queue_transaction_message">Failed to broadcast transaction.\nWould you like to queue the transaction so it gets sent automatically once you get online?</string>
+    <string name="transaction_sent">Transaction sent.</string>
+    <string name="copy_address_to_clipboard">Copy address to Clipboard</string>
+    <string name="copy_amount_to_clipboard">Copy amount to Clipboard</string>
+    <string name="bitcoin_address_title">Bitcoin Address</string>
+    <string name="invalid_bitcoin_uri">Invalid Bitcoin URI</string>
+    <string name="unrecognized_format">Unrecognized format</string>
+    <string name="no_transaction_records">This page shows your transaction history.\n\nThere are currently no transactions to show.</string>
+    <string name="too_many_transaction_records">Cannot fetch full account transaction history due to its huge size. Consider moving funds to a new account.</string>
+    <string name="no_address_book_records">This page shows your address book.\n\nYour address book is empty.</string>
+    <string name="edit_address_label_title">Edit Address Label</string>
+    <string name="enter_address_label_title">Enter Address Label</string>
+    <string name="enter_transaction_label_title">Enter Transaction Label</string>
+    <string name="transaction_details">Transaction Details</string>
+    <string name="confirmed">Confirmed</string>
+    <string name="confirmed_in_block">In block #%1$d</string>
+    <string name="gas_limit">Gas Limit</string>
+    <string name="gas_used">Gas Used</string>
+    <string name="gas_price">Gas Price</string>
+    <string name="eth_internal_transfer">(%s has been transferred to the caller)</string>
+    <string name="replace_transaction">Transaction to be replaced with:</string>
+    <string name="delete_address_confirmation">Are you sure that you want to delete this address from your address book?</string>
+    <string name="payment_request">Payment Request</string>
+    <string name="my_own_address_warning"><![CDATA[<font color="#ffff00">Note: You are sending to one of your own addresses.</font>]]></string>
+    <string name="scan_address_book_desc">Scan address.</string>
+    <string name="address_label_not_unique">The address book has another address with that name</string>
+    <string name="tap_qr_code_desc">Tapping the QR code may improve scanning</string>
+    <string name="receiver_address_hint">1Address1234\n567890abcdef\nghijklmnop</string>
+    <string name="signing_transaction">Signing Transaction</string>
+    <string name="broadcasting_transaction">Broadcasting Transaction</string>
+    <string name="transaction_rejected_message">The transaction was rejected by the network. This indicates that your wallet is out of sync</string>
+    <string name="transaction_rejected_double_spending_message">Failed to broadcast transaction due to a double spend or malleability issue.</string>
+    <string name="transaction_rejected_malformed">Transaction signing failed.\n Please report this incident to tech support.\nRaw transaction was copied to clipboard, if possible please attach it to your request. \n %s</string>
+    <string name="transaction_rejected_invalid_tx_params">Transaction was rejected by Network. Please verify that transaction parameters are correct and try again. Error: %1$s</string>
+    <string name="enter_bitcoin_address">Enter Bitcoin Address</string>
+    <string name="recipient_invalid">Invalid address or FIO Name</string>
+    <string name="recipient_has_no_such_address">%1$s has no %2$s address connected</string>
+    <string name="recipient_valid">Recipient Valid</string>
+    <string name="using_address_from_clipboard">Using address from clipboard</string>
+    <string name="foreign_addresses">Address Book</string>
+    <string name="sending_addresses">Address Book</string>
+    <string name="share_payment_request">Share Payment Request</string>
+    <string name="share_bitcoin_address">Share Bitcoin Address</string>
+    <string name="optional_amount">Optional Amount</string>
+    <string name="show_qr_code_menu">Show QR Code</string>
+    <string name="tab_transactions">Transactions</string>
+    <string name="tab_addresses">Address Book</string>
+    <string name="scan_qr_code">Scan QR Code</string>
+    <string name="send_bitcoins">Send Bitcoins</string>
+    <string name="sync_total_retrieved_transactions">Syncing in progress: %1$d transactions retrieved</string>
+    <string name="copy_signature">Copy Signature to Clipboard</string>
+    <string name="share_signature">Share Text + Signature</string>
+    <string name="amount_changed">Send amount was updated from QR code</string>
+    <string name="transaction_not_broadcasted_info">Unable to broadcast</string>
+    <string name="tx_status_pending">Pending</string>
+    <string name="tx_status_failed">Failed (reverted on-chain)</string>
+    <string name="tx_status_replaced">Replaced</string>
+    <string name="tx_status_canceled">Canceled</string>
+    <string name="tx_status_dropped">Dropped from mempool</string>
+    <string name="transaction_label_title">Transaction Label</string>
+    <string name="select_key_for_signing">Select Key for Signing</string>
+    <string name="miner_fee_lowprio_name">Low-priority</string>
+    <string name="miner_fee_economic_name">Economic</string>
+    <string name="miner_fee_normal_name">Normal</string>
+    <string name="miner_fee_priority_name">Priority</string>
+    <string name="miner_fee_lowprio_desc">Warning: Using the low-prio fee schedule is experimental and may result in transactions that never confirm. Use at your own risk.</string>
+    <string name="miner_fee_economic_desc">Warning: Using the economic miner fee might take a very long time to confirm. Use at your own risk.</string>
+    <string name="miner_fee_normal_desc">With the normal miner fee schedule you can expect your transactions to confirm within the next few blocks.</string>
+    <string name="miner_fee_priority_desc">With the priority fee schedule you can expect your transaction to confirm within one or two blocks.</string>
+    <string name="new_bitcoin_address_created">A new random private key has been generated with the following Bitcoin addresses:</string>
+    <string name="transaction_from_address_prefix">From: %s</string>
+    <string name="transaction_to_address_prefix">To: %s</string>
+    <string name="retrieving_pubkey_address">Retrieving next unused address…</string>
+    <string name="tx_details_num_confirmations">Confirmations</string>
+    <string name="remove_queued_transaction">Do you really want to remove this queued transaction and prevent it from broadcasting?</string>
+    <string name="remove_queued_transaction_title">Queued Transaction</string>
+    <string name="remove_queued_transaction_hint">Your balance will be corrected after the next synchronisation with the network</string>
+    <string name="remove_queued_transaction_error">Unable to remove transaction</string>
+
+    <string name="payment_request_unable_to_read_payment_request">Unable to read payment request</string>
+    <string name="payment_request_not_sent_expired">Payment not sent - Payment request is already expired!</string>
+    <string name="payment_request_no_amount_specified">no amount specified</string>
+    <string name="payment_request_unable_to_verify">Unable to verify</string>
+    <string name="payment_request_unsigned_request">Unsigned Request</string>
+    <string name="payment_request_signature_okay">Signature okay</string>
+    <string name="payment_request_invalid_signature">invalid Signature</string>
+    <string name="payment_request_fetching_payment_request">Fetching Payment Request</string>
+    <string name="payment_request_title">Payment Request</string>
+    <string name="payment_request_merchant">Merchant</string>
+    <string name="payment_request_signature">Signature</string>
+    <string name="payment_request_amount_to_pay">Amount to pay</string>
+    <string name="payment_request_message">Message</string>
+    <string name="payment_request_created">Created</string>
+    <string name="payment_request_expires">Expires</string>
+    <string name="payment_request_message_to_merchant">Your message to the merchant (optional)</string>
+    <string name="payment_request_error_while_getting_ack">Unable to send payment to merchant-server.\n%s\n\nThe payment will not be broadcast.</string>
+    <string name="payment_request_warning_no_sig">The origin of this payment request can not be verified, because it has no signature.\n\nPlease be very cautious, as there might be someone intercepting it and changing payout addresses.</string>
+
+    <string name="label_cold_storage_external_signing">Sign with:</string>
+    <string name="label_unverified_recipient">unverified Recipient</string>
+    <string name="nfc_payment_request_hint">Place your phone back-to-back to another NFC-enabled device to share this payment request</string>
+    <string name="payment_request_over_tor">" (over Tor)"</string>
+    <string name="cancel_transaction">Cancel transaction</string>
+    <string name="share_transaction_history">Share transaction history</string>
+    <string name="transaction_history_title">Transaction history</string>
+    <string name="menu_item_cancel_transaction">Cancel transaction</string>
+    <string name="menu_item_cancel_transaction_eth">Cancel transaction</string>
+    <string name="menu_item_replace_transaction">Replace transaction</string>
+    <string name="cancel_eth_tx_title">Cancel transaction?</string>
+    <string name="cancel_eth_tx_description">A new transaction will be sent at the same nonce that does nothing except replace the pending one. The cancel succeeds only if it confirms before the original.</string>
+    <string name="cancel_eth_tx_recipient">Original recipient</string>
+    <string name="cancel_eth_tx_amount">Original amount</string>
+    <string name="cancel_eth_tx_old_fee">Original fee</string>
+    <string name="cancel_eth_tx_new_fee">Cancellation fee</string>
+    <string name="cancel_eth_tx_fee_diff">Extra cost</string>
+    <string name="cancel_eth_tx_eth_balance">ETH balance</string>
+    <string name="cancel_eth_tx_insufficient_eth">Not enough ETH on this account to pay the cancellation fee.</string>
+    <string name="cancel_eth_tx_warning">If the original transaction confirms first, the cancellation fails and you only pay the cancellation gas.</string>
+    <string name="cancel_eth_tx_confirm">Cancel transaction</string>
+    <string name="cancel_eth_tx_dismiss">Keep transaction</string>
+    <string name="cancel_eth_tx_loading">Estimating cancellation fee…</string>
+    <string name="cancel_eth_tx_load_failed">Could not estimate cancellation fee. Check your connection and try again.</string>
+    <string name="cancel_eth_tx_broadcasting">Broadcasting cancellation…</string>
+    <string name="cancel_eth_tx_success">Cancellation broadcast.</string>
+    <string name="cancel_eth_tx_failed">Cancellation failed: %1$s</string>
+    <string name="cancel_eth_tx_no_connection">No server connection. Try again later.</string>
+    <string name="menu_item_rebroadcast_transaction">Rebroadcast transaction</string>
+    <string name="menu_item_delete_unconfirmed_transaction">Delete unconfirmed transaction</string>
+    <string name="delete_unconfirmed_transaction_title">Delete unconfirmed transaction</string>
+    <string name="warning_delete_unconfirmed_transaction">WARNING: This will only delete the transaction from the local app. This function can not undo a transaction and can not prevent it from getting confirmed. It is only useful if the network has already forgotten the transaction because it did not confirm for a long time. In that case, you can delete it to access the funds again. You will need to synchronize after doing this. If the network still knows the transaction, it will show up again right after synchronizing.\\n\\nDo you want to delete the transaction from the local cache?</string>
+    <string name="rebroadcast_transaction_title">Rebroadcast transaction</string>
+    <string name="bump_fee_title">Bump Mining Fee (CPFP)</string>
+    <string name="description_rebroadcast_transaction">Re-submit this transaction to the server to broadcast it. This can be used if you suspect that the network has not propagated your transaction or dropped it, because it did not confirm for a long time for example. Do you want to re-broadcast this transaction?</string>
+    <string name="description_bump_fee_placeholder">Send a transaction that increases the fee for this unconfirmed transaction.\n\nDo you want to spend… Loading…</string>
+    <string name="sending_assets">Sending %s assets.</string>
+    <string name="asset_failed_to_broadcast">%s failed to broadcast transaction.</string>
+    <string name="incoming_payment">"Incoming payment: %s"</string>
+    <string name="warning_amount_does_not_match">Warning: amount does not match!</string>
+    <string name="requires_btc_amount">Colored Coin transaction can not be done. You need to have some small amount of BTC to pay miners fee. Please fund one of you Bitcoin addresses and then try again.</string>
+    <string name="address_title">%s Address</string>
+    <string name="share_x_address">Share %s Address</string>
+    <string name="enter_address">Enter %s Address</string>
+    <string name="address_valid">%s Address Valid</string>
+    <string name="address_invalid">Invalid %s Address</string>
+    <string name="tips_rmc_check_address">If you have sent digital assets to a random bitcoin address they are not destroyed.\nIn order to retrieve them you have two options:\n1) Use Colored Coins API to manually send your assets back to the address managed by Mycelium Wallet.\n2) Submit a ticket to Mycelium Wallet support for retrieving your assets. For this service, additional charges may apply. You will receive detailed information after contacting support.\n\nIn both cases, you must own a private key of the address you have sent digital assets to.</string>
+    <string name="restore_address_as">Restore address as</string>
+    <string name="miner_fee_custom">Custom</string>
+    <string name="miner_fee_custom_desc">With the custom fee we don\'t know how long take transaction</string>
+    <string name="fee_is_zero">Transaction might never happen!</string>
+    <string name="fee_change_warning" formatted="false"><![CDATA[Your <font color="#4583de">change</font> is less than Bitcoin network output limit. Total miner fee will be increased to %s%s!]]></string>
+    <string name="fee_change_description">Change is what\'s left in your output after transaction has been sent. Current change is less than Bitcoin network output limit (0.0000546 BTC).\nYou can resolve this issue by:\n
+1) decreasing sending amount in order to get your change back;\n
+2) increasing sending amount to a maximum;\n
+3) adjusting miner fee to fit in the network output limit.</string>
+    <string name="share_transaction_manually">Share Transaction manually</string>
+    <string name="share_transaction_manually_title">Share Transaction Manually</string>
+    <string name="share_transaction_manually_description">Do you want to share the raw transaction via clipboard, mail or other means?  This operation is usually safe but not necessary. We added this feature for debugging, when the transaction cannot be broadcast.</string>
+    <string name="share_transaction">Share Transaction</string>
+    <string name="amount_to_receive">Receiving</string>
+    <string name="bch_you_can_transaction_on_explorer"><![CDATA[You can check your transactions on <font color="#4583de">https://www.blocktrail.com/%s</font>]]></string>
+    <string name="given_rates_includes_transaction_fee">Given rate includes transaction fee</string>
+    <string name="blockchain_transaction_id">Blockchain Transaction ID:</string>
+    <string name="what_is_address_type">What is an address type?</string>
+    <string name="what_is_address_type_description"><![CDATA[There are three Bitcoin address formats:<p><b>P2PKH – Legacy</b>, starting with \"%1$s\".</p><p><b>P2SH – SegWit compatible</b>, starting with \"%2$s\". This is the default.</p><p><b>Bech32 – SegWit native</b>, starting with \"%3$s\".</p><p>Use either <b>P2SH</b> or <b>Bech32</b> to receive funds if you would like to send low-fee SegWit transactions in the future.</p><p>Bech32 is the newest and most cost-effective standard, but it is not yet widely adopted, so not everybody can send bitcoins to it. Since Bech32 is not yet widely used, it might be a bit easier for blockchain analysts to discover your cash flow.</p>]]></string>
+    <string name="transactions">Transactions</string>
+    <string name="show_address_path">Show address path</string>
+    <string name="no_transaction_details">Сheck in Block Explorer using the hash link above.</string>
+    <string name="no_transaction_loading">Loading…</string>
+    <string name="transactions_loading_from_module_error">Error loading transactions from module</string>
+    <string name="default_address_type_desc">Setup change address preferences</string>
+    <string name="address_type">Address type</string>
+    <string name="change_address_type">Transaction change address type</string>
+    <string name="change_address_description">In Bitcoin you always spend the full amount you received in an earlier transaction. To pay exact amounts, you send the amount that exceeds what you are paying to a new address in your wallet. That is the change address.\n\nAn outside observer usually cannot see if a transaction was sending the amount you paid or the amount you sent to yourself as change.</string>
+    <string name="stale_fee_warning">The fee rates are older than 2h! Proceed with caution!</string>
+    <string name="check_change_address"><![CDATA[Unfortunately, <b>Trezor model T</b> does not support checking if address belongs to your wallet, but it can generate a new address from your master seed and show it on the screen. For more information about this Trezor issue please check <a href=\"https://github.com/trezor/trezor-core/issues/380\">Trezor\'s GitHub</a>.<br><br>Please verify your address on the Trezor screen and compare it with the one in the summary section. It will be used as the change address which you have to confirm as a separate output later on.]]></string>
+    <string name="signing_transaction_instruction">Mixed-spending compatibility mode</string>
+    <string name="failed_transaction_removal_title">Failed transactions removal</string>
+    <string name="failed_transaction_removal_message">A transaction failed to broadcast permanently. You can keep the transaction for further investigations or delete it. Do you want to delete failed transactions now?</string>
+    <string name="no_transaction_retry">Retry</string>
+    <string name="address_gaps">Address gaps: </string>
+    <string name="not_correct_address_type">Not correct address type</string>
+    <string name="payment_uri_unsupported_token">The token requested in the payment uri is not supported</string>
+    <string name="gas_limit_info_desc">Maximum amount of gas provided for the transaction. For normal ETH transfers, the value is 21,000.\nFor contract this value is higher and bound by block gas limit.</string>
+    <string name="gas_limit_info_title">Gas Limit</string>
+    <string name="transaction_options_advanced_users"><![CDATA[Transaction options <i>(for advanced users)</i>]]></string>
+    <string name="transaction_gas_limit">Gas Limit (units):</string>
+    <string name="transaction_input_data">Input Data:</string>
+    <string name="tx_replace_info_title">Transaction to be replaced</string>
+    <string name="tx_replacae_info_desc">Select an unconfirmed transaction you want to replace.\nMiner fee of the replacement transaction must be higher than the fee of the selected unconfirmed transaction.</string>
+    <string name="receive_title_fio">FIO Public key</string>
+    <string name="bundled_transactions">Bundled transactions:</string>
+    <string name="send_mail">Send mail…</string>
+    <string name="provide_your_recovery_e_mail_address">Provide your recovery e-mail address below. We will send you a secure link and instructions on how to reset your password.</string>
+    <string name="only_send_btc_to_this_address">Only send %s to this address. Sending any other digital asset will result in permanent loss.</string>
+    <string name="thank_you_for_signing_up_with_bequant">Thank you for signing up with Bequant!</string>
+    <string name="residential_address">Residential Address</string>
+    <string name="proof_of_address">Proof of Address</string>
+    <string name="please_fill_proof_of_address">Please fill in your personal information as it appears on the proof of address document.</string>
+    <string name="send_fio_request">Send FIO Request</string>
+    <string name="total_amount">Total amount:</string>
+    <string name="miner_fee">Miner Fees:</string>
+    <string name="spendable">Spendable:</string>
+    <string name="payment_in_progress">Payment in process</string>
+    <string name="payment_confirmed">Transaction confirmed</string>
+    <string name="return_to_payment">Back to Orders</string>
+    <string name="tx_not_sent">Transaction was not sent</string>
+    <string name="show_transaction_details"><![CDATA[Show transaction details >]]></string>
+    <string name="show_transaction_details_hide">Show transaction details (hide)</string>
+    <string name="erc20_highest_possible_fee_info"><![CDATA[This is the max fee you may have to pay to send the transaction from <b>ETH %s</b>.  However, most likely miner fee will not exceed %s%s. For details please see <u>miner fee calculation</u>.]]></string>
+    <string name="all_ethereum_network_transactions">All Ethereum network transactions require ETH to pay miner fee.</string>
+    <string name="miner_fee_erc20_info_title">Miner Fee (ERC-20)</string>
+    <string name="miner_fee_erc20_info">All Ethereum network transactions require ETH to pay miner fee. Miner Fee = Gas Limit * Gas Price (Gwei/Gas)\n\nTo provide you the highest possible miner fee estimation Mycelium uses 90 000 units as default maximum Gas Limit due to the complexity of ERC-20 transactions processing.\n\nAverage amount of gas spent by miners on each transaction is ~ 55 500 units.\n\nActual fee may be less or equal depending on the amount of gas used to process the transaction.</string>
+    <string name="gas_limit_erc20_info_title">Gas Limit (ERC-20)</string>
+    <string name="gas_limit_erc20_info">Mycelium uses 90 000 units as default maximum Gas Limit due to the complexity of ERC-20 transactions processing.\n\nAverage amount of gas spent by miners on each transaction is ~ 55 500 units.\n\nYou can set lower Gas Limit but Mycelium can not guarantee that transaction will be processed under such terms.</string>
+    <string name="gas_limit_helper">Min 21 000 units</string>
+    <string name="gas_limit_warning">You have set gas limit below 90 000 units. It may be not enough for Ethereum network to process your transaction, while Gas still be used.</string>
+    <string name="gas_limit_error">Minimal gas limit for Ethereum network transactions is 21 000 units.</string>
+    <string name="next_fee_update_in_s">Next update in %ds</string>
+    <string name="received">Received</string>
+    <string name="link_to_track_transaction">Exchange status</string>
+    <string name="help_missing_tx_dialog_text" formatted="false"><![CDATA[The most common cases of missing coins are easily
+                        resolved. Please read carefully before contacting support:<br><br>
+                        <h4>No server connection</h4>
+                        When the wallet can\'t talk to the servers, it can\'t correctly display your
+                        balance and might even display 0BTC if you tried to reload the account.
+                        <b>Don\'t panic.</b> Check your internet connection or if our servers have
+                        issues, our engineers are probably already hard at work fixing the issue.
+                        In any case, as long as you don\'t see a transaction where your funds left
+                        your wallet, your funds should still be in your wallet, protected by your
+                        12 words backup that in the worst case works with most other Bitcoin
+                        wallets. Do not try deleting and reinstalling the app unless you are 100%
+                        sure you have all the backups.
+                        <h4>Restored wallet with "12 words + passphrase" using the PIN as passphrase</h4>
+                        Adding
+                        the wrong passphrase doesn\'t result in an error but in restoring
+                        of a different, empty wallet. <b>Try restoring your wallet with only "12
+                        words".</b>
+                        <h4>Coins are in "Account 2"</h4>
+                        If you restored from a backup of a wallet that had more than just "Account
+                        1", you have to manually recreate missing accounts to re-discover them. To
+                        do so, just <b>go to the
+                        "Accounts" tab and create a "new" account</b>.
+                        <h4> Coins are beyond the standard "look-ahead" or "gap limit":</h4>
+                        If you used third party tools to receive coins into your wallet such as
+                        BTC-Pay Server, the wallet checking only 20 future addresses beyond
+                        your last unused address might not find those transactions. <b>Press
+                        "Boost Gap Limit"</b> below to check if this is the case. This will check
+                        for 200 addresses on all active accounts once.]]></string>
+    <string name="missing_tx_text">Most common cases of missing coins and how it can be resolved.</string>
+
+    <string name="send_fee_hint"><b>ATTENTION.</b> Transactions with low priority miner fee may never be confirmed or confirmed in many hours or even days. Don\'t choose low priority if you don\'t understand how bitcoin network works.</string>
+</resources>

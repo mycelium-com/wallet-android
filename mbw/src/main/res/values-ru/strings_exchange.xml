@@ -1,0 +1,315 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
+    <string name="pref_exchange_source">Источник обмена</string>
+    <string name="pref_exchange_source_with_value">Источник обмена (%1$s)</string>
+    <string name="pref_exchange_source_summary">Выберите источник получения обменных курсов между криптовалютой и фиатными валютами</string>
+    <string name="exchange_source_not_available">Курс обмена недоступен для %1$s</string>
+    <string name="no_exchange_available">Обмен недоступен для аккаунта</string>
+    <string name="verify_private_key_backup">Проверить резервную копию</string>
+    <string name="verify_backup_dialog_title">Проверка резервной копии приватного ключа</string>
+    <string name="verify_backup_desc">Наличие надёжной резервной копии является основой управления вашими средствами Bitcoin и цифровыми активами.\n\nПроверяя вашу резервную копию, вы удостоверяетесь, что она работает, и что вы не потеряете свои средства, если ваше устройство будет утеряно или повреждено.</string>
+    <string name="verify_backup_scan_desc">Проверьте резервную копию, сканируя QR-код приватного ключа или мастер-сида.\nПринимаются несколько форматов, включая зашифрованную бумажную резервную копию Mycelium.</string>
+    <string name="verify_backup_clipboard_desc">Проверьте резервную копию приватного ключа, взяв приватный ключ из буфера обмена.</string>
+    <string name="verify_backup_num_keys">У вас есть %1$s ключей, которые никогда не проверялись.</string>
+    <string name="verify_backup_one_key">У вас есть 1 ключ, который никогда не проверялся.</string>
+    <string name="verify_backup_master_seed">Ваш мастер-сид не проверен.</string>
+    <string name="verify_backup_no_such_record">Приватный ключ не соответствует ни одному из ваших Bitcoin-адресов.</string>
+    <string name="verify_backup_ok">Резервная копия приватного ключа успешно проверена для следующего аккаунта: \n\n%1$s\n\nАдреса:\n\n%2$s</string>
+    <string name="verify_backup_title">Резервная копия и проверка</string>
+    <string name="verify_backup_message_text_1">Наличие надёжной резервной копии является основой управления вашими средствами Bitcoin.\nУ вас есть один или несколько приватных ключей Bitcoin или мастер-сидов, для которых резервная копия не проверена.\n\nПожалуйста, выберите опцию резервного копирования, чтобы создать резервную копию.</string>
+    <string name="verify_backup_message_text_2">Затем выберите опцию "Проверить резервную копию" и проверьте свою резервную копию.</string>
+    <string name="cs_private_key_description">Вы используете приватный ключ с адресом %1$s:</string>
+    <string name="cs_address_description">Вы отсканировали адрес %1$s. Вы можете просматривать баланс, но не тратить средства с него.</string>
+    <string name="verify_backup_seed_des">Проверьте резервную копию мастер-сида, сканируя QR-код.</string>
+    <string name="verify_backup_ok_message">Резервная копия успешно проверена.</string>
+    <string name="verify_words_title">Проверка мастер-сида</string>
+    <string name="verify_word_wrong">Вы ввели неверное слово, попробуйте снова</string>
+    <string name="verify_wordlist_success">Резервная копия списка слов успешно проверена. Храните резервную копию в безопасном месте, ваши средства зависят от неё!\n\nВы не настроили PIN!\nСейчас подходящее время сделать это.\n\nВы можете настроить PIN в меню настроек.</string>
+    <string name="verify_wordlist_success_pin_already_set">Резервная копия списка слов успешно проверена. Храните резервную копию в безопасном месте, ваши средства зависят от неё!</string>
+    <string name="colu_mass_account_notes">Добавьте аккаунт сети Critical Mass</string>
+    <string name="colu_add_mass_account">Добавить аккаунт Mass</string>
+    <string name="colu_account_notes">Храните цифровые активы в Mycelium.</string>
+    <string name="colu_add_cc_account">Добавить аккаунт цифровых активов</string>
+    <string name="colu_select_an_account_type">Пожалуйста, выберите тип аккаунта для Colored Coin</string>
+    <string name="colu_create_account">Создать аккаунт %s</string>
+    <string name="colu_creating_account">Создание аккаунта %s</string>
+    <string name="colu_mycelium_tokens">Токены Mycelium</string>
+    <string name="colu_mass_tokens">Токены Mass</string>
+    <string name="colu_unable_to_create_account">Не удалось создать аккаунт Colored Coin</string>
+    <string name="colu_backup_info">Ключ доступа к вашему аккаунту цифровых активов создаётся и хранится отдельно от других ваших аккаунтов. Вам нужно создать резервную копию отдельно от основного аккаунта.</string>
+    <string name="colu_failed_to_prepare">Не удалось подготовить транзакцию Colored Coin! Убедитесь, что один из ваших Bitcoin-аккаунтов пополнен BTC (до $100) для выполнения транзакций.</string>
+    <string name="colu_succeeded_to_broadcast">Транзакция отправлена.</string>
+    <string name="buy_one">Купить одну…</string>
+    <string name="gd_buy_sell_button">Купить/Продать Bitcoin</string>
+    <string name="si_buy_sell">Дебетовая/кредитная карта</string>
+    <string name="si_buy_sell_description">Покупайте Bitcoin безопасно и просто с помощью вашей
+        кредитной карты.
+    </string>
+    <string name="buy_with_cc_spend_only_warning_title">Только для получения</string>
+    <string name="buy_with_cc_spend_only_warning">Текущий выбранный аккаунт предназначен только для
+        получения.Вы уверены, что хотите использовать этот аккаунт для покупки Bitcoin?
+    </string>
+    <string name="buy_sell_select_activity_warning">Функция недоступна для выбранного типа
+        аккаунта.
+    </string>
+    <string name="gd_buy_sell_rmc_button">Купить RMC</string>
+    <string name="rmc_seems_like_no_account">Кажется, у вас ещё нет аккаунта RMC. Нажмите кнопку
+        ниже, чтобы создать его.
+    </string>
+    <string name="rmc_generate_new_account">Создать новый аккаунт RMC</string>
+    <string name="rmc_you_buying">Вы покупаете</string>
+    <string name="rmc_your_new_account">Ваш новый аккаунт RMC</string>
+    <string name="rmc_use_this_account_to_receive_your_rmc">Использовать этот аккаунт для получения
+        вашего RMC?
+    </string>
+    <string name="rmc_yes">Да</string>
+    <string name="rmc_no">Нет</string>
+
+    <string name="rmc_return_of_investment">Доходность</string>
+    <string name="rmc_not_forgot_active_day">Чтобы получить максимальную прибыль, <font color="#ff8838">не пропустите день</font>,\nкогда это станет активным. <font color="#4583de">Установить напоминание?</font></string>
+    <string name="rmc_select_account_for_receive_rmc">Выберите аккаунт для получения RMC</string>
+    <string name="rmc_send_warning" formatted="false">%1$s — это актив (токен), выпущенный на блокчейне Bitcoin как окрашенная монета.\nТранзакция %1$s является транзакцией Bitcoin и требует комиссии майнера для включения в блок.\nЧтобы отправить токен %1$s на другой адрес %1$s, вам нужно пополнить ваш адрес %1$s небольшой суммой BTC, которая будет использоваться для финансирования вашей транзакции.\nВы можете добавлять комиссию майнера с любого аккаунта с BTC при каждой транзакции %1$s или пополнить ваш аккаунт %1$s дополнительным количеством BTC, чтобы избежать необходимости каждый раз добавлять средства.</string>
+    <string name="rmc_reminder">Напоминание RMC</string>
+    <string name="rmc_active_in_159_days">Активно через %d дней</string>
+    <string name="rmc_remind_by_email">Напомнить по электронной почте</string>
+    <string name="rmc_recieve_push_notification">Получить push-уведомление</string>
+    <string name="rmc_add_to_google_calendar">Добавить в Google Календарь</string>
+    <string name="rmc_account">Аккаунт:</string>
+    <string name="rmc_activate_rmc">Активировать RMC для максимальной доходности</string>
+    <string name="rmc_activate">Активировать RMC</string>
+    <string name="partner_more_info"><u>Ваша конфиденциальность для нас на первом месте</u></string>
+    <string name="partner_more_info_text">
+    Mycelium — один из самых надёжных и полезных мобильных Bitcoin-кошельков.<br />
+    Разработка, поддержка и обслуживание этого продукта не являются бесплатными.<br />
+    Партнёрские ссылки и логотипы статически встроены в приложение и не зависят от какой-либо рекламной сети.
+    Их наличие не может использоваться для отслеживания пользователей, которые их не нажимают.
+    Мы не зарабатываем на отображении этих партнёрских ссылок или нажатиях на них.
+    Рефералы происходят только тогда, когда пользователи решают совершить покупку на наших партнёрских сайтах.
+</string>
+    <string name="rmc_payment_success">Оплата успешна! Вы получите ваши активы после трёх подтверждений.</string>
+    <string name="rmc_please_enter_amount">Пожалуйста, введите сумму</string>
+    <string name="rmc_minimum_amount_to_buy_is_0_1_rmc">Минимальная сумма для покупки — 0,1 RMC</string>
+    <string name="rmc_price_fluctations">Цена RMC в BTC/ETH является приблизительной из-за колебаний курса. Окончательная цена RMC будет установлена в запросе на оплату.</string>
+    <string name="colu_before_sending_make_sure">Перед отправкой ваших цифровых активов убедитесь, что вы отправляете их на адрес цифровых активов, а не на случайный Bitcoin-адрес. Нажмите <font color="#4583de">здесь</font>, чтобы узнать, как восстановить ваши цифровые активы.</string>
+    <string name="rmc_bitcoin_acc_what_is_it">\"RMC Bitcoin\" — это аккаунт \"Bitcoin Single Address\", связанный с вашим аккаунтом RMC.\nЭтот аккаунт позволяет вам тратить BTC, полученные из пула RMC.\nВсе новые биткоины, добытые пулом, пропорционально распределяются между Bitcoin-аккаунтами RMC.\n\nЧтобы защитить ваши активы от случайного \"сжигания\" при трате BTC из связанного с вашим аккаунтом RMC, непотраченные выходы транзакций (UTXO) и соответствующие технические транзакции (так называемый \"dust\") не учитываются.</string>
+    <string name="colu_error_deleting">Произошла ошибка при удалении аккаунта Colored Coin</string>
+    <string name="rmc_please_select_receiving_account">Пожалуйста, выберите аккаунт для получения</string>
+    <string name="verify_message">Проверить сообщение</string>
+    <string name="changelly_description">Обменяйте свои другие монеты на Bitcoin</string>
+    <string name="changelly_setting_show_button_summary">Показать опцию Changelly</string>
+    <string name="changelly_retry">Повторить</string>
+    <string name="changelly_choose_your_currency">Выберите параметры обмена</string>
+    <string name="changelly_selected_currency">Выбранная валюта: </string>
+    <string name="changelly_amount">Сумма</string>
+    <string name="changelly_min_amount">Минимальная сумма:</string>
+    <string name="changelly_request">Запросить предложение</string>
+    <string name="changelly_loading">Загрузка</string>
+    <string name="changelly_offer">Оценка BTC:</string>
+    <string name="changelly_take_offer">Продолжить</string>
+    <string name="changelly_unavailable">Сервис недоступен</string>
+    <string name="changelly_offer_title">Завершить операцию обмена</string>
+    <string name="changelly_from">От:</string>
+    <string name="changelly_convert_from">Конвертировать из</string>
+    <string name="changelly_to">Кому:</string>
+    <string name="changelly_estimated_to">Получение (оценка):</string>
+    <string name="changelly_rate">Оценочный курс:</string>
+    <string name="changelly_send_to">Отправить на:</string>
+    <string name="changelly_please_send_funds">Пожалуйста, отправьте средства на следующий адрес:</string>
+    <string name="changelly_created_at">Создано:</string>
+    <string name="changelly_validity">Действительно до:</string>
+    <string name="changelly_loading_currencies">Загрузка валют…</string>
+    <string name="changelly_copy_to_clipboard">Скопировать адрес в буфер обмена</string>
+    <string name="changelly_tandc">Согласен с <a href="https://www.changelly.com/terms-of-use">условиями использования Changelly</a></string>
+    <string name="rmc_profit_meter">Измеритель прибыли RMC</string>
+    <string name="rmc_basic_parameters">Основные параметры RMC</string>
+    <string name="amount_to_exchange">Обмен</string>
+    <string name="enter_exchange_amount">Введите сумму обмена</string>
+    <string name="exchange_in_order_to_complete">Чтобы завершить обмен, вам нужно отправить выбранную сумму на указанный ниже адрес.</string>
+
+    <string name="exchange_to_do_so">Шаг 1. Скопируйте указанный выше адрес.\nШаг 2. Откройте ваш кошелёк, где хранится валюта, которую вы хотите обменять, и вставьте адрес.\nШаг 3. Скопируйте и вставьте сумму обмена ниже.</string>
+    <string name="exchange_after_transaction">После подтверждения вашей транзакции средства будут отправлены на ваш аккаунт для получения.</string>
+    <string name="exchange_altcoins_to_btc">ОБМЕН</string>
+    <string name="exchange_minimum_amount">Минимальная сумма для обмена составляет %1$s %2$s.</string>
+    <string name="press_exchange_button_below_to_confirm">Нажмите кнопку «Обменять» ниже, чтобы подтвердить</string>
+    <string name="exchange_bch_to_btc">ОБМЕНЯТЬ BCH НА BTC</string>
+    <string name="coco_addresses_scanned">%d адресов было сканировано</string>
+    <string name="coco_service_unavailable">Сервис Colored Coins недоступен!</string>
+    <string name="coco_found">Цифровые активы найдены!</string>
+    <string name="coco_not_found">Цифровые активы не найдены!</string>
+    <string name="coco_scan_warning">Вы собираетесь получить цифровые активы, основанные на Colored Coins, из приватного ключа BIP32.\nДля этого необходимо активное интернет-соединение!</string>
+    <string name="exchange_rate_unavailable">Курс обмена временно недоступен.</string>
+    <string name="exchange_service_unavailable">Сервис обмена временно недоступен.\nПожалуйста, попробуйте снова позже.</string>
+    <string name="you_exchange_order_placed">Ваш ордер на обмен в обработке. BTC будет отправлен после того, как эта транзакция получит 12 подтверждений.</string>
+    <string name="exchange_order_date">Дата: %s</string>
+    <string name="exchange_order_exchanging">Обменивается: %s BCH</string>
+    <string name="exchange_order_receiving">Получение: %s BTC</string>
+    <string name="exchange">Обмен</string>
+
+
+<!--  here should be rest of translation  -->
+
+
+    <string name="gift_card_amount">Сумма подарочной карты:</string>
+    <string name="gift_cards_with_discount">Подарочные карты</string>
+    <string name="giftbox_pin_code">Пин-код:</string>
+    <string name="delete_gift_card">Удалить подарочную карту?</string>
+    <string name="delete_gift_card_msg">Вы уверены, что хотите удалить эту подарочную карту?</string>
+    <string name="redeemed_gift_cards">ИСПОЛЬЗОВАННЫЕ ПОДАРОЧНЫЕ КАРТЫ</string>
+    <string name="gift_cards">Подарочные карты</string>
+    <string name="share_gift_card_text">Здравствуйте!\nВы недавно приобрели подарочные карты:\n%s\nСумма: %s %s</string>
+    <string name="gift_card_d">Подарочная карта:</string>
+    <string name="giftbox_promo_action">Купить подарочную карту</string>
+    <string name="giftbox_promo_title">Экономь, покупая за\nBTC и ETH!</string>
+    <string name="giftbox_promo_mark">Новинка</string>
+<!--    <string name="giftcard_order_title">Заказ подарочной карты</string>-->
+<!--    <string name="select_country">Выберите страну</string>-->
+    <string name="buy_gift_card">Купить подарочную карту</string>
+    <string name="giftbox_amount_title">Сумма подарочной карты</string>
+<!--    <string name="purchases">Заказы</string>-->
+    <string name="mygiftcards">Мои подарочные карты</string>
+<!--    <string name="failed">Неудачно</string>-->
+<!--    <string name="paid">Отправлено</string>-->
+    <string name="successfully_paid_gift_card">Вы успешно отправили транзакцию для оплаты подарочной карты!</string>
+<!--    <string name="payment_confirmed">Транзакция подтверждена</string>-->
+    <string name="gift_card_after_confirmed"><![CDATA[Ваша подарочная карта станет доступна после подтверждения транзакции сетью. Статус подтверждения можно отследить в <u>списке транзакций</u> вашего кошелька.]]></string>
+<!--    <string name="success1">Успех</string>-->
+    <string name="gift_card_ready">Ваша подарочная карта готова! Ссылка для скачивания и инструкция по использованию доступны в <u>Мои подарочные карты</u>.</string>
+<!--    <string name="return_to_payment">Назад к заказам</string>-->
+    <string name="giftbox_failed_text">Не волнуйтесь, ваши средства в полной безопасности. К сожалению, магазин не смог выпустить карту из-за технических неполадок. Пожалуйста, свяжитесь с нами по адресу %s  для получения помощи.</string>
+<!--    <string name="no_results_found_for_s"><![CDATA[Нет результатов по запросу \"<font color="#ffffff">%s</font>\".<br/>Проверьте правильность написания и попробуйте снова.]]></string>-->
+<!--    <string name="no_stores_found">МАГАЗИНЫ НЕ НАЙДЕНЫ</string>-->
+    <string name="no_purchased_gift_card">ВЫ ЕЩЕ НЕ ПРИОБРЕЛИ\nНИ ОДНОЙ ПОДАРОЧНОЙ КАРТЫ</string>
+    <string name="no_gift_cards_linked">Начните с просмотра каталога магазинов или проверьте статус ваших Заказов.</string>
+<!--    <string name="no_funds">Недостаточно средств</string>-->
+<!--    <string name="you_dont_have_btc_or_eth_accounts_with_funds">У вас нет BTC или ETH аккаунтов с балансом.\nПополните любой из ваших BTC или ETH аккаунтов и повторите попытку.</string>-->
+<!--    <string name="mark_as_redeemed">Отметить как использованную</string>-->
+<!--    <string name="show_transaction_details"><![CDATA[Показать детали транзакции >]]></string>-->
+<!--    <string name="show_transaction_details_hide">Скрыть детали транзакции</string>-->
+<!--    <string name="max_available_cards_d">Максимально доступно карт: %d</string>-->
+    <string name="gift_card_info">Информация о подарочной карте</string>
+    <string name="gift_cards_menu">Подарочные карты</string>
+<!--    <string name="changelly2_proceed">Продолжить</string>-->
+    <string name="exchange_history">История обменов</string>
+    <string name="tab_exchange_title">ОБМЕН</string>
+    <string name="exchange_min_msg">Сумма меньше минимально допустимой для обмена: %s %s</string>
+    <string name="exchange_max_msg">Сумма превышает максимальную допустимую для обмена: %s %s</string>
+    <string name="settings_exchange_quick_exchange_title">Подтверждение обмена</string>
+    <string name="settings_exchange_quick_exchange_summary">Показывать диалог подтверждения перед обменом</string>
+    <string name="exchange_accept_dialog_title">Обмен</string>
+    <string name="exchange_accept_dialog_msg">Вы отправляете: %s %s\nКомиссия майнеров: %s\n\nВы получаете: %s %s</string>
+<!--    <string name="unredeemed">Неиспользованная карта</string>-->
+    <string name="changelly_receiving">В процессе получения</string>
+    <string name="changelly_received">Получено</string>
+    <string name="changelly_error_rate_expired">Курс устарел, попробуйте снова.</string>
+    <string name="exchange_in_progress">Обмен в процессе</string>
+    <string name="giftcard_coin_not_acceptable">Монета %s не принимается.\nПожалуйста, свяжитесь со службой поддержки.</string>
+    <string name="giftbox_expired_text"><![CDATA[Срок действия заказа истек. Пожалуйста, свяжитесь со службой поддержки - <font color="#4583de">%s</font>]]></string>
+<!--    <string name="vip_code_hint">Введите ваш персональный VIP-код</string>-->
+    <string name="vip_code_who_can_get_title">Кто может получить VIP-статус</string>
+<!--    <string name="vip_code_who_can_get">Держатели токенов Mycelium\nУчастники розыгрыша SU7 Max\nПостоянные пользователи Mycelium, получившие\nперсональное приглашение</string>-->
+<!--    <string name="vip_code_granted_status">Вам присвоен VIP-статус в Mycelium.</string>-->
+<!--    <string name="vip_code_discount_title">Скидки на обмен криптовалют</string>-->
+<!--    <string name="vip_code_discount_description">Комиссия за обмен снижена на 25%.</string>-->
+    <string name="vip_code_limits_title">Без ограничений</string>
+    <string name="vip_code_limits_description">Теперь вы можете обменивать любые суммы.</string>
+    <string name="vip_code_privacy_related_notice">И один ОЧЕНЬ ВАЖНЫЙ момент, связанный с конфиденциальностью, о котором вы должны знать.</string>
+<!--    <string name="apply_vip_code">Продолжить</string>-->
+    <string name="vip_code_invalid">Код недействителен</string>
+    <string name="vip_title">Получите VIP-опыт</string>
+    <string name="vip_menu_text">VIP</string>
+    <string name="vip_title_success">Все готово!</string>
+    <string name="vip_exchange_unexpected_alert_title">Упс, что-то пошло не так</string>
+    <string name="vip_exchange_expired_title">Ваш SWAP обмен недоступен</string>
+    <string name="vip_exchange_status_expired_alert_message">Ваш VIP-статус истек, поэтому теперь действуют обычные (не-VIP) тарифы.</string>
+    <string name="vip_exchange_unexpected_alert_message">VIP-сервис в настоящее время недоступен по техническим причинам. Попробуйте позже или продолжите без VIP-преимуществ.</string>
+    <string name="vip_unexpected_alert_title">VIP-сервис в настоящее время недоступен</string>
+    <string name="vip_unexpected_alert_message">Пожалуйста, попробуйте позже</string>
+    <string name="vip_alert_proceed">Да, продолжить</string>
+    <string name="vip_alert_cancel">Отмена</string>
+    <string name="gift_card_load_error_title">Покупка подарочных карточек временно недоступна.</string>
+    <string name="gift_card_load_error_desc">Мы обновляем наши магазины, и сервис скоро снова будет доступен. Спасибо за понимание!</string>
+
+    <!--old translation-->
+    <string name="exchange_sending">АДРЕС\nОТПРАВКИ</string>
+    <string name="exchange_receiving">АДРЕС\nПОЛУЧЕНИЯ</string>
+    <string name="buy_ethereum">Купить / Продать ETH</string>
+    <string name="buy_crypto_safely">Простой и безопасный способ покупки %s с помощью дебетовой / кредитной карты</string>
+    <string name="giftcard_order_title">Ваш заказ</string>
+    <string name="vip_code_hint">Введите VIP код</string>
+    <string name="vip_code_who_can_get">Обладатели токенов Mycelium\nУчастники розыгрыша SU7 Max\nПостоянные пользователи Mycelium, которые получили личное приглашение</string>
+    <string name="vip_code_granted_status">Вам присвоен статус VIP Mycelium.</string>
+    <string name="vip_code_discount_title">Скидки на обмен криптовалюты на криптовалюту</string>
+    <string name="vip_code_discount_description">Комиссия за обмен снижается на 25%.</string>
+    <string name="bequant_account_description_accounts_list">Покупайте, продавайте и торгуйте более чем 25+\nмонетами с минимальными спредами</string>
+    <string name="bequant_account_description_add_account">Получите безопасный доступ к более чем 20 крупнейшим\nцифровым монетам и мгновенно и безопасно обменивайте,\nвыводите и пополняйте счёт монетами на любой адрес\nпо вашему выбору. Поддерживается Bequant —\nторговой платформой институционального уровня с\nотличной ликвидностью и первоклассной безопасностью.</string>
+    <string name="bequant_application_submit_time">Заявка отправлена: %s</string>
+    <string name="bequant_application_submit_time_left">Ориентировочное время рассмотрения: осталось %dч</string>
+    <string name="bequant_choose_service">Выберите сервис</string>
+    <string name="bequant_contact_support">Связаться с поддержкой</string>
+    <string name="bequant_custodial_wallet_s">Инвестиционный аккаунт (%s)</string>
+    <string name="bequant_deposit">Пополнить</string>
+    <string name="bequant_dont_fret_about_losing_your_phone">Не переживайте о потере телефона — получайте\nдоступ к вашим криптоактивам с любого мобильного или\nвеб-устройства благодаря безопасному процессу входа.</string>
+    <string name="bequant_email_empty_error">Email не должен быть пустым</string>
+    <string name="bequant_enable_2fa">Необходимо включить двухфакторную аутентификацию</string>
+    <string name="bequant_exchange_completed_note">Обратите внимание, что обработка транзакции может занять некоторое время. Как только транзакция будет завершена, ваш баланс обновится</string>
+    <string name="bequant_exchange_completed_pending">Транзакция в ожидании</string>
+    <string name="bequant_exchange_summary_you_get_estimated">Вы получаете (примерно)</string>
+    <string name="bequant_exchange_temporary_closed">Обмен временно закрыт</string>
+    <string name="bequant_exchange_withdraw">Обмен, вывод и пополнение</string>
+    <string name="bequant_fiat_tx_not_supported">Фиатные транзакции пока не поддерживаются напрямую в приложении mycelium.\n\nЕсли вы хотите внести или вывести фиат, перейдите на <font color="#F2E868"><u>bequant.io</u></font> и следуйте простым инструкциям на платформе.</string>
+    <string name="bequant_field_empty_error">Не может быть пустым</string>
+    <string name="bequant_kyc_verify_button">Пройти верификацию</string>
+    <string name="bequant_kyc_verify_message">Уважаемый клиент, обратите внимание, что для использования платформы (внесения средств, вывода и торговли) вам необходимо пройти верификацию по нашей KYC-процедуре.\n\nПосле завершения верификации вам будет предоставлен эквивалент 100 BTC ежедневных и неограниченных ежемесячных выводов.</string>
+    <string name="bequant_kyc_verify_title">Верифицируйте ваш аккаунт</string>
+    <string name="bequant_mycelium_wallet">Mycelium Wallet</string>
+    <string name="bequant_offers_you_the_most_trusted_secure">Bequant предлагает вам самый надёжный, безопасный\nи удобный способ обмена, вывода и пополнения\nкрупнейших мировых криптовалют и фиата —\nвсё в одном приложении.</string>
+    <string name="bequant_order_rejected">Ваш ордер был отклонён</string>
+    <string name="bequant_over_70_trading_pairs">Более 70 торговых пар\nвключая фиатные валюты</string>
+    <string name="bequant_page_title_backup_code">Резервный код</string>
+    <string name="bequant_page_title_reset_password">Сброс пароля</string>
+    <string name="bequant_page_title_setup_code">Код настройки</string>
+    <string name="bequant_page_title_two_factor_auth">Двухфакторная аутентификация</string>
+    <string name="bequant_password_fair">Удовлетворительно</string>
+    <string name="bequant_password_good">Хорошо</string>
+    <string name="bequant_password_strong">Надёжный</string>
+    <string name="bequant_password_very_strong">Очень надёжный</string>
+    <string name="bequant_password_weak">Слабый</string>
+    <string name="bequant_professional_support">Профессиональные команды поддержки\nв Лондоне и Мальте</string>
+    <string name="bequant_recommend_enable_2fa">Настоятельно рекомендуем включить двухфакторную аутентификацию</string>
+    <string name="bequant_reliable_support">Надёжная служба поддержки</string>
+    <string name="bequant_s_deposit_address">Адрес пополнения %s</string>
+    <string name="bequant_s_deposit_tag">Тег пополнения %s</string>
+    <string name="bequant_secure_custodial_storage">Безопасное кастодиальное хранение\nкрипты на ходу</string>
+    <string name="bequant_secure_mobile_access">Безопасный мобильный или веб-\nдоступ</string>
+    <string name="bequant_sign_in">Войти</string>
+    <string name="bequant_sign_up">Зарегистрироваться</string>
+    <string name="bequant_trading_account">Торговый аккаунт</string>
+    <string name="bequant_turn_2fa">Включите 2FA для защиты вашего аккаунта</string>
+    <string name="bequant_turn_2fa_deposit">Включите 2FA, чтобы пополнить</string>
+    <string name="bequant_turn_2fa_withdraw">Включите 2FA, чтобы вывести</string>
+    <string name="bequant_you_get">Вы получаете</string>
+    <string name="bequant_you_send">Вы отправляете</string>
+    <string name="buy_bitcoin">КУПИТЬ BITCOIN</string>
+    <string name="buy_eth">КУПИТЬ ETH</string>
+    <string name="buy_sell_s_button">КУПИТЬ / ПРОДАТЬ %s</string>
+    <string name="changelly_destination_tag">Destination Tag</string>
+    <string name="changelly_extra_id">Extra Id</string>
+    <string name="changelly_indicate_extra">Не забудьте указать %s перед отправкой средств.</string>
+    <string name="changelly_memo_id_name">memo</string>
+    <string name="changelly_message_name">Сообщение</string>
+    <string name="dialog_sepa_buy_sell_btc">Купить или продать Bitcoin через SEPA</string>
+    <string name="dialog_title_buy_sell_eth_sepa">Купить или продать ETH через SEPA</string>
+    <string name="exchange_operation_id_s">ID обменной операции: %s</string>
+    <string name="exchange_rate_unavailable_msg">Курс обмена временно недоступен.\nПроверьте сетевое подключение и попробуйте снова или вернитесь позже.</string>
+    <string name="exchange_to_do_so_end">Шаг 5. Отправьте средства.</string>
+    <string name="exchange_to_do_so_memo">Шаг 4. Скопируйте и вставьте memo ниже.</string>
+    <string name="partner_fiopresale">FIO Address Presale</string>
+    <string name="partner_fiopresale_info"/>
+    <string name="partner_fiopresale_short">Ваш ключ к лучшему опыту в блокчейне</string>
+    <string name="receiving_exchange">получение</string>
+    <string name="sepa_buy_sell_description">Покупайте/продавайте bitcoin через Single Euro Payments Area.</string>
+    <string name="sepa_buy_sell_settings_description">Показывать опцию SEPA buy/sell</string>
+    <string name="sepa_eth_buy_sell_description">Покупайте/продавайте ETH через Single Euro Payment Area.</string>
+    <string name="si_buy_sell_s_description">Покупайте %s безопасно и легко с дебетовой/кредитной картой.</string>
+    <string name="verify_via_email">Подтвердить по email</string>
+</resources>

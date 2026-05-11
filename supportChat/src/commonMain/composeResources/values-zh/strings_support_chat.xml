@@ -1,0 +1,19 @@
+<resources>
+    <!-- Support Chat -->
+    <string name="support_chat_title">客服支持</string>
+    <string name="support_chat_empty_title">暂无消息</string>
+    <string name="support_chat_empty_subtitle">与我们的支持团队开始对话</string>
+    <string name="support_chat_input_hint">输入消息...</string>
+    <string name="support_chat_send">发送</string>
+    <string name="support_chat_loading">正在加载消息...</string>
+    <string name="support_chat_loading_more">加载更多...</string>
+    <string name="support_chat_error_generic">出了点问题</string>
+    <string name="support_chat_error_retry">重试</string>
+    <string name="support_chat_fab_description">打开客服聊天</string>
+    <string name="support_chat_rate_limit_error">消息过多，请稍候再发送。</string>
+    <string name="support_chat_message_too_long">消息太长</string>
+    <string name="support_chat_today">今天</string>
+    <string name="support_chat_yesterday">昨天</string>
+    <string name="support_chat_response_time_notice">回复可能需要最多24小时</string>
+    <string name="support_chat_attach_image">附加图片</string>
+</resources>

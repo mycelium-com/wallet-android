@@ -165,6 +165,11 @@
         <item name="android:windowFullscreen">true</item>
     </style>
 
+    <style name="MyceliumModern.NoActionBar" parent="MyceliumModern">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
     <style name="MyceliumModern" parent="AppBaseTheme">
         <!--<item name="android:windowFullscreen">true</item>-->
         <!--   <item name="android:windowActionBar">false</item>

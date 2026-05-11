@@ -32,7 +32,7 @@ class ExchangeSourcesFragment : PreferenceFragmentCompat() {
         val prefCat = PreferenceCategory(preferenceScreen.context)
         preferenceScreen.addPreference(prefCat)
         val cryptocurrencies = mbwManager.getWalletManager(false)
-                .getAssetTypes().sortedBy { it.name.toLowerCase() }
+                .getAssetTypes().sortedBy { it.name.lowercase() }
         for (asset in cryptocurrencies) {
             val listPreference = ListPreference(preferenceScreen.context).apply {
                 title = asset.name

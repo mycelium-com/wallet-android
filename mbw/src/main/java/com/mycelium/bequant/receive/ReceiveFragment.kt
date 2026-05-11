@@ -7,14 +7,12 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
-import androidx.lifecycle.observe
 import androidx.navigation.fragment.navArgs
 import com.mycelium.bequant.common.loader
 import com.mycelium.bequant.receive.adapter.ReceiveFragmentAdapter
 import com.mycelium.bequant.receive.viewmodel.ReceiveCommonViewModel
 import com.mycelium.wallet.R
 import com.mycelium.wallet.databinding.FragmentBequantReceiveBinding
-import java.util.*
 
 
 class ReceiveFragment : Fragment(R.layout.fragment_bequant_receive) {
@@ -54,7 +52,7 @@ class ReceiveFragment : Fragment(R.layout.fragment_bequant_receive) {
     }
 
     private fun getSupportedByMycelium(currency: String): Boolean {
-        return currency.toLowerCase(Locale.getDefault()) in listOf("eth", "btc")
+        return currency.lowercase() in listOf("eth", "btc")
     }
 
     private fun fetchDepositAddress() {

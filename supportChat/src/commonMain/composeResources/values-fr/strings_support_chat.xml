@@ -1,0 +1,19 @@
+<resources>
+    <!-- Support Chat -->
+    <string name="support_chat_title">Support</string>
+    <string name="support_chat_empty_title">Aucun message pour l\'instant</string>
+    <string name="support_chat_empty_subtitle">Démarrez une conversation avec notre équipe de support</string>
+    <string name="support_chat_input_hint">Tapez un message...</string>
+    <string name="support_chat_send">Envoyer</string>
+    <string name="support_chat_loading">Chargement des messages...</string>
+    <string name="support_chat_loading_more">Chargement...</string>
+    <string name="support_chat_error_generic">Une erreur s\'est produite</string>
+    <string name="support_chat_error_retry">Réessayer</string>
+    <string name="support_chat_fab_description">Ouvrir le chat de support</string>
+    <string name="support_chat_rate_limit_error">Trop de messages. Veuillez patienter.</string>
+    <string name="support_chat_message_too_long">Le message est trop long</string>
+    <string name="support_chat_today">Aujourd\'hui</string>
+    <string name="support_chat_yesterday">Hier</string>
+    <string name="support_chat_response_time_notice">Les réponses peuvent prendre jusqu'à 24 heures</string>
+    <string name="support_chat_attach_image">Joindre une image</string>
+</resources>

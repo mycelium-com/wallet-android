@@ -70,6 +70,22 @@ public class TransactionConfirmationsDisplay extends AppCompatImageView {
       }
    }
 
+   public void setFailed() {
+      setImageResource(R.drawable.holo_dark_ic_action_warning_yellow);
+   }
+
+   public void setReplaced() {
+      setImageResource(R.drawable.pie_send);
+   }
+
+   public void setCanceled() {
+      setImageResource(R.drawable.ic_close);
+   }
+
+   public void setDropped() {
+      setImageResource(R.drawable.ic_request_pending_red);
+   }
+
    public void setConfirmations(int number){
       if (number > MAX_CONFIRMATIONS){
          number = MAX_CONFIRMATIONS;

@@ -19,11 +19,13 @@ import com.mycelium.wapi.wallet.coins.Balance
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.erc20.coins.ERC20Token
 import com.mycelium.wapi.wallet.eth.AbstractEthERC20Account
+import com.mycelium.wapi.wallet.eth.CancelEstimate
 import com.mycelium.wapi.wallet.eth.EthAccount
 import com.mycelium.wapi.wallet.eth.EthAddress
 import com.mycelium.wapi.wallet.eth.EthBlockchainService
 import com.mycelium.wapi.wallet.eth.EthTransaction
 import com.mycelium.wapi.wallet.eth.EthTransactionData
+import com.mycelium.wapi.wallet.eth.EthTxStatus
 import com.mycelium.wapi.wallet.exceptions.BuildTransactionException
 import com.mycelium.wapi.wallet.exceptions.InsufficientFundsException
 import com.mycelium.wapi.wallet.exceptions.InsufficientFundsForFeeException
@@ -33,19 +35,18 @@ import kotlinx.coroutines.withContext
 import org.web3j.abi.FunctionEncoder
 import org.web3j.abi.datatypes.generated.Uint256
 import org.web3j.crypto.Credentials
+import org.web3j.crypto.Hash
 import org.web3j.crypto.RawTransaction
 import org.web3j.crypto.TransactionEncoder
-import org.web3j.crypto.TransactionUtils
 import org.web3j.tx.Transfer
 import org.web3j.utils.Numeric
 import java.io.IOException
 import java.math.BigInteger
 import java.util.UUID
-import java.util.concurrent.TimeUnit
 import java.util.logging.Level
 
 
-class ERC20Account(private val chainId: Byte,
+class ERC20Account(private val chainId: Long,
                    private val accountContext: ERC20AccountContext,
                    private val token: ERC20Token,
                    val ethAcc: EthAccount,
@@ -58,6 +59,7 @@ class ERC20Account(private val chainId: Byte,
 
     override fun createTx(address: Address, amount: Value, fee: Fee, data: TransactionData?): Transaction {
         val ethTxData = (data as? EthTransactionData)
+        val nonce = ethTxData?.nonce ?: accountContext.nonce
         val gasLimit = ethTxData?.gasLimit ?: BigInteger.valueOf(TOKEN_TRANSFER_GAS_LIMIT)
         val gasPrice = ethTxData?.suggestedGasPrice?.let {
             Value.valueOf(basedOnCoinType, it)
@@ -76,7 +78,7 @@ class ERC20Account(private val chainId: Byte,
         }
 
         return EthTransaction(basedOnCoinType, address.toString(), Value.zeroValue(basedOnCoinType),
-            gasPrice.value, accountContext.nonce, gasLimit, inputData, estimatedGasUsed,  amount)
+            gasPrice.value, nonce, gasLimit, inputData, estimatedGasUsed,  amount)
     }
 
     private fun getInputData(address: String, value: BigInteger): String {
@@ -95,7 +97,8 @@ class ERC20Account(private val chainId: Byte,
         val hexValue = Numeric.toHexString(signedMessage)
         request.apply {
             signedHex = hexValue
-            txHash = TransactionUtils.generateTransactionHash(rawTransaction, chainId, credentials)
+            // keccak256 over the actual signed bytes — same hash the network computes.
+            txHash = Hash.sha3(signedMessage)
             txBinary = TransactionEncoder.encode(rawTransaction)!!
         }
     }
@@ -106,10 +109,19 @@ class ERC20Account(private val chainId: Byte,
             if (!result.success) {
                 return BroadcastResult(result.message, BroadcastResultType.REJECT_INVALID_TX_PARAMS)
             }
-            backing.putTransaction(-1, System.currentTimeMillis() / 1000, "0x" + HexUtils.toHex(tx.txHash),
+            val newTxid = "0x" + HexUtils.toHex(tx.txHash)
+            backing.putTransaction(-1, System.currentTimeMillis() / 1000, newTxid,
                     tx.signedHex!!, receivingAddress.addressString, tx.toAddress,
                     Value.valueOf(basedOnCoinType, tx.tokenValue!!.value), Value.valueOf(basedOnCoinType, tx.gasPrice * tx.gasLimit), 0,
-                    accountContext.nonce, tx.gasPrice, true, null, true, tx.gasLimit, tx.estimatedGasUsed.toBigInteger())
+                    tx.nonce, tx.gasPrice, true, null, true, tx.gasLimit, tx.estimatedGasUsed.toBigInteger())
+            markPendingReplacedByNonce(tx.nonce, newTxid)
+            bumpNonceAfterBroadcast(tx.nonce)
+            // ERC20 shares an on-chain address with its parent EthAccount, so
+            // bump there too to prevent the next ETH or token send from reusing
+            // this nonce before the next sync, and mirror the REPLACED marking
+            // since the nonce is shared across both accounts' backings.
+            ethAcc.markPendingReplacedByNonce(tx.nonce, newTxid)
+            ethAcc.bumpNonceAfterBroadcast(tx.nonce)
             return BroadcastResult(BroadcastResultType.SUCCESS)
         } catch (e: Exception) {
             return when (e) {
@@ -120,6 +132,26 @@ class ERC20Account(private val chainId: Byte,
                 }
             }
         }
+    }
+
+    override fun ethFeeSpendable(): Value = ethAcc.accountBalance.spendable
+
+    override suspend fun cancelTransaction(
+        record: com.mycelium.wapi.wallet.EthTransactionSummary,
+        estimate: CancelEstimate,
+    ): BroadcastResult {
+        // Cancel of an ERC20 send is still an ETH self-transfer at the same
+        // nonce, so the actual signing/broadcast lives on the parent
+        // EthAccount. We additionally mirror the CANCELED status into our
+        // own backing — the per-token sync only sees token transfers, so the
+        // generic replacement detection won't otherwise pick it up here.
+        val result = ethAcc.cancelTransaction(record, estimate)
+        if (result.resultType == BroadcastResultType.SUCCESS) {
+            backing.markTransactionStatus("0x" + HexUtils.toHex(record.id), EthTxStatus.CANCELED)
+            bumpNonceAfterBroadcast(estimate.nonce)
+            updateBalanceCache()
+        }
+        return result
     }
 
     override val coinType: ERC20Token
@@ -220,7 +252,11 @@ class ERC20Account(private val chainId: Byte,
 
     private fun getPendingReceiving(): BigInteger = backing.getUnconfirmedTransactions(receivingAddress.addressString)
             .filter {
-                !it.sender.addressString.equals(receiveAddress.addressString, true)
+                // Only live pending counts toward balance. REPLACED / CANCELED
+                // / DROPPED rows still have confirmations=0 but no funds will
+                // arrive, so they must not inflate the pending balance.
+                it.status == EthTxStatus.PENDING
+                        && !it.sender.addressString.equals(receiveAddress.addressString, true)
                         && it.receiver.addressString.equals(receiveAddress.addressString, true)
             }
             .map { it.value.value }
@@ -228,7 +264,8 @@ class ERC20Account(private val chainId: Byte,
 
     private fun getPendingSending(): BigInteger = backing.getUnconfirmedTransactions(receivingAddress.addressString)
             .filter {
-                it.sender.addressString.equals(receiveAddress.addressString, true)
+                it.status == EthTxStatus.PENDING
+                        && it.sender.addressString.equals(receiveAddress.addressString, true)
                         && !it.receiver.addressString.equals(receiveAddress.addressString, true)
             }
             .map { it.value.value }
@@ -240,24 +277,52 @@ class ERC20Account(private val chainId: Byte,
             //TODO convert backing.putTransaction to backing.putTransactions
             remoteTransactions.forEach { tx ->
                 tx.getTokenTransfer(token.contractAddress, receivingAddress.addressString)?.also { tokenTransfer ->
+                    val gasForFee = tx.gasUsed?.takeIf { it.signum() > 0 } ?: tx.gasLimit
                     backing.putTransaction(tx.blockHeight.toInt(), tx.blockTime, tx.txid, "", tokenTransfer.from,
                             tokenTransfer.to, Value.valueOf(basedOnCoinType, tokenTransfer.value),
-                            Value.valueOf(basedOnCoinType, tx.gasPrice * (tx.gasUsed
-                                    ?: typicalEstimatedTransactionSize.toBigInteger())),
+                            Value.valueOf(basedOnCoinType, tx.gasPrice * gasForFee),
                             tx.confirmations.toInt(), tx.nonce, tx.gasPrice, true, null, tx.success, tx.gasLimit, tx.gasUsed)
                 }
             }
-            val localTxs = getUnconfirmedTransactions()
-            // remove such transactions that are not on server anymore
-            // this could happen if transaction was replaced by another e.g.
-            val remoteTransactionsIds = remoteTransactions.map { it.txid }
-            val toRemove = localTxs.filter { localTx ->
-                !remoteTransactionsIds.contains("0x" + HexUtils.toHex(localTx.id))
-                        && (System.currentTimeMillis() / 1000 - localTx.timestamp > TimeUnit.SECONDS.toSeconds(150))
-            }
-            toRemove.map { "0x" + HexUtils.toHex(it.id) }.forEach {
-                backing.deleteTransaction(it)
-            }
+            val remoteTransactionsIds = remoteTransactions.map { it.txid }.toSet()
+
+            // Blockbook's contract-filtered response excludes pending contract
+            // calls (no tokenTransfers yet). Also, the address?details=txs
+            // endpoint silently drops pending txs entirely. Walk the `txids`
+            // array from the default address endpoint (which DOES include
+            // pending at the top) and fetch any unknown txid individually.
+            val candidateTxids = try {
+                withContext(Dispatchers.IO) { blockchainService.getAddressTxids(receivingAddress.addressString) }
+            } catch (_: IOException) { emptyList() }
+            val locallyKnownTxids = getUnconfirmedTransactions()
+                .map { "0x" + HexUtils.toHex(it.id) }
+                .toSet()
+            candidateTxids.asSequence()
+                .filter { it !in remoteTransactionsIds && it !in locallyKnownTxids }
+                .take(MAX_PENDING_SCAN)
+                .forEach { txid ->
+                    try {
+                        val tx = withContext(Dispatchers.IO) { blockchainService.getTransaction(txid) }
+                        if (tx.confirmations.signum() != 0) return@forEach
+                        val tokenTransfer = tx.getTokenTransfer(token.contractAddress, receivingAddress.addressString)
+                            ?: tx.getPendingTokenTransfer(token.contractAddress, receivingAddress.addressString)
+                        tokenTransfer?.also { t ->
+                            val gasForFee = tx.gasUsed?.takeIf { it.signum() > 0 } ?: tx.gasLimit
+                            backing.putTransaction(tx.blockHeight.toInt(), tx.blockTime, tx.txid, "", t.from,
+                                    t.to, Value.valueOf(basedOnCoinType, t.value),
+                                    Value.valueOf(basedOnCoinType, tx.gasPrice * gasForFee),
+                                    tx.confirmations.toInt(), tx.nonce, tx.gasPrice, true, null, tx.success, tx.gasLimit, tx.gasUsed)
+                        }
+                    } catch (_: IOException) { /* skip, try next sync */ }
+                }
+
+            // Mark stale local pending txs as REPLACED / CANCELED / DROPPED
+            // instead of deleting. The helper queries the full ETH-level
+            // address history to find a confirmed replacement with the same
+            // from+nonce, then falls back to per-tx endpoint to confirm
+            // disappearance before marking DROPPED.
+            val knownAlive = remoteTransactionsIds + candidateTxids.toSet()
+            reconcileLocalPending(knownAliveTxids = knownAlive)
             return true
         } catch (e: IOException) {
             lastSyncInfo = SyncStatusInfo(SyncStatus.ERROR)
@@ -290,5 +355,6 @@ class ERC20Account(private val chainId: Byte,
     companion object {
         const val TOKEN_TRANSFER_GAS_LIMIT = 90_000L
         val AVG_TOKEN_TRANSFER_GAS = (Transfer.GAS_LIMIT.toLong() + TOKEN_TRANSFER_GAS_LIMIT) / 2
+        private const val MAX_PENDING_SCAN = 20
     }
 }

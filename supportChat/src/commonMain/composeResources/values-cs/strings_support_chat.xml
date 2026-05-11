@@ -1,0 +1,19 @@
+<resources>
+    <!-- Support Chat -->
+    <string name="support_chat_title">Podpora</string>
+    <string name="support_chat_empty_title">Zatím žádné zprávy</string>
+    <string name="support_chat_empty_subtitle">Zahajte konverzaci s naším týmem podpory</string>
+    <string name="support_chat_input_hint">Napište zprávu...</string>
+    <string name="support_chat_send">Odeslat</string>
+    <string name="support_chat_loading">Načítání zpráv...</string>
+    <string name="support_chat_loading_more">Načítání dalších...</string>
+    <string name="support_chat_error_generic">Něco se pokazilo</string>
+    <string name="support_chat_error_retry">Zkusit znovu</string>
+    <string name="support_chat_fab_description">Otevřít chat podpory</string>
+    <string name="support_chat_rate_limit_error">Příliš mnoho zpráv. Počkejte prosím před odesláním.</string>
+    <string name="support_chat_message_too_long">Zpráva je příliš dlouhá</string>
+    <string name="support_chat_today">Dnes</string>
+    <string name="support_chat_yesterday">Včera</string>
+    <string name="support_chat_response_time_notice">Odpověď může trvat až 24 hodin</string>
+    <string name="support_chat_attach_image">Připojit obrázek</string>
+</resources>

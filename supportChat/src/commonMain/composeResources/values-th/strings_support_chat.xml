@@ -1,0 +1,19 @@
+<resources>
+    <!-- Support Chat -->
+    <string name="support_chat_title">ฝ่ายสนับสนุน</string>
+    <string name="support_chat_empty_title">ยังไม่มีข้อความ</string>
+    <string name="support_chat_empty_subtitle">เริ่มการสนทนากับทีมสนับสนุนของเรา</string>
+    <string name="support_chat_input_hint">พิมพ์ข้อความ...</string>
+    <string name="support_chat_send">ส่ง</string>
+    <string name="support_chat_loading">กำลังโหลดข้อความ...</string>
+    <string name="support_chat_loading_more">กำลังโหลดเพิ่มเติม...</string>
+    <string name="support_chat_error_generic">เกิดข้อผิดพลาด</string>
+    <string name="support_chat_error_retry">ลองอีกครั้ง</string>
+    <string name="support_chat_fab_description">เปิดแชทฝ่ายสนับสนุน</string>
+    <string name="support_chat_rate_limit_error">ส่งข้อความมากเกินไป กรุณารอสักครู่ก่อนส่งอีกครั้ง</string>
+    <string name="support_chat_message_too_long">ข้อความยาวเกินไป</string>
+    <string name="support_chat_today">วันนี้</string>
+    <string name="support_chat_yesterday">เมื่อวาน</string>
+    <string name="support_chat_response_time_notice">การตอบกลับอาจใช้เวลาถึง 24 ชั่วโมง</string>
+    <string name="support_chat_attach_image">แนบรูปภาพ</string>
+</resources>

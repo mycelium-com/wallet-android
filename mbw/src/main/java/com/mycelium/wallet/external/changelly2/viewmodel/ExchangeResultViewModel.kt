@@ -39,8 +39,8 @@ class ExchangeResultViewModel : ViewModel() {
 
     fun setTransaction(result: ChangellyTransaction) {
         txId.value = result.id
-        spendValue.value = "${result.amountExpectedFrom} ${result.currencyFrom.toUpperCase()}"
-        getValue.value = "${result.amountExpectedTo} ${result.currencyTo.toUpperCase()}"
+        spendValue.value = "${result.amountExpectedFrom} ${result.currencyFrom.uppercase()}"
+        getValue.value = "${result.amountExpectedTo} ${result.currencyTo.uppercase()}"
         date.value = DateFormat.getDateInstance(DateFormat.LONG).format(result.createdAt)
         spendValueFiat.value = getFiatValue(result.amountExpectedFrom, result.currencyFrom)
         getValueFiat.value = getFiatValue(result.amountExpectedTo, result.currencyTo)

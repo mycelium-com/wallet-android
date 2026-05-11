@@ -34,11 +34,11 @@ class Bech32Test {
             val dec = Bech32.decode(valid)
             var recode = Bech32.encode(dec)
             assertEquals("Failed to roundtrip '$valid' -> '$recode'",
-                    valid.toLowerCase(Locale.ROOT), recode.toLowerCase(Locale.ROOT))
+                    valid.lowercase(Locale.ROOT), recode.lowercase(Locale.ROOT))
             // Test encoding with an uppercase HRP
-            recode = Bech32.encode(Bech32.Encoding.BECH32, dec.hrp.toUpperCase(Locale.ROOT), dec.values)
+            recode = Bech32.encode(Bech32.Encoding.BECH32, dec.hrp.uppercase(Locale.ROOT), dec.values)
             assertEquals("Failed to roundtrip '$valid' -> '$recode'",
-                    valid.toLowerCase(Locale.ROOT), recode.toLowerCase(Locale.ROOT))
+                    valid.lowercase(Locale.ROOT), recode.lowercase(Locale.ROOT))
         }
     }
 
@@ -84,8 +84,8 @@ class Bech32Test {
         } catch (e: SegwitAddress.SegwitAddressException) {
             e.printStackTrace()
         }
-        assertEquals("encode roundtrip fails: '${valid.address.toLowerCase(Locale.ROOT)}' -> '$recode'",
-                valid.address.toLowerCase(Locale.ROOT), recode)
+        assertEquals("encode roundtrip fails: '${valid.address.lowercase(Locale.ROOT)}' -> '$recode'",
+                valid.address.lowercase(Locale.ROOT), recode)
     }
 
     @Test

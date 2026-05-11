@@ -75,7 +75,7 @@ class ChangellyInterceptor : Interceptor {
             } else {
                 val param = request.url.queryParameter(name)
                 val value = param?.let {
-                    if (name == "from" || name == "to") it.toLowerCase(Locale.ROOT) else it
+                    if (name == "from" || name == "to") it.lowercase() else it
                 }
                 put(name, value)
             }

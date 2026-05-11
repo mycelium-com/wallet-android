@@ -1,0 +1,12 @@
+ALTER TABLE EthAccountBacking ADD COLUMN status TEXT NOT NULL DEFAULT 'PENDING';
+
+UPDATE EthAccountBacking
+SET status = (
+    SELECT CASE
+        WHEN b.confirmations > 0 AND EthAccountBacking.success = 1 THEN 'CONFIRMED'
+        WHEN b.confirmations > 0 AND EthAccountBacking.success = 0 THEN 'FAILED'
+        ELSE 'PENDING'
+    END
+    FROM AccountBacking AS b
+    WHERE b.txid = EthAccountBacking.txid AND b.uuid = EthAccountBacking.uuid
+);

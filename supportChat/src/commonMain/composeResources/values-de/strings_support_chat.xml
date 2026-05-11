@@ -1,0 +1,19 @@
+<resources>
+    <!-- Support Chat -->
+    <string name="support_chat_title">Support</string>
+    <string name="support_chat_empty_title">Noch keine Nachrichten</string>
+    <string name="support_chat_empty_subtitle">Starten Sie eine Unterhaltung mit unserem Support-Team</string>
+    <string name="support_chat_input_hint">Nachricht eingeben...</string>
+    <string name="support_chat_send">Senden</string>
+    <string name="support_chat_loading">Nachrichten werden geladen...</string>
+    <string name="support_chat_loading_more">Weitere laden...</string>
+    <string name="support_chat_error_generic">Etwas ist schief gelaufen</string>
+    <string name="support_chat_error_retry">Erneut versuchen</string>
+    <string name="support_chat_fab_description">Support-Chat öffnen</string>
+    <string name="support_chat_rate_limit_error">Zu viele Nachrichten. Bitte warten Sie.</string>
+    <string name="support_chat_message_too_long">Nachricht ist zu lang</string>
+    <string name="support_chat_today">Heute</string>
+    <string name="support_chat_yesterday">Gestern</string>
+    <string name="support_chat_response_time_notice">Antworten können bis zu 24 Stunden dauern</string>
+    <string name="support_chat_attach_image">Bild anhängen</string>
+</resources>

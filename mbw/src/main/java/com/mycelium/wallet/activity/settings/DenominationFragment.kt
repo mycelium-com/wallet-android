@@ -43,7 +43,7 @@ class DenominationFragment : PreferenceFragmentCompat() {
                 symbol = if (symbol.startsWith("t")) symbol.substring(1) else symbol
                 for (value in Denomination.values()) {
                     if (value.supportedBy(symbol)) {
-                        val key = value.toString().toLowerCase(Locale.ROOT) + "(" + value.getUnicodeString(symbol) + ")"
+                        val key = value.toString().lowercase() + "(" + value.getUnicodeString(symbol) + ")"
                         denominationMap[key] = value
                         if (value === mbwManager.getDenomination(coinType)) {
                             defaultValue = key

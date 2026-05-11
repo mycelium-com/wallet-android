@@ -33,6 +33,11 @@ UPDATE AccountBacking
 SET blockNumber = (?), confirmations = (?)
 WHERE uuid = (?) AND txid = (?);
 
+updateBlockNumberAndTimestamp:
+UPDATE AccountBacking
+SET blockNumber = (?), timestamp = (?)
+WHERE uuid = (?) AND txid = (?);
+
 updateFee:
 UPDATE AccountBacking
 SET fee = (?)

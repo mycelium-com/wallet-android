@@ -4,6 +4,7 @@ tmp
 __artifacts_temp
 build.properties
 .DS_Store
+.kotlin
 classes
 /alfaBank.log
 build/
@@ -23,3 +24,4 @@ nohup.out
 /keystore_mbwTest
 /crowdin.properties
 **/ndk_locator_record.json
+.kotlin/

@@ -34,7 +34,6 @@ import okhttp3.Request
 import okhttp3.RequestBody
 import okhttp3.Response
 import java.io.IOException
-import java.util.Locale
 
 class ManualAddressEntry : AppCompatActivity() {
     private var coinAddress: Address? = null
@@ -159,7 +158,7 @@ class ManualAddressEntry : AppCompatActivity() {
         updateUI()
         // TODO: 10/6/20 Use: val result = FioTransactionHistoryService.getPubkeyByFioAddress()
         //       It probably needs changes to preserve the error handling.
-        val tokenCode = coinType.symbol.toUpperCase(Locale.US)
+        val tokenCode = coinType.symbol.uppercase()
         val chainCode = if (coinType is ERC20Token) "ETH" else tokenCode
         queryAddress(address, chainCode, tokenCode)
         queryAddressAvailability(address)

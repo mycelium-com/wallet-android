@@ -3,12 +3,14 @@ package com.mycelium.wapi.wallet
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.eth.EthAddress
+import com.mycelium.wapi.wallet.eth.EthTxStatus
 import java.math.BigInteger
 
 class EthTransactionSummary(val sender: EthAddress, val receiver: EthAddress, val nonce: BigInteger?,
                             val value: Value, val internalValue: Value?, val gasLimit: BigInteger,
                             val gasUsed: BigInteger, val gasPrice: BigInteger,
                             val hasTokenTransfers: Boolean,
+                            val status: EthTxStatus,
                             type: CryptoCurrency, id: ByteArray, hash: ByteArray,
                             transferred: Value, timestamp: Long, height: Int, confirmations: Int,
                             isQueuedOutgoing: Boolean, inputs: List<InputViewModel>,

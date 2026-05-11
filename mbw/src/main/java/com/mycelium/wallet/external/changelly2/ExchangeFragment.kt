@@ -244,13 +244,13 @@ class ExchangeFragment : Fragment(), BackListener {
                 override fun maxError(maxValue: BigDecimal) {
                     viewModel.errorKeyboard.value = resources.getString(R.string.exchange_max_msg,
                             viewModel.exchangeInfo.value?.maxFrom?.stripTrailingZeros()?.toPlainString(),
-                            viewModel.exchangeInfo.value?.from?.toUpperCase())
+                            viewModel.exchangeInfo.value?.from?.uppercase())
                 }
 
                 override fun minError(minValue: BigDecimal) {
                     viewModel.errorKeyboard.value = resources.getString(R.string.exchange_min_msg,
                             viewModel.exchangeInfo.value?.minFrom?.stripTrailingZeros()?.toPlainString(),
-                            viewModel.exchangeInfo.value?.from?.toUpperCase())
+                            viewModel.exchangeInfo.value?.from?.uppercase())
                 }
 
                 override fun formatError() {
@@ -440,10 +440,10 @@ class ExchangeFragment : Fragment(), BackListener {
                     .setTitle(getString(R.string.exchange_accept_dialog_title))
                     .setMessage(getString(R.string.exchange_accept_dialog_msg,
                             result.result?.amountExpectedFrom?.stripTrailingZeros()?.toPlainString(),
-                            result.result?.currencyFrom?.toUpperCase(),
+                            result.result?.currencyFrom?.uppercase(),
                             unsignedTx?.totalFee()?.toStringWithUnit(),
                             result.result?.amountExpectedTo?.stripTrailingZeros()?.toPlainString(),
-                            result.result?.currencyTo?.toUpperCase()))
+                            result.result?.currencyTo?.uppercase()))
                     .setPositiveButton(R.string.button_ok) { _, _ ->
                         viewModel.mbwManager.runPinProtectedFunction(activity) {
                             action()
@@ -718,7 +718,7 @@ class ExchangeFragment : Fragment(), BackListener {
                 iconPath(Util.trimTestnetSymbolDecoration(coin.symbol))
 
         fun iconPath(coin: String) =
-                Uri.parse("file:///android_asset/token-logos/" + coin.toLowerCase() + "_logo.png")
+                Uri.parse("file:///android_asset/token-logos/" + coin.lowercase() + "_logo.png")
 
         const val CHANGELLY_TERM_OF_USER = "https://changelly.com/terms-of-use"
     }

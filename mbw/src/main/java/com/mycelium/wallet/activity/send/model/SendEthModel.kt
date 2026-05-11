@@ -31,7 +31,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import org.web3j.tx.Transfer
-import org.web3j.utils.Convert
 import java.math.BigInteger
 import java.util.Date
 import java.util.Timer
@@ -69,10 +68,15 @@ class SendEthModel(application: Application,
                     }
                     is TransactionItem -> {
                         val tx = value.tx as EthTransactionSummary
-                        val suggestedGasPrice = if (tx.fee != null) {
-                            val oldFeePlusSomething = tx.fee!!.value / tx.gasUsed + Convert.toWei("10", Convert.Unit.GWEI).toBigInteger()
-                            selectedFee.value?.value?.max(oldFeePlusSomething) ?: oldFeePlusSomething
-                        } else null
+                        val oldGasPrice = when {
+                            tx.gasPrice > BigInteger.ZERO -> tx.gasPrice
+                            tx.fee != null && tx.gasUsed > BigInteger.ZERO -> tx.fee!!.value / tx.gasUsed
+                            else -> null
+                        }
+                        val suggestedGasPrice = oldGasPrice?.let {
+                            val bumped = it * BigInteger.valueOf(110) / BigInteger.valueOf(100)
+                            feeEstimation.normal.value.max(bumped)
+                        }
                         nonce.value = tx.nonce
                         transactionData.value = EthTransactionData(tx.nonce, oldData.gasLimit, oldData.inputData, suggestedGasPrice)
                     }
