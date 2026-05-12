@@ -21,7 +21,7 @@ espresso = "3.6.1"
 glide = "5.0.5"
 junit = "1.2.1"
 kotlin = "2.3.0"
-androidGradlePlugin = "9.2.0"
+androidGradlePlugin = "9.2.1"
 sqldelight = "2.0.2"
 playServicesBase = "18.7.0"
 

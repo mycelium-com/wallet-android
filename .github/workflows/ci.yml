@@ -15,15 +15,15 @@ jobs:
     - name: Install deps
       run: sudo apt-get install -y unzip diffutils
 
-    - name: Set up JDK environment
-      uses: actions/setup-java@v3
-      with:
-        distribution: 'zulu'
-        java-version: '17'
-
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       with:
         submodules: recursive
+
+    - name: Set up JDK environment
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'zulu'
+        java-version: '21'
 
     - name: Setup Android SDK
       uses: android-actions/setup-android@v3
@@ -33,16 +33,6 @@ jobs:
       with:
         gradle-version: wrapper
         cache-read-only: false
-
-    - name: Cache Gradle files
-      uses: actions/cache@v3
-      with:
-        path: |
-          ~/.gradle/caches
-          ~/.gradle/wrapper
-        key: gradle-${{ runner.os }}-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-        restore-keys: |
-          gradle-${{ runner.os }}-
 
     - run: ./gradlew --no-daemon --build-cache --parallel --configure-on-demand clean test mbw:assembleProdnetDebug mbw:assembleBtctestnetDebug
 

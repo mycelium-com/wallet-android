@@ -1,11 +1,11 @@
-FROM ubuntu:18.04
+FROM ubuntu:22.04
 
 RUN dpkg --add-architecture i386 && \
     apt-get update -y && \
     apt-get install -y software-properties-common && \
     apt-get update -y && \
     apt-get install -y wget \
-            openjdk-17-jdk \
+            openjdk-21-jdk \
             git unzip disorderfs && \
     rm -rf /var/lib/apt/lists/* && \
     apt-get autoremove -y && \
