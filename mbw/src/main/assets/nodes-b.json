@@ -2345,17 +2345,20 @@
     "WAPI": {
       "primary": [
         {
-          "url": "https://wapi.mycelium.com",
-          "cert-sha1": "AB:11:C8:05:8D:E3:83:E2:94:68:21:4E:FB:D2:A3:BC:4C:98:0E:59"
+          "url": "https://wapi-pinned.mycelium.com",
+          "cert-sha1": "81:DF:CA:E4:FA:52:A3:3E:A3:71:BB:39:E5:4E:B6:21:F5:8A:7D:4D"
         },
         {
           "url": "https://xrnvil3zn6wgtliinli7vrqgvz77osetux7szpe5l63bvqnpikwu7iqd.onion",
-          "cert-sha1": "AB:11:C8:05:8D:E3:83:E2:94:68:21:4E:FB:D2:A3:BC:4C:98:0E:59"
+          "cert-sha1": "81:DF:CA:E4:FA:52:A3:3E:A3:71:BB:39:E5:4E:B6:21:F5:8A:7D:4D"
         }
       ]
     },
     "electrumx": {
       "primary": [
+        {
+          "url": "tcp-tls://electrumx-btc-3a-geo.mycelium.com:29130"
+        },
         {
           "url": "tcp-tls://electrumx-btc-3a.mycelium.com:29130"
         },
@@ -2370,12 +2373,6 @@
         },
         {
           "url": "tcp-tls://electrumx-btc-3a3.mycelium.com:10000"
-        },
-        {
-          "url": "tcp-tls://electrumx-1a0.mycelium.com:10000"
-        },
-        {
-          "url": "tcp-tls://electrumx-1a0.mycelium.com:50002"
         }
       ],
       "tor": [
@@ -2393,6 +2390,13 @@
         },
         {
           "url": "z4ckw7oioinyp2xn2obpnzn2xi3nwatokzaqefn4iysfxh6s4f7kf4qd.onion:50001"
+        }
+      ]
+    },
+    "blockbook-servers": {
+      "primary": [
+        {
+          "url": "https://bb-btc.mycelium.com:9130"
         }
       ]
     }
@@ -2429,6 +2433,13 @@
       "tor" : [
         {
           "url": "f57zwybcthsxjwiq5rnnslaxvlev6axcbj6dv2rsqnay7xcm7p3v3aqd.onion:50001"
+        }
+      ]
+    },
+    "blockbook-servers": {
+      "primary": [
+        {
+          "url": "https://bb-btc.mycelium.com:19129"
         }
       ]
     }
