@@ -69,6 +69,7 @@ kotlin {
 
 compose.resources {
     publicResClass = true
+    packageOfResClass = "wallet_android_private.supportchat.generated.resources"
 }
 
 dependencies {
