@@ -24,13 +24,13 @@ apply from: 'ext_settings.gradle'
 allprojects {
     tasks.withType(JavaCompile).configureEach {
         options.compilerArgs << "-Xlint:deprecation,unchecked"
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
+        sourceCompatibility = JavaVersion.VERSION_21
+        targetCompatibility = JavaVersion.VERSION_21
     }
     tasks.withType(KotlinCompile).configureEach {
-//        kotlinOptions.jvmTarget = "17"
+//        kotlinOptions.jvmTarget = "21"
         compilerOptions {
-            jvmTarget.set(JvmTarget.JVM_17)
+            jvmTarget.set(JvmTarget.JVM_21)
             freeCompilerArgs.add("-java-parameters")
         }
     }
@@ -40,7 +40,7 @@ subprojects {
     plugins.withId("org.jetbrains.kotlin.jvm") {
         kotlin {
             jvmToolchain {
-                languageVersion.set(JavaLanguageVersion.of(17))
+                languageVersion.set(JavaLanguageVersion.of(21))
             }
         }
     }
