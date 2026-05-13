@@ -13,7 +13,8 @@ junitVersion = "4.13.2"
 lifecycle = "2.8.7"
 mockkAndroid = "1.13.3"
 navigation = "2.9.6"
-protoBufVersion = "3.6.1"
+protoBufVersion = "3.25.5"
+protobufPlugin = "0.9.5"
 recyclerViewVersion = "1.2.1"
 retrofit = "2.6.1"
 test-core = "1.6.1"
@@ -60,6 +61,8 @@ web3j-abi = { module = "org.web3j:abi", version.ref = "web3j" }
 web3j-crypto = { module = "org.web3j:crypto", version.ref = "web3j" }
 web3j-utils = { module = "org.web3j:utils", version.ref = "web3j" }
 protobuf-java = { module = "com.google.protobuf:protobuf-java", version.ref = "protoBufVersion" }
+protobuf-javalite = { module = "com.google.protobuf:protobuf-javalite", version.ref = "protoBufVersion" }
+protobuf-protoc = { module = "com.google.protobuf:protoc", version.ref = "protoBufVersion" }
 recyclerview = { module = "androidx.recyclerview:recyclerview", version.ref = "recyclerViewVersion" }
 firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBomVersion" }
 firebase-dynamic-links = { module = "com.google.firebase:firebase-dynamic-links" }
@@ -143,6 +146,7 @@ naviagation = { id = "androidx.navigation.safeargs.kotlin", version.ref = "navig
 sqldelight = { id = "app.cash.sqldelight", version.ref = "sqldelight" }
 google-services = { id = "com.google.gms.google-services", version = "4.4.2" }
 doka = { id = "org.jetbrains.dokka", version = "2.0.0" }
+protobuf = { id = "com.google.protobuf", version.ref = "protobufPlugin" }
 
 [bundles]
 android-test-bundle = ["test-core-ktx", "test-core", "test-junit", "test-rules", "test-runner"]
