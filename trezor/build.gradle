@@ -8,11 +8,6 @@ dependencies {
     implementation libs.androidx.core
     api libs.protobuf.javalite
 
-    // Provides google/protobuf/descriptor.proto used by types.proto's
-    // `extend google.protobuf.EnumValueOptions` declaration at proto-gen time.
-    // Not packaged at runtime — only consumed by protoc.
-    protobuf libs.protobuf.java
-
     testImplementation libs.junit
 }
 
