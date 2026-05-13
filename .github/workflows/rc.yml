@@ -32,7 +32,7 @@ jobs:
           mkdir /project/
           disorderfs --sort-dirents=yes --reverse-dirents=no /app/ /project/;
           cd /project/
-          ./gradlew --no-daemon --parallel --configure-on-demand clean test mbw:assembleProdnetDebug mbw:assembleBtctestnetDebug mbw:assembleProdnetRelease mbw:assembleBtctestnetRelease mbw:assembleHuaweiProdnetRelease 
+          ./gradlew --no-daemon --parallel --configure-on-demand clean test mbw:assembleProdnetDebug mbw:assembleBtctestnetDebug mbw:assembleProdnetRelease mbw:assembleBtctestnetRelease # mbw:assembleHuaweiProdnetRelease
 
     - uses: actions/upload-artifact@v4
       with:

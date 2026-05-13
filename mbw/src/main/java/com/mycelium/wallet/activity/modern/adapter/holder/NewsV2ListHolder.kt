@@ -11,16 +11,14 @@ import androidx.recyclerview.widget.RecyclerView
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.modern.adapter.NewsAdapter
 import com.mycelium.wallet.activity.news.adapter.holder.NewsV2DoubleHolder
-import com.mycelium.wallet.databinding.ItemAllNewsSearchBinding
 import com.mycelium.wallet.external.mediaflow.model.News
 
 
 class NewsV2ListHolder(val preferences: SharedPreferences, itemView: View) : RecyclerView.ViewHolder(itemView) {
     val adapter: NewsSmallAdapter = NewsSmallAdapter(itemView.context, preferences)
     var clickListener: ((News) -> Unit)? = null
-    val binding = ItemAllNewsSearchBinding.bind(itemView)
     init {
-        binding.list.adapter = adapter
+        (itemView as RecyclerView).adapter = adapter
     }
 
     inner class NewsSmallAdapter(val context: Context, val preferences: SharedPreferences)

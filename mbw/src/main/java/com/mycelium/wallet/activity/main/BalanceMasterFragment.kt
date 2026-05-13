@@ -44,6 +44,12 @@ class BalanceMasterFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        // On restore childFragmentManager re-attaches the previous child fragments and the
+        // framework applies their saved view state. Re-running replace() here would race that
+        // restore and can cause "Wrong state class" IAE in onRestoreInstanceState when the
+        // restored state lands on a different view type at the same id.
+        if (savedInstanceState != null) return
+
         val fragmentTransaction = childFragmentManager.beginTransaction()
         val account = MbwManager.getInstance(this.activity).selectedAccount
         binding?.run {
@@ -123,7 +129,13 @@ class BalanceMasterFragment : Fragment() {
     }
 
     private fun updateAddressView() {
+        val containerId = binding?.phFragmentAddress?.id ?: return
         val account = MbwManager.getInstance(this.activity).selectedAccount
+        val isRmc = account.coinType === RMCCoin || account.coinType === RMCCoinTest
+        val current = childFragmentManager.findFragmentById(containerId)
+        val alreadyCorrect = (isRmc && current is RMCAddressFragment) ||
+                (!isRmc && current is AddressFragment)
+        if (alreadyCorrect) return
         val fragmentTransaction = childFragmentManager.beginTransaction()
         binding?.defineAddressAccountView(fragmentTransaction, account)
         fragmentTransaction.commitAllowingStateLoss()
