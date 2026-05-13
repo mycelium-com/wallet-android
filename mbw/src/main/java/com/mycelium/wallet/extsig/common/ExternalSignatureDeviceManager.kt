@@ -6,8 +6,8 @@ import android.content.Intent
 import android.net.Uri
 import android.util.Log
 import com.google.protobuf.ByteString
-import com.google.protobuf.GeneratedMessageV3
-import com.google.protobuf.Message
+import com.google.protobuf.GeneratedMessageLite
+import com.google.protobuf.MessageLite
 import com.mrd.bitlib.UnsignedTransaction
 import com.mrd.bitlib.crypto.BipDerivationType
 import com.mrd.bitlib.crypto.HdKeyNode
@@ -451,7 +451,7 @@ abstract class ExternalSignatureDeviceManager(
         pinMatrixEntry.offer(pin)
     }
 
-    private fun filterMessages(msg: Message?, transaction: UnsignedTransaction? = null, forAccount: HDAccount? = null): Message? {
+    private fun filterMessages(msg: MessageLite?, transaction: UnsignedTransaction? = null, forAccount: HDAccount? = null): MessageLite? {
         return when (msg) {
             is TrezorMessage.ButtonRequest -> processButtonRequest(msg, transaction, forAccount)
             is TrezorMessage.PinMatrixRequest -> processPinMatrixRequest(transaction, forAccount)
@@ -480,13 +480,13 @@ abstract class ExternalSignatureDeviceManager(
         }
     }
 
-    private fun processPassphraseStateRequest(transaction: UnsignedTransaction?, account: HDAccount?): Message? {
+    private fun processPassphraseStateRequest(transaction: UnsignedTransaction?, account: HDAccount?): MessageLite? {
         val response = TrezorMessage.PassphraseStateAck.newBuilder().build()
         return filterMessages(signatureDevice.send(response), transaction, account)
     }
 
-    private fun processPassphraseRequest(onDevice: Boolean, transaction: UnsignedTransaction?, account: HDAccount?): Message? {
-        val response: GeneratedMessageV3
+    private fun processPassphraseRequest(onDevice: Boolean, transaction: UnsignedTransaction?, account: HDAccount?): MessageLite? {
+        val response: GeneratedMessageLite<*, *>
 
         if (onDevice) {
             response = TrezorMessage.PassphraseAck.newBuilder().build()
@@ -512,7 +512,7 @@ abstract class ExternalSignatureDeviceManager(
         }
     }
 
-    private fun processPinMatrixRequest(transaction: UnsignedTransaction?, account: HDAccount?): Message? {
+    private fun processPinMatrixRequest(transaction: UnsignedTransaction?, account: HDAccount?): MessageLite? {
         mainThreadHandler.post { eventBus.post(OnPinMatrixRequest()) }
         val pin: String = try {
             // wait for the user to enter the pin
@@ -530,7 +530,7 @@ abstract class ExternalSignatureDeviceManager(
         return filterMessages(signatureDevice.send(txPinAck), transaction, account)
     }
 
-    private fun processButtonRequest(message: Message, transaction: UnsignedTransaction?, account: HDAccount?): Message? {
+    private fun processButtonRequest(message: MessageLite, transaction: UnsignedTransaction?, account: HDAccount?): MessageLite? {
 
         mainThreadHandler.post { eventBus.post(OnButtonRequest()) }
 

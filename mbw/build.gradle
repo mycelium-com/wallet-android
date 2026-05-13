@@ -92,7 +92,7 @@ dependencies {
     implementation "com.squareup.okhttp3:logging-interceptor:3.8.1"
     implementation "com.squareup.okhttp:okhttp:$okhttpVersion"
     implementation "commons-codec:commons-codec:1.10"
-    compileOnly libs.protobuf.java
+    compileOnly libs.protobuf.javalite
     implementation "androidx.constraintlayout:constraintlayout:$constraintLayoutVersion"
       //USED BY KYC only, have to be reviewed later
     implementation "com.googlecode.libphonenumber:libphonenumber:8.12.2"
@@ -199,6 +199,11 @@ android {
         // bitcoinj brings in a native library for x86_64, which seems to confuse the playstore upload - just strip the file
         // still relevant 2021-03-31
         exclude 'lib/x86_64/darwin/libscrypt.dylib'
+        // .proto source files leak into the trezor AAR via the protobuf-gradle-plugin's
+        // extracted-include-protos; they collide with the same well-known-types .proto
+        // shipped inside protobuf-javalite. They're only needed at protoc-gen time, never
+        // at runtime — strip them from the final APK.
+        exclude '**/*.proto'
         resources {
             excludes += "/META-INF/DISCLAIMER"
         }
@@ -397,79 +402,79 @@ android {
             logger.info("Signing config is ", signingConfig)
         }
 
-        huaweiProdnet {
-            applicationId 'com.mycelium.wallet.app'
-            versionName = defaultConfig.versionName
-            signingConfig signingConfigs.release
-
-            ext {
-                MTAssetID = "LaA8aiRBha2BcC6PCqMuK8xzZqdA3Lb6VVv41K"
-                MassAssetID = "La4szjzKfJyHQ75qgDEnbzp4qY8GQeDR5Z7h2W"
-                RMCAssetID = "La4aGUPuNKZyC393pS2Nb4RJdk2WvmoaAdrRLZ"
-                RMCApiClientURL = "https://rmc-ico.gear.mycelium.com/api/"
-                ColoredCoinsApiURLs = '{"https://coloredcoinsd.gear.mycelium.com/v3/", "https://api.coloredcoins.org/v3/"}'
-                ColuBlockExplorerApiURLs = '{"https://coloredcoins.gear.mycelium.com/api/", "https://explorer.coloredcoins.org/api/"}'
-                RMCChangeAddress = "18c91fJmVg7btPjxpwrhgwd37GkVghq9me"
-
-
-                ElectrumServers = '{"tcp-tls://electrumx-1a.mycelium.com:10000",' +
-                        '"tcp-tls://electrumx-1a0.mycelium.com:10000",' +
-                        '"tcp-tls://electrumx-1a0.mycelium.com:50002",' +
-                        '"tcp-tls://electrumx-1a1.mycelium.com:10000",' +
-                        '"tcp-tls://electrumx-1a1.mycelium.com:50002",' +
-                        '"tcp-tls://electrumx-1a2.mycelium.com:10000",' +
-                        '"tcp-tls://electrumx-1a2.mycelium.com:50002",' +
-                        '"tcp-tls://electrumx-2a0.mycelium.com:10000",' +
-                        '"tcp-tls://electrumx-2a0.mycelium.com:10001"}'
-                WapiServers='"[{\\\'cert-sha1\':\\\'17:62:9D:04:0D:4E:1E:A2:9A:BD:FF:9F:38:1B:18:8F:94:3E:8B:5F\\\',\\\'url\\\':\\\'https://wapi.mycelium.com\\\'}]"'
-                ElectrumBTCVServers ='{"tcp-tls://electrumx-mainnet1.bitcoinvault.global:443",' +
-                        '"tcp-tls://electrumx-mainnet2.bitcoinvault.global:443"}'
-                EthBlockBook = '{"https://bb-eth.mycelium.com:9136"}'
-                FioApiServers = '{"https://fio.eu.eosamsterdam.net/v1/",' +
-                        '"https://fio.eosdac.io/v1/",' +
-                        '"https://fio.eosphere.io/v1/",' +
-                        '"https://fio.eosrio.io/v1/",' +
-                        '"https://fio.acherontrading.com/v1/",' +
-                        '"https://fio.eos.barcelona/v1/",' +
-                        '"https://fio.zenblocks.io/v1/",' +
-                        '"https://api.fio.alohaeos.com/v1/",' +
-                        '"https://fio.greymass.com/v1/",' +
-                        '"https://fio.genereos.io/v1/",' +
-                        '"https://fio.eosusa.news/v1/",' +
-                        '"https://fio.eosargentina.io/v1/",' +
-                        '"https://fio.cryptolions.io/v1/",' +
-                        '"https://fio-mainnet.eosblocksmith.io/v1/",' +
-                        '"https://api.fio.currencyhub.io/v1/",' +
-                        '"https://fio.eoscannon.io/v1/",' +
-                        '"https://fio.eosdublin.io/v1/",' +
-                        '"https://api.fiosweden.org/v1/",' +
-                        '"https://api.fio.greeneosio.com/v1/",' +
-                        '"https://fioapi.ledgerwise.io/v1/",' +
-                        '"https://api.fio.services/v1/",' +
-                        '"https://fio.eostribe.io/v1/",' +
-                        '"https://fio-za.eostribe.io/v1/"}'
-                FioHistoryServers = '{"https://fio.greymass.com/v1/",' +
-                        '"https://fio.greymass.com/v1/",' +
-                        '"https://fio.eosphere.io/v1/",' +
-                        '"https://api.fiosweden.org/v1/",' +
-                        '"https://fio.eosphere.io/v1/"}'
-                tpid = ""
-
-                appIdSpvBch = [release: "com.mycelium.module.spvbch",
-                               debug  : "com.mycelium.module.spvbch.debug"]
-                appIdGeb = [release: "com.modules.tradingbots.getextrabtc",
-                            debug  : "com.modules.tradingbots.getextrabtc.debug"]
-                simplex ="https://exchange.mycelium.com/"
-                safello = "https://app.safello.com/sdk/quickbuy.html?appId=21d71273-8f10-4c48-b5f4-09617586f909&lang=en&utm_source=Mycelium&utm_medium=Wallet&address=%s&dark-mode=true"
-                sepa = "https://app.safello.com/sdk/quickbuy.html?appId=908d82e3-939d-45eb-95fa-77d9c9441d9d&lang=en&utm_source=Mycelium&utm_medium=Wallet&address=%s&dark-mode=true&channel=bank_transfer&tabs=true"
-                safelloEth = "https://app.safello.com/sdk/quickbuy.html?appId=21d71273-8f10-4c48-b5f4-09617586f909&lang=en&utm_source=Mycelium&utm_medium=Wallet&address=%s&dark-mode=true&crypto=eth"
-                sepaEth = "https://app.safello.com/sdk/quickbuy.html?appId=908d82e3-939d-45eb-95fa-77d9c9441d9d&lang=en&utm_source=Mycelium&utm_medium=Wallet&address=%s&dark-mode=true&channel=bank_transfer&crypto=eth"
-                sepaBuyBitsOfGold = "https://www.bitsofgold.co.il/order/buy?order_id=null&page=0&provider=mycelium&utm_source=Mycelium&utm_medium=mobile_app&utm_campaign=ci"
-                sepaSellBitsOfGold = "https://www.bitsofgold.co.il/order/sell?order_id=null&page=0&provider=mycelium&utm_source=Mycelium&utm_medium=mobile_app&utm_campaign=co"
-                mediaFlowURL = "https://media.mycelium.com/wp-json/wp/v2/"
-            }
-            logger.info("Signing config is ", signingConfig)
-        }
+//        huaweiProdnet {
+//            applicationId 'com.mycelium.wallet.app'
+//            versionName = defaultConfig.versionName
+//            signingConfig signingConfigs.release
+//
+//            ext {
+//                MTAssetID = "LaA8aiRBha2BcC6PCqMuK8xzZqdA3Lb6VVv41K"
+//                MassAssetID = "La4szjzKfJyHQ75qgDEnbzp4qY8GQeDR5Z7h2W"
+//                RMCAssetID = "La4aGUPuNKZyC393pS2Nb4RJdk2WvmoaAdrRLZ"
+//                RMCApiClientURL = "https://rmc-ico.gear.mycelium.com/api/"
+//                ColoredCoinsApiURLs = '{"https://coloredcoinsd.gear.mycelium.com/v3/", "https://api.coloredcoins.org/v3/"}'
+//                ColuBlockExplorerApiURLs = '{"https://coloredcoins.gear.mycelium.com/api/", "https://explorer.coloredcoins.org/api/"}'
+//                RMCChangeAddress = "18c91fJmVg7btPjxpwrhgwd37GkVghq9me"
+//
+//
+//                ElectrumServers = '{"tcp-tls://electrumx-1a.mycelium.com:10000",' +
+//                        '"tcp-tls://electrumx-1a0.mycelium.com:10000",' +
+//                        '"tcp-tls://electrumx-1a0.mycelium.com:50002",' +
+//                        '"tcp-tls://electrumx-1a1.mycelium.com:10000",' +
+//                        '"tcp-tls://electrumx-1a1.mycelium.com:50002",' +
+//                        '"tcp-tls://electrumx-1a2.mycelium.com:10000",' +
+//                        '"tcp-tls://electrumx-1a2.mycelium.com:50002",' +
+//                        '"tcp-tls://electrumx-2a0.mycelium.com:10000",' +
+//                        '"tcp-tls://electrumx-2a0.mycelium.com:10001"}'
+//                WapiServers='"[{\\\'cert-sha1\':\\\'17:62:9D:04:0D:4E:1E:A2:9A:BD:FF:9F:38:1B:18:8F:94:3E:8B:5F\\\',\\\'url\\\':\\\'https://wapi.mycelium.com\\\'}]"'
+//                ElectrumBTCVServers ='{"tcp-tls://electrumx-mainnet1.bitcoinvault.global:443",' +
+//                        '"tcp-tls://electrumx-mainnet2.bitcoinvault.global:443"}'
+//                EthBlockBook = '{"https://bb-eth.mycelium.com:9136"}'
+//                FioApiServers = '{"https://fio.eu.eosamsterdam.net/v1/",' +
+//                        '"https://fio.eosdac.io/v1/",' +
+//                        '"https://fio.eosphere.io/v1/",' +
+//                        '"https://fio.eosrio.io/v1/",' +
+//                        '"https://fio.acherontrading.com/v1/",' +
+//                        '"https://fio.eos.barcelona/v1/",' +
+//                        '"https://fio.zenblocks.io/v1/",' +
+//                        '"https://api.fio.alohaeos.com/v1/",' +
+//                        '"https://fio.greymass.com/v1/",' +
+//                        '"https://fio.genereos.io/v1/",' +
+//                        '"https://fio.eosusa.news/v1/",' +
+//                        '"https://fio.eosargentina.io/v1/",' +
+//                        '"https://fio.cryptolions.io/v1/",' +
+//                        '"https://fio-mainnet.eosblocksmith.io/v1/",' +
+//                        '"https://api.fio.currencyhub.io/v1/",' +
+//                        '"https://fio.eoscannon.io/v1/",' +
+//                        '"https://fio.eosdublin.io/v1/",' +
+//                        '"https://api.fiosweden.org/v1/",' +
+//                        '"https://api.fio.greeneosio.com/v1/",' +
+//                        '"https://fioapi.ledgerwise.io/v1/",' +
+//                        '"https://api.fio.services/v1/",' +
+//                        '"https://fio.eostribe.io/v1/",' +
+//                        '"https://fio-za.eostribe.io/v1/"}'
+//                FioHistoryServers = '{"https://fio.greymass.com/v1/",' +
+//                        '"https://fio.greymass.com/v1/",' +
+//                        '"https://fio.eosphere.io/v1/",' +
+//                        '"https://api.fiosweden.org/v1/",' +
+//                        '"https://fio.eosphere.io/v1/"}'
+//                tpid = ""
+//
+//                appIdSpvBch = [release: "com.mycelium.module.spvbch",
+//                               debug  : "com.mycelium.module.spvbch.debug"]
+//                appIdGeb = [release: "com.modules.tradingbots.getextrabtc",
+//                            debug  : "com.modules.tradingbots.getextrabtc.debug"]
+//                simplex ="https://exchange.mycelium.com/"
+//                safello = "https://app.safello.com/sdk/quickbuy.html?appId=21d71273-8f10-4c48-b5f4-09617586f909&lang=en&utm_source=Mycelium&utm_medium=Wallet&address=%s&dark-mode=true"
+//                sepa = "https://app.safello.com/sdk/quickbuy.html?appId=908d82e3-939d-45eb-95fa-77d9c9441d9d&lang=en&utm_source=Mycelium&utm_medium=Wallet&address=%s&dark-mode=true&channel=bank_transfer&tabs=true"
+//                safelloEth = "https://app.safello.com/sdk/quickbuy.html?appId=21d71273-8f10-4c48-b5f4-09617586f909&lang=en&utm_source=Mycelium&utm_medium=Wallet&address=%s&dark-mode=true&crypto=eth"
+//                sepaEth = "https://app.safello.com/sdk/quickbuy.html?appId=908d82e3-939d-45eb-95fa-77d9c9441d9d&lang=en&utm_source=Mycelium&utm_medium=Wallet&address=%s&dark-mode=true&channel=bank_transfer&crypto=eth"
+//                sepaBuyBitsOfGold = "https://www.bitsofgold.co.il/order/buy?order_id=null&page=0&provider=mycelium&utm_source=Mycelium&utm_medium=mobile_app&utm_campaign=ci"
+//                sepaSellBitsOfGold = "https://www.bitsofgold.co.il/order/sell?order_id=null&page=0&provider=mycelium&utm_source=Mycelium&utm_medium=mobile_app&utm_campaign=co"
+//                mediaFlowURL = "https://media.mycelium.com/wp-json/wp/v2/"
+//            }
+//            logger.info("Signing config is ", signingConfig)
+//        }
     }
 
     applicationVariants.all { variant ->

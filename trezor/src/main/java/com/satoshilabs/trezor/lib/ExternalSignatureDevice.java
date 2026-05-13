@@ -12,7 +12,7 @@ import android.util.Log;
 import androidx.core.content.ContextCompat;
 
 import com.google.protobuf.InvalidProtocolBufferException;
-import com.google.protobuf.Message;
+import com.google.protobuf.MessageLite;
 import com.satoshilabs.trezor.lib.protobuf.TrezorMessage.*;
 
 import java.nio.ByteBuffer;
@@ -179,7 +179,7 @@ public abstract class ExternalSignatureDevice {
         return getDefaultAccountName().toUpperCase() + "(#" + this.serial + ")";
     }
 
-    private void messageWrite(Message msg) {
+    private void messageWrite(MessageLite msg) {
         int msg_size = msg.getSerializedSize();
         String msg_name = msg.getClass().getSimpleName();
         int msg_id = MessageType.valueOf("MessageType_" + msg_name).getNumber();
@@ -219,7 +219,7 @@ public abstract class ExternalSignatureDevice {
         request.close();
     }
 
-    private Message parseMessageFromBytes(MessageType type, byte[] data) {
+    private MessageLite parseMessageFromBytes(MessageType type, byte[] data) {
         Log.i(TAG, String.format("Parsing %s (%d bytes):", type, data.length));
         try {
             switch (type) {
@@ -262,7 +262,7 @@ public abstract class ExternalSignatureDevice {
         }
     }
 
-    private Message messageRead() {
+    private MessageLite messageRead() {
         ByteBuffer data = ByteBuffer.allocate(32768);
         ByteBuffer buffer = ByteBuffer.allocate(64);
         UsbRequest request = new UsbRequest();
@@ -315,7 +315,7 @@ public abstract class ExternalSignatureDevice {
         return parseMessageFromBytes(type, Arrays.copyOfRange(data.array(), 0, msg_size));
     }
 
-    public Message send(Message msg) {
+    public MessageLite send(MessageLite msg) {
         messageWrite(msg);
         return messageRead();
     }
