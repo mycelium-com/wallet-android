@@ -129,13 +129,10 @@ class BalanceMasterFragment : Fragment() {
     }
 
     private fun updateAddressView() {
-        val containerId = binding?.phFragmentAddress?.id ?: return
+        // AddressFragment/RMCAddressFragment don't subscribe to SelectedAccountChanged,
+        // so we force-recreate them here on every account switch.
+        if (binding == null) return
         val account = MbwManager.getInstance(this.activity).selectedAccount
-        val isRmc = account.coinType === RMCCoin || account.coinType === RMCCoinTest
-        val current = childFragmentManager.findFragmentById(containerId)
-        val alreadyCorrect = (isRmc && current is RMCAddressFragment) ||
-                (!isRmc && current is AddressFragment)
-        if (alreadyCorrect) return
         val fragmentTransaction = childFragmentManager.beginTransaction()
         binding?.defineAddressAccountView(fragmentTransaction, account)
         fragmentTransaction.commitAllowingStateLoss()
