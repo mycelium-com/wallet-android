@@ -49,6 +49,7 @@ import com.mycelium.wapi.wallet.btc.coins.BitcoinMain;
 import com.mycelium.wapi.wallet.btcvault.BTCVNetworkParameters;
 import com.mycelium.wapi.wallet.btcvault.coins.BitcoinVaultMain;
 import com.mycelium.wapi.wallet.eth.coins.EthMain;
+import com.mycelium.wapi.wallet.tron.coins.TronMain;
 import com.mycelium.wapi.wallet.fio.coins.FIOMain;
 
 import java.util.ArrayList;
@@ -147,6 +148,10 @@ public class MbwProdEnvironment extends MbwEnvironment {
          add(new BlockExplorer("BLR", "blockchair", "https://blockchair.com/ethereum/address/", "https://blockchair.com/ethereum/transaction/0x", null, null));
          add(new BlockExplorer("BCI", "blockchain.info", "https://www.blockchain.com/eth/address/", "https://www.blockchain.com/eth/tx/0x", null, null));
          add(new BlockExplorer("ENJ", "enjinx", "https://enjinx.io/eth/address/", "https://enjinx.io/eth/transaction/0x", null, null));
+      }});
+      put(TronMain.INSTANCE.getName(), new ArrayList<BlockExplorer>() {{
+         add(new BlockExplorer("TSC", "tronscan.org", "https://tronscan.org/#/address/", "https://tronscan.org/#/transaction/", null, null));
+         add(new BlockExplorer("BLR", "blockchair", "https://blockchair.com/tron/address/", "https://blockchair.com/tron/transaction/", null, null));
       }});
       put(FIOMain.INSTANCE.getName(), new ArrayList<BlockExplorer>() {{
          add(new BlockExplorer("FBI", "fio.bloks.io", "https://fio.bloks.io/account/", "https://fio.bloks.io/transaction/", null, null));

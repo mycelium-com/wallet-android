@@ -9,6 +9,7 @@ import com.mycelium.wapi.content.colu.mt.MTUri
 import com.mycelium.wapi.content.colu.rmc.RMCUri
 import com.mycelium.wapi.content.eth.EthUri
 import com.mycelium.wapi.content.fio.FIOUri
+import com.mycelium.wapi.content.tron.TronUri
 import com.mycelium.wapi.wallet.Address
 import com.mycelium.wapi.wallet.AddressUtils
 import com.mycelium.wapi.wallet.btc.coins.BitcoinMain
@@ -22,6 +23,8 @@ import com.mycelium.wapi.wallet.eth.coins.EthMain
 import com.mycelium.wapi.wallet.eth.coins.EthTest
 import com.mycelium.wapi.wallet.fio.coins.FIOMain
 import com.mycelium.wapi.wallet.fio.coins.FIOTest
+import com.mycelium.wapi.wallet.tron.coins.TronMain
+import com.mycelium.wapi.wallet.tron.coins.TronTest
 import java.math.BigDecimal
 import java.net.URI
 import java.net.URLDecoder
@@ -89,6 +92,7 @@ abstract class AssetUriParser(open val network: NetworkParameters) : UriParser {
                 is MASSCoin, is MASSCoinTest -> MSSUri(address, amount, label, paymentUri)
                 is EthMain, is EthTest -> EthUri(address, amount, label, paymentUri)
                 is FIOMain, is FIOTest -> FIOUri(address, amount, label, paymentUri)
+                is TronMain, is TronTest -> TronUri(address, amount, label, paymentUri)
                 else -> FallbackUri(address)
             }
         }

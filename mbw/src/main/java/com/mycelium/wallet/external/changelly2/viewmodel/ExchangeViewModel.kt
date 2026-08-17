@@ -24,6 +24,11 @@ import com.mycelium.wapi.wallet.btc.FeePerKbFee
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.erc20.ERC20Account
+import com.mycelium.wallet.external.changelly2.remote.changellyTicker
+import com.mycelium.wallet.external.changelly2.remote.importSymbol
+import com.mycelium.wapi.wallet.trc20.TRC20Account
+import com.mycelium.wapi.wallet.tron.energy.EnergyFeeQuote
+import com.mycelium.wapi.wallet.tron.energy.EnergyServiceException
 import com.mycelium.wapi.wallet.eth.coins.EthCoin
 import com.mycelium.wapi.wallet.exceptions.BuildTransactionException
 import com.mycelium.wapi.wallet.exceptions.InsufficientFundsException
@@ -159,8 +164,14 @@ class ExchangeViewModel(application: Application) : AndroidViewModel(application
 //    }
 
     val exchangeRateFrom = exchangeInfo.map {
-        (it?.from?.uppercase() ?: fromCurrency.value?.symbol)?.let { "1 $it" }
+        fromDisplaySymbol()?.let { "1 $it" }
     }
+
+    /**
+     * Symbol shown for the sold asset: the wallet's own (e.g. "USDT" for TRC20 USDT) rather than
+     * the backend's network-suffixed ticker ("USDTTRX") echoed in [exchangeInfo].
+     */
+    fun fromDisplaySymbol(): String? = fromCurrency.value?.symbol ?: exchangeInfo.value?.from?.uppercase()
 
     val exchangeRateToValue = exchangeInfo.map {
         if (it?.result != null && it.result != BigDecimal.ZERO)
@@ -174,7 +185,7 @@ class ExchangeViewModel(application: Application) : AndroidViewModel(application
     }
 
     val exchangeRateToCurrency = exchangeInfo.map {
-        it?.to?.uppercase() ?: toCurrency.value?.symbol
+        toCurrency.value?.symbol ?: it?.to?.uppercase()
     }
 
     val fiatSellValue = sellValue.map {
@@ -206,8 +217,19 @@ class ExchangeViewModel(application: Application) : AndroidViewModel(application
 
     val minerFee = MutableLiveData("")
 
+    // ---- TRON energy service: pay a TRC20 send's fee in the token when the parent has no TRX
+    /** Quote for the current from-account/amount, null when not fetched or not applicable. */
+    val energyQuote = MutableLiveData<EnergyFeeQuote?>(null)
+    val energyQuoteLoading = MutableLiveData(false)
+    @Volatile
+    private var energyQuoteKey: String? = null
+    private var energyQuoteJob: kotlinx.coroutines.Job? = null
+
     val validateData = MediatorLiveData<Boolean>().apply {
         value = isValid()
+        addSource(energyQuote) {
+            value = isValid()
+        }
         addSource(toAddress) {
             value = isValid()
         }
@@ -240,13 +262,13 @@ class ExchangeViewModel(application: Application) : AndroidViewModel(application
                     exchangeInfo.value?.minFrom != null && amount < exchangeInfo.value?.minFrom  -> {
                         errorTransaction.value = res.getString(R.string.exchange_min_msg,
                                 exchangeInfo.value?.minFrom?.stripTrailingZeros()?.toPlainString(),
-                                exchangeInfo.value?.from?.uppercase())
+                                fromDisplaySymbol())
                         false
                     }
                     exchangeInfo.value?.maxFrom != null && amount > exchangeInfo.value?.maxFrom -> {
                         errorTransaction.value = res.getString(R.string.exchange_max_msg,
                                 exchangeInfo.value?.maxFrom?.stripTrailingZeros()?.toPlainString(),
-                                exchangeInfo.value?.from?.uppercase())
+                                fromDisplaySymbol())
                         false
                     }
                     else -> checkValidTransaction() != null
@@ -281,6 +303,8 @@ class ExchangeViewModel(application: Application) : AndroidViewModel(application
                 val fee = feeEstimation.normal.times(account.typicalEstimatedTransactionSize.toBigInteger())
                 errorTransaction.value = res.getString(R.string.please_top_up_your_eth_account,
                         account.ethAcc.label, fee.toStringFriendlyWithUnit(), convert(fee)) + TAG_ETH_TOP_UP
+            } else if (account is TRC20Account && mbwManager.energyServiceManager != null) {
+                return energyServiceTx(account, value)
             } else {
                 errorTransaction.value = res.getString(R.string.insufficient_funds_for_fee)
             }
@@ -293,6 +317,74 @@ class ExchangeViewModel(application: Application) : AndroidViewModel(application
             errorTransaction.value = res.getString(R.string.tx_build_error) + " " + e.message
         }
         return null
+    }
+
+    /**
+     * The parent TRON account cannot pay the fee in TRX: fall back to the energy service (fee in
+     * the token). Returns a placeholder tx once a valid quote covers `amount + fee`, otherwise
+     * fetches the quote and reports "not yet valid" — the quote arrival re-validates.
+     */
+    private fun energyServiceTx(account: TRC20Account, value: Value): Transaction? {
+        val res = getApplication<WalletApplication>().resources
+        val manager = mbwManager.energyServiceManager ?: return null
+        val payin = fromAccount.value?.receiveAddress ?: return null // real recipient unknown until Changelly answers
+        val key = "${account.id}|${value.value}"
+        val quote = energyQuote.value
+        if (quote == null || quote.isExpired() || energyQuoteKey != key) {
+            requestEnergyQuote(account, value, key)
+            minerFee.value = res.getString(R.string.tron_energy_service_loading)
+            return null
+        }
+        val fee = manager.feeInAccountUnits(account, quote)
+        if (value + fee > account.accountBalance.spendable) {
+            errorTransaction.value = res.getString(R.string.error_energy_service_insufficient_balance, account.coinType.symbol)
+            return null
+        }
+        minerFee.value = res.getString(R.string.miner_fee) + " " + fee.toStringFriendlyWithUnit() +
+                " " + (mbwManager.exchangeRateManager.get(fee, mbwManager.getFiatCurrency(fee.type))?.toStringFriendlyWithUnit()?.let { "≈$it" } ?: "") +
+                " (" + res.getString(R.string.tron_energy_service_title) + ")"
+        return account.createEnergyServiceTransferTx(payin as com.mycelium.wapi.wallet.tron.TronAddress, value,
+                java.math.BigInteger.valueOf(com.mycelium.wapi.wallet.tron.TronFeeEstimator.MIN_TRC20_FEE_LIMIT),
+                com.mycelium.wapi.wallet.tron.energy.EnergyServiceManager.ENERGY_TX_EXPIRATION_MS)
+    }
+
+    private fun requestEnergyQuote(account: TRC20Account, value: Value, key: String) {
+        val manager = mbwManager.energyServiceManager ?: return
+        if (energyQuoteLoading.value == true && energyQuoteKey == key) return
+        energyQuoteKey = key
+        energyQuoteJob?.cancel()
+        energyQuoteLoading.value = true
+        energyQuoteJob = viewModelScope.launch(Dispatchers.IO) {
+            val quote = try {
+                if (!manager.isAvailableFor(account)) null
+                else manager.getFeeQuote(account, account.receivingAddress, value)
+            } catch (e: EnergyServiceException) {
+                errorTransaction.postValue(if (e.isInsufficientBalance)
+                    getApplication<WalletApplication>().getString(R.string.error_energy_service_insufficient_balance, account.coinType.symbol)
+                else e.message)
+                null
+            } catch (e: Exception) {
+                errorTransaction.postValue(getApplication<WalletApplication>().getString(R.string.error_energy_service_unavailable))
+                null
+            }
+            energyQuoteLoading.postValue(false)
+            if (quote == null && energyQuoteKey == key) {
+                energyQuoteKey = null
+                if (errorTransaction.value.isNullOrEmpty()) {
+                    errorTransaction.postValue(getApplication<WalletApplication>().getString(R.string.insufficient_funds_for_fee))
+                }
+            }
+            energyQuote.postValue(quote)
+        }
+    }
+
+    /** True when the current from-account send will be settled through the energy service. */
+    fun usesEnergyService(): Boolean {
+        val account = fromAccount.value as? TRC20Account ?: return false
+        val quote = energyQuote.value ?: return false
+        if (quote.isExpired()) return false
+        val amount = try { account.coinType.value(sellValue.value ?: return false) } catch (e: Exception) { return false }
+        return energyQuoteKey == "${account.id}|${amount.value}"
     }
 
     /**
@@ -360,8 +452,12 @@ class ExchangeViewModel(application: Application) : AndroidViewModel(application
                         && isSupported(it.coinType)
             }
 
-    fun isSupported(coinType: CryptoCurrency) =
-            currencies.map { it.lowercase() }.contains(Util.trimTestnetSymbolDecoration(coinType.symbol).lowercase())
+    fun isSupported(coinType: CryptoCurrency): Boolean {
+        val ticker = changellyTicker(coinType)
+        // TRC20 tokens travel under the plain ticker + network; the backend's currency list only
+        // carries tickers, so a listed ticker is taken as supported (as the KMP wallet does).
+        return currencies.any { it.equals(ticker, true) || it.equals(importSymbol(ticker), true) }
+    }
 
     companion object {
         const val TAG_ETH_TOP_UP = "<hiden type=\"TAG_ETH_TOP_UP\"/>"

@@ -26,6 +26,8 @@ import com.mycelium.wapi.wallet.btcvault.hd.getBtcvHdAccounts
 import com.mycelium.wapi.wallet.colu.getColuAccounts
 import com.mycelium.wapi.wallet.erc20.getERC20Accounts
 import com.mycelium.wapi.wallet.eth.getEthAccounts
+import com.mycelium.wapi.wallet.trc20.getTRC20Accounts
+import com.mycelium.wapi.wallet.tron.getTronAccounts
 import com.mycelium.wapi.wallet.fio.getFioAccounts
 import com.squareup.otto.Subscribe
 import java.util.*
@@ -84,6 +86,7 @@ class AccountsViewLiveData(private val mbwManager: MbwManager) : LiveData<List<A
                     R.string.bitcoin_cash_sa to walletManager.getBCHSingleAddressAccounts(),
                     R.string.digital_assets to getColuAccounts(walletManager),
                     R.string.eth_accounts_name to getEthERC20Accounts(walletManager),
+                    R.string.tron_accounts_name to getTronTRC20Accounts(walletManager),
                     R.string.fio_accounts_name to getFIOAccounts(walletManager),
                     R.string.btcv_hd_accounts_name to walletManager.getBtcvHdAccounts()
             ).apply {
@@ -119,6 +122,9 @@ class AccountsViewLiveData(private val mbwManager: MbwManager) : LiveData<List<A
 
         private fun getEthERC20Accounts(walletManager: WalletManager): List<WalletAccount<out Address>> =
                 walletManager.getEthAccounts() + walletManager.getERC20Accounts()
+
+        private fun getTronTRC20Accounts(walletManager: WalletManager): List<WalletAccount<out Address>> =
+                walletManager.getTronAccounts() + walletManager.getTRC20Accounts()
 
         private fun getFIOAccounts(walletManager: WalletManager): List<WalletAccount<out Address>> =
                 walletManager.getFioAccounts()

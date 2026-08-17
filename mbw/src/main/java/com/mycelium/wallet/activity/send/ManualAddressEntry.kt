@@ -21,6 +21,7 @@ import com.mycelium.wallet.databinding.ManualEntryBinding
 import com.mycelium.wapi.wallet.Address
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.erc20.coins.ERC20Token
+import com.mycelium.wapi.wallet.trc20.coins.TRC20Token
 import com.mycelium.wapi.wallet.fio.FioEndpoints
 import com.mycelium.wapi.wallet.fio.FioModule
 import com.mycelium.wapi.wallet.fio.FioName
@@ -159,7 +160,11 @@ class ManualAddressEntry : AppCompatActivity() {
         // TODO: 10/6/20 Use: val result = FioTransactionHistoryService.getPubkeyByFioAddress()
         //       It probably needs changes to preserve the error handling.
         val tokenCode = coinType.symbol.uppercase()
-        val chainCode = if (coinType is ERC20Token) "ETH" else tokenCode
+        val chainCode = when (coinType) {
+            is ERC20Token -> "ETH"
+            is TRC20Token -> "TRX"
+            else -> tokenCode
+        }
         queryAddress(address, chainCode, tokenCode)
         queryAddressAvailability(address)
     }

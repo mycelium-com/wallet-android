@@ -29,6 +29,8 @@ object Util {
         "RCN", "FXC", "RPL", "LA", "BRD", "XAUT", "MT", "FTM", "SHIB", "PAXG", "WBTC", "LRC", "CRV",
         "HEX", "SAND", "FTT", "AAVE", "UNI", "AXS", "RLC", "YFI", "GRT", "CVC", "GALA", "ILV",
         "SUSHI", "1INCH", "POWR", "BNT", "COMP", "RNDR", "DYDX", "ANKR", "XYO",
+        // TRON / TRC20
+        "TRX", "USD1", "USDD", "WIN", "SUN", "JST", "USDJ", "WTRX", "BTT",
         "BTC", "BTCV", "ETH"
     )
     @JvmStatic

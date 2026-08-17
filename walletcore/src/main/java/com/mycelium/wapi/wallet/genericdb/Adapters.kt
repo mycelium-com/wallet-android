@@ -30,6 +30,10 @@ import com.mycelium.generated.wallet.database.FioNameAccountMappings
 import com.mycelium.generated.wallet.database.FioOtherBlockchainTransactions
 import com.mycelium.generated.wallet.database.FioRequestsReceivedBacking
 import com.mycelium.generated.wallet.database.FioRequestsSentBacking
+import com.mycelium.generated.wallet.database.EnergyServiceFeeLink
+import com.mycelium.generated.wallet.database.Trc20Context
+import com.mycelium.generated.wallet.database.TronAccountBacking
+import com.mycelium.generated.wallet.database.TronContext
 import com.mycelium.wapi.wallet.AccountIndexesContext
 import com.mycelium.wapi.wallet.coins.AssetInfo
 import com.mycelium.wapi.wallet.coins.Balance
@@ -252,6 +256,15 @@ val ethContextAdapter = EthContext.Adapter(Adapters.uuidAdapter, Adapters.bigInt
 
 val erc20ContextAdapter = Erc20Context.Adapter(Adapters.uuidAdapter, Adapters.bigIntAdapter,
     IntColumnAdapter, Adapters.uuidAdapter)
+
+val tronAccountBackingAdapter = TronAccountBacking.Adapter(Adapters.uuidAdapter, Adapters.bigIntAdapter,
+    Adapters.bigIntAdapter, Adapters.bigIntAdapter)
+
+val tronContextAdapter = TronContext.Adapter(Adapters.uuidAdapter, Adapters.listAdapter, IntColumnAdapter)
+
+val trc20ContextAdapter = Trc20Context.Adapter(Adapters.uuidAdapter, IntColumnAdapter, Adapters.uuidAdapter)
+
+val energyServiceFeeLinkAdapter = EnergyServiceFeeLink.Adapter(Adapters.uuidAdapter)
 
 val BTCVAccountBackingAdapter = BTCVAccountBacking.Adapter(Adapters.uuidAdapter)
 val BTCVContextAdapter = BTCVContext.Adapter(Adapters.uuidAdapter, IntColumnAdapter,

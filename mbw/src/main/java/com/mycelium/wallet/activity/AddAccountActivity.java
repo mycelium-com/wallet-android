@@ -61,6 +61,12 @@ import com.mycelium.wallet.activity.addaccount.AddERC20TokenDialog;
 import com.mycelium.wallet.activity.addaccount.ERC20CreationAsyncTask;
 import com.mycelium.wallet.activity.addaccount.ERC20EthAccountAdapter;
 import com.mycelium.wallet.activity.addaccount.ETHCreationAsyncTask;
+import com.mycelium.wallet.activity.addaccount.AddTRC20TokenDialog;
+import com.mycelium.wallet.activity.addaccount.TRC20CreationAsyncTask;
+import com.mycelium.wallet.activity.addaccount.TronCreationAsyncTask;
+import com.mycelium.wapi.wallet.trc20.coins.TRC20Token;
+import com.mycelium.wapi.wallet.tron.TronAccount;
+import com.mycelium.wapi.wallet.tron.TronModuleKt;
 import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wallet.activity.settings.SettingsPreference;
 import com.mycelium.wallet.activity.util.ValueExtensionsKt;
@@ -94,6 +100,7 @@ import kotlin.jvm.functions.Function1;
 public class AddAccountActivity extends AppCompatActivity {
     private AddAccountActivityBinding binding;
     private ETHCreationAsyncTask ethCreationAsyncTask;
+    private TronCreationAsyncTask tronCreationAsyncTask;
 
     public static void callMe(Fragment fragment, int requestCode) {
         Intent intent = new Intent(fragment.getActivity(), AddAccountActivity.class);
@@ -181,6 +188,108 @@ public class AddAccountActivity extends AppCompatActivity {
             });
         });
         binding.btErc20Create.setOnClickListener(v -> showEthAccountsOptions());
+        binding.btTronCreate.setOnClickListener(v -> _mbwManager.runPinProtectedFunction(AddAccountActivity.this, () -> {
+            Preconditions.checkState(_mbwManager.getMasterSeedManager().hasBip32MasterSeed());
+            if (tronCreationAsyncTask == null || tronCreationAsyncTask.getStatus() != AsyncTask.Status.RUNNING) {
+                tronCreationAsyncTask = new TronCreationAsyncTask(_mbwManager,
+                        () -> {
+                            showProgress(R.string.tron_account_creation_started);
+                            return null;
+                        },
+                        uuid -> {
+                            _progress.dismiss();
+                            finishOk(uuid);
+                            return null;
+                        });
+                tronCreationAsyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+            }
+        }));
+        binding.btTrc20Create.setOnClickListener(v -> showTronAccountsOptions());
+    }
+
+    private void showTronAccountsOptions() {
+        final ERC20EthAccountAdapter arrayAdapter = new ERC20EthAccountAdapter(this, R.layout.checked_item);
+        List<WalletAccount<?>> accounts = TronModuleKt.getActiveTronAccounts(_mbwManager.getWalletManager(false));
+        // watch-only TRON accounts cannot host token accounts that sign
+        List<WalletAccount<?>> spendable = new ArrayList<>();
+        for (WalletAccount<?> account : accounts) {
+            if (account.canSpend()) spendable.add(account);
+        }
+        accounts = spendable;
+        Collections.sort(accounts, (a1, a2) -> Integer.compare(((TronAccount) a1).getAccountIndex(), ((TronAccount) a2).getAccountIndex()));
+        for (WalletAccount account : accounts) {
+            String denominatedValue = ValueExtensionsKt.toStringWithUnit(
+                    account.getAccountBalance().getSpendable(), _mbwManager.getDenomination(account.getCoinType()));
+            arrayAdapter.add(account.getLabel() + " (" + denominatedValue + ")");
+        }
+        arrayAdapter.add(getString(R.string.create_new_tron_account));
+        LayoutSelectEthAccountToErc20Binding selectBinding = LayoutSelectEthAccountToErc20Binding.inflate(LayoutInflater.from(this));
+        selectBinding.subtitleText.setText(R.string.select_tron_account_to_trc20_subtext);
+        selectBinding.list.setAdapter(arrayAdapter);
+        final List<WalletAccount<?>> finalAccounts = accounts;
+        new AlertDialog.Builder(this, R.style.MyceliumModern_Dialog_BlueButtons)
+                .setCustomTitle(LayoutInflater.from(this).inflate(R.layout.layout_select_tron_account_to_trc20_title, null))
+                .setView(selectBinding.getRoot())
+                .setNegativeButton(R.string.cancel, (dialog, which) -> dialog.dismiss())
+                .setPositiveButton(getString(R.string.ok), (dialog, which) -> {
+                    int selected = arrayAdapter.getSelected();
+                    if (selected == arrayAdapter.getCount() - 1) {
+                        showTRC20TokensOptions(null);
+                    } else {
+                        showTRC20TokensOptions(finalAccounts.get(selected).getId());
+                    }
+                })
+                .show();
+    }
+
+    /**
+     * @param tronAccountId parent TRON account; null → a new TRON account is created first
+     */
+    private void showTRC20TokensOptions(@Nullable UUID tronAccountId) {
+        final TronAccount tronAccount = tronAccountId != null ? (TronAccount) _mbwManager.getWalletManager(false).getAccount(tronAccountId) : null;
+        AddTRC20TokenDialog dialog = new AddTRC20TokenDialog();
+        Bundle bundle = new Bundle();
+        bundle.putSerializable("account_id", tronAccountId);
+        dialog.setArguments(bundle);
+        dialog.setListener(list -> {
+            if (tronAccount != null) {
+                createTrc20Accounts(list, tronAccount);
+            } else if (tronCreationAsyncTask == null || tronCreationAsyncTask.getStatus() != AsyncTask.Status.RUNNING) {
+                tronCreationAsyncTask = new TronCreationAsyncTask(_mbwManager,
+                        () -> {
+                            showProgress(R.string.tron_account_creation_started);
+                            return null;
+                        },
+                        uuid -> {
+                            TronAccount created = (TronAccount) _mbwManager.getWalletManager(false).getAccount(uuid);
+                            createTrc20Accounts(list, created);
+                            return null;
+                        });
+                tronCreationAsyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+            }
+            return null;
+        });
+        dialog.show(getSupportFragmentManager(), "add_trc20_token");
+    }
+
+    private void createTrc20Accounts(List<TRC20Token> tokens, TronAccount tronAccount) {
+        new TRC20CreationAsyncTask(_mbwManager, tokens, tronAccount,
+                () -> {
+                    showProgress(R.string.trc20_account_creation_started);
+                    return null;
+                },
+                uuids -> {
+                    _progress.dismiss();
+                    if (uuids.isEmpty()) {
+                        _toaster.toast("Error. No account created!", false);
+                        setResult(Activity.RESULT_CANCELED);
+                        finish();
+                    } else {
+                        finishOk(uuids.get(0));
+                    }
+                    return null;
+                }
+        ).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }
 
     private void showEthAccountsOptions() {

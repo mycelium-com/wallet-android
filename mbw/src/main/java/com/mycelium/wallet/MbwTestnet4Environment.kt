@@ -15,6 +15,7 @@ import com.mycelium.wapi.wallet.btcvault.BTCVNetworkParameters
 import com.mycelium.wapi.wallet.btcvault.BTCVNetworkParameters.Companion.testNetwork
 import com.mycelium.wapi.wallet.eth.coins.EthTest
 import com.mycelium.wapi.wallet.fio.coins.FIOTest
+import com.mycelium.wapi.wallet.tron.coins.TronTest
 
 class MbwTestnet4Environment : MbwEnvironment() {
     override fun getNetwork(): NetworkParameters? = NetworkParameters.testNetwork
@@ -90,6 +91,15 @@ class MbwTestnet4Environment : MbwEnvironment() {
                         "ETS", "etherscan.io",
                         "https://goerli.etherscan.io/address/",
                         "https://goerli.etherscan.io/tx/0x",
+                        null,
+                        null
+                    )
+                ),
+                TronTest.name to listOf(
+                    BlockExplorer(
+                        "TSC", "nile.tronscan.org",
+                        "https://nile.tronscan.org/#/address/",
+                        "https://nile.tronscan.org/#/transaction/",
                         null,
                         null
                     )

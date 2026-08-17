@@ -49,6 +49,10 @@ interface ChangellyAPIService {
         @Query("from") from: String,
         @Query("to") to: String,
         @Query("amountFrom") amount: BigDecimal = BigDecimal.ONE,
+        // Network of a multi-chain asset (e.g. "trx" for TRC20 USDT); null for native coins / legacy
+        // tickers. The network is bound to the returned rateId, so createFixTransaction does not repeat it.
+        @Query("fromNetwork") fromNetwork: String? = null,
+        @Query("toNetwork") toNetwork: String? = null,
     ): Response<ChangellyListResponse<FixRate>>
 
     @Deprecated(
@@ -59,6 +63,8 @@ interface ChangellyAPIService {
     suspend fun getFixRate(
         @Query("from") from: String,
         @Query("to") to: String,
+        @Query("fromNetwork") fromNetwork: String? = null,
+        @Query("toNetwork") toNetwork: String? = null,
     ): Response<ChangellyListResponse<FixRate>>
 
     @POST("createFixTransaction")

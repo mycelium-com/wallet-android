@@ -94,6 +94,8 @@ import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
 import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.eth.EthAddress;
 import com.mycelium.wapi.wallet.eth.EthAddressConfig;
+import com.mycelium.wapi.wallet.tron.TronAddress;
+import com.mycelium.wapi.wallet.tron.TronAddressConfig;
 import com.mycelium.wapi.wallet.eth.coins.EthCoin;
 import com.mycelium.wapi.wallet.fio.FIOAddressConfig;
 import com.mycelium.wapi.wallet.fio.FIOUnrelatedHDConfig;
@@ -485,7 +487,7 @@ public class AddAdvancedAccountActivity extends AppCompatActivity implements Imp
    }
 
    enum AddressCheckResult {
-      AccountExists, BTC, NonBtc, ETH
+      AccountExists, BTC, NonBtc, ETH, TRON
    }
 
    private class ImportReadOnlySingleAddressAccountAsyncTask extends AsyncTask<Void, Integer, AddressCheckResult> {
@@ -507,6 +509,8 @@ public class AddAdvancedAccountActivity extends AppCompatActivity implements Imp
             return AddressCheckResult.BTC;
          } else if (address instanceof EthAddress) {
             return AddressCheckResult.ETH;
+         } else if (address instanceof TronAddress) {
+            return AddressCheckResult.TRON;
          } else {
             return AddressCheckResult.NonBtc;
          }
@@ -527,6 +531,11 @@ public class AddAdvancedAccountActivity extends AppCompatActivity implements Imp
                UUID account2 = _mbwManager.getWalletManager(false)
                        .createAccounts(new EthAddressConfig((EthAddress) address)).get(0);
                finishOk(account2, false);
+               break;
+            case TRON:
+               UUID account3 = _mbwManager.getWalletManager(false)
+                       .createAccounts(new TronAddressConfig((TronAddress) address)).get(0);
+               finishOk(account3, false);
                break;
             case NonBtc:
                if ("FIO".equals(address.getCoinType().getSymbol())) {

@@ -20,6 +20,7 @@ import com.mycelium.wapi.wallet.btc.bip44.AddressesListProvider
 import com.mycelium.wapi.wallet.btcvault.AbstractBtcvAccount
 import com.mycelium.wapi.wallet.colu.ColuAccount
 import com.mycelium.wapi.wallet.eth.EthAccount
+import com.mycelium.wapi.wallet.tron.TronAccount
 import java.util.*
 import kotlin.concurrent.thread
 
@@ -132,7 +133,7 @@ Address: %s
 
     private fun getBody() =
         when (account) {
-            is EthAccount -> String.format(
+            is EthAccount, is TronAccount -> String.format(
                 ETH_TEMPLATE,
                 address,
                 messageText,

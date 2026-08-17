@@ -26,6 +26,7 @@ import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.colu.coins.RMCCoin
 import com.mycelium.wapi.wallet.colu.coins.RMCCoinTest
 import com.mycelium.wapi.wallet.eth.AbstractEthERC20Account
+import com.mycelium.wapi.wallet.tron.AbstractTronAccount
 import com.mycelium.wapi.wallet.fio.FioAccount
 import com.squareup.otto.Subscribe
 
@@ -152,7 +153,7 @@ class BalanceMasterFragment : Fragment() {
             val mbwManager = MbwManager.getInstance(requireActivity())
             val account = mbwManager.selectedAccount
             menu.findItem(R.id.miShowOutputs)?.isVisible =
-                account.isActive && account !is AbstractEthERC20Account && account !is FioAccount
+                account.isActive && account !is AbstractEthERC20Account && account !is AbstractTronAccount && account !is FioAccount
         }
 
         override fun onMenuItemSelected(menuItem: MenuItem): Boolean {

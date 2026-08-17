@@ -50,6 +50,8 @@ import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.colu.coins.*
 import com.mycelium.wapi.wallet.eth.coins.EthMain
 import com.mycelium.wapi.wallet.eth.coins.EthTest
+import com.mycelium.wapi.wallet.tron.coins.TronMain
+import com.mycelium.wapi.wallet.tron.coins.TronTest
 import com.mycelium.wapi.wallet.fio.coins.FIOMain
 import com.mycelium.wapi.wallet.fio.coins.FIOTest
 import com.mycelium.wapi.wallet.metadata.MetadataCategory
@@ -242,6 +244,8 @@ object MetadataStorage : GenericMetadataStorage(WalletApplication.getInstance())
             "RMC Test" -> RMCCoinTest
             "Ethereum" -> EthMain
             "Ethereum test" -> EthTest
+            "Tron" -> TronMain
+            "Tron test" -> TronTest
             "FIO" -> FIOMain
             "FIO test" -> FIOTest
             else -> null

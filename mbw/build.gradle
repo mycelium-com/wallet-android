@@ -319,6 +319,11 @@ android {
                 ElectrumBTCVServers ='{"tcp-tls://electrumx-mainnet1.bitcoinvault.global:443",' +
                         '"tcp-tls://electrumx-mainnet2.bitcoinvault.global:443"}'
                 EthBlockBook = '{"https://bb-eth.mycelium.com:9136"}'
+                TronServers = '{"https://api.trongrid.io"}'
+                // TRON energy service partner (pay TRC20 fees in USDT): staging for debug, production for release
+                EnergyServiceUrl = [release: "https://api.energly20.com/", debug: "http://164.90.215.54:8005/"]
+                EnergyServiceApiKey = [release: "partner_2d7257a377064316970bf37c0c8483b7_Ie6qCe9WfSaS0SeoNGbnTCy7QtFz5Lmt",
+                                       debug  : "partner_73c6f2c2573b478a964ad6f0a5b12d6d_FMJDdpPqEc6LA4lxDOc3UXd7Jg13VAD0"]
                 FioApiServers = '{"https://fio.eu.eosamsterdam.net/v1/",' +
                         '"https://fio.eosdac.io/v1/",' +
                         '"https://fio.eosphere.io/v1/",' +
@@ -381,6 +386,10 @@ android {
                 ElectrumServers = '{"tcp-tls://wallet-testnet.mycelium.com:19335"}'
                 WapiServers='"[{\\\'cert-sha1\':\\\'ED:C2:82:16:65:8C:4E:E1:C7:F6:A2:2B:15:EC:30:F9:CD:48:F8:DB\\\',\\\'url\\\':\\\'https://mws30.mycelium.com/wapitestnet\\\'}]"'
                 EthBlockBook = '{"https://bb-eth.mycelium.com:19126"}'
+                TronServers = '{"https://nile.trongrid.io"}'
+                EnergyServiceUrl = [release: "http://164.90.215.54:8003/", debug: "http://164.90.215.54:8003/"]
+                EnergyServiceApiKey = [release: "partner_9dee182e08be48b2acef5c78e60e552f_tOLbC6vFu8Krw5CDDERdqyqQai8fUXEQ",
+                                       debug  : "partner_9dee182e08be48b2acef5c78e60e552f_tOLbC6vFu8Krw5CDDERdqyqQai8fUXEQ"]
                 ElectrumBTCVServers ='{"tcp-tls://electrumx.testnet.btcv.stage.rnd.land:443"}'
                 FioApiServers = '{"https://fiotestnet.greymass.com/v1/"}'
                 FioHistoryServers = '{"https://fiotestnet.greymass.com/v1/"}'
@@ -489,6 +498,12 @@ android {
         variant.buildConfigField "String[]", "ElectrumServers", "${flavor.ext.ElectrumServers}"
         variant.buildConfigField "String[]", "ElectrumBTCVServers", "${flavor.ext.ElectrumBTCVServers}"
         variant.buildConfigField "String[]", "EthBlockBook", "${flavor.ext.EthBlockBook}"
+        variant.buildConfigField "String[]", "TronServers", "${flavor.ext.TronServers}"
+        // TronGrid API key (15 QPS with a key vs ~1 QPS without): pass -PtronGridApiKey=... or set it in gradle.properties
+        variant.buildConfigField "String", "TronGridApiKey", "\"${project.findProperty('tronGridApiKey') ?: ''}\""
+        // Energy service endpoint/key per build type; override with -PenergyServiceUrl / -PenergyServiceApiKey
+        variant.buildConfigField "String", "EnergyServiceUrl", "\"${project.findProperty('energyServiceUrl') ?: flavor.ext.EnergyServiceUrl[variant.buildType.name]}\""
+        variant.buildConfigField "String", "EnergyServiceApiKey", "\"${project.findProperty('energyServiceApiKey') ?: flavor.ext.EnergyServiceApiKey[variant.buildType.name]}\""
         variant.buildConfigField "String[]", "FioApiServers", "${flavor.ext.FioApiServers}"
         variant.buildConfigField "String[]", "FioHistoryServers", "${flavor.ext.FioHistoryServers}"
         variant.buildConfigField "String", "tpid", "\"${flavor.ext.tpid}\""

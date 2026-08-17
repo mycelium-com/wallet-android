@@ -247,7 +247,7 @@ abstract class SendCoinsModel(
                 .observeOn(Schedulers.computation())
                 .switchMapCompletable {
                     feeDataset.postValue(updateFeeDataset())
-                    if (selectedFee.value!!.equalZero()) {
+                    if (selectedFee.value!!.equalZero() && !isZeroFeeAllowed()) {
                         feeWarning.postValue(Html.fromHtml(context.getString(R.string.fee_is_zero)))
                     }
                     Completable.complete()
@@ -413,6 +413,15 @@ abstract class SendCoinsModel(
         }
     }
 
+    /** Chains where a zero fee is a normal outcome (e.g. TRON with free bandwidth) skip the zero-fee warning. */
+    protected open fun isZeroFeeAllowed() = false
+
+    /**
+     * Extra, coin-specific validation run before the transaction is built; a non-null status
+     * short-circuits the build (e.g. TRON energy service: amount + token fee must fit the balance).
+     */
+    protected open fun validateExtra(toSend: Value): TransactionStatus? = null
+
     protected open fun estimateTxSize() = transaction?.estimatedTransactionSize ?: account.typicalEstimatedTransactionSize
 
     /**
@@ -509,6 +518,7 @@ abstract class SendCoinsModel(
                 receivingAddress.value != null &&
                         (account is EthAccount || !toSend.isZero()) &&
                         transactionDataStatus.value != TransactionDataStatus.TYPING -> {
+                    validateExtra(toSend)?.let { return it }
                     // createTx potentially takes long, if server interaction is involved
                     transaction = account.createTx(receivingAddress.value!!, toSend, FeePerKbFee(selectedFee.value!!), transactionData.value)
                     spendingUnconfirmed.postValue(account.isSpendingUnconfirmed(transaction!!))

@@ -174,6 +174,41 @@
             android:text="@string/add_erc20_account" />
 
         <Button
+            android:id="@+id/btTronCreate"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/page_margin_width"
+            android:layout_marginTop="14dp"
+            android:layout_marginEnd="@dimen/page_margin_width"
+            app:drawableStartCompat="@drawable/ic_tron"
+            android:drawablePadding="12dp"
+            android:fontFamily="sans-serif"
+            android:gravity="start|center_vertical"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:textSize="14sp"
+            android:textColor="@color/button_text_color"
+            android:text="@string/hd_tron_account" />
+
+        <Button
+            style="@style/MyceliumButton"
+            android:id="@+id/btTrc20Create"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/page_margin_width"
+            android:layout_marginTop="14dp"
+            android:layout_marginEnd="@dimen/page_margin_width"
+            app:drawableStartCompat="@drawable/ic_trc"
+            android:drawablePadding="10dp"
+            android:fontFamily="sans-serif"
+            android:gravity="start|center_vertical"
+            android:paddingStart="14dp"
+            android:paddingEnd="14dp"
+            android:textSize="14sp"
+            android:textColor="@color/button_text_color"
+            android:text="@string/add_trc20_account" />
+
+        <Button
             android:id="@+id/btInvestmentCreate"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

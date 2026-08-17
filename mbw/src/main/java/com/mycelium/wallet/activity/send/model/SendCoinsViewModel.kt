@@ -40,6 +40,7 @@ import com.mycelium.wapi.content.colu.mt.MTUri
 import com.mycelium.wapi.content.colu.rmc.RMCUri
 import com.mycelium.wapi.content.eth.EthUri
 import com.mycelium.wapi.content.fio.FIOUri
+import com.mycelium.wapi.content.tron.TronUri
 import com.mycelium.wapi.wallet.Address
 import com.mycelium.wapi.wallet.Transaction
 import com.mycelium.wapi.wallet.WalletAccount
@@ -49,6 +50,9 @@ import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.erc20.ERC20Account
 import com.mycelium.wapi.wallet.erc20.coins.ERC20Token
 import com.mycelium.wapi.wallet.eth.coins.EthCoin
+import com.mycelium.wapi.wallet.trc20.TRC20Account
+import com.mycelium.wapi.wallet.trc20.coins.TRC20Token
+import com.mycelium.wapi.wallet.tron.coins.TronCoin
 import com.mycelium.wapi.wallet.fio.RecordObtData
 import com.mycelium.wapi.wallet.fio.getActiveFioAccount
 import com.squareup.otto.Subscribe
@@ -139,7 +143,11 @@ abstract class SendCoinsViewModel(application: Application) : AndroidViewModel(a
                 // If there is no FioAccount, we are done here.
                 ?: return
         val tokenCode = getAccount().coinType.symbol.uppercase()
-        val chainCode = if (getAccount() is ERC20Account) "ETH" else tokenCode
+        val chainCode = when (getAccount()) {
+            is ERC20Account -> "ETH"
+            is TRC20Account -> "TRX"
+            else -> tokenCode
+        }
 
         if (payeeFioName.value != null) {
             mbwManager.obtDataRecordCache = RecordObtData(
@@ -318,6 +326,13 @@ abstract class SendCoinsViewModel(application: Application) : AndroidViewModel(a
                 }
             }
             is FIOUri -> coinType == Utils.getFIOCoinType()
+            is TronUri -> {
+                if (uri.asset == null) {
+                    coinType is TronCoin
+                } else {
+                    coinType is TRC20Token && uri.asset.equals(coinType.contractAddress, true)
+                }
+            }
             else -> false
         }
     }

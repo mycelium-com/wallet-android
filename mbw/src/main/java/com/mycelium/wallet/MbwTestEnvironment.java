@@ -49,6 +49,7 @@ import com.mycelium.wapi.wallet.btc.coins.BitcoinTest;
 import com.mycelium.wapi.wallet.btcvault.coins.BitcoinVaultMain;
 import com.mycelium.wapi.wallet.btcvault.coins.BitcoinVaultTest;
 import com.mycelium.wapi.wallet.eth.coins.EthTest;
+import com.mycelium.wapi.wallet.tron.coins.TronTest;
 import com.mycelium.wapi.wallet.fio.coins.FIOTest;
 
 import java.util.ArrayList;
@@ -109,6 +110,9 @@ public class MbwTestEnvironment extends MbwEnvironment {
          }});
          put(EthTest.INSTANCE.getName(), new ArrayList<BlockExplorer>() {{
             add(new BlockExplorer("ETS", "etherscan.io", "https://goerli.etherscan.io/address/", "https://goerli.etherscan.io/tx/0x", null, null));
+         }});
+         put(TronTest.INSTANCE.getName(), new ArrayList<BlockExplorer>() {{
+            add(new BlockExplorer("TSC", "nile.tronscan.org", "https://nile.tronscan.org/#/address/", "https://nile.tronscan.org/#/transaction/", null, null));
          }});
          put(FIOTest.INSTANCE.getName(), new ArrayList<BlockExplorer>() {{
             add(new BlockExplorer("FBI", "fio.bloks.io", "https://fio-test.bloks.io/account/", "https://fio-test.bloks.io/transaction/", null, null));

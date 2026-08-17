@@ -42,6 +42,8 @@
     <string name="colu_rmc_tokens" translatable="false">RMC</string>
     <string name="bitcoin_cash_name" translatable="false">Bitcoin Cash</string>
     <string name="eth_accounts_name" translatable="false">Ethereum &amp; ERC-20</string>
+    <string name="tron_name" translatable="false">Tron</string>
+    <string name="tron_accounts_name" translatable="false">TRON &amp; TRC-20</string>
     <string name="active_hd_accounts_name" translatable="false">Bitcoin HD</string>
     <string name="btcv_hd_accounts_name" translatable="false">Bitcoin Vault HD</string>
     <string name="active_bitcoin_sa_group_name" translatable="false">Bitcoin SA</string>

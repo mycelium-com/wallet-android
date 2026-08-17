@@ -9,6 +9,8 @@ import com.mycelium.wallet.activity.receive.ReceiveERC20ViewModel
 import com.mycelium.wallet.activity.receive.ReceiveEthViewModel
 import com.mycelium.wallet.activity.receive.ReceiveFIOViewModel
 import com.mycelium.wallet.activity.receive.ReceiveGenericCoinsViewModel
+import com.mycelium.wallet.activity.receive.ReceiveTRC20ViewModel
+import com.mycelium.wallet.activity.receive.ReceiveTronViewModel
 import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount
 import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount
@@ -18,6 +20,8 @@ import com.mycelium.wapi.wallet.btcvault.hd.BitcoinVaultHdAccount
 import com.mycelium.wapi.wallet.erc20.ERC20Account
 import com.mycelium.wapi.wallet.eth.EthAccount
 import com.mycelium.wapi.wallet.fio.FioAccount
+import com.mycelium.wapi.wallet.trc20.TRC20Account
+import com.mycelium.wapi.wallet.tron.TronAccount
 
 class ReceiveCoinsFactory(val account: WalletAccount<*>) : ViewModelProvider.Factory {
     val instance = WalletApplication.getInstance()
@@ -29,6 +33,8 @@ class ReceiveCoinsFactory(val account: WalletAccount<*>) : ViewModelProvider.Fac
             is EthAccount -> ReceiveEthViewModel(instance) as T
             is ERC20Account -> ReceiveERC20ViewModel(instance) as T
             is FioAccount -> ReceiveFIOViewModel(instance) as T
+            is TronAccount -> ReceiveTronViewModel(instance) as T
+            is TRC20Account -> ReceiveTRC20ViewModel(instance) as T
             else -> ReceiveGenericCoinsViewModel(instance) as T
         }
 }

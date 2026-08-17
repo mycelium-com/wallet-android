@@ -11,6 +11,8 @@ import com.mycelium.wapi.wallet.colu.coins.ColuMain;
 import com.mycelium.wapi.wallet.eth.EthAddress;
 import com.mycelium.wapi.wallet.eth.coins.EthCoin;
 import com.mycelium.wapi.wallet.fio.coins.FIOToken;
+import com.mycelium.wapi.wallet.trc20.coins.TRC20Token;
+import com.mycelium.wapi.wallet.tron.coins.TronCoin;
 
 public class AddressUtils {
 
@@ -19,7 +21,8 @@ public class AddressUtils {
             return null;
         }
         if (currencyType instanceof BitcoinMain || currencyType instanceof BitcoinTest || currencyType instanceof FIOToken ||
-                currencyType instanceof BitcoinVaultMain || currencyType instanceof BitcoinVaultTest) {
+                currencyType instanceof BitcoinVaultMain || currencyType instanceof BitcoinVaultTest ||
+                currencyType instanceof TronCoin || currencyType instanceof TRC20Token) {
             return currencyType.parseAddress(address);
         } else if (currencyType instanceof ColuMain) {
             BitcoinAddress addr = BitcoinAddress.fromString(address);

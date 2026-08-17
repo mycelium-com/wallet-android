@@ -23,6 +23,8 @@ import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount
 import com.mycelium.wapi.wallet.btcvault.AbstractBtcvAccount
 import com.mycelium.wapi.wallet.eth.EthAccount
 import com.mycelium.wapi.wallet.eth.EthereumModule
+import com.mycelium.wapi.wallet.tron.TronAccount
+import com.mycelium.wapi.wallet.tron.TronModule
 import com.mycelium.wapi.wallet.fio.FioAccount
 import com.mycelium.wapi.wallet.fio.FioModule
 import com.mycelium.wapi.wallet.fio.RegisteredFIOName
@@ -84,6 +86,12 @@ class AddressFragmentModel(
             is EthAccount -> {
                 val module = mbwManager.getWalletManager(false).getModuleById(EthereumModule.ID) as EthereumModule
                 bip32Path.value = module.getBip44Path(account.accountIndex)
+            }
+            is TronAccount -> {
+                if (account.isDerivedFromInternalMasterseed()) {
+                    val module = mbwManager.getWalletManager(false).getModuleById(TronModule.ID) as TronModule
+                    bip32Path.value = module.getBip44Path(account.accountIndex)
+                }
             }
             is FioAccount -> {
                 val module = mbwManager.getWalletManager(false).getModuleById(FioModule.ID) as FioModule

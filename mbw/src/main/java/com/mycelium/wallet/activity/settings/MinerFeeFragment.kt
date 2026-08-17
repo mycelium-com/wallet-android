@@ -18,6 +18,8 @@ import com.mycelium.wallet.activity.util.toStringWithUnit
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.eth.coins.EthMain
 import com.mycelium.wapi.wallet.eth.coins.EthTest
+import com.mycelium.wapi.wallet.tron.coins.TronMain
+import com.mycelium.wapi.wallet.tron.coins.TronTest
 import com.mycelium.wapi.wallet.fio.getFioAccounts
 
 class MinerFeeFragment : PreferenceFragmentCompat() {
@@ -43,6 +45,8 @@ class MinerFeeFragment : PreferenceFragmentCompat() {
         val minerFeeNames = arrayOf<CharSequence>(getString(R.string.miner_fee_lowprio_name), getString(R.string.miner_fee_economic_name), getString(R.string.miner_fee_normal_name), getString(R.string.miner_fee_priority_name))
         val cryptocurrencies = mbwManager.cryptocurrenciesSorted
         for (name in cryptocurrencies) {
+            // TRON has no fee market: the fee is fixed by the resources a tx consumes
+            if (name == TronMain.name || name == TronTest.name) continue
             if (name.startsWith("FIO")) {
                 prefCat.addPreference(Preference(preferenceScreen.context).apply {
                     title = name

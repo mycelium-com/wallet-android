@@ -1,0 +1,249 @@
+package com.mycelium.wapi.wallet.tron
+
+import com.mrd.bitlib.crypto.InMemoryPrivateKey
+import com.mrd.bitlib.util.HexUtils
+import com.mycelium.wapi.SyncStatus
+import com.mycelium.wapi.SyncStatusInfo
+import com.mycelium.wapi.wallet.Address
+import com.mycelium.wapi.wallet.Fee
+import com.mycelium.wapi.wallet.KeyCipher
+import com.mycelium.wapi.wallet.OutputViewModel
+import com.mycelium.wapi.wallet.SyncMode
+import com.mycelium.wapi.wallet.SyncPausableAccount
+import com.mycelium.wapi.wallet.Transaction
+import com.mycelium.wapi.wallet.TransactionData
+import com.mycelium.wapi.wallet.TransactionSummary
+import com.mycelium.wapi.wallet.WalletAccount
+import com.mycelium.wapi.wallet.coins.CryptoCurrency
+import com.mycelium.wapi.wallet.coins.Value
+import com.mycelium.wapi.wallet.genericdb.TronAccountBacking
+import com.mycelium.wapi.wallet.tron.remote.TronBlockchainService
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import org.web3j.crypto.Credentials
+import java.io.IOException
+import java.util.concurrent.TimeUnit
+import java.util.logging.Level
+import java.util.logging.Logger
+
+/**
+ * Shared behaviour of [TronAccount] and [com.mycelium.wapi.wallet.trc20.TRC20Account]:
+ * key/address handling, TAPOS block reference, sync skeleton and pending-tx resolution.
+ */
+abstract class AbstractTronAccount(
+    coinType: CryptoCurrency,
+    // Null for watch-only (address-only) accounts — they can observe but never sign.
+    protected val credentials: Credentials? = null,
+    protected val backing: TronAccountBacking,
+    protected val blockchainService: TronBlockchainService,
+    className: String?,
+    address: TronAddress? = null,
+) : SyncPausableAccount(), WalletAccount<TronAddress> {
+
+    val receivingAddress: TronAddress =
+        credentials?.let { TronAddress(coinType, TronKeys.addressOf(it.ecKeyPair)) } ?: address!!
+
+    protected val logger: Logger = Logger.getLogger(className)
+
+    @Volatile
+    protected var syncing = false
+
+    /** Latest chain block reference for TAPOS; refreshed by sync and before signing. */
+    @Volatile
+    private var latestBlockRef: TronBlockRef? = null
+    @Volatile
+    private var blockRefFetchedAtMs = 0L
+
+    /**
+     * Returns a block reference fresh enough for signing, fetching one when missing or stale.
+     * A stale ref-block makes the node reject the transaction (TAPOS check). Blocking network
+     * call — must not run on the main thread.
+     */
+    @Throws(IOException::class)
+    fun ensureBlockRef(): TronBlockRef {
+        val cached = latestBlockRef
+        val now = System.currentTimeMillis()
+        if (cached != null && now - blockRefFetchedAtMs < BLOCK_REF_MAX_AGE_MS) return cached
+        return try {
+            val fresh = blockchainService.getBlockRef()
+            setBlockRef(fresh)
+            fresh
+        } catch (e: IOException) {
+            // Keep a usable (if older) ref rather than failing the send outright
+            cached ?: throw e
+        }
+    }
+
+    protected open fun setBlockRef(ref: TronBlockRef) {
+        latestBlockRef = ref
+        blockRefFetchedAtMs = System.currentTimeMillis()
+        setBlockChainHeight(ref.number.toInt())
+    }
+
+    fun clearBacking() {
+        backing.deleteAllAccountTransactions()
+    }
+
+    fun getUnconfirmedTransactions(): List<TronTransactionSummary> =
+        backing.getUnconfirmedTransactions(receivingAddress.addressString)
+
+    fun deleteTransaction(txid: String) {
+        backing.deleteTransaction(txid)
+        updateBalanceCache()
+    }
+
+    override suspend fun synchronize(mode: SyncMode?): Boolean {
+        if (isArchived) return false
+        syncing = true
+        val synced: Boolean
+        try {
+            if (!maySync) return false
+            updateBlockHeight()
+            if (!maySync) return false
+            synced = doSynchronization(mode)
+            if (!maySync) return false
+            if (synced) {
+                lastSyncInfo = SyncStatusInfo(SyncStatus.SUCCESS)
+            }
+        } finally {
+            syncing = false
+        }
+        return synced
+    }
+
+    abstract suspend fun doSynchronization(mode: SyncMode?): Boolean
+    abstract fun setBlockChainHeight(height: Int)
+    abstract fun updateBalanceCache(): Boolean
+
+    /**
+     * Resolves locally stored pending transactions absent from the freshly fetched remote
+     * page by checking each individually against the node. Confirmed → block recorded; mined
+     * but failed on-chain → marked FAILED; unknown after the grace period → dropped/expired
+     * and removed. Network errors keep the tx for the next sync.
+     */
+    protected suspend fun resolvePendingTransactions(remoteTxIds: Collection<String>) {
+        val remoteIds = remoteTxIds.toSet()
+        val now = System.currentTimeMillis()
+        getUnconfirmedTransactions().forEach { pendingTx ->
+            val txid = HexUtils.toHex(pendingTx.id)
+            if (txid in remoteIds) return@forEach
+            if (now - pendingTx.timestamp * 1000 <= PENDING_TX_GRACE_MS) return@forEach
+            val info = try {
+                withContext(Dispatchers.IO) { blockchainService.getTransactionInfo(txid) }
+            } catch (e: IOException) {
+                logger.log(Level.WARNING, "Could not resolve pending tx $txid, keeping it: ${e.message}")
+                return@forEach
+            }
+            if (info.isConfirmed) {
+                val fee = info.fee.takeIf { it > 0 }?.let { Value.valueOf(basedOnCoinType, it) }
+                if (info.isSuccess) {
+                    backing.confirmTransaction(txid, info.blockNumber.toInt(), info.blockTimestampMs / 1000, fee)
+                } else {
+                    logger.info("Pending tx $txid failed on-chain (${info.receiptResult})")
+                    backing.failTransaction(txid, info.blockNumber.toInt(), fee)
+                }
+            } else {
+                logger.info("Pending tx $txid not found on-chain after grace period — removing")
+                backing.deleteTransaction(txid)
+            }
+        }
+    }
+
+    private suspend fun updateBlockHeight() {
+        try {
+            val ref = withContext(Dispatchers.IO) { blockchainService.getBlockRef() }
+            setBlockRef(ref)
+        } catch (e: Exception) {
+            logger.log(Level.SEVERE, "Error synchronizing TRON, ${e.localizedMessage}")
+        }
+    }
+
+    override fun setAllowZeroConfSpending(b: Boolean) {}
+
+    override fun isSpendingUnconfirmed(tx: Transaction) = false
+
+    override fun queueTransaction(transaction: Transaction) {
+        TODO("not implemented")
+    }
+
+    override fun removeAllQueuedTransactions() {
+        TODO("not implemented")
+    }
+
+    override val receiveAddress
+        get() = receivingAddress
+
+    override val dummyAddress = TronAddress.getDummyAddress(coinType)
+
+    override fun getDummyAddress(subType: String): TronAddress = dummyAddress
+
+    override val dependentAccounts
+        get() = emptyList<WalletAccount<Address>>()
+
+    override fun isMineAddress(address: Address?) =
+        address is TronAddress && address.addressString == receivingAddress.addressString
+
+    override fun isExchangeable() = true
+
+    override fun getTx(transactionId: ByteArray): Transaction? {
+        TODO("not implemented")
+    }
+
+    override fun getTxSummary(transactionId: ByteArray): TransactionSummary? =
+        backing.getTransactionSummary(HexUtils.toHex(transactionId), receivingAddress.addressString)
+
+    override fun getTransactionSummaries(offset: Int, limit: Int): List<TransactionSummary> =
+        backing.getTransactionSummaries(offset.toLong(), limit.toLong(), receivingAddress.addressString)
+
+    override fun getTransactionsSince(receivingSince: Long): List<TransactionSummary> =
+        backing.getTransactionSummariesSince(receivingSince / 1000, receivingAddress.addressString)
+
+    override fun getUnspentOutputViewModels(): MutableList<OutputViewModel> {
+        TODO("not implemented")
+    }
+
+    override fun hasHadActivity(): Boolean = getTransactionSummaries(0, 1).isNotEmpty()
+
+    override fun canSpend() = credentials != null
+
+    override fun canSign() = credentials != null
+
+    override fun isSyncing() = syncing
+
+    override val isActive: Boolean
+        get() = !isArchived
+
+    /** TIP-191 signature (TronLink / TronWeb signMessageV2 format); "" for watch-only accounts. */
+    override fun signMessage(message: String, address: Address?): String =
+        credentials?.let { TronKeys.signMessage(message, it.ecKeyPair) } ?: ""
+
+    override fun createTx(outputs: List<Pair<Address, Value>>, fee: Fee, data: TransactionData?): Transaction {
+        TODO("Not yet implemented")
+    }
+
+    override fun getPrivateKey(cipher: KeyCipher): InMemoryPrivateKey? =
+        credentials?.let { InMemoryPrivateKey(it.ecKeyPair.privateKey.toByteArray().let(::stripSign), true) }
+
+    private fun stripSign(bytes: ByteArray): ByteArray = when {
+        bytes.size == 33 && bytes[0] == 0.toByte() -> bytes.copyOfRange(1, 33)
+        bytes.size < 32 -> ByteArray(32 - bytes.size) + bytes
+        else -> bytes
+    }
+
+    override val syncTotalRetrievedTransactions: Int = 0
+
+    override fun broadcastOutgoingTransactions() = true
+
+    override fun isVisible() = true
+
+    companion object {
+        // Refresh the ref-block before signing if older than this
+        private const val BLOCK_REF_MAX_AGE_MS = 60_000L
+
+        // How long a broadcast tx may stay unseen by the node before it is treated as dropped
+        private val PENDING_TX_GRACE_MS = TimeUnit.SECONDS.toMillis(150)
+
+        // Incremental sync fetches txs from (newest confirmed timestamp - this overlap)
+        const val SYNC_OVERLAP_MS = 600_000L
+    }
+}

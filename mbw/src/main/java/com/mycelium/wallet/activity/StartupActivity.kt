@@ -89,6 +89,7 @@ import com.mycelium.wapi.wallet.AesKeyCipher
 import com.mycelium.wapi.wallet.KeyCipher.InvalidKeyCipher
 import com.mycelium.wapi.wallet.btc.bip44.AdditionalHDAccountConfig
 import com.mycelium.wapi.wallet.eth.EthereumMasterseedConfig
+import com.mycelium.wapi.wallet.tron.TronMasterseedConfig
 import com.squareup.otto.Bus
 import com.squareup.otto.Subscribe
 import java.io.FileNotFoundException
@@ -608,7 +609,8 @@ class StartupActivity : AppCompatActivity(), AccountCreationObserver {
         @JvmField
         val mainAccounts = listOf(
             AdditionalHDAccountConfig(),
-            EthereumMasterseedConfig()
+            EthereumMasterseedConfig(),
+            TronMasterseedConfig()
         )
 
         private const val LAST_STARTUP_TIME = "startupTme"

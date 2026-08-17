@@ -18,6 +18,8 @@ import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.btc.AbstractBtcAccount
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.erc20.ERC20Account
+import com.mycelium.wapi.wallet.tron.AbstractTronAccount
+import com.mycelium.wallet.activity.send.model.SendTronModel
 import com.mycelium.wapi.wallet.eth.EthAccount
 import com.mycelium.wapi.wallet.fio.FioAccount
 import com.mycelium.wapi.wallet.fio.FioModule
@@ -56,6 +58,7 @@ class FioRequestCreateViewModel(val app: Application) : SendCoinsViewModel(app) 
             is AbstractBtcAccount -> SendBtcModel(app, account, intent)
             is EthAccount -> SendEthModel(app, account, intent)
             is ERC20Account -> SendErc20Model(app, account, intent)
+            is AbstractTronAccount -> SendTronModel(app, account, intent)
             else -> TODO("Not implemented for this type")
         }
 

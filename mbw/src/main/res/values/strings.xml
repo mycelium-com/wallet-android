@@ -429,6 +429,9 @@
     <string name="select_token">Add ERC-20 tokens to \"%s\" account</string>
     <string name="edit_gas_limit_advanced_users"><![CDATA[Edit Gas Limit <i>(for advanced users)</i>]]></string>
     <string name="list_added_tokens">ERC-20 tokens on \"%s\" account</string>
+    <string name="select_trc20_token">Add TRC-20 tokens to \"%s\" account</string>
+    <string name="list_added_trc20_tokens">TRC-20 tokens on \"%s\" account</string>
+    <string name="list_added_trc20_tokens_new_account">TRC-20 tokens on new account</string>
     <string name="none">none</string>
     <string name="select_name_to_associate">Connect accounts to your FIO Name. Only <b>one</b> account per each cryptocurrency can be connected with <b>one</b> FIO Name.</string>
     <string name="create_fio_domain">Create FIO Domain</string>

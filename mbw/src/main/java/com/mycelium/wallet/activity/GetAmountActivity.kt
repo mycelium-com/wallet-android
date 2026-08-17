@@ -43,6 +43,8 @@ import com.mycelium.wapi.wallet.erc20.ERC20Account
 import com.mycelium.wapi.wallet.erc20.ERC20Account.Companion.TOKEN_TRANSFER_GAS_LIMIT
 import com.mycelium.wapi.wallet.eth.AbstractEthERC20Account
 import com.mycelium.wapi.wallet.eth.EthTransactionData
+import com.mycelium.wapi.wallet.trc20.TRC20Account
+import com.mycelium.wapi.wallet.tron.TronTransactionData
 import com.mycelium.wapi.wallet.exceptions.BuildTransactionException
 import com.mycelium.wapi.wallet.exceptions.InsufficientFundsException
 import com.mycelium.wapi.wallet.exceptions.OutputTooSmallException
@@ -93,6 +95,7 @@ class GetAmountActivity : AppCompatActivity(), NumberEntryListener {
         updateUI()
         if (isSendMode) {
             updateERC20RelatedUI()
+            updateTRC20RelatedUI()
         }
         checkEntry()
         setupActionBar()
@@ -311,6 +314,30 @@ class GetAmountActivity : AppCompatActivity(), NumberEntryListener {
                 binding.tvParentEthAccountBalance.text = " ${parentEthAccount.accountBalance.spendable.toStringFriendlyWithUnit(denomination)}"
                 binding.llParentEthAccountBalance.visibility = View.VISIBLE
                 binding.tvEthRequiredInfo.visibility = View.VISIBLE
+                binding.divider.setBackgroundColor(resources.getColor(R.color.fio_red))
+            }
+        }
+    }
+
+    private fun updateTRC20RelatedUI() {
+        (viewModel.account as? TRC20Account)?.tronAcc?.let { parentAccount ->
+            val tronData = txData as? TronTransactionData
+            val required = tronData?.feeLimit ?: tronData?.estimatedFee ?: _kbMinerFee!!.value
+            val fee = Value.valueOf(parentAccount.coinType, required)
+            if (parentAccount.accountBalance.spendable.lessThan(fee)) {
+                val denomination = _mbwManager!!.getDenomination(parentAccount.coinType)
+                binding.tvPleaseTopUp.apply {
+                    text = getString(R.string.please_top_up_your_trx_account)
+                    setOnClickListener {
+                        _mbwManager!!.setSelectedAccount(parentAccount.id)
+                        setResult(RESULT_OK, Intent().putExtra(EXIT_TO_MAIN_SCREEN, true))
+                        finish()
+                    }
+                    visibility = View.VISIBLE
+                }
+                binding.tvParentEthAccountBalanceLabel.text = getString(R.string.parent_trx_account, parentAccount.label)
+                binding.tvParentEthAccountBalance.text = " ${parentAccount.accountBalance.spendable.toStringFriendlyWithUnit(denomination)}"
+                binding.llParentEthAccountBalance.visibility = View.VISIBLE
                 binding.divider.setBackgroundColor(resources.getColor(R.color.fio_red))
             }
         }

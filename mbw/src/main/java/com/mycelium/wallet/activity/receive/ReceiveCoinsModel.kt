@@ -21,6 +21,7 @@ import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.erc20.ERC20Account
 import com.mycelium.wapi.wallet.eth.AbstractEthERC20Account
+import com.mycelium.wapi.wallet.trc20.TRC20Account
 import com.mycelium.wapi.wallet.fio.FioModule
 import com.squareup.otto.Subscribe
 
@@ -108,6 +109,9 @@ class ReceiveCoinsModel(
                     Toaster(context).toast(R.string.value_conversion_error, false);
                 }
                 if (account is ERC20Account) {
+                    uri.append("&req-asset=${account.coinType.contractAddress}")
+                }
+                if (account is TRC20Account) {
                     uri.append("&req-asset=${account.coinType.contractAddress}")
                 }
             }

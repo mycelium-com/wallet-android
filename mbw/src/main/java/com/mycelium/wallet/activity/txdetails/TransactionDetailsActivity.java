@@ -54,6 +54,9 @@ import com.mycelium.wapi.wallet.btcvault.hd.BitcoinVaultHdAccount;
 import com.mycelium.wapi.wallet.colu.ColuAccount;
 import com.mycelium.wapi.wallet.erc20.ERC20Account;
 import com.mycelium.wapi.wallet.eth.EthAccount;
+import com.mycelium.wapi.wallet.trc20.TRC20Account;
+import com.mycelium.wapi.wallet.tron.TronAccount;
+import com.mycelium.wapi.wallet.tron.TronTransactionSummary;
 import com.mycelium.wapi.wallet.eth.EthTxStatus;
 import com.mycelium.wapi.wallet.fio.FioAccount;
 
@@ -94,6 +97,8 @@ public class TransactionDetailsActivity extends AppCompatActivity {
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
             if (account instanceof EthAccount || account instanceof ERC20Account) {
                 transaction.add(R.id.spec_details_fragment, EthDetailsFragment.newInstance(tx));
+            } else if (account instanceof TronAccount || account instanceof TRC20Account) {
+                transaction.add(R.id.spec_details_fragment, TronDetailsFragment.newInstance(tx));
             } else if (account instanceof FioAccount) {
                 transaction.add(R.id.spec_details_fragment, FioDetailsFragment.newInstance(tx));
             } else if(account instanceof BitcoinVaultHdAccount) {
@@ -138,10 +143,16 @@ public class TransactionDetailsActivity extends AppCompatActivity {
                 ? ((EthTransactionSummary) tx).getStatus()
                 : null;
 
+        boolean tronFailed = tx instanceof TronTransactionSummary && !((TronTransactionSummary) tx).getSuccess() && confirmations > 0;
+
         if (tx != null && tx.isQueuedOutgoing()) {
             confirmationsDisplay.setNeedsBroadcast();
             confirmationsCount.setText("");
             confirmed = getResources().getString(R.string.transaction_not_broadcasted_info);
+        } else if (tronFailed) {
+            confirmationsCount.setText("");
+            confirmationsDisplay.setFailed();
+            confirmed = getResources().getString(R.string.tx_status_failed);
         } else if (ethStatus != null && ethStatus != EthTxStatus.PENDING && ethStatus != EthTxStatus.CONFIRMED) {
             confirmationsCount.setText("");
             switch (ethStatus) {

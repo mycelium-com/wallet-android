@@ -58,6 +58,7 @@ import com.mycelium.wapi.wallet.coins.Value.Companion.isNullOrZero
 import com.mycelium.wapi.wallet.coins.Value.Companion.valueOf
 import com.mycelium.wapi.wallet.colu.ColuAccount
 import com.mycelium.wapi.wallet.eth.AbstractEthERC20Account
+import com.mycelium.wapi.wallet.tron.AbstractTronAccount
 import com.mycelium.wapi.wallet.eth.EthTxStatus
 import com.mycelium.wapi.wallet.fio.FIOOBTransaction
 import com.mycelium.wapi.wallet.fio.FioAccount
@@ -344,7 +345,8 @@ class TransactionHistoryFragment : Fragment() {
                                 && record.confirmations == 0
                                 && model.account.value?.canSpend() == true
                         if (model.account.value is Bip44BCHAccount || model.account.value is SingleAddressBCHAccount
-                                || model.account.value is AbstractEthERC20Account || model.account.value is FioAccount) {
+                                || model.account.value is AbstractEthERC20Account || model.account.value is AbstractTronAccount
+                                || model.account.value is FioAccount) {
                             Preconditions.checkNotNull(menu.findItem(R.id.miCancelTransaction)).isVisible = false
                             Preconditions.checkNotNull(menu.findItem(R.id.miRebroadcastTransaction)).isVisible = false
                             Preconditions.checkNotNull(menu.findItem(R.id.miBumpFee)).isVisible = false
@@ -357,7 +359,7 @@ class TransactionHistoryFragment : Fragment() {
                             Preconditions.checkNotNull(menu.findItem(R.id.miDeleteUnconfirmedTransaction)).isVisible = record.confirmations == 0
                             Preconditions.checkNotNull(menu.findItem(R.id.miShare)).isVisible = true
                         }
-                        if (model.account.value is AbstractEthERC20Account) {
+                        if (model.account.value is AbstractEthERC20Account || model.account.value is AbstractTronAccount) {
                             Preconditions.checkNotNull(menu.findItem(R.id.miDeleteUnconfirmedTransaction)).isVisible = record.confirmations == 0
                         }
                         replaceItem.isVisible = isLiveEthPendingOutgoing
@@ -438,6 +440,10 @@ class TransactionHistoryFragment : Fragment() {
                                             finishActionMode()
                                         } else if (model.account.value is AbstractEthERC20Account) {
                                             (model.account.value as AbstractEthERC20Account).deleteTransaction("0x" + HexUtils.toHex(record.id))
+                                            dialog.dismiss()
+                                            finishActionMode()
+                                        } else if (model.account.value is AbstractTronAccount) {
+                                            (model.account.value as AbstractTronAccount).deleteTransaction(HexUtils.toHex(record.id))
                                             dialog.dismiss()
                                             finishActionMode()
                                         }

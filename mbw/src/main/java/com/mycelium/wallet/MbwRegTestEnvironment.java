@@ -45,6 +45,7 @@ import com.mycelium.wallet.external.LocalTraderServiceDescription;
 import com.mycelium.wallet.external.BankCardServiceDescription;
 import com.mycelium.wapi.wallet.btc.coins.BitcoinTest;
 import com.mycelium.wapi.wallet.eth.coins.EthTest;
+import com.mycelium.wapi.wallet.tron.coins.TronTest;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -106,6 +107,9 @@ public class MbwRegTestEnvironment extends MbwEnvironment {
          }});
          put(EthTest.INSTANCE.getName(), new ArrayList<BlockExplorer>() {{
             add(new BlockExplorer("ETS", "etherscan.io", "https://goerli.etherscan.io/address/", "https://goerli.etherscan.io/tx/", null, null));
+         }});
+         put(TronTest.INSTANCE.getName(), new ArrayList<BlockExplorer>() {{
+            add(new BlockExplorer("TSC", "nile.tronscan.org", "https://nile.tronscan.org/#/address/", "https://nile.tronscan.org/#/transaction/", null, null));
          }});
       }
    };

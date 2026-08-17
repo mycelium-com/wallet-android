@@ -17,6 +17,10 @@ import com.mycelium.wapi.wallet.coins.Balance
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.eth.coins.EthTest
 import com.mycelium.wapi.wallet.genericdb.BTCVAccountBackingAdapter
+import com.mycelium.wapi.wallet.genericdb.energyServiceFeeLinkAdapter
+import com.mycelium.wapi.wallet.genericdb.trc20ContextAdapter
+import com.mycelium.wapi.wallet.genericdb.tronAccountBackingAdapter
+import com.mycelium.wapi.wallet.genericdb.tronContextAdapter
 import com.mycelium.wapi.wallet.genericdb.BTCVContextAdapter
 import com.mycelium.wapi.wallet.genericdb.BTCVOutgoingTxAdapter
 import com.mycelium.wapi.wallet.genericdb.BTCVPtxoAdapter
@@ -71,10 +75,12 @@ class ReconcileLocalPendingTest {
         val db = WalletDB(driver, accountBackingAdapter, accountContextAdapter,
                 BTCVAccountBackingAdapter, BTCVContextAdapter, BTCVOutgoingTxAdapter,
                 BTCVPtxoAdapter, BTCVRefersPtxoAdapter, BTCVTransactionAdapter, BTCVUtxoAdapter,
+                energyServiceFeeLinkAdapter,
                 erc20ContextAdapter, ethAccountBackingAdapter, ethContextAdapter,
                 feeEstimatorAdapter, fioAccountBackingAdapter, fioContextAdapter,
                 fioKnownNamesAdapter, fioNameAccountMappingsAdapter,
-                fioOtherBlockchainTransactionsAdapter, fioReceivedRequestsAdapter, fioSentRequestsAdapter)
+                fioOtherBlockchainTransactionsAdapter, fioReceivedRequestsAdapter, fioSentRequestsAdapter,
+                trc20ContextAdapter, tronAccountBackingAdapter, tronContextAdapter)
         backing = EthAccountBacking(db, UUID.randomUUID(), EthTest)
         account = TestEthAccount(backing, EthBlockchainService(emptyList()),
                 EthAddress(EthTest, ownerAddress))

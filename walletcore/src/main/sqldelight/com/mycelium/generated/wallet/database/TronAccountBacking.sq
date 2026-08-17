@@ -1,0 +1,108 @@
+import java.math.BigInteger;
+import java.util.UUID;
+import kotlin.Boolean;
+
+-- TRON transactions (TRX transfers, TRC20 transfers and other contract types)
+
+CREATE TABLE IF NOT EXISTS TronAccountBacking (
+    txid TEXT NOT NULL,
+    uuid TEXT AS UUID NOT NULL,
+    fromAddress TEXT NOT NULL,
+    toAddress TEXT NOT NULL,
+    bandwidth TEXT AS BigInteger DEFAULT 268 NOT NULL,
+    energy TEXT AS BigInteger DEFAULT 0 NOT NULL,
+    feeLimit TEXT AS BigInteger DEFAULT 0 NOT NULL,
+    success INTEGER AS Boolean NOT NULL DEFAULT 1,
+    hasTokenTransfers INTEGER AS Boolean NOT NULL DEFAULT 0,
+    tronTxType TEXT NOT NULL DEFAULT 'TRX_TRANSFER',
+    PRIMARY KEY (txid, uuid),
+    FOREIGN KEY (txid, uuid)
+            REFERENCES AccountBacking (txid, uuid)
+            ON DELETE CASCADE
+);
+
+selectTransactionSummaries:
+SELECT tb.txid, b.currency, b.blockNumber, b.timestamp, b.value, b.fee, b.confirmations,
+    tb.fromAddress, tb.toAddress, tb.bandwidth, tb.energy, tb.feeLimit, tb.success, tb.hasTokenTransfers, tb.tronTxType
+FROM TronAccountBacking AS tb
+    INNER JOIN AccountBacking AS b
+    ON tb.uuid = b.uuid AND tb.txid = b.txid
+        WHERE tb.uuid = (:uuid) ORDER BY b.blockNumber DESC, b.timestamp DESC
+        LIMIT (:limit) OFFSET (:offset);
+
+-- Selects transactions since time in seconds
+selectTransactionSummariesSince:
+SELECT tb.txid, b.currency, b.blockNumber, b.timestamp, b.value, b.fee, b.confirmations,
+    tb.fromAddress, tb.toAddress, tb.bandwidth, tb.energy, tb.feeLimit, tb.success, tb.hasTokenTransfers, tb.tronTxType
+FROM TronAccountBacking AS tb
+    INNER JOIN AccountBacking AS b
+    ON tb.uuid = b.uuid AND tb.txid = b.txid
+        WHERE tb.uuid = (:uuid) AND b.timestamp > (:timestamp)
+        ORDER BY b.blockNumber DESC, b.timestamp DESC;
+
+selectTransactionSummaryById:
+SELECT tb.txid, b.currency, b.blockNumber, b.timestamp, b.value, b.fee, b.confirmations,
+     tb.fromAddress, tb.toAddress, tb.bandwidth, tb.energy, tb.feeLimit, tb.success, tb.hasTokenTransfers, tb.tronTxType
+FROM TronAccountBacking AS tb
+    INNER JOIN AccountBacking AS b
+    ON tb.uuid = b.uuid AND tb.txid = b.txid
+        WHERE tb.uuid = (?) AND tb.txid = (?);
+
+-- "Unconfirmed" = not yet in a block: locally broadcast txs are stored with
+-- blockNumber = 2147483647 (Int.MAX_VALUE), remote txs not yet indexed with 0.
+selectUnconfirmedTransactions:
+SELECT tb.txid, b.currency, b.blockNumber, b.timestamp,
+           b.value, b.fee, b.confirmations, tb.fromAddress, tb.toAddress, tb.bandwidth, tb.energy, tb.feeLimit, tb.success, tb.hasTokenTransfers, tb.tronTxType
+FROM TronAccountBacking AS tb
+    INNER JOIN AccountBacking AS b
+    ON tb.uuid = b.uuid AND tb.txid = b.txid
+        WHERE tb.uuid = (:uuid) AND b.confirmations = 0 AND (b.blockNumber = 0 OR b.blockNumber = 2147483647)
+        ORDER BY b.blockNumber DESC, b.timestamp DESC;
+
+-- txid -> blockNumber for txs already included in a block (excludes the local pending marker)
+selectConfirmedTxBlocks:
+SELECT tb.txid, b.blockNumber
+FROM TronAccountBacking AS tb
+    INNER JOIN AccountBacking AS b
+    ON tb.uuid = b.uuid AND tb.txid = b.txid
+        WHERE tb.uuid = (:uuid) AND b.blockNumber > 0 AND b.blockNumber < 2147483647;
+
+-- Newest confirmed tx timestamp (seconds); 0 when the account has no confirmed history
+selectMaxConfirmedTimestamp:
+SELECT COALESCE(MAX(b.timestamp), 0)
+FROM TronAccountBacking AS tb
+    INNER JOIN AccountBacking AS b
+    ON tb.uuid = b.uuid AND tb.txid = b.txid
+        WHERE tb.uuid = (:uuid) AND b.blockNumber > 0 AND b.blockNumber < 2147483647;
+
+insertTransaction:
+INSERT OR REPLACE INTO TronAccountBacking(txid, uuid, fromAddress, toAddress, bandwidth, energy, feeLimit,
+                                         success, hasTokenTransfers, tronTxType)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+
+updateSuccess:
+UPDATE TronAccountBacking
+SET success = (?)
+WHERE uuid = (?) AND txid = (?);
+
+deleteTransaction:
+DELETE FROM TronAccountBacking
+WHERE uuid = (?) AND txid = (?);
+
+-- Links energy service fee transactions to their parent (main) transactions.
+-- Stored separately so that syncTransactions (INSERT OR REPLACE) does not overwrite the flag.
+CREATE TABLE IF NOT EXISTS EnergyServiceFeeLink (
+    feeTxId TEXT NOT NULL,
+    mainTxId TEXT NOT NULL,
+    uuid TEXT AS UUID NOT NULL,
+    PRIMARY KEY (feeTxId, uuid)
+);
+
+insertFeeLink:
+INSERT OR IGNORE INTO EnergyServiceFeeLink(feeTxId, mainTxId, uuid) VALUES (?, ?, ?);
+
+selectFeeLinks:
+SELECT feeTxId, mainTxId FROM EnergyServiceFeeLink WHERE uuid = (:uuid);
+
+deleteFeeLink:
+DELETE FROM EnergyServiceFeeLink WHERE feeTxId = (?) AND uuid = (?);

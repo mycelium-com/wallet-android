@@ -99,6 +99,7 @@ import com.mycelium.wapi.wallet.Address;
 import com.mycelium.wapi.wallet.AddressUtils;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.ExportableAccount;
+import com.mycelium.wapi.wallet.Util;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount;
@@ -129,6 +130,12 @@ import com.mycelium.wapi.wallet.erc20.ERC20Account;
 import com.mycelium.wapi.wallet.erc20.ERC20ModuleKt;
 import com.mycelium.wapi.wallet.eth.AbstractEthERC20Account;
 import com.mycelium.wapi.wallet.eth.EthAccount;
+import com.mycelium.wapi.wallet.trc20.TRC20Account;
+import com.mycelium.wapi.wallet.trc20.TRC20ModuleKt;
+import com.mycelium.wapi.wallet.tron.AbstractTronAccount;
+import com.mycelium.wapi.wallet.tron.TronAccount;
+import com.mycelium.wapi.wallet.tron.coins.TronMain;
+import com.mycelium.wapi.wallet.tron.coins.TronTest;
 import com.mycelium.wapi.wallet.eth.coins.EthMain;
 import com.mycelium.wapi.wallet.eth.coins.EthTest;
 import com.mycelium.wapi.wallet.fiat.coins.FiatType;
@@ -836,6 +843,27 @@ public class Utils {
       return null;
    }
 
+   public static boolean isTRC20Token(WalletManager walletManager, String symbol) {
+      for (WalletAccount account : TRC20ModuleKt.getTRC20Accounts(walletManager)) {
+         if (account.getCoinType().getSymbol().equals(symbol)) {
+            return true;
+         }
+      }
+      return false;
+   }
+
+   public static TronAccount getLinkedTronAccount(WalletAccount account, final Collection<? extends WalletAccount> accounts) {
+      if (account instanceof TRC20Account) {
+         return ((TRC20Account) account).getTronAcc();
+      }
+      for (WalletAccount walletAccount : accounts) {
+         if (walletAccount instanceof TronAccount && !walletAccount.getId().equals(account.getId()) && account.isMineAddress(walletAccount.getReceiveAddress())) {
+            return (TronAccount) walletAccount;
+         }
+      }
+      return null;
+   }
+
    public static EthAccount getLinkedEthAccount(WalletAccount account, final Collection<? extends WalletAccount> accounts) {
       for (WalletAccount walletAccount : accounts) {
          if (walletAccount instanceof EthAccount && !walletAccount.getId().equals(account.getId()) && account.isMineAddress(walletAccount.getReceiveAddress())) {
@@ -933,6 +961,16 @@ public class Utils {
                EthAccount linkedEthAccount1 = getLinkedEthAccount(w1, accounts);
                EthAccount linkedEthAccount2 = getLinkedEthAccount(w2, accounts);
                return Integer.compare(linkedEthAccount1.getAccountIndex(), linkedEthAccount2.getAccountIndex());
+            } else if (w1 instanceof TronAccount && w2 instanceof TronAccount) {
+               return Integer.compare(((TronAccount) w1).getAccountIndex(), ((TronAccount) w2).getAccountIndex());
+            } else if (w1 instanceof TronAccount && w2 instanceof TRC20Account) {
+               TronAccount linked = ((TRC20Account) w2).getTronAcc();
+               return linked.equals(w1) ? -1 : Integer.compare(((TronAccount) w1).getAccountIndex(), linked.getAccountIndex());
+            } else if (w1 instanceof TRC20Account && w2 instanceof TronAccount) {
+               TronAccount linked = ((TRC20Account) w1).getTronAcc();
+               return linked.equals(w2) ? 1 : Integer.compare(linked.getAccountIndex(), ((TronAccount) w2).getAccountIndex());
+            } else if (w1 instanceof TRC20Account && w2 instanceof TRC20Account) {
+               return Integer.compare(((TRC20Account) w1).getTronAcc().getAccountIndex(), ((TRC20Account) w2).getTronAcc().getAccountIndex());
             }
             return 0;
          }
@@ -992,9 +1030,10 @@ public class Utils {
          }
       }
 
-      if (ERC20Account.class.isAssignableFrom(accountType)) {
+      if (ERC20Account.class.isAssignableFrom(accountType) || TRC20Account.class.isAssignableFrom(accountType)) {
          Drawable drawable = null;
-         String symbol = accountView.getCoinType().getSymbol();
+         // testnet tokens carry a "t" prefix (tUSDT) but share the mainnet logo
+         String symbol = Util.trimTestnetSymbolDecoration(accountView.getCoinType().getSymbol());
          try {
             // get input stream
             InputStream ims = resources.getAssets().open("token-logos/" + symbol.toLowerCase() + "_logo.png");
@@ -1041,6 +1080,7 @@ public class Utils {
               || account instanceof SingleAddressBCHAccount
               || account instanceof ColuAccount
               || account instanceof AbstractEthERC20Account
+              || account instanceof AbstractTronAccount
               || account instanceof FioAccount
               || account instanceof BitcoinVaultHdAccount) {
          return false; //we do not support these account types in LT
@@ -1082,6 +1122,10 @@ public class Utils {
 
    public static CryptoCurrency getEthCoinType() {
       return isProdnet() ? EthMain.INSTANCE : EthTest.INSTANCE;
+   }
+
+   public static CryptoCurrency getTronCoinType() {
+      return isProdnet() ? TronMain.INSTANCE : TronTest.INSTANCE;
    }
 
    public static CryptoCurrency getMtCoinType() {

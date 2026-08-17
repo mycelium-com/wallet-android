@@ -80,6 +80,23 @@ import com.mycelium.generated.logger.database.LoggerDB;
 import com.mycelium.generated.logger.database.Logs;
 import com.mycelium.generated.rates.database.RatesDB;
 import com.mycelium.generated.wallet.database.WalletDB;
+import com.mycelium.wapi.content.tron.TronUriParser;
+import com.mycelium.wapi.wallet.providers.TronFeeProvider;
+import com.mycelium.wapi.wallet.trc20.TRC20Backing;
+import com.mycelium.wapi.wallet.trc20.TRC20Module;
+import com.mycelium.wapi.wallet.trc20.coins.TRC20Token;
+import com.mycelium.wapi.wallet.tron.TronAccountContext;
+import com.mycelium.wapi.wallet.tron.TronAddress;
+import com.mycelium.wapi.wallet.tron.TronAddressConfig;
+import com.mycelium.wapi.wallet.tron.TronBacking;
+import com.mycelium.wapi.wallet.tron.energy.EnergyServiceClient;
+import com.mycelium.wapi.wallet.tron.energy.EnergyServiceConfig;
+import com.mycelium.wapi.wallet.tron.energy.EnergyServiceManager;
+import com.mycelium.wallet.tron.PrefsEnergyOrderStore;
+import com.mycelium.wapi.wallet.tron.TronFeeEstimator;
+import com.mycelium.wapi.wallet.tron.TronMasterseedConfig;
+import com.mycelium.wapi.wallet.tron.TronModule;
+import com.mycelium.wapi.wallet.tron.remote.TronBlockchainService;
 import com.mycelium.lt.api.LtApiClient;
 import com.mycelium.net.HttpEndpoint;
 import com.mycelium.net.ServerEndpointType;
@@ -342,11 +359,13 @@ public class MbwManager {
                 AdaptersKt.getBTCVAccountBackingAdapter(), AdaptersKt.getBTCVContextAdapter(),
                 AdaptersKt.getBTCVOutgoingTxAdapter(), AdaptersKt.getBTCVPtxoAdapter(),
                 AdaptersKt.getBTCVRefersPtxoAdapter(), AdaptersKt.getBTCVTransactionAdapter(), AdaptersKt.getBTCVUtxoAdapter(),
+                AdaptersKt.getEnergyServiceFeeLinkAdapter(),
                 AdaptersKt.getErc20ContextAdapter(), AdaptersKt.getEthAccountBackingAdapter(), AdaptersKt.getEthContextAdapter(),
                 AdaptersKt.getFeeEstimatorAdapter(), AdaptersKt.getFioAccountBackingAdapter(), AdaptersKt.getFioContextAdapter(),
                 AdaptersKt.getFioKnownNamesAdapter(), AdaptersKt.getFioNameAccountMappingsAdapter(),
                 AdaptersKt.getFioOtherBlockchainTransactionsAdapter(),
-                AdaptersKt.getFioReceivedRequestsAdapter(), AdaptersKt.getFioSentRequestsAdapter());
+                AdaptersKt.getFioReceivedRequestsAdapter(), AdaptersKt.getFioSentRequestsAdapter(),
+                AdaptersKt.getTrc20ContextAdapter(), AdaptersKt.getTronAccountBackingAdapter(), AdaptersKt.getTronContextAdapter());
         driver.execute(null, "PRAGMA foreign_keys=ON;", 0, null);
 
         // Preferences
@@ -575,6 +594,7 @@ public class MbwManager {
         result.add(new MSSUriParser(network));
         result.add(new RMCUriParser(network));
         result.add(new EthUriParser(network, getSupportedERC20Tokens()));
+        result.add(new TronUriParser(network, getSupportedTRC20Tokens()));
         result.add(new FIOUriParser(network));
         result.add(new BitcoinVaultUriParser(network));
         return result;
@@ -591,6 +611,23 @@ public class MbwManager {
 
     public Map<String, ERC20Token> getSupportedERC20Tokens() {
         return configuration.getSupportedERC20Tokens();
+    }
+
+    public Map<String, TRC20Token> getSupportedTRC20Tokens() {
+        return configuration.getSupportedTRC20Tokens();
+    }
+
+    private TronFeeEstimator tronFeeEstimator;
+
+    public TronFeeEstimator getTronFeeEstimator() {
+        return tronFeeEstimator;
+    }
+
+    private EnergyServiceManager energyServiceManager;
+
+    /** TRON energy service ("pay TRC20 fees in USDT"); null in temp/cold-storage managers. */
+    public EnergyServiceManager getEnergyServiceManager() {
+        return energyServiceManager;
     }
 
     private void initPerCurrencySettings() {
@@ -836,6 +873,20 @@ public class MbwManager {
         walletManager.add(new ERC20Module(secureKeyValueStore, new ERC20Backing(db, genericBacking), walletDB,
                 ethBlockchainService, networkParameters, getMetadataStorage(), accountListener, ethereumModule));
 
+        TronBlockchainService tronBlockchainService = new TronBlockchainService(configuration.getTronEndpoints());
+        configuration.addTronServerListChangedListener(tronBlockchainService);
+        tronFeeEstimator = new TronFeeEstimator(tronBlockchainService);
+        TronModule tronModule = new TronModule(secureKeyValueStore, new TronBacking(db, genericBacking), walletDB,
+                tronBlockchainService, networkParameters, getMetadataStorage(), accountListener);
+        walletManager.add(tronModule);
+        walletManager.getFeeEstimations().addProvider(new TronFeeProvider(isTestnet));
+        walletManager.add(new TRC20Module(new TRC20Backing(db, genericBacking), walletDB, tronBlockchainService,
+                networkParameters, getMetadataStorage(), accountListener, tronModule));
+        energyServiceManager = new EnergyServiceManager(
+                new EnergyServiceClient(new EnergyServiceConfig(BuildConfig.EnergyServiceUrl, BuildConfig.EnergyServiceApiKey),
+                        "MyceliumWallet/" + BuildConfig.VERSION_NAME + " (android)", Locale.getDefault().getLanguage()),
+                new PrefsEnergyOrderStore(_applicationContext.getSharedPreferences("energy_service", Context.MODE_PRIVATE)));
+
         FioModule fioModule = new FioModule(configuration, new AbiFioSerializationProviderWrapper(), new FioApiEndpoints(configuration.getFioApiEndpoints()), new FioHistoryEndpoints(configuration.getFioHistoryEndpoints()),
                 secureKeyValueStore, new FioBacking(db, genericBacking), walletDB, networkParameters, getMetadataStorage(),
                 new FioKeyManager(new MasterSeedManager(secureKeyValueStore), secureKeyValueStore), accountListener, walletManager, configuration.getFioTpid());
@@ -917,6 +968,11 @@ public class MbwManager {
         EthereumModule ethModule = new EthereumModule(secureKeyValueStore, genericBacking, db,
                 ethBlockchainService, networkParameters, getMetadataStorage(), accountListener);
         walletManager.add(ethModule);
+
+        Backing<TronAccountContext> tronGenericBacking = new InMemoryAccountContextsBacking<>();
+        TronBlockchainService tronBlockchainService = new TronBlockchainService(configuration.getTronEndpoints());
+        walletManager.add(new TronModule(secureKeyValueStore, tronGenericBacking, db,
+                tronBlockchainService, networkParameters, getMetadataStorage(), accountListener));
 
         Backing<FioAccountContext> fioGenericBacking = new InMemoryAccountContextsBacking<>();
         fioKeyManager = new FioKeyManager(new MasterSeedManager(secureKeyValueStore), secureKeyValueStore);
@@ -1458,6 +1514,8 @@ public class MbwManager {
                     new BtcAddress(Utils.getBtcCoinType(), ((BtcAddress) address).getAddress()))).get(0);
         } else if (address instanceof EthAddress) {
             accountId = _tempWalletManager.createAccounts(new EthAddressConfig((EthAddress) address)).get(0);
+        } else if (address instanceof TronAddress) {
+            accountId = _tempWalletManager.createAccounts(new TronAddressConfig((TronAddress) address)).get(0);
         } else if (address instanceof FioAddress) {
             accountId = _tempWalletManager.createAccounts(new FIOAddressConfig((FioAddress) address)).get(0);
         } else {
@@ -1619,6 +1677,9 @@ public class MbwManager {
         }
         if (accounts.get(Utils.getEthCoinType()) == null) {
             needsToBeCreated.add(new EthereumMasterseedConfig());
+        }
+        if (accounts.get(Utils.getTronCoinType()) == null) {
+            needsToBeCreated.add(new TronMasterseedConfig());
         }
         return needsToBeCreated;
     }

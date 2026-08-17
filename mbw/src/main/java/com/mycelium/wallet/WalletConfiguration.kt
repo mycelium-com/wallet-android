@@ -20,6 +20,9 @@ import com.mycelium.wapi.api.jsonrpc.TcpEndpoint
 import com.mycelium.wapi.wallet.IServerFioEventsPublisher
 import com.mycelium.wapi.wallet.erc20.coins.ERC20Token
 import com.mycelium.wapi.wallet.eth.ServerEthListChangedListener
+import com.mycelium.wapi.wallet.trc20.coins.TRC20Token
+import com.mycelium.wapi.wallet.tron.remote.ServerTronListChangedListener
+import com.mycelium.wapi.wallet.tron.remote.TronEndpoint
 import com.mycelium.wapi.wallet.fio.FioTpidChangedListener
 import com.mycelium.wapi.wallet.fio.ServerFioApiListChangedListener
 import com.mycelium.wapi.wallet.fio.ServerFioHistoryListChangedListener
@@ -53,6 +56,8 @@ class MyceliumNodesResponse(@SerializedName("BTC-testnet") val btcTestnet: BTCNe
                             @SerializedName("BTC-mainnet") val btcMainnet: BTCNetResponse,
                             @SerializedName("ETH-testnet") val ethTestnet: ETHNetResponse?,
                             @SerializedName("ETH-mainnet") val ethMainnet: ETHNetResponse?,
+                            @SerializedName("TRX-testnet") val trxTestnet: TRXNetResponse?,
+                            @SerializedName("TRX-mainnet") val trxMainnet: TRXNetResponse?,
                             @SerializedName("FIO-mainnet") val fioMainnet: FIONetResponse?,
                             @SerializedName("FIO-testnet") val fioTestnet: FIONetResponse?,
                             @SerializedName("BTCV-testnet") val btcVTestnet: BTCNetResponse?,
@@ -72,6 +77,12 @@ data class PartnerInfo(val id: String? = null,
 class BTCNetResponse(val electrumx: ElectrumXResponse, @SerializedName("WAPI") val wapi: WapiSectionResponse)
 
 class ETHNetResponse(@SerializedName("blockbook-servers") val ethBBServers: EthServerResponse)
+
+class TRXNetResponse(@SerializedName("api-servers") val apiServers: TrxServerResponse)
+
+class TrxServerResponse(val primary: Array<TrxUrlResponse>)
+
+data class TrxUrlResponse(val url: String, @SerializedName("api-key") val apiKey: String? = null)
 
 class FIONetResponse(@SerializedName("api-servers") val fioApiServers: FioServerResponse,
                      @SerializedName("history-servers") val fioHistoryServers: FioServerResponse,
@@ -112,6 +123,7 @@ class WalletConfiguration(private val prefs: SharedPreferences,
             val oldElectrum = electrumServers
             val oldElectrumBTCV = electrumBTCVServers
             val oldEth = ethBBServers
+            val oldTron = tronServers
             val oldFioApi = fioApiServers
             val oldFioHistory = fioHistoryServers
             val oldFioTpid = tpid
@@ -151,6 +163,12 @@ class WalletConfiguration(private val prefs: SharedPreferences,
                     if (oldEth != ethBBServers) {
                         for (serverEthListChangedListener in serverEthListChangedListeners) {
                             serverEthListChangedListener.serverListChanged(getBlockBookEndpoints().toTypedArray())
+                        }
+                    }
+
+                    if (oldTron != tronServers) {
+                        for (listener in serverTronListChangedListeners) {
+                            listener.serverListChanged(getTronEndpoints())
                         }
                     }
 
@@ -207,6 +225,12 @@ class WalletConfiguration(private val prefs: SharedPreferences,
             myceliumNodesResponse?.ethMainnet
         }?.ethBBServers?.primary?.map { it.url }?.toSet()
 
+        val tronServersFromResponse = if (network.isTestnet) {
+            myceliumNodesResponse?.trxTestnet
+        } else {
+            myceliumNodesResponse?.trxMainnet
+        }?.apiServers?.primary
+
         val fioApiServersFromResponse = if (network.isTestnet) {
             myceliumNodesResponse?.fioTestnet
         } else {
@@ -243,6 +267,9 @@ class WalletConfiguration(private val prefs: SharedPreferences,
 
         ethServersFromResponse?.let {
             prefEditor.putStringSet(PREFS_ETH_BB_SERVERS, ethServersFromResponse)
+        }
+        tronServersFromResponse?.let {
+            prefEditor.putString(PREFS_TRON_SERVERS, gson.toJson(it))
         }
         fioApiServersFromResponse?.let {
             prefEditor.putStringSet(PREFS_FIO_API_SERVERS, fioApiServersFromResponse)
@@ -295,6 +322,17 @@ class WalletConfiguration(private val prefs: SharedPreferences,
     private val fioApiServers: Set<String>
         get() = prefs.getStringSet(PREFS_FIO_API_SERVERS, mutableSetOf(*BuildConfig.FioApiServers))!!
 
+    // TronGrid-compatible servers as JSON [{url, api-key}]; falls back to the built-in list + build-time key
+    private val tronServers: List<TrxUrlResponse>
+        get() = prefs.getString(PREFS_TRON_SERVERS, null)?.let {
+            try {
+                gson.fromJson(it, Array<TrxUrlResponse>::class.java).toList()
+            } catch (e: Exception) {
+                null
+            }
+        }?.takeIf { it.isNotEmpty() }
+            ?: BuildConfig.TronServers.map { TrxUrlResponse(it, BuildConfig.TronGridApiKey.takeIf { k -> k.isNotBlank() }) }
+
     private val fioHistoryServers: Set<String>
         get() = prefs.getStringSet(PREFS_FIO_HISTORY_SERVERS, mutableSetOf(*BuildConfig.FioHistoryServers))!!
 
@@ -342,6 +380,11 @@ class WalletConfiguration(private val prefs: SharedPreferences,
     //We are not going to call HttpsEndpoint.getClient() , that's why certificate is empty
     fun getBlockBookEndpoints(): List<HttpsEndpoint> = ethBBServers.map { HttpsEndpoint(it) }
 
+    fun getTronEndpoints(): List<TronEndpoint> = tronServers.map {
+        // A remote entry without a key inherits the build-time key so keyed access survives config updates
+        TronEndpoint(it.url, it.apiKey?.takeIf { k -> k.isNotBlank() } ?: BuildConfig.TronGridApiKey.takeIf { k -> k.isNotBlank() })
+    }
+
     fun getFioApiEndpoints(): List<HttpsEndpoint> = fioApiServers.map { HttpsEndpoint(it) }
     fun getFioHistoryEndpoints(): List<HttpsEndpoint> = fioHistoryServers.map { HttpsEndpoint(it) }
     fun getFioTpid(): String = tpid
@@ -349,6 +392,7 @@ class WalletConfiguration(private val prefs: SharedPreferences,
     private var serverElectrumListChangedListener: ServerElectrumListChangedListener? = null
     private var serverElectrumVListChangedListener: ServerElectrumListChangedListener? = null
     private var serverEthListChangedListeners: ArrayList<ServerEthListChangedListener> = arrayListOf()
+    private var serverTronListChangedListeners: ArrayList<ServerTronListChangedListener> = arrayListOf()
     private var serverFioApiListChangedListeners: ArrayList<ServerFioApiListChangedListener> = arrayListOf()
     private var serverFioHistoryListChangedListeners: ArrayList<ServerFioHistoryListChangedListener> = arrayListOf()
     private var fioTpidChangedListeners: ArrayList<FioTpidChangedListener> = arrayListOf()
@@ -375,6 +419,21 @@ class WalletConfiguration(private val prefs: SharedPreferences,
         this.serverEthListChangedListeners.add(serverEthListChangedListener)
     }
 
+    fun addTronServerListChangedListener(listener: ServerTronListChangedListener) {
+        this.serverTronListChangedListeners.add(listener)
+    }
+
+    fun getSupportedTRC20Tokens(): Map<String, TRC20Token> {
+        val namePostfix = if (Utils.isProdnet()) "" else " test"
+        val symbolPrefix = if (Utils.isProdnet()) "" else "t"
+        return TRC20_TOKENS
+            // Mainnet contracts don't exist on Nile — testnet only lists tokens with a testnet address
+            .filter { if (Utils.isProdnet()) it.prodAddress.isNotEmpty() else !it.testnetAddress.isNullOrEmpty() }
+            .map { TRC20Token(it.name + namePostfix, "$symbolPrefix${it.symbol}", it.unitExponent,
+                if (Utils.isProdnet()) it.prodAddress else it.testnetAddress!!) }
+            .associateBy { it.name }
+    }
+
     override fun setFioServerListChangedListeners(serverFioApiListChangedListener: ServerFioApiListChangedListener,
                                                   serverFioHistoryListChangedListener: ServerFioHistoryListChangedListener) {
         this.serverFioApiListChangedListeners.add(serverFioApiListChangedListener)
@@ -391,6 +450,7 @@ class WalletConfiguration(private val prefs: SharedPreferences,
         const val PREFS_WAPI_SERVERS = "wapi_servers"
         const val PREFS_ELECTRUM_BTCV_SERVERS = "electrum_btcv_servers"
         const val PREFS_ETH_BB_SERVERS = "eth_bb_servers"
+        const val PREFS_TRON_SERVERS = "tron_servers"
         const val PREFS_FIO_API_SERVERS = "fio_api_servers"
         const val PREFS_FIO_HISTORY_SERVERS = "fio_history_servers"
         const val PREFS_FIO_TPID = "fio_tpid"
@@ -398,6 +458,21 @@ class WalletConfiguration(private val prefs: SharedPreferences,
 
         const val TCP_TLS_PREFIX = "tcp-tls://"
         const val AMAZON_S3_STORAGE_ADDRESS = "https://wallet-config.mycelium.com"
+
+        // TRC20 tokens (contract addresses on TRON mainnet; testnet = Nile)
+        val TRC20_TOKENS = listOf(
+            TokenData("Tether USD", "USDT", 6, "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t", "TXYZopYRdj2D9XRtbG411XZZ3kM5VkAeBf"),
+            TokenData("USD Coin", "USDC", 6, "TEkxiTehnzSmSe2XqrBj4w32RUN966rdz8"),
+            TokenData("USD1", "USD1", 18, "TPFqcBAaaUMCSVRCqPaQ9QnzKhmuoLR6Rc", "TNuoKL1ni8aoshfFL1ASca1Gou9RXwAzfn"),
+            TokenData("Decentralized USD", "USDD", 18, "TXDk8mbtRbXeYuMNS83CfKPaYYT8XWv9Hz"),
+            TokenData("TrueUSD", "TUSD", 18, "TUpMhErZL2fhh4sVNULAbNKLokS4GjC1F4"),
+            TokenData("WINk", "WIN", 6, "TLa2f6VPqDgRE67v1736s7bJ8Ray5wYjU7"),
+            TokenData("SUN", "SUN", 18, "TSSMHYeV2uE9qYH95DqyoCuNCzEL1NvU3S"),
+            TokenData("JUST", "JST", 18, "TCFLL5dx5ZJdKnWuesXxi1VPwjLVmWZZy9"),
+            TokenData("USDJ", "USDJ", 18, "TMwFHYXLJaRUPeW6421aqXL4ZEzPRFGkGT"),
+            TokenData("Wrapped TRX", "WTRX", 6, "TNUC9Qb1rRpS5CbWLmNMxXBjyFoydXjWFR"),
+            TokenData("BitTorrent", "BTT", 18, "TAFjULxiVgT4qWVNAx5f7kaNdS3LDZTYaj"),
+        )
 
         val TOKENS = listOfNotNull(
             if (BuildConfig.DEBUG)

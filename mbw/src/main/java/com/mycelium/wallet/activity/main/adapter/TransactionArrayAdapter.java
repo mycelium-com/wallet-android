@@ -28,6 +28,7 @@ import com.mycelium.wapi.wallet.TransactionSummaryKt;
 import com.mycelium.wapi.wallet.coins.AssetInfo;
 import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.eth.EthTxStatus;
+import com.mycelium.wapi.wallet.tron.TronTransactionSummary;
 
 import java.text.DateFormat;
 import java.util.ArrayList;
@@ -192,6 +193,9 @@ public class TransactionArrayAdapter extends ArrayAdapter<TransactionSummary> {
          // Outgoing, not broadcasted
          tcdConfirmations.setNeedsBroadcast();
          confirmationsText = _context.getResources().getString(R.string.transaction_not_broadcasted_info);
+      } else if (record instanceof TronTransactionSummary && !((TronTransactionSummary) record).getSuccess() && confirmations > 0) {
+         tcdConfirmations.setFailed();
+         confirmationsText = _context.getResources().getString(R.string.tx_status_failed);
       } else if (ethStatus != null && ethStatus != EthTxStatus.PENDING && ethStatus != EthTxStatus.CONFIRMED) {
          switch (ethStatus) {
             case FAILED:
@@ -232,6 +236,8 @@ public class TransactionArrayAdapter extends ArrayAdapter<TransactionSummary> {
       String minerFeeLabel = "";
       if (TransactionSummaryKt.isMinerFeeTx(record, _mbwManager.getSelectedAccount())) {
          minerFeeLabel = " / " + _context.getString(R.string.history_row_miner_fee_label);
+      } else if (record instanceof TronTransactionSummary && ((TronTransactionSummary) record).isEnergyServiceFee()) {
+         minerFeeLabel = " / " + _context.getString(R.string.tron_energy_fee_badge);
       }
       tvLabel.setText(confirmationsText + minerFeeLabel + (label.isEmpty() ? "" : " / " + label));
 

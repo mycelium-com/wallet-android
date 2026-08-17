@@ -215,6 +215,7 @@
     <string name="select_token_new_account">Add ERC-20 tokens to new ETH Account</string>
     <string name="select_eth_account_to_erc20">Select ETH Account to store your ERC-20 tokens</string>
     <string name="create_new_account">Add new ETH Account</string>
+    <string name="create_new_tron_account">Add new TRON Account</string>
     <string name="account_added_part">(Added)</string>
     <string name="select_eth_account_to_erc20_subtext">ERC-20 tokens exist on ETH Accounts and require ETH to make transactions.\nSingle ETH Account can store unlimited types of ERC-20 tokens - one of each type per ETH account.</string>
     <string name="list_added_tokens_new_account">ERC-20 tokens on new account</string>
@@ -240,6 +241,16 @@
     <string name="you_dont_have_btc_or_eth_accounts_with_funds">You don’t have any BTC or ETH accounts with funds.\nPlease top-up any of your BTC or ETH account and try again.</string>
     <string name="please_top_up_your_eth_account"><![CDATA[Please top up your <b><u>ETH %s</u></b> by %s%s to pay miner fee to send this transaction.]]></string>
     <string name="parent_eth_account">ETH %s:</string>
+    <string name="hd_tron_account">Add TRON Account</string>
+    <string name="add_trc20_account">Add TRC-20 Account</string>
+    <string name="tron_account_creation_started">Creating new TRON Account…</string>
+    <string name="trc20_account_creation_started">Creating new TRC-20 Account…</string>
+    <string name="select_trc20_token_new_account">Add TRC-20 tokens to new TRON Account</string>
+    <string name="select_tron_account_to_trc20">Select TRON Account to store your TRC-20 tokens</string>
+    <string name="select_tron_account_to_trc20_subtext">TRC-20 tokens exist on TRON Accounts and require TRX to pay network fees.\nA single TRON Account can store unlimited types of TRC-20 tokens - one of each type per TRON account.</string>
+    <string name="payment_uri_wrong_account_trx">Select TRON account in order to read the payment uri</string>
+    <string name="please_top_up_your_trx_account">Not enough TRX on the parent account to cover the network fee. Please top up your TRON account.</string>
+    <string name="parent_trx_account">TRX %s:</string>
     <string name="add_all_receiving_addresses_and_amounts">Add all receiving addresses and amounts</string>
     <string name="add_address">Add address</string>
     <string name="delete_private_key">Make Watch-only</string>

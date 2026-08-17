@@ -57,6 +57,8 @@ import com.mycelium.wapi.wallet.coins.Value.Companion.zeroValue
 import com.mycelium.wapi.wallet.erc20.ERC20Account
 import com.mycelium.wapi.wallet.erc20.ERC20Account.Companion.AVG_TOKEN_TRANSFER_GAS
 import com.mycelium.wapi.wallet.eth.EthAccount
+import com.mycelium.wapi.wallet.trc20.TRC20Account
+import com.mycelium.wapi.wallet.tron.TronAccount
 import com.mycelium.wapi.wallet.fio.FioAccount
 import com.mycelium.wapi.wallet.fio.FioModule
 import org.web3j.utils.Convert
@@ -473,6 +475,16 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener, AmountLi
                             bindingSenderFio = it.layoutSenderFio
 
                             it.viewModel = viewModel as SendFioViewModel
+                            it.activity = this
+                        }
+            }
+            is TronAccount, is TRC20Account -> {
+                SendCoinsActivityTronBinding.inflate(layoutInflater)
+                        .also {
+                            bindingFioMemo = it.layoutFioMemo
+                            bindingSenderFio = it.layoutSenderFio
+
+                            it.viewModel = viewModel as SendTronViewModel
                             it.activity = this
                         }
             }

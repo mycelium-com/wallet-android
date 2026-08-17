@@ -60,6 +60,7 @@ import com.mycelium.wallet.external.partner.model.BuySellButton
 import com.mycelium.wallet.external.partner.model.check
 import com.mycelium.wallet.external.partner.startContentLink
 import com.mycelium.wapi.wallet.eth.AbstractEthERC20Account
+import com.mycelium.wapi.wallet.tron.AbstractTronAccount
 import com.squareup.otto.Subscribe
 
 class BuySellFragment : Fragment(), ButtonClickListener {
@@ -118,7 +119,7 @@ class BuySellFragment : Fragment(), ButtonClickListener {
     private fun recreateActions() {
         buttonAdapter.submitList(mutableListOf<ActionButton>().apply {
             addAdsContent(this)
-            if (mbwManager.selectedAccount !is AbstractEthERC20Account) {
+            if (mbwManager.selectedAccount !is AbstractEthERC20Account && mbwManager.selectedAccount !is AbstractTronAccount) {
                 addFio(this)
             }
         })

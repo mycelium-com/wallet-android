@@ -11,6 +11,8 @@ import com.mycelium.wapi.wallet.colu.ColuAccount
 import com.mycelium.wapi.wallet.erc20.ERC20Account
 import com.mycelium.wapi.wallet.eth.EthAccount
 import com.mycelium.wapi.wallet.fio.FioAccount
+import com.mycelium.wapi.wallet.trc20.TRC20Account
+import com.mycelium.wapi.wallet.tron.TronAccount
 
 class SendCoinsFactory(val account: WalletAccount<*>) : ViewModelProvider.Factory {
     val instance = WalletApplication.getInstance()
@@ -27,6 +29,9 @@ class SendCoinsFactory(val account: WalletAccount<*>) : ViewModelProvider.Factor
 
             is FioAccount ->
                 SendFioViewModel(instance) as T
+
+            is TronAccount, is TRC20Account ->
+                SendTronViewModel(instance) as T
 
             else -> throw NotImplementedError()
         }
