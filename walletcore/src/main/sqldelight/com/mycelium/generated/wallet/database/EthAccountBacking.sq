@@ -103,6 +103,14 @@ WHERE uuid = (?) AND txid = (?);
 selectStatus:
 SELECT status FROM EthAccountBacking WHERE uuid = (?) AND txid = (?);
 
+-- Txids of locally-stored confirmed txs (status = CONFIRMED). Used by
+-- incremental sync to know when blockbook's newest-first pagination has
+-- reached history we already have, so we can stop fetching older pages.
+-- Excludes pending and terminal-local states (REPLACED/CANCELED/DROPPED/
+-- FAILED) since those don't represent "we've already paginated past this".
+selectConfirmedTxids:
+SELECT txid FROM EthAccountBacking WHERE uuid = (?) AND status = 'CONFIRMED';
+
 deleteTransaction:
 DELETE FROM EthAccountBacking
 WHERE uuid = (?) AND txid = (?);

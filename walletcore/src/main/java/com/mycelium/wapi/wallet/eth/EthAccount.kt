@@ -55,6 +55,13 @@ class EthAccount(private val chainId: Long,
     val accountIndex: Int
         get() = accountContext.accountIndex
 
+    /**
+     * Exposed for ERC20 children so they can lean on the parent's
+     * full-history sweep flag for their own incremental sync decisions.
+     */
+    val everFullySynced: Boolean
+        get() = accountContext.everFullySynced
+
     fun updateEnabledTokens() {
         accountContext.updateEnabledTokens()
     }
@@ -82,15 +89,34 @@ class EthAccount(private val chainId: Long,
             throw InsufficientFundsException(Throwable("Insufficient funds to send " + Convert.fromWei(value.value.toBigDecimal(), Convert.Unit.ETHER) +
                     " ether with gas price " + Convert.fromWei(gasPrice.valueAsBigDecimal, Convert.Unit.GWEI) + " gwei"))
         }
-        return EthTransaction(coinType, toAddress.toString(), value, gasPrice.value, nonce, gasLimit, inputData)
+        // EIP-1559: treat the chosen gas price as the maxFeePerGas cap and pair
+        // it with the matching tip (explicit, or recovered from the snapshot).
+        // If no tip is available, fall back to a legacy (type-0) tx.
+        val tip = eip1559Tip(coinType, gasPrice.value, ethTxData?.maxPriorityFeePerGas)
+        return if (tip != null) {
+            EthTransaction(coinType, toAddress.toString(), value, gasPrice.value, nonce, gasLimit, inputData,
+                    maxFeePerGas = gasPrice.value, maxPriorityFeePerGas = tip)
+        } else {
+            EthTransaction(coinType, toAddress.toString(), value, gasPrice.value, nonce, gasLimit, inputData)
+        }
     }
 
     override fun signTx(request: Transaction, keyCipher: KeyCipher) {
-        val rawTransaction = (request as EthTransaction).run {
-            RawTransaction.createTransaction(nonce, gasPrice, gasLimit, toAddress, ethValue.value,
-                    inputData)
+        request as EthTransaction
+        val rawTransaction = if (request.isEip1559) {
+            // type-2: chainId is embedded in the envelope, gasPrice is ignored.
+            RawTransaction.createTransaction(chainId, request.nonce, request.gasLimit, request.toAddress,
+                    request.ethValue.value, request.inputData,
+                    request.maxPriorityFeePerGas, request.maxFeePerGas)
+        } else {
+            RawTransaction.createTransaction(request.nonce, request.gasPrice, request.gasLimit,
+                    request.toAddress, request.ethValue.value, request.inputData)
         }
-        val signedMessage = TransactionEncoder.signMessage(rawTransaction, chainId, credentials)
+        val signedMessage = if (request.isEip1559) {
+            TransactionEncoder.signMessage(rawTransaction, credentials)
+        } else {
+            TransactionEncoder.signMessage(rawTransaction, chainId, credentials)
+        }
         val hexValue = Numeric.toHexString(signedMessage)
         request.apply {
             signedHex = hexValue
@@ -117,9 +143,14 @@ class EthAccount(private val chainId: Long,
                 return BroadcastResult(result.message, BroadcastResultType.REJECT_INVALID_TX_PARAMS)
             }
             val newTxid = "0x" + HexUtils.toHex(tx.txHash)
+            // For type-2 txs the persisted/displayed price is the cap
+            // (maxFeePerGas); effectiveGasPrice resolves to gasPrice for legacy.
+            // Once the tx mines, sync overwrites this with the real on-chain
+            // effective price + gasUsed.
+            val price = tx.effectiveGasPrice
             backing.putTransaction(-1, System.currentTimeMillis() / 1000, newTxid,
                     tx.signedHex!!, receivingAddress.addressString, tx.toAddress, tx.ethValue,
-                    valueOf(coinType, tx.gasPrice * tx.gasLimit), 0, tx.nonce, tx.gasPrice, gasLimit = tx.gasLimit)
+                    valueOf(coinType, price * tx.gasLimit), 0, tx.nonce, price, gasLimit = tx.gasLimit)
             markPendingReplacedByNonce(tx.nonce, newTxid)
             bumpNonceAfterBroadcast(tx.nonce)
         } catch (e: IOException) {
@@ -147,15 +178,34 @@ class EthAccount(private val chainId: Long,
         // alternative (sending to a different address) carries permanent
         // foot-gun risk if a future code change lets a non-zero value slip
         // through.
-        val rawTransaction = RawTransaction.createTransaction(
-            estimate.nonce,
-            estimate.newGasPrice,
-            estimate.gasLimit,
-            receivingAddress.addressString,
-            BigInteger.ZERO,
-            "",
-        )
-        val signedBytes = TransactionEncoder.signMessage(rawTransaction, chainId, signingCredentials)
+        val rawTransaction = if (estimate.isEip1559) {
+            // type-2 replacement: bump both cap and tip (see estimateCancelTx).
+            // chainId is embedded in the envelope.
+            RawTransaction.createTransaction(
+                chainId,
+                estimate.nonce,
+                estimate.gasLimit,
+                receivingAddress.addressString,
+                BigInteger.ZERO,
+                "",
+                estimate.newMaxPriorityFeePerGas,
+                estimate.newMaxFeePerGas,
+            )
+        } else {
+            RawTransaction.createTransaction(
+                estimate.nonce,
+                estimate.newGasPrice,
+                estimate.gasLimit,
+                receivingAddress.addressString,
+                BigInteger.ZERO,
+                "",
+            )
+        }
+        val signedBytes = if (estimate.isEip1559) {
+            TransactionEncoder.signMessage(rawTransaction, signingCredentials)
+        } else {
+            TransactionEncoder.signMessage(rawTransaction, chainId, signingCredentials)
+        }
         val signedHex = Numeric.toHexString(signedBytes)
         val cancelTxHash = Hash.sha3(signedBytes)
 
@@ -243,8 +293,24 @@ class EthAccount(private val chainId: Long,
 
     private suspend fun syncTransactions(): Boolean {
         try {
-            val remoteTransactions = withContext(Dispatchers.IO) { blockchainService.getTransactions(receivingAddress.addressString) }
+            // Incremental sync: once the account has finished at least one
+            // full sweep, blockbook's newest-first pagination can stop as
+            // soon as it hits a confirmed tx we already store. The first
+            // sweep (or any after archive→unarchive) does a full walk.
+            val fullSweep = !accountContext.everFullySynced
+            val knownConfirmed = if (fullSweep) emptySet() else backing.getConfirmedTxids()
+            val remoteTransactions = withContext(Dispatchers.IO) {
+                blockchainService.getTransactions(receivingAddress.addressString, knownConfirmedTxids = knownConfirmed)
+            }
+            cacheSyncTxs(remoteTransactions)
             backing.putTransactions(remoteTransactions, coinType, typicalEstimatedTransactionSize.toBigInteger())
+            if (fullSweep) {
+                // Mark only after the sweep + write succeed. An IOException
+                // mid-pagination throws out of getTransactions() before we
+                // reach this line, leaving the flag false so the next sync
+                // re-attempts the full sweep.
+                accountContext.everFullySynced = true
+            }
             val remoteTransactionsIds = remoteTransactions.map { it.txid }.toSet()
 
             // Blockbook's address?details=txs endpoint silently drops pending
@@ -299,6 +365,10 @@ class EthAccount(private val chainId: Long,
     override fun dropCachedData() {
         clearBacking()
         accountContext.balance = Balance.getZeroBalance(coinType)
+        // Backing is now empty — force the next sync to do a full sweep
+        // before re-enabling incremental, otherwise we'd stop on page 1
+        // with no local history to compare against.
+        accountContext.everFullySynced = false
     }
 
     override fun isVisible() = true

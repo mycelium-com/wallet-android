@@ -119,6 +119,11 @@ class ModernMain : AppCompatActivity(), BackHandler {
     private var refreshItem: MenuItem? = null
     private var _toaster: Toaster? = null
 
+    // Single source of truth for the selected tab. Kept as a stable tag (not a
+    // positional int) so it survives process-death restore and dynamic
+    // tab insertion (conditional tabs, ads) shifting positions.
+    private var pendingTabTag: String? = null
+
     @Volatile
     private var _lastSync: Long = 0
     private var _isAppStart = true
@@ -153,10 +158,16 @@ class ModernMain : AppCompatActivity(), BackHandler {
                 // This ensures that any cached encryption key is flushed when we swipe to
                 // another tab
                 mbwManager.clearCachedEncryptionParameters()
-                // redraw menu - not working yet
+                // Keep the tag-based source of truth in sync with what the
+                // pager actually shows (e.g. user swipes), so the menu and
+                // save-state never diverge from the visible page.
+                val tag = mTabsAdapter?.getPageTagOrNull(position)
+                if (tag != null) {
+                    pendingTabTag = tag
+                }
                 ActivityCompat.invalidateOptionsMenu(this@ModernMain)
                 MbwManager.getEventBus()
-                    .post(PageSelectedEvent(position, mTabsAdapter?.getPageTag(position)))
+                    .post(PageSelectedEvent(position, tag))
             }
         })
         TabLayoutMediator(binding.pagerTabs, binding.pager) { tab, position ->
@@ -198,7 +209,17 @@ class ModernMain : AppCompatActivity(), BackHandler {
                 addressBookConfig, TAB_ADDRESS_BOOK)
         addAdsTabs(binding.pagerTabs)
         binding.pager.offscreenPageLimit = (mTabsAdapter?.itemCount ?: 0) + 2
-        selectTab(intent.getStringExtra(TAB_KEY) ?: TAB_ACCOUNTS)
+        // On process-death restore, ViewPager2 separately restores its saved
+        // *positional* index after onCreate. Because conditional/ads tabs make
+        // positions unstable between sessions, that index can land on the wrong
+        // tab while the indicator and menu point elsewhere. Restore by stable
+        // tag instead and let selectTab() re-apply it after the pager settles.
+        val targetTab = if (savedInstanceState != null) {
+            savedInstanceState.getString(SELECTED_TAB_TAG) ?: TAB_ACCOUNTS
+        } else {
+            intent.getStringExtra(TAB_KEY) ?: TAB_ACCOUNTS
+        }
+        selectTab(targetTab)
         _toaster = Toaster(this)
         checkTorState()
         if (savedInstanceState != null) {
@@ -273,16 +294,29 @@ class ModernMain : AppCompatActivity(), BackHandler {
         }
     }
 
-    fun selectedTab(): String {
-        val index = binding.pager.currentItem
-        return mTabsAdapter!!.getPageTag(index)
-    }
+    fun selectedTab(): String =
+        pendingTabTag ?: mTabsAdapter?.let {
+            val i = binding.pager.currentItem
+            if (i in 0 until it.itemCount) it.getPageTagOrNull(i) else null
+        } ?: TAB_ACCOUNTS
 
     fun selectTab(tabTag: String) {
-        val selectTab = mTabsAdapter!!.indexOf(tabTag)
-        if(selectTab != -1) {
-            binding.pagerTabs.getTabAt(selectTab)?.select()
-            binding.pager.currentItem = selectTab
+        val index = mTabsAdapter?.indexOf(tabTag) ?: -1
+        if (index != -1) {
+            // Tag is authoritative immediately, so the menu/save-state are
+            // consistent even before the pager physically moves.
+            pendingTabTag = tabTag
+            // Defer the actual move: on restore this runnable runs *after*
+            // ViewPager2 has applied its own (possibly stale) positional
+            // state, so the tag-based selection wins. Drive only the pager —
+            // TabLayoutMediator syncs the indicator, avoiding the previous
+            // double-drive (getTabAt().select() + currentItem) race.
+            binding.pager.post {
+                if (binding.pager.currentItem != index) {
+                    binding.pager.setCurrentItem(index, false)
+                }
+                ActivityCompat.invalidateOptionsMenu(this@ModernMain)
+            }
         }
         intent.removeExtra(TAB_KEY)
     }
@@ -380,6 +414,7 @@ class ModernMain : AppCompatActivity(), BackHandler {
         super.onSaveInstanceState(outState)
         outState.putLong(LAST_SYNC, _lastSync)
         outState.putBoolean(APP_START, _isAppStart)
+        outState.putString(SELECTED_TAB_TAG, selectedTab())
     }
 
     private fun checkTorState() {
@@ -489,7 +524,7 @@ class ModernMain : AppCompatActivity(), BackHandler {
             // or anything else in settings. this makes some of the listeners
             // obsolete
             val running = intent
-                    .putExtra(TAB_KEY, mTabsAdapter!!.getPageTag(binding.pager.currentItem))
+                    .putExtra(TAB_KEY, selectedTab())
             finish()
             startActivity(running)
         } else {
@@ -612,7 +647,7 @@ class ModernMain : AppCompatActivity(), BackHandler {
 
         override fun onPrepareMenu(menu: Menu) {
             super.onPrepareMenu(menu)
-            val tabTag = mTabsAdapter!!.getPageTag(binding.pager.currentItem)
+            val tabTag = selectedTab()
             // at the moment, we allow to make backups multiple times
             menu.findItem(R.id.miBackup)?.isVisible = true
             refreshItem = Preconditions.checkNotNull(menu.findItem(R.id.miRefresh))
@@ -649,7 +684,7 @@ class ModernMain : AppCompatActivity(), BackHandler {
                     if (counter == 4) {
                         syncMode = SyncMode.FULL_SYNC_CURRENT_ACCOUNT_FORCED
                         counter = 0
-                    } else if (TAB_ACCOUNTS == mTabsAdapter!!.getPageTag(binding.pager.currentItem)) {
+                    } else if (TAB_ACCOUNTS == selectedTab()) {
                         // if we are in the accounts tab, sync all accounts if the users forces a sync
                         syncMode = SyncMode.NORMAL_ALL_ACCOUNTS_FORCED
                         counter++
@@ -715,5 +750,6 @@ class ModernMain : AppCompatActivity(), BackHandler {
         const val MIN_FULLSYNC_INTERVAL = (5 * Constants.MS_PR_HOUR).toInt()
         const val LAST_SYNC = "LAST_SYNC"
         private const val APP_START = "APP_START"
+        private const val SELECTED_TAB_TAG = "SELECTED_TAB_TAG"
     }
 }

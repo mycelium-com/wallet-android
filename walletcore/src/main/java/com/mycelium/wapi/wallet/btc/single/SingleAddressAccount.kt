@@ -477,6 +477,17 @@ open class SingleAddressAccount @JvmOverloads constructor(private var _context: 
         fun calculateId(address: BitcoinAddress): UUID {
             return addressToUUID(address)
         }
+
+        /**
+         * All account IDs this key could be stored under. Must derive addresses with
+         * ignoreCompression = true: account creation calculates the ID from a forced
+         * P2SH_P2WPKH address even for uncompressed keys (see
+         * [BitcoinSingleAddressModule.createAccount]), while legacy accounts may use a
+         * P2PKH-based ID.
+         */
+        @JvmStatic
+        fun calculatePossibleIds(publicKey: PublicKey, network: NetworkParameters): List<UUID> =
+                publicKey.getAllSupportedAddresses(network, true).values.map { calculateId(it) }
     }
 
     init {

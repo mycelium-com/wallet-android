@@ -16,13 +16,19 @@
 
 package com.mrd.bitlib.util;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.net.URLConnection;
+import java.nio.charset.StandardCharsets;
+import java.security.GeneralSecurityException;
 import java.security.KeyManagementException;
+import java.security.KeyStore;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.HashMap;
 import java.util.Map;
@@ -33,6 +39,7 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSession;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
+import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509TrustManager;
 
 /**
@@ -43,6 +50,43 @@ public class SslUtils {
 
    public static final HostnameVerifier HOST_NAME_VERIFIER_ACCEPT_ALL;
    public static final SSLSocketFactory SSL_SOCKET_FACTORY_ACCEPT_ALL;
+
+   // ISRG Root X1 — the Let's Encrypt root CA. It is absent from the system trust
+   // store on Android < 7.1.1 (API 25), so chains served by Let's Encrypt fail with
+   // "Trust anchor for certification path not found" on those devices. We bundle it
+   // and trust it in addition to (not instead of) the system CAs.
+   private static final String ISRG_ROOT_X1_PEM =
+         "-----BEGIN CERTIFICATE-----\n" +
+         "MIIFazCCA1OgAwIBAgIRAIIQz7DSQONZRGPgu2OCiwAwDQYJKoZIhvcNAQELBQAw\n" +
+         "TzELMAkGA1UEBhMCVVMxKTAnBgNVBAoTIEludGVybmV0IFNlY3VyaXR5IFJlc2Vh\n" +
+         "cmNoIEdyb3VwMRUwEwYDVQQDEwxJU1JHIFJvb3QgWDEwHhcNMTUwNjA0MTEwNDM4\n" +
+         "WhcNMzUwNjA0MTEwNDM4WjBPMQswCQYDVQQGEwJVUzEpMCcGA1UEChMgSW50ZXJu\n" +
+         "ZXQgU2VjdXJpdHkgUmVzZWFyY2ggR3JvdXAxFTATBgNVBAMTDElTUkcgUm9vdCBY\n" +
+         "MTCCAiIwDQYJKoZIhvcNAQEBBQADggIPADCCAgoCggIBAK3oJHP0FDfzm54rVygc\n" +
+         "h77ct984kIxuPOZXoHj3dcKi/vVqbvYATyjb3miGbESTtrFj/RQSa78f0uoxmyF+\n" +
+         "0TM8ukj13Xnfs7j/EvEhmkvBioZxaUpmZmyPfjxwv60pIgbz5MDmgK7iS4+3mX6U\n" +
+         "A5/TR5d8mUgjU+g4rk8Kb4Mu0UlXjIB0ttov0DiNewNwIRt18jA8+o+u3dpjq+sW\n" +
+         "T8KOEUt+zwvo/7V3LvSye0rgTBIlDHCNAymg4VMk7BPZ7hm/ELNKjD+Jo2FR3qyH\n" +
+         "B5T0Y3HsLuJvW5iB4YlcNHlsdu87kGJ55tukmi8mxdAQ4Q7e2RCOFvu396j3x+UC\n" +
+         "B5iPNgiV5+I3lg02dZ77DnKxHZu8A/lJBdiB3QW0KtZB6awBdpUKD9jf1b0SHzUv\n" +
+         "KBds0pjBqAlkd25HN7rOrFleaJ1/ctaJxQZBKT5ZPt0m9STJEadao0xAH0ahmbWn\n" +
+         "OlFuhjuefXKnEgV4We0+UXgVCwOPjdAvBbI+e0ocS3MFEvzG6uBQE3xDk3SzynTn\n" +
+         "jh8BCNAw1FtxNrQHusEwMFxIt4I7mKZ9YIqioymCzLq9gwQbooMDQaHWBfEbwrbw\n" +
+         "qHyGO0aoSCqI3Haadr8faqU9GY/rOPNk3sgrDQoo//fb4hVC1CLQJ13hef4Y53CI\n" +
+         "rU7m2Ys6xt0nUW7/vGT1M0NPAgMBAAGjQjBAMA4GA1UdDwEB/wQEAwIBBjAPBgNV\n" +
+         "HRMBAf8EBTADAQH/MB0GA1UdDgQWBBR5tFnme7bl5AFzgAiIyBpY9umbbjANBgkq\n" +
+         "hkiG9w0BAQsFAAOCAgEAVR9YqbyyqFDQDLHYGmkgJykIrGF1XIpu+ILlaS/V9lZL\n" +
+         "ubhzEFnTIZd+50xx+7LSYK05qAvqFyFWhfFQDlnrzuBZ6brJFe+GnY+EgPbk6ZGQ\n" +
+         "3BebYhtF8GaV0nxvwuo77x/Py9auJ/GpsMiu/X1+mvoiBOv/2X/qkSsisRcOj/KK\n" +
+         "NFtY2PwByVS5uCbMiogziUwthDyC3+6WVwW6LLv3xLfHTjuCvjHIInNzktHCgKQ5\n" +
+         "ORAzI4JMPJ+GslWYHb4phowim57iaztXOoJwTdwJx4nLCgdNbOhdjsnvzqvHu7Ur\n" +
+         "TkXWStAmzOVyyghqpZXjFaH3pO3JLF+l+/+sKAIuvtd7u+Nxe5AW0wdeRlN8NwdC\n" +
+         "jNPElpzVmbUq4JUagEiuTDkHzsxHpFKVK7q4+63SM1N95R1NbdWhscdCb+ZAJzVc\n" +
+         "oyi3B43njTOQ5yOf+1CceWxG1bQVs5ZufpsMljq4Ui0/1lvh+wjChP4kqKOJ2qxq\n" +
+         "4RgqsahDYVvTH9w7jXbyLeiNdd8XM2w9U/t7y0Ff/9yi0GE44Za4rF2LN9d11TPA\n" +
+         "mRGunUHBcnWEvgJBQl9nJEiU0Zsnvgc/ubhPgXRR4Xq37Z0j4r7g1SgEEzwxA57d\n" +
+         "emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=\n" +
+         "-----END CERTIFICATE-----\n";
 
    public static synchronized SSLSocketFactory getSsLSocketFactory(String certificateThumbprint) {
       SSLSocketFactory factory = _sslSocketFactories.get(certificateThumbprint);
@@ -95,6 +139,60 @@ public class SslUtils {
          sc.init(null, trustOneCert, null);
          return sc.getSocketFactory();
       } catch (NoSuchAlgorithmException | KeyManagementException e) {
+         throw new RuntimeException(e);
+      }
+   }
+
+   /**
+    * Returns an {@link SSLSocketFactory} that trusts the platform's default CAs plus the
+    * bundled ISRG Root X1 (Let's Encrypt) root. Android added ISRG Root X1 to its system
+    * trust store only in 7.1.1 (API 25), so on Android 7.0 (API 24) Let's Encrypt chains
+    * otherwise fail with "Trust anchor for certification path not found". Trusting it in
+    * addition to the system store keeps all other CAs working unchanged.
+    */
+   public static synchronized SSLSocketFactory getSystemPlusLetsEncryptSocketFactory() {
+      final String key = "system+isrg-root-x1";
+      SSLSocketFactory factory = _sslSocketFactories.get(key);
+      if (factory == null) {
+         factory = createSystemPlusLetsEncryptSocketFactory();
+         _sslSocketFactories.put(key, factory);
+      }
+      return factory;
+   }
+
+   private static SSLSocketFactory createSystemPlusLetsEncryptSocketFactory() {
+      try {
+         KeyStore trustStore = KeyStore.getInstance(KeyStore.getDefaultType());
+         trustStore.load(null, null);
+
+         // Seed the store with the platform's default trust anchors so that every
+         // normally trusted CA keeps working.
+         TrustManagerFactory systemTmf =
+               TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+         systemTmf.init((KeyStore) null);
+         int index = 0;
+         for (TrustManager tm : systemTmf.getTrustManagers()) {
+            if (tm instanceof X509TrustManager) {
+               for (X509Certificate issuer : ((X509TrustManager) tm).getAcceptedIssuers()) {
+                  trustStore.setCertificateEntry("system-" + (index++), issuer);
+               }
+            }
+         }
+
+         // Add the bundled ISRG Root X1 (a no-op on devices that already have it).
+         CertificateFactory cf = CertificateFactory.getInstance("X.509");
+         X509Certificate isrgRootX1 = (X509Certificate) cf.generateCertificate(
+               new ByteArrayInputStream(ISRG_ROOT_X1_PEM.getBytes(StandardCharsets.US_ASCII)));
+         trustStore.setCertificateEntry("isrg-root-x1", isrgRootX1);
+
+         TrustManagerFactory tmf =
+               TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+         tmf.init(trustStore);
+
+         SSLContext sc = SSLContext.getInstance("TLS");
+         sc.init(null, tmf.getTrustManagers(), null);
+         return sc.getSocketFactory();
+      } catch (GeneralSecurityException | IOException e) {
          throw new RuntimeException(e);
       }
    }

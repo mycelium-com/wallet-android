@@ -350,6 +350,10 @@ class ExchangeFragment : Fragment(), BackListener {
                             if (!Utils.isProdnet()) viewModel.fromAddress.value!!
                             else result.payinAddress!!
                         val amount = result.amountExpectedFrom.toPlainString()
+                        // Populate a fresh fee snapshot before building the
+                        // actual send, so an ETH/ERC-20 exchange signs type-2
+                        // instead of falling back to legacy on a stale cache.
+                        viewModel.refreshEthFeesForSend()
                         val unsignedTx = prepareTx(addressTo, amount)
                         withContext(Dispatchers.Main) {
                             if (unsignedTx != null) {

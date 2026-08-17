@@ -20,7 +20,6 @@ import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.logging.Level
 import java.util.logging.Logger
-import javax.net.ssl.SSLSocketFactory
 import kotlin.concurrent.thread
 import kotlin.concurrent.timerTask
 import kotlin.coroutines.resume
@@ -46,7 +45,7 @@ open class JsonRpcTcpClient(private var endpoints : Array<TcpEndpoint>, androidA
     private val logger = Logger.getLogger(JsonRpcTcpClient::class.java.simpleName)
     private var curEndpointIndex = (Math.random() * endpoints.size).toInt()
     private val ssf = if (androidApiVersion < 22) SslUtils.getSsLSocketFactory(ELECTRUMX_THUMBPRINT)
-                        else SSLSocketFactory.getDefault() as SSLSocketFactory
+                        else SslUtils.getSystemPlusLetsEncryptSocketFactory()
     val isConnected = AtomicBoolean(false)
 
     /* isConnectionThreadActive is used to pause main connection thread

@@ -24,6 +24,7 @@ import com.mycelium.wapi.wallet.btc.FeePerKbFee
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.erc20.ERC20Account
+import com.mycelium.wapi.wallet.eth.coins.EthCoin
 import com.mycelium.wapi.wallet.exceptions.BuildTransactionException
 import com.mycelium.wapi.wallet.exceptions.InsufficientFundsException
 import com.mycelium.wapi.wallet.exceptions.InsufficientFundsForFeeException
@@ -292,6 +293,22 @@ class ExchangeViewModel(application: Application) : AndroidViewModel(application
             errorTransaction.value = res.getString(R.string.tx_build_error) + " " + e.message
         }
         return null
+    }
+
+    /**
+     * Refresh the from-account's fee estimation for ETH/ERC-20 before building
+     * the actual exchange tx. The exchange flow otherwise only reads the cached
+     * estimation, so with EIP-1559 the fee snapshot may be empty/stale and the
+     * send would silently fall back to legacy signing. Gated to ETH-based
+     * accounts so other coins don't pay an extra network round-trip; safe to
+     * call from a coroutine (updateFeeEstimationsAsync swallows failures and
+     * keeps the previous estimate).
+     */
+    suspend fun refreshEthFeesForSend() {
+        val account = fromAccount.value ?: return
+        if (account.basedOnCoinType is EthCoin) {
+            mbwManager.getFeeProvider(account.basedOnCoinType).updateFeeEstimationsAsync()
+        }
     }
 
     fun prepateTx(address: Address, amount: String): Transaction? {

@@ -10,12 +10,17 @@ import okhttp3.RequestBody
 import java.io.IOException
 import java.math.BigDecimal
 import java.math.BigInteger
-import java.net.URL
 import java.util.concurrent.TimeUnit
 
 class EthBlockchainService(private var endpoints: List<HttpEndpoint>)
     : ServerEthListChangedListener {
     private val mapper = ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+
+    // Last successful EIP-1559 fee snapshot. Populated by EthFeeProvider's
+    // refresh and read non-blocking at tx-build time to recover the tip that
+    // matches a chosen maxFeePerGas cap (the fee picker only carries the cap).
+    @Volatile
+    private var lastEip1559: Eip1559Snapshot? = null
 
     private fun client(urlString: String): String {
         val client = OkHttpClient.Builder()
@@ -49,32 +54,57 @@ class EthBlockchainService(private var endpoints: List<HttpEndpoint>)
     }
 
     @Throws(IOException::class)
-    private fun fetchTransactions(address: String, contractAddress: String? = null): List<Tx> {
+    private fun fetchTransactions(
+        address: String,
+        contractAddress: String? = null,
+        knownConfirmedTxids: Set<String> = emptySet(),
+    ): List<Tx> {
         // Blockbook has a bug with `&contract=...` filtering — server returns 0 txs/balance.
         // Fetch all address txs and rely on client-side filtering in getTransactions().
         // val contractAddressSegment = if (contractAddress != null) "&contract=$contractAddress" else ""
-        // Cap page size so a single page response is always bounded. Smaller
-        // pages also let us stop early when we only need recent txs.
-        val pageSize = 200
+        // Small page size keeps each response bounded — on busy addresses a
+        // page=200 response can be megabytes of JSON, and parsing it on the
+        // single-threaded JSON path dominates the incremental-sync wall clock.
+        // 50 matches getAddressTxids and is comfortably larger than the rate
+        // at which new txs land between syncs, so incremental sweeps still
+        // stop after the first page in the common case.
+        val pageSize = 50
         var urlString = "${endpoints.random()}/api/v2/address/$address?details=txs&pageSize=$pageSize" //+ contractAddressSegment
 
         val result: MutableList<Tx> = mutableListOf()
 
         val initialResponse = streamedRequest(urlString, Response::class.java)
         result.addAll(initialResponse.transactions)
+        // Incremental sync: blockbook orders newest-first. As soon as a page
+        // contains a confirmed tx the caller already has locally, we know
+        // everything older is already stored too — stop paginating. Pending
+        // txs (confirmations == 0) don't trigger the stop: they can move
+        // between pages and must always be (re-)observed at the top.
+        // Callers pass an empty set to force a full sweep (initial sync).
+        if (knownConfirmedTxids.isNotEmpty()
+            && initialResponse.transactions.any { it.confirmations.signum() > 0 && it.txid in knownConfirmedTxids }) {
+            return result
+        }
         for (i in 2..initialResponse.totalPages) {
             urlString = "${endpoints.random()}/api/v2/address/$address?details=txs&pageSize=$pageSize&page=$i" //+ contractAddressSegment
             val response = streamedRequest(urlString, Response::class.java)
             result.addAll(response.transactions)
+            if (knownConfirmedTxids.isNotEmpty()
+                && response.transactions.any { it.confirmations.signum() > 0 && it.txid in knownConfirmedTxids }) {
+                break
+            }
         }
         return result
     }
 
     fun sendTransaction(hex: String): SendResult {
-        val client = OkHttpClient()
-        val url = URL("${endpoints.random()}/api/v2/sendtx/")
+        val client = OkHttpClient.Builder()
+            .connectTimeout(10, TimeUnit.SECONDS)
+            .writeTimeout(30, TimeUnit.SECONDS)
+            .readTimeout(30, TimeUnit.SECONDS)
+            .build()
         val request = Request.Builder()
-                .url(url)
+                .url("${endpoints.random()}/api/v2/sendtx/")
                 .post(RequestBody.create(null, hex))
                 .build()
         val response = client.newCall(request).execute()
@@ -84,14 +114,20 @@ class EthBlockchainService(private var endpoints: List<HttpEndpoint>)
     }
 
     fun getBlockHeight(): BigInteger {
-        val urlString = "${endpoints.random()}/api/"
+        // /api/v2 (not /api/) — returns the same {"blockbook":{"bestHeight":...}}
+        // payload, but the bare /api/ path is blocked by Cloudflare on the
+        // public Trezor blockbook instances.
+        val urlString = "${endpoints.random()}/api/v2"
 
         return mapper.readValue(client(urlString), ApiResponse::class.java).blockbook!!.bestHeight
     }
 
     fun getNonce(address: String): BigInteger {
         val urlString = "${endpoints.random()}/api/v2/address/$address?details=basic"
-        val result = mapper.readValue(URL(urlString), AccountBasicInfoResponse::class.java)
+        // Go through streamedRequest() so the OkHttp connect/read timeouts
+        // apply. mapper.readValue(URL(...)) uses java.net.HttpURLConnection
+        // with a default timeout of 0 (infinite) and can hang sync forever.
+        val result = streamedRequest(urlString, AccountBasicInfoResponse::class.java)
         // Blockbook's `nonce` is the next nonce to use; `unconfirmedTxs` counts
         // ALL unconfirmed txs at the address (including incoming), so adding it
         // over-counts and produces gaps that leave sent txs stuck in the mempool.
@@ -100,21 +136,26 @@ class EthBlockchainService(private var endpoints: List<HttpEndpoint>)
 
     fun getBalance(address: String): BalanceResponse {
         val urlString = "${endpoints.random()}/api/v2/address/$address?details=basic"
-        val result = mapper.readValue(URL(urlString), AccountBasicInfoResponse::class.java)
+        val result = streamedRequest(urlString, AccountBasicInfoResponse::class.java)
         return BalanceResponse(result.balance, result.unconfirmedBalance)
     }
 
     fun getTransaction(hash: String): Tx {
         val urlString = "${endpoints.random()}/api/v2/tx/$hash"
 
-        return mapper.readValue(URL(urlString), Tx::class.java)
+        return streamedRequest(urlString, Tx::class.java)
     }
 
-    fun getTransactions(address: String, contractAddress: String? = null): List<Tx> {
+    fun getTransactions(
+        address: String,
+        contractAddress: String? = null,
+        knownConfirmedTxids: Set<String> = emptySet(),
+    ): List<Tx> {
         return if (contractAddress != null) {
-            fetchTransactions(address, contractAddress).filter { tx -> tx.getTokenTransfer(contractAddress, address) != null }
+            fetchTransactions(address, contractAddress, knownConfirmedTxids)
+                .filter { tx -> tx.getTokenTransfer(contractAddress, address) != null }
         } else {
-            fetchTransactions(address, contractAddress)
+            fetchTransactions(address, contractAddress, knownConfirmedTxids)
         }
     }
 
@@ -130,7 +171,45 @@ class EthBlockchainService(private var endpoints: List<HttpEndpoint>)
 
     fun feeEstimation(block: Int): FeeResult {
         val urlString = "${endpoints.random()}/api/v2/estimatefee/$block"
-        return mapper.readValue(URL(urlString), FeeResult::class.java)
+        return streamedRequest(urlString, FeeResult::class.java)
+    }
+
+    /**
+     * EIP-1559 fee estimate from the dedicated estimator service (base fee +
+     * per-tier cap and tip). Pure fetch — the caller decides whether to cache
+     * it via [cacheEip1559Fees]. Throws on network/parse failure so the caller
+     * can fall back to the legacy per-block path.
+     */
+    @Throws(IOException::class)
+    fun eip1559FeeEstimation(): Eip1559Snapshot =
+        streamedRequest(EIP1559_ESTIMATOR_URL, Eip1559Response::class.java).toSnapshot()
+
+    /** Last cached EIP-1559 snapshot, or null if none/cleared. Non-blocking. */
+    fun lastEip1559Fees(): Eip1559Snapshot? = lastEip1559
+
+    fun cacheEip1559Fees(snapshot: Eip1559Snapshot) {
+        lastEip1559 = snapshot
+    }
+
+    /** Drop the cached snapshot so tip recovery falls back to legacy signing. */
+    fun clearEip1559Fees() {
+        lastEip1559 = null
+    }
+
+    /**
+     * Recover the priority fee (tip) matching a chosen maxFeePerGas cap from the
+     * last cached snapshot. Picks the tier whose cap is nearest the chosen value
+     * (exact for the standard tiers), clamped so the tip is at least 1 wei and
+     * never exceeds the available headroom (cap - baseFee). Returns null when no
+     * snapshot is cached or the cap leaves no room above the base fee — the
+     * caller should then sign legacy.
+     */
+    fun priorityFeeFor(maxFeePerGas: BigInteger): BigInteger? {
+        val snapshot = lastEip1559 ?: return null
+        val tier = snapshot.tiers.minByOrNull { (it.maxFeePerGas - maxFeePerGas).abs() } ?: return null
+        val headroom = maxFeePerGas - snapshot.baseFeePerGas
+        if (headroom < BigInteger.ONE) return null
+        return tier.maxPriorityFeePerGas.max(BigInteger.ONE).min(headroom)
     }
 
     override fun serverListChanged(newEndpoints: Array<HttpEndpoint>) {
@@ -277,6 +356,61 @@ class TokenTransfer(
 data class FeeResult(
     val result: BigDecimal = BigDecimal.ZERO
 )
+
+// The four fee tiers shown in the UI, mapped to our FeeEstimationsGeneric.
+enum class EthFeeLevel { LOW, ECONOMY, NORMAL, HIGH }
+
+/** One tier of an EIP-1559 estimate: the cap and the tip (all in wei). */
+data class Eip1559Tier(
+    val level: EthFeeLevel,
+    val maxFeePerGas: BigInteger,
+    val maxPriorityFeePerGas: BigInteger,
+)
+
+/** Parsed EIP-1559 estimate: the current base fee plus the per-tier caps/tips. */
+data class Eip1559Snapshot(
+    val baseFeePerGas: BigInteger,
+    val tiers: List<Eip1559Tier>,
+) {
+    fun tier(level: EthFeeLevel): Eip1559Tier? = tiers.firstOrNull { it.level == level }
+}
+
+// Dedicated estimator: https://github.com/AlhimicMan/eip1559_gas_estimator
+private const val EIP1559_ESTIMATOR_URL = "https://bb-eth.mycelium.com:8181/eth"
+
+private val ESTIMATOR_SPEED_TO_LEVEL = mapOf(
+    "safe_low" to EthFeeLevel.LOW,
+    "average" to EthFeeLevel.ECONOMY,
+    "fast" to EthFeeLevel.NORMAL,
+    "fastest" to EthFeeLevel.HIGH,
+)
+
+private class Eip1559Response {
+    @JsonProperty("base_fee_per_gas")
+    var baseFeePerGas: BigInteger = BigInteger.ZERO
+
+    @JsonProperty("price_levels")
+    var priceLevels: List<Level> = emptyList()
+
+    class Level {
+        var speed: String = ""
+
+        @JsonProperty("max_fee_per_gas")
+        var maxFeePerGas: BigInteger = BigInteger.ZERO
+
+        @JsonProperty("max_priority_fee_per_gas")
+        var maxPriorityFeePerGas: BigInteger = BigInteger.ZERO
+    }
+
+    fun toSnapshot(): Eip1559Snapshot {
+        val tiers = priceLevels.mapNotNull { level ->
+            ESTIMATOR_SPEED_TO_LEVEL[level.speed]?.let {
+                Eip1559Tier(it, level.maxFeePerGas, level.maxPriorityFeePerGas)
+            }
+        }
+        return Eip1559Snapshot(baseFeePerGas, tiers)
+    }
+}
 
 private class EthereumSpecific {
     val nonce: BigInteger = BigInteger.ZERO

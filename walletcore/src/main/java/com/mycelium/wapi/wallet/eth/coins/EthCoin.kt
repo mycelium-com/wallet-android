@@ -9,6 +9,13 @@ import org.web3j.crypto.WalletUtils
 abstract class EthCoin(id: String?, name: String?, symbol: String?)
         : CryptoCurrency(id, name, symbol, 18, 8, false) {
 
+    /**
+     * Whether EIP-1559 (type-2) fees and signing are enabled for this chain.
+     * Off by default → legacy gas price + type-0 signing (unchanged behaviour).
+     * Enabled on testnet first; mainnet stays legacy until validated.
+     */
+    open val supportsEip1559: Boolean = false
+
     override fun parseAddress(addressString: String?): Address? = parseAddress(this, addressString)
 
     companion object {

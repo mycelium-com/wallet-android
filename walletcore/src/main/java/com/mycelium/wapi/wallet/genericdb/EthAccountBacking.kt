@@ -126,7 +126,10 @@ class EthAccountBacking(val walletDB: WalletDB, private val uuid: UUID, private 
         // pass an explicit status, preserve any sticky terminal status that's
         // already in the row (CANCELED / REPLACED / DROPPED) — these are
         // local-truth markers and the next sync's INSERT OR REPLACE must not
-        // resurrect a tx that the user has already finalized.
+        // resurrect a tx that the user has already finalized. Stickiness only
+        // holds while the tx is unconfirmed: once the network reports actual
+        // confirmations the tx demonstrably mined, so any earlier
+        // REPLACED/CANCELED/DROPPED verdict was wrong and on-chain truth wins.
         val derivedStatus = when {
             confirmations > 0 && success -> EthTxStatus.CONFIRMED
             confirmations > 0 && !success -> EthTxStatus.FAILED
@@ -135,7 +138,7 @@ class EthAccountBacking(val walletDB: WalletDB, private val uuid: UUID, private 
         val existingStatus = ethQueries.selectStatus(uuid, txid).executeAsOneOrNull()
             ?.let { EthTxStatus.parse(it) }
         val effectiveStatus = status
-            ?: existingStatus?.takeIf { it in STICKY_STATUSES }
+            ?: existingStatus?.takeIf { it in STICKY_STATUSES && confirmations == 0 }
             ?: derivedStatus
         queries.insertTransaction(txid, uuid, currency, if (blockNumber == -1) Int.MAX_VALUE else blockNumber, timestamp, raw, value, fee, confirmations)
         ethQueries.insertTransaction(txid, uuid, from, to ?: contractCreationAddress.addressString,
@@ -168,6 +171,15 @@ class EthAccountBacking(val walletDB: WalletDB, private val uuid: UUID, private 
             }
         }
     }
+
+    /**
+     * Returns the set of confirmed (status = CONFIRMED) txids stored for this
+     * account. Caller uses this as the "stop set" for incremental sync —
+     * once blockbook's newest-first pagination shows a confirmed tx from this
+     * set, everything older is already in backing and we can stop fetching.
+     */
+    fun getConfirmedTxids(): Set<String> =
+            ethQueries.selectConfirmedTxids(uuid).executeAsList().toSet()
 
     fun deleteAllAccountTransactions() {
         queries.deleteAllAccountTransactions(uuid)

@@ -1,15 +1,15 @@
 package com.mycelium.wapi.wallet.providers
 
-import com.fasterxml.jackson.annotation.JsonProperty
 import com.mycelium.wapi.wallet.FeeEstimationsGeneric
 import com.mycelium.wapi.wallet.coins.Value
+import com.mycelium.wapi.wallet.eth.Eip1559Snapshot
 import com.mycelium.wapi.wallet.eth.EthBlockchainService
+import com.mycelium.wapi.wallet.eth.EthFeeLevel
 import com.mycelium.wapi.wallet.eth.coins.EthMain
 import com.mycelium.wapi.wallet.eth.coins.EthTest
 import com.mycelium.wapi.wallet.genericdb.FeeEstimationsBacking
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import java.math.BigInteger
 
 
 class EthFeeProvider(
@@ -46,6 +46,40 @@ class EthFeeProvider(
 
 
     private fun getGasPriceEstimates(): FeeEstimationsGeneric {
+        // EIP-1559 path: pull base fee + per-tier cap/tip from the dedicated
+        // estimator and cache the snapshot so signing can recover the tip for
+        // the chosen cap. The displayed tier value is the cap (maxFeePerGas).
+        // Any failure (or a chain without 1559 support) falls back to the
+        // legacy per-block gas price, and clears the snapshot so we don't sign
+        // type-2 with caps that no longer match what the user sees.
+        if (coinType.supportsEip1559) {
+            try {
+                val snapshot = service.eip1559FeeEstimation()
+                service.cacheEip1559Fees(snapshot)
+                return buildFromSnapshot(snapshot)
+            } catch (e: Exception) {
+                service.clearEip1559Fees()
+            }
+        } else {
+            service.clearEip1559Fees()
+        }
+        return legacyEstimates()
+    }
+
+    private fun buildFromSnapshot(snapshot: Eip1559Snapshot): FeeEstimationsGeneric {
+        fun cap(level: EthFeeLevel, fallback: Long): Value =
+            snapshot.tier(level)?.maxFeePerGas?.let { Value.valueOf(coinType, it) }
+                ?: Value.valueOf(coinType, fallback)
+        return FeeEstimationsGeneric(
+            low = cap(EthFeeLevel.LOW, 1000000000),
+            economy = cap(EthFeeLevel.ECONOMY, 33000000000),
+            normal = cap(EthFeeLevel.NORMAL, 67000000000),
+            high = cap(EthFeeLevel.HIGH, 100000000000),
+            lastCheck = System.currentTimeMillis()
+        )
+    }
+
+    private fun legacyEstimates(): FeeEstimationsGeneric {
         val low = service.feeEstimation(PriceLevelSpeed.SAFE_LOW.block)
         val economy = service.feeEstimation(PriceLevelSpeed.AVERAGE.block)
         val fast = service.feeEstimation(PriceLevelSpeed.FAST.block)
@@ -59,47 +93,10 @@ class EthFeeProvider(
         )
     }
 
-    private fun convertBigIntegerToValue(value: BigInteger) = Value.valueOf(coinType, value)
-
-    /**
-     * Estimates are provided by https://github.com/AlhimicMan/eip1559_gas_estimator
-     */
-    private class GasPriceEstimates {
-        @JsonProperty("base_fee_per_gas")
-        var baseFeePerGas: BigInteger = BigInteger.ZERO
-
-        @JsonProperty("price_levels")
-        var priceLevels: List<PriceLevels> = emptyList()
-
-        private class PriceLevels {
-            var speed: PriceLevelSpeed = PriceLevelSpeed.SAFE_LOW
-
-            @JsonProperty("max_fee_per_gas")
-            var maxFeePerGas: BigInteger = BigInteger.ZERO
-
-            @JsonProperty("max_priority_fee_per_gas")
-            var maxPriorityFeePerGas: BigInteger = BigInteger.ZERO
-        }
-
-        fun getPrice(priceLevelSpeed: PriceLevelSpeed) =
-            baseFeePerGas + priceLevels.first { it.speed == priceLevelSpeed }.maxPriorityFeePerGas
-    }
-
     private enum class PriceLevelSpeed(val block: Int) {
-        @JsonProperty("safe_low")
         SAFE_LOW(15),
-
-        @JsonProperty("average")
         AVERAGE(6),
-
-        @JsonProperty("fast")
         FAST(3),
-
-        @JsonProperty("fastest")
         FASTEST(1),
-    }
-
-    companion object {
-        private const val GAS_PRICE_ESTIMATES_ADDRESS = "https://bb-eth.mycelium.com:8181/eth"
     }
 }

@@ -6,6 +6,7 @@ import com.mycelium.wapi.SyncStatusInfo
 import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.coins.Value
+import com.mycelium.wapi.wallet.eth.coins.EthCoin
 import com.mycelium.wapi.wallet.genericdb.EthAccountBacking
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -28,8 +29,44 @@ abstract class AbstractEthERC20Account(coinType: CryptoCurrency,
     @Volatile
     protected var syncing = false
 
+    // Full address tx list captured by the current sync round's syncTransactions()
+    // and reused by getNewNonce() so we don't paginate the same history twice.
+    // Cleared in synchronize()'s finally block.
+    @Volatile
+    private var lastSyncTxs: List<Tx>? = null
+
+    protected fun cacheSyncTxs(txs: List<Tx>) {
+        lastSyncTxs = txs
+    }
+
+    /**
+     * Confirmed txids stored locally for this account. ERC20 children read
+     * this from their parent [EthAccount] to use the full-address-history
+     * stop set (not the ERC20-only filtered set) when doing incremental
+     * sync — see [com.mycelium.wapi.wallet.erc20.ERC20Account.syncTransactions].
+     */
+    fun confirmedTxidsSnapshot(): Set<String> = backing.getConfirmedTxids()
+
     fun clearBacking() {
         backing.deleteAllAccountTransactions()
+    }
+
+    /**
+     * Resolve the EIP-1559 tip to pair with a chosen [maxFeePerGas] cap, or null
+     * when the chain is on legacy fees ([feeCoin] not 1559-enabled) or no tip is
+     * available — in which case the caller signs a legacy (type-0) tx. Prefers an
+     * explicit tip, else recovers it from the cached fee snapshot.
+     *
+     * @param feeCoin the chain coin carrying the rollout flag (ETH coin for both
+     *                ETH and ERC-20 sends, since gas is always paid in ETH).
+     */
+    protected fun eip1559Tip(
+        feeCoin: CryptoCurrency,
+        maxFeePerGas: BigInteger,
+        explicitTip: BigInteger?,
+    ): BigInteger? {
+        if ((feeCoin as? EthCoin)?.supportsEip1559 != true) return null
+        return explicitTip ?: blockchainService.priorityFeeFor(maxFeePerGas)
     }
 
     fun getUnconfirmedTransactions() = backing.getUnconfirmedTransactions(receivingAddress.addressString)
@@ -55,7 +92,12 @@ abstract class AbstractEthERC20Account(coinType: CryptoCurrency,
         // highest nonce. Covers the shared-address case where pending USDT
         // contract calls live in the EthAccount's view but not the ERC20
         // account's local backing.
-        val maxPendingOutgoingNonce = try {
+        val cached = lastSyncTxs
+        val maxPendingOutgoingNonce = if (cached != null) {
+            cached.filter { it.confirmations.signum() == 0 && it.from.equals(address, true) }
+                .map { it.nonce }
+                .maxOrNull()
+        } else try {
             withContext(Dispatchers.IO) { blockchainService.getTransactions(address) }
                 .filter { it.confirmations.signum() == 0 && it.from.equals(address, true) }
                 .map { it.nonce }
@@ -78,9 +120,13 @@ abstract class AbstractEthERC20Account(coinType: CryptoCurrency,
      * Resolution order (per local pending tx):
      *  1. A confirmed remote tx exists with the same `from + nonce` but a
      *     different hash — REPLACED (CANCELED if the replacement is a
-     *     0-value self-transfer, the canonical RBF cancel pattern). This
-     *     check runs unconditionally: it does not respect the grace period
-     *     and does not skip txids in `knownAliveTxids`. A confirmed
+     *     0-value self-transfer, the canonical RBF cancel pattern). `from`
+     *     is the local tx's own sender, NOT this account's address: for an
+     *     incoming pending tx the nonce belongs to the counterparty, and
+     *     matching it against our own outgoing nonces (which start at 0
+     *     just like theirs) falsely flags freshly received txs as REPLACED.
+     *     This check runs unconditionally: it does not respect the grace
+     *     period and does not skip txids in `knownAliveTxids`. A confirmed
      *     replacement is decisive — the original cannot also mine, no
      *     matter what blockbook's stale indexes still claim.
      *  2. Within grace period (and no replacement found) — leave as
@@ -124,13 +170,17 @@ abstract class AbstractEthERC20Account(coinType: CryptoCurrency,
             // original was bumped out of the mempool. This runs even within
             // the grace period and even when blockbook's address indexes
             // still list the original txid, because the original CANNOT
-            // also mine at the same nonce.
+            // also mine at the same nonce. The nonce is only comparable
+            // within one sender's tx stream — for incoming pending txs the
+            // sender is the counterparty, so match against ITS confirmed
+            // txs, never against this account's own outgoing history.
             val localNonce = localTx.nonce
+            val localSender = localTx.sender.addressString
             val replacement = if (localNonce != null) {
                 addressTxs.firstOrNull { remote ->
                     remote.txid != txid
                             && remote.confirmations.signum() > 0
-                            && remote.from.equals(ownerAddress, true)
+                            && remote.from.equals(localSender, true)
                             && remote.nonce == localNonce
                 }
             } else null
@@ -199,6 +249,7 @@ abstract class AbstractEthERC20Account(coinType: CryptoCurrency,
                 lastSyncInfo = SyncStatusInfo(SyncStatus.SUCCESS)
             }
         } finally {
+            lastSyncTxs = null
             syncing = false
         }
         return synced
@@ -293,11 +344,41 @@ abstract class AbstractEthERC20Account(coinType: CryptoCurrency,
         } catch (_: IOException) {
             BigInteger.ZERO
         }
+        // Replacement must bid >=10% over the stuck tx to displace it.
+        // record.gasPrice holds the old cap (maxFeePerGas) for type-2 txs and
+        // the gas price for legacy ones.
         val bumpedOld = record.gasPrice * BUMP_NUMERATOR / BUMP_DENOMINATOR
-        val newGasPrice = bumpedOld.max(networkGasPrice)
         // Over-provision gasLimit so an EIP-7702 delegate's fallback() has
         // budget to run; on a non-delegated EOA the unused gas is refunded.
         val cancelGasLimit = CANCEL_GAS_LIMIT
+
+        if ((ethCoinType as? EthCoin)?.supportsEip1559 == true) {
+            // type-2 cancel. We don't persist the stuck tx's tip, so to guarantee
+            // a valid replacement we bump off the known old cap: since the old tip
+            // can never exceed the old cap, a new tip >= oldCap*1.1 also clears
+            // oldTip*1.1. Use the current fastest tier as a floor so a cancel
+            // issued during a fee spike still lands; fall back to the legacy
+            // network estimate when no snapshot is cached.
+            val fastest = blockchainService.lastEip1559Fees()?.tier(EthFeeLevel.HIGH)
+            val networkCap = fastest?.maxFeePerGas ?: networkGasPrice
+            val networkTip = fastest?.maxPriorityFeePerGas ?: networkGasPrice
+            val (newCap, newTip) = type2CancelFees(bumpedOld, networkCap, networkTip)
+            val newFeeWei = newCap * cancelGasLimit
+            return CancelEstimate(
+                nonce = nonce,
+                oldGasPrice = record.gasPrice,
+                newGasPrice = newCap,
+                gasLimit = cancelGasLimit,
+                oldFee = Value.valueOf(ethCoinType, record.gasPrice * record.gasLimit),
+                newFee = Value.valueOf(ethCoinType, newFeeWei),
+                ethSpendable = ethSpendable,
+                hasEnoughEth = ethSpendable.value >= newFeeWei,
+                newMaxFeePerGas = newCap,
+                newMaxPriorityFeePerGas = newTip,
+            )
+        }
+
+        val newGasPrice = bumpedOld.max(networkGasPrice)
         val newFeeWei = newGasPrice * cancelGasLimit
         return CancelEstimate(
             nonce = nonce,
@@ -419,12 +500,40 @@ abstract class AbstractEthERC20Account(coinType: CryptoCurrency,
 data class CancelEstimate(
     val nonce: BigInteger,
     val oldGasPrice: BigInteger,
+    /** Effective per-gas price for fee accounting/display — the cap for a type-2 cancel. */
     val newGasPrice: BigInteger,
     val gasLimit: BigInteger,
     /** gas paid (or budgeted) by the original tx — gasPrice * gasLimit. */
     val oldFee: Value,
-    /** gas that will be paid by the cancel tx — newGasPrice * 21000. */
+    /** gas that will be paid by the cancel tx — newGasPrice * gasLimit. */
     val newFee: Value,
     val ethSpendable: Value,
     val hasEnoughEth: Boolean,
-)
+    /** type-2 cancel cap; null → sign the cancel as legacy. */
+    val newMaxFeePerGas: BigInteger? = null,
+    /** type-2 cancel tip; null → sign the cancel as legacy. */
+    val newMaxPriorityFeePerGas: BigInteger? = null,
+) {
+    val isEip1559: Boolean
+        get() = newMaxFeePerGas != null && newMaxPriorityFeePerGas != null
+}
+
+/**
+ * Type-2 replacement (cancel/RBF) fee bump. Given the already-10%-bumped old cap
+ * and the current network fastest cap/tip, returns `(newMaxFeePerGas,
+ * newMaxPriorityFeePerGas)` guaranteeing:
+ *  - cap  >= oldCap * 1.1   (clears the replaced tx's cap)
+ *  - tip  >= oldCap * 1.1   (and since oldTip <= oldCap, also clears oldTip*1.1
+ *                            without needing the stuck tx's persisted tip)
+ *  - cap  >= tip            (required by EIP-1559)
+ * with the network values as a floor so a cancel during a fee spike still lands.
+ */
+internal fun type2CancelFees(
+    bumpedOldCap: BigInteger,
+    networkCap: BigInteger,
+    networkTip: BigInteger,
+): Pair<BigInteger, BigInteger> {
+    val newTip = bumpedOldCap.max(networkTip)
+    val newCap = bumpedOldCap.max(networkCap).max(newTip)
+    return newCap to newTip
+}

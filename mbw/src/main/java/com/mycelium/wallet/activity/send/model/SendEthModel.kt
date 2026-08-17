@@ -258,13 +258,17 @@ class FeeUpdater(
         hasStarted = true
         startUpdateSecondsTimer()
         feeUpdateScheduledTask = Timer().apply {
+            // Initial delay 0: fetch fees immediately on entry rather than only
+            // after the first interval. Otherwise the cached estimate is shown
+            // for the first interval and — with EIP-1559 — the fee snapshot is
+            // empty, so a send in that window silently falls back to legacy.
             scheduleAtFixedRate(timerTask {
                 runBlocking {
                     stopUpdateSecondsTimer()
                     feeUpdateRoutine()
                     startUpdateSecondsTimer()
                 }
-            }, feeUpdateIntervalMs, feeUpdateIntervalMs)
+            }, 0L, feeUpdateIntervalMs)
         }
     }
 
