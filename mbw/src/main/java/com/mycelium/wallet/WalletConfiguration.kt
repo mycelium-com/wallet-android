@@ -21,6 +21,7 @@ import com.mycelium.wapi.wallet.IServerFioEventsPublisher
 import com.mycelium.wapi.wallet.erc20.coins.ERC20Token
 import com.mycelium.wapi.wallet.eth.ServerEthListChangedListener
 import com.mycelium.wapi.wallet.trc20.coins.TRC20Token
+import com.mycelium.wapi.wallet.ConfigObfuscation
 import com.mycelium.wapi.wallet.tron.remote.ServerTronListChangedListener
 import com.mycelium.wapi.wallet.tron.remote.TronEndpoint
 import com.mycelium.wapi.wallet.fio.FioTpidChangedListener
@@ -78,11 +79,22 @@ class BTCNetResponse(val electrumx: ElectrumXResponse, @SerializedName("WAPI") v
 
 class ETHNetResponse(@SerializedName("blockbook-servers") val ethBBServers: EthServerResponse)
 
-class TRXNetResponse(@SerializedName("api-servers") val apiServers: TrxServerResponse)
+/**
+ * TRON section in the WalletKMP `wallet-config` layout so both apps share one config snippet:
+ * `"TRX-mainnet": { "endpoints": [ { "url", "type", "header-key", "header-value", "priority", "rps" } ] }`.
+ * `header-value` may be obfuscated (`enc1_`/`enc2_`, see [ConfigObfuscation]).
+ */
+class TRXNetResponse(val endpoints: List<TrxEndpointResponse> = emptyList())
 
-class TrxServerResponse(val primary: Array<TrxUrlResponse>)
-
-data class TrxUrlResponse(val url: String, @SerializedName("api-key") val apiKey: String? = null)
+data class TrxEndpointResponse(
+    val url: String,
+    /** DEFAULT (TronGrid full HTTP API, the only type this app speaks), REST, GRPC … */
+    val type: String? = null,
+    @SerializedName("header-key") val headerKey: String? = null,
+    @SerializedName("header-value") val headerValue: String? = null,
+    val priority: Int = 0,
+    val rps: Int? = null,
+)
 
 class FIONetResponse(@SerializedName("api-servers") val fioApiServers: FioServerResponse,
                      @SerializedName("history-servers") val fioHistoryServers: FioServerResponse,
@@ -229,7 +241,7 @@ class WalletConfiguration(private val prefs: SharedPreferences,
             myceliumNodesResponse?.trxTestnet
         } else {
             myceliumNodesResponse?.trxMainnet
-        }?.apiServers?.primary
+        }?.endpoints
 
         val fioApiServersFromResponse = if (network.isTestnet) {
             myceliumNodesResponse?.fioTestnet
@@ -322,16 +334,15 @@ class WalletConfiguration(private val prefs: SharedPreferences,
     private val fioApiServers: Set<String>
         get() = prefs.getStringSet(PREFS_FIO_API_SERVERS, mutableSetOf(*BuildConfig.FioApiServers))!!
 
-    // TronGrid-compatible servers as JSON [{url, api-key}]; falls back to the built-in list + build-time key
-    private val tronServers: List<TrxUrlResponse>
+    // TRON endpoints as stored from the config (JSON list of TrxEndpointResponse); null when absent/unparsable
+    private val tronServers: List<TrxEndpointResponse>?
         get() = prefs.getString(PREFS_TRON_SERVERS, null)?.let {
             try {
-                gson.fromJson(it, Array<TrxUrlResponse>::class.java).toList()
+                gson.fromJson(it, Array<TrxEndpointResponse>::class.java).toList()
             } catch (e: Exception) {
                 null
             }
         }?.takeIf { it.isNotEmpty() }
-            ?: BuildConfig.TronServers.map { TrxUrlResponse(it, BuildConfig.TronGridApiKey.takeIf { k -> k.isNotBlank() }) }
 
     private val fioHistoryServers: Set<String>
         get() = prefs.getStringSet(PREFS_FIO_HISTORY_SERVERS, mutableSetOf(*BuildConfig.FioHistoryServers))!!
@@ -380,9 +391,26 @@ class WalletConfiguration(private val prefs: SharedPreferences,
     //We are not going to call HttpsEndpoint.getClient() , that's why certificate is empty
     fun getBlockBookEndpoints(): List<HttpsEndpoint> = ethBBServers.map { HttpsEndpoint(it) }
 
-    fun getTronEndpoints(): List<TronEndpoint> = tronServers.map {
-        // A remote entry without a key inherits the build-time key so keyed access survives config updates
-        TronEndpoint(it.url, it.apiKey?.takeIf { k -> k.isNotBlank() } ?: BuildConfig.TronGridApiKey.takeIf { k -> k.isNotBlank() })
+    /**
+     * HTTP endpoints for [com.mycelium.wapi.wallet.tron.remote.TronBlockchainService], ordered by priority.
+     * Only `DEFAULT` (TronGrid-compatible full API) entries are used — `GRPC`/`REST` entries of the shared
+     * KMP config are skipped. Falls back to the built-in TronGrid list + build-time key.
+     */
+    fun getTronEndpoints(): List<TronEndpoint> {
+        val buildKey = BuildConfig.TronGridApiKey.takeIf { it.isNotBlank() }
+        val fromConfig = tronServers.orEmpty()
+            .filter { it.type.isNullOrBlank() || it.type.equals("DEFAULT", ignoreCase = true) }
+            .sortedBy { it.priority }
+            .map {
+                val key = ConfigObfuscation.decode(it.headerValue)?.takeIf { k -> k.isNotBlank() }
+                // A keyless TronGrid entry inherits the build-time key (if any) so keyed access survives config updates
+                val apiKey = key ?: buildKey?.takeIf { _ -> it.headerKey.isNullOrBlank() || it.headerKey == TronEndpoint.DEFAULT_API_KEY_HEADER }
+                TronEndpoint(it.url, apiKey, it.headerKey?.takeIf { h -> h.isNotBlank() } ?: TronEndpoint.DEFAULT_API_KEY_HEADER,
+                    it.priority, it.rps)
+            }
+            // The same URL+key may appear twice in the KMP layout (REST + DEFAULT); keep one
+            .distinctBy { it.baseUrl.trimEnd('/') to it.apiKey }
+        return fromConfig.ifEmpty { BuildConfig.TronServers.map { TronEndpoint(it, buildKey) } }
     }
 
     fun getFioApiEndpoints(): List<HttpsEndpoint> = fioApiServers.map { HttpsEndpoint(it) }

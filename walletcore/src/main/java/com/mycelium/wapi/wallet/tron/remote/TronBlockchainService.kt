@@ -31,7 +31,11 @@ class TronBlockchainService(endpoints: List<TronEndpoint>) : ServerTronListChang
     private val mapper = ObjectMapper()
 
     @Volatile
-    private var endpoints: List<TronEndpoint> = endpoints
+    private var endpoints: List<TronEndpoint> = endpoints.sortedBy { it.priority }
+        set(value) {
+            field = value
+            logger.info("TRON endpoints: " + value.joinToString { it.describe() })
+        }
     private val gates = HashMap<String, EndpointGate>()
 
     private val client = OkHttpClient.Builder()
@@ -46,9 +50,17 @@ class TronBlockchainService(endpoints: List<TronEndpoint>) : ServerTronListChang
     @Volatile
     private var cachedBlockRefAt = 0L
 
-    override fun serverListChanged(newEndpoints: List<TronEndpoint>) {
-        if (newEndpoints.isNotEmpty()) endpoints = newEndpoints
+    init {
+        logger.info("TRON endpoints: " + this.endpoints.joinToString { it.describe() })
     }
+
+    override fun serverListChanged(newEndpoints: List<TronEndpoint>) {
+        if (newEndpoints.isNotEmpty()) endpoints = newEndpoints.sortedBy { it.priority }
+    }
+
+    /** Log form without the key itself. */
+    private fun TronEndpoint.describe() =
+        "$baseUrl(prio=$priority, rps=${allowedRps.toInt()}, key=${if (apiKey.isNullOrBlank()) "no" else "yes"})"
 
     // ---------------------------------------------------------------- accounts
 
@@ -384,7 +396,7 @@ class TronBlockchainService(endpoints: List<TronEndpoint>) : ServerTronListChang
             try {
                 gate.awaitSlot()
                 val builder = build(endpoint).header("Accept", "application/json")
-                endpoint.apiKey?.takeIf { it.isNotBlank() }?.let { builder.header("TRON-PRO-API-KEY", it) }
+                endpoint.apiKey?.takeIf { it.isNotBlank() }?.let { builder.header(endpoint.apiKeyHeader, it) }
                 client.newCall(builder.build()).execute().use { response ->
                     if (response.code == 429 || response.code == 403) {
                         gate.coolDown(System.currentTimeMillis())

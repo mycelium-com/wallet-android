@@ -5,12 +5,21 @@ import java.math.BigInteger
 /** TronGrid-compatible HTTP endpoint (TronGrid itself, or a java-tron full node HTTP API). */
 data class TronEndpoint(
     val baseUrl: String,
-    /** TronGrid `TRON-PRO-API-KEY`; null for keyless access (throttled to ~1 QPS by TronGrid). */
+    /** API key sent in [apiKeyHeader]; null for keyless access (throttled to ~1 QPS by TronGrid). */
     val apiKey: String? = null,
+    val apiKeyHeader: String = DEFAULT_API_KEY_HEADER,
+    /** Fallback order: 0 = tried first (as in the WalletKMP config). */
+    val priority: Int = 0,
+    /** Server-side requests-per-second budget from the config; null = derive from key presence. */
+    val rps: Int? = null,
 ) {
     /** Requests per second this endpoint tolerates: TronGrid allows 15 with a key, 1 without. */
     val allowedRps: Double
-        get() = if (apiKey.isNullOrBlank()) 1.0 else 12.0
+        get() = rps?.takeIf { it > 0 }?.toDouble() ?: if (apiKey.isNullOrBlank()) 1.0 else 12.0
+
+    companion object {
+        const val DEFAULT_API_KEY_HEADER = "TRON-PRO-API-KEY"
+    }
 }
 
 interface ServerTronListChangedListener {

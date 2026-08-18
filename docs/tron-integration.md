@@ -58,12 +58,26 @@ Partner HTTP API (`X-API-Key`): `GET health`, `GET api/v1/fee-info?sender&recipi
 
 ## Configuration
 
-- Endpoints: `BuildConfig.TronServers` (`https://api.trongrid.io` prodnet, `https://nile.trongrid.io` testnet) — overridable from remote config `nodes-b.json` sections `TRX-mainnet` / `TRX-testnet`:
+- Endpoints: `nodes-b.json` (bundled asset, then `wallet-config.mycelium.com/nodes-b-v3160200[-test].json`) sections
+  `TRX-mainnet` / `TRX-testnet` in the **WalletKMP `wallet-config` layout** — the KMP section can be pasted verbatim:
   ```json
-  "TRX-mainnet": { "api-servers": { "primary": [ { "url": "https://api.trongrid.io", "api-key": "..." } ] } }
+  "TRX-mainnet": { "endpoints": [
+    { "url": "https://api.trongrid.io/", "type": "DEFAULT", "header-key": "TRON-PRO-API-KEY", "header-value": "enc2_…", "priority": 6, "rps": 15 },
+    { "url": "https://api.trongrid.io/", "type": "DEFAULT", "priority": 7, "rps": 1 }
+  ] }
   ```
-- **TronGrid API key**: without a key TronGrid throttles to ~1 request/s (15 QPS with a key). Pass it at build time:
-  `./gradlew ... -PtronGridApiKey=<key>` or `tronGridApiKey=<key>` in `~/.gradle/gradle.properties` (→ `BuildConfig.TronGridApiKey`).
+  This app only speaks the TronGrid full HTTP API, so `type: DEFAULT` (or no type) entries are used, ordered by `priority`,
+  `rps` feeds the per-endpoint gate; `GRPC`/`REST` entries (used by KMP's other providers) are skipped. Without any usable
+  entry: `BuildConfig.TronServers` (`https://api.trongrid.io` prodnet, `https://nile.trongrid.io` testnet). Parsed
+  endpoints are logged (key masked): `TRON endpoints: https://api.trongrid.io/(prio=6, rps=15, key=yes), …`.
+- **TronGrid API key**: without a key TronGrid throttles to ~1 request/s (15 QPS with a key). Either pass it at build time
+  (`./gradlew ... -PtronGridApiKey=<key>` or `tronGridApiKey=<key>` in `~/.gradle/gradle.properties` → `BuildConfig.TronGridApiKey`)
+  or put it into the config `header-value` (with `header-key: TRON-PRO-API-KEY`). Config values may be obfuscated the same way as in WalletKMP
+  (`walletcore/.../ConfigObfuscation`): `enc2_<hex>` = AES-128-CTR `[IV16][ciphertext]` of the UTF-8 text with the shared
+  constant key (`enc1_` for raw bytes → hex); plain values still work. The KMP `wallet-config-prodnet.json` value for
+  `TRON-PRO-API-KEY` can be copied verbatim. To produce a value:
+  `(openssl rand -hex 16 | tr -d '\n'; echo -n "<key>" | openssl enc -aes-128-ctr -K a8105c3c8b75556a9099b8dcab9cc133 -iv <same iv> -nosalt | xxd -p)` → prefix `enc2_`,
+  or `ConfigObfuscation.encodeText("<key>")` from a unit test. This is obfuscation, not protection.
 - Rates: `wapi.mycelium.com/wapi/getExchangeRates` returns no rates for `TRX` yet → fiat balance/“No Exchange available” until the backend adds TRX. USDT is available.
 
 ## Tests
