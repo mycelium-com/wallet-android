@@ -217,7 +217,6 @@
     <string name="transaction_rejected_invalid_tx_params">Transaction was rejected by Network. Please verify that transaction parameters are correct and try again. Error: %1$s</string>
     <string name="enter_bitcoin_address">Enter Bitcoin Address</string>
     <string name="recipient_invalid">Invalid address</string>
-    <string name="recipient_has_no_such_address">%1$s has no %2$s address connected</string>
     <string name="recipient_valid">Recipient Valid</string>
     <string name="redirecting_to_block_explorer">Redirecting to a block explorer</string>
     <string name="enter_local_currency">Enter your local currency</string>
@@ -584,7 +583,6 @@
     <string name="enter_account_label_title">Enter Account Label</string>
     <string name="edit_account_label_title">Edit Account Label</string>
     <string name="seed_already_configured">Cannot import: master seed is already configured</string>
-    <string name="master_seed_not_configured">Master seed is not configured</string>
     <string name="backup_words_title">Master Seed Backup</string>
     <string name="verify_words_title">Master Seed Verification</string>
     <string name="wordlist_backup_description">THIS IS IMPORTANT\n\nYou are about to back up your master seed.\n\nAfter making a backup you should set a PIN to prevent anyone that briefly holds your phone from making another backup and steal your current and future funds.\n\nYou will be shown a list of words, one after another. Write those words down using pen and paper, and store them in a safe place.</string>
@@ -754,7 +752,6 @@
     <string name="hint_type_to_filter">start typing to filter list</string>
     <string name="info_add_account_keep_backup_secure">Info: All Bitcoin HD Accounts and Ethereum Account are derived from your Master Seed - if you keep your 12-Words-Backup secure, you can restore all your Bitcoin HD Accounts and Ethereum Account with it.</string>
     <string name="warning_add_account_no_backup">WARNING: You don\'t have a verified backup of your Master Seed. All your Bitcoin HD, Ethereum, and ERC20 Accounts are derived from it. They are only secure and recoverable if you have valid and verified Backup stored offline in a safe place.</string>
-    <string name="transaction_from_address_prefix">From: %s</string>
     <string name="transaction_to_address_prefix">To: %s</string>
     <string name="tor_state_init">Tor init</string>
 
@@ -1297,7 +1294,6 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="gaps_button_ignore">Ignore</string>
     <string name="hd_eth_account">Add Ethereum Account</string>
     <string name="connection_logs">Logs</string>
-    <string name="no_logs">No logs</string>
     <string name="media_flow_notification_title">"Mycelium Wallet / Mediaflow"</string>
     <string name="sepa_buy_sell_title">SEPA</string>
     <string name="sepa_buy_sell_description">Buy/sell bitcoin using Single Euro Payments Area.</string>
@@ -1356,9 +1352,6 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="tx_replace_info_title">Transaction to be replaced</string>
     <string name="tx_replacae_info_desc">Select an unconfirmed transaction you want to replace.\nMiner fee of the replacement transaction must be higher than the fee of the selected unconfirmed transaction.</string>
     <string name="none">none</string>
-    <string name="connect_accounts">Save</string>
-    <string name="domain_details">Domain details</string>
-    <string name="expiration_date">Expiration date:</string>
     <string name="bundled_transactions">Bundled transactions:</string>
     <string name="send_mail">Send mail…</string>
     <string name="bequant_secure_custodial_storage">Secure custodial storage\nfor crypto on the go</string>
@@ -1521,7 +1514,6 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="cant_disable_active_account">You can\'t disable active account</string>
     <string name="try_request_backup_again"><![CDATA[It might be an issue with your internet connection or an internal server issue.<br/>Please try to request Backup Code again or contact <font color="#F2E868">Support Center</font> for help.]]></string>
     <string name="backup_not_generated">Backup Code was not generated</string>
-    <string name="leave_a_message_for_s">Leave a message for %s</string>
     <string name="activate_trading_custodial_account">Activate Trading Account</string>
     <string name="service_unavailable">Service unavailable</string>
     <string name="avoid_get_to_pin_check">Something weird is happening. avoid getting to pin check</string>
@@ -1739,7 +1731,6 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="card_code">Card Code:</string>
     <string name="gift_card_load_error_title">Gift card purchases are temporarily unavailable.</string>
     <string name="gift_card_load_error_desc">We are currently updating our stores, and the service will be back online soon. Thank you for your understanding!</string>
-    <string name="choose_blockchain">Choose blockchain</string>
     <string name="share_of">Share %1$d</string>
     <string name="total_number_of_shares">Total shares</string>
     <string name="threshold">Threshold</string>

@@ -219,7 +219,6 @@
     <string name="transaction_rejected_invalid_tx_params">Die Transaktion wurde vom Netzwerk abgelehnt. Bitte überprüfen Sie die Transaktionsparameter und versuchen Sie es erneut. Fehler: %1$s</string>
     <string name="enter_bitcoin_address">Bitcoin-Adresse eingeben</string>
     <string name="recipient_invalid">Ungültige Adresse</string>
-    <string name="recipient_has_no_such_address">%1$s hat keine %2$s-Adresse verbunden</string>
     <string name="recipient_valid">Empfänger gültig</string>
     <string name="redirecting_to_block_explorer">Weiterleitung zu einem Block-Explorer</string>
     <string name="enter_local_currency">Geben Sie Ihre lokale Währung ein</string>
@@ -753,7 +752,6 @@
     <string name="hint_type_to_filter">Beginnen Sie mit der Eingabe, um die Liste zu filtern</string>
     <string name="info_add_account_keep_backup_secure">Info: Alle Bitcoin-HD-Konten und Ethereum-Konten werden aus Ihrem Master Seed abgeleitet – wenn Sie Ihr 12-Wörter-Backup sicher aufbewahren, können Sie damit alle Ihre Bitcoin-HD-Konten und Ethereum-Konten wiederherstellen.</string>
     <string name="warning_add_account_no_backup">Warnung: Sie haben kein bestätigtes Backup Ihres Master Seeds. Alle Ihre Bitcoin-HD-Konten und Ethereum-Konten werden daraus abgeleitet. Sie sind nur sicher und wiederherstellbar, wenn Sie ein gültiges und sicheres Backup haben.</string>
-    <string name="transaction_from_address_prefix">Von: %s</string>
     <string name="transaction_to_address_prefix">An: %s</string>
     <string name="tor_state_init">Tor init</string>
 
@@ -1264,7 +1262,6 @@
     <string name="gaps_button_ignore">Ignorieren</string>
     <string name="hd_eth_account">Ethereum-Konto hinzufügen</string>
     <string name="connection_logs">Protokolle</string>
-    <string name="no_logs">Keine Protokolle</string>
     <string name="media_flow_notification_title">"Mycelium Wallet / Medienflow"</string>
     <string name="sepa_buy_sell_title">SEPA</string>
     <string name="sepa_buy_sell_description">Bitcoin kaufen/verkaufen mit Single Euro Payments Area.</string>

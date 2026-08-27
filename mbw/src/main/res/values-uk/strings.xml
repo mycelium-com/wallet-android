@@ -224,7 +224,6 @@
 
     <string name="enter_bitcoin_address">Введіть Bitcoin адресу</string>
     <string name="recipient_invalid">Недійсна адреса</string>
-    <string name="recipient_has_no_such_address">%1$s не має підключеної адреси %2$s</string>
     <string name="recipient_valid">Отримувач дійсний</string>
     <string name="redirecting_to_block_explorer">Перенаправлення до блок-експлорера</string>
     <string name="enter_local_currency">Введіть вашу місцеву валюту</string>
@@ -1041,7 +1040,6 @@
     <string name="gaps_button_ignore">Ігнорувати</string>
     <string name="hd_eth_account">Додати акаунт Ethereum</string>
     <string name="connection_logs">Логи</string>
-    <string name="no_logs">Логи відсутні</string>
     <string name="media_flow_notification_title">"Mycelium Wallet / Mediaflow"</string>
     <string name="sepa_buy_sell_title">SEPA</string>
     <string name="sepa_buy_sell_description">Купівля/продаж Bitcoin за допомогою Single Euro Payments Area.</string>
@@ -1101,9 +1099,6 @@
     <string name="tx_replace_info_title">Транзакція для заміни</string>
     <string name="tx_replacae_info_desc">Виберіть непідтверджену транзакцію, яку ви хочете замінити.\nКомісія майнера для заміщуючої транзакції має бути вищою за комісію обраної непідтвердженої транзакції.</string>
     <string name="none">немає</string>
-    <string name="connect_accounts">Зберегти</string>
-    <string name="domain_details">Деталі домену</string>
-    <string name="expiration_date">Дата закінчення терміну:</string>
     <string name="bundled_transactions">Укомплектовані транзакції:</string>
 
 
@@ -1270,7 +1265,6 @@
     <string name="cant_disable_active_account">Ви не можете вимкнути активний акаунт</string>
     <string name="try_request_backup_again"><![CDATA[Можливо, проблема у вашому інтернет-з\'єднанні або внутрішній помилці сервера.<br/>Будь ласка, спробуйте повторно запросити резервний код або зверніться до <font color="#F2E868">Центру підтримки</font> за допомогою.]]></string>
     <string name="backup_not_generated">Резервний код не було створено</string>
-    <string name="leave_a_message_for_s">Залиште повідомлення для %s</string>
     <string name="activate_trading_custodial_account">Активувати торговий акаунт</string>
     <string name="service_unavailable">Сервіс недоступний</string>
     <string name="avoid_get_to_pin_check">Щось дивне відбувається. Уникайте перевірки PIN-коду</string>
