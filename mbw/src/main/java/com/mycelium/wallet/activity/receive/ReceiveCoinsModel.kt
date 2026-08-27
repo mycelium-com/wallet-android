@@ -21,7 +21,6 @@ import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.erc20.ERC20Account
 import com.mycelium.wapi.wallet.eth.AbstractEthERC20Account
-import com.mycelium.wapi.wallet.fio.FioModule
 import com.squareup.otto.Subscribe
 
 class ReceiveCoinsModel(
@@ -36,8 +35,6 @@ class ReceiveCoinsModel(
     val receivingAmount: MutableLiveData<Value?> = MutableLiveData()
     val receivingAmountWrong: MutableLiveData<Boolean> = MutableLiveData()
     val receivingAddress: MutableLiveData<Address> = MutableLiveData()
-    val receivingFioName = MutableLiveData<String>()
-    val fioNameList = MutableLiveData<List<String>>()
     val alternativeAmountWarning: MutableLiveData<Boolean> = MutableLiveData()
 
     private var syncErrors = 0
@@ -50,10 +47,6 @@ class ReceiveCoinsModel(
         MbwManager.getEventBus().register(this)
         receivingAmountWrong.value = false
         receivingAddress.value = account.receiveAddress
-
-        val walletManager = mbwManager.getWalletManager(false)
-        val module = walletManager.getModuleById(FioModule.ID) as FioModule
-        fioNameList.value = module.getFIONames(account).map { it.name }
 
         if (showIncomingUtxo) {
             updateObservingAddress()

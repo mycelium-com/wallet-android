@@ -36,7 +36,7 @@
         android:background="@drawable/background_giftbox_item_loading1"
         android:ellipsize="end"
         android:singleLine="true"
-        android:textColor="@color/fio_white_alpha_0_6"
+        android:textColor="@color/white_alpha_0_6"
         android:textSize="12sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintBottom_toTopOf="@id/additional"
@@ -53,7 +53,7 @@
         android:background="@drawable/background_giftbox_item_loading1"
         android:ellipsize="middle"
         android:singleLine="true"
-        android:textColor="@color/fio_white_alpha_0_6"
+        android:textColor="@color/white_alpha_0_6"
         app:layout_constraintBottom_toBottomOf="@id/image"
         app:layout_constraintLeft_toRightOf="@id/image"
         app:layout_goneMarginEnd="@dimen/activity_horizontal_margin" />

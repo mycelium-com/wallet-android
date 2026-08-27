@@ -32,7 +32,6 @@ import com.mycelium.wallet.activity.settings.SettingsPreference.getLanguage
 import com.mycelium.wallet.activity.settings.SettingsPreference.mediaFlowEnabled
 import com.mycelium.wallet.external.mediaflow.NewsSyncUtils.startNewsUpdateRepeating
 import com.mycelium.wallet.external.mediaflow.database.NewsDatabase
-import com.mycelium.wallet.fio.FioRequestNotificator
 import org.bouncycastle.jce.provider.BouncyCastleProvider
 import java.security.Security
 import java.util.Locale
@@ -92,7 +91,6 @@ class WalletApplication : Application(), ModuleMessageReceiver {
         }
         FirebaseApp.initializeApp(this)
         FirebaseMessaging.getInstance().subscribeToTopic("all")
-        FioRequestNotificator.initialize(this)
 
         start(this)
     }
@@ -202,7 +200,6 @@ class WalletApplication : Application(), ModuleMessageReceiver {
                         if (mbwManager.getWalletManager(false).isNetworkConnected != connected) {
                             mbwManager.getWalletManager(false).isNetworkConnected = connected
                             mbwManager.wapi.setNetworkConnected(connected)
-                            mbwManager.btcvWapi.setNetworkConnected(connected)
                         }
                         if (connected) {
                             checkNetworkTimer!!.cancel()

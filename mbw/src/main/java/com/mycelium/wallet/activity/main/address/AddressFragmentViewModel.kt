@@ -15,7 +15,6 @@ import com.mycelium.wallet.WalletApplication
 import com.mycelium.wallet.activity.modern.Toaster
 import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.btc.AbstractBtcAccount
-import com.mycelium.wapi.wallet.btcvault.AbstractBtcvAccount
 
 abstract class AddressFragmentViewModel(val context: Application) : AndroidViewModel(context) {
     protected val mbwManager = MbwManager.getInstance(context)
@@ -37,7 +36,6 @@ abstract class AddressFragmentViewModel(val context: Application) : AndroidViewM
     fun getType() = model.type
     fun getAccountAddressType() = model.accountAddressType
     fun getAccount() = model.account
-    fun getRegisteredFIONames() = model.registeredFIONames
 
     fun getDrawableForAccount(resources: Resources): Drawable? =
         Utils.getDrawableForAccount(model.account, true, resources)
@@ -73,7 +71,6 @@ abstract class AddressFragmentViewModel(val context: Application) : AndroidViewM
 
         fun accountSupportsMultipleBtcReceiveAddresses(account: WalletAccount<*>): Boolean =
             (account is AbstractBtcAccount && account.availableAddressTypes.size > 1)
-                    || (account is AbstractBtcvAccount && account.availableAddressTypes.size > 1)
 
     }
 }

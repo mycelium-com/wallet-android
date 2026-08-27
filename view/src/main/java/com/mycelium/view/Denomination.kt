@@ -6,11 +6,10 @@ import kotlin.math.pow
 
 enum class Denomination(val scale: Int, private val asciiString: String, private val unicodeString: String,
                         private vararg val supportedBy: String) {
-    UNIT(0, "", "", "BTC", "ETH", "FIO", "BTCV"),
-    MILLI(3, "m", "m", "BTC", "ETH", "BTCV"),
-    MICRO(6, "u", "\u00B5", "BTC", "ETH", "BTCV"),
-    NANO(9, "SUF", "SUF", "FIO"),
-    SATOSHI(8, "sats", "sats", "BTC", "BTCV"),
+    UNIT(0, "", "", "BTC", "ETH"),
+    MILLI(3, "m", "m", "BTC", "ETH"),
+    MICRO(6, "u", "\u00B5", "BTC", "ETH"),
+    SATOSHI(8, "sats", "sats", "BTC"),
     FINNEY(3, "finney", "finney", "ETH"),
     SZABO(6, "szabo", "szabo", "ETH"),
     GWEI(9, "gwei", "gwei", "ETH"),
@@ -55,7 +54,6 @@ enum class Denomination(val scale: Int, private val asciiString: String, private
                 "ubtc" //back compatibility
                     , "micro" -> MICRO
                 "satoshi" -> SATOSHI
-                "nano" -> NANO
                 "finney" -> FINNEY
                 "szabo" -> SZABO
                 "gwei" -> GWEI

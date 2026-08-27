@@ -2,9 +2,9 @@
 
     <item android:drawable="@drawable/arrow_bottom" android:state_checked="true" />
 
-    <item android:drawable="@drawable/ic_fio_right_arrow" android:state_pressed="true" />
+    <item android:drawable="@drawable/ic_right_arrow_expandable" android:state_pressed="true" />
 
-    <item android:drawable="@drawable/ic_fio_right_arrow" />
+    <item android:drawable="@drawable/ic_right_arrow_expandable" />
 
 
 </selector>

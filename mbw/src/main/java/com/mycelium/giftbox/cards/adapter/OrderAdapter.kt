@@ -70,7 +70,7 @@ class OrderAdapter : ListAdapter<PurchasedItem, RecyclerView.ViewHolder>(DiffCal
                     Status.eRROR -> {
                         holder.binding.additionalLabel.visibility = GONE
                         holder.binding.additional.setCompoundDrawablesRelativeWithIntrinsicBounds(R.drawable.ic_failed, 0, 0, 0)
-                        val color = holder.itemView.context.resources.getColor(R.color.fio_white_alpha_0_9)
+                        val color = holder.itemView.context.resources.getColor(R.color.white_alpha_0_9)
                         holder.binding.additional.setTextColor(color)
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                             holder.binding.additional.compoundDrawableTintList = ColorStateList.valueOf(color)

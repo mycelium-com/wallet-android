@@ -20,12 +20,8 @@ import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount
 import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount
-import com.mycelium.wapi.wallet.btcvault.AbstractBtcvAccount
 import com.mycelium.wapi.wallet.eth.EthAccount
 import com.mycelium.wapi.wallet.eth.EthereumModule
-import com.mycelium.wapi.wallet.fio.FioAccount
-import com.mycelium.wapi.wallet.fio.FioModule
-import com.mycelium.wapi.wallet.fio.RegisteredFIOName
 import com.squareup.otto.Subscribe
 
 class AddressFragmentModel(
@@ -42,12 +38,10 @@ class AddressFragmentModel(
     private val bip32Path: MutableLiveData<HdKeyPath?> = MutableLiveData()
     var isCompressedKey: Boolean = true
     val accountAddressType: MutableLiveData<String> = MutableLiveData()
-    val registeredFIONames: MutableLiveData<List<RegisteredFIOName>> = MutableLiveData()
 
     init {
         updateLabel()
         onAddressChange()
-        updateRegisteredFIONames()
 
         MbwManager.getEventBus().register(this)
     }
@@ -85,17 +79,6 @@ class AddressFragmentModel(
                 val module = mbwManager.getWalletManager(false).getModuleById(EthereumModule.ID) as EthereumModule
                 bip32Path.value = module.getBip44Path(account.accountIndex)
             }
-            is FioAccount -> {
-                val module = mbwManager.getWalletManager(false).getModuleById(FioModule.ID) as FioModule
-                bip32Path.value = module.getBip44Path(account)
-            }
-            is AbstractBtcvAccount -> {
-                account.receiveAddress?.let { address ->
-                    bip32Path.value = address.bip32Path
-                    type.value = address.type
-                    accountAddressType.value = context.getString(address.type.asStringRes())
-                }
-            }
         }
         accountAddress.value = account.receiveAddress
     }
@@ -126,7 +109,6 @@ class AddressFragmentModel(
 
     @Subscribe
     fun syncStopped(event: SyncStopped) {
-        updateRegisteredFIONames()
         updateLabel()
     }
 
@@ -135,9 +117,4 @@ class AddressFragmentModel(
         updateAddressPath(showBip44Path)
     }
 
-    private fun updateRegisteredFIONames() {
-        if (account is FioAccount) {
-            registeredFIONames.value = (account as FioAccount).registeredFIONames
-        }
-    }
 }

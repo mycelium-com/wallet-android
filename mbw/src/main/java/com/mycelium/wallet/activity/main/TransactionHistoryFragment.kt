@@ -58,8 +58,6 @@ import com.mycelium.wapi.wallet.coins.Value.Companion.isNullOrZero
 import com.mycelium.wapi.wallet.coins.Value.Companion.valueOf
 import com.mycelium.wapi.wallet.colu.ColuAccount
 import com.mycelium.wapi.wallet.eth.AbstractEthERC20Account
-import com.mycelium.wapi.wallet.fio.FIOOBTransaction
-import com.mycelium.wapi.wallet.fio.FioAccount
 import com.squareup.otto.Subscribe
 import kotlinx.coroutines.*
 import java.io.IOException
@@ -104,7 +102,7 @@ class TransactionHistoryFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         if (adapter == null) {
-            adapter = TransactionHistoryAdapter(activity, history, model.fioMetadataMap)
+            adapter = TransactionHistoryAdapter(activity, history)
             updateWrapper(adapter)
             model.transactionHistory.observe(viewLifecycleOwner, Observer { transaction ->
                 history.clear()
@@ -249,7 +247,7 @@ class TransactionHistoryFragment : Fragment() {
                     var toAddEmpty: Boolean
                     synchronized(toAdd) { toAddEmpty = toAdd.isEmpty() }
                     if (toAddEmpty && isLoadingPossible.compareAndSet(true, false)) {
-                        Preloader(toAdd, model.fioMetadataMap, model.account.value!!, model.mbwManager, totalItemCount,
+                        Preloader(toAdd, model.account.value!!, totalItemCount,
                                 OFFSET, isLoadingPossible).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
                     }
                     if (firstVisibleItem + visibleItemCount == totalItemCount && !toAddEmpty) {
@@ -275,8 +273,7 @@ class TransactionHistoryFragment : Fragment() {
     }
 
     private inner class TransactionHistoryAdapter(context: Context?,
-                                                  transactions: List<TransactionSummary?>?,
-                                                  private val fioMetadataMap: Map<String, FIOOBTransaction>)
+                                                  transactions: List<TransactionSummary?>?)
         : TransactionArrayAdapter(context, transactions, this@TransactionHistoryFragment, model.addressBook, false) {
         override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
             val rowView = super.getView(position, convertView, parent)
@@ -288,28 +285,6 @@ class TransactionHistoryFragment : Fragment() {
                 return rowView
             }
             val record = Preconditions.checkNotNull(getItem(position))
-            val otherFioName = rowView.findViewById<TextView>(R.id.otherFioName)
-            val fioIcon = rowView.findViewById<View>(R.id.fioIcon)
-            val tvFioMemo = rowView.findViewById<TextView>(R.id.tvFioMemo)
-            fioMetadataMap[record!!.idHex]?.let { fioObTransaction ->
-                if (record.isIncoming) {
-                    otherFioName.text = getString(R.string.transaction_from_address_prefix, fioObTransaction.fromFioName)
-                } else {
-                    otherFioName.text = getString(R.string.transaction_to_address_prefix, fioObTransaction.toFioName)
-                }
-                if (fioObTransaction.memo.isEmpty()) {
-                    tvFioMemo.visibility = View.GONE
-                } else {
-                    tvFioMemo.visibility = View.VISIBLE
-                    tvFioMemo.text = fioObTransaction.memo
-                }
-                otherFioName.visibility = View.VISIBLE
-                fioIcon.visibility = View.VISIBLE
-            } ?: run {
-                tvFioMemo.visibility = View.GONE
-                otherFioName.visibility = View.GONE
-                fioIcon.visibility = View.GONE
-            }
             rowView.setOnClickListener {
                 currentActionMode = (activity as AppCompatActivity?)?.startSupportActionMode(object : ActionMode.Callback {
                     override fun onCreateActionMode(actionMode: ActionMode, menu: Menu): Boolean {
@@ -337,7 +312,7 @@ class TransactionHistoryFragment : Fragment() {
                                 && !record.isIncoming
                                 && record.confirmations == 0
                         if (model.account.value is Bip44BCHAccount || model.account.value is SingleAddressBCHAccount
-                                || model.account.value is AbstractEthERC20Account || model.account.value is FioAccount) {
+                                || model.account.value is AbstractEthERC20Account) {
                             Preconditions.checkNotNull(menu.findItem(R.id.miCancelTransaction)).isVisible = false
                             Preconditions.checkNotNull(menu.findItem(R.id.miRebroadcastTransaction)).isVisible = false
                             Preconditions.checkNotNull(menu.findItem(R.id.miBumpFee)).isVisible = false

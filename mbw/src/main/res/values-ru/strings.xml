@@ -19,7 +19,6 @@
     <string name="clipboard">Буфер обмена</string>
     <string name="enter_wordlist">Введите список слов</string>
     <string name="hd_account">Добавить HD-аккаунт Bitcoin</string>
-    <string name="btcvault_hd_account">Добавить HD-аккаунт Bitcoin Vault</string>
     <string name="close">Закрыть</string>
     <string name="sending">Отправляется %1$s</string>
     <string name="receiving">Получение %1$s</string>
@@ -33,8 +32,8 @@
     <string name="amount_hint">0.00</string>
     <string name="amount_hint_denomination">0.00 %1$s</string>
     <string name="enter_recipient_title">Отправить кому</string>
-    <string name="enter_recipient_hint">%1$s адрес или имя FIO</string>
-    <string name="enter_recipient_description">Введите %1$s адрес или имя FIO</string>
+    <string name="enter_recipient_hint">%1$s адрес</string>
+    <string name="enter_recipient_description">Введите %1$s адрес</string>
     <string name="recipient_title">Введите адрес получателя:</string>
     <string name="amount_label">Сумма:</string>
     <string name="amount_label_s">Сумма: %s</string>
@@ -46,7 +45,6 @@
     <string name="s_payment_request">%s запрос на оплату</string>
     <string name="share_address">Поделиться адресом</string>
     <string name="share_address_and_amount">Поделиться адресом и суммой</string>
-    <string name="s_fio_request">%s запрос FIO</string>
     <string name="qr_code">QR-код</string>
     <string name="my_addresses">Мои адреса</string>
     <string name="insufficient_funds">Недостаточно средств</string>
@@ -190,7 +188,6 @@
     <string name="question_mark">\?</string>
     <string name="active_hd_accounts_name">Bitcoin HD</string>
     <string name="eth_accounts_name">Ethereum &amp; ERC-20</string>
-    <string name="fio_accounts_name">FIO</string>
     <string name="active_other_accounts_name">Прочие</string>
     <string name="archive_name">Архив</string>
     <string name="active_accounts_empty">(Пусто)</string>
@@ -222,8 +219,7 @@
     <string name="transaction_rejected_malformed">Подписание транзакции не удалось.\nПожалуйста, сообщите об этом в техподдержку.\nСырые данные транзакции были скопированы в буфер обмена, если возможно, приложите их к вашему запросу.\n%s</string>
     <string name="transaction_rejected_invalid_tx_params">Сеть отклонила транзакцию. Пожалуйста, проверьте параметры транзакции и попробуйте снова. Ошибка: %1$s</string>
     <string name="enter_bitcoin_address">Введите Bitcoin-адрес</string>
-    <string name="checking_fio_address">Проверка имени FIO…</string>
-    <string name="recipient_invalid">Недопустимый адрес или имя FIO</string>
+    <string name="recipient_invalid">Недопустимый адрес</string>
     <string name="recipient_has_no_such_address">%1$s не имеет связанного адреса %2$s</string>
     <string name="recipient_valid">Получатель действителен</string>
     <string name="redirecting_to_block_explorer">Перенаправление на блок-эксплорер</string>
@@ -279,7 +275,6 @@
     <string name="out_of_memory_error">ОШИБКА: На вашем устройстве недостаточно памяти для выполнения этой задачи</string>
     <string name="share_payment_request">Поделиться запросом на оплату</string>
     <string name="share_bitcoin_address">Поделиться Bitcoin-адресом</string>
-    <string name="share_fio_name">Поделиться именем FIO</string>
     <string name="optional_amount">Необязательная сумма</string>
     <string name="show_qr_code_menu">Показать QR-код</string>
     <string name="tab_accounts">Аккаунты</string>
@@ -557,9 +552,7 @@
     <string name="selected_single_info">Вы работаете с этим аккаунтом с одиночным адресом.</string>
     <string name="transaction_not_broadcasted_info">Не удалось передать транзакцию</string>
     <string name="hd_account_creation_started">Создание нового HD-аккаунта Bitcoin…</string>
-    <string name="fio_account_creation_started">Создание нового FIO-аккаунта…</string>
     <string name="eth_account_creation_started">Создание нового ETH-аккаунта…</string>
-    <string name="btcv_account_creation_started">Создание нового BTCV-аккаунта…</string>
     <string name="erc20_account_creation_started">Создание нового ERC-20 аккаунта…</string>
     <string name="preparing_wallet_on_first_startup_info">Подготовка кошелька…</string>
     <string name="importing_master_seed_from_wordlist">Вычисление мастер-сида…</string>
@@ -1026,7 +1019,6 @@
     <string name="total_rmc_issued_value">25000</string>
     <string name="restore_address_as">Восстановить адрес как</string>
     <string name="account_already_exist">Этот Bitcoin-адрес уже восстановлен как аккаунт %s.</string>
-    <string name="fio_account_import_error">Не удалось найти FIO-адрес/аккаунт: %s.\nПроверьте правильность адреса/аккаунта или подключение к интернету.</string>
     <string name="ico_will_start">ICO RMC начнётся 28.08.2017 в 0:00 по МСК.</string>
     <string name="rmc_please_select_receiving_account">Пожалуйста, выберите аккаунт для получения</string>
     <string name="not_available">Недоступно</string>
@@ -1124,10 +1116,6 @@
     <string name="bitcoin_cash"><![CDATA[Bitcoin <font color=\"#f08c18\">Cash</font>]]></string>
     <string name="hd_account_bch">Добавить HD-аккаунт Bitcoin Cash</string>
     <string name="generate_new_bch_key">Создать SA-аккаунт BCH</string>
-    <string name="create_fio_legacy_presale_account">Создать Legacy-аккаунт FIO</string>
-    <string name="new_fio_legacy_presale_account_desc">Создавайте Legacy-аккаунт FIO ТОЛЬКО если вы приобрели домен FIO во время предпродажи.</string>
-    <string name="fio_legacy_account">Legacy-аккаунт FIO</string>
-    <string name="fio_legacy_already_created">Legacy-аккаунт FIO уже создан</string>
 
     <string name="bch_you_can_transaction_on_explorer"><![CDATA[Вы можете проверить ваши транзакции на <font color=\"#4583de\">https://www.blocktrail.com/%s</font>]]></string>
     <string name="bch_technology_preview"><![CDATA[Функционал Bitcoin Cash — это технический предварительный просмотр модульной архитектуры Mycelium. В настоящее время вы можете мгновенно обменять ваши Bitcoin <font color=\"#f08c18\">Cash</font> на BTC прямо в Mycelium. Полнофункциональный модуль Bitcoin <font color=\"#f08c18\">Cash</font> будет доступен скоро. Особая благодарность всем нашим участникам и бета-тестерам!]]></string>
@@ -1258,8 +1246,6 @@
     <string name="exceed_card_value">Превышение номинала карты</string>
     <string name="from_s_to_s">От %s до %s</string>
     <string name="gift_cards_menu">Подарочные карты</string>
-    <string name="delete_received_fio_request">Удалить полученный FIO-запрос</string>
-    <string name="delete_received_fio_request_msg">Вы уверены, что хотите удалить этот FIO-запрос?</string>
     <string name="erc20_highest_possible_fee_info"><![CDATA[Это максимальная комиссия, которую, возможно, придется заплатить за отправку транзакции с <b>ETH %s</b>. Однако, скорее всего, комиссия не превысит %s%s. Подробнее см. <u>расчет комиссии майнеров</u>.]]></string>
     <string name="erc20_this_is_updated_fee"><![CDATA[Это обновленная комиссия, основанная на установленном Gas Limit. Подробнее см. <u>расчет комиссии майнеров</u>.]]></string>
     <string name="all_ethereum_network_transactions">Все транзакции в сети Ethereum требуют наличие ETH для оплаты комиссии майнеров.</string>
@@ -1427,8 +1413,6 @@
     <string name="tap_next">Тап для %s</string>
     <string name="account_upgraded">Аккаунт %d только что стал SegWit-совместимым</string>
     <string name="buy_ethereum">Купить / Продать ETH</string>
-    <string name="export_fio_public_key_title">Экспортировать публичный ключ FIO</string>
-    <string name="share_fio_public_key">Поделиться публичным ключем FIO</string>
     <string name="select_eth_account_to_erc20">Выберите ETH аккаунт для хранения ERC-20 токенов</string>
     <string name="list_added_tokens">ERC-20 токены на аккаунте \"%s\"</string>
     <string name="list_added_tokens_new_account">ERC-20 токены на новом аккаунте</string>

@@ -11,14 +11,11 @@ import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.MinerFee.*
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
-import com.mycelium.wallet.activity.send.model.SendFioModel
-import com.mycelium.wallet.activity.send.model.SendFioModel.Companion.DEFAULT_FEE
 import com.mycelium.wallet.activity.settings.helper.DisplayPreferenceDialogHandler
 import com.mycelium.wallet.activity.util.toStringWithUnit
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.eth.coins.EthMain
 import com.mycelium.wapi.wallet.eth.coins.EthTest
-import com.mycelium.wapi.wallet.fio.getFioAccounts
 
 class MinerFeeFragment : PreferenceFragmentCompat() {
 
@@ -43,27 +40,7 @@ class MinerFeeFragment : PreferenceFragmentCompat() {
         val minerFeeNames = arrayOf<CharSequence>(getString(R.string.miner_fee_lowprio_name), getString(R.string.miner_fee_economic_name), getString(R.string.miner_fee_normal_name), getString(R.string.miner_fee_priority_name))
         val cryptocurrencies = mbwManager.cryptocurrenciesSorted
         for (name in cryptocurrencies) {
-            if (name.startsWith("FIO")) {
-                prefCat.addPreference(Preference(preferenceScreen.context).apply {
-                    title = name
-                    summary = getString(R.string.settings_summary_fio_fee, "", "")
-                    layoutResource = R.layout.preference_layout_no_icon
-                    val account = mbwManager.getWalletManager(false).getFioAccounts().first()
-                    SendFioModel.UpdateFeeTask(account) { feeInSUF ->
-                        val coinType = account.coinType
-                        val feeValue = Value.valueOf(coinType, feeInSUF ?: DEFAULT_FEE)
-                        val rate = mbwManager.exchangeRateManager
-                            .get(feeValue, mbwManager.getFiatCurrency(coinType))
-                            ?.let { "~${it.toStringWithUnit()}" }
-                            .orEmpty()
-                        summary = this@MinerFeeFragment.context?.getString(
-                            R.string.settings_summary_fio_fee,
-                            feeValue.toStringWithUnit(),
-                            rate
-                        )
-                    }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
-                })
-            } else {
+            run {
                 val listPreference = ListPreference(preferenceScreen.context).apply {
                     title = name
                     summary = getMinerFeeSummary(name)

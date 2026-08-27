@@ -49,13 +49,11 @@ import com.mycelium.wallet.activity.main.adapter.ButtonAdapter
 import com.mycelium.wallet.activity.main.adapter.ButtonClickListener
 import com.mycelium.wallet.activity.main.adapter.QuadAdsAdapter
 import com.mycelium.wallet.activity.main.model.ActionButton
-import com.mycelium.wallet.activity.settings.SettingsPreference.fioEnabled
 import com.mycelium.wallet.activity.settings.SettingsPreference.getBalanceContent
 import com.mycelium.wallet.activity.settings.SettingsPreference.isContentEnabled
 import com.mycelium.wallet.databinding.MainBuySellFragmentBinding
 import com.mycelium.wallet.event.PageSelectedEvent
 import com.mycelium.wallet.event.SelectedAccountChanged
-import com.mycelium.wallet.external.Ads.openFio
 import com.mycelium.wallet.external.partner.model.BuySellButton
 import com.mycelium.wallet.external.partner.model.check
 import com.mycelium.wallet.external.partner.startContentLink
@@ -64,7 +62,7 @@ import com.squareup.otto.Subscribe
 
 class BuySellFragment : Fragment(), ButtonClickListener {
     enum class ACTION {
-        FIO, ADS
+        ADS
     }
 
     private lateinit var mbwManager: MbwManager
@@ -118,9 +116,6 @@ class BuySellFragment : Fragment(), ButtonClickListener {
     private fun recreateActions() {
         buttonAdapter.submitList(mutableListOf<ActionButton>().apply {
             addAdsContent(this)
-            if (mbwManager.selectedAccount !is AbstractEthERC20Account) {
-                addFio(this)
-            }
         })
         binding?.buttonList?.postDelayed(ScrollToRunner(1), 500)
     }
@@ -146,15 +141,8 @@ class BuySellFragment : Fragment(), ButtonClickListener {
         name?.replace("%%%account.type.name%%%", mbwManager.selectedAccount.coinType.name)
             ?.replace("%%%account.type.symbol%%%", mbwManager.selectedAccount.coinType.symbol)
 
-    private fun addFio(actions: MutableList<ActionButton>) {
-        if (fioEnabled) {
-            actions.add(ActionButton(ACTION.FIO, getString(R.string.partner_fiopresale), R.drawable.ic_fiopresale_icon_small))
-        }
-    }
-
     override fun onClick(actionButton: ActionButton) {
         when (actionButton.id) {
-            ACTION.FIO -> openFio(requireContext())
             ACTION.ADS -> if (actionButton.args.containsKey("data")) {
                 (actionButton.args.getSerializable("data") as BuySellButton?)?.let { data ->
                     startContentLink(data.link, Bundle().apply {

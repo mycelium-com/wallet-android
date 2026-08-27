@@ -20,7 +20,6 @@
     <string name="clipboard">Zwischenablage</string>
     <string name="enter_wordlist">Wortliste eingeben</string>
     <string name="hd_account">Bitcoin HD-Konto hinzufügen</string>
-    <string name="btcvault_hd_account">Bitcoin Vault HD-Konto hinzufügen</string>
     <string name="close">Schließen</string>
     <string name="sending">Sende %1$s</string>
     <string name="receiving">Empfange %1$s</string>
@@ -34,8 +33,8 @@
     <string name="amount_hint">0,00</string>
     <string name="amount_hint_denomination">0,00 %1$s</string>
     <string name="enter_recipient_title">Senden an</string>
-    <string name="enter_recipient_hint">%1$s-Adresse oder FIO-Name</string>
-    <string name="enter_recipient_description">%1$s-Adresse oder FIO-Name eingeben</string>
+    <string name="enter_recipient_hint">%1$s-Adresse</string>
+    <string name="enter_recipient_description">%1$s-Adresse eingeben</string>
     <string name="recipient_title">Empfängeradresse eingeben:</string>
     <string name="amount_label">Betrag:</string>
     <string name="amount_label_s">Betrag: %s</string>
@@ -47,7 +46,6 @@
     <string name="s_payment_request">%s Zahlungsanforderung</string>
     <string name="share_address">Adresse teilen</string>
     <string name="share_address_and_amount">Adresse und Betrag teilen</string>
-    <string name="s_fio_request">%s FIO-Anforderung</string>
     <string name="qr_code">QR-Code</string>
     <string name="my_addresses">Meine Adressen</string>
     <string name="insufficient_funds">Unzureichendes Guthaben</string>
@@ -190,7 +188,6 @@
     <string name="manual_entry">Manuelle Eingabe</string>
     <string name="active_hd_accounts_name">Bitcoin HD</string>
     <string name="eth_accounts_name">Ethereum &amp; ERC-20</string>
-    <string name="fio_accounts_name">FIO</string>
     <string name="active_other_accounts_name">Andere</string>
     <string name="archive_name">Archiviert</string>
     <string name="active_accounts_empty">(Leer)</string>
@@ -221,8 +218,7 @@
     <string name="transaction_rejected_malformed">Signierung der Transaktion fehlgeschlagen.\nBitte melden Sie diesen Vorfall dem technischen Support.\nDie Rohtransaktion wurde in die Zwischenablage kopiert. Falls möglich, fügen Sie sie Ihrer Anfrage bei.\n%s</string>
     <string name="transaction_rejected_invalid_tx_params">Die Transaktion wurde vom Netzwerk abgelehnt. Bitte überprüfen Sie die Transaktionsparameter und versuchen Sie es erneut. Fehler: %1$s</string>
     <string name="enter_bitcoin_address">Bitcoin-Adresse eingeben</string>
-    <string name="checking_fio_address">FIO-Name wird geprüft…</string>
-    <string name="recipient_invalid">Ungültige Adresse oder FIO-Name</string>
+    <string name="recipient_invalid">Ungültige Adresse</string>
     <string name="recipient_has_no_such_address">%1$s hat keine %2$s-Adresse verbunden</string>
     <string name="recipient_valid">Empfänger gültig</string>
     <string name="redirecting_to_block_explorer">Weiterleitung zu einem Block-Explorer</string>
@@ -278,7 +274,6 @@
     <string name="out_of_memory_error">FEHLER: Ihr Gerät hat nicht genügend Speicher, um diese Aufgabe abzuschließen</string>
     <string name="share_payment_request">Zahlungsanforderung teilen</string>
     <string name="share_bitcoin_address">Bitcoin-Adresse teilen</string>
-    <string name="share_fio_name">FIO-Name teilen</string>
     <string name="optional_amount">Optionale Menge</string>
     <string name="show_qr_code_menu">QR-Code anzeigen</string>
     <string name="tab_accounts">Konten</string>
@@ -558,9 +553,7 @@
     <string name="selected_single_info">Sie arbeiten jetzt an diesem Einzeladressenkonto.</string>
     <string name="transaction_not_broadcasted_info">Senden nicht möglich</string>
     <string name="hd_account_creation_started">Neues HD-Bitcoin-Konto wird erstellt…</string>
-    <string name="fio_account_creation_started">Neues FIO-Konto wird erstellt…</string>
     <string name="eth_account_creation_started">Neues ETH-Konto wird erstellt…</string>
-    <string name="btcv_account_creation_started">Neues BTCV-Konto wird erstellt…</string>
     <string name="erc20_account_creation_started">Neues ERC-20-Konto wird erstellt…</string>
     <string name="preparing_wallet_on_first_startup_info">Wallet wird vorbereitet…</string>
     <string name="importing_master_seed_from_wordlist">Master Seed wird berechnet…</string>
@@ -987,7 +980,6 @@
     <string name="total_rmc_issued_value">25000</string>
     <string name="restore_address_as">Adresse wiederherstellen als</string>
     <string name="account_already_exist">Diese Bitcoin-Adresse ist bereits als %s-Konto wiederhergestellt.</string>
-    <string name="fio_account_import_error">FIO-Adresse/Konto konnte nicht gefunden werden: %s.\nÜberprüfen Sie die Adresse/Konto auf Richtigkeit oder Ihre Internetverbindung.</string>
     <string name="ico_will_start">RMC-ICO startet am 28.08.2017 um 0:00 Uhr MSK.</string>
     <string name="rmc_please_select_receiving_account">Bitte wählen Sie ein Empfangskonto aus</string>
     <string name="not_available">Nicht verfügbar</string>
@@ -1085,10 +1077,6 @@
     <string name="bitcoin_cash"><![CDATA[Bitcoin <font color="#f08c18">Cash</font>]]></string>
     <string name="hd_account_bch">Bitcoin Cash HD-Konto hinzufügen</string>
     <string name="generate_new_bch_key">BCH-SA-Konto generieren</string>
-    <string name="create_fio_legacy_presale_account">FIO-Legacy-Konto erstellen</string>
-    <string name="new_fio_legacy_presale_account_desc">Erstellen Sie ein FIO-Legacy-Konto NUR, wenn Sie während des FIO-Vorverkaufs eine FIO-Domain gekauft haben.</string>
-    <string name="fio_legacy_account">FIO-Legacy-Konto</string>
-    <string name="fio_legacy_already_created">FIO-Legacy-Konto wurde bereits erstellt</string>
     <string name="bch_you_can_transaction_on_explorer"><![CDATA[Sie können Ihre Transaktionen auf <font color="#4583de">https://www.blocktrail.com/%s</font> überprüfen]]></string>
     <string name="bch_technology_preview"><![CDATA[Die Bitcoin Cash-Funktionalität ist eine technische Vorschau der Mycelium-Modulararchitektur. Bisher können Sie Ihre Bitcoin <font color="#f08c18">Cash</font> nur sofort in BTC umwandeln. Ein vollständig funktionales Bitcoin <font color="#f08c18">Cash</font>-Modul wird bald verfügbar sein. Besonderer Dank an alle unsere Mitwirkenden und Betatester!]]></string>
     <string name="install">Installieren</string>
@@ -1275,18 +1263,8 @@
     <string name="gaps_button_ok">OK</string>
     <string name="gaps_button_ignore">Ignorieren</string>
     <string name="hd_eth_account">Ethereum-Konto hinzufügen</string>
-    <string name="hd_fio_account">FIO-Konto hinzufügen</string>
     <string name="connection_logs">Protokolle</string>
-    <string name="fio_server_error_logs">FIO-Server-Fehlerprotokolle</string>
     <string name="no_logs">Keine Protokolle</string>
-    <string name="fio_requires_hd_account">Derzeit können Sie nur HD-Bitcoin-Konten mit FIO-Labels verknüpfen. Bitte wechseln Sie zu einem anderen Konto.</string>
-    <string name="confirm_fio_link">Möchten Sie einen FIO-Namen für Ihr HD-Bitcoin-Konto %1$s registrieren?</string>
-    <string name="partner_fiopresale">FIO-Adressvorverkauf</string>
-    <string name="partner_fiopresale_short">Ihr Schlüssel für ein besseres Blockchain-Erlebnis</string>
-    <string name="partner_fiopresale_info" />
-    <string name="partner_fiopresale_url">https://fio.sale/mycelium</string>
-    <string name="settings_fiopresale_title">FIO-Adressvorverkauf aktivieren</string>
-    <string name="settings_fiopresale_summary">Option für den FIO-Adressvorverkauf anzeigen</string>
     <string name="media_flow_notification_title">"Mycelium Wallet / Medienflow"</string>
     <string name="sepa_buy_sell_title">SEPA</string>
     <string name="sepa_buy_sell_description">Bitcoin kaufen/verkaufen mit Single Euro Payments Area.</string>
@@ -1318,7 +1296,6 @@
     <string name="payment_uri_wrong_account_erc20">Wählen Sie das %s-Konto aus, um die Zahlungs-URI zu lesen</string>
     <string name="payment_uri_wrong_account_eth">Wählen Sie ein Ethereum-Konto aus, um die Zahlungs-URI zu lesen</string>
     <string name="payment_uri_unsupported_token">Das in der Zahlungs-URI angeforderte Token wird nicht unterstützt</string>
-    <string name="export_fio_public_key_title">FIO-öffentlichen Schlüssel exportieren</string>
 
     <!--  here should be rest of translation  -->
 
@@ -1398,8 +1375,6 @@
     <string name="exceed_card_value">Kartenwert überschritten</string>
     <string name="from_s_to_s">Von %s bis %s</string>
     <string name="gift_cards_menu">Geschenkkarten</string>
-    <string name="delete_received_fio_request">Erhaltene FIO-Anfrage löschen</string>
-    <string name="delete_received_fio_request_msg">Möchten Sie diese FIO-Anfrage wirklich löschen?</string>
     <string name="erc20_highest_possible_fee_info"><![CDATA[Dies ist die maximal mögliche Gebühr, die für das Versenden der Transaktion von <b>ETH %s</b> anfallen kann. Höchstwahrscheinlich wird die Gebühr jedoch %s%s nicht überschreiten. Weitere Details finden Sie unter <u>Miner-Gebühren-Berechnung</u>.]]></string>
     <string name="erc20_this_is_updated_fee"><![CDATA[Dies ist die aktualisierte Gebühr basierend auf dem eingestellten Gas Limit. Weitere Informationen finden Sie unter <u>Miner-Gebühren-Berechnung</u>.]]></string>
     <string name="all_ethereum_network_transactions">Alle Transaktionen im Ethereum-Netzwerk erfordern ETH zur Bezahlung der Miner-Gebühren.</string>

@@ -311,7 +311,7 @@ class GetAmountActivity : AppCompatActivity(), NumberEntryListener {
                 binding.tvParentEthAccountBalance.text = " ${parentEthAccount.accountBalance.spendable.toStringFriendlyWithUnit(denomination)}"
                 binding.llParentEthAccountBalance.visibility = View.VISIBLE
                 binding.tvEthRequiredInfo.visibility = View.VISIBLE
-                binding.divider.setBackgroundColor(resources.getColor(R.color.fio_red))
+                binding.divider.setBackgroundColor(resources.getColor(R.color.error_red))
             }
         }
     }

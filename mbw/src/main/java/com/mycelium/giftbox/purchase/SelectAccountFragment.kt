@@ -77,7 +77,7 @@ class SelectAccountFragment : Fragment(), ExchangeRateManager.Observer {
         val accountsGroupsList = listModel.accountsData.value!!
         generateAccountList(accountsGroupsList)
         binding?.list?.adapter = adapter
-        binding?.list?.addItemDecoration(VerticalSpaceItemDecoration(resources.getDimensionPixelOffset(R.dimen.fio_list_item_space)))
+        binding?.list?.addItemDecoration(VerticalSpaceItemDecoration(resources.getDimensionPixelOffset(R.dimen.list_item_space)))
         binding?.accounts?.setOnClickListener {
             requireActivity().finishAffinity()
             startActivity(Intent(requireContext(), ModernMain::class.java)

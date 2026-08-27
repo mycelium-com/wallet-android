@@ -49,7 +49,7 @@ class ButtonAdapter : ListAdapter<ActionButton, RecyclerView.ViewHolder>(ButtonD
                         })
             } else {
             }
-            button.setTextColor(if (actionButton.textColor != 0) actionButton.textColor else button.resources.getColor(R.color.fio_white_alpha_0_8 ))
+            button.setTextColor(if (actionButton.textColor != 0) actionButton.textColor else button.resources.getColor(R.color.white_alpha_0_8 ))
             button.setOnClickListener {
                 clickListener?.invoke(actionButton)
             }

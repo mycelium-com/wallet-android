@@ -14,7 +14,6 @@ import com.mycelium.wallet.activity.main.model.*
 import com.mycelium.wallet.activity.settings.SettingsPreference
 import com.mycelium.wallet.activity.view.DividerItemDecoration
 import com.mycelium.wallet.databinding.MainRecommendationsViewBinding
-import com.mycelium.wallet.external.Ads
 import com.mycelium.wallet.external.partner.model.Partner
 import com.mycelium.wallet.external.partner.startContentLink
 
@@ -103,5 +102,5 @@ class RecommendationsFragment : Fragment() {
 
     private fun getPartnerInfo(partner: Partner): PartnerInfo =
             PartnerInfo(partner.title, partner.description, partner.info, partner.link,
-                    partner.imageUrl, if (partner.action?.isNotEmpty() == true) Runnable { Ads.doAction(partner.action, requireContext()) } else null)
+                    partner.imageUrl, null)
 }

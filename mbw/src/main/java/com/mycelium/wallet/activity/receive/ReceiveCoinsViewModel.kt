@@ -15,8 +15,6 @@ import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
 import com.mycelium.wallet.activity.GetAmountActivity
-import com.mycelium.wallet.activity.fio.mapaccount.AccountMappingActivity
-import com.mycelium.wallet.activity.fio.requests.FioRequestCreateActivity
 import com.mycelium.wallet.activity.modern.Toaster
 import com.mycelium.wallet.activity.receive.ReceiveCoinsActivity.Companion.MANUAL_ENTRY_RESULT_CODE
 import com.mycelium.wallet.activity.send.ManualAddressEntry
@@ -24,7 +22,6 @@ import com.mycelium.wallet.activity.util.toStringWithUnit
 import com.mycelium.wapi.wallet.Address
 import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.coins.Value
-import com.mycelium.wapi.wallet.fio.FioModule
 import java.util.*
 import java.util.concurrent.TimeUnit
 
@@ -80,8 +77,6 @@ abstract class ReceiveCoinsViewModel(application: Application) : AndroidViewMode
 
     fun getReceivingAddress() = model.receivingAddress
 
-    fun getFioNameList() = model.fioNameList
-
     fun getRequestedAmountFormatted() = model.amount.map {
         if (!Value.isNullOrZero(it)) {
             it?.toStringWithUnit(mbwManager.getDenomination(account.coinType))
@@ -126,16 +121,6 @@ abstract class ReceiveCoinsViewModel(application: Application) : AndroidViewMode
         }
     }
 
-    fun shareFioNameRequest() {
-        val intent = Intent(Intent.ACTION_SEND)
-        intent.type = "text/plain"
-
-        intent.putExtra(Intent.EXTRA_SUBJECT, context.getString(R.string.fio_name))
-        intent.putExtra(Intent.EXTRA_TEXT, model.receivingFioName.value.toString())
-        context.startActivity(Intent.createChooser(intent, context.getString(R.string.share_fio_name))
-                .addFlags(FLAG_ACTIVITY_NEW_TASK))
-    }
-
     fun copyToClipboard() {
         val text = if (Value.isNullOrZero(model.amount.value)) {
             model.receivingAddress.value.toString()
@@ -144,16 +129,6 @@ abstract class ReceiveCoinsViewModel(application: Application) : AndroidViewMode
         }
         Utils.setClipboardString(text, context)
         Toaster(context).toast(R.string.copied_to_clipboard, true)
-    }
-
-    fun copyFioNameToClipboard() {
-        val text = model.receivingFioName.value.toString()
-        Utils.setClipboardString(text, context)
-        Toast.makeText(context, R.string.copied_to_clipboard, Toast.LENGTH_SHORT).show()
-    }
-
-    fun onFioNameSelected(value: Any?) {
-        model.receivingFioName.value = value?.toString()
     }
 
     fun setAmount(amount: Value) {
@@ -185,45 +160,14 @@ abstract class ReceiveCoinsViewModel(application: Application) : AndroidViewMode
         }
     }
 
-    var fioAddressForRequest = ""
-    var addressResult: Address? = null
-
-    private val fioModule = mbwManager.getWalletManager(false).getModuleById(FioModule.ID) as FioModule
-
-    val hasFioAccounts = fioModule.getAccounts().isNotEmpty()
-
     open fun processReceivedResults(requestCode: Int, resultCode: Int, data: Intent?, activity: Activity) {
-        if (resultCode == Activity.RESULT_OK) {
-            if (requestCode == GET_AMOUNT_RESULT_CODE) {
-                // Get result from address chooser (may be null)
-                val amount = data?.getSerializableExtra(GetAmountActivity.AMOUNT) as Value?
-                amount?.let {
-                    setAmount(amount)
-                }
-            } else if (requestCode == MANUAL_ENTRY_RESULT_CODE && !data?.getStringExtra(ManualAddressEntry.ADDRESS_RESULT_FIO).isNullOrBlank()) {
-                fioAddressForRequest = data?.getStringExtra(ManualAddressEntry.ADDRESS_RESULT_FIO)!!
-                addressResult = data.getSerializableExtra(ManualAddressEntry.ADDRESS_RESULT_NAME)!! as Address
-                val value = getRequestedAmount().value
-                if (fioModule.getFIONames(account).isNotEmpty()) {
-                    FioRequestCreateActivity.start(activity, value, model.receivingFioName.value!!,
-                            fioAddressForRequest, addressResult, mbwManager.selectedAccount.id)
-                    activity.finish()
-                } else {
-                    AccountMappingActivity.startForMapping(activity, account, ReceiveCoinsActivity.REQUEST_CODE_FIO_NAME_MAPPING)
-                }
-            } else if (requestCode == ReceiveCoinsActivity.REQUEST_CODE_FIO_NAME_MAPPING) {
-                if (fioModule.getFIONames(account).isNotEmpty()) {
-                    FioRequestCreateActivity.start(activity, getRequestedAmount().value,
-                            model.receivingFioName.value!!, fioAddressForRequest, addressResult, mbwManager.selectedAccount.id)
-                }
+        if (resultCode == Activity.RESULT_OK && requestCode == GET_AMOUNT_RESULT_CODE) {
+            // Get result from address chooser (may be null)
+            val amount = data?.getSerializableExtra(GetAmountActivity.AMOUNT) as Value?
+            amount?.let {
+                setAmount(amount)
             }
         }
-    }
-
-    fun createFioRequest(activity: Activity) {
-        val intent = Intent(activity, ManualAddressEntry::class.java)
-                .putExtra(ManualAddressEntry.FOR_FIO_REQUEST, true)
-        activity.startActivityForResult(intent, MANUAL_ENTRY_RESULT_CODE)
     }
 
     companion object {

@@ -10,7 +10,6 @@ import com.mycelium.wallet.Utils
 import com.mycelium.wapi.wallet.WalletManager
 import com.mycelium.wapi.wallet.btc.bip44.UnrelatedHDAccountConfig
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
-import com.mycelium.wapi.wallet.fio.FIOUnrelatedHDConfig
 import com.squareup.otto.Bus
 import java.util.UUID
 
@@ -72,11 +71,7 @@ class MasterseedScanManager : AbstractAccountScanManager {
             // Account already exists
             uuids[0].uuid
         } else {
-            if (coinType == Utils.getBtcCoinType()) {
-                walletManager.createAccounts(UnrelatedHDAccountConfig(accountRoots))[0]
-            } else {
-                walletManager.createAccounts(FIOUnrelatedHDConfig(accountRoots))[0]
-            }
+            walletManager.createAccounts(UnrelatedHDAccountConfig(accountRoots))[0]
         }
     }
 
@@ -99,7 +94,7 @@ class MasterseedScanManager : AbstractAccountScanManager {
                         BipDerivationType.BIP49 to BIP49COIN_TYPE.getAccount(0),
                         BipDerivationType.BIP84 to BIP84COIN_TYPE.getAccount(0))
             } else {
-                mapOf(BipDerivationType.BIP44 to BIP44FIOCOIN_TYPE.getAccount(0))
+                emptyMap()
             }
         } else {
             // otherwise just return the normal bip44 accounts

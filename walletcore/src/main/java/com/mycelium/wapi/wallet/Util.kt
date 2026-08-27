@@ -7,7 +7,6 @@ import com.mycelium.wapi.wallet.coins.SYMBOL_COIN_MAP
 import com.mycelium.wapi.wallet.coins.Value
 import java.math.BigDecimal
 import java.math.BigInteger
-import java.text.SimpleDateFormat
 import java.util.*
 
 object Util {
@@ -27,7 +26,7 @@ object Util {
         "RCN", "FXC", "RPL", "LA", "BRD", "XAUT", "MT", "FTM", "SHIB", "PAXG", "WBTC", "LRC", "CRV",
         "HEX", "SAND", "FTT", "AAVE", "UNI", "AXS", "RLC", "YFI", "GRT", "CVC", "GALA", "ILV",
         "SUSHI", "1INCH", "POWR", "BNT", "COMP", "RNDR", "DYDX", "ANKR", "XYO",
-        "BTC", "BTCV", "ETH"
+        "BTC", "ETH"
     )
     @JvmStatic
     fun trimTestnetSymbolDecoration(symbol: String): String =
@@ -56,32 +55,4 @@ object Util {
 
     @JvmStatic
     fun valueToDouble(value: Value): Double = value.toPlainString().toDouble()
-
-    @JvmStatic
-    fun transformExpirationDate(dateStr: String): String {
-        val sdf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.US)
-        sdf.timeZone = TimeZone.getTimeZone("GMT")
-        val date = sdf.parse(dateStr)
-
-        // val requiredSdf = SimpleDateFormat("dd.MM.yyyy HH:mm:ss", Locale.US) - old format
-        // new format - September 20, 2021 at 6:23pm
-        val requiredSdf = SimpleDateFormat("LLLL dd, yyyy 'at' hh:mm a", Locale.US)
-        return requiredSdf.format(date)
-    }
-
-    @JvmStatic
-    fun convertToDate(fioDateStr: String): Date {
-        val sdf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.US)
-        sdf.timeZone = TimeZone.getTimeZone("GMT")
-        return sdf.parse(fioDateStr)
-    }
-
-    /**
-     * adds 365 to the given Date
-     */
-    @JvmStatic
-    fun getRenewTill(expirationDate: Date): Date = Calendar.getInstance().apply {
-        time = expirationDate
-        add(Calendar.DAY_OF_MONTH, 365)
-    }.time
 }

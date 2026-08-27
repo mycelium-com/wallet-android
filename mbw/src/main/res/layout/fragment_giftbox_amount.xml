@@ -90,7 +90,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/card_value"
-                    android:textColor="@color/fio_white_alpha_0_6"
+                    android:textColor="@color/white_alpha_0_6"
                     android:textSize="14sp" />
 
                 <TextView
@@ -118,7 +118,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="start"
                     android:text="@string/spendable"
-                    android:textColor="@color/fio_white_alpha_0_6"
+                    android:textColor="@color/white_alpha_0_6"
                     android:textSize="14sp"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
@@ -166,7 +166,7 @@
                     android:id="@+id/parentAccountTitle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textColor="@color/fio_white_alpha_0_6"
+                    android:textColor="@color/white_alpha_0_6"
                     android:textSize="14sp"
                     tools:text="ERC20 account" />
 
@@ -176,7 +176,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
                     android:maxLines="2"
-                    android:textColor="@color/fio_white_alpha_0_6"
+                    android:textColor="@color/white_alpha_0_6"
                     android:textSize="14sp"
                     tools:text="0.00100001 ETH" />
 
@@ -188,7 +188,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
                 android:text="@string/etc20_require_eth"
-                android:textColor="@color/fio_white_alpha_0_6"
+                android:textColor="@color/white_alpha_0_6"
                 android:textSize="14sp"
                 android:textStyle="italic"
                 android:visibility="gone"

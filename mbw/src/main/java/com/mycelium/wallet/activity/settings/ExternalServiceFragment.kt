@@ -10,8 +10,6 @@ import com.mycelium.bequant.BequantConstants
 import com.mycelium.bequant.BequantPreference
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
-import com.mycelium.wallet.activity.settings.SettingsPreference.fioActive
-import com.mycelium.wallet.activity.settings.SettingsPreference.fioEnabled
 import com.mycelium.wallet.activity.settings.SettingsPreference.mediaFlowEnabled
 import com.mycelium.wallet.external.changelly.ChangellyConstants
 
@@ -77,20 +75,6 @@ class ExternalServiceFragment : PreferenceFragmentCompat() {
                     }
                 })
             }
-        }
-        if (fioActive) {
-            preferenceCategory?.addPreference(CheckBoxPreference(requireActivity()).apply {
-                setTitle(R.string.settings_fiopresale_title)
-                setSummary(R.string.settings_fiopresale_summary)
-                isChecked = fioEnabled
-                layoutResource = R.layout.preference_layout
-                widgetLayoutResource = R.layout.preference_switch
-                onPreferenceClickListener = Preference.OnPreferenceClickListener { preference: Preference ->
-                    val p = preference as CheckBoxPreference
-                    fioEnabled = p.isChecked
-                    true
-                }
-            })
         }
         findPreference<CheckBoxPreference>("media_flow")?.apply {
             isChecked = mediaFlowEnabled

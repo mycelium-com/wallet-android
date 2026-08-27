@@ -57,8 +57,6 @@ import com.mycelium.wapi.wallet.coins.Value.Companion.zeroValue
 import com.mycelium.wapi.wallet.erc20.ERC20Account
 import com.mycelium.wapi.wallet.erc20.ERC20Account.Companion.AVG_TOKEN_TRANSFER_GAS
 import com.mycelium.wapi.wallet.eth.EthAccount
-import com.mycelium.wapi.wallet.fio.FioAccount
-import com.mycelium.wapi.wallet.fio.FioModule
 import org.web3j.utils.Convert
 import java.math.BigInteger
 import java.util.*
@@ -67,12 +65,9 @@ import java.util.concurrent.TimeUnit
 class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener, AmountListener {
     private val viewModel: SendCoinsViewModel by viewModels { SendCoinsFactory(account) }
     private lateinit var mbwManager: MbwManager
-    private lateinit var senderFioNamesMenu: PopupMenu
-    private var bindingFioMemo: FioMemoInputBinding? = null
     private var bindingFeeSelector: SendCoinsFeeSelectorBinding? = null
     private var bindingAdvEth: SendCoinsAdvancedEthBinding? = null
     private var bindingFeeTitleEth: SendCoinsFeeTitleEthBinding? = null
-    private var bindingSenderFio: SendCoinsSenderFioBinding? = null
     private var bindingAdvBlock: SendCoinsAdvancedBlockBinding? = null
     private lateinit var account: WalletAccount<*>
 
@@ -163,31 +158,9 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener, AmountLi
             setHomeButtonEnabled(true)
             setDisplayHomeAsUpEnabled(true)
         }
-        createSenderFioNamesMenu()
-        viewModel.payerFioName.observe(this, Observer {
-            updateMemoVisibility()
-        })
-        viewModel.payeeFioName.observe(this, Observer {
-            updateMemoVisibility()
-        })
-        updateMemoVisibility()
-        bindingFioMemo?.etFioMemo?.setOnFocusChangeListener { view, b ->
-            if(b) {
-                val root = findViewById<ScrollView>(R.id.root)
-                root.postDelayed({ root.smoothScrollBy(0, root.maxScrollAmount) }, 500)
-            }
-        }
         viewModel.outputList.observe(this) {
             batchAdapter.submitList(it)
         }
-    }
-
-    private fun updateMemoVisibility() {
-        bindingFioMemo?.llFioMemo?.visibility = if (viewModel.payeeFioName.value?.isNotEmpty() == true
-                && viewModel.payerFioName.value?.isNotEmpty() == true)
-            View.VISIBLE
-        else
-            View.GONE
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean =
@@ -239,9 +212,7 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener, AmountLi
             is HDAccount, is SingleAddressAccount -> {
                 SendCoinsActivityBtcBinding.inflate(layoutInflater)
                         .also {
-                            bindingFioMemo = it.layoutFioMemo
                             bindingFeeSelector = it.layoutFeeBlock.layoutFeeSelector
-                            bindingSenderFio = it.layoutSenderFio
                             it.viewModel = viewModel as SendBtcViewModel
                             it.activity = this
                             it.batch.adapter = batchAdapter
@@ -254,9 +225,7 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener, AmountLi
             is EthAccount, is ERC20Account -> {
                 SendCoinsActivityEthBinding.inflate(layoutInflater)
                         .also { binding ->
-                            bindingFioMemo = binding.layoutFioMemo
                             bindingFeeSelector = binding.layoutFeeBlock.layoutFeeSelector
-                            bindingSenderFio = binding.layoutSenderFio
                             bindingAdvEth = binding.layoutSendAdvBlock.layoutAdvEth
                             bindingFeeTitleEth = binding.layoutFeeBlock.layoutFeeHeap.layoutFeeTitle
                             bindingAdvBlock = binding.layoutSendAdvBlock
@@ -269,7 +238,7 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener, AmountLi
                                             bindingAdvEth?.tvGasLimitHelper?.visibility = View.GONE
                                             bindingAdvEth?.tvGasLimitWarning?.visibility = View.GONE
                                             bindingAdvEth?.tvGasLimitError?.visibility = View.VISIBLE
-                                            bindingAdvEth?.etGasLimit?.setTextColor(resources.getColor(R.color.fio_red))
+                                            bindingAdvEth?.etGasLimit?.setTextColor(resources.getColor(R.color.error_red))
                                         }
                                         SendEthModel.GasLimitStatus.WARNING -> {
                                             bindingAdvEth?.tvGasLimitHelper?.visibility = View.GONE
@@ -466,16 +435,6 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener, AmountLi
                             binding.activity = this
                         }
             }
-            is FioAccount -> {
-                SendCoinsActivityFioBinding.inflate(layoutInflater)
-                        .also {
-                            bindingFioMemo = it.layoutFioMemo
-                            bindingSenderFio = it.layoutSenderFio
-
-                            it.viewModel = viewModel as SendFioViewModel
-                            it.activity = this
-                        }
-            }
             else -> getDefaultBinding()
         }
         sendCoinsActivityBinding.lifecycleOwner = this
@@ -501,9 +460,7 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener, AmountLi
     private fun getDefaultBinding(): SendCoinsActivityBinding =
             SendCoinsActivityBinding.inflate(layoutInflater)
                     .also {
-                        bindingFioMemo = it.layoutFioMemo
                         bindingFeeSelector = it.layoutFeeBlock.layoutFeeSelector
-                        bindingSenderFio = it.layoutSenderFio
 
                         it.viewModel = viewModel
                         it.activity = this
@@ -607,41 +564,7 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener, AmountLi
         }
     }
 
-    fun onClickSenderFioNames() {
-        senderFioNamesMenu.show()
-    }
-
-    private fun createSenderFioNamesMenu() {
-        val fioModule = mbwManager.getWalletManager(false).getModuleById(FioModule.ID) as FioModule
-        val now = Date()
-        val fioNames = fioModule.getFIONames(viewModel.getAccount()).filter { it.expireDate.after(now) }
-        if (fioNames.isEmpty()) {
-            bindingSenderFio?.sender?.visibility = View.GONE
-        } else {
-            senderFioNamesMenu = PopupMenu(this, bindingSenderFio?.ivFromFioName).apply {
-                fioNames.forEach {
-                    menu.add(it.name)
-                }
-                setOnMenuItemClickListener { item ->
-                    // btcViewModel.setAddressType(AddressType.values()[item.itemId])
-                    bindingSenderFio?.tvFrom?.text = item.title
-                    getSharedPreferences(Constants.SETTINGS_NAME, MODE_PRIVATE)
-                            .edit()
-                            .putString(Constants.LAST_FIO_SENDER, "${item.title}")
-                            .apply()
-                    false
-                }
-                val fioSender = getSharedPreferences(Constants.SETTINGS_NAME, MODE_PRIVATE)
-                        .getString(Constants.LAST_FIO_SENDER, fioNames.first().name)
-                if (menu.children.any { it.title == fioSender }) {
-                    viewModel.payerFioName.postValue(fioSender)
-                }
-            }
-        }
-    }
-
     fun onClickSend() {
-        viewModel.fioMemo.value = bindingFioMemo?.etFioMemo?.text.toString()
         if (isPossibleDuplicateSending()) {
             AlertDialog.Builder(this)
                     .setTitle(R.string.possible_duplicate_warning_title)

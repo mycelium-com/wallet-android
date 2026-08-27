@@ -1,11 +1,5 @@
 {
   "partner-info": {
-    "fio-presale": {
-      "id": "fio-presale",
-      "start-date": "2019-09-25T00:00:00+0100",
-      "end-date": "2020-02-28T23:59:59+0100",
-      "isEnabled": false
-    },
     "currencycom": {
       "id": "currencycom",
       "start-date": "2020-06-26T00:00:00+0100",
@@ -2467,102 +2461,5 @@
         }
       ]
     }
-  },
-    "FIO-mainnet": {
-        "api-servers": {
-            "primary": [
-                {
-                    "url": "https://fio.eu.eosamsterdam.net/v1/"
-                },
-                {
-                    "url": "https://fio.eosdac.io/v1/"
-                },
-                {
-                    "url": "https://fio.eosphere.io/v1/"
-                },
-                {
-                    "url": "https://fio.eosrio.io/v1/"
-                },
-                {
-                    "url": "https://fio.acherontrading.com/v1/"
-                },
-                {
-                    "url": "https://fio.eos.barcelona/v1/"
-                },
-                {
-                    "url": "https://api.fio.alohaeos.com/v1/"
-                },
-                {
-                    "url": "https://fio.greymass.com/v1/"
-                },
-                {
-                    "url": "https://fio.genereos.io/v1/"
-                },
-                {
-                    "url": "https://fio.eosargentina.io/v1/"
-                },
-                {
-                    "url": "https://fio.cryptolions.io/v1/"
-                },
-                {
-                    "url": "https://fio-mainnet.eosblocksmith.io/v1/"
-                },
-                {
-                    "url": "https://api.fio.currencyhub.io/v1/"
-                },
-                {
-                    "url": "https://fio.eosdublin.io/v1/"
-                },
-                {
-                    "url": "https://api.fiosweden.org/v1/"
-                },
-                {
-                    "url": "https://api.fio.greeneosio.com/v1/"
-                },
-                {
-                    "url": "https://api.fio.services/v1/"
-                },
-                {
-                    "url": "https://fio.eostribe.io/v1/"
-                }
-            ]
-        },
-        "history-servers": {
-            "primary": [
-                {
-                    "url": "https://fio.greymass.com/v1/"
-                },
-                {
-                    "url": "https://fio.greymass.com/v1/"
-                },
-                {
-                    "url": "https://fio.eosphere.io/v1/"
-                },
-                {
-                    "url": "https://api.fiosweden.org/v1/"
-                },
-                {
-                    "url": "https://fio.eosphere.io/v1/"
-                }
-            ]
-        },
-        "tpid": "1@proxx"
-    },
-    "FIO-testnet": {
-        "api-servers": {
-            "primary": [
-                {
-                    "url": "https://fiotestnet.greymass.com/v1/"
-                }
-            ]
-        },
-        "history-servers": {
-            "primary": [
-                {
-                    "url": "https://fiotestnet.greymass.com/v1/"
-                }
-            ]
-        },
-        "tpid": "pay@mycelium"
-    }
+  }
 }

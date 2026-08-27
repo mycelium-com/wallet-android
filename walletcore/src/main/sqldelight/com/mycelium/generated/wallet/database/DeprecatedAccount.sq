@@ -1,0 +1,32 @@
+import java.util.UUID;
+import kotlin.Boolean;
+import kotlin.Int;
+
+-- Snapshot of accounts whose coin is no longer supported (Bitcoin Vault, FIO).
+-- Filled by migration 13.sqm right before the per-coin tables are dropped, so the app can
+-- still tell the user such an account existed and help exporting its keys. Currency and
+-- balance are kept as raw strings on purpose: those coins are gone from COINS, so the
+-- regular adapters can no longer decode them.
+
+CREATE TABLE IF NOT EXISTS DeprecatedAccount (
+    uuid TEXT AS UUID PRIMARY KEY NOT NULL,
+    currency TEXT NOT NULL,
+    accountName TEXT NOT NULL,
+    balance TEXT NOT NULL,
+    accountIndex INTEGER AS Int NOT NULL,
+    accountType INTEGER AS Int NOT NULL,
+    acknowledged INTEGER AS Boolean NOT NULL DEFAULT 0
+);
+
+selectAll:
+SELECT *
+FROM DeprecatedAccount;
+
+selectNotAcknowledged:
+SELECT *
+FROM DeprecatedAccount
+WHERE acknowledged = 0;
+
+acknowledgeAll:
+UPDATE DeprecatedAccount
+SET acknowledged = 1;

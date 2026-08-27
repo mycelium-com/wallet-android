@@ -34,12 +34,10 @@ import com.mycelium.wallet.paymentrequest.PaymentRequestHandler
 import com.mycelium.wapi.content.AssetUri
 import com.mycelium.wapi.content.AssetUriParser
 import com.mycelium.wapi.content.btc.BitcoinUri
-import com.mycelium.wapi.content.btcv.BitcoinVaultUri
 import com.mycelium.wapi.content.colu.mss.MSSUri
 import com.mycelium.wapi.content.colu.mt.MTUri
 import com.mycelium.wapi.content.colu.rmc.RMCUri
 import com.mycelium.wapi.content.eth.EthUri
-import com.mycelium.wapi.content.fio.FIOUri
 import com.mycelium.wapi.wallet.Address
 import com.mycelium.wapi.wallet.Transaction
 import com.mycelium.wapi.wallet.WalletAccount
@@ -49,8 +47,6 @@ import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.erc20.ERC20Account
 import com.mycelium.wapi.wallet.erc20.coins.ERC20Token
 import com.mycelium.wapi.wallet.eth.coins.EthCoin
-import com.mycelium.wapi.wallet.fio.RecordObtData
-import com.mycelium.wapi.wallet.fio.getActiveFioAccount
 import com.squareup.otto.Subscribe
 import org.bitcoin.protocols.payments.PaymentACK
 import java.util.*
@@ -114,10 +110,6 @@ abstract class SendCoinsViewModel(application: Application) : AndroidViewModel(a
         }
     }
 
-    init {
-        mbwManager.obtDataRecordCache = null
-    }
-
     open fun init(account: WalletAccount<*>, intent: Intent) {
         amountHint = context.getString(R.string.amount_hint_denomination,
                 mbwManager.getDenomination(account.coinType).getUnicodeString(account.coinType.symbol))
@@ -126,35 +118,6 @@ abstract class SendCoinsViewModel(application: Application) : AndroidViewModel(a
     }
 
     abstract fun sendTransaction(activity: Activity)
-
-    protected fun sendFioObtData() {
-        // TODO: 10/7/20 redesign the whole process to have the viewModel around until after the
-        //       transaction was sent.
-        // We can't send it yet as the transaction is not finalized yet and as that will happen
-        // after this ViewModel is disposed, we need to put that data somewhere so we can broadcast
-        // that fio obt record after broadcasting the transaction.
-        mbwManager
-                .getWalletManager(false)
-                .getActiveFioAccount(payerFioName.value ?: return)
-                // If there is no FioAccount, we are done here.
-                ?: return
-        val tokenCode = getAccount().coinType.symbol.toUpperCase(Locale.US)
-        val chainCode = if (getAccount() is ERC20Account) "ETH" else tokenCode
-
-        if (payeeFioName.value != null) {
-            mbwManager.obtDataRecordCache = RecordObtData(
-                    payerFioName.value!!,
-                    payeeFioName.value!!,
-                    "", // TODO: fix
-                    getReceivingAddress().value?.toString() ?: "no address provided",
-                    getAmount().value?.toString(Denomination.UNIT)!!.toDouble(),
-                    chainCode,
-                    tokenCode,
-                    "will be filled in after signing",
-                    fioMemo.value ?: ""
-            )
-        }
-    }
 
     abstract fun getFeeFormatter(): FeeFormatter
 
@@ -186,19 +149,13 @@ abstract class SendCoinsViewModel(application: Application) : AndroidViewModel(a
 
     fun getReceivingAddress() = model.receivingAddress
 
-    val payerFioName get() = model.payerFioName
-
-    val payeeFioName get() = model.payeeFioName
-
-    val fioMemo get() = model.fioMemo
-
     val isBatch get() = model.isBatch
     val outputList get() = model.outputList
 
     fun getRecipientRepresentation() = model.recipientRepresentation
 
     enum class RecipientRepresentation {
-        ASK, COIN, FIO
+        ASK, COIN
     }
 
     fun getReceivingAddressText() = model.receivingAddressText
@@ -306,7 +263,6 @@ abstract class SendCoinsViewModel(application: Application) : AndroidViewModel(a
     private fun isUriMatchAccountCoinType(uri: AssetUri, coinType: CryptoCurrency): Boolean {
         return when (uri) {
             is BitcoinUri -> coinType == Utils.getBtcCoinType()
-            is BitcoinVaultUri -> coinType == Utils.getBtcvCoinType()
             is MTUri -> coinType == Utils.getMtCoinType()
             is MSSUri -> coinType == Utils.getMassCoinType()
             is RMCUri -> coinType == Utils.getRmcCoinType()
@@ -317,7 +273,6 @@ abstract class SendCoinsViewModel(application: Application) : AndroidViewModel(a
                     coinType is ERC20Token && uri.asset.equals(coinType.contractAddress, true)
                 }
             }
-            is FIOUri -> coinType == Utils.getFIOCoinType()
             else -> false
         }
     }
@@ -367,7 +322,6 @@ abstract class SendCoinsViewModel(application: Application) : AndroidViewModel(a
                 MANUAL_ENTRY_RESULT_CODE && resultCode == Activity.RESULT_OK) {
             model.receivingAddress.value =
                     data!!.getSerializableExtra(ManualAddressEntry.ADDRESS_RESULT_NAME) as Address
-            model.payeeFioName.value = data.getStringExtra(ManualAddressEntry.ADDRESS_RESULT_FIO)
         } else if (requestCode == SendCoinsActivity.SIGN_TRANSACTION_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
             model.signedTransaction =
                     (data!!.getSerializableExtra(SendCoinsActivity.SIGNED_TRANSACTION)) as Transaction

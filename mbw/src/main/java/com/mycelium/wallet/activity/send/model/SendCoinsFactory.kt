@@ -6,11 +6,9 @@ import com.mycelium.wallet.WalletApplication
 import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount
-import com.mycelium.wapi.wallet.btcvault.hd.BitcoinVaultHdAccount
 import com.mycelium.wapi.wallet.colu.ColuAccount
 import com.mycelium.wapi.wallet.erc20.ERC20Account
 import com.mycelium.wapi.wallet.eth.EthAccount
-import com.mycelium.wapi.wallet.fio.FioAccount
 
 class SendCoinsFactory(val account: WalletAccount<*>) : ViewModelProvider.Factory {
     val instance = WalletApplication.getInstance()
@@ -19,14 +17,12 @@ class SendCoinsFactory(val account: WalletAccount<*>) : ViewModelProvider.Factor
             is ColuAccount ->
                 SendColuViewModel(instance) as T
 
-            is SingleAddressAccount, is HDAccount, is BitcoinVaultHdAccount ->
+            is SingleAddressAccount, is HDAccount ->
                 SendBtcViewModel(instance) as T
 
             is EthAccount, is ERC20Account ->
                 SendEthViewModel(instance) as T
 
-            is FioAccount ->
-                SendFioViewModel(instance) as T
 
             else -> throw NotImplementedError()
         }

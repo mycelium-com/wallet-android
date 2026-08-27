@@ -8,6 +8,6 @@
     android:paddingBottom="8dp"
     android:singleLine="true"
     android:fontFamily="@font/roboto_mono_medium"
-    android:textColor="@color/fio_green"
+    android:textColor="@color/success_green"
     android:textSize="14sp"
     tools:text="none" />

@@ -9,7 +9,6 @@ import androidx.appcompat.view.ActionMode
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.export.ShamirSharingActivity
-import com.mycelium.wallet.activity.fio.registername.RegisterFioNameActivity
 import com.mycelium.wallet.activity.modern.ModernMain
 import com.mycelium.wallet.activity.modern.Toaster
 import com.mycelium.wallet.activity.modern.UnspentOutputsActivity
@@ -55,21 +54,6 @@ class AccountsActionModeCallback(
 
     override fun onActionItemClicked(mode: ActionMode, item: MenuItem): Boolean =
         when (item.itemId) {
-            R.id.miMapFioAddress -> {
-                RegisterFioNameActivity.start(context, account.id)
-                true
-            }
-
-            R.id.miMapToFio -> {
-                FioHelper.chooseAccountToMap(context, account)
-                true
-            }
-
-            R.id.miFIORequests -> {
-                MbwManager.getEventBus().post(SelectTab(ModernMain.TAB_FIO_REQUESTS));
-                true
-            }
-
             R.id.miShowOutputs -> {
                 showOutputs()
                 true

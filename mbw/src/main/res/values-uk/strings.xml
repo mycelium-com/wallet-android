@@ -20,7 +20,6 @@
 
     <string name="enter_wordlist">Введіть список слів</string>
     <string name="hd_account">Додати HD Bitcoin акаунт</string>
-    <string name="btcvault_hd_account">Додати HD Bitcoin Vault акаунт</string>
     <string name="close">Закрити</string>
     <string name="sending">Надсилання %1$s</string>
     <string name="receiving">Отримання %1$s</string>
@@ -34,8 +33,8 @@
     <string name="amount_hint">0.00</string>
     <string name="amount_hint_denomination">0.00 %1$s</string>
     <string name="enter_recipient_title">Надіслати до</string>
-    <string name="enter_recipient_hint">%1$s Адреса або ім\'я FIO</string>
-    <string name="enter_recipient_description">Введіть %1$s Адресу або ім\'я FIO</string>
+    <string name="enter_recipient_hint">%1$s Адреса</string>
+    <string name="enter_recipient_description">Введіть %1$s Адресу</string>
     <string name="recipient_title">Введіть адресу отримувача:</string>
     <string name="amount_label">Сума:</string>
     <string name="amount_label_s">Сума: %s</string>
@@ -47,7 +46,6 @@
     <string name="s_payment_request">Запит на оплату %s</string>
     <string name="share_address">Поділитися адресою</string>
     <string name="share_address_and_amount">Поділитися адресою та сумою</string>
-    <string name="s_fio_request">FIO запит %s</string>
     <string name="qr_code">QR-код</string>
     <string name="my_addresses">Мої адреси</string>
     <string name="insufficient_funds">Недостатньо коштів</string>
@@ -193,7 +191,6 @@
     <string name="question_mark">\?</string>
     <string name="active_hd_accounts_name">Bitcoin HD</string>
     <string name="eth_accounts_name">Ethereum &amp; ERC-20</string>
-    <string name="fio_accounts_name">FIO</string>
     <string name="active_other_accounts_name">Інше</string>
     <string name="archive_name">Архівовано</string>
     <string name="active_accounts_empty">(Порожньо)</string>
@@ -226,8 +223,7 @@
 
 
     <string name="enter_bitcoin_address">Введіть Bitcoin адресу</string>
-    <string name="checking_fio_address">Перевірка імені FIO…</string>
-    <string name="recipient_invalid">Недійсна адреса або ім\'я FIO</string>
+    <string name="recipient_invalid">Недійсна адреса</string>
     <string name="recipient_has_no_such_address">%1$s не має підключеної адреси %2$s</string>
     <string name="recipient_valid">Отримувач дійсний</string>
     <string name="redirecting_to_block_explorer">Перенаправлення до блок-експлорера</string>
@@ -282,7 +278,6 @@
     <string name="out_of_memory_error">ПОМИЛКА: Вашому пристрою не вистачає пам\'яті для виконання цього завдання</string>
     <string name="share_payment_request">Поділитися запитом на оплату</string>
     <string name="share_bitcoin_address">Поділитися Bitcoin адресою</string>
-    <string name="share_fio_name">Поділитися ім\'ям FIO</string>
     <string name="optional_amount">Необов\'язкова сума</string>
 
 
@@ -765,7 +760,6 @@
     <string name="total_rmc_issued_value">25000</string>
     <string name="restore_address_as">Відновити адресу як</string>
     <string name="account_already_exist">Ця Bitcoin адреса вже відновлена як акаунт %s.</string>
-    <string name="fio_account_import_error">Не вдалося знайти FIO адресу/акаунт: %s.\nПеревірте правильність адреси/акаунту або підключення до Інтернету.</string>
     <string name="ico_will_start">ICO RMC почнеться 28.08.2017 о 0:00 MSK.</string>
     <string name="rmc_please_select_receiving_account">Будь ласка, виберіть акаунт для отримання</string>
     <string name="not_available">Н/Д</string>
@@ -863,10 +857,6 @@
     <string name="bitcoin_cash"><![CDATA[Bitcoin <font color="#f08c18">Cash</font>]]></string>
     <string name="hd_account_bch">Додати HD акаунт Bitcoin Cash</string>
     <string name="generate_new_bch_key">Створити SA акаунт BCH</string>
-    <string name="create_fio_legacy_presale_account">Створити спадковий акаунт FIO</string>
-    <string name="new_fio_legacy_presale_account_desc">Створіть спадковий акаунт FIO ТІЛЬКИ, якщо ви придбали домен FIO під час попереднього продажу.</string>
-    <string name="fio_legacy_account">Спадковий акаунт FIO</string>
-    <string name="fio_legacy_already_created">Спадковий акаунт FIO вже створено</string>
     <string name="bch_you_can_transaction_on_explorer"><![CDATA[Ви можете переглянути свої транзакції на <font color="#4583de">https://www.blocktrail.com/%s</font>]]></string>
     <string name="bch_technology_preview"><![CDATA[Функціональність Bitcoin Cash — це технологічний попередній перегляд модульної архітектури Mycelium. Наразі ви можете лише миттєво обміняти ваш Bitcoin <font color="#f08c18">Cash</font> на BTC прямо у Mycelium. Повноцінний модуль Bitcoin <font color="#f08c18">Cash</font> буде доступний незабаром. Особлива подяка всім нашим контриб’юторам і бета-тестувальникам!]]></string>
     <string name="install">Встановити</string>
@@ -1050,18 +1040,8 @@
     <string name="gaps_button_ok">OK</string>
     <string name="gaps_button_ignore">Ігнорувати</string>
     <string name="hd_eth_account">Додати акаунт Ethereum</string>
-    <string name="hd_fio_account">Додати акаунт FIO</string>
     <string name="connection_logs">Логи</string>
-    <string name="fio_server_error_logs">Логи помилок сервера FIO</string>
     <string name="no_logs">Логи відсутні</string>
-    <string name="fio_requires_hd_account">Наразі ви можете прив\'язати лише HD Bitcoin акаунти до міток FIO. Будь ласка, змініть акаунт.</string>
-    <string name="confirm_fio_link">Ви хочете зареєструвати ім\'я FIO для вашого HD Bitcoin акаунту %1$s?</string>
-    <string name="partner_fiopresale">Попередній продаж адрес FIO</string>
-    <string name="partner_fiopresale_short">Ваш ключ до кращого досвіду роботи з блокчейном</string>
-    <string name="partner_fiopresale_info" />
-    <string name="partner_fiopresale_url">https://fio.sale/mycelium</string>
-    <string name="settings_fiopresale_title">Увімкнути попередній продаж адрес FIO</string>
-    <string name="settings_fiopresale_summary">Показувати опцію попереднього продажу адрес FIO</string>
     <string name="media_flow_notification_title">"Mycelium Wallet / Mediaflow"</string>
     <string name="sepa_buy_sell_title">SEPA</string>
     <string name="sepa_buy_sell_description">Купівля/продаж Bitcoin за допомогою Single Euro Payments Area.</string>
@@ -1093,11 +1073,9 @@
     <string name="payment_uri_wrong_account_erc20">Виберіть акаунт %s, щоб прочитати URI платежу</string>
     <string name="payment_uri_wrong_account_eth">Виберіть акаунт Ethereum, щоб прочитати URI платежу</string>
     <string name="payment_uri_unsupported_token">Токен, вказаний у URI платежу, не підтримується</string>
-    <string name="export_fio_public_key_title">Експортувати публічний ключ FIO</string>
     <string name="buy_ethereum">КУПИТИ / ПРОДАТИ ETH</string>
     <string name="sepa_eth_buy_sell_description">Купівля/Продаж ETH за допомогою SEPA.</string>
     <string name="si_buy_sell_s_description">Купуйте %s безпечно та легко за допомогою дебетової / кредитної картки.</string>
-    <string name="share_fio_public_key">Поділитися публічним ключем FIO</string>
     <string name="add_erc20_account">Додати акаунт ERC-20</string>
     <string name="buy_eth">КУПИТИ ETH</string>
     <string name="sell_eth">ПРОДАТИ ETH</string>
@@ -1123,86 +1101,12 @@
     <string name="tx_replace_info_title">Транзакція для заміни</string>
     <string name="tx_replacae_info_desc">Виберіть непідтверджену транзакцію, яку ви хочете замінити.\nКомісія майнера для заміщуючої транзакції має бути вищою за комісію обраної непідтвердженої транзакції.</string>
     <string name="none">немає</string>
-    <string name="receive_title_fio">Публічний ключ FIO</string>
-    <string name="settings_summary_fio_fee">Комісія майнера FIO визначається виробниками блоків FIO.\nПоточна комісія майнера становить %s %s.</string>
-    <string name="select_name_to_associate">Підключіть акаунти до вашого імені FIO. Лише <b>один</b> акаунт кожної криптовалюти може бути підключений до <b>одного</b> імені FIO.</string>
-    <string name="select_name_to_associate_read_only_account">Акаунти, підключені до цього імені FIO. Лише <b>один</b> акаунт кожної криптовалюти може бути підключений до <b>одного</b> імені FIO.</string>
-    <string name="fio_register_address">Зареєструвати ім\'я FIO</string>
-    <string name="fio_register_address_failed">Не вдалося зареєструвати ім\'я FIO: %s</string>
-    <string name="fio_create_name_title">Створити ім\'я FIO</string>
-    <string name="fio_create_domain_title">Створити домен FIO</string>
-    <string name="fio_enter_fio_name_title">Відправити запит до</string>
-    <string name="fio_address">Адреса FIO</string>
-    <string name="fio_registration_fee">Реєстраційна комісія</string>
-    <string name="fio_remaining_balance">Залишок балансу FIO</string>
-    <string name="fio_create_unique_address">Створити унікальне ім\'я FIO</string>
-    <string name="fio_create_request">Запит FIO</string>
-    <string name="fio_create_request_currency_title">Запит %s</string>
-    <string name="fio_address_is_invalid">Недійсне ім\'я FIO</string>
-    <string name="fio_domain_is_invalid">Недійсний домен FIO</string>
-    <string name="fio_address_occupied"><![CDATA[Це ім\'я вже зайнято на домені @%s. Будь ласка, спробуйте інше ім\'я або зареєструйте власний <font color="#30B7E4"><u>домен FIO</u></font>.]]></string>
-    <string name="fio_domain_occupied">Цей домен вже зайнятий, будь ласка, спробуйте щось інше</string>
-    <string name="fio_address_available">Це ім\'я FIO доступне для реєстрації.</string>
-    <string name="fio_domain_available">Цей домен FIO доступний для реєстрації.</string>
-    <string name="fio_address_check_service_unavailable">Здається, протокол FIO має певні проблеми. Будь ласка, перевірте ваше інтернет-з\'єднання або спробуйте знову пізніше.</string>
-    <string name="fio_create_name_description"><b>Протокол FIO</b> — це новий простий спосіб відправки, отримання та запиту <b>БУДЬ-ЯКОЇ КРИПТОВАЛЮТИ</b> за допомогою одного публічного псевдоніму для всіх криптоакаунтів!\n\n- Криптотранзакції з мітками\n- Працює для всіх токенів і монет\n- Захищено вашим приватним ключем\n- Повністю децентралізовано\n\n<b>Створіть своє ім\'я FIO</b> (наприклад, nakamoto@mycelium) і виведіть свій щоденний криптовалютний досвід на новий рівень!</string>
-    <string name="fio_annual_fee">Зареєструйте ім\'я FIO і використовуйте сервіси FIO за %s/рік, включаючи 100 транзакцій без комісії.</string>
-    <string name="fio_annual_fee_domain">Реєстрація за річну плату %s. Плату стягує мережа FIO.</string>
-    <string name="fio_manage_name_and_domain">Тут ви можете керувати своїми іменами та доменами FIO:</string>
-    <string name="add_new_fio_name">Додати нове ім\'я FIO</string>
-    <string name="create_fio_domain">Створити домен FIO</string>
-    <string name="fio_connect_accounts_desc"><![CDATA[Підключіть ім\'я FIO <b>"%s"</b> до ваших акаунтів і отримайте переваги протоколу FIO.]]></string>
-    <string name="fio_create_name_desc"><![CDATA[Створіть та зареєструйте нові імена FIO для вашого домену FIO <b>%s</b> та скористайтеся перевагами протоколу FIO.]]></string>
-    <string name="fio_not_sufficient_funds_on_selected_account">На вибраному акаунті недостатньо коштів</string>
-    <string name="fio_create_name_hint_text">Введіть ім\'я FIO (тільки літери, цифри, -, _.)</string>
-    <string name="tab_fio_requests">Запити FIO</string>
-    <string name="fio_create_domain_hint">Введіть домен FIO</string>
-    <string name="fio_confirm_and_pay">Підтвердити та оплатити</string>
-    <string name="fio_register_domain_desc">Ви можете створити власний домен FIO, щоб реєструвати будь-які бажані імена FIO. Може застосовуватися плата у токенах FIO.\nУ вас ще немає токенів FIO? Ви можете придбати їх <font color="#31A7CE">тут</font>.</string>
-    <string name="fio_protocol_decentralized">Протокол <font color="#2AA5DB"><u><b>FIO</b></u></font> — це децентралізований сервісний шар, який заповнює прогалину між криптовалютними кінцевими точками, такими як гаманці, біржі, криптовалютні платіжні процесори та будь-які інші додатки, у яких зберігаються та/або передаються криптоактиви.</string>
-    <string name="fio_name_readable_wallet_identifier"><b>Ім\'я FIO</b> — це зрозумілий ідентифікатор гаманця (наприклад, john@edge або alice@gold), який виключає необхідність бачити або навіть знати публічні адреси блокчейну. Адреси FIO автоматично підтримують будь-який токен у гаманці/біржі та не потребують ручного мапінгу.</string>
-    <string name="fio_requests_ability_to_request_funds"><b>Запити FIO</b> — можливість запитувати кошти з будь-якого іншого гаманця, використовуючи внутрішньо додаткові сповіщення та просте підтвердження. Запити FIO повністю зашифровані між сторонами і не заважають фактичним блокчейн-транзакціям.</string>
-    <string name="fio_expiration_details_desc">Якщо плата за поновлення для домену FIO не сплачується до дати його закінчення, наступні обмеження будуть накладені на домен та адреси цього домену:</string>
-    <string name="fio_expiration_details_0_30_days">Днів після закінчення терміну: 0–30 днів</string>
-    <string name="fio_expiration_details_0_30_days_desc">Заборонено реєструвати нові імена FIO під закінченим доменом FIO. \nЗареєстровані імена FIO можна все ще використовувати протягом 30 днів після закінчення терміну дії домену FIO.</string>
-    <string name="fio_expiration_details_30_90_days">Днів після закінчення терміну: 31–90 днів</string>
-    <string name="fio_expiration_details_30_90_days_desc">Заборонено виконувати такі дії:\n- реєструвати нові імена FIO\n- поновлювати імена FIO під закінченим доменом\n- створювати запити, відправляти або відхиляти імена FIO під закінченим доменом</string>
-    <string name="fio_expiration_details_90_days">Днів після закінчення терміну: на 90-й день</string>
-    <string name="fio_expiration_details_90_days_desc">Домен спалюється і може бути повторно зареєстрований будь-яким користувачем.\nУсі адреси цього домену та пов’язані з ними дані спалюються.</string>
-    <string name="fio_expiration_details_anyone_can_renew">Будь-хто може поновити домен, якщо готовий сплатити плату за поновлення.</string>
-    <string name="fio_names">РЕЦЕНТНІ</string>
-    <string name="fio_name">Ім\'я FIO</string>
-    <string name="my_fio_names">Мої імена FIO</string>
-    <string name="fio_name_details">Деталі імені FIO</string>
-    <string name="my_fio_domains">Мої домени FIO</string>
-    <string name="following_fio_domains_registered">Зареєстровані домени FIO</string>
-    <string name="renew_fio_name">Поновити ім\'я FIO</string>
-    <string name="fio_account_s">Акаунт FIO: %s</string>
-    <string name="fio_acknowledge_mapping">Я визнаю, що після підключення одна адреса з кожного підключеного гаманця стане публічною</string>
     <string name="connect_accounts">Зберегти</string>
     <string name="domain_details">Деталі домену</string>
-    <string name="renew_fio_domain">Поновити домен FIO</string>
-    <string name="fio_names_registered">Ваші імена FIO у цьому домені:</string>
-    <string name="no_fio_names_registered">У цьому домені немає імен FIO</string>
-    <string name="fio_names_registered_read_only_account">Імена FIO у цьому домені:</string>
-    <string name="create_new_fio_name">Створити нове ім\'я FIO</string>
     <string name="expiration_date">Дата закінчення терміну:</string>
     <string name="bundled_transactions">Укомплектовані транзакції:</string>
-    <string name="fio_register_name">Зареєструвати ім\'я FIO</string>
-    <string name="fio_register_domain">Зареєструвати домен FIO</string>
-    <string name="fio_register_domain_failed">Не вдалося зареєструвати домен FIO: %s</string>
-    <string name="fio_manage_name_need_mapping_s"><b>%s</b> не підключено до імені FIO. Виберіть ім\'я FIO для підключення:</string>
-    <string name="fio_name_label">Ім\'я FIO:</string>
-    <string name="fio_domain_label">Домен FIO:</string>
 
 
-    <string name="fio_register_new_name">Зареєструвати нове ім\'я FIO</string>
-    <string name="fio_registration_complete">Реєстрацію завершено!</string>
-    <string name="fio_requests_tab_fio_protocol_desc_part1"><b>Протокол FIO</b> — це новий простий спосіб відправлення, отримання та запиту <b>БУДЬ-ЯКОЇ КРИПТОВАЛЮТИ</b> за допомогою одного публічного псевдоніма для всіх криптоакаунтів!</string>
-    <string name="fio_requests_tab_fio_protocol_desc_part2">- Криптотранзакції з мітками\n- Працює для всіх токенів і монет\n- Захищено вашим приватним ключем\n- Повністю децентралізовано</string>
-    <string name="about_fio_protocol_title">Про протокол FIO</string>
-    <string name="fio_create_name_banner_desc">Новий і простий спосіб надсилання\nта запиту криптовалюти!</string>
-    <string name="create_fio_account">Створити акаунт FIO</string>
     <string name="send_mail">Відправити електронний лист…</string>
     <string name="bequant_secure_custodial_storage">Безпечне кастодіальне сховище\nдля криптоактивів у дорозі</string>
     <string name="bequant_secure_mobile_access">Безпечний мобільний або веб-\nдоступ</string>
@@ -1366,13 +1270,7 @@
     <string name="cant_disable_active_account">Ви не можете вимкнути активний акаунт</string>
     <string name="try_request_backup_again"><![CDATA[Можливо, проблема у вашому інтернет-з\'єднанні або внутрішній помилці сервера.<br/>Будь ласка, спробуйте повторно запросити резервний код або зверніться до <font color="#F2E868">Центру підтримки</font> за допомогою.]]></string>
     <string name="backup_not_generated">Резервний код не було створено</string>
-    <string name="send_fio_request">Надіслати запит FIO</string>
     <string name="leave_a_message_for_s">Залиште повідомлення для %s</string>
-    <string name="buy_fio_token_link" translatable="false">https://www.binance.com/en/trade/FIO_BTC?layout=pro</string>
-    <string name="fio_payment_request">Запит на оплату FIO</string>
-    <string name="enter_fio_name">Введіть ім\'я FIO, з якого ви запитуєте кошти</string>
-    <string name="fio_recipient_invalid">Недійсне ім\'я FIO</string>
-    <string name="base_label_fio_account_legacy">Спадковий акаунт FIO</string>
     <string name="activate_trading_custodial_account">Активувати торговий акаунт</string>
     <string name="service_unavailable">Сервіс недоступний</string>
     <string name="avoid_get_to_pin_check">Щось дивне відбувається. Уникайте перевірки PIN-коду</string>
@@ -1384,7 +1282,6 @@
     <string name="buy_crypto_safely">Купуйте та продавайте %s безпечно та легко за допомогою вашої дебетової/кредитної карти.</string>
     <string name="buy_sell_s_button">КУПИТИ / ПРОДАТИ %s</string>
     <string name="boost_look_ahead_button_label">Відсутні транзакції</string>
-    <string name="btcv_hd_accounts_name">Bitcoin Vault HD</string>
     <string name="gift_card_amount">Сума подарункової картки:</string>
     <string name="gift_cards_with_discount">Подарункові картки</string>
     <string name="select_account_to_pay_with">Виберіть акаунт для оплати:</string>
@@ -1462,8 +1359,6 @@
     <string name="exceed_card_value">Перевищення вартості картки</string>
     <string name="from_s_to_s">Від %s до %s</string>
     <string name="gift_cards_menu">Подарункові картки</string>
-    <string name="delete_received_fio_request">Видалити отриманий запит FIO</string>
-    <string name="delete_received_fio_request_msg">Ви впевнені, що хочете видалити цей запит FIO?</string>
     <string name="erc20_highest_possible_fee_info"><![CDATA[Це максимальна комісія, яку ви можете сплатити для відправлення транзакції з <b>ETH %s</b>. Однак, найімовірніше, комісія майнера не перевищить %s%s. Для деталей дивіться <u>розрахунок комісії майнера</u>.]]></string>
     <string name="erc20_this_is_updated_fee"><![CDATA[Це оновлена комісія, заснована на встановленому ліміті газу. Для деталей дивіться <u>розрахунок комісії майнера</u>.]]></string>
     <string name="all_ethereum_network_transactions">Усі транзакції мережі Ethereum вимагають ETH для оплати комісії майнера.</string>

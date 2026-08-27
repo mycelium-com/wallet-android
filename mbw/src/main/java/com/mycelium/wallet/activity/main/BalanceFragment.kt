@@ -366,38 +366,12 @@ class BalanceFragment : Fragment() {
                 when (type) {
                     ResultType.PRIVATE_KEY -> {
                         val key = data.getPrivateKey()
-                        // ask user what WIF privkey he/she scanned as there are options
-                        val selectedItem = IntArray(1)
-                        val choices = arrayOfNulls<CharSequence>(2)
-                        choices[0] = "BTC"
-                        choices[1] = "FIO"
-                        AlertDialog.Builder(requireActivity())
-                            .setTitle("Choose blockchain")
-                            .setSingleChoiceItems(
-                                choices, 0
-                            ) { dialogInterface: DialogInterface?, i: Int ->
-                                selectedItem[0] = i
-                            }
-                            .setPositiveButton(requireActivity().getString(R.string.ok)) { dialogInterface: DialogInterface?, i: Int ->
-                                val account = if (selectedItem[0] == 0) {
-                                    _mbwManager!!.createOnTheFlyAccount(
-                                        key,
-                                        Utils.getBtcCoinType()
-                                    )
-                                } else {
-                                    _mbwManager!!.createOnTheFlyAccount(
-                                        key,
-                                        Utils.getFIOCoinType()
-                                    )
-                                }
-                                //we dont know yet where at what to send
-                                callMeWithResult(
-                                    requireActivity(), account, true,
-                                    StringHandlerActivity.SEND_INITIALIZATION_CODE
-                                )
-                            }
-                            .setNegativeButton(this.getString(R.string.cancel), null)
-                            .show()
+                        val account = _mbwManager!!.createOnTheFlyAccount(key, Utils.getBtcCoinType())
+                        //we dont know yet where at what to send
+                        callMeWithResult(
+                            requireActivity(), account, true,
+                            StringHandlerActivity.SEND_INITIALIZATION_CODE
+                        )
                     }
 
                     ResultType.ADDRESS -> {

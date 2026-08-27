@@ -49,11 +49,9 @@ import com.mycelium.wallet.activity.util.TransactionDetailsLabel;
 import com.mycelium.wapi.wallet.TransactionSummary;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
-import com.mycelium.wapi.wallet.btcvault.hd.BitcoinVaultHdAccount;
 import com.mycelium.wapi.wallet.colu.ColuAccount;
 import com.mycelium.wapi.wallet.erc20.ERC20Account;
 import com.mycelium.wapi.wallet.eth.EthAccount;
-import com.mycelium.wapi.wallet.fio.FioAccount;
 
 import java.text.DateFormat;
 import java.util.Date;
@@ -92,10 +90,6 @@ public class TransactionDetailsActivity extends AppCompatActivity {
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
             if (account instanceof EthAccount || account instanceof ERC20Account) {
                 transaction.add(R.id.spec_details_fragment, EthDetailsFragment.newInstance(tx));
-            } else if (account instanceof FioAccount) {
-                transaction.add(R.id.spec_details_fragment, FioDetailsFragment.newInstance(tx));
-            } else if(account instanceof BitcoinVaultHdAccount) {
-                transaction.add(R.id.spec_details_fragment, BtcvDetailsFragment.newInstance(tx, accountId));
             } else {
                 transaction.add(R.id.spec_details_fragment, BtcDetailsFragment.newInstance(tx, coluMode, accountId));
             }
