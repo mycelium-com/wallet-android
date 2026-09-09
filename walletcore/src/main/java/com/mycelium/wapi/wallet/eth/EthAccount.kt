@@ -56,8 +56,10 @@ class EthAccount(private val chainId: Long,
         get() = accountContext.accountIndex
 
     /**
-     * Exposed for ERC20 children so they can lean on the parent's
-     * full-history sweep flag for their own incremental sync decisions.
+     * Whether this account has walked its whole address history at least once.
+     * ERC20 children no longer decide their own sweep from this — they track it
+     * per token — but they still borrow the parent's confirmed-txid stop set,
+     * which is only meaningful once the parent itself is fully swept.
      */
     val everFullySynced: Boolean
         get() = accountContext.everFullySynced
@@ -153,6 +155,10 @@ class EthAccount(private val chainId: Long,
                     valueOf(coinType, price * tx.gasLimit), 0, tx.nonce, price, gasLimit = tx.gasLimit)
             markPendingReplacedByNonce(tx.nonce, newTxid)
             bumpNonceAfterBroadcast(tx.nonce)
+            // Reflect the outgoing amount immediately. Without this the screen
+            // keeps showing the pre-send balance as spendable until the next
+            // periodic sync, roughly a minute later.
+            updateBalanceCache()
         } catch (e: IOException) {
             return BroadcastResult(BroadcastResultType.NO_SERVER_CONNECTION)
         }
@@ -271,13 +277,15 @@ class EthAccount(private val chainId: Long,
             return false
         }
 
-        var pendingReceiving = BigInteger.ZERO
-        var pendingSending = BigInteger.ZERO
-        if (balResponse.unconfirmed <= BigInteger.ZERO) {
-            pendingSending = balResponse.unconfirmed.negate()
-        } else {
-            pendingReceiving = balResponse.unconfirmed
-        }
+        // Pending comes from our own PENDING rows, not from the server. Blockbook
+        // does not return an `unconfirmedBalance` field for Ethereum at all — the
+        // key is simply absent from address?details=basic, in the middle of a
+        // mempool window as much as outside one — so the old code deserialized it
+        // to a default zero every time and no ETH account could ever show a
+        // pending amount. An outgoing send therefore stayed fully spendable on
+        // screen until it mined, and the user could go spend the same coins again.
+        val pendingReceiving = pendingReceivingWei()
+        val pendingSending = pendingSendingWei()
 
         val newBalance = Balance(valueOf(coinType, balResponse.confirmed - pendingSending),
                 valueOf(coinType, pendingReceiving), valueOf(coinType, pendingSending), Value.zeroValue(coinType))
@@ -290,6 +298,34 @@ class EthAccount(private val chainId: Long,
     }
 
     override fun canSign() = credentials != null
+
+    /**
+     * ETH leaving the account in still-unconfirmed transactions: the amount plus
+     * the gas budgeted for it. Self-transfers move no value, so only their fee
+     * counts. Only live PENDING rows are included — REPLACED / CANCELED / DROPPED
+     * ones are unconfirmed too but will never settle.
+     */
+    private fun pendingSendingWei(): BigInteger {
+        val own = receivingAddress.addressString
+        return getLivePendingTransactions()
+            .filter { it.sender.addressString.equals(own, true) }
+            .fold(BigInteger.ZERO) { acc, tx ->
+                val movesValue = !tx.receiver.addressString.equals(own, true)
+                val fee = tx.fee?.value ?: BigInteger.ZERO
+                acc + fee + (if (movesValue) tx.value.value else BigInteger.ZERO)
+            }
+    }
+
+    /** ETH arriving in still-unconfirmed transactions. The sender pays their own gas. */
+    private fun pendingReceivingWei(): BigInteger {
+        val own = receivingAddress.addressString
+        return getLivePendingTransactions()
+            .filter {
+                !it.sender.addressString.equals(own, true)
+                        && it.receiver.addressString.equals(own, true)
+            }
+            .fold(BigInteger.ZERO) { acc, tx -> acc + tx.value.value }
+    }
 
     private suspend fun syncTransactions(): Boolean {
         try {

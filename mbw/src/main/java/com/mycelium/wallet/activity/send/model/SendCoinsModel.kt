@@ -417,6 +417,13 @@ abstract class SendCoinsModel(
     protected open fun isZeroFeeAllowed() = false
 
     /**
+     * The amount screen is about to hand over an amount the user entered. [isMax] tells whether it
+     * is the one its Max button computed, which a model may treat differently from a typed figure
+     * (e.g. TRON energy service: only a max may be refitted to a re-priced fee).
+     */
+    open fun onAmountEntered(isMax: Boolean) {}
+
+    /**
      * Extra, coin-specific validation run before the transaction is built; a non-null status
      * short-circuits the build (e.g. TRON energy service: amount + token fee must fit the balance).
      */

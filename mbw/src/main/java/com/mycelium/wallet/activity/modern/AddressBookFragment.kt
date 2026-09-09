@@ -52,6 +52,13 @@ class AddressBookFragment : Fragment() {
     private var availableForSendingAddresses: Boolean? = null
     private var currency: CryptoCurrency? = null
     private var isSelectOnly = false
+
+    /**
+     * Account the send is going out from, when this list was opened to pick a
+     * recipient. It is excluded from "My accounts" — offering the sender as a
+     * destination is never what the user meant.
+     */
+    private var sendingFromAccountId: UUID? = null
     private var binding: AddressBookBinding? = null
     private var menuProvider = MenuImpl()
 
@@ -67,6 +74,7 @@ class AddressBookFragment : Fragment() {
             mbwManager!!.selectedAccount.coinType
         }
         isSelectOnly = requireArguments().getBoolean(SELECT_ONLY)
+        sendingFromAccountId = requireArguments().getSerializable(SendCoinsActivity.ACCOUNT) as UUID?
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View =
@@ -122,6 +130,7 @@ class AddressBookFragment : Fragment() {
         val activeAccounts = ArrayList(mbwManager!!.getWalletManager(false).getAllActiveAccounts())
         val entries = Utils.sortAccounts(activeAccounts, mbwManager!!.metadataStorage)
                 .filter { it.receiveAddress != null && currency!!.id == it.coinType.id }
+                .filter { it.id != sendingFromAccountId }
                 .map { account ->
                     val name = mbwManager!!.metadataStorage.getLabelByAccount(account.id)
                     val drawableForAccount = Utils.getDrawableForAccount(account, true, resources)

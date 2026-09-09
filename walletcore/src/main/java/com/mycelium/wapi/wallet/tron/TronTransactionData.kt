@@ -18,4 +18,10 @@ data class TronTransactionData(
     val checkFeeBalance: Boolean = true,
     /** Validity of the signed tx (ms); null = default. */
     val expirationMs: Long? = null,
+    /**
+     * Fee charged in the token itself (energy service), in the token's smallest unit. It is not
+     * part of the transfer, so it has to come off what the account can spend — see
+     * [com.mycelium.wapi.wallet.trc20.TRC20Account.calculateMaxSpendableAmount].
+     */
+    val tokenFee: BigInteger? = null,
 ) : TransactionData

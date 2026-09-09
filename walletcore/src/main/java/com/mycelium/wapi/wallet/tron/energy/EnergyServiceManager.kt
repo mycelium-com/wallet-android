@@ -134,10 +134,13 @@ class EnergyServiceManager(
         when (result) {
             is EnergyTransferResult.Success -> {
                 orderStore.clearPendingOrder(account.id)
+                // Both hashes are ours to begin with — we signed the txs — so when the partner
+                // reports something that isn't a tx hash, fall back to what we computed rather
+                // than storing it: the history decodes every txid it reads back.
                 account.saveEnergyServiceTransaction(
-                    txHash = result.txHash.ifEmpty { mainTxId }, recipient = recipient.addressString,
+                    txHash = asTxid(result.txHash) ?: mainTxId, recipient = recipient.addressString,
                     amount = amount.value, feeAmount = fee.value,
-                    feeTxHash = result.feeTxHash ?: HexUtils.toHex(feeTx.txHash!!), feeWallet = feeWallet,
+                    feeTxHash = asTxid(result.feeTxHash) ?: HexUtils.toHex(feeTx.txHash!!), feeWallet = feeWallet,
                 )
             }
             is EnergyTransferResult.Error -> orderStore.clearPendingOrder(account.id)
@@ -183,9 +186,9 @@ class EnergyServiceManager(
             is EnergyTransferResult.Success -> {
                 orderStore.clearPendingOrder(account.id)
                 // Rows may already exist from the original session; putTransaction is an upsert.
-                order.mainTxId?.let { mainId ->
+                asTxid(order.mainTxId)?.let { mainId ->
                     if (account.getTxSummary(HexUtils.toBytes(mainId)) == null) {
-                        account.saveEnergyServiceTransaction(result.txHash.ifEmpty { mainId }, "", BigInteger.ZERO, BigInteger.ZERO, null, null)
+                        account.saveEnergyServiceTransaction(asTxid(result.txHash) ?: mainId, "", BigInteger.ZERO, BigInteger.ZERO, null, null)
                     }
                 }
                 false
@@ -198,6 +201,19 @@ class EnergyServiceManager(
     fun pendingOrder(account: TRC20Account): EnergyOrderInfo? = orderStore.getPendingOrder(account.id)
 
     companion object {
+        /**
+         * [txid] as a TRON transaction hash, or null when it is not one. Everything the partner
+         * reports goes through here before it is stored: a txid is decoded again on every read of
+         * the history, so an unparseable one would keep failing long after the transfer is over.
+         */
+        internal fun asTxid(txid: String?): String? {
+            val hex = txid?.trim()?.removePrefix("0x") ?: return null
+            if (hex.length != TXID_HEX_LENGTH) return null
+            return hex.lowercase().takeIf { it.all { c -> c in '0'..'9' || c in 'a'..'f' } }
+        }
+
+        private const val TXID_HEX_LENGTH = 64
+
         /** Signed txs stay valid this long — bounds how long the partner can hold them. */
         const val ENERGY_TX_EXPIRATION_MS = 30 * 60 * 1000L
         private const val HEALTH_CACHE_MS = 60_000L

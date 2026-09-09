@@ -10,6 +10,7 @@ import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
 import com.mycelium.wallet.activity.modern.adapter.holder.AccountViewHolder
 import com.mycelium.wallet.activity.modern.model.ViewAccountModel
+import com.mycelium.wallet.activity.util.toStringFriendlyWithUnit
 import com.mycelium.wallet.activity.util.toStringWithUnit
 import com.mycelium.wallet.persistence.MetadataStorage.BackupState
 import com.mycelium.wapi.wallet.WalletAccount
@@ -95,7 +96,7 @@ class RecordRowBuilder(private val mbwManager: MbwManager, private val resources
         if (model.isActive) {
             val balance = model.balance
             holder.tvBalance.visibility = VISIBLE
-            val balanceString = balance.spendable.toStringWithUnit(mbwManager.getDenomination(model.coinType))
+            val balanceString = balance.spendable.toStringFriendlyWithUnit(mbwManager.getDenomination(model.coinType))
             holder.tvBalance.text = balanceString
             holder.tvBalance.setTextColor(textColor)
 

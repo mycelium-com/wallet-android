@@ -159,6 +159,11 @@ public class TransactionDetailsActivity extends AppCompatActivity {
                 case FAILED:
                     confirmationsDisplay.setFailed();
                     confirmed = getResources().getString(R.string.tx_status_failed);
+                    // Blockbook usually says why ("Out of gas.", "Reverted", …).
+                    String reason = ((EthTransactionSummary) tx).getFailureReason();
+                    if (reason != null && !reason.isEmpty()) {
+                        confirmed = confirmed + " — " + reason;
+                    }
                     break;
                 case REPLACED:
                     confirmationsDisplay.setReplaced();

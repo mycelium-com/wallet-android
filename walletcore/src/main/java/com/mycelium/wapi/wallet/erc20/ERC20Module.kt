@@ -31,7 +31,16 @@ class ERC20Module(
         private val networkParameters: NetworkParameters,
         metaDataStorage: IMetaDataStorage,
         private val accountListener: AccountListener?,
-        private val ethereumModule: EthereumModule) : WalletModule(metaDataStorage) {
+        private val ethereumModule: EthereumModule,
+        /**
+         * Decimals the token catalogue currently declares for a contract address,
+         * or null when the contract isn't in it. The stored context is repaired
+         * from this on load: an account keeps whatever exponent it was created
+         * with, so a token catalogued with the wrong number of decimals would
+         * otherwise misreport its balance for good, even after the catalogue is
+         * corrected.
+         */
+        private val catalogueUnitExponent: (String) -> Int? = { null }) : WalletModule(metaDataStorage) {
     private val accounts = mutableMapOf<UUID, ERC20Account>()
     override val id = ID
     private val ethCoinType = if (networkParameters.isProdnet) EthMain else EthTest
@@ -86,18 +95,29 @@ class ERC20Module(
     private fun createAccountContext(uuid: UUID, config: ERC20Config? = null): ERC20AccountContext {
         val accountContextInDB = backing.loadAccountContext(uuid)
         return if (accountContextInDB != null) {
-            ERC20AccountContext(accountContextInDB.uuid,
+            val catalogued = catalogueUnitExponent(accountContextInDB.contractAddress)
+            val unitExponent = catalogued ?: accountContextInDB.unitExponent
+            val context = ERC20AccountContext(accountContextInDB.uuid,
                     accountContextInDB.currency,
                     accountContextInDB.accountName,
                     accountContextInDB.balance,
                 { backing.updateAccountContext(it.uuid, it) },
                     accountContextInDB.contractAddress,
                     accountContextInDB.symbol,
-                    accountContextInDB.unitExponent,
+                    unitExponent,
                     accountContextInDB.ethAccountId,
                     accountContextInDB.archived,
                     accountContextInDB.blockHeight,
-                    accountContextInDB.nonce)
+                    accountContextInDB.nonce,
+                    accountContextInDB.everFullySynced)
+            if (unitExponent != accountContextInDB.unitExponent) {
+                // Persist the correction so the stored row stops disagreeing with
+                // the contract, and re-sweep: the balance was scaled by the wrong
+                // exponent everywhere it was shown.
+                context.everFullySynced = false
+                backing.updateAccountContext(context.uuid, context)
+            }
+            context
         } else {
             val token = config!!.token
             ERC20AccountContext(

@@ -170,18 +170,11 @@ open class SendTronViewModel(application: Application) : SendCoinsViewModel(appl
     private fun sendViaEnergyService(activity: Activity) {
         val account = model.account as? TRC20Account ?: return
         val manager = mbwManager.energyServiceManager ?: return
-        val quote = tronModel.currentEnergyQuote()
-        if (quote == null || quote.isExpired()) {
-            toaster.toast(R.string.error_energy_quote_expired, false)
-            return
-        }
         if (tronModel.energyOrderPending.value == true) {
             toaster.toast(R.string.error_energy_order_in_flight, false)
             return
         }
         val recipient = model.receivingAddress.value as? TronAddress ?: return
-        val amount = mbwManager.exchangeRateManager.get(mbwManager.getWalletManager(false), model.amount.value!!, account.coinType)
-            ?: model.amount.value!!
         val feeLimit = tronModel.energyFeeLimit()
 
         val progress = ProgressDialog(activity).apply {
@@ -190,6 +183,15 @@ open class SendTronViewModel(application: Application) : SendCoinsViewModel(appl
             show()
         }
         energyScope.launch {
+            // The quote on screen prices the fee; the partner binds a quote to the amount it was
+            // asked about, so the transfer is quoted again here for exactly what is being sent.
+            val sendQuote = withContext(Dispatchers.IO) { tronModel.quoteForSend() }
+            if (sendQuote == null) {
+                progress.dismiss()
+                toaster.toast(R.string.error_energy_quote_expired, false)
+                return@launch
+            }
+            val (quote, amount) = sendQuote
             val result = withContext(Dispatchers.IO) {
                 manager.execute(account, quote, recipient, amount, feeLimit, AesKeyCipher.defaultKeyCipher()) { status ->
                     energyScope.launch { progress.setMessage(statusText(status)) }

@@ -89,8 +89,29 @@ class SendTronModel(application: Application,
     @Volatile
     private var currentFeeMode: TronFeeMode = TronFeeMode.TRX
 
-    private val addressObserver = { _: Address? -> onInputsChanged() }
-    private val amountObserver = { _: Value? -> if (isTrc20) onInputsChanged() }
+    /** Recipient [currentQuote] was fetched for; the fee is priced per recipient, not per amount. */
+    @Volatile
+    private var quotedFor: String? = null
+    /** The current amount came from the amount screen's Max button. */
+    @Volatile
+    private var amountIsMax = false
+    /** Amount this model reduced itself to; anything else is the user's own entry. */
+    @Volatile
+    private var reducedAmount: Value? = null
+    @Volatile
+    private var amountReductionsLeft = MAX_AMOUNT_REDUCTIONS
+
+    private val addressObserver = { _: Address? ->
+        amountReductionsLeft = MAX_AMOUNT_REDUCTIONS
+        onInputsChanged(recipientChanged = true)
+    }
+    private val amountObserver = { value: Value? ->
+        if (isTrc20) {
+            // A reduction of our own must not hand itself a fresh allowance to reduce again.
+            if (value != reducedAmount) amountReductionsLeft = MAX_AMOUNT_REDUCTIONS
+            onInputsChanged()
+        }
+    }
 
     init {
         // Reasonable default until the estimator answers: worst-case bandwidth cost.
@@ -106,9 +127,9 @@ class SendTronModel(application: Application,
         if (isTrc20 && energyService != null) checkEnergyServiceAvailability()
     }
 
-    private fun onInputsChanged() {
+    private fun onInputsChanged(recipientChanged: Boolean = false) {
         scheduleEstimate()
-        if (currentFeeMode == TronFeeMode.ENERGY_SERVICE) scheduleQuote()
+        if (currentFeeMode == TronFeeMode.ENERGY_SERVICE) scheduleQuote(refresh = recipientChanged)
     }
 
     // ------------------------------------------------------------------ TRX fee (burn)
@@ -208,25 +229,41 @@ class SendTronModel(application: Application,
         }
     }
 
-    private fun scheduleQuote() {
+    /**
+     * Fetches the energy-service fee for the current recipient. The fee does not depend on the
+     * amount: the partner prices the energy and bandwidth the transfer needs — which follow from
+     * the recipient, not from how much is sent — at its current rates. So one quote serves the
+     * whole entry and is kept until the recipient changes or it nears expiry; re-asking on every
+     * keystroke only made the fee, the spendable maximum and everything derived from them jitter,
+     * and re-priced the fee under an amount that was computed from the previous one.
+     *
+     * @param refresh fetch even when the quote in hand would still do (the recipient changed)
+     */
+    private fun scheduleQuote(refresh: Boolean = false) {
         val manager = energyService ?: return
         val trc20 = account as? TRC20Account ?: return
+        val to = receivingAddress.value as? TronAddress
+        if (to == null) {
+            quoteJob?.cancel()
+            quotedFor = null
+            applyEnergyQuote(null)
+            return
+        }
+        // Re-applied even when nothing is fetched: switching back from the TRX fee leaves the
+        // screen (and the tx data behind it) describing that other mode until a quote lands on it.
+        if (!refresh) {
+            usableQuote(to)?.let {
+                applyEnergyQuote(it)
+                return
+            }
+        }
         quoteJob?.cancel()
         quoteJob = scope.launch {
-            delay(500)
-            val to = receivingAddress.value as? TronAddress
-            if (to == null) {
-                applyEnergyQuote(null)
-                return@launch
-            }
+            delay(QUOTE_DEBOUNCE_MS)
             energyLoading.postValue(true)
             energyError.postValue("")
             try {
-                val quote = manager.getFeeQuote(trc20, to, amount.value?.takeIf { it.type == account.coinType })
-                applyEnergyQuote(quote)
-                if (!quote.balanceOk && !quote.balanceMessage.isNullOrBlank()) {
-                    energyError.postValue(quote.balanceMessage)
-                }
+                fetchQuote(manager, trc20, to)
             } catch (e: EnergyServiceException) {
                 applyEnergyQuote(null)
                 energyError.postValue(if (e.isInsufficientBalance) context.getString(R.string.error_energy_service_insufficient_balance, account.coinType.symbol) else e.message)
@@ -239,27 +276,114 @@ class SendTronModel(application: Application,
         }
     }
 
+    private fun fetchQuote(manager: EnergyServiceManager, trc20: TRC20Account, to: TronAddress): EnergyFeeQuote {
+        // Quoted for a token amount the account can always cover, since the answer wanted here is
+        // the fee alone: whether the entered amount fits is ours to check (see validateExtra).
+        val quote = manager.getFeeQuote(trc20, to, null)
+        quotedFor = to.addressString
+        applyEnergyQuote(quote)
+        return quote
+    }
+
+    /** The quote in hand when it is for [to] and still good for a while, null otherwise. */
+    private fun usableQuote(to: TronAddress): EnergyFeeQuote? = currentQuote
+        ?.takeIf { quotedFor == to.addressString && !it.isExpired(System.currentTimeMillis() + QUOTE_REFRESH_MARGIN_MS) }
+
+    /** A quote and the amount it is bound to; the partner rejects a transfer of any other amount. */
+    data class EnergySendQuote(val quote: EnergyFeeQuote, val amount: Value)
+
+    /**
+     * Quote to sign the transfer with. The one on screen is priced for a token amount the account
+     * can always cover — the fee is the same either way — but the partner ties each quote to the
+     * amount it was asked about and rejects a transfer of any other (`TX1_AMOUNT_MISMATCH`), so
+     * the transfer about to be signed is quoted here for exactly what is being sent.
+     *
+     * When that lands on a fee that no longer leaves room for a "max", the amount is refitted and
+     * quoted again rather than failing in the user's face. Blocking (network) — call off the main
+     * thread; null when the partner cannot be reached or refuses the amount.
+     */
+    fun quoteForSend(): EnergySendQuote? {
+        val manager = energyService ?: return null
+        val trc20 = account as? TRC20Account ?: return null
+        val to = receivingAddress.value as? TronAddress ?: return null
+        var toSend = amount.value?.takeIf { it.type == account.coinType && it.isPositive() } ?: return null
+        repeat(MAX_AMOUNT_REDUCTIONS + 1) {
+            try {
+                // Deliberately not applied to the screen: it prices the same fee, and the entry is
+                // done — the amount must not start moving under a send that is already running.
+                return EnergySendQuote(manager.getFeeQuote(trc20, to, toSend), toSend)
+            } catch (e: EnergyServiceException) {
+                if (!e.isInsufficientBalance) return null
+                val fee = try {
+                    manager.feeInAccountUnits(trc20, manager.getFeeQuote(trc20, to, null))
+                } catch (e2: Exception) {
+                    return null
+                }
+                val max = trc20.accountBalance.spendable - fee
+                if (!amountIsMax || !max.isPositive() || max >= toSend) return null
+                toSend = max
+                reducedAmount = max
+                amount.postValue(max)
+            } catch (e: Exception) {
+                return null
+            }
+        }
+        return null
+    }
+
+    /**
+     * The partner re-prices the fee on every quote, so "max" — the spendable balance minus the fee
+     * as it was a moment ago — stops fitting as soon as the fee ticks up by a fraction. Rather
+     * than dead-ending on an error the user cannot act on, retry with the largest amount [fee]
+     * leaves room for.
+     *
+     * Only a max is refitted: a figure the user typed is theirs, and if it no longer fits they get
+     * told so instead of finding a different number in the field. It only ever shrinks, only while
+     * the amount alone would fit the balance, and only a bounded number of times per entry, so a
+     * fee that keeps moving cannot turn into a loop.
+     *
+     * With one quote per recipient this is down to the rare case: a max entered against one
+     * recipient's fee and then sent to another whose transfer costs more.
+     */
+    private fun reduceAmountToFit(fee: Value, trc20: TRC20Account): Boolean {
+        if (!amountIsMax || amountReductionsLeft <= 0) return false
+        val entered = amount.value?.takeIf { it.type == account.coinType && it.isPositive() } ?: return false
+        val spendable = trc20.accountBalance.spendable
+        if (entered > spendable) return false
+        val max = spendable - fee
+        if (!max.isPositive() || entered <= max) return false
+        amountReductionsLeft--
+        reducedAmount = max
+        amount.postValue(max)
+        return true
+    }
+
     private fun applyEnergyQuote(quote: EnergyFeeQuote?) {
         val manager = energyService
         val trc20 = account as TRC20Account
         currentQuote = quote
         energyQuote.postValue(quote)
-        if (quote == null || manager == null) {
+        val tokenFee = if (quote != null && manager != null) manager.feeInAccountUnits(trc20, quote) else null
+        if (tokenFee == null) {
             energyFeeText.postValue("")
             energyEstimatedTime.postValue("")
         } else {
-            energyFeeText.postValue(manager.feeInAccountUnits(trc20, quote).toStringWithUnit())
-            energyEstimatedTime.postValue(quote.estimatedTimeSec?.let { context.getString(R.string.tron_energy_estimated_time, formatSeconds(it)) } ?: "")
+            energyFeeText.postValue(tokenFee.toStringWithUnit())
+            energyEstimatedTime.postValue(quote!!.estimatedTimeSec?.let { context.getString(R.string.tron_energy_estimated_time, formatSeconds(it)) } ?: "")
         }
         // No TRX is burned by this account: fee 0 for display/max-spendable, TRX balance not required.
+        // The fee is taken in the token instead, so it travels in the tx data and keeps "max" from
+        // offering the full balance (the partner sends the fee first — amount + fee must fit).
         val feeLimit = energyFeeLimit()
         feeEstimation = FeeEstimationsGeneric(Value.zeroValue(feeCoin), Value.zeroValue(feeCoin), Value.zeroValue(feeCoin), Value.zeroValue(feeCoin), Date().time)
         notEnoughTrx.postValue(false)
         transactionData.postValue(TronTransactionData(feeLimit = feeLimit, estimatedFee = BigInteger.ZERO, checkFeeBalance = false,
-            expirationMs = EnergyServiceManager.ENERGY_TX_EXPIRATION_MS))
+            expirationMs = EnergyServiceManager.ENERGY_TX_EXPIRATION_MS, tokenFee = tokenFee?.value))
         selectedFee.postValue(Value.zeroValue(feeCoin))
         // the quote changes what is spendable — rebuild
         txRebuildPublisher.onNext(Unit)
+        // A new recipient can carry a bigger fee than the one a "max" was computed from.
+        if (tokenFee != null) reduceAmountToFit(tokenFee, trc20)
     }
 
     private fun formatSeconds(sec: Int): String = when {
@@ -280,9 +404,6 @@ class SendTronModel(application: Application,
 
     fun isEnergyMode() = isTrc20 && currentFeeMode == TronFeeMode.ENERGY_SERVICE
 
-    /** Current quote (for the send flow). */
-    fun currentEnergyQuote(): EnergyFeeQuote? = currentQuote
-
     override fun validateExtra(toSend: Value): TransactionStatus? {
         if (!isEnergyMode()) return null
         val fee = energyFeeValue() ?: return TransactionStatus.MISSING_ARGUMENTS
@@ -293,6 +414,10 @@ class SendTronModel(application: Application,
     }
 
     override fun isZeroFeeAllowed() = true
+
+    override fun onAmountEntered(isMax: Boolean) {
+        amountIsMax = isMax
+    }
 
     override fun handlePaymentRequest(toSend: Value): TransactionStatus {
         throw IllegalStateException("Tron does not support payment requests")
@@ -330,5 +455,14 @@ class SendTronModel(application: Application,
         amount.removeObserver(amountObserver)
         estimateJob?.cancel()
         quoteJob?.cancel()
+    }
+
+    companion object {
+        /** How often one entered amount may be fitted to a re-priced fee before giving up. */
+        private const val MAX_AMOUNT_REDUCTIONS = 2
+        /** Lets a recipient being typed settle before the partner is asked about it. */
+        private const val QUOTE_DEBOUNCE_MS = 500L
+        /** A quote this close to expiry is refetched rather than signed with. */
+        private const val QUOTE_REFRESH_MARGIN_MS = 60_000L
     }
 }

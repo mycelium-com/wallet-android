@@ -2455,7 +2455,7 @@
     "blockbook-servers": {
       "primary": [
         {
-          "url": "https://bb-eth.mycelium.com:19126"
+          "url": "https://blockbook2.mycelium.com:19186"
         }
       ]
     }
@@ -2474,7 +2474,7 @@
     "blockbook-servers": {
       "primary": [
         {
-          "url": "https://bb-eth.mycelium.com:9136"
+          "url": "https://blockbook2.mycelium.com:9116"
         }
       ]
     }

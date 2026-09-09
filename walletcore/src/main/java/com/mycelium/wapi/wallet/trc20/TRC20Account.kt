@@ -182,9 +182,11 @@ class TRC20Account(
         }
 
     override suspend fun doSynchronization(mode: SyncMode?): Boolean {
+        // History first: the balance reserves locally known outgoing txs the node's balance does
+        // not reflect yet, so the ones that have meanwhile landed have to be marked confirmed
+        // before that reservation is computed — otherwise they come off the balance twice.
+        val historyOk = mode?.ignoreTransactionHistory == true || syncTransactions()
         val balanceOk = withContext(Dispatchers.IO) { updateBalanceCache() }
-        if (mode?.ignoreTransactionHistory == true) return balanceOk
-        val historyOk = syncTransactions()
         return balanceOk && historyOk
     }
 
@@ -217,8 +219,19 @@ class TRC20Account(
     override val id: UUID
         get() = accountContext.uuid
 
-    override fun calculateMaxSpendableAmount(minerFeePerKilobyte: Value, destinationAddress: TronAddress?, txData: TransactionData?): Value =
-        accountBalance.spendable
+    /**
+     * The whole token balance, minus the energy-service fee when that mode is active: there the
+     * fee is paid in the token and the partner broadcasts it before the transfer, so a "max" of
+     * the full balance would leave nothing for the fee and fail the `amount + fee <= spendable`
+     * check (see [com.mycelium.wapi.wallet.tron.energy.EnergyServiceManager.execute]).
+     *
+     * The fee is the one the send screen is showing: it holds a single quote per recipient, so
+     * this max and that fee always add up to the same balance.
+     */
+    override fun calculateMaxSpendableAmount(minerFeePerKilobyte: Value, destinationAddress: TronAddress?, txData: TransactionData?): Value {
+        val tokenFee = (txData as? TronTransactionData)?.tokenFee ?: return accountBalance.spendable
+        return Value.valueOf(coinType, (accountBalance.spendable.value - tokenFee).max(BigInteger.ZERO))
+    }
 
     override val typicalEstimatedTransactionSize = TOKEN_TRANSFER_BANDWIDTH.toInt()
 
@@ -290,27 +303,31 @@ class TRC20Account(
 
     /**
      * Records an energy-service transfer the partner broadcast for us: the main token transfer
-     * (fee shown in the token, since no TRX was burned by this account) and, when known, the fee
-     * payment to the partner's wallet, linked to the main tx so history can label it.
+     * and, when known, the fee payment to the partner's wallet, linked to the main tx so history
+     * can label it.
+     *
+     * Both rows carry a zero TRX fee: this account burns no TRX (the partner supplies the energy)
+     * and the fee it does pay is the token transfer of the second row — counting it on the main
+     * tx as well would show it twice in the history.
      */
     fun saveEnergyServiceTransaction(txHash: String, recipient: String, amount: BigInteger, feeAmount: BigInteger,
                                      feeTxHash: String?, feeWallet: String?) {
         val now = System.currentTimeMillis() / 1000
         backing.putTransaction(
-            blockNumber = -1, timestamp = now, txid = txHash, raw = "",
+            blockNumber = blockOfBroadcastTx(txHash), timestamp = now, txid = txHash, raw = "",
             from = receivingAddress.addressString, to = recipient,
             value = Value.valueOf(coinType, amount),
-            fee = Value.valueOf(coinType, feeAmount),
+            fee = Value.zeroValue(basedOnCoinType),
             feeLimit = BigInteger.ZERO, hasTokenTransfers = true,
             bandwidth = BigInteger.valueOf(TOKEN_TRANSFER_BANDWIDTH), energy = BigInteger.valueOf(TOKEN_TRANSFER_ENERGY),
             tronTxType = com.mycelium.wapi.wallet.tron.TronTxType.TRC20_TRANSFER,
         )
         if (feeTxHash != null && feeWallet != null) {
             backing.putTransaction(
-                blockNumber = -1, timestamp = now, txid = feeTxHash, raw = "",
+                blockNumber = blockOfBroadcastTx(feeTxHash), timestamp = now, txid = feeTxHash, raw = "",
                 from = receivingAddress.addressString, to = feeWallet,
                 value = Value.valueOf(coinType, feeAmount),
-                fee = Value.zeroValue(coinType),
+                fee = Value.zeroValue(basedOnCoinType),
                 feeLimit = BigInteger.ZERO, hasTokenTransfers = true,
                 bandwidth = BigInteger.valueOf(TOKEN_TRANSFER_BANDWIDTH), energy = BigInteger.valueOf(TOKEN_TRANSFER_ENERGY),
                 tronTxType = com.mycelium.wapi.wallet.tron.TronTxType.TRC20_TRANSFER,
@@ -324,6 +341,19 @@ class TRC20Account(
     /** True when [txId] is included in a block. Throws when the network cannot answer. */
     @Throws(IOException::class)
     fun isTransactionConfirmed(txId: String): Boolean = blockchainService.getTransactionInfo(txId).isConfirmed
+
+    /**
+     * Block [txid] is already in, or -1 while it is not in one — which is what marks a transaction
+     * pending, and a pending outgoing transaction is held back from the balance on top of what the
+     * node reports. The energy service partner broadcasts before it reports the order done, so its
+     * transfers are often mined by the time they are stored: counted as pending they would come
+     * off the balance a second time, and the account would read as empty until the next sync.
+     */
+    private fun blockOfBroadcastTx(txid: String): Int = try {
+        blockchainService.getTransactionInfo(txid).blockNumber.toInt().takeIf { it > 0 } ?: -1
+    } catch (e: Exception) {
+        -1
+    }
 
     // Balances are persisted with the TRX coin type: only coins registered in COINS can be
     // stored, and tokens are runtime objects (same rule as ERC20). Convert on the way in/out.

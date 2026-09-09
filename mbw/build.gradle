@@ -318,7 +318,7 @@ android {
                 WapiServers='"[{\\\'cert-sha1\':\\\'17:62:9D:04:0D:4E:1E:A2:9A:BD:FF:9F:38:1B:18:8F:94:3E:8B:5F\\\',\\\'url\\\':\\\'https://wapi.mycelium.com\\\'}]"'
                 ElectrumBTCVServers ='{"tcp-tls://electrumx-mainnet1.bitcoinvault.global:443",' +
                         '"tcp-tls://electrumx-mainnet2.bitcoinvault.global:443"}'
-                EthBlockBook = '{"https://bb-eth.mycelium.com:9136"}'
+                EthBlockBook = '{"https://blockbook2.mycelium.com:9116"}'
                 TronServers = '{"https://api.trongrid.io"}'
                 // TRON energy service partner (pay TRC20 fees in USDT): staging for debug, production for release
                 EnergyServiceUrl = [release: "https://api.energly20.com/", debug: "http://164.90.215.54:8005/"]
@@ -385,11 +385,11 @@ android {
 
                 ElectrumServers = '{"tcp-tls://wallet-testnet.mycelium.com:19335"}'
                 WapiServers='"[{\\\'cert-sha1\':\\\'ED:C2:82:16:65:8C:4E:E1:C7:F6:A2:2B:15:EC:30:F9:CD:48:F8:DB\\\',\\\'url\\\':\\\'https://mws30.mycelium.com/wapitestnet\\\'}]"'
-                EthBlockBook = '{"https://bb-eth.mycelium.com:19126"}'
+                EthBlockBook = '{"https://blockbook2.mycelium.com:19186"}'
                 TronServers = '{"https://nile.trongrid.io"}'
                 EnergyServiceUrl = [release: "http://164.90.215.54:8003/", debug: "http://164.90.215.54:8003/"]
-                EnergyServiceApiKey = [release: "partner_9dee182e08be48b2acef5c78e60e552f_tOLbC6vFu8Krw5CDDERdqyqQai8fUXEQ",
-                                       debug  : "partner_9dee182e08be48b2acef5c78e60e552f_tOLbC6vFu8Krw5CDDERdqyqQai8fUXEQ"]
+                EnergyServiceApiKey = [release: "partner_0d4a619e97ec4fbebd68c623f1345fbe_urBw7UJTelACfJrrqBXErrqiS4ubaa6M",
+                                       debug  : "partner_0d4a619e97ec4fbebd68c623f1345fbe_urBw7UJTelACfJrrqBXErrqiS4ubaa6M"]
                 ElectrumBTCVServers ='{"tcp-tls://electrumx.testnet.btcv.stage.rnd.land:443"}'
                 FioApiServers = '{"https://fiotestnet.greymass.com/v1/"}'
                 FioHistoryServers = '{"https://fiotestnet.greymass.com/v1/"}'
@@ -438,7 +438,7 @@ android {
 //                WapiServers='"[{\\\'cert-sha1\':\\\'17:62:9D:04:0D:4E:1E:A2:9A:BD:FF:9F:38:1B:18:8F:94:3E:8B:5F\\\',\\\'url\\\':\\\'https://wapi.mycelium.com\\\'}]"'
 //                ElectrumBTCVServers ='{"tcp-tls://electrumx-mainnet1.bitcoinvault.global:443",' +
 //                        '"tcp-tls://electrumx-mainnet2.bitcoinvault.global:443"}'
-//                EthBlockBook = '{"https://bb-eth.mycelium.com:9136"}'
+//                EthBlockBook = '{"https://blockbook2.mycelium.com:9116"}'
 //                FioApiServers = '{"https://fio.eu.eosamsterdam.net/v1/",' +
 //                        '"https://fio.eosdac.io/v1/",' +
 //                        '"https://fio.eosphere.io/v1/",' +
@@ -498,6 +498,10 @@ android {
         variant.buildConfigField "String[]", "ElectrumServers", "${flavor.ext.ElectrumServers}"
         variant.buildConfigField "String[]", "ElectrumBTCVServers", "${flavor.ext.ElectrumBTCVServers}"
         variant.buildConfigField "String[]", "EthBlockBook", "${flavor.ext.EthBlockBook}"
+        // EIP-1559 gas estimator (github.com/AlhimicMan/eip1559_gas_estimator). Empty by default:
+        // the host this used to be hardcoded to is gone, and with nothing configured the wallet
+        // derives 1559 tiers from the base fee instead. Override with -Peip1559Estimator=<url>.
+        variant.buildConfigField "String", "Eip1559Estimator", "\"${project.findProperty('eip1559Estimator') ?: ''}\""
         variant.buildConfigField "String[]", "TronServers", "${flavor.ext.TronServers}"
         // TronGrid API key (15 QPS with a key vs ~1 QPS without): pass -PtronGridApiKey=... or set it in gradle.properties
         variant.buildConfigField "String", "TronGridApiKey", "\"${project.findProperty('tronGridApiKey') ?: ''}\""

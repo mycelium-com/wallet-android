@@ -31,6 +31,13 @@ class TronAccountBacking(
     private val tronQueries = walletDB.tronAccountBackingQueries
     private val queries = walletDB.accountBackingQueries
 
+    init {
+        // Rows whose value or fee is tagged with a TRC20 token (see repairValueTags in the .sq)
+        // cannot be decoded, and one of them fails every read of the history. Repairing on open
+        // rather than only in a migration covers rows added after the migration ran.
+        tronQueries.repairValueTags(uuid)
+    }
+
     fun getTransactionSummaries(offset: Long, limit: Long, ownerAddress: String): List<TronTransactionSummary> =
         tronQueries.selectTransactionSummaries(uuid, limit, offset, mapper = { txid: String,
                                                                                 _: CryptoCurrency,
@@ -49,7 +56,7 @@ class TronAccountBacking(
                                                                                 tronTxType: String ->
             createTransactionSummary(ownerAddress, txid, blockNumber, timestamp, value, fee, from, to,
                 bandwidth, energy, feeLimit, success, hasTokenTransfers, TronTxType.fromName(tronTxType))
-        }).executeAsList().applyFeeLinks()
+        }).executeAsList().readable().applyFeeLinks()
 
     /** @param timestampParameter time in seconds */
     fun getTransactionSummariesSince(timestampParameter: Long, ownerAddress: String): List<TronTransactionSummary> =
@@ -70,7 +77,7 @@ class TronAccountBacking(
                                                                                           tronTxType: String ->
             createTransactionSummary(ownerAddress, txid, blockNumber, timestamp, value, fee, from, to,
                 bandwidth, energy, feeLimit, success, hasTokenTransfers, TronTxType.fromName(tronTxType))
-        }).executeAsList().applyFeeLinks()
+        }).executeAsList().readable().applyFeeLinks()
 
     fun getTransactionSummary(txidParameter: String, ownerAddress: String): TronTransactionSummary? =
         tronQueries.selectTransactionSummaryById(uuid, txidParameter, mapper = { txid: String,
@@ -90,7 +97,7 @@ class TronAccountBacking(
                                                                                   tronTxType: String ->
             createTransactionSummary(ownerAddress, txid, blockNumber, timestamp, value, fee, from, to,
                 bandwidth, energy, feeLimit, success, hasTokenTransfers, TronTxType.fromName(tronTxType))
-        }).executeAsOneOrNull()?.also { listOf(it).applyFeeLinks() }
+        }).executeAsOneOrNull()?.takeIf { it.id.isNotEmpty() }?.also { listOf(it).applyFeeLinks() }
 
     /** Locally broadcast or remotely seen txs that are not yet included in a block. */
     fun getUnconfirmedTransactions(ownerAddress: String): List<TronTransactionSummary> =
@@ -111,7 +118,21 @@ class TronAccountBacking(
                                                                     tronTxType: String ->
             createTransactionSummary(ownerAddress, txid, blockNumber, timestamp, value, fee, from, to,
                 bandwidth, energy, feeLimit, success, hasTokenTransfers, TronTxType.fromName(tronTxType))
-        }).executeAsList().applyFeeLinks()
+        }).executeAsList().readable().applyFeeLinks()
+
+    /**
+     * Not every txid is one we produced: the energy service partner reports the hashes it
+     * broadcast for us and those are stored as they arrive. A value that isn't hex would throw
+     * on every read of the history — that is, on every sync — so it decodes to nothing here and
+     * [readable] drops the row, instead of one bad hash taking the account down with it.
+     */
+    private fun decodeTxid(txid: String): ByteArray = try {
+        HexUtils.toBytes(txid)
+    } catch (e: RuntimeException) {
+        ByteArray(0)
+    }
+
+    private fun List<TronTransactionSummary>.readable() = filter { it.id.isNotEmpty() }
 
     /** Marks fee payments of the energy service so the history can render them as such. */
     private fun List<TronTransactionSummary>.applyFeeLinks(): List<TronTransactionSummary> {
@@ -144,9 +165,12 @@ class TronAccountBacking(
         val confirmations = if (blockNumber > 0) 1 else 0
         // Values are persisted with the TRX coin type: the DB value adapter can only resolve
         // coins registered in COINS, and TRC20 tokens are runtime objects (same rule as ERC20).
-        // createTransactionSummary re-tags them with the account's display currency.
+        // createTransactionSummary re-tags them with the account's display currency. The fee goes
+        // through the same adapter, so it is re-tagged here too — a token-typed fee would be
+        // written as its runtime name and throw on every later read of the history.
         queries.insertTransaction(txid, uuid, feeCurrency, if (blockNumber == -1) Int.MAX_VALUE else blockNumber,
-            timestamp, raw, Value.valueOf(feeCurrency, value.value), fee, confirmations)
+            timestamp, raw, Value.valueOf(feeCurrency, value.value), Value.valueOf(feeCurrency, fee.value),
+            confirmations)
         tronQueries.insertTransaction(txid, uuid, from, to, bandwidth, energy, feeLimit, success,
             hasTokenTransfers, tronTxType.name)
     }
@@ -279,7 +303,7 @@ class TronAccountBacking(
         val transferred = getTronTransferred(ownerAddress, from, to, displayValue, fee, success, tronTxType)
         val height = if (blockNumber == Int.MAX_VALUE) -1 else blockNumber
         val confirmations = if (height > 0) maxOf(chainHeightProvider() - height + 1, 1) else 0
-        val idBytes = HexUtils.toBytes(txid)
+        val idBytes = decodeTxid(txid)
         return TronTransactionSummary(
             fromAddress, toAddress, displayValue, bandwidth, energy, feeLimit, hasTokenTransfers, success,
             tronTxType, currency, idBytes, idBytes, transferred, timestamp, height, confirmations,

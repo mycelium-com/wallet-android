@@ -430,8 +430,15 @@ class WalletConfiguration(private val prefs: SharedPreferences,
         val namePostfix = if (Utils.isProdnet()) "" else " test"
         val symbolPrefix = if (Utils.isProdnet()) "" else "t"
         return TOKENS
+            // Mainnet contracts don't exist on Sepolia — testnet only lists tokens
+            // that have a testnet address of their own. Falling back to the mainnet
+            // address offered ~100 tokens whose contract has no code on Sepolia:
+            // their balance could only ever read 0, and a "send" to an address
+            // without code succeeds as a plain 0-value transfer, burning gas while
+            // moving nothing.
+            .filter { if (Utils.isProdnet()) it.prodAddress.isNotEmpty() else !it.testnetAddress.isNullOrEmpty() }
             .map { ERC20Token(it.name + namePostfix, "$symbolPrefix${it.symbol}", it.unitExponent,
-                if (Utils.isProdnet()) it.prodAddress else (it.testnetAddress ?: it.prodAddress)) }
+                if (Utils.isProdnet()) it.prodAddress else it.testnetAddress!!) }
             .associateBy { it.name }
     }
 
@@ -462,6 +469,29 @@ class WalletConfiguration(private val prefs: SharedPreferences,
             .associateBy { it.name }
     }
 
+    /**
+     * Label a TRC20 account should carry now, when the one it stored is a default the token no
+     * longer uses (it was renamed). Null when the label is already current or the user chose one
+     * of their own — a manual name is never overwritten. The " (n)" suffix the module
+     * adds for a second account of the same token is carried over.
+     */
+    fun refreshedTRC20Label(contractAddress: String, storedLabel: String): String? {
+        val namePostfix = if (Utils.isProdnet()) "" else " test"
+        val token = TRC20_TOKENS.firstOrNull {
+            contractAddress == (if (Utils.isProdnet()) it.prodAddress else it.testnetAddress)
+        } ?: return null
+        val current = token.name + namePostfix
+        if (storedLabel == current) return null
+        token.legacyNames.forEach { legacy ->
+            val legacyLabel = legacy + namePostfix
+            if (storedLabel == legacyLabel) return current
+            Regex("^" + Regex.escape(legacyLabel) + " \\((\\d+)\\)$").find(storedLabel)?.let {
+                return "$current (${it.groupValues[1]})"
+            }
+        }
+        return null
+    }
+
     override fun setFioServerListChangedListeners(serverFioApiListChangedListener: ServerFioApiListChangedListener,
                                                   serverFioHistoryListChangedListener: ServerFioHistoryListChangedListener) {
         this.serverFioApiListChangedListeners.add(serverFioApiListChangedListener)
@@ -489,7 +519,8 @@ class WalletConfiguration(private val prefs: SharedPreferences,
 
         // TRC20 tokens (contract addresses on TRON mainnet; testnet = Nile)
         val TRC20_TOKENS = listOf(
-            TokenData("Tether USD", "USDT", 6, "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t", "TXYZopYRdj2D9XRtbG411XZZ3kM5VkAeBf"),
+            TokenData("Tether USDT", "USDT", 6, "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t", "TXYZopYRdj2D9XRtbG411XZZ3kM5VkAeBf",
+                legacyNames = listOf("Tether USD")),
             TokenData("USD Coin", "USDC", 6, "TEkxiTehnzSmSe2XqrBj4w32RUN966rdz8"),
             TokenData("USD1", "USD1", 18, "TPFqcBAaaUMCSVRCqPaQ9QnzKhmuoLR6Rc", "TNuoKL1ni8aoshfFL1ASca1Gou9RXwAzfn"),
             TokenData("Decentralized USD", "USDD", 18, "TXDk8mbtRbXeYuMNS83CfKPaYYT8XWv9Hz"),
@@ -504,48 +535,43 @@ class WalletConfiguration(private val prefs: SharedPreferences,
 
         val TOKENS = listOfNotNull(
             if (BuildConfig.DEBUG)
-                TokenData("PayPal USD", "PYUSD", 18, "", "0xCaC524BcA292aaade2DF8A05cC58F0a65B1B3bB9") else null,
+                TokenData("PayPal USD", "PYUSD", 6, "", "0xCaC524BcA292aaade2DF8A05cC58F0a65B1B3bB9") else null,
                 //            TokenData("FAUCET", "FAU", 18, "0x55296f69f40Ea6d20E478533C15A6B08B654E759", "0xBA62BCfcAaFc6622853cca2BE6Ac7d845BC0f2Dc"),
                 //            TokenData("WEENUS", "WEENUS", 18, "0x2823589Ae095D99bD64dEeA80B4690313e2fB519", "0xaFF4481D10270F50f203E0763e2597776068CBc5"),
                 //            TokenData("XEENUS", "XEENUS", 18, "0xeEf5E2d8255E973d587217f9509B416b41CA5870", "0x022E292b44B5a146F2e8ee36Ff44D3dd863C915c"),
                 //            TokenData("YEENUS", "YEENUS", 8, "0x187E63F9eBA692A0ac98d3edE6fEb870AF0079e1", "0xc6fDe3FD2Cc2b173aEC24cc3f267cb3Cd78a26B7"),
-            TokenData("0x", "ZRX", 18, "0xe41d2489571d322189246dafa5ebde1f4699f498", "0x022E292b44B5a146F2e8ee36Ff44D3dd863C915c"
-            ),
+            TokenData("0x", "ZRX", 18, "0xe41d2489571d322189246dafa5ebde1f4699f498"),
             TokenData(
                 "Tether USD(ERC20)", "USDT20",
                 6,
                 "0xdac17f958d2ee523a2206206994597c13d831ec7",
-                "0x7c352ea63cefc099db667e848e1318878bbbcaaf"
+                "0xaA8E23Fb1079EA71e0a56F48a2aA51851D8433D0"
             ),
             TokenData(
                 "USD Coin",
                 "USDC",
                 6,
                 "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
-                "0x07865c6e87b9f70255377e024ace6630c1eaa37f"
+                "0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238"
             ),
             TokenData("HuobiToken", "HT", 18, "0x6f259637dcd74c767781e37bc6133cd6a68aa161"),
             TokenData(
                 "Binance USD",
                 "BUSD",
                 18,
-                "0x4fabb145d64652a948d72533023f6e7a623c7c53",
-                "0xaFF4481D10270F50f203E0763e2597776068CBc5"
-            ),
+                "0x4fabb145d64652a948d72533023f6e7a623c7c53"),
             TokenData("Bitfinex LEO", "LEO", 18, "0x2af5d2ad76741191d15dfe7bf6ac92d4bd912ca3"),
             TokenData(
                 "TrueUSD",
                 "TUSD",
                 18,
-                "0x0000000000085d4780B73119b644AE5ecd22b376",
-                "0xBA62BCfcAaFc6622853cca2BE6Ac7d845BC0f2Dc"
-            ),
+                "0x0000000000085d4780B73119b644AE5ecd22b376"),
             TokenData(
                 "ChainLink",
                 "LINK",
                 18,
                 "0x514910771AF9Ca656af840dff83E8264EcF986CA",
-                "0x88bb053c5ddec8574fcd4d3b1692d43282a11281"
+                "0x779877A7B0D9E8603169DdbD7836e478b4624789"
             ),
             TokenData("Pax Dollar", "USDP", 18, "0x8E870D67F660D95d5be530380D0eC0bd388289E1"),
             TokenData("ZBToken", "ZB", 18, "0xBd0793332e9fB844A52a205A233EF27a5b34B927"),
@@ -555,24 +581,18 @@ class WalletConfiguration(private val prefs: SharedPreferences,
                 "Basic Attention Token",
                 "BAT",
                 18,
-                "0x0D8775F648430679A709E98d2b0Cb6250d2887EF",
-                "0x6742036904A63661A3feD2CAa9eF0890F5E58769"
-            ),
+                "0x0D8775F648430679A709E98d2b0Cb6250d2887EF"),
             TokenData("BIX Token", "BIX", 18, "0xb3104b4B9Da82025E8b9F8Fb28b3553ce2f67069"),
             TokenData(
                 "Storj",
                 "STORJ",
                 8,
-                "0xB64ef51C888972c908CFacf59B47C1AfBC0Ab8aC",
-                "0xc6fDe3FD2Cc2b173aEC24cc3f267cb3Cd78a26B7"
-            ),
+                "0xB64ef51C888972c908CFacf59B47C1AfBC0Ab8aC"),
             TokenData(
                 "Gemini dollar",
                 "GUSD",
                 2,
-                "0x056Fd409E1d7A124BD7017459dFEa2F387b6d5Cd",
-                "0x796628d910c97fac85ff6f2f328cefcd2e694a14"
-            ),
+                "0x056Fd409E1d7A124BD7017459dFEa2F387b6d5Cd"),
             TokenData(
                 "Kyber Network Crystal v2",
                 "KNC",
@@ -586,9 +606,7 @@ class WalletConfiguration(private val prefs: SharedPreferences,
                 "Augur (REPv2)",
                 "REP",
                 18,
-                "0x221657776846890989a759ba2973e427dff5c9bb",
-                "0xa9e5813de9de1732e52e1f2de416006cf7fe7320"
-            ),
+                "0x221657776846890989a759ba2973e427dff5c9bb"),
             TokenData("IOSToken", "IOST", 18, "0xFA1a856Cfa3409CFa145Fa4e20Eb270dF3EB21ab"),
             TokenData("ICON", "ICX", 18, "0xb5A5F22694352C15B00323844aD545ABb2B11028"),
             TokenData("HUSD", "HUSD", 8, "0xdF574c24545E5FfEcb9a659c229253D4111d87e1"),
@@ -598,16 +616,14 @@ class WalletConfiguration(private val prefs: SharedPreferences,
                 "Decentraland",
                 "MANA",
                 18,
-                "0x0F5D2fB29fb7d3CFeE444a200298f468908cC942",
-                "0xce1892092c34832a41068884bbb5dab50e6f007a"
-            ),
+                "0x0F5D2fB29fb7d3CFeE444a200298f468908cC942"),
             TokenData("aelf", "ELF", 18, "0xbf2179859fc6D5BEE9Bf9158632Dc51678a4100e"),
             TokenData(
                 "Dai Stablecoin",
                 "DAI",
                 18,
                 "0x6B175474E89094C44Da98b954EedeAC495271d0F",
-                "0xb365f85a80a4164f8c6df5a35558c2e730019f8b"
+                "0xFF34B3d4Aee8ddCd6F9AFFFB6Fe49bD371b8a357"
             ),
             TokenData("Uquid Coin", "UQC", 18, "0xD01DB73E047855Efb414e6202098C4Be4Cd2423B"),
             TokenData("Holo", "HOT", 18, "0x6c6EE5e31d828De241282B9606C8e98Ea48526E2"),
@@ -618,9 +634,7 @@ class WalletConfiguration(private val prefs: SharedPreferences,
                 "EnjinCoin",
                 "ENJ",
                 18,
-                "0xF629cBd94d3791C9250152BD8dfBDF380E2a3B9c",
-                "0x100ACe3cd8c091849E596abf1F351eC3e0EDD3C2"
-            ),
+                "0xF629cBd94d3791C9250152BD8dfBDF380E2a3B9c"),
             TokenData("HedgeTrade", "HEDG", 18, "0xF1290473E210b2108A85237fbCd7b6eb42Cc654F"),
             TokenData("Maker", "MKR", 18, "0x9f8F72aA9304c8B593d555F12eF6589cC3A579A2"),
             TokenData("Hyperion", "HYN", 18, "0xE99A894a69d7c2e3C92E61B64C505A6a57d2bC07"),
@@ -633,9 +647,7 @@ class WalletConfiguration(private val prefs: SharedPreferences,
                 "Quant",
                 "QNT",
                 18,
-                "0x4a220E6096B25EADb88358cb44068A3248254675",
-                "0x516802d3e54b9fc7328dd0dadb76401dd1d55dc6"
-            ),
+                "0x4a220E6096B25EADb88358cb44068A3248254675"),
             TokenData("Metal", "MTL", 8, "0xF433089366899D83a9f26A773D59ec7eCF30355e"),
             TokenData("Nexo", "NEXO", 18, "0xB62132e35a6c13ee1EE0f84dC5d40bad8d815206"),
             TokenData("Theta Token", "THETA", 18, "0x3883f5e181fccaF8410FA61e12b59BAd963fb645"),
@@ -673,20 +685,17 @@ class WalletConfiguration(private val prefs: SharedPreferences,
                 "Bread",
                 "BRD",
                 18,
-                "0x558EC3152e2eb2174905cd19AeA4e34A23DE9aD6",
-                "0x88bfa6f940acb21357c45538f725a38ac0372325"
-            ),
+                "0x558EC3152e2eb2174905cd19AeA4e34A23DE9aD6"),
             TokenData("Tether GOLD", "XAUT", 6, "0x4922a015c4407F87432B179bb209e125432E4a2A"),
             TokenData(
                 "Mycelium Token",
                 "MT",
                 7,
-                "0x364f56e35e75227516878cc249f11ea9b3e41b09",
-                "0x71b59f06a47c9c403d0e3ec303008bcf78fa9af6"
-            ),
+                "0x364f56e35e75227516878cc249f11ea9b3e41b09"),
             TokenData("SHIBA INU", "SHIB", 18, "0x95aD61b0a150d79219dCF64E1E6Cc01f0B64C4cE"),
             TokenData("Paxos Gold", "PAXG", 18, "0x45804880De22913dAFE09f4980848ECE6EcbAf78"),
-            TokenData("Wrapped Bitcoin", "WBTC", 8, "0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599"),
+            TokenData("Wrapped Bitcoin", "WBTC", 8, "0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599",
+                "0x29f2D40B0605204364af54EC677bD022dA425d03"),
             TokenData("Loopring", "LRC", 18, "0xBBbbCA6A901c926F240b89EacB641d8Aec7AEafD"),
             TokenData("Curve DAO Token", "CRV", 18, "0xD533a949740bb3306d119CC777fa900bA034cd52"),
             TokenData("HEX", "HEX", 8, "0x2b591e99afE9f32eAA6214f7B7629768c40Eeb39"),
@@ -724,4 +733,7 @@ class WalletConfiguration(private val prefs: SharedPreferences,
     }
 }
 
-data class TokenData(val name: String, val symbol: String, val unitExponent: Int, val prodAddress: String, val testnetAddress: String? = null)
+data class TokenData(val name: String, val symbol: String, val unitExponent: Int, val prodAddress: String,
+                    val testnetAddress: String? = null,
+                    /** Names this token shipped under before; accounts still carrying one get renamed. */
+                    val legacyNames: List<String> = emptyList())

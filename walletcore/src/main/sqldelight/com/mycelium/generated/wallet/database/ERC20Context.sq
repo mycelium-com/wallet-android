@@ -2,6 +2,7 @@ import com.mycelium.wapi.wallet.coins.Balance;
 import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 import java.math.BigInteger;
 import java.util.UUID;
+import kotlin.Boolean;
 import kotlin.Int;
 
 -- Creates table for generic account context storage
@@ -13,26 +14,27 @@ CREATE TABLE IF NOT EXISTS Erc20Context(
     unitExponent INTEGER AS Int NOT NULL,
     symbol TEXT NOT NULL,
     ethAccountId TEXT AS UUID NOT NULL,
+    everFullySynced INTEGER AS Boolean NOT NULL DEFAULT 0,
     FOREIGN KEY (uuid)
         REFERENCES AccountContext (uuid)
         ON DELETE CASCADE
 );
 
 selectAllERC20Contexts:
-SELECT ec.uuid, c.currency, c.accountName, c.archived, c.balance, c.blockHeight, ec.nonce, ec.contractAddress, ec.unitExponent, ec.symbol, ec.ethAccountId
+SELECT ec.uuid, c.currency, c.accountName, c.archived, c.balance, c.blockHeight, ec.nonce, ec.contractAddress, ec.unitExponent, ec.symbol, ec.ethAccountId, ec.everFullySynced
 FROM Erc20Context AS ec
   INNER JOIN AccountContext AS c
   ON ec.uuid = c.uuid;
 
 selectERC20ContextByUUID:
-SELECT ec.uuid, c.currency, c.accountName, c.archived, c.balance, c.blockHeight, ec.nonce, ec.contractAddress, ec.unitExponent, ec.symbol, ec.ethAccountId
+SELECT ec.uuid, c.currency, c.accountName, c.archived, c.balance, c.blockHeight, ec.nonce, ec.contractAddress, ec.unitExponent, ec.symbol, ec.ethAccountId, ec.everFullySynced
 FROM Erc20Context AS ec
     INNER JOIN AccountContext AS c
     ON ec.uuid = c.uuid
         WHERE ec.uuid = (?);
 
 selectAllERC20ContextByParent:
-SELECT ec.uuid, c.currency, c.accountName, c.archived, c.balance, c.blockHeight, ec.nonce, ec.contractAddress, ec.unitExponent, ec.symbol, ec.ethAccountId
+SELECT ec.uuid, c.currency, c.accountName, c.archived, c.balance, c.blockHeight, ec.nonce, ec.contractAddress, ec.unitExponent, ec.symbol, ec.ethAccountId, ec.everFullySynced
 FROM Erc20Context AS ec
     INNER JOIN AccountContext AS c
     ON ec.uuid = c.uuid
@@ -49,7 +51,7 @@ VALUES ?;
 
 update:
 UPDATE Erc20Context
-SET nonce = (?)
+SET nonce = (?), unitExponent = (?), everFullySynced = (?)
 WHERE uuid = (?);
 
 delete:

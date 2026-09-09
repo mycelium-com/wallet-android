@@ -38,6 +38,7 @@ import com.mycelium.wallet.activity.modern.adapter.AccountListAdapter
 import com.mycelium.wallet.activity.modern.helper.AccountsActionModeCallback
 import com.mycelium.wallet.activity.settings.boostGapLimitDialog
 import com.mycelium.wallet.activity.util.EnterAddressLabelUtil
+import com.mycelium.wallet.activity.util.toStringFriendlyWithUnit
 import com.mycelium.wallet.activity.util.toStringWithUnit
 import com.mycelium.wallet.activity.view.DividerItemDecoration
 import com.mycelium.wallet.databinding.FragmentAccountsBinding
@@ -738,7 +739,7 @@ class AccountsFragment : Fragment() {
     }
 
     private fun getBalanceString(coinType: AssetInfo?, balance: Balance): String {
-        return balance.spendable.toStringWithUnit(_mbwManager!!.getDenomination(coinType))
+        return balance.spendable.toStringFriendlyWithUnit(_mbwManager!!.getDenomination(coinType))
     }
 
     /**

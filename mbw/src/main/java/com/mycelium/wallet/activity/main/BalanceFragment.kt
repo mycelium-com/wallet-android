@@ -35,6 +35,7 @@ import com.mycelium.wallet.activity.util.getPopRequest
 import com.mycelium.wallet.activity.util.getPrivateKey
 import com.mycelium.wallet.activity.util.getShare
 import com.mycelium.wallet.activity.util.getUri
+import com.mycelium.wallet.activity.util.toStringFriendlyWithUnit
 import com.mycelium.wallet.activity.util.toStringWithUnit
 import com.mycelium.wallet.bitid.BitIDAuthenticationActivity
 import com.mycelium.wallet.content.HandleConfigFactory.genericScanRequest
@@ -289,7 +290,7 @@ class BalanceFragment : Fragment() {
 
     private fun updateUiKnownBalance(balance: Balance, coinType: AssetInfo) {
         val valueString: CharSequence =
-            balance.spendable.toStringWithUnit(_mbwManager!!.getDenomination(coinType))
+            balance.spendable.toStringFriendlyWithUnit(_mbwManager!!.getDenomination(coinType))
         binding?.tvBalance?.text = valueString
 
         // Show alternative values

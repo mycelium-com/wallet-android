@@ -117,6 +117,53 @@ class TxTest {
     }
 
     @Test
+    fun `getTokenTransfer nets opposing legs of the same token`() {
+        // A swap-shaped tx: the owner sends 30 and gets 10 of the same token back.
+        // Summing reported 40 moving in the direction of the first leg.
+        val tokenTransfersJson = """[
+            {"from": "$ownerAddress", "to": "$recipientAddress", "contract": "$contractAddress", "token": "", "name": "USDT", "value": "30000000"},
+            {"from": "$recipientAddress", "to": "$ownerAddress", "contract": "$contractAddress", "token": "", "name": "USDT", "value": "10000000"}
+        ]"""
+        val tx = mapper.readValue(buildTxJson(tokenTransfers = tokenTransfersJson), Tx::class.java)
+        val transfer = tx.getTokenTransfer(contractAddress, ownerAddress)
+        assertNotNull(transfer)
+        assertEquals(BigInteger("20000000"), transfer!!.value)
+        // net is outgoing, so the owner must be the sender and the counterparty the recipient
+        assertEquals(ownerAddress, transfer.from)
+        assertEquals(recipientAddress, transfer.to)
+    }
+
+    @Test
+    fun `getTokenTransfer reports net incoming when the owner receives more than it sends`() {
+        val tokenTransfersJson = """[
+            {"from": "$ownerAddress", "to": "$recipientAddress", "contract": "$contractAddress", "token": "", "name": "USDT", "value": "10000000"},
+            {"from": "$recipientAddress", "to": "$ownerAddress", "contract": "$contractAddress", "token": "", "name": "USDT", "value": "25000000"}
+        ]"""
+        val tx = mapper.readValue(buildTxJson(tokenTransfers = tokenTransfersJson), Tx::class.java)
+        val transfer = tx.getTokenTransfer(contractAddress, ownerAddress)
+        assertNotNull(transfer)
+        assertEquals(BigInteger("15000000"), transfer!!.value)
+        assertEquals(recipientAddress, transfer.from)
+        assertEquals(ownerAddress, transfer.to)
+    }
+
+    @Test
+    fun `failureReason surfaces the servers revert message`() {
+        val json = buildTxJson(confirmations = 12, inputData = null)
+            .replace(""""status": true""", """"status": false, "error": "Out of gas."""")
+        val tx = mapper.readValue(json, Tx::class.java)
+        assertFalse(tx.success)
+        assertEquals("Out of gas.", tx.failureReason)
+    }
+
+    @Test
+    fun `failureReason is null for a successful tx`() {
+        val tx = mapper.readValue(buildTxJson(confirmations = 12, inputData = null), Tx::class.java)
+        assertTrue(tx.success)
+        assertNull(tx.failureReason)
+    }
+
+    @Test
     fun `getPendingTokenTransfer handles incoming pending token transfer`() {
         val tx = mapper.readValue(buildTxJson(from = "0xsender0000000000000000000000000000000000"), Tx::class.java)
         // recipientAddress (decoded from inputData) != ownerAddress, from != ownerAddress

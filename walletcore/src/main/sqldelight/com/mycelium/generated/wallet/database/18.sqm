@@ -1,0 +1,10 @@
+-- Per-token full-sweep marker. Previously ERC20Account decided whether to do a
+-- full history sweep from its parent EthAccount's flag, so a token account added
+-- to an already-synced ETH account (or archived and re-activated) started in
+-- incremental mode with the parent's confirmed txids as the stop set. Pagination
+-- then stopped on the first page and the token's own transfers were never
+-- fetched, leaving the balance at 0 forever.
+--
+-- Defaulting to 0 makes every existing token account do one full sweep on the
+-- next sync, which also repairs accounts already stuck at 0 by that bug.
+ALTER TABLE Erc20Context ADD COLUMN everFullySynced INTEGER NOT NULL DEFAULT 0;

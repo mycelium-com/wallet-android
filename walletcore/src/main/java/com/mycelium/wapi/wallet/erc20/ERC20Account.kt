@@ -26,6 +26,7 @@ import com.mycelium.wapi.wallet.eth.EthBlockchainService
 import com.mycelium.wapi.wallet.eth.EthTransaction
 import com.mycelium.wapi.wallet.eth.EthTransactionData
 import com.mycelium.wapi.wallet.eth.EthTxStatus
+import com.mycelium.wapi.wallet.eth.Tx
 import com.mycelium.wapi.wallet.exceptions.BuildTransactionException
 import com.mycelium.wapi.wallet.exceptions.InsufficientFundsException
 import com.mycelium.wapi.wallet.exceptions.InsufficientFundsForFeeException
@@ -146,6 +147,11 @@ class ERC20Account(private val chainId: Long,
             // since the nonce is shared across both accounts' backings.
             ethAcc.markPendingReplacedByNonce(tx.nonce, newTxid)
             ethAcc.bumpNonceAfterBroadcast(tx.nonce)
+            // Show the outgoing tokens as pending right away instead of after the
+            // next periodic sync, and refresh the parent too — the gas for this
+            // transfer is now committed ETH.
+            updateBalanceCache()
+            ethAcc.updateBalanceCache()
             return BroadcastResult(BroadcastResultType.SUCCESS)
         } catch (e: Exception) {
             return when (e) {
@@ -230,6 +236,9 @@ class ERC20Account(private val chainId: Long,
     override fun dropCachedData() {
         clearBacking()
         saveBalance(Balance.getZeroBalance(coinType))
+        // Backing is empty again, so the next sync has to walk the whole
+        // address history before incremental mode can be trusted.
+        accountContext.everFullySynced = false
     }
 
     override fun isVisible() = true
@@ -295,18 +304,60 @@ class ERC20Account(private val chainId: Long,
             .map { it.value.value }
             .fold(BigInteger.ZERO, BigInteger::add)
 
+    /**
+     * Settle local PENDING rows whose transaction has actually mined but carries
+     * no token transfer for us — the shape a reverted `transfer()` takes, since a
+     * failed call emits no Transfer event and blockbook then returns an empty
+     * `tokenTransfers` array.
+     *
+     * Such a row can never leave PENDING on its own: the token-filtered sync loop
+     * skips it, and reconcileLocalPending() refuses to drop it because the tx is
+     * demonstrably alive on-chain. It would sit in [getPendingSending] forever,
+     * permanently deducting its amount from the displayed balance. Write the row
+     * through with the real confirmations and on-chain status; the amount stops
+     * counting because a failed token tx transfers nothing.
+     */
+    private fun settleRevertedTransfers(allRemoteTransactions: List<Tx>) {
+        val livePending = getLivePendingTransactions()
+        if (livePending.isEmpty()) return
+        val minedByTxid = allRemoteTransactions
+            .filter { it.confirmations.signum() > 0 }
+            .associateBy { it.txid }
+        livePending.forEach { local ->
+            val txid = "0x" + HexUtils.toHex(local.id)
+            val mined = minedByTxid[txid] ?: return@forEach
+            if (mined.getTokenTransfer(token.contractAddress, receivingAddress.addressString) != null) return@forEach
+            val gasForFee = mined.gasUsed?.takeIf { it.signum() > 0 } ?: mined.gasLimit
+            backing.putTransaction(mined.blockHeight.toInt(), mined.blockTime, mined.txid, "",
+                    local.sender.addressString, local.receiver.addressString, local.value,
+                    Value.valueOf(basedOnCoinType, mined.gasPrice * gasForFee),
+                    mined.confirmations.toInt(), mined.nonce, mined.gasPrice, true, null,
+                    mined.success, mined.gasLimit, mined.gasUsed)
+        }
+    }
+
     private suspend fun syncTransactions():Boolean {
         try {
             // Fetch the full unfiltered address history once, cache it for
             // the parent getNewNonce() to reuse (avoids paginating twice),
             // then filter to this token's transfers for our local backing.
             //
-            // Incremental sync uses the PARENT EthAccount's flag + confirmed
-            // txid set rather than our own: the underlying request paginates
-            // the entire address history, which the parent stores in full
-            // (we only store this token's subset). We could otherwise never
-            // stop early — most pages contain no tx in our filtered backing.
-            val fullSweep = !ethAcc.everFullySynced
+            // Whether to sweep is OUR OWN decision — the parent's flag says
+            // nothing about whether this token's transfers have been fetched.
+            // Keying off the parent left a token account added to an
+            // already-synced ETH account (or archived and re-activated) in
+            // incremental mode from the very first sync: pagination stopped on
+            // page 1 and the token's transfers, which sit further back in the
+            // address history, were never fetched — a permanent zero balance.
+            //
+            // The stop set still comes from the parent, and that is deliberate:
+            // the request paginates the ENTIRE address history, which the parent
+            // stores in full while we keep only this token's subset. Matching
+            // against our own sparse txids would almost never hit, so we could
+            // never stop early. Once our own sweep has completed we hold every
+            // transfer of ours that is older than the newest page, which is what
+            // makes the parent's stop set safe to trust.
+            val fullSweep = !accountContext.everFullySynced
             val knownConfirmed = if (fullSweep) emptySet() else ethAcc.confirmedTxidsSnapshot()
             val allRemoteTransactions = withContext(Dispatchers.IO) {
                 blockchainService.getTransactions(receivingAddress.addressString, knownConfirmedTxids = knownConfirmed)
@@ -323,6 +374,13 @@ class ERC20Account(private val chainId: Long,
                             tx.confirmations.toInt(), tx.nonce, tx.gasPrice, true, null, tx.success, tx.gasLimit, tx.gasUsed)
                 }
             }
+            if (fullSweep) {
+                // Only after the sweep and the writes above succeeded. An
+                // IOException mid-pagination throws out of getTransactions()
+                // before we get here, so the next sync retries the full sweep.
+                accountContext.everFullySynced = true
+            }
+            settleRevertedTransfers(allRemoteTransactions)
             val remoteTransactionsIds = remoteTransactions.map { it.txid }.toSet()
 
             // Blockbook's contract-filtered response excludes pending contract

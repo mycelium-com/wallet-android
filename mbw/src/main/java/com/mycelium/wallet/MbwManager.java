@@ -863,7 +863,7 @@ public class MbwManager {
 
         AccountContextsBacking genericBacking = new AccountContextsBacking(db);
         EthBacking ethBacking = new EthBacking(db, genericBacking);
-        EthBlockchainService ethBlockchainService = new EthBlockchainService(configuration.getBlockBookEndpoints());
+        EthBlockchainService ethBlockchainService = new EthBlockchainService(configuration.getBlockBookEndpoints(), BuildConfig.Eip1559Estimator);
         configuration.addEthServerListChangedListener(ethBlockchainService);
         EthereumModule ethereumModule = new EthereumModule(secureKeyValueStore, ethBacking, walletDB,
                 ethBlockchainService, networkParameters, getMetadataStorage(), accountListener);
@@ -871,7 +871,15 @@ public class MbwManager {
         walletManager.getFeeEstimations().addProvider(new EthFeeProvider(isTestnet, ethBlockchainService, feeBacking));
 
         walletManager.add(new ERC20Module(secureKeyValueStore, new ERC20Backing(db, genericBacking), walletDB,
-                ethBlockchainService, networkParameters, getMetadataStorage(), accountListener, ethereumModule));
+                ethBlockchainService, networkParameters, getMetadataStorage(), accountListener, ethereumModule,
+                contractAddress -> {
+                    for (ERC20Token token : configuration.getSupportedERC20Tokens().values()) {
+                        if (token.getContractAddress().equalsIgnoreCase(contractAddress)) {
+                            return token.getUnitExponent();
+                        }
+                    }
+                    return null;
+                }));
 
         TronBlockchainService tronBlockchainService = new TronBlockchainService(configuration.getTronEndpoints());
         configuration.addTronServerListChangedListener(tronBlockchainService);
@@ -881,7 +889,8 @@ public class MbwManager {
         walletManager.add(tronModule);
         walletManager.getFeeEstimations().addProvider(new TronFeeProvider(isTestnet));
         walletManager.add(new TRC20Module(new TRC20Backing(db, genericBacking), walletDB, tronBlockchainService,
-                networkParameters, getMetadataStorage(), accountListener, tronModule));
+                networkParameters, getMetadataStorage(), accountListener, tronModule,
+                configuration::refreshedTRC20Label));
         energyServiceManager = new EnergyServiceManager(
                 new EnergyServiceClient(new EnergyServiceConfig(BuildConfig.EnergyServiceUrl, BuildConfig.EnergyServiceApiKey),
                         "MyceliumWallet/" + BuildConfig.VERSION_NAME + " (android)", Locale.getDefault().getLanguage()),
@@ -963,7 +972,7 @@ public class MbwManager {
                 (BTCSettings) currenciesSettingsMap.get(BitcoinSingleAddressModule.ID), walletManager, getMetadataStorage(), null, accountEventManager));
 
         Backing<EthAccountContext> genericBacking = new InMemoryAccountContextsBacking<>();
-        EthBlockchainService ethBlockchainService = new EthBlockchainService(configuration.getBlockBookEndpoints());
+        EthBlockchainService ethBlockchainService = new EthBlockchainService(configuration.getBlockBookEndpoints(), BuildConfig.Eip1559Estimator);
         configuration.addEthServerListChangedListener(ethBlockchainService);
         EthereumModule ethModule = new EthereumModule(secureKeyValueStore, genericBacking, db,
                 ethBlockchainService, networkParameters, getMetadataStorage(), accountListener);

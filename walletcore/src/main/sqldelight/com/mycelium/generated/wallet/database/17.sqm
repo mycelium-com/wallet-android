@@ -1,0 +1,15 @@
+-- Repairs energy-service transfers stored with the fee tagged as the TRC20 token.
+--
+-- A token is a runtime object and not in COINS, so the value adapter could not resolve that tag
+-- back and threw on every read of the account's history — that is, on every sync and on startup,
+-- leaving the app unable to open. New rows are written with the TRX tag (the fee of these rows is
+-- zero TRX: the token fee is a transfer of its own, linked through EnergyServiceFeeLink), but the
+-- rows already written on devices that made such a transfer have to be repaired here.
+--
+-- The `currency` column of the row is the tag every value of a TRON row is stored with, so a fee
+-- tagged as anything else is one of the broken ones.
+UPDATE AccountBacking
+SET fee = '{"Asset":"' || currency || '","Value":0}'
+WHERE fee NOT LIKE '%"Asset":"' || currency || '"%'
+  AND EXISTS (SELECT 1 FROM TronAccountBacking t
+              WHERE t.txid = AccountBacking.txid AND t.uuid = AccountBacking.uuid);

@@ -106,3 +106,23 @@ SELECT feeTxId, mainTxId FROM EnergyServiceFeeLink WHERE uuid = (:uuid);
 
 deleteFeeLink:
 DELETE FROM EnergyServiceFeeLink WHERE feeTxId = (?) AND uuid = (?);
+
+-- Every value of a TRON row is tagged with the row's `currency` (TRX for both TRX and TRC20
+-- accounts): the value adapter resolves tags through COINS only, and a TRC20 token is a runtime
+-- object that is not in it. A row tagged with the token throws on every read of the history —
+-- that is, on every sync and on startup. Builds before the tagging rule wrote such rows for
+-- energy-service transfers; migration 17 repaired what existed at upgrade time, but a build that
+-- carried the migration and not the write fix kept adding them afterwards, so the account repairs
+-- its own rows each time it is opened. The amount survives the retag; the fee becomes zero TRX,
+-- which is what the row would have been written with (the token fee is a transfer of its own,
+-- linked through EnergyServiceFeeLink).
+repairValueTags:
+UPDATE AccountBacking
+SET value = CASE WHEN value LIKE '%"Asset":"' || currency || '"%' THEN value
+                 ELSE '{"Asset":"' || currency || '","Value":'
+                      || rtrim(substr(value, instr(value, '"Value":') + 8), '}') || '}' END,
+    fee = CASE WHEN fee LIKE '%"Asset":"' || currency || '"%' THEN fee
+               ELSE '{"Asset":"' || currency || '","Value":0}' END
+WHERE uuid = (:uuid)
+  AND (value NOT LIKE '%"Asset":"' || currency || '"%'
+       OR fee NOT LIKE '%"Asset":"' || currency || '"%');

@@ -46,7 +46,15 @@ public class FeeItemsBuilder {
     }
 
     public List<FeeItem> getFeeItemList(AssetInfo asset, FeeEstimationsGeneric feeEstimation, MinerFee minerFee, int txSize) {
-        long min = asset instanceof EthCoin ? MIN_NON_ZERO_FEE_PER_GAS : MIN_NON_ZERO_FEE_PER_KB;
+        // For ETH the absolute floor is meaningless on its own: 0.1 Gwei sits well
+        // below a typical base fee, so the low-priority slider happily offered gas
+        // prices that no block can ever include. Keep the floor just under the
+        // cheapest estimate instead, which tracks the base fee as it moves.
+        long min = MIN_NON_ZERO_FEE_PER_KB;
+        if (asset instanceof EthCoin) {
+            long lowEstimate = feeEstimation.getLow().getValueAsLong();
+            min = Math.max(MIN_NON_ZERO_FEE_PER_GAS, lowEstimate * 9 / 10);
+        }
         long current = 0;
         long previous = 0;
         long next = 0;

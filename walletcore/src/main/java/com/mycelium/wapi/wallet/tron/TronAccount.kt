@@ -147,9 +147,11 @@ class TronAccount(
         get() = accountContext.balance
 
     override suspend fun doSynchronization(mode: SyncMode?): Boolean {
+        // History first: the balance reserves locally known outgoing txs the node's balance does
+        // not reflect yet, so the ones that have meanwhile landed have to be marked confirmed
+        // before that reservation is computed — otherwise they come off the balance twice.
+        val historyOk = mode?.ignoreTransactionHistory == true || syncTransactions()
         val balanceOk = withContext(Dispatchers.IO) { updateBalanceCache() }
-        if (mode?.ignoreTransactionHistory == true) return balanceOk
-        val historyOk = syncTransactions()
         return balanceOk && historyOk
     }
 

@@ -11,6 +11,8 @@ class EthTransactionSummary(val sender: EthAddress, val receiver: EthAddress, va
                             val gasUsed: BigInteger, val gasPrice: BigInteger,
                             val hasTokenTransfers: Boolean,
                             val status: EthTxStatus,
+                            /** Revert reason the server reported, when the tx failed. */
+                            val failureReason: String?,
                             type: CryptoCurrency, id: ByteArray, hash: ByteArray,
                             transferred: Value, timestamp: Long, height: Int, confirmations: Int,
                             isQueuedOutgoing: Boolean, inputs: List<InputViewModel>,

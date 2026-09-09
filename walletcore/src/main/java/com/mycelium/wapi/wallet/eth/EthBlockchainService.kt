@@ -12,8 +12,18 @@ import java.math.BigDecimal
 import java.math.BigInteger
 import java.util.concurrent.TimeUnit
 
-class EthBlockchainService(private var endpoints: List<HttpEndpoint>)
-    : ServerEthListChangedListener {
+/**
+ * @param eip1559EstimatorUrl dedicated EIP-1559 gas estimator, injected by the app
+ *        (BuildConfig.Eip1559Estimator) rather than compiled in — the URL that used
+ *        to be hardcoded here pointed at a decommissioned host, and since every
+ *        failure on this path is swallowed, the only symptom was that type-2
+ *        signing silently never happened. Blank is fine: [EthFeeProvider] then
+ *        derives the snapshot from the base fee instead.
+ */
+class EthBlockchainService @JvmOverloads constructor(
+    private var endpoints: List<HttpEndpoint>,
+    private val eip1559EstimatorUrl: String = "",
+) : ServerEthListChangedListener {
     private val mapper = ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
 
     // Last successful EIP-1559 fee snapshot. Populated by EthFeeProvider's
@@ -181,8 +191,10 @@ class EthBlockchainService(private var endpoints: List<HttpEndpoint>)
      * can fall back to the legacy per-block path.
      */
     @Throws(IOException::class)
-    fun eip1559FeeEstimation(): Eip1559Snapshot =
-        streamedRequest(EIP1559_ESTIMATOR_URL, Eip1559Response::class.java).toSnapshot()
+    fun eip1559FeeEstimation(): Eip1559Snapshot {
+        if (eip1559EstimatorUrl.isBlank()) throw IOException("No EIP-1559 estimator configured")
+        return streamedRequest(eip1559EstimatorUrl, Eip1559Response::class.java).toSnapshot()
+    }
 
     /** Last cached EIP-1559 snapshot, or null if none/cleared. Non-blocking. */
     fun lastEip1559Fees(): Eip1559Snapshot? = lastEip1559
@@ -289,22 +301,43 @@ class Tx {
 
     val success: Boolean
         get() = ethereumSpecific!!.status
+
+    /** Why the transaction failed, when the server tells us. Null for successful txs. */
+    val failureReason: String?
+        get() = ethereumSpecific?.error?.takeIf { it.isNotBlank() }
     val tokenTransfers: List<TokenTransfer> = emptyList()
 
-    fun getTokenTransfer(contractAddress: String, ownerAddress: String): TokenTransfer? =
-            tokenTransfers.filter { it.token().equals(contractAddress, true) &&
+    fun getTokenTransfer(contractAddress: String, ownerAddress: String): TokenTransfer? {
+        val ours = tokenTransfers.filter {
+            it.token().equals(contractAddress, true) &&
                     (it.to.equals(ownerAddress, true) || it.from.equals(ownerAddress, true))
-            }.let { list ->
-                if (list.isNotEmpty()) {
-                    var sum = BigInteger.ZERO
-                    list.forEach { sum = sum.plus(it.value) }
-                    list.first().let {
-                        TokenTransfer(it.from, it.to, it.contract, it.token, it.name, sum)
-                    }
-                } else {
-                    null
-                }
+        }
+        if (ours.isEmpty()) return null
+        // Net the transfers rather than adding them up. One transaction can both
+        // credit and debit the same token for the same address — a swap, a partial
+        // refund, a router hop — and summing them reported the two legs as one
+        // oversized transfer in whichever direction the first entry happened to
+        // take, which then landed in the balance.
+        val net = ours.fold(BigInteger.ZERO) { acc, t ->
+            when {
+                t.to.equals(ownerAddress, true) && !t.from.equals(ownerAddress, true) -> acc + t.value
+                t.from.equals(ownerAddress, true) && !t.to.equals(ownerAddress, true) -> acc - t.value
+                else -> acc // self-transfer: no net movement
             }
+        }
+        val template = ours.first()
+        // Direction follows the net amount, not whichever leg happened to be
+        // first, and the counterparty is taken from a leg that actually has one —
+        // falling back to the owner would make a net-outgoing transfer look like a
+        // self-transfer and drop it from the balance entirely.
+        return if (net.signum() >= 0) {
+            val sender = ours.firstOrNull { !it.from.equals(ownerAddress, true) }?.from ?: ownerAddress
+            TokenTransfer(sender, ownerAddress, template.contract, template.token, template.name, net)
+        } else {
+            val recipient = ours.firstOrNull { !it.to.equals(ownerAddress, true) }?.to ?: ownerAddress
+            TokenTransfer(ownerAddress, recipient, template.contract, template.token, template.name, net.negate())
+        }
+    }
 
     // For pending txs where tokenTransfers is empty, decode ERC20
     // transfer(address,uint256) from ethereumSpecific.data.
@@ -375,9 +408,6 @@ data class Eip1559Snapshot(
     fun tier(level: EthFeeLevel): Eip1559Tier? = tiers.firstOrNull { it.level == level }
 }
 
-// Dedicated estimator: https://github.com/AlhimicMan/eip1559_gas_estimator
-private const val EIP1559_ESTIMATOR_URL = "https://bb-eth.mycelium.com:8181/eth"
-
 private val ESTIMATOR_SPEED_TO_LEVEL = mapOf(
     "safe_low" to EthFeeLevel.LOW,
     "average" to EthFeeLevel.ECONOMY,
@@ -419,6 +449,9 @@ private class EthereumSpecific {
     val gasPrice: BigInteger = BigInteger.ZERO
     val data: String? = null
     val status: Boolean = true
+
+    /** Revert reason blockbook reports for a failed tx, e.g. "Out of gas." */
+    val error: String? = null
 }
 
 interface ServerEthListChangedListener {

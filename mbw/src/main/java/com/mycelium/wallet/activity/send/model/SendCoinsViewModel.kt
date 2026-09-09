@@ -367,6 +367,8 @@ abstract class SendCoinsViewModel(application: Application) : AndroidViewModel(a
                     val item = model.outputList.value?.get(batchIndex - 1)!!
                     updateItem(item.copy(crypto = value))
                 } else {
+                    // Before the amount itself: setting it is what makes the model act on it.
+                    model.onAmountEntered(data?.getBooleanExtra(GetAmountActivity.AMOUNT_IS_MAX, false) == true)
                     model.amount.value = enteredAmount ?: Value.zeroValue(model.account.coinType)
                 }
             }

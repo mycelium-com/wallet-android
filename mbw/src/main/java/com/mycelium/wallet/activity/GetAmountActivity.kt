@@ -67,6 +67,8 @@ class GetAmountActivity : AppCompatActivity(), NumberEntryListener {
     private var destinationAddress: Address? = null
     private var _kbMinerFee: Value? = null
     private var txData: TransactionData? = null
+    /** True while the shown amount is the one the Max button put there, untouched since. */
+    private var amountIsMax = false
     private lateinit var mainCurrencyType: AssetInfo
 
     @SuppressLint("ShowToast")
@@ -181,7 +183,8 @@ class GetAmountActivity : AppCompatActivity(), NumberEntryListener {
         }
 
         // Return the entered value and set a positive result code
-        setResult(RESULT_OK, Intent().putExtra(AMOUNT, viewModel.amount.value))
+        setResult(RESULT_OK, Intent().putExtra(AMOUNT, viewModel.amount.value)
+                .putExtra(AMOUNT_IS_MAX, amountIsMax))
         finish()
     }
 
@@ -191,6 +194,7 @@ class GetAmountActivity : AppCompatActivity(), NumberEntryListener {
         } else {
             viewModel.amount.value = viewModel.convert(viewModel.maxSpendableAmount.value!!, viewModel.currentCurrency.value!!)
                     ?: viewModel.maxSpendableAmount.value!!
+            amountIsMax = true
             // set the current shown currency to the amount's currency
             viewModel.currentCurrency.value = viewModel.amount.value!!.type
             updateUI()
@@ -238,6 +242,7 @@ class GetAmountActivity : AppCompatActivity(), NumberEntryListener {
 
     fun onPasteButtonClick() {
         amountFromClipboard()?.let {
+            amountIsMax = false
             setEnteredAmount(it)
             _numberEntry!!.setEntry(viewModel.amount.value!!.valueAsBigDecimal,
                     getMaxDecimal(viewModel.currentCurrency.value))
@@ -320,8 +325,14 @@ class GetAmountActivity : AppCompatActivity(), NumberEntryListener {
     }
 
     private fun updateTRC20RelatedUI() {
+        val tronData = txData as? TronTransactionData
+        // With the energy service the fee is paid in the token and no TRX is burned by the parent
+        // account, so its balance says nothing about whether the transfer can go through — that is
+        // exactly what checkFeeBalance marks.
+        if (tronData?.checkFeeBalance == false) {
+            return
+        }
         (viewModel.account as? TRC20Account)?.tronAcc?.let { parentAccount ->
-            val tronData = txData as? TronTransactionData
             val required = tronData?.feeLimit ?: tronData?.estimatedFee ?: _kbMinerFee!!.value
             val fee = Value.valueOf(parentAccount.coinType, required)
             if (parentAccount.accountBalance.spendable.lessThan(fee)) {
@@ -377,6 +388,7 @@ class GetAmountActivity : AppCompatActivity(), NumberEntryListener {
     override fun onEntryChanged(entry: String, wasSet: Boolean) {
         if (!wasSet) {
             // if it was change by the user pressing buttons (show it unformatted)
+            amountIsMax = false
             setEnteredAmount(entry)
         }
         updateAmountsDisplay(entry)
@@ -562,6 +574,8 @@ class GetAmountActivity : AppCompatActivity(), NumberEntryListener {
         const val SEND_MODE = "sendmode"
         const val TX_DATA = "txData"
         const val EXIT_TO_MAIN_SCREEN = "exitToMain"
+        /** Result flag: the returned amount is the one the Max button computed. */
+        const val AMOUNT_IS_MAX = "amountIsMax"
 
         /**
          * Get Amount for spending
