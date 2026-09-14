@@ -159,9 +159,6 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="receiving_exchange">receiving</string>
     <string name="exchange_sending">SENDING\nADDRESS</string>
     <string name="exchange_receiving">RECEIVING\nADDRESS</string>
-    <string name="partner_fiopresale">FIO Address Presale</string>
-    <string name="partner_fiopresale_short">Your key to a better blockchain experience</string>
-    <string name="partner_fiopresale_info" />
     <string name="sepa_buy_sell_description">Buy/sell bitcoin using Single Euro Payments Area.</string>
     <string name="sepa_buy_sell_settings_description">Show SEPA buy/sell option</string>
     <string name="changelly_indicate_extra">Please don’t forget to indicate the %s before sending funds.</string>

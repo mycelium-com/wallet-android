@@ -81,7 +81,6 @@ import com.mycelium.wallet.event.AccountChanged
 import com.mycelium.wallet.event.AccountCreated
 import com.mycelium.wallet.event.MigrationPercentChanged
 import com.mycelium.wallet.event.MigrationStatusChanged
-import com.mycelium.wallet.fio.FioRequestNotificator
 import com.mycelium.wallet.pop.PopRequest
 import com.mycelium.wapi.content.PrivateKeyUri
 import com.mycelium.wapi.content.WithCallback
@@ -397,11 +396,6 @@ class StartupActivity : AppCompatActivity(), AccountCreationObserver {
         if (getIntent().action == NewsUtils.MEDIA_FLOW_ACTION) {
             intent.action = NewsUtils.MEDIA_FLOW_ACTION
             getIntent().extras?.let { intent.putExtras(it) }
-        } else if (getIntent().action == FioRequestNotificator.FIO_REQUEST_ACTION) {
-            intent.action = FioRequestNotificator.FIO_REQUEST_ACTION
-            if (getIntent().extras != null) {
-                intent.putExtras(getIntent().extras!!)
-            }
         } else if (getIntent().hasExtra("action")) {
             getIntent().extras?.let { intent.putExtras(it) }
         }

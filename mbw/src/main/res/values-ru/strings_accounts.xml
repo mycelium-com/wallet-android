@@ -12,7 +12,6 @@
     <string name="clipboard">Буфер обмена</string>
     <string name="enter_wordlist">Введите список слов</string>
     <string name="hd_account">Добавить HD-аккаунт Bitcoin</string>
-    <string name="btcvault_hd_account">Добавить HD-аккаунт Bitcoin Vault</string>
     <string name="private_key_deleted">Приватный ключ удалён.</string>
     <string name="account_deleted">Аккаунт удалён.</string>
     <string name="export">Экспорт ключей аккаунта</string>
@@ -80,7 +79,6 @@
     <string name="archiving_account_title">Архивация аккаунта</string>
     <string name="hd_account_creation_started">Создание нового HD-аккаунта Bitcoin…</string>
     <string name="eth_account_creation_started">Создание нового ETH-аккаунта…</string>
-    <string name="btcv_account_creation_started">Создание нового BTCV-аккаунта…</string>
     <string name="erc20_account_creation_started">Создание нового ERC-20 аккаунта…</string>
     <string name="importing_master_seed_from_wordlist">Вычисление мастер-сида…</string>
     <string name="start_word_list_verification">Начать проверку</string>
@@ -188,8 +186,6 @@
     <string name="bch_accounts_not_found"><![CDATA[Мы не нашли Bitcoin <font color=\"#f08c18\">Cash</font> на ваших BTC-аккаунтах.<br>Мы постоянно мониторим ваши BTC-аккаунты и уведомим вас, если Bitcoin <font color=\"#f08c18\">Cash</font> будет найден.]]></string>
     <string name="bch_accounts_found"><![CDATA[Мы нашли %1$s Bitcoin <font color=\"#f08c18\">Cash</font> на ваших BTC-аккаунтах.<br><br>%2$d соответствующих аккаунтов Bitcoin <font color=\"#f08c18\">Cash</font> создано.\nБаланс Bitcoin <font color=\"#f08c18\">Cash</font> можно проверить на вкладке «Аккаунты».<br><br>Теперь вы можете перейти на вкладку «Баланс» ваших аккаунтов Bitcoin <font color=\"#f08c18\">Cash</font> и мгновенно обменять их на BTC.]]></string>
     <string name="hd_account_bch">Добавить HD-аккаунт Bitcoin Cash</string>
-    <string name="create_fio_legacy_presale_account">Создать Legacy-аккаунт FIO</string>
-    <string name="new_fio_legacy_presale_account_desc">Создавайте Legacy-аккаунт FIO ТОЛЬКО если вы приобрели домен FIO во время предпродажи.</string>
     <string name="no_spendable_accounts">Нет доступных для трат аккаунтов</string>
     <string name="import_xpub_should_xpriv">Только аккаунты с цифровыми активами поддерживаются для уровня аккаунта 0. Пожалуйста, используйте xpriv вместо xpub</string>
     <string name="single_address_account">Аккаунт с одиночным адресом</string>
@@ -207,7 +203,6 @@
     <string name="backup_lower">Резервная копия</string>
     <string name="private_key_s">Приватный ключ</string>
     <string name="account_upgraded">Аккаунт %d только что стал SegWit-совместимым</string>
-    <string name="export_fio_public_key_title">Экспортировать публичный ключ FIO</string>
     <string name="select_eth_account_to_erc20">Выберите ETH аккаунт для хранения ERC-20 токенов</string>
     <string name="list_added_tokens_new_account">ERC-20 токены на новом аккаунте</string>
     <string name="select_token_new_account">Добавить ERC-20 токены на новый ETH аккаунт</string>

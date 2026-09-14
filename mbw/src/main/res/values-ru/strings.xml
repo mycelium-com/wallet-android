@@ -362,8 +362,6 @@
     <string name="check_internet_and_try_again">Mycelium не может подключиться к серверу из-за плохого интернет-соединения.\nПроверьте соединение с интернетом и попробуйте снова.</string>
     <string name="exceed_card_value">Превышение номинала карты</string>
     <string name="from_s_to_s">От %s до %s</string>
-    <string name="delete_received_fio_request">Удалить полученный FIO-запрос</string>
-    <string name="delete_received_fio_request_msg">Вы уверены, что хотите удалить этот FIO-запрос?</string>
     <string name="erc20_this_is_updated_fee"><![CDATA[Это обновленная комиссия, основанная на установленном Gas Limit. Подробнее см. <u>расчет комиссии майнеров</u>.]]></string>
     <string name="input_data_helper">Шестнадцатеричный формат (0–9, A-F)</string>
 <!--    <string name="connection_issues"><b>Проблемы с подключением.</b> Пожалуйста, убедитесь, что вы в сети.</string>-->
@@ -429,7 +427,6 @@
     <string name="segwit_change_mode_description">Выберите способ получения сдачи от транзакции</string>
     <string name="bech32_receive_mode">SegWit native (Bech32)</string>
     <string name="tap_next">Тап для %s</string>
-    <string name="share_fio_public_key">Поделиться публичным ключем FIO</string>
     <string name="list_added_tokens">ERC-20 токены на аккаунте \"%s\"</string>
     <string name="select_token">Добавить ERC-20 токены на аккаунт \"%s\"</string>
     <string name="none">не выбрана</string>

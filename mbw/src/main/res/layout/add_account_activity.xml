@@ -76,69 +76,6 @@
             android:textSize="14sp"/>
 
         <Button
-            style="@style/MyceliumButton"
-            android:id="@+id/btBTCVHDCreate"
-            android:layout_width="match_parent"
-            android:layout_height="44dp"
-            android:layout_marginStart="@dimen/page_margin_width"
-            android:layout_marginTop="16dp"
-            android:layout_marginEnd="@dimen/page_margin_width"
-            app:drawableStartCompat="@drawable/ic_bitcoin_vault"
-            android:drawablePadding="6dp"
-            android:fontFamily="sans-serif"
-            android:gravity="start|center_vertical"
-            android:paddingEnd="16dp"
-            android:text="@string/btcvault_hd_account"
-            android:textColor="@color/button_text_color"
-            android:textSize="14sp"/>
-
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/btFIOCreate"
-            style="@style/MyceliumButton.FIO"
-            android:layout_width="match_parent"
-            android:layout_height="44dp"
-            android:layout_marginStart="@dimen/page_margin_width"
-            android:layout_marginTop="14dp"
-            android:layout_marginEnd="@dimen/page_margin_width"
-            android:paddingTop="0dp"
-            android:paddingBottom="0dp"
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp">
-
-            <TextView
-                android:id="@+id/btFIOCreateText"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:drawableStartCompat="@drawable/ic_fiopresale_icon_small"
-                android:textStyle="bold"
-                android:drawablePadding="13dp"
-                android:fontFamily="sans-serif"
-                android:gravity="start|center_vertical"
-                android:text="@string/hd_fio_account"
-                android:textColor="@color/button_text_color"
-                android:textSize="14sp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-<!--            <TextView-->
-<!--                android:layout_width="wrap_content"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:background="@drawable/bg_fio_new_bubble"-->
-<!--                android:paddingStart="8dp"-->
-<!--                android:paddingTop="2dp"-->
-<!--                android:paddingEnd="8dp"-->
-<!--                android:layout_marginStart="4dp"-->
-<!--                android:layout_marginTop="7dp"-->
-<!--                android:paddingBottom="2dp"-->
-<!--                android:text="NEW"-->
-<!--                app:layout_constraintTop_toTopOf="parent"-->
-<!--                android:textSize="9sp"-->
-<!--                app:layout_constraintLeft_toRightOf="@id/btFIOCreateText"-->
-<!--                tools:ignore="SmallSp" />-->
-        </androidx.constraintlayout.widget.ConstraintLayout>
-
-        <Button
             android:id="@+id/btEthCreate"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

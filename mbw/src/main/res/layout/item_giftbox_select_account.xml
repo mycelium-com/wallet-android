@@ -42,7 +42,7 @@
         android:layout_marginStart="@dimen/activity_horizontal_margin"
         android:layout_marginTop="4dp"
         android:layout_marginBottom="8dp"
-        android:textColor="@color/fio_white_alpha_0_6"
+        android:textColor="@color/white_alpha_0_6"
         android:textSize="12sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
@@ -64,12 +64,12 @@
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:background="@drawable/divider_fio_account_list"
+        android:background="@drawable/divider_account_list"
         app:layout_constraintTop_toTopOf="parent" />
 
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:background="@drawable/divider_fio_account_list"
+        android:background="@drawable/divider_account_list"
         app:layout_constraintBottom_toBottomOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -153,11 +153,9 @@ open class SendTronViewModel(application: Application) : SendCoinsViewModel(appl
         }
         if (isColdStorage() || model.account is HDAccountExternalSignature) {
             model.signTransaction(activity)
-            sendFioObtData()
         } else {
             mbwManager.runPinProtectedFunction(activity) {
                 model.signTransaction(activity)
-                sendFioObtData()
             }
         }
     }

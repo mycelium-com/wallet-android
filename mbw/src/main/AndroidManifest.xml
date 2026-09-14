@@ -174,7 +174,7 @@
         <activity android:name=".activity.modern.GetFromAddressBookActivity" />
         <activity
             android:name=".activity.AddAccountActivity"
-            android:theme="@style/MyceliumFIO" />
+            android:theme="@style/MyceliumDarkNoActionBar" />
         <activity android:name=".activity.AddAdvancedAccountActivity" />
         <activity android:name=".activity.ScanActivity" />
         <activity
@@ -206,14 +206,14 @@
         <activity android:name=".activity.send.ColdStorageSummaryActivity" />
         <activity
             android:name=".activity.send.SendCoinsActivity"
-            android:theme="@style/MyceliumFIOMapping" />
+            android:theme="@style/MyceliumDark" />
         <activity
             android:name=".activity.send.ManualAddressEntry"
-            android:theme="@style/MyceliumFIOMapping" />
+            android:theme="@style/MyceliumDark" />
         <activity android:name=".activity.send.SignTransactionActivity" />
         <activity
             android:name=".activity.receive.ReceiveCoinsActivity"
-            android:theme="@style/MyceliumFIOMapping" />
+            android:theme="@style/MyceliumDark" />
         <activity android:name=".simplex.SimplexMainActivity" />
         <activity
             android:name=".lt.activity.LtMainActivity"
@@ -264,7 +264,7 @@
         <activity android:name=".activity.ConnectionLogsActivity" />
         <activity
             android:name=".activity.GetAmountActivity"
-            android:theme="@style/MyceliumFIOMapping" />
+            android:theme="@style/MyceliumDark" />
         <activity android:name=".activity.StringHandlerActivity" />
         <activity android:name=".activity.send.VerifyPaymentRequestActivity" />
         <activity
@@ -294,34 +294,9 @@
                 android:value=".activity.news.NewsSearchableActivity" />
         </activity>
         <activity android:name=".activity.news.NewsImageActivity" />
-        <activity android:name=".activity.export.ExportFioKeyActivity" />
         <activity
-            android:name=".activity.fio.registername.RegisterFioNameActivity"
-            android:theme="@style/MyceliumFIOMapping"
-            android:windowSoftInputMode="adjustResize" />
-        <activity
-            android:name=".activity.fio.registerdomain.RegisterFIODomainActivity"
-            android:theme="@style/MyceliumFIOMapping"
-            android:windowSoftInputMode="adjustResize" />
-        <activity
-            android:name=".activity.fio.mapaccount.AccountMappingActivity"
-            android:theme="@style/MyceliumFIOMapping" />
-        <activity
-            android:name=".activity.fio.requests.FioRequestCreateActivity"
-            android:theme="@style/MyceliumFIOMapping"
-            android:windowSoftInputMode="adjustResize" />
-        <activity
-            android:name=".activity.fio.requests.ApproveFioRequestActivity"
-            android:theme="@style/MyceliumFIOMapping" />
-        <activity
-            android:name=".activity.fio.requests.ApproveFioRequestSuccessActivity"
-            android:theme="@style/MyceliumFIOMapping" />
-        <activity
-            android:name=".activity.fio.requests.SentFioRequestStatusActivity"
-            android:theme="@style/MyceliumFIOMapping" />
-
-        <service android:name=".fio.FioRequestService" />
-
+            android:name=".activity.deprecated.DeprecatedAccountsActivity"
+            android:theme="@style/MyceliumDark" />
         <activity android:name="com.mycelium.bequant.intro.BequantIntroActivity" />
         <activity
             android:name="com.mycelium.bequant.market.BequantMarketActivity"

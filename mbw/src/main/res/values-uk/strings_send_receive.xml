@@ -10,8 +10,8 @@
     <string name="amount_hint">0.00</string>
     <string name="amount_hint_denomination">0.00 %1$s</string>
     <string name="enter_recipient_title">Надіслати до</string>
-    <string name="enter_recipient_hint">%1$s Адреса або ім\'я FIO</string>
-    <string name="enter_recipient_description">Введіть %1$s Адресу або ім\'я FIO</string>
+    <string name="enter_recipient_hint">%1$s Адреса</string>
+    <string name="enter_recipient_description">Введіть %1$s Адресу</string>
     <string name="recipient_title">Введіть адресу отримувача:</string>
     <string name="amount_label">Сума:</string>
     <string name="amount_label_s">Сума: %s</string>
@@ -23,7 +23,6 @@
     <string name="s_payment_request">Запит на оплату %s</string>
     <string name="share_address">Поділитися адресою</string>
     <string name="share_address_and_amount">Поділитися адресою та сумою</string>
-    <string name="s_fio_request">FIO запит %s</string>
     <string name="qr_code">QR-код</string>
     <string name="my_addresses">Мої адреси</string>
     <string name="insufficient_funds">Недостатньо коштів</string>
@@ -78,8 +77,7 @@
 
 
     <string name="enter_bitcoin_address">Введіть Bitcoin адресу</string>
-    <string name="recipient_invalid">Недійсна адреса або ім\'я FIO</string>
-    <string name="recipient_has_no_such_address">%1$s не має підключеної адреси %2$s</string>
+    <string name="recipient_invalid">Недійсна адреса</string>
     <string name="recipient_valid">Отримувач дійсний</string>
     <string name="using_address_from_clipboard">Використання адреси з буфера обміну</string>
     <string name="foreign_addresses">Адресна книга</string>
@@ -193,7 +191,6 @@
 
     <string name="tx_replace_info_title">Транзакція для заміни</string>
     <string name="tx_replacae_info_desc">Виберіть непідтверджену транзакцію, яку ви хочете замінити.\nКомісія майнера для заміщуючої транзакції має бути вищою за комісію обраної непідтвердженої транзакції.</string>
-    <string name="receive_title_fio">Публічний ключ FIO</string>
     <string name="bundled_transactions">Укомплектовані транзакції:</string>
     <string name="send_mail">Відправити електронний лист…</string>
     <string name="provide_your_recovery_e_mail_address">Надайте вашу резервну електронну адресу нижче. Ми надішлемо вам захищене посилання та інструкції, як скинути пароль.</string>
@@ -202,7 +199,6 @@
     <string name="residential_address">Адреса проживання</string>
     <string name="proof_of_address">Підтвердження адреси</string>
     <string name="please_fill_proof_of_address">Будь ласка, заповніть вашу особисту інформацію так, як вона вказана у документі підтвердження адреси.</string>
-    <string name="send_fio_request">Надіслати запит FIO</string>
     <string name="total_amount">Загальна сума:</string>
     <string name="miner_fee">Комісія майнера:</string>
     <string name="spendable">Доступне для витрат:</string>

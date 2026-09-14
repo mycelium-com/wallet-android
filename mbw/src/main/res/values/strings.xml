@@ -354,6 +354,11 @@
     <string name="no_google_play_installed">No Google Play installed on the device</string>
     <string name="button_ok">OK</string>
     <string name="button_done">Done</string>
+    <string name="deprecated_accounts_title">Unsupported accounts</string>
+    <string name="deprecated_accounts_description">Bitcoin Vault and FIO are no longer supported by Mycelium and have been removed. The accounts below still held a balance the last time they were synchronized. Export their keys and import them into a wallet that supports the coin — after you confirm, this screen will not be shown again.</string>
+    <string name="deprecated_accounts_export">Export keys</string>
+    <string name="deprecated_accounts_acknowledge">I saved my keys</string>
+    <string name="deprecated_accounts_no_key">This account was not derived from your backup words, so Mycelium holds no key for it.</string>
     <string name="button_cancel">Cancel</string>
 
     <string name="select_flows">Select flows</string>
@@ -407,8 +412,6 @@
     <string name="gaps_button_ok">OK</string>
     <string name="gaps_button_ignore">Ignore</string>
     <string name="connection_logs">Logs</string>
-    <string name="no_logs">No logs</string>
-    <string name="confirm_fio_link">Do you want to register a FIO Name for your HD Bitcoin account %1$s?</string>
     <string name="media_flow_notification_title">"Mycelium Wallet / Mediaflow"</string>
     <string name="there_are_no_bookmarks_yet">There are no bookmarks yet.</string>
     <string name="loading_media_flow_feed_please_wait">Loading Media Flow feed, please wait %s</string>
@@ -423,7 +426,6 @@
     <string name="turn_off">Turn it off</string>
     <string name="you_about_turn_off_mf">You are about to turn Media Flow off</string>
     <string name="you_about_turn_off_mf_text">Media Flow is a great source of industry news, the wallet features reviews, Micro OTC special offers and more.\n\nYou can always turn it on in Settings -> Mycelium services.\n\nIf you only want to disable notifications, please go to Settings -> Personalization -> Notifications.</string>
-    <string name="share_fio_public_key">Share FIO public key</string>
     <string name="sell_eth">SELL ETH</string>
     <string name="sell_bitcoin">SELL BITCOIN</string>
     <string name="select_token">Add ERC-20 tokens to \"%s\" account</string>
@@ -433,15 +435,6 @@
     <string name="list_added_trc20_tokens">TRC-20 tokens on \"%s\" account</string>
     <string name="list_added_trc20_tokens_new_account">TRC-20 tokens on new account</string>
     <string name="none">none</string>
-    <string name="select_name_to_associate">Connect accounts to your FIO Name. Only <b>one</b> account per each cryptocurrency can be connected with <b>one</b> FIO Name.</string>
-    <string name="create_fio_domain">Create FIO Domain</string>
-    <string name="tab_fio_requests">FIO Requests</string>
-    <string name="my_fio_domains">My FIO Domains</string>
-    <string name="following_fio_domains_registered">Following FIO Domains registered</string>
-    <string name="domain_details">Domain details</string>
-    <string name="renew_fio_domain">Renew FIO Domain</string>
-    <string name="expiration_date">Expiration date:</string>
-    <string name="about_fio_protocol_title">About FIO Protocol</string>
     <string name="access_from_any_device">Access from any device</string>
     <string name="industry_leading_security">Industry-leading security</string>
     <string name="institutional_grade_crypto_storage">Institutional grade crypto storage and\nindustry-leading security, trusted by world\'s\nlargest crypto funds. You can manage your\ncrypto portfolio with confidence.</string>
@@ -532,7 +525,6 @@
     <string name="dear_user_s_s">Dear %s %s,</string>
     <string name="dear_user">Dear User,</string>
     <string name="try_request_backup_again"><![CDATA[It might be an issue with your internet connection or an internal server issue.<br/>Please try to request Backup Code again or contact <font color="#F2E868">Support Center</font> for help.]]></string>
-    <string name="leave_a_message_for_s">Leave a message for %s</string>
     <string name="service_unavailable">Service unavailable</string>
     <string name="buysell_bitcoin_title">Buy and sell %s</string>
     <string name="buysell_select_country_text">Select country where your debit/creadit card was issued.</string>
@@ -580,8 +572,6 @@
     <string name="max_available_cards_d">Max available cards: %d cards</string>
     <string name="exceed_card_value">Exceed card value</string>
     <string name="from_s_to_s">From %s to %s</string>
-    <string name="delete_received_fio_request">Delete received FIO Request</string>
-    <string name="delete_received_fio_request_msg">Are you sure you want to delete this FIO Request?</string>
     <string name="erc20_this_is_updated_fee"><![CDATA[This is the updated fee based on set Gas Limit. For details please see <u>miner fee calculation</u>.]]></string>
     <string name="input_data_helper">Hexadecimal format (0–9, A-F)</string>
     <string name="connection_issues"><b>Connection issues.</b> Please make sure you\'re online.</string>
@@ -627,7 +617,6 @@
     <string name="message_failed_to_verify">"Message failed to verify! "</string>
     <string name="input_look_ahead">Search depth (addresses)</string>
     <string name="card_code">Card Code:</string>
-    <string name="choose_blockchain">Choose blockchain</string>
     <string name="share_of">Share %1$d</string>
     <string name="total_number_of_shares">Total shares</string>
     <string name="threshold">Threshold</string>

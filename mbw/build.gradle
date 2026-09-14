@@ -47,8 +47,6 @@ dependencies {
     implementation project(includePrefix + ':libs:nordpol')
     implementation project(includePrefix + ':bitlib')
     implementation project(includePrefix + ':view')
-    implementation project(includePrefix + ':fiosdk')
-    implementation project(includePrefix + ':androidfioserializationprovider')
     implementation project(includePrefix + ':supportChat')
     implementation project(':common')
 
@@ -316,43 +314,12 @@ android {
                         '"tcp-tls://electrumx-2a0.mycelium.com:10000",' +
                         '"tcp-tls://electrumx-2a0.mycelium.com:10001"}'
                 WapiServers='"[{\\\'cert-sha1\':\\\'17:62:9D:04:0D:4E:1E:A2:9A:BD:FF:9F:38:1B:18:8F:94:3E:8B:5F\\\',\\\'url\\\':\\\'https://wapi.mycelium.com\\\'}]"'
-                ElectrumBTCVServers ='{"tcp-tls://electrumx-mainnet1.bitcoinvault.global:443",' +
-                        '"tcp-tls://electrumx-mainnet2.bitcoinvault.global:443"}'
                 EthBlockBook = '{"https://blockbook2.mycelium.com:9116"}'
                 TronServers = '{"https://api.trongrid.io"}'
                 // TRON energy service partner (pay TRC20 fees in USDT): staging for debug, production for release
                 EnergyServiceUrl = [release: "https://api.energly20.com/", debug: "http://164.90.215.54:8005/"]
                 EnergyServiceApiKey = [release: "partner_2d7257a377064316970bf37c0c8483b7_Ie6qCe9WfSaS0SeoNGbnTCy7QtFz5Lmt",
                                        debug  : "partner_73c6f2c2573b478a964ad6f0a5b12d6d_FMJDdpPqEc6LA4lxDOc3UXd7Jg13VAD0"]
-                FioApiServers = '{"https://fio.eu.eosamsterdam.net/v1/",' +
-                        '"https://fio.eosdac.io/v1/",' +
-                        '"https://fio.eosphere.io/v1/",' +
-                        '"https://fio.eosrio.io/v1/",' +
-                        '"https://fio.acherontrading.com/v1/",' +
-                        '"https://fio.eos.barcelona/v1/",' +
-                        '"https://fio.zenblocks.io/v1/",' +
-                        '"https://api.fio.alohaeos.com/v1/",' +
-                        '"https://fio.greymass.com/v1/",' +
-                        '"https://fio.genereos.io/v1/",' +
-                        '"https://fio.eosusa.news/v1/",' +
-                        '"https://fio.eosargentina.io/v1/",' +
-                        '"https://fio.cryptolions.io/v1/",' +
-                        '"https://fio-mainnet.eosblocksmith.io/v1/",' +
-                        '"https://api.fio.currencyhub.io/v1/",' +
-                        '"https://fio.eoscannon.io/v1/",' +
-                        '"https://fio.eosdublin.io/v1/",' +
-                        '"https://api.fiosweden.org/v1/",' +
-                        '"https://api.fio.greeneosio.com/v1/",' +
-                        '"https://fioapi.ledgerwise.io/v1/",' +
-                        '"https://api.fio.services/v1/",' +
-                        '"https://fio.eostribe.io/v1/",' +
-                        '"https://fio-za.eostribe.io/v1/"}'
-                FioHistoryServers = '{"https://fio.greymass.com/v1/",' +
-                        '"https://fio.greymass.com/v1/",' +
-                        '"https://fio.eosphere.io/v1/",' +
-                        '"https://api.fiosweden.org/v1/",' +
-                        '"https://fio.eosphere.io/v1/"}'
-                tpid = ""
 
                 appIdSpvBch = [release: "com.mycelium.module.spvbch",
                                debug  : "com.mycelium.module.spvbch.debug"]
@@ -390,10 +357,6 @@ android {
                 EnergyServiceUrl = [release: "http://164.90.215.54:8003/", debug: "http://164.90.215.54:8003/"]
                 EnergyServiceApiKey = [release: "partner_0d4a619e97ec4fbebd68c623f1345fbe_urBw7UJTelACfJrrqBXErrqiS4ubaa6M",
                                        debug  : "partner_0d4a619e97ec4fbebd68c623f1345fbe_urBw7UJTelACfJrrqBXErrqiS4ubaa6M"]
-                ElectrumBTCVServers ='{"tcp-tls://electrumx.testnet.btcv.stage.rnd.land:443"}'
-                FioApiServers = '{"https://fiotestnet.greymass.com/v1/"}'
-                FioHistoryServers = '{"https://fiotestnet.greymass.com/v1/"}'
-                tpid = "megabit@mycelium"
 
                 appIdSpvBch = [release: "com.mycelium.module.spvbch.testnet",
                                debug  : "com.mycelium.module.spvbch.testnet.debug"]
@@ -496,7 +459,6 @@ android {
         variant.buildConfigField "String[]", "ColuBlockExplorerApiURLs", "${flavor.ext.ColuBlockExplorerApiURLs}"
         variant.buildConfigField "String", "RMCChangeAddress", "\"${flavor.ext.RMCChangeAddress}\""
         variant.buildConfigField "String[]", "ElectrumServers", "${flavor.ext.ElectrumServers}"
-        variant.buildConfigField "String[]", "ElectrumBTCVServers", "${flavor.ext.ElectrumBTCVServers}"
         variant.buildConfigField "String[]", "EthBlockBook", "${flavor.ext.EthBlockBook}"
         // EIP-1559 gas estimator (github.com/AlhimicMan/eip1559_gas_estimator). Empty by default:
         // the host this used to be hardcoded to is gone, and with nothing configured the wallet
@@ -508,9 +470,6 @@ android {
         // Energy service endpoint/key per build type; override with -PenergyServiceUrl / -PenergyServiceApiKey
         variant.buildConfigField "String", "EnergyServiceUrl", "\"${project.findProperty('energyServiceUrl') ?: flavor.ext.EnergyServiceUrl[variant.buildType.name]}\""
         variant.buildConfigField "String", "EnergyServiceApiKey", "\"${project.findProperty('energyServiceApiKey') ?: flavor.ext.EnergyServiceApiKey[variant.buildType.name]}\""
-        variant.buildConfigField "String[]", "FioApiServers", "${flavor.ext.FioApiServers}"
-        variant.buildConfigField "String[]", "FioHistoryServers", "${flavor.ext.FioHistoryServers}"
-        variant.buildConfigField "String", "tpid", "\"${flavor.ext.tpid}\""
         variant.buildConfigField "String", "WapiServers", "${flavor.ext.WapiServers}"
         variant.buildConfigField "String", "appIdSpvBch", "\"${flavor.ext.appIdSpvBch[variant.buildType.name]}\""
         variant.buildConfigField "String", "appIdGeb", "\"${flavor.ext.appIdGeb[variant.buildType.name]}\""

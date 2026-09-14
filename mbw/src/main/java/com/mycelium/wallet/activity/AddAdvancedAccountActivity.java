@@ -97,10 +97,6 @@ import com.mycelium.wapi.wallet.eth.EthAddressConfig;
 import com.mycelium.wapi.wallet.tron.TronAddress;
 import com.mycelium.wapi.wallet.tron.TronAddressConfig;
 import com.mycelium.wapi.wallet.eth.coins.EthCoin;
-import com.mycelium.wapi.wallet.fio.FIOAddressConfig;
-import com.mycelium.wapi.wallet.fio.FIOUnrelatedHDConfig;
-import com.mycelium.wapi.wallet.fio.FioAddress;
-import com.mycelium.wapi.wallet.fio.FioKeyManager;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -155,27 +151,6 @@ public class AddAdvancedAccountActivity extends AppCompatActivity implements Imp
 
       binding.btGenerateNewBchSingleKey.setVisibility(View.GONE);
 
-      binding.btCreateFioLegacyAccount.setVisibility(
-              _mbwManager.getMasterSeedManager().hasBip32MasterSeed() ? View.VISIBLE : View.GONE);
-
-      binding.btCreateFioLegacyAccount.setOnClickListener(view -> {
-         if (!_mbwManager.getMasterSeedManager().hasBip32MasterSeed()) {
-            new Toaster(this).toast(R.string.master_seed_not_configured, false);
-            return;
-         }
-         FioKeyManager fioKeyManager = _mbwManager.fioKeyManager;
-         HdKeyNode legacyFioNode = fioKeyManager.getLegacyFioNode();
-         //since uuid is used for account creation we can check hdKeynode uuid for account existence
-         if (_mbwManager.getWalletManager(false).getAccount(legacyFioNode.getUuid()) == null) {
-            ArrayList<HdKeyNode> nodes = new ArrayList<HdKeyNode>() {{
-               add(legacyFioNode);
-            }};
-            List<UUID> account = _mbwManager.getWalletManager(false).createAccounts(new FIOUnrelatedHDConfig(nodes, getString(R.string.base_label_fio_account_legacy)));
-            finishOk(account.get(0), false);
-         } else {
-            new Toaster(this).toast(R.string.fio_legacy_already_created, false);
-         }
-      });
    }
 
    @Override
@@ -538,51 +513,7 @@ public class AddAdvancedAccountActivity extends AppCompatActivity implements Imp
                finishOk(account3, false);
                break;
             case NonBtc:
-               if ("FIO".equals(address.getCoinType().getSymbol())) {
-                  new FIOCreationAsyncTask((FioAddress) address).execute();
-               }
-         }
-      }
-   }
-
-   private class FIOCreationAsyncTask extends AsyncTask<Void, Integer, UUID> {
-      private ProgressDialog _progress;
-      private FioAddress address;
-
-      FIOCreationAsyncTask(FioAddress address) {
-         this.address = address;
-      }
-
-      @Override
-      protected void onPreExecute() {
-         super.onPreExecute();
-         _progress = new ProgressDialog(AddAdvancedAccountActivity.this);
-         _progress.setCancelable(false);
-         _progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-         _progress.setMessage(getString(R.string.fio_account_creation_started));
-         _progress.show();
-      }
-
-      @Override
-      protected UUID doInBackground(Void... params) {
-         try {
-            List<UUID> accounts = _mbwManager.getWalletManager(false).createAccounts(new FIOAddressConfig(address));
-            if (accounts.size() > 0) {
-               return accounts.get(0);
-            }
-         } catch (Exception e) {
-            // ignore
-         }
-         return null;
-      }
-
-      @Override
-      protected void onPostExecute(UUID account) {
-         _progress.dismiss();
-         if (account != null) {
-            finishOk(account, false);
-         } else {
-            finishError(address, R.string.fio_account_import_error);
+               break;
          }
       }
    }

@@ -75,7 +75,7 @@
 
             <Button
                 android:id="@+id/btSend"
-                style="@style/MyceliumButton.FIO"
+                style="@style/MyceliumButton.Primary"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"

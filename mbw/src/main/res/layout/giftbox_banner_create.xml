@@ -2,7 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/fio_protocol_banner_create"
+    android:id="@+id/giftbox_banner_create"
     android:layout_width="match_parent"
     android:layout_height="92dp"
     android:background="@drawable/giftbox_promo_background"
@@ -33,7 +33,7 @@
             tools:ignore="SmallSp" />
 
         <TextView
-            android:id="@+id/tvFioProtocol"
+            android:id="@+id/tvGiftboxBannerTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/giftbox_promo_title"
@@ -58,13 +58,13 @@
             android:layout_height="wrap_content"
             android:layout_marginEnd="13dp"
             android:layout_marginBottom="20dp"
-            android:background="@drawable/background_fio_create"
+            android:background="@drawable/background_banner_create"
             android:paddingStart="14dp"
             android:paddingTop="5dp"
             android:paddingEnd="14dp"
             android:paddingBottom="5dp"
             android:text="@string/giftbox_promo_action"
-            android:textColor="@color/fio_blue_banner"
+            android:textColor="@color/banner_blue"
             android:textSize="14sp"
             android:textStyle="bold"
             app:layout_constraintBottom_toBottomOf="parent"

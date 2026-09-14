@@ -319,7 +319,7 @@ class GetAmountActivity : AppCompatActivity(), NumberEntryListener {
                 binding.tvParentEthAccountBalance.text = " ${parentEthAccount.accountBalance.spendable.toStringFriendlyWithUnit(denomination)}"
                 binding.llParentEthAccountBalance.visibility = View.VISIBLE
                 binding.tvEthRequiredInfo.visibility = View.VISIBLE
-                binding.divider.setBackgroundColor(resources.getColor(R.color.fio_red))
+                binding.divider.setBackgroundColor(resources.getColor(R.color.error_red))
             }
         }
     }
@@ -349,7 +349,7 @@ class GetAmountActivity : AppCompatActivity(), NumberEntryListener {
                 binding.tvParentEthAccountBalanceLabel.text = getString(R.string.parent_trx_account, parentAccount.label)
                 binding.tvParentEthAccountBalance.text = " ${parentAccount.accountBalance.spendable.toStringFriendlyWithUnit(denomination)}"
                 binding.llParentEthAccountBalance.visibility = View.VISIBLE
-                binding.divider.setBackgroundColor(resources.getColor(R.color.fio_red))
+                binding.divider.setBackgroundColor(resources.getColor(R.color.error_red))
             }
         }
     }

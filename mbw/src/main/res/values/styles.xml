@@ -288,11 +288,6 @@
         <item name="android:textColor">@color/button_text_color</item>
     </style>
 
-    <style name="FioNameRegistrationButton" parent="MyceliumButton">
-        <item name="android:paddingBottom">14dp</item>
-        <item name="android:paddingTop">14dp</item>
-    </style>
-
     <style name="MyceliumButton.Blue">
         <item name="android:textColor">@color/button_blue_text_color</item>
     </style>
@@ -389,7 +384,7 @@
         <item name="android:textStyle">normal</item>
         <item name="android:textAllCaps">false</item>
         <item name="android:background">@drawable/background_action_btn_ads</item>
-        <item name="android:textColor">@color/fio_white_alpha_0_8</item>
+        <item name="android:textColor">@color/white_alpha_0_8</item>
         <item name="android:paddingStart">@dimen/button_padding_ads</item>
         <item name="android:paddingEnd">@dimen/button_padding_ads</item>
     </style>
@@ -416,7 +411,7 @@
         <item name="android:textSize">16sp</item>
     </style>
 
-    <style name="MyceliumFIO" parent="MyceliumModern">
+    <style name="MyceliumDarkNoActionBar" parent="MyceliumModern">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
     </style>
@@ -430,53 +425,33 @@
         <item name="android:textStyle">bold</item>
     </style>
 
-    <style name="MyceliumFIOMapping" parent="MyceliumModern">
+    <style name="MyceliumDark" parent="MyceliumModern">
         <item name="colorAccent">@color/lightgrey</item>
         <item name="colorControlActivated">@color/common_blue</item>
         <item name="android:colorControlActivated" tools:ignore="NewApi">@color/common_blue</item>
-        <item name="android:actionBarStyle">@style/MyceliumFIOMapping.ActionBar</item>
-        <item name="actionBarStyle">@style/MyceliumFIOMapping.ActionBar</item>
+        <item name="android:actionBarStyle">@style/MyceliumDark.ActionBar</item>
+        <item name="actionBarStyle">@style/MyceliumDark.ActionBar</item>
     </style>
 
-    <style name="MyceliumFIOMapping.ActionBar" parent="Widget.AppCompat.Light.ActionBar">
+    <style name="MyceliumDark.ActionBar" parent="Widget.AppCompat.Light.ActionBar">
         <item name="background">@color/black</item>
         <item name="android:height">56dp</item>
         <item name="height">56dp</item>
-        <item name="titleTextStyle">@style/MyceliumFIOMapping.ActionBar.Title</item>
-        <item name="android:titleTextStyle">@style/MyceliumFIOMapping.ActionBar.Title</item>
+        <item name="titleTextStyle">@style/MyceliumDark.ActionBar.Title</item>
+        <item name="android:titleTextStyle">@style/MyceliumDark.ActionBar.Title</item>
     </style>
 
-    <style name="MyceliumFIOMapping.ActionBar.Title">
+    <style name="MyceliumDark.ActionBar.Title">
         <item name="android:textSize">24sp</item>
         <item name="android:textColor">@color/white</item>
         <item name="android:textStyle">bold</item>
     </style>
 
-    <style name="myfiowallet">
-        <item name="android:textSize">18sp</item>
-        <item name="android:textColor">#FFFFFF</item>
-    </style>
-
-    <style name="fio_account">
-        <item name="android:textSize">14sp</item>
-        <item name="android:textColor">#FFFFFF</item>
-    </style>
-
-    <style name="FIOAccountSubGroup">
-        <item name="android:textSize">14sp</item>
-        <item name="android:textColor">#99FFFFFF</item>
-    </style>
-
-    <style name="FIOAccountGroup">
-        <item name="android:textSize">18sp</item>
-        <item name="android:textColor">#FFFFFF</item>
-    </style>
-
-    <style name="MyceliumButton.FIO">
+    <style name="MyceliumButton.Primary">
         <item name="android:minHeight">44dp</item>
     </style>
 
-    <style name="MyceliumButton.FIO.Gray">
+    <style name="MyceliumButton.Primary.Gray">
         <item name="android:background">@drawable/btn_gray</item>
     </style>
     <style name="CustomDialog" parent="AppBaseTheme" >

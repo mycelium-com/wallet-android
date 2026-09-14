@@ -15,7 +15,6 @@ import com.mycelium.net.ServerEndpointType
 import com.mycelium.wallet.BuildConfig
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
-import com.mycelium.wallet.activity.main.FioProtocolBannerFragment.Companion.newInstance
 import com.mycelium.wallet.activity.main.address.AddressFragment
 import com.mycelium.wallet.activity.modern.UnspentOutputsActivity
 import com.mycelium.wallet.activity.rmc.RMCAddressFragment
@@ -27,7 +26,6 @@ import com.mycelium.wapi.wallet.colu.coins.RMCCoin
 import com.mycelium.wapi.wallet.colu.coins.RMCCoinTest
 import com.mycelium.wapi.wallet.eth.AbstractEthERC20Account
 import com.mycelium.wapi.wallet.tron.AbstractTronAccount
-import com.mycelium.wapi.wallet.fio.FioAccount
 import com.squareup.otto.Subscribe
 
 class BalanceMasterFragment : Fragment() {
@@ -57,7 +55,6 @@ class BalanceMasterFragment : Fragment() {
             defineAddressAccountView(fragmentTransaction, account)
             fragmentTransaction.replace(phFragmentBalance.id, BalanceFragment())
             fragmentTransaction.replace(phFragmentNotice.id, NoticeFragment())
-            fragmentTransaction.replace(phFragmentFioBanner.id, newInstance(false))
             fragmentTransaction.replace(phFragmentBuySell.id, BuySellFragment())
         }
         fragmentTransaction.commitAllowingStateLoss()
@@ -153,7 +150,7 @@ class BalanceMasterFragment : Fragment() {
             val mbwManager = MbwManager.getInstance(requireActivity())
             val account = mbwManager.selectedAccount
             menu.findItem(R.id.miShowOutputs)?.isVisible =
-                account.isActive && account !is AbstractEthERC20Account && account !is AbstractTronAccount && account !is FioAccount
+                account.isActive && account !is AbstractEthERC20Account && account !is AbstractTronAccount
         }
 
         override fun onMenuItemSelected(menuItem: MenuItem): Boolean {

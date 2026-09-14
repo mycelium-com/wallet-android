@@ -26,7 +26,7 @@
             android:layout_marginTop="54dp"
             android:gravity="center"
             android:text="@string/no_purchased_gift_card"
-            android:textColor="@color/fio_white_alpha_0_9"
+            android:textColor="@color/white_alpha_0_9"
             android:textSize="20sp"
             android:visibility="@{viewModel.state == ListState.NOT_FOUND ? View.VISIBLE : View.GONE}"
             app:layout_constraintTop_toTopOf="parent" />
@@ -39,7 +39,7 @@
             android:layout_marginTop="12dp"
             android:gravity="center"
             android:text="@string/no_gift_cards_linked"
-            android:textColor="@color/fio_white_alpha_0_6"
+            android:textColor="@color/white_alpha_0_6"
             android:textSize="14sp"
             android:visibility="@{viewModel.state == ListState.NOT_FOUND ? View.VISIBLE :  View.GONE}"
             app:layout_constraintTop_toBottomOf="@id/noResultTitle" />

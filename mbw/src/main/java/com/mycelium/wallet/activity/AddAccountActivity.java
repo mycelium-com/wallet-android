@@ -79,14 +79,11 @@ import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.btc.bip44.AdditionalHDAccountConfig;
 import com.mycelium.wapi.wallet.btc.bip44.BitcoinHDModule;
-import com.mycelium.wapi.wallet.btcvault.hd.AdditionalMasterseedAccountConfig;
-import com.mycelium.wapi.wallet.btcvault.hd.BitcoinVaultHDModule;
 import com.mycelium.wapi.wallet.erc20.coins.ERC20Token;
 import com.mycelium.wapi.wallet.eth.EthAccount;
 import com.mycelium.wapi.wallet.eth.EthereumMasterseedConfig;
 import com.mycelium.wapi.wallet.eth.EthereumModule;
 import com.mycelium.wapi.wallet.eth.EthereumModuleKt;
-import com.mycelium.wapi.wallet.fio.FIOMasterseedConfig;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -132,7 +129,6 @@ public class AddAccountActivity extends AppCompatActivity {
 
         binding.btAdvanced.setOnClickListener(advancedClickListener);
         binding.btHdCreate.setOnClickListener(createHdAccount);
-        binding.btFIOCreate.setOnClickListener(createFioAccount);
         if (_mbwManager.getMetadataStorage().getMasterSeedBackupState() == MetadataStorage.BackupState.VERIFIED) {
             binding.tvWarningNoBackup.setVisibility(View.GONE);
         } else {
@@ -141,21 +137,6 @@ public class AddAccountActivity extends AppCompatActivity {
         _progress = new ProgressDialog(this);
         binding.btInvestmentCreate.setOnClickListener(v ->
                 startActivity(new Intent(AddAccountActivity.this, BequantIntroActivity.class)));
-        binding.btBTCVHDCreate.setOnClickListener(v -> _mbwManager.runPinProtectedFunction(this, () -> {
-            final WalletManager wallet = _mbwManager.getWalletManager(false);
-            // at this point, we have to have a master seed, since we created one on startup
-            Preconditions.checkState(_mbwManager.getMasterSeedManager().hasBip32MasterSeed());
-
-            boolean canCreateAccount = wallet.getModuleById(BitcoinVaultHDModule.ID)
-                    .canCreateAccount(new AdditionalMasterseedAccountConfig());
-            if (!canCreateAccount) {
-                // TODO replace with string res
-                _toaster.toast("You can only have one unused Bitcoin Vault Account.", false);
-                return;
-            }
-
-            new BTCVHdCreationAsyncTask().execute();
-        }));
         binding.btEthCreate.setOnClickListener(v -> {
             _mbwManager.runPinProtectedFunction(AddAccountActivity.this, new Runnable() {
                 @Override
@@ -422,18 +403,6 @@ public class AddAccountActivity extends AppCompatActivity {
         }
     };
 
-    View.OnClickListener createFioAccount = new View.OnClickListener() {
-        @Override
-        public void onClick(View view) {
-            _mbwManager.runPinProtectedFunction(AddAccountActivity.this, new Runnable() {
-                @Override
-                public void run() {
-                    createFIOAccount();
-                }
-            });
-        }
-    };
-
     private void createNewHdAccount() {
         final WalletManager wallet = _mbwManager.getWalletManager(false);
         // at this point, we have to have a master seed, since we created one on startup
@@ -448,51 +417,10 @@ public class AddAccountActivity extends AppCompatActivity {
         new HdCreationAsyncTask().execute();
     }
 
-    private void createFIOAccount() {
-        showProgress(R.string.fio_account_creation_started);
-        new FIOCreationAsyncTask().execute();
-    }
-
     private class HdCreationAsyncTask extends AsyncTask<Void, Integer, UUID> {
         @Override
         protected UUID doInBackground(Void... params) {
             return _mbwManager.getWalletManager(false).createAccounts(new AdditionalHDAccountConfig()).get(0);
-        }
-
-        @Override
-        protected void onPostExecute(UUID account) {
-            _progress.dismiss();
-            MbwManager.getEventBus().post(new AccountCreated(account));
-            MbwManager.getEventBus().post(new AccountChanged(account));
-            finishOk(account);
-        }
-    }
-
-    private class BTCVHdCreationAsyncTask extends AsyncTask<Void, Integer, UUID> {
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            showProgress(R.string.btcv_account_creation_started);
-        }
-
-        @Override
-        protected UUID doInBackground(Void... params) {
-            return _mbwManager.getWalletManager(false).createAccounts(new AdditionalMasterseedAccountConfig()).get(0);
-        }
-
-        @Override
-        protected void onPostExecute(UUID account) {
-            _progress.dismiss();
-            MbwManager.getEventBus().post(new AccountCreated(account));
-            MbwManager.getEventBus().post(new AccountChanged(account));
-            finishOk(account);
-        }
-    }
-
-    private class FIOCreationAsyncTask extends AsyncTask<Void, Integer, UUID> {
-        @Override
-        protected UUID doInBackground(Void... params) {
-            return _mbwManager.getWalletManager(false).createAccounts(new FIOMasterseedConfig()).get(0);
         }
 
         @Override

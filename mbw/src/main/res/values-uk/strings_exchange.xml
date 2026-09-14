@@ -134,9 +134,6 @@
     <string name="receiving_exchange">отримання</string>
     <string name="exchange_sending">ВІДПРАВЛЯЮЧА\nАДРЕСА</string>
     <string name="exchange_receiving">АДРЕСА\nОТРИМАННЯ</string>
-    <string name="partner_fiopresale">Попередній продаж адрес FIO</string>
-    <string name="partner_fiopresale_short">Ваш ключ до кращого досвіду роботи з блокчейном</string>
-    <string name="partner_fiopresale_info" />
     <string name="sepa_buy_sell_description">Купівля/продаж Bitcoin за допомогою Single Euro Payments Area.</string>
     <string name="sepa_buy_sell_settings_description">Показувати опцію купівлі/продажу SEPA</string>
     <string name="changelly_indicate_extra">Будь ласка, не забудьте вказати %s перед надсиланням коштів.</string>

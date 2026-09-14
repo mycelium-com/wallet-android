@@ -49,7 +49,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@{@string/card_value1+':'}"
-                    android:textColor="@color/fio_white_alpha_0_6"
+                    android:textColor="@color/white_alpha_0_6"
                     android:textSize="14sp"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
@@ -153,7 +153,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/quantity"
-                    android:textColor="@color/fio_white_alpha_0_6"
+                    android:textColor="@color/white_alpha_0_6"
                     android:textSize="14sp"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
@@ -227,7 +227,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/total_amount"
-                    android:textColor="@color/fio_white_alpha_0_6"
+                    android:textColor="@color/white_alpha_0_6"
                     android:textSize="14sp"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
@@ -290,7 +290,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/miner_fee"
-                    android:textColor="@color/fio_white_alpha_0_6"
+                    android:textColor="@color/white_alpha_0_6"
                     android:textSize="14sp"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
@@ -346,7 +346,7 @@
 
             <Button
                 android:id="@+id/btSend"
-                style="@style/MyceliumButton.FIO"
+                style="@style/MyceliumButton.Primary"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"

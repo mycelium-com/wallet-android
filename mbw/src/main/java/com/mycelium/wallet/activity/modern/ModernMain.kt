@@ -30,13 +30,11 @@ import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
 import com.mycelium.wallet.WalletApplication
+import com.mycelium.wallet.activity.deprecated.DeprecatedAccountsActivity
 import com.mycelium.wallet.activity.ActionActivity
 import com.mycelium.wallet.activity.MessageVerifyActivity
 import com.mycelium.wallet.activity.changelog.ChangeLog
-import com.mycelium.wallet.activity.fio.mapaccount.AccountMappingActivity
-import com.mycelium.wallet.activity.fio.requests.ApproveFioRequestActivity
 import com.mycelium.wallet.activity.main.BalanceMasterFragment
-import com.mycelium.wallet.activity.main.FioRequestsHistoryFragment
 import com.mycelium.wallet.activity.main.RecommendationsFragment
 import com.mycelium.wallet.activity.main.TransactionHistoryFragment
 import com.mycelium.wallet.activity.modern.adapter.TabsAdapter
@@ -86,13 +84,11 @@ import com.mycelium.wallet.external.changelly2.ExchangeFragment
 import com.mycelium.wallet.external.changelly2.HistoryFragment
 import com.mycelium.wallet.external.changelly2.remote.Api
 import com.mycelium.wallet.external.mediaflow.NewsConstants
-import com.mycelium.wallet.fio.FioRequestNotificator
 import com.mycelium.wallet.modularisation.ModularisationVersionHelper
 import com.mycelium.wapi.api.response.Feature
 import com.mycelium.wapi.wallet.AesKeyCipher
 import com.mycelium.wapi.wallet.SyncMode
 import com.mycelium.wapi.wallet.btc.bip44.BitcoinHDModule
-import com.mycelium.wapi.wallet.fio.FioModule
 import com.mycelium.wapi.wallet.manager.State
 import com.squareup.otto.Subscribe
 import info.guardianproject.netcipher.proxy.OrbotHelper
@@ -115,7 +111,6 @@ class ModernMain : AppCompatActivity(), BackHandler {
     private var mTransactionsTab: TabLayout.Tab? = null
     private var mVipTab: TabLayout.Tab? = null
     private var mRecommendationsTab: TabLayout.Tab? = null
-    private var mFioRequestsTab: TabLayout.Tab? = null
     private var refreshItem: MenuItem? = null
     private var _toaster: Toaster? = null
 
@@ -198,8 +193,6 @@ class ModernMain : AppCompatActivity(), BackHandler {
                 RecommendationsFragment::class.java, null, TAB_RECOMMENDATIONS
             )
         }
-        mFioRequestsTab = binding.pagerTabs.newTab().setText(getString(R.string.tab_fio_requests))
-        mTabsAdapter!!.addTab(mFioRequestsTab!!, FioRequestsHistoryFragment::class.java, null, TAB_FIO_REQUESTS)
         val addressBookConfig = Bundle().apply {
             putBoolean(AddressBookFragment.OWN, false)
             putBoolean(AddressBookFragment.SELECT_ONLY, false)
@@ -255,6 +248,8 @@ class ModernMain : AppCompatActivity(), BackHandler {
                 REQUEST_CODE_NOTIFICATION
             )
         })
+        // Bitcoin Vault and FIO were dropped; warn once per user who still had funds on them.
+        DeprecatedAccountsActivity.startIfNeeded(this)
     }
 
     private fun setupSupportChatFab() {
@@ -336,11 +331,6 @@ class ModernMain : AppCompatActivity(), BackHandler {
                                 .putExtras(getIntent().extras!!))
                     }
                 }
-            }
-            FioRequestNotificator.FIO_REQUEST_ACTION -> {
-                selectTab(TAB_FIO_REQUESTS)
-                startActivity(Intent(this, ApproveFioRequestActivity::class.java)
-                        .putExtras(getIntent().extras!!))
             }
             MainActions.ACTION_ACCOUNTS -> {
                 selectTab(TAB_ACCOUNTS)
@@ -636,12 +626,6 @@ class ModernMain : AppCompatActivity(), BackHandler {
             addEnglishSetting(menu.findItem(R.id.miSettings))
             inflater.inflate(R.menu.refresh, menu)
             inflater.inflate(R.menu.verify_message, menu)
-            if (!(mbwManager.getWalletManager(false)
-                    .getModuleById(FioModule.ID) as FioModule?)!!.getAllRegisteredFioNames()
-                    .isEmpty()
-            ) {
-                inflater.inflate(R.menu.record_fio_options, menu)
-            }
             inflater.inflate(R.menu.giftbox, menu)
         }
 
@@ -652,7 +636,7 @@ class ModernMain : AppCompatActivity(), BackHandler {
             menu.findItem(R.id.miBackup)?.isVisible = true
             refreshItem = Preconditions.checkNotNull(menu.findItem(R.id.miRefresh))
             refreshItem?.isVisible =
-                tabTag in arrayOf(TAB_BALANCE, TAB_HISTORY, TAB_FIO_REQUESTS, TAB_ACCOUNTS)
+                tabTag in arrayOf(TAB_BALANCE, TAB_HISTORY, TAB_ACCOUNTS)
             setRefreshAnimation()
             menu.findItem(R.id.miGiftBox)?.isVisible =
                 true // isContentEnabled(GiftboxConstants.PARTNER_ID)
@@ -713,16 +697,6 @@ class ModernMain : AppCompatActivity(), BackHandler {
                     true
                 }
 
-                R.id.miMyFIONames -> {
-                    startActivity(Intent(this@ModernMain, AccountMappingActivity::class.java))
-                    true
-                }
-
-                R.id.miFIORequests -> {
-                    selectTab(TAB_FIO_REQUESTS)
-                    true
-                }
-
                 R.id.miGiftBox -> {
                     GiftBoxRootActivity.start(this@ModernMain)
                     true
@@ -740,7 +714,6 @@ class ModernMain : AppCompatActivity(), BackHandler {
         const val TAB_EXCHANGE = "tab_exchange"
         private const val TAB_HISTORY = "tab_history"
         const val TAB_VIP = "tab_vip"
-        const val TAB_FIO_REQUESTS = "tab_fio_requests"
         private const val TAB_ADS = "tab_ads"
         private const val TAB_RECOMMENDATIONS = "tab_recommendations"
         private const val TAB_ADDRESS_BOOK = "tab_address_book"

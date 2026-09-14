@@ -22,8 +22,6 @@
     <!-- URLs -->
     <string name="source_url" translatable="false">https://github.com/mycelium-com/wallet</string>
     <string name="homepage_url" translatable="false">https://mycelium.com</string>
-    <string name="partner_fiopresale_url" translatable="false">https://fio.sale/mycelium</string>
-    <string name="buy_fio_token_link" translatable="false">https://www.binance.com/en/trade/FIO_BTC?layout=pro</string>
     <string name="mycelium_com" translatable="false">mycelium.com</string>
 
     <!-- Brand / product names -->
@@ -38,14 +36,12 @@
     <!-- Currency / asset canonical names -->
     <string name="bitcoin_name" translatable="false">Bitcoin</string>
     <string name="ethereum_name" translatable="false">Ethereum</string>
-    <string name="fio_accounts_name" translatable="false">FIO</string>
     <string name="colu_rmc_tokens" translatable="false">RMC</string>
     <string name="bitcoin_cash_name" translatable="false">Bitcoin Cash</string>
     <string name="eth_accounts_name" translatable="false">Ethereum &amp; ERC-20</string>
     <string name="tron_name" translatable="false">Tron</string>
     <string name="tron_accounts_name" translatable="false">TRON &amp; TRC-20</string>
     <string name="active_hd_accounts_name" translatable="false">Bitcoin HD</string>
-    <string name="btcv_hd_accounts_name" translatable="false">Bitcoin Vault HD</string>
     <string name="active_bitcoin_sa_group_name" translatable="false">Bitcoin SA</string>
 
     <!-- Address-type / blockchain technical identifiers -->

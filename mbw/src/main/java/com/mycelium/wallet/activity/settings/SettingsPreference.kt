@@ -14,7 +14,6 @@ import java.util.*
 object SettingsPreference {
     private const val NEWS_NOTIFICATION_ENABLE = "news_notification_enable"
     private const val MEDIA_FLOW_ENABLE = "media_flow_enable"
-    private const val FIO_ENABLE = "fio_enable"
     private const val PARTNER_KEY = "partner-info"
     private const val MEDIAFLOW_KEY = "mediaflow"
     private const val ACCOUNTS_KEY = "accounts"
@@ -27,19 +26,6 @@ object SettingsPreference {
     private val gson by lazy {
         GsonBuilder().setDateFormat("yyyy-MM-dd'T'HH:mm:ssZ").create()
     }
-
-    @JvmStatic
-    var fioEnabled
-        get() = sharedPreferences.getBoolean(FIO_ENABLE, true) && fioActive
-        set(enable) {
-            sharedPreferences.edit()
-                    .putBoolean(FIO_ENABLE, enable)
-                    .apply()
-        }
-
-    @JvmStatic
-    val fioActive
-        get() = isContentEnabled("fio-presale")
 
     private fun date(year: Int, month: Int, day: Int, hour: Int, minute: Int, timezone: String) = Calendar.getInstance().apply {
         timeZone = TimeZone.getTimeZone(timezone)

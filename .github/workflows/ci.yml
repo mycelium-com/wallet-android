@@ -54,11 +54,7 @@ jobs:
         git reset --hard HEAD
         git clean -dfx
 
-        cd fiosdk_kotlin
-        git reset --hard HEAD
-        git clean -dfx
-
-        cd ../wallet-android-modularization-tools
+        cd wallet-android-modularization-tools
         git reset --hard HEAD
         git clean -dfx
 

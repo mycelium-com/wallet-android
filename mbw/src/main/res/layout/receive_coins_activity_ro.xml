@@ -23,7 +23,7 @@
                 android:visibility="@{viewModel.hasPrivateKey ? View.GONE : View.VISIBLE}"
                 android:text="@{Html.fromHtml(@string/read_only_warning)}"
                 tools:text="Warning: Your wallet does not have the private key for this address.\nYou cannot spend coins received unless you have the private key elsewhere."
-                tools:textColor="@color/fio_red"
+                tools:textColor="@color/error_red"
                 android:textSize="14sp" />
     </merge>
 </layout>

@@ -8,6 +8,6 @@
     android:layout_height="wrap_content"
     android:layout_marginTop="24dp"
     android:text="@string/miner_fee_title"
-    android:textColor="@color/fio_white_alpha_0_6"
+    android:textColor="@color/white_alpha_0_6"
     android:textSize="14sp"
     tools:showIn="@layout/send_coins_activity" />

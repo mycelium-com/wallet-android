@@ -1,0 +1,50 @@
+-- Bitcoin Vault and FIO are deprecated and removed from the wallet.
+-- Snapshot what the user had before dropping the per-coin tables: the deprecated-accounts
+-- screen needs the label and the last known balance to warn about accounts that still hold
+-- funds, and the account index to derive the keys for export.
+CREATE TABLE IF NOT EXISTS DeprecatedAccount (
+    uuid TEXT PRIMARY KEY NOT NULL,
+    currency TEXT NOT NULL,
+    accountName TEXT NOT NULL,
+    balance TEXT NOT NULL,
+    accountIndex INTEGER NOT NULL,
+    accountType INTEGER NOT NULL,
+    acknowledged INTEGER NOT NULL DEFAULT 0
+);
+
+INSERT OR IGNORE INTO DeprecatedAccount(uuid, currency, accountName, balance, accountIndex, accountType)
+SELECT ac.uuid, ac.currency, ac.accountName, ac.balance, bc.accountIndex, COALESCE(bc.accountType, 0)
+FROM AccountContext AS ac
+INNER JOIN BTCVContext AS bc ON bc.uuid = ac.uuid;
+
+INSERT OR IGNORE INTO DeprecatedAccount(uuid, currency, accountName, balance, accountIndex, accountType)
+SELECT ac.uuid, ac.currency, ac.accountName, ac.balance, fc.accountIndex, fc.accountType
+FROM AccountContext AS ac
+INNER JOIN FioContext AS fc ON fc.uuid = ac.uuid;
+
+-- Rows of a coin that is no longer in COINS make the column adapters throw on decode,
+-- so every generic table has to be cleaned, not just the per-coin ones.
+DELETE FROM AccountBacking
+WHERE currency IN ('bitcoinvault.main', 'bitcoinvault.test', 'fio.main', 'fio.test');
+
+DELETE FROM AccountContext
+WHERE currency IN ('bitcoinvault.main', 'bitcoinvault.test', 'fio.main', 'fio.test');
+
+DELETE FROM FeeEstimation
+WHERE currency IN ('bitcoinvault.main', 'bitcoinvault.test', 'fio.main', 'fio.test');
+
+DROP TABLE IF EXISTS BTCVAccountBacking;
+DROP TABLE IF EXISTS BTCVContext;
+DROP TABLE IF EXISTS BTCVOutgoingTx;
+DROP TABLE IF EXISTS BTCVPtxo;
+DROP TABLE IF EXISTS BTCVRefersPtxo;
+DROP TABLE IF EXISTS BTCVTransaction;
+DROP TABLE IF EXISTS BTCVUtxo;
+
+DROP TABLE IF EXISTS FioAccountBacking;
+DROP TABLE IF EXISTS FioContext;
+DROP TABLE IF EXISTS FioKnownNames;
+DROP TABLE IF EXISTS FioNameAccountMappings;
+DROP TABLE IF EXISTS FioOtherBlockchainTransactions;
+DROP TABLE IF EXISTS FioRequestsReceivedBacking;
+DROP TABLE IF EXISTS FioRequestsSentBacking;

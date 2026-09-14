@@ -46,11 +46,8 @@ import com.mycelium.wallet.external.LocalTraderServiceDescription;
 import com.mycelium.wallet.external.SepaServiceDescription;
 import com.mycelium.wallet.external.BankCardServiceDescription;
 import com.mycelium.wapi.wallet.btc.coins.BitcoinMain;
-import com.mycelium.wapi.wallet.btcvault.BTCVNetworkParameters;
-import com.mycelium.wapi.wallet.btcvault.coins.BitcoinVaultMain;
 import com.mycelium.wapi.wallet.eth.coins.EthMain;
 import com.mycelium.wapi.wallet.tron.coins.TronMain;
-import com.mycelium.wapi.wallet.fio.coins.FIOMain;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -70,11 +67,6 @@ public class MbwProdEnvironment extends MbwEnvironment {
    @Override
    public NetworkParameters getNetwork() {
       return NetworkParameters.productionNetwork;
-   }
-
-   @Override
-   public BTCVNetworkParameters getBTCVNetwork() {
-      return BTCVNetworkParameters.getProductionNetwork();
    }
 
    /**
@@ -153,13 +145,6 @@ public class MbwProdEnvironment extends MbwEnvironment {
          add(new BlockExplorer("TSC", "tronscan.org", "https://tronscan.org/#/address/", "https://tronscan.org/#/transaction/", null, null));
          add(new BlockExplorer("BLR", "blockchair", "https://blockchair.com/tron/address/", "https://blockchair.com/tron/transaction/", null, null));
       }});
-      put(FIOMain.INSTANCE.getName(), new ArrayList<BlockExplorer>() {{
-         add(new BlockExplorer("FBI", "fio.bloks.io", "https://fio.bloks.io/account/", "https://fio.bloks.io/transaction/", null, null));
-         add(new BlockExplorer("EFI", "explorer.fioprotocol.io", "https://explorer.fioprotocol.io/account/", "https://explorer.fioprotocol.io/transaction/", null, null));
-      }});
-      put(BitcoinVaultMain.INSTANCE.getName(), Arrays.asList(
-              new BlockExplorer("BVE", "explorer.bitcoinvault.global", "https://explorer.bitcoinvault.global/address/", "https://explorer.bitcoinvault.global/tx/", null, null)
-      ));
    }};
 
    public Map<String, List<BlockExplorer>> getBlockExplorerMap() {

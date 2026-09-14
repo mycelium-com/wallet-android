@@ -10,8 +10,8 @@
     <string name="amount_hint">0.00</string>
     <string name="amount_hint_denomination">0.00 %1$s</string>
     <string name="enter_recipient_title">Send to</string>
-    <string name="enter_recipient_hint">%1$s Address or FIO Name</string>
-    <string name="enter_recipient_description">Enter %1$s Address or FIO Name</string>
+    <string name="enter_recipient_hint">%1$s Address</string>
+    <string name="enter_recipient_description">Enter %1$s Address</string>
     <string name="recipient_title">Enter recipient address:</string>
     <string name="amount_label">Amount:</string>
     <string name="amount_label_s">Amount: %s</string>
@@ -23,7 +23,6 @@
     <string name="s_payment_request">%s Payment Request</string>
     <string name="share_address">Share Address</string>
     <string name="share_address_and_amount">Share Address and Amount</string>
-    <string name="s_fio_request">%s FIO Request</string>
     <string name="qr_code">QR Code</string>
     <string name="my_addresses">My Addresses</string>
     <string name="insufficient_funds">Insufficient funds</string>
@@ -76,8 +75,7 @@
     <string name="transaction_rejected_malformed">Transaction signing failed.\n Please report this incident to tech support.\nRaw transaction was copied to clipboard, if possible please attach it to your request. \n %s</string>
     <string name="transaction_rejected_invalid_tx_params">Transaction was rejected by Network. Please verify that transaction parameters are correct and try again. Error: %1$s</string>
     <string name="enter_bitcoin_address">Enter Bitcoin Address</string>
-    <string name="recipient_invalid">Invalid address or FIO Name</string>
-    <string name="recipient_has_no_such_address">%1$s has no %2$s address connected</string>
+    <string name="recipient_invalid">Invalid address</string>
     <string name="recipient_valid">Recipient Valid</string>
     <string name="using_address_from_clipboard">Using address from clipboard</string>
     <string name="foreign_addresses">Address Book</string>
@@ -112,7 +110,6 @@
     <string name="miner_fee_normal_desc">With the normal miner fee schedule you can expect your transactions to confirm within the next few blocks.</string>
     <string name="miner_fee_priority_desc">With the priority fee schedule you can expect your transaction to confirm within one or two blocks.</string>
     <string name="new_bitcoin_address_created">A new random private key has been generated with the following Bitcoin addresses:</string>
-    <string name="transaction_from_address_prefix">From: %s</string>
     <string name="transaction_to_address_prefix">To: %s</string>
     <string name="retrieving_pubkey_address">Retrieving next unused address…</string>
     <string name="tx_details_num_confirmations">Confirmations</string>
@@ -231,7 +228,6 @@
     <string name="transaction_input_data">Input Data:</string>
     <string name="tx_replace_info_title">Transaction to be replaced</string>
     <string name="tx_replacae_info_desc">Select an unconfirmed transaction you want to replace.\nMiner fee of the replacement transaction must be higher than the fee of the selected unconfirmed transaction.</string>
-    <string name="receive_title_fio">FIO Public key</string>
     <string name="bundled_transactions">Bundled transactions:</string>
     <string name="send_mail">Send mail…</string>
     <string name="provide_your_recovery_e_mail_address">Provide your recovery e-mail address below. We will send you a secure link and instructions on how to reset your password.</string>
@@ -240,7 +236,6 @@
     <string name="residential_address">Residential Address</string>
     <string name="proof_of_address">Proof of Address</string>
     <string name="please_fill_proof_of_address">Please fill in your personal information as it appears on the proof of address document.</string>
-    <string name="send_fio_request">Send FIO Request</string>
     <string name="total_amount">Total amount:</string>
     <string name="miner_fee">Miner Fees:</string>
     <string name="spendable">Spendable:</string>

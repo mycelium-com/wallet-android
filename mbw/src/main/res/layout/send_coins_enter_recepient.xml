@@ -29,7 +29,7 @@
         <!-- Scan button -->
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/btScan"
-            style="@style/MyceliumButton.FIO"
+            style="@style/MyceliumButton.Primary"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginVertical="6dp"
@@ -47,7 +47,7 @@
         <!-- Address Book -->
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/btAddressBook"
-            style="@style/MyceliumButton.FIO"
+            style="@style/MyceliumButton.Primary"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginVertical="6dp"
@@ -66,7 +66,7 @@
         <!-- Clipboard -->
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/btClipboard"
-            style="@style/MyceliumButton.FIO"
+            style="@style/MyceliumButton.Primary"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginVertical="6dp"
@@ -85,7 +85,7 @@
         <!-- Manual Entry -->
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/btManualEntry"
-            style="@style/MyceliumButton.FIO"
+            style="@style/MyceliumButton.Primary"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginVertical="6dp"
@@ -102,7 +102,7 @@
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/batch"
-            style="@style/MyceliumButton.FIO"
+            style="@style/MyceliumButton.Primary"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginVertical="6dp"

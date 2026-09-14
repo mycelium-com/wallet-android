@@ -113,9 +113,6 @@ import com.mycelium.wapi.wallet.btc.bip44.HDPubOnlyAccount;
 import com.mycelium.wapi.wallet.btc.coins.BitcoinMain;
 import com.mycelium.wapi.wallet.btc.coins.BitcoinTest;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
-import com.mycelium.wapi.wallet.btcvault.coins.BitcoinVaultMain;
-import com.mycelium.wapi.wallet.btcvault.coins.BitcoinVaultTest;
-import com.mycelium.wapi.wallet.btcvault.hd.BitcoinVaultHdAccount;
 import com.mycelium.wapi.wallet.coins.AssetInfo;
 import com.mycelium.wapi.wallet.coins.CoinsKt;
 import com.mycelium.wapi.wallet.coins.CryptoCurrency;
@@ -139,10 +136,6 @@ import com.mycelium.wapi.wallet.tron.coins.TronTest;
 import com.mycelium.wapi.wallet.eth.coins.EthMain;
 import com.mycelium.wapi.wallet.eth.coins.EthTest;
 import com.mycelium.wapi.wallet.fiat.coins.FiatType;
-import com.mycelium.wapi.wallet.fio.FioAccount;
-import com.mycelium.wapi.wallet.fio.coins.FIOMain;
-import com.mycelium.wapi.wallet.fio.coins.FIOTest;
-import com.mycelium.wapi.wallet.fio.coins.FIOToken;
 
 import org.ocpsoft.prettytime.Duration;
 import org.ocpsoft.prettytime.PrettyTime;
@@ -1080,9 +1073,7 @@ public class Utils {
               || account instanceof SingleAddressBCHAccount
               || account instanceof ColuAccount
               || account instanceof AbstractEthERC20Account
-              || account instanceof AbstractTronAccount
-              || account instanceof FioAccount
-              || account instanceof BitcoinVaultHdAccount) {
+              || account instanceof AbstractTronAccount) {
          return false; //we do not support these account types in LT
       }
       if (!((WalletBtcAccount)(account)).getReceivingAddress().isPresent()) {
@@ -1116,10 +1107,6 @@ public class Utils {
       return isProdnet() ? BitcoinMain.get() : BitcoinTest.get();
    }
 
-   public static CryptoCurrency getBtcvCoinType() {
-      return isProdnet() ? BitcoinVaultMain.INSTANCE : BitcoinVaultTest.INSTANCE;
-   }
-
    public static CryptoCurrency getEthCoinType() {
       return isProdnet() ? EthMain.INSTANCE : EthTest.INSTANCE;
    }
@@ -1138,10 +1125,6 @@ public class Utils {
 
    public static CryptoCurrency getRmcCoinType() {
       return isProdnet() ? RMCCoin.INSTANCE : RMCCoinTest.INSTANCE;
-   }
-
-   public static FIOToken getFIOCoinType() {
-      return isProdnet() ? FIOMain.INSTANCE : FIOTest.INSTANCE;
    }
 
    public static boolean isProdnet() {

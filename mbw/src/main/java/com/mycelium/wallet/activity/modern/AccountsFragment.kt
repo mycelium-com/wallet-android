@@ -33,7 +33,6 @@ import com.mycelium.wallet.activity.AddAccountActivity
 import com.mycelium.wallet.activity.AddAdvancedAccountActivity
 import com.mycelium.wallet.activity.MessageSigningActivity
 import com.mycelium.wallet.activity.export.VerifyBackupActivity
-import com.mycelium.wallet.activity.fio.AboutFIOProtocolDialog
 import com.mycelium.wallet.activity.modern.adapter.AccountListAdapter
 import com.mycelium.wallet.activity.modern.helper.AccountsActionModeCallback
 import com.mycelium.wallet.activity.settings.boostGapLimitDialog
@@ -93,9 +92,6 @@ import com.mycelium.wapi.wallet.trc20.getActiveTRC20Accounts
 import com.mycelium.wapi.wallet.trc20.getTRC20Accounts
 import com.mycelium.wapi.wallet.tron.AbstractTronAccount
 import com.mycelium.wapi.wallet.tron.TronAccount
-import com.mycelium.wapi.wallet.fio.FioAccount
-import com.mycelium.wapi.wallet.fio.FioModule
-import com.mycelium.wapi.wallet.fio.getActiveSpendableFioAccounts
 import com.mycelium.wapi.wallet.manager.Config
 import com.squareup.otto.Bus
 import com.squareup.otto.Subscribe
@@ -796,23 +792,7 @@ class AccountsFragment : Fragment() {
             menus.add(R.menu.record_options_menu)
         }
 
-        val fioNames = (walletManager!!.getModuleById(FioModule.ID) as FioModule).getAllRegisteredFioNames()
-        if (account is FioAccount) {
-            if (account.canSpend()) {
-                menus.add(R.menu.record_options_menu_add_fio_name)
-            }
-            if (fioNames.isEmpty()) {
-                menus.add(R.menu.record_options_menu_about_fio_protocol)
-            } else {
-                menus.add(R.menu.record_options_menu_my_fio_names)
-                menus.add(R.menu.record_options_menu_about_fio_protocol)
-                menus.add(R.menu.record_options_menu_fio_requests)
-            }
-        }
-
-        if (account is SingleAddressAccount ||
-            (account.isDerivedFromInternalMasterseed() && account !is FioAccount)
-        ) {
+        if (account is SingleAddressAccount || account.isDerivedFromInternalMasterseed()) {
             menus.add(R.menu.record_options_menu_backup)
         }
 
@@ -838,7 +818,7 @@ class AccountsFragment : Fragment() {
             menus.add(R.menu.record_options_menu_active)
         }
 
-        if (account.isActive && !isBch && (account !is AbstractEthERC20Account) && (account !is AbstractTronAccount) && (account !is FioAccount)) {
+        if (account.isActive && !isBch && (account !is AbstractEthERC20Account) && (account !is AbstractTronAccount)) {
             menus.add(R.menu.record_options_menu_outputs)
         }
 
@@ -852,17 +832,6 @@ class AccountsFragment : Fragment() {
 
         if (account is SingleAddressAccount && account.canSpend()) {
             menus.add(R.menu.record_options_menu_shamir)
-        }
-
-        val fioAccounts =
-            _mbwManager!!.getWalletManager(false).getActiveSpendableFioAccounts()
-        if ((account !is FioAccount) && !fioAccounts.isEmpty() && fioNames.isEmpty()) {
-            menus.add(R.menu.record_options_menu_add_fio_name)
-        }
-
-        if (account !is FioAccount && !fioNames.isEmpty()) {
-            menus.add(R.menu.record_options_menu_my_fio_names)
-            menus.add(R.menu.record_options_menu_fio_requests)
         }
 
         if (account.isActive && account is HDAccount && (account !is HDPubOnlyAccount) && walletManager!!.getActiveMasterseedHDAccounts().size > 1 && !isBch) {
@@ -895,7 +864,6 @@ class AccountsFragment : Fragment() {
                 },
                 label@{ itemId: Int? ->
                     when (itemId) {
-                        R.id.miAboutFIOProtocol -> AboutFIOProtocolDialog().show(getParentFragmentManager(), "modal")
                         R.id.miActivate -> {
                             activateSelected()
                             return@label true

@@ -66,8 +66,6 @@ abstract class SendCoinsModel(
     val isColdStorage = intent.getBooleanExtra(SendCoinsActivity.IS_COLD_STORAGE, false)
     val recipientRepresentation = MutableLiveData(SendCoinsViewModel.RecipientRepresentation.ASK)
     val alternativeAmountWarning: MutableLiveData<Boolean> = MutableLiveData()
-    val fioMemo: MutableLiveData<String?> = MutableLiveData()
-    val payerFioName: MutableLiveData<String?> = MutableLiveData()
 
     val outputList = MutableLiveData(listOf<BatchItem>())
     val isBatch = MutableLiveData(false)
@@ -100,16 +98,6 @@ abstract class SendCoinsModel(
         }
     }
 
-
-    val payeeFioName: MutableLiveData<String?> = object : MutableLiveData<String?>() {
-        override fun setValue(value: String?) {
-            if (value != this.value) {
-                super.setValue(value)
-                receiverChanged.onNext(Unit)
-                txRebuildPublisher.onNext(Unit)
-            }
-        }
-    }
 
     val amount: MutableLiveData<Value> = object : MutableLiveData<Value>() {
         override fun setValue(value: Value) {
@@ -297,7 +285,6 @@ abstract class SendCoinsModel(
                         ""
                     })
                     recipientRepresentation.postValue(when {
-                        payeeFioName.value != null -> SendCoinsViewModel.RecipientRepresentation.FIO
                         receivingAddress != null || hasPaymentRequest -> SendCoinsViewModel.RecipientRepresentation.COIN
                         else -> SendCoinsViewModel.RecipientRepresentation.ASK
                     })

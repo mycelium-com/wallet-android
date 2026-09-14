@@ -29,8 +29,6 @@
     <string name="pin_codes_dont_match">Die beiden PIN-Codes stimmen nicht überein</string>
     <string name="pin_set">PIN-Code festgelegt</string>
     <string name="pin_confirm_pin">PIN-Code bestätigen</string>
-    <string name="checking_fio_address">FIO-Name wird geprüft…</string>
-    <string name="share_fio_name">FIO-Name teilen</string>
     <string name="pref_change_language">Sprache ändern</string>
     <string name="bitid_authentication">Mit BitID authentifizieren</string>
     <string name="bitid_question">%1$s\n\n möchte, dass Sie sich mit dem BitID-Protokoll authentifizieren. Möchten Sie die Anfrage signieren?</string>
@@ -47,7 +45,6 @@
     <string name="bitid_aborted">Sie haben den Anmeldevorgang abgebrochen.</string>
     <string name="bitid_sslproblem">SSL-Problem</string>
     <string name="bitid_sslquestion">Das folgende SSL-Problem ist aufgetreten, möchten Sie fortfahren?</string>
-    <string name="fio_account_creation_started">Neues FIO-Konto wird erstellt…</string>
     <string name="pref_legacy_backup_title">Legacy-Backup</string>
     <string name="pref_legacy_backup_summary">Ein Legacy-Backup erstellen, das Ihre Einzeladressenkonten enthält.</string>
     <string name="pref_legacy_backup_verify_title">Legacy-Backup überprüfen</string>
@@ -95,9 +92,6 @@
     <string name="pop_no_matching_transactions">Keine Transaktionen, die der PoP-Anforderung entsprechen, wurden gefunden. Sie können eine nicht übereinstimmende Transaktion auswählen.</string>
     <string name="pop_transaction_info_advice">Prüfen Sie unten die Zahlungsinformationen, um den Nachweis zu erbringen</string>
     <string name="settings_service_enabled">Aktivieren Sie %1$s</string>
-    <string name="fio_account_import_error">FIO-Adresse/Konto konnte nicht gefunden werden: %s.\nÜberprüfen Sie die Adresse/Konto auf Richtigkeit oder Ihre Internetverbindung.</string>
-    <string name="fio_legacy_account">FIO-Legacy-Konto</string>
-    <string name="fio_legacy_already_created">FIO-Legacy-Konto wurde bereits erstellt</string>
 
     <string name="pref_language">Sprache</string>
     <string name="pin_code">PIN-Code</string>
@@ -106,10 +100,6 @@
     <string name="change_settings_bech32">Bech32 (SegWit-native)</string>
     <string name="change_settings_privacy_guard_mode">Privatsphärenmodus (Standard)</string>
     <string name="add_fingerprint_in_settings">Sie müssen einen Fingerabdruck hinzufügen, bevor Sie die Fingerabdruck-Authentifizierung verwenden können</string>
-    <string name="fio_server_error_logs">FIO-Server-Fehlerprotokolle</string>
-    <string name="fio_requires_hd_account">Derzeit können Sie nur HD-Bitcoin-Konten mit FIO-Labels verknüpfen. Bitte wechseln Sie zu einem anderen Konto.</string>
-    <string name="settings_fiopresale_title">FIO-Adressvorverkauf aktivieren</string>
-    <string name="settings_fiopresale_summary">Option für den FIO-Adressvorverkauf anzeigen</string>
     <string name="settings_media_flow_notification_category">Medienflow</string>
     <string name="use_pin">PIN-Code verwenden</string>
     <string name="add_new_fio_name">Neuen FIO-Namen hinzufügen</string>

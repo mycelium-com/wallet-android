@@ -46,7 +46,7 @@
                 android:onClick="@{() -> viewModel.selectTrxFee()}"
                 android:paddingVertical="8dp"
                 android:text="@string/tron_fee_mode_trx"
-                android:textColor="@{viewModel.feeMode == TronFeeMode.TRX ? @color/white : @color/fio_white_alpha_0_6}"
+                android:textColor="@{viewModel.feeMode == TronFeeMode.TRX ? @color/white : @color/white_alpha_0_6}"
                 android:textSize="14sp" />
 
             <TextView
@@ -60,7 +60,7 @@
                 android:onClick="@{() -> viewModel.selectEnergyFee()}"
                 android:paddingVertical="8dp"
                 android:text="@{@string/tron_fee_mode_token(viewModel.tokenSymbol())}"
-                android:textColor="@{viewModel.feeMode == TronFeeMode.ENERGY_SERVICE ? @color/white : @color/fio_white_alpha_0_6}"
+                android:textColor="@{viewModel.feeMode == TronFeeMode.ENERGY_SERVICE ? @color/white : @color/white_alpha_0_6}"
                 android:textSize="14sp"
                 tools:text="Pay with USDT" />
         </LinearLayout>
@@ -127,7 +127,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="4dp"
                 android:text="@{viewModel.energyEstimatedTime}"
-                android:textColor="@color/fio_white_alpha_0_6"
+                android:textColor="@color/white_alpha_0_6"
                 android:textSize="12sp"
                 android:visibility="@{viewModel.energyEstimatedTime.empty ? View.GONE : View.VISIBLE}"
                 tools:text="Estimated time: ~1 min" />
@@ -139,7 +139,7 @@
                 android:layout_marginBottom="4dp"
                 android:onClick="@{() -> viewModel.energyServiceInfoClickListener()}"
                 android:text="@{@string/tron_energy_service_hint(viewModel.tokenSymbol())}"
-                android:textColor="@color/fio_white_alpha_0_6"
+                android:textColor="@color/white_alpha_0_6"
                 android:textSize="12sp"
                 tools:text="Fee is paid in USDT via the energy service — what is this?" />
 
@@ -149,7 +149,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="6dp"
                 android:text="@{viewModel.energyError}"
-                android:textColor="@color/fio_red"
+                android:textColor="@color/error_red"
                 android:textSize="13sp"
                 android:visibility="@{viewModel.energyError.empty ? View.GONE : View.VISIBLE}"
                 tools:text="Energy Service unavailable" />
@@ -215,7 +215,7 @@
             android:layout_marginHorizontal="@dimen/horizontal_page_margin"
             android:layout_marginBottom="5dp"
             android:text="@{viewModel.feeDetails}"
-            android:textColor="@color/fio_white_alpha_0_6"
+            android:textColor="@color/white_alpha_0_6"
             android:textSize="12sp"
             android:visibility="@{viewModel.feeDetails.empty || (viewModel.trc20 &amp;&amp; viewModel.feeMode == TronFeeMode.ENERGY_SERVICE) ? View.GONE : View.VISIBLE}"
             tools:text="Bandwidth: 345 · Energy: 65,000 · Fee limit: 15 TRX" />
@@ -235,7 +235,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/please_top_up_your_trx_account"
-                android:textColor="@color/fio_red"
+                android:textColor="@color/error_red"
                 android:textSize="14sp" />
 
             <LinearLayout
@@ -249,7 +249,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@{@string/parent_trx_account(viewModel.parentAccount.label)}"
-                    android:textColor="@color/fio_white_alpha_0_6"
+                    android:textColor="@color/white_alpha_0_6"
                     android:textSize="14sp"
                     tools:text="Tron 1:" />
 
@@ -259,7 +259,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="4dp"
                     android:text="@{viewModel.parentBalance()}"
-                    android:textColor="@color/fio_white_alpha_0_6"
+                    android:textColor="@color/white_alpha_0_6"
                     android:textSize="14sp"
                     tools:text="0 TRX" />
             </LinearLayout>

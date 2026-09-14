@@ -29,8 +29,6 @@
     <string name="pin_codes_dont_match">Два PIN-кода не совпадают</string>
     <string name="pin_set">PIN-код установлен</string>
     <string name="pin_confirm_pin">Подтвердите PIN-код</string>
-    <string name="checking_fio_address">Проверка имени FIO…</string>
-    <string name="share_fio_name">Поделиться именем FIO</string>
     <string name="pref_change_language">Изменить язык</string>
     <string name="bitid_authentication">Аутентифицироваться через BitID</string>
     <string name="bitid_question">%1$s\n\nхочет, чтобы вы аутентифицировались с помощью протокола BitID. Вы хотите подписать запрос?</string>
@@ -46,7 +44,6 @@
     <string name="bitid_aborted">Вы прервали процесс входа.</string>
     <string name="bitid_sslproblem">Проблема SSL</string>
     <string name="bitid_sslquestion">Произошла следующая проблема SSL, вы хотите продолжить?</string>
-    <string name="fio_account_creation_started">Создание нового FIO-аккаунта…</string>
     <string name="pref_legacy_backup_title">Резервная копия Legacy</string>
     <string name="pref_legacy_backup_summary">Создайте резервную копию Legacy, содержащую ваши аккаунты с одиночными адресами.</string>
     <string name="pref_legacy_backup_verify_title">Проверить резервную копию Legacy</string>
@@ -101,9 +98,6 @@
         подтверждения
     </string>
     <string name="settings_service_enabled">Включить %1$s</string>
-    <string name="fio_account_import_error">Не удалось найти FIO-адрес/аккаунт: %s.\nПроверьте правильность адреса/аккаунта или подключение к интернету.</string>
-    <string name="fio_legacy_account">Legacy-аккаунт FIO</string>
-    <string name="fio_legacy_already_created">Legacy-аккаунт FIO уже создан</string>
 <!--    <string name="unlock_label_fingerprint">Продолжить, используя отпечаток пальца</string>-->
     <string name="use_pin">Использовать PIN-код</string>
     <string name="pref_language">Язык</string>

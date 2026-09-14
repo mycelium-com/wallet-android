@@ -22,7 +22,6 @@ import com.mycelium.wallet.databinding.FragmentHelpBinding
 import com.mycelium.wallet.databinding.LayoutGapInputBinding
 import com.mycelium.wapi.wallet.SyncMode
 import com.mycelium.wapi.wallet.WalletAccount
-import com.mycelium.wapi.wallet.fio.FioModule
 
 
 class HelpFragment : Fragment() {
@@ -56,20 +55,6 @@ class HelpFragment : Fragment() {
         binding?.contactSupportTeam?.setOnClickListener {
             startActivity(Intent.createChooser(Intent(Intent.ACTION_SENDTO)
                     .setData("mailto:${getString(R.string.contact_email)}".toUri()), getString(R.string.send_mail)));
-        }
-        if (BuildConfig.DEBUG) {
-            binding?.fioServerErrorLogs?.visibility = View.VISIBLE
-            binding?.fioServerErrorLogs?.setOnClickListener {
-                val fioModule = mbwManager.getWalletManager(false).getModuleById(FioModule.ID) as FioModule?
-                val logs = fioModule!!.getFioServerLogsListAndClear()
-                if (logs.isEmpty()) {
-                    Toast.makeText(requireContext(), getString(R.string.no_logs), Toast.LENGTH_SHORT).show()
-                } else {
-                    val joined = TextUtils.join("\n", logs)
-                    Utils.setClipboardString(joined, requireContext())
-                    Toast.makeText(requireContext(), getString(R.string.copied_to_clipboard), Toast.LENGTH_SHORT).show()
-                }
-            }
         }
     }
 

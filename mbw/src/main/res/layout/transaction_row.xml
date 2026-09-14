@@ -76,48 +76,6 @@
                     app:layout_constraintTop_toTopOf="parent"
                     tools:text="Confirmed / placeholderLabel" />
 
-                <ImageView
-                    android:id="@+id/fioIcon"
-                    android:layout_width="wrap_content"
-                    android:layout_height="14dp"
-                    app:layout_constraintBottom_toBottomOf="@id/otherFioName"
-                    app:layout_constraintLeft_toLeftOf="parent"
-                    app:layout_constraintTop_toTopOf="@id/otherFioName"
-                    android:visibility="gone"
-                    tools:visibility="visible"
-                    app:srcCompat="@drawable/ic_fiopresale_icon_small" />
-
-                <TextView
-                    android:id="@+id/otherFioName"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="6dp"
-                    android:ellipsize="end"
-                    android:textSize="14sp"
-                    android:layout_marginTop="4dp"
-                    android:textStyle="bold"
-                    android:visibility="gone"
-                    tools:visibility="visible"
-                    app:layout_constraintLeft_toRightOf="@id/fioIcon"
-                    app:layout_constraintRight_toRightOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/tvTransactionLabel"
-                    tools:text="To: newfriend@domain" />
-
-                <TextView
-                        android:id="@+id/tvFioMemo"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:ellipsize="end"
-                        android:singleLine="true"
-                        app:layout_constraintLeft_toLeftOf="@+id/otherFioName"
-                        app:layout_constraintRight_toRightOf="parent"
-                        android:visibility="gone"
-                        android:textColor="@color/fio_white_alpha_0_8"
-                        tools:visibility="visible"
-                        app:layout_constraintTop_toBottomOf="@id/otherFioName"
-                        tools:text="Gracias Andres por una experiencia muy divertida. Aquí te mando mi parte de la cena." />
-
-
             </androidx.constraintlayout.widget.ConstraintLayout>
 
             <LinearLayout

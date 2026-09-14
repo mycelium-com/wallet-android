@@ -16,31 +16,18 @@ import com.mycelium.wapi.wallet.TransactionData
 import com.mycelium.wapi.wallet.coins.Balance
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.eth.coins.EthTest
-import com.mycelium.wapi.wallet.genericdb.BTCVAccountBackingAdapter
 import com.mycelium.wapi.wallet.genericdb.energyServiceFeeLinkAdapter
 import com.mycelium.wapi.wallet.genericdb.trc20ContextAdapter
 import com.mycelium.wapi.wallet.genericdb.tronAccountBackingAdapter
 import com.mycelium.wapi.wallet.genericdb.tronContextAdapter
-import com.mycelium.wapi.wallet.genericdb.BTCVContextAdapter
-import com.mycelium.wapi.wallet.genericdb.BTCVOutgoingTxAdapter
-import com.mycelium.wapi.wallet.genericdb.BTCVPtxoAdapter
-import com.mycelium.wapi.wallet.genericdb.BTCVRefersPtxoAdapter
-import com.mycelium.wapi.wallet.genericdb.BTCVTransactionAdapter
-import com.mycelium.wapi.wallet.genericdb.BTCVUtxoAdapter
 import com.mycelium.wapi.wallet.genericdb.EthAccountBacking
 import com.mycelium.wapi.wallet.genericdb.accountBackingAdapter
 import com.mycelium.wapi.wallet.genericdb.accountContextAdapter
+import com.mycelium.wapi.wallet.genericdb.deprecatedAccountAdapter
 import com.mycelium.wapi.wallet.genericdb.erc20ContextAdapter
 import com.mycelium.wapi.wallet.genericdb.ethAccountBackingAdapter
 import com.mycelium.wapi.wallet.genericdb.ethContextAdapter
 import com.mycelium.wapi.wallet.genericdb.feeEstimatorAdapter
-import com.mycelium.wapi.wallet.genericdb.fioAccountBackingAdapter
-import com.mycelium.wapi.wallet.genericdb.fioContextAdapter
-import com.mycelium.wapi.wallet.genericdb.fioKnownNamesAdapter
-import com.mycelium.wapi.wallet.genericdb.fioNameAccountMappingsAdapter
-import com.mycelium.wapi.wallet.genericdb.fioOtherBlockchainTransactionsAdapter
-import com.mycelium.wapi.wallet.genericdb.fioReceivedRequestsAdapter
-import com.mycelium.wapi.wallet.genericdb.fioSentRequestsAdapter
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Before
@@ -73,14 +60,10 @@ class ReconcileLocalPendingTest {
         val driver = JdbcSqliteDriver(JdbcSqliteDriver.IN_MEMORY)
         WalletDB.Schema.create(driver)
         val db = WalletDB(driver, accountBackingAdapter, accountContextAdapter,
-                BTCVAccountBackingAdapter, BTCVContextAdapter, BTCVOutgoingTxAdapter,
-                BTCVPtxoAdapter, BTCVRefersPtxoAdapter, BTCVTransactionAdapter, BTCVUtxoAdapter,
-                energyServiceFeeLinkAdapter,
-                erc20ContextAdapter, ethAccountBackingAdapter, ethContextAdapter,
-                feeEstimatorAdapter, fioAccountBackingAdapter, fioContextAdapter,
-                fioKnownNamesAdapter, fioNameAccountMappingsAdapter,
-                fioOtherBlockchainTransactionsAdapter, fioReceivedRequestsAdapter, fioSentRequestsAdapter,
-                trc20ContextAdapter, tronAccountBackingAdapter, tronContextAdapter)
+            deprecatedAccountAdapter, energyServiceFeeLinkAdapter,
+            erc20ContextAdapter, ethAccountBackingAdapter, ethContextAdapter,
+            feeEstimatorAdapter,
+            trc20ContextAdapter, tronAccountBackingAdapter, tronContextAdapter)
         backing = EthAccountBacking(db, UUID.randomUUID(), EthTest)
         account = TestEthAccount(backing, EthBlockchainService(emptyList()),
                 EthAddress(EthTest, ownerAddress))

@@ -323,8 +323,6 @@
     <string name="gaps_button_ok">OK</string>
     <string name="gaps_button_ignore">Ігнорувати</string>
     <string name="connection_logs">Логи</string>
-    <string name="no_logs">Логи відсутні</string>
-    <string name="confirm_fio_link">Ви хочете зареєструвати ім\'я FIO для вашого HD Bitcoin акаунту %1$s?</string>
     <string name="media_flow_notification_title">"Mycelium Wallet / Mediaflow"</string>
     <string name="there_are_no_bookmarks_yet">Закладок поки немає.</string>
     <string name="loading_media_flow_feed_please_wait">Завантаження стрічки Media Flow, зачекайте %s</string>
@@ -339,22 +337,12 @@
     <string name="turn_off">Вимкнути</string>
     <string name="you_about_turn_off_mf">Ви збираєтеся вимкнути Media Flow</string>
     <string name="you_about_turn_off_mf_text">Media Flow — це чудове джерело новин галузі, оглядів функцій гаманця, спеціальних пропозицій Micro OTC та іншого.\n\nВи завжди можете увімкнути його в Налаштуваннях -> Сервіси Mycelium.\n\nЯкщо ви хочете лише вимкнути сповіщення, перейдіть до Налаштування -> Персоналізація -> Сповіщення.</string>
-    <string name="share_fio_public_key">Поділитися публічним ключем FIO</string>
     <string name="sell_eth">ПРОДАТИ ETH</string>
     <string name="sell_bitcoin">ПРОДАТИ BITCOIN</string>
     <string name="select_token">Додати токени ERC-20 до акаунту "%s"</string>
     <string name="edit_gas_limit_advanced_users"><![CDATA[Редагувати ліміт газу <i>(для досвідчених користувачів)</i>]]></string>
     <string name="list_added_tokens">Токени ERC-20 на акаунті "%s"</string>
     <string name="none">немає</string>
-    <string name="select_name_to_associate">Підключіть акаунти до вашого імені FIO. Лише <b>один</b> акаунт кожної криптовалюти може бути підключений до <b>одного</b> імені FIO.</string>
-    <string name="create_fio_domain">Створити домен FIO</string>
-    <string name="tab_fio_requests">Запити FIO</string>
-    <string name="my_fio_domains">Мої домени FIO</string>
-    <string name="following_fio_domains_registered">Зареєстровані домени FIO</string>
-    <string name="domain_details">Деталі домену</string>
-    <string name="renew_fio_domain">Поновити домен FIO</string>
-    <string name="expiration_date">Дата закінчення терміну:</string>
-    <string name="about_fio_protocol_title">Про протокол FIO</string>
     <string name="access_from_any_device">Доступ з будь-якого пристрою</string>
     <string name="industry_leading_security">Провідна в галузі безпека</string>
     <string name="institutional_grade_crypto_storage">Криптозберігання інституційного рівня та\nпровідна в галузі безпека, довірена найбільшими\nсвітовими криптофондами. Ви можете впевнено\nкерувати своїм криптопортфелем.</string>
@@ -446,7 +434,6 @@
     <string name="dear_user_s_s">Шановний %s %s,</string>
     <string name="dear_user">Шановний користувачу,</string>
     <string name="try_request_backup_again"><![CDATA[Можливо, проблема у вашому інтернет-з\'єднанні або внутрішній помилці сервера.<br/>Будь ласка, спробуйте повторно запросити резервний код або зверніться до <font color="#F2E868">Центру підтримки</font> за допомогою.]]></string>
-    <string name="leave_a_message_for_s">Залиште повідомлення для %s</string>
     <string name="service_unavailable">Сервіс недоступний</string>
     <string name="buysell_bitcoin_title">Купівля та продаж %s</string>
     <string name="buysell_select_country_text">Виберіть країну, де було випущено вашу дебетову/кредитну карту.</string>
@@ -494,8 +481,6 @@
     <string name="max_available_cards_d">Максимальна кількість доступних карток: %d карток</string>
     <string name="exceed_card_value">Перевищення вартості картки</string>
     <string name="from_s_to_s">Від %s до %s</string>
-    <string name="delete_received_fio_request">Видалити отриманий запит FIO</string>
-    <string name="delete_received_fio_request_msg">Ви впевнені, що хочете видалити цей запит FIO?</string>
     <string name="erc20_this_is_updated_fee"><![CDATA[Це оновлена комісія, заснована на встановленому ліміті газу. Для деталей дивіться <u>розрахунок комісії майнера</u>.]]></string>
     <string name="input_data_helper">Шістнадцятковий формат (0–9, A-F)</string>
     <string name="connection_issues"><b>Проблеми з підключенням.</b> Будь ласка, переконайтеся, що ви в мережі.</string>

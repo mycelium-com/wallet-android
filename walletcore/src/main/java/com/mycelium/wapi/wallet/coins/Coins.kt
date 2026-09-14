@@ -5,8 +5,6 @@ import com.mycelium.wapi.wallet.bch.coins.BchMain
 import com.mycelium.wapi.wallet.bch.coins.BchTest
 import com.mycelium.wapi.wallet.btc.coins.BitcoinMain
 import com.mycelium.wapi.wallet.btc.coins.BitcoinTest
-import com.mycelium.wapi.wallet.btcvault.coins.BitcoinVaultMain
-import com.mycelium.wapi.wallet.btcvault.coins.BitcoinVaultTest
 import com.mycelium.wapi.wallet.colu.coins.MASSCoin
 import com.mycelium.wapi.wallet.colu.coins.MASSCoinTest
 import com.mycelium.wapi.wallet.colu.coins.MTCoin
@@ -16,8 +14,6 @@ import com.mycelium.wapi.wallet.colu.coins.RMCCoinTest
 import com.mycelium.wapi.wallet.eth.coins.EthMain
 import com.mycelium.wapi.wallet.eth.coins.EthTest
 import com.mycelium.wapi.wallet.fiat.coins.FiatType
-import com.mycelium.wapi.wallet.fio.coins.FIOMain
-import com.mycelium.wapi.wallet.fio.coins.FIOTest
 import com.mycelium.wapi.wallet.tron.coins.TronMain
 import com.mycelium.wapi.wallet.tron.coins.TronTest
 
@@ -25,11 +21,9 @@ val COINS_SET = setOf(
         BitcoinMain, BitcoinTest,
         BchMain, BchTest,
         EthMain, EthTest,
-        FIOMain, FIOTest,
         MASSCoin, MASSCoinTest,
         MTCoin, MTCoinTest,
         RMCCoin, RMCCoinTest,
-        BitcoinVaultMain, BitcoinVaultTest,
         TronMain, TronTest
 )
 

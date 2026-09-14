@@ -68,21 +68,7 @@ class InstantWalletActivity : AppCompatActivity() {
                 when (type) {
                     ResultType.PRIVATE_KEY -> {
                         val key = intent.getPrivateKey()
-                        // ask user what WIF privkey he/she scanned as there are options
-                        var selectedItem = 0
-                        val choices = arrayOf("BTC", "FIO")
-                        AlertDialog.Builder(this)
-                                .setTitle("Choose blockchain")
-                                .setSingleChoiceItems(choices, 0) { _: DialogInterface?, i: Int -> selectedItem = i }
-                                .setPositiveButton(this.getString(R.string.ok)) { _: DialogInterface?, i: Int ->
-                                    if (selectedItem == 0) {
-                                        sendWithAccount(mbwManager.createOnTheFlyAccount(key, Utils.getBtcCoinType()))
-                                    } else {
-                                        sendWithAccount(mbwManager.createOnTheFlyAccount(key, Utils.getFIOCoinType()))
-                                    }
-                                }
-                                .setNegativeButton(this.getString(R.string.cancel), null)
-                                .show()
+                        sendWithAccount(mbwManager.createOnTheFlyAccount(key, Utils.getBtcCoinType()))
                     }
                     ResultType.ADDRESS -> {
                         val address = intent.getAddress()
