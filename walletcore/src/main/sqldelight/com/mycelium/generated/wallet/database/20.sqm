@@ -1,0 +1,26 @@
+-- Устаревшие ERC-20 контракты: токены мигрировали на новые адреса, старые контракты
+-- либо мертвы (XAUT: deprecated=true, upgradedAddress=0x…dead), либо перестали быть
+-- каноническим контрактом токена. Адреса в WalletConfiguration.TOKENS обновлены, а UUID
+-- ERC20-аккаунта выводится из адреса контракта (ERC20Module.createAccount), поэтому
+-- аккаунты, созданные до обновления, остаются привязанными к старому контракту и в списке
+-- появился бы дубль с тем же именем и символом.
+--
+-- Ничего не удаляем: помечаем старый аккаунт в имени и убираем в архив. Если на старом
+-- контракте остался реальный баланс, аккаунт достаётся из архива и работает по-прежнему —
+-- contractAddress в Erc20Context намеренно не трогаем.
+UPDATE AccountContext
+SET accountName = accountName || ' (old)',
+    archived = 1
+WHERE uuid IN (
+    SELECT uuid FROM Erc20Context
+    WHERE lower(contractAddress) IN (
+        '0x915044526758533dfb918eceb6e44bc21632060d',   -- CHR, новый адрес 0x8A2279d4A90B6fe1C4B30fa660cC9f926797bAA2
+        '0x80a7e048f37a50500351c204cb407766fa3bae7f',   -- CRPT, новый адрес 0x08389495D7456E1951ddF7c3a1314A4bfb646d8B
+        '0x0cf0ee63788a0849fe5297f3407f701e122cc023',   -- DATA, новый адрес 0x8f693ca8D21b157107184d29D398A8D082b38b76
+        '0xa4e8c3ec456107ea67d3075bf9e3df3a75823db0',   -- LOOM, новый адрес 0x42476F744292107e34519F9c357927074Ea3F75D
+        '0xb4efd85c19999d84251304bda99e90b92300bd93',   -- RPL, новый адрес 0xD33526068D116cE69F19A9ee46F0bd304F21A51f
+        '0x0ba45a8b5d5575935b8158a88c631e9f9c95a2e5',   -- TRB, новый адрес 0x88dF592F8eb5D7Bd38bFeF7dEb0fBc02cf3778a0
+        '0x4922a015c4407f87432b179bb209e125432e4a2a'    -- XAUT, новый адрес 0x68749665FF8D2d112Fa859AA293F07A622782F38
+    )
+)
+AND accountName NOT LIKE '% (old)';
