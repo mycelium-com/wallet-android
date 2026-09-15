@@ -6,12 +6,15 @@ import com.mycelium.wapi.wallet.eth.Eip1559Snapshot
 import com.mycelium.wapi.wallet.eth.Eip1559Tier
 import com.mycelium.wapi.wallet.eth.EthBlockchainService
 import com.mycelium.wapi.wallet.eth.EthFeeLevel
+import com.mycelium.wapi.wallet.eth.coins.EthCoin
 import com.mycelium.wapi.wallet.eth.coins.EthMain
 import com.mycelium.wapi.wallet.eth.coins.EthTest
 import com.mycelium.wapi.wallet.genericdb.FeeEstimationsBacking
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.math.BigInteger
+import java.util.logging.Level
+import java.util.logging.Logger
 
 
 class EthFeeProvider(
@@ -48,21 +51,23 @@ class EthFeeProvider(
 
 
     private fun getGasPriceEstimates(): FeeEstimationsGeneric {
+        if (!coinType.supportsEip1559) {
+            service.clearEip1559Fees()
+            return legacyEstimates()
+        }
         // EIP-1559 path: pull base fee + per-tier cap/tip from the dedicated
         // estimator and cache the snapshot so signing can recover the tip for
         // the chosen cap. The displayed tier value is the cap (maxFeePerGas).
-        if (coinType.supportsEip1559) {
-            try {
-                val snapshot = service.eip1559FeeEstimation()
-                service.cacheEip1559Fees(snapshot)
-                return buildFromSnapshot(snapshot)
-            } catch (e: Exception) {
-                // No estimator configured or it's unreachable. Fall through —
-                // legacyEstimates() can usually still recover the base fee and
-                // build an equivalent snapshot itself.
-            }
-        } else {
-            service.clearEip1559Fees()
+        try {
+            val snapshot = service.eip1559FeeEstimation()
+            service.cacheEip1559Fees(snapshot)
+            return buildFromSnapshot(snapshot)
+        } catch (e: Exception) {
+            // No estimator configured or it's unreachable. The previously cached
+            // snapshot stays valid until we have something better: clearing it
+            // here would make the next send sign legacy at a cap the user chose
+            // as a 1559 cap. Blockbook can still give us the base fee.
+            logger.log(Level.WARNING, "EIP-1559 estimator failed, deriving tiers from blockbook base fee", e)
         }
         return legacyEstimates()
     }
@@ -81,55 +86,62 @@ class EthFeeProvider(
     }
 
     private fun legacyEstimates(): FeeEstimationsGeneric {
-        val low = Value.parse(coinType, service.feeEstimation(PriceLevelSpeed.SAFE_LOW.block).result)
-        val economy = Value.parse(coinType, service.feeEstimation(PriceLevelSpeed.AVERAGE.block).result)
-        val normal = Value.parse(coinType, service.feeEstimation(PriceLevelSpeed.FAST.block).result)
-        val high = Value.parse(coinType, service.feeEstimation(PriceLevelSpeed.FASTEST.block).result)
-
-        // Blockbook's Ethereum estimatefee ignores the block target: it answers
-        // `baseFeePerGas + 1000 wei` for 1, 3, 6 and 15 blocks alike. Passed
-        // straight through, all four tiers in the fee picker showed the same
-        // number — the choice did nothing — and that number left about a
-        // thousand wei of priority fee, so a legacy tx sent at it only got
-        // mined if the base fee happened to fall. Recognise the degenerate
-        // answer, read it as the base fee, and derive tiers that differ and
-        // that survive the base fee rising between now and inclusion.
-        val degenerate = low == economy && economy == normal && normal == high
-        if (!degenerate) {
-            // The server really does differentiate; trust it and sign legacy,
-            // since we have no base fee to build 1559 caps around.
-            service.clearEip1559Fees()
-            return FeeEstimationsGeneric(low, economy, normal, high, System.currentTimeMillis())
+        val readings = PriceLevelSpeed.values().map {
+            Value.parse(coinType, service.feeEstimation(it.block).result)
         }
-        // The degenerate answer IS the base fee (plus a negligible 1000 wei), which
-        // is everything a 1559 estimate needs: cap = baseFee * headroom + tip. So
-        // rather than giving up on type-2 whenever the dedicated estimator is
-        // missing, derive the snapshot here — that is what makes the caps the user
-        // picks and the tip we sign with agree.
-        val base = low.value
-        val tiers = deriveFeeTiers(base)
-        if (coinType.supportsEip1559) {
-            service.cacheEip1559Fees(Eip1559Snapshot(base, tiers))
-        } else {
-            service.clearEip1559Fees()
-        }
-        return FeeEstimationsGeneric(
-            low = Value.valueOf(coinType, tiers[0].maxFeePerGas),
-            economy = Value.valueOf(coinType, tiers[1].maxFeePerGas),
-            normal = Value.valueOf(coinType, tiers[2].maxFeePerGas),
-            high = Value.valueOf(coinType, tiers[3].maxFeePerGas),
-            lastCheck = System.currentTimeMillis()
-        )
+        return legacyFallbackEstimates(coinType, readings, service, System.currentTimeMillis())
     }
 
+    private companion object {
+        val logger: Logger = Logger.getLogger(EthFeeProvider::class.java.simpleName)
+    }
 
-
+    /** Ordered low → high; [legacyFallbackEstimates] relies on that order. */
     private enum class PriceLevelSpeed(val block: Int) {
         SAFE_LOW(15),
         AVERAGE(6),
         FAST(3),
         FASTEST(1),
     }
+}
+
+/**
+ * Fee tiers from blockbook's per-block `estimatefee` answers (ordered low → high), for when
+ * the dedicated EIP-1559 estimator is unavailable.
+ *
+ * On a chain without EIP-1559 the four answers are the tiers, signed legacy.
+ *
+ * On an EIP-1559 chain blockbook's Ethereum `estimatefee` ignores the block target and
+ * answers `baseFeePerGas + 1000 wei` for every one of them. The four values still differ
+ * now and then — a block lands between the calls, or `endpoints.random()` hits servers at
+ * different heights — and that used to be read as "the server differentiates", which
+ * dropped the cached snapshot and signed the next send legacy at roughly the base fee
+ * (Sepolia 0x7a4237e0…: picker showed 2.2–2.7 Gwei caps, tx went out type-0 at 1.05 Gwei
+ * and only got mined because the base fee fell). Every answer is a base-fee reading, so the
+ * highest one is taken as the base fee and the tiers are derived from it, exactly as for the
+ * degenerate all-equal answer. A 1559 chain never signs legacy from this path.
+ */
+internal fun legacyFallbackEstimates(
+    coinType: EthCoin,
+    readings: List<Value>,
+    service: EthBlockchainService,
+    now: Long,
+): FeeEstimationsGeneric {
+    require(readings.size == 4) { "expected low/economy/normal/high, got ${readings.size}" }
+    if (!coinType.supportsEip1559) {
+        service.clearEip1559Fees()
+        return FeeEstimationsGeneric(readings[0], readings[1], readings[2], readings[3], now)
+    }
+    val base = readings.maxOf { it.value }
+    val tiers = deriveFeeTiers(base)
+    service.cacheEip1559Fees(Eip1559Snapshot(base, tiers))
+    return FeeEstimationsGeneric(
+        low = Value.valueOf(coinType, tiers[0].maxFeePerGas),
+        economy = Value.valueOf(coinType, tiers[1].maxFeePerGas),
+        normal = Value.valueOf(coinType, tiers[2].maxFeePerGas),
+        high = Value.valueOf(coinType, tiers[3].maxFeePerGas),
+        lastCheck = now
+    )
 }
 
 /**

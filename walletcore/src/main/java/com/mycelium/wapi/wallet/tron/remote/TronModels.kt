@@ -101,6 +101,12 @@ data class AccountResourceInfo(
 ) {
     val bandwidthAvailable: Long get() = freeNetAvailable + netAvailable
 
+    /**
+     * Whether the network will charge no TRX for [size] bytes. The node pays a tx either from the
+     * staked quota or from the free daily quota, never from both, so the pools are not summed.
+     */
+    fun coversBandwidth(size: Long): Boolean = netAvailable >= size || freeNetAvailable >= size
+
     companion object {
         val EMPTY = AccountResourceInfo(0, 0, 0, 0, 0)
     }

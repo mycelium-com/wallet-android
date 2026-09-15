@@ -2,6 +2,7 @@ package com.mycelium.wallet.activity.deprecated
 
 import com.mrd.bitlib.crypto.BipDerivationType
 import com.mrd.bitlib.crypto.HdKeyNode
+import com.mrd.bitlib.crypto.InMemoryPrivateKey
 import com.mrd.bitlib.model.NetworkParameters
 import com.mrd.bitlib.model.hdpath.HdKeyPath
 import com.mycelium.generated.wallet.database.WalletDB
@@ -126,10 +127,14 @@ object DeprecatedAccounts {
                 .createChildNode(0)
                 .createChildNode(0)
                 .privateKey
+            // FIO tools (fiosdk PrivateKeyUtils, fio.foundation wallets) only accept the classic
+            // uncompressed WIF: 0x80 prefix + 32 key bytes, no compression flag, on every network.
+            val fioWif = InMemoryPrivateKey(key.privateKeyBytes, false)
+                .getBase58EncodedPrivateKey(NetworkParameters.productionNetwork)
             listOf(
                 DeprecatedAccountKey(
                     "m/44'/${coin.bip44CoinType}'/${account.accountIndex}'/0/0",
-                    key.getBase58EncodedPrivateKey(network)
+                    fioWif
                 )
             )
         } else {

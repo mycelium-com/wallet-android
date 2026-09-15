@@ -63,7 +63,7 @@ class TronFeeEstimator(private val blockchainService: TronBlockchainService) {
                                transactionSize: Long = TRX_TRANSFER_BANDWIDTH): TronFeeEstimation {
         return try {
             val resources = getCachedAccountResources(ownerAddress)
-            val useFreeBandwidth = resources.bandwidthAvailable >= transactionSize
+            val useFreeBandwidth = resources.coversBandwidth(transactionSize)
             val bandwidthFee = if (useFreeBandwidth) 0L else transactionSize * SUN_PER_BANDWIDTH
             val needsActivation = toAddress != null && !blockchainService.isAccountActive(toAddress)
             val activationFee = if (needsActivation) ACCOUNT_ACTIVATION_FEE_SUN else 0L
@@ -100,7 +100,7 @@ class TronFeeEstimator(private val blockchainService: TronBlockchainService) {
     private fun calculateTrc20Fee(resources: AccountResourceInfo, estimatedEnergy: Long, energyPrice: Long,
                                   baseCoinType: AssetInfo): TronFeeEstimation {
         val requiredBandwidth = TRC20_TRANSFER_BANDWIDTH
-        val useFreeBandwidth = resources.bandwidthAvailable >= requiredBandwidth
+        val useFreeBandwidth = resources.coversBandwidth(requiredBandwidth)
         val bandwidthCost = if (useFreeBandwidth) 0L else requiredBandwidth * SUN_PER_BANDWIDTH
         val useStakedEnergy = resources.energyAvailable >= estimatedEnergy
         val energyToPayFor = if (useStakedEnergy) 0L else maxOf(0L, estimatedEnergy - resources.energyAvailable)
