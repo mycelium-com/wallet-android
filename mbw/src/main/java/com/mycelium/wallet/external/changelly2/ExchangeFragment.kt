@@ -83,6 +83,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import retrofit2.HttpException
 import java.math.BigDecimal
+import org.json.JSONObject
 import java.math.RoundingMode
 import java.util.concurrent.TimeUnit
 
@@ -575,11 +576,31 @@ class ExchangeFragment : Fragment(), BackListener {
 
     private var rateJob: Job? = null
 
-    private fun updateExchangeRate() {
+    /** Backend errors arrive as raw JSON bodies ({"error": "…"}, {"error": {"message": "…"}}, {"detail": "…"}); show only the text. */
+    private fun humanizeError(msg: String?): String {
+        if (msg.isNullOrBlank()) return ""
+        return try {
+            val json = JSONObject(msg)
+            val err = json.opt("error")
+            when {
+                err is JSONObject -> err.optString("message", msg)
+                err is String && err.isNotBlank() -> err
+                json.has("detail") -> json.optString("detail", msg)
+                json.has("message") -> json.optString("message", msg)
+                else -> msg
+            }
+        } catch (_: Exception) {
+            msg
+        }
+    }
+
+    private fun isBelowMinimumError(msg: String?) = msg?.contains("minimum", ignoreCase = true) == true
+
+    private fun updateExchangeRate(attempt: Int = 0, amountOverride: BigDecimal? = null) {
         if (viewModel.fromCurrency.value?.symbol != null && viewModel.toCurrency.value?.symbol != null) {
             rateJob?.cancel()
             viewModel.rateLoading.value = true
-            val fromAmount = try {
+            val fromAmount = amountOverride ?: try {
                 viewModel.sellValue.value?.toBigDecimal()!!
             } catch (_: Exception) {
                 viewModel.mbwManager.exchangeRateManager.get(
@@ -604,14 +625,21 @@ class ExchangeFragment : Fragment(), BackListener {
                             )
                             viewModel.errorRemote.value = ""
                         } else {
+                            val message = humanizeError(result?.error?.message)
+                            if (amountOverride == null || attempt < 3) {
+                                if (retryDisplayRate(attempt, fromAmount, message)) return@getFixRateForAmount
+                            }
                             viewModel.exchangeInfo.postValue(null)
-                            viewModel.errorRemote.value = result?.error?.message ?: ""
+                            viewModel.errorRemote.value = message
                         }
                     },
                     error = { code, msg ->
                         if (viewModel.mbwManager.getWalletManager(false).isNetworkConnected) {
-                            viewModel.exchangeInfo.postValue(null)
-                            viewModel.errorRemote.value = msg
+                            val message = humanizeError(msg)
+                            if (!retryDisplayRate(attempt, fromAmount, message)) {
+                                viewModel.exchangeInfo.postValue(null)
+                                viewModel.errorRemote.value = message
+                            }
                         }
                     },
                     finally = {
@@ -656,13 +684,13 @@ class ExchangeFragment : Fragment(), BackListener {
                                     viewModel.errorRemote.value = ""
                                 } ?: run {
                                     viewModel.exchangeInfo.postValue(null)
-                                    viewModel.errorRemote.value = result?.error?.message ?: ""
+                                    viewModel.errorRemote.value = humanizeError(result?.error?.message)
                                 }
                             },
                             error = { code, msg ->
                                 if (viewModel.mbwManager.getWalletManager(false).isNetworkConnected) {
                                     viewModel.exchangeInfo.postValue(null)
-                                    viewModel.errorRemote.value = msg
+                                    viewModel.errorRemote.value = humanizeError(msg)
                                 }
                             },
                             finally = {
@@ -683,6 +711,19 @@ class ExchangeFragment : Fragment(), BackListener {
     }
 
     private var counterJob: Job? = null
+
+    /**
+     * The display rate is requested for a nominal amount (≈100 USD, or 1 unit when no fiat rate is
+     * known). For some coins that is below Changelly's minimum and the backend answers 400 — retry
+     * with a larger amount instead of showing "~ null" / a raw error. The user's own amount is
+     * still validated against minFrom of the successful quote.
+     */
+    private fun retryDisplayRate(attempt: Int, fromAmount: BigDecimal, message: String): Boolean {
+        val userTyped = try { viewModel.sellValue.value?.toBigDecimal() != null } catch (_: Exception) { false }
+        if (userTyped || attempt >= 3 || !isBelowMinimumError(message)) return false
+        updateExchangeRate(attempt + 1, fromAmount.multiply(BigDecimal(100)))
+        return true
+    }
 
     private fun refreshRateCounter() {
         counterJob?.cancel()

@@ -129,6 +129,15 @@ public class VerifyBackupActivity extends AppCompatActivity {
    }
 
    @Override
+   public void onWindowFocusChanged(boolean hasFocus) {
+      super.onWindowFocusChanged(hasFocus);
+      if (hasFocus) {
+         // Android 10+ only lets the focused app read the clipboard - onResume runs too early
+         findViewById(R.id.btClipboard).setEnabled(hasPrivateKeyOnClipboard());
+      }
+   }
+
+   @Override
    protected void onDestroy() {
       _mbwManager.clearCachedEncryptionParameters();
       super.onDestroy();

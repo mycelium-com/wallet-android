@@ -30,6 +30,8 @@ class DeprecatedAccountsActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // fresh private keys are shown on this screen
+        com.mycelium.wallet.Utils.preventScreenshots(this)
         binding = ActivityDeprecatedAccountsBinding.inflate(layoutInflater)
         setContentView(binding.root)
         mbwManager = MbwManager.getInstance(this)

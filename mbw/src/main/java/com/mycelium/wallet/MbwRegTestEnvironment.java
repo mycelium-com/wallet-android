@@ -100,7 +100,7 @@ public class MbwRegTestEnvironment extends MbwEnvironment {
             add(new BlockExplorer("BEX", "blockExplorer", "http://blockexplorer.com/testnet/address/", "https://blockexplorer.com/testnet/tx/", null, null));
          }});
          put(EthTest.INSTANCE.getName(), new ArrayList<BlockExplorer>() {{
-            add(new BlockExplorer("ETS", "etherscan.io", "https://goerli.etherscan.io/address/", "https://goerli.etherscan.io/tx/", null, null));
+            add(new BlockExplorer("ETS", "etherscan.io", "https://sepolia.etherscan.io/address/", "https://sepolia.etherscan.io/tx/", null, null));
          }});
          put(TronTest.INSTANCE.getName(), new ArrayList<BlockExplorer>() {{
             add(new BlockExplorer("TSC", "nile.tronscan.org", "https://nile.tronscan.org/#/address/", "https://nile.tronscan.org/#/transaction/", null, null));

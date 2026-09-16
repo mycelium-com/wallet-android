@@ -48,7 +48,7 @@
                 android:visibility="@{viewModel.isBatch() ? View.VISIBLE : View.GONE}"/>
 
             <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/batch"
+                android:id="@+id/batchList"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"

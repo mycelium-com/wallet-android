@@ -471,6 +471,7 @@ class StartupActivity : AppCompatActivity(), AccountCreationObserver {
         if (!bitid.isPresent()) {
             //Invalid bitid URI
             Toaster(this).toast(R.string.invalid_bitid_uri, false)
+            startActivity(Intent(this, ModernMain::class.java))
             finish()
             return
         }
@@ -483,7 +484,14 @@ class StartupActivity : AppCompatActivity(), AccountCreationObserver {
 
     private fun handlePopUri(intentUri: Uri) {
         // a proof of payment request
-        val popRequest = PopRequest(intentUri.toString())
+        val popRequest = try {
+            PopRequest(intentUri.toString())
+        } catch (e: Exception) {
+            Toaster(this).toast(R.string.pop_invalid_pop_uri, false)
+            startActivity(Intent(this, ModernMain::class.java))
+            finish()
+            return
+        }
         val popIntent = Intent(this, PopActivity::class.java)
             .putExtra("popRequest", popRequest)
         startActivity(popIntent)
@@ -497,6 +505,7 @@ class StartupActivity : AppCompatActivity(), AccountCreationObserver {
         if (uri == null) {
             // Invalid Bitcoin URI
             Toaster(this).toast(R.string.invalid_bitcoin_uri, false)
+            startActivity(Intent(this, ModernMain::class.java))
             finish()
             return
         }
@@ -513,6 +522,7 @@ class StartupActivity : AppCompatActivity(), AccountCreationObserver {
             if (uri.address == null && uri is WithCallback && Strings.isNullOrEmpty((uri as WithCallback).callbackURL)) {
                 // Invalid Bitcoin URI
                 Toaster(this).toast(R.string.invalid_bitcoin_uri, false)
+                startActivity(Intent(this, ModernMain::class.java))
                 finish()
                 return
             }

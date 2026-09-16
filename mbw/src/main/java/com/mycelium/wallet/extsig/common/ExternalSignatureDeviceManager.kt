@@ -120,6 +120,9 @@ abstract class ExternalSignatureDeviceManager(
 
         // wait until a device is connected
         while (!signatureDevice.isDevicePluggedIn) {
+            if (scanStopRequested) {
+                return false
+            }
             try {
                 setState(AccountScanManager.Status.unableToScan, currentAccountState)
                 Thread.sleep(4000)

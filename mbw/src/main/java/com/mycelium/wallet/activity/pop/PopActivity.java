@@ -101,20 +101,31 @@ public class PopActivity extends AppCompatActivity {
       if (savedInstanceState != null) {
          popRequest = (PopRequest) savedInstanceState.getSerializable("popRequest");
          txidToProve = (Sha256Hash) savedInstanceState.getSerializable("txidToProve");
-         updateUi((_mbwManager.getSelectedAccount().getTxSummary(txidToProve.getBytes())));
+         TransactionSummary restored = txidToProve == null ? null : _mbwManager.getSelectedAccount().getTxSummary(txidToProve.getBytes());
+         if (restored == null) {
+            finish();
+            return;
+         }
+         updateUi(restored);
          return;
       }
 
       popRequest = (PopRequest) getIntent().getSerializableExtra("popRequest");
       if (popRequest == null) {
          finish();
+         return;
       }
 
       Sha256Hash userSelectedTransaction = (Sha256Hash) getIntent().getSerializableExtra("selectedTransactionToProve");
       TransactionSummary txToProve;
       if (userSelectedTransaction != null) {
          txidToProve = userSelectedTransaction;
-         txToProve = null;
+         txToProve = _mbwManager.getSelectedAccount().getTxSummary(txidToProve.getBytes());
+         if (txToProve == null) {
+            new Toaster(this).toast(R.string.pop_no_transaction_selected, false);
+            finish();
+            return;
+         }
       } else {
          // Get history ordered by block height descending
          List<TransactionSummary> transactionHistory = _mbwManager.getSelectedAccount().getTransactionSummaries(0, 10000);
@@ -225,6 +236,7 @@ public class PopActivity extends AppCompatActivity {
       try {
          if (txidToProve == null) {
             new Toaster(this).toast(R.string.pop_no_transaction_selected, false);
+            return;
          }
          WalletAccount account = _mbwManager.getSelectedAccount();
 

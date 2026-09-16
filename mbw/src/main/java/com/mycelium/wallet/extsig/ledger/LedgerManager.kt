@@ -614,6 +614,9 @@ open class LedgerManager(context: Context, network: NetworkParameters, eventBus:
         Log.d(LOG_TAG, "Initialize")
         val waitConnected = LinkedBlockingQueue<Boolean?>(1)
         while (!getTransport()!!.isPluggedIn()) {
+            if (scanStopRequested) {
+                return false
+            }
             dongle = null
             try {
                 setState(AccountScanManager.Status.unableToScan, currentAccountState)

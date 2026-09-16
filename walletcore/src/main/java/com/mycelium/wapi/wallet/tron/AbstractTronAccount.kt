@@ -127,7 +127,9 @@ abstract class AbstractTronAccount(
         getUnconfirmedTransactions().forEach { pendingTx ->
             val txid = HexUtils.toHex(pendingTx.id)
             if (txid in remoteIds) return@forEach
-            if (now - pendingTx.timestamp * 1000 <= PENDING_TX_GRACE_MS) return@forEach
+            // Always ask the node: a tx it already mined must stop being "pending" right away,
+            // otherwise the balance reserves it while the node balance already reflects it (double count).
+            val withinGrace = now - pendingTx.timestamp * 1000 <= PENDING_TX_GRACE_MS
             val info = try {
                 withContext(Dispatchers.IO) { blockchainService.getTransactionInfo(txid) }
             } catch (e: IOException) {
@@ -142,7 +144,7 @@ abstract class AbstractTronAccount(
                     logger.info("Pending tx $txid failed on-chain (${info.receiptResult})")
                     backing.failTransaction(txid, info.blockNumber.toInt(), fee)
                 }
-            } else {
+            } else if (!withinGrace) {
                 logger.info("Pending tx $txid not found on-chain after grace period — removing")
                 backing.deleteTransaction(txid)
             }

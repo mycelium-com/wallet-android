@@ -158,7 +158,7 @@ public class VerifyWordListActivity extends AppCompatActivity implements WordAut
          AlertDialog alertDialog = builder.create();
          alertDialog.show();
       }else {
-         Utils.showSimpleMessageDialog(this, R.string.verify_wordlist_success, new Runnable() {
+         Utils.showSimpleMessageDialog(this, R.string.verify_wordlist_success_pin_already_set, new Runnable() {
             @Override
             public void run() {
                VerifyWordListActivity.this.finish();

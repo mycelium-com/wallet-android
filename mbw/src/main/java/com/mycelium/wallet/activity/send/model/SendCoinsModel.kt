@@ -137,8 +137,32 @@ abstract class SendCoinsModel(
         override fun setValue(value: Value) {
             if (value != this.value) {
                 super.setValue(value)
+                refitMaxAmount(value)
                 txRebuildPublisher.onNext(Unit)
             }
+        }
+    }
+
+    /** True while the current amount is the one the amount screen's Max button computed. */
+    protected var amountIsMaxEntered = false
+
+    /**
+     * A "Max" amount was computed for the fee selected at that moment; when the user then picks
+     * another fee level the old figure either no longer fits (insufficient funds for fee) or
+     * silently leaves change behind. Recompute it for the new fee — a typed amount is left alone.
+     * TRON does its own refitting (energy service quotes), so it is excluded here.
+     */
+    @Suppress("UNCHECKED_CAST")
+    private fun refitMaxAmount(fee: Value) {
+        if (!amountIsMaxEntered || this is SendTronModel) return
+        val destination = receivingAddress.value ?: return
+        try {
+            val max = (account as WalletAccount<Address>).calculateMaxSpendableAmount(fee, destination, transactionData.value)
+            if (max.isPositive() && max != amount.value) {
+                amount.value = max
+            }
+        } catch (e: Exception) {
+            // keep the old amount; the rebuild will report the real problem
         }
     }
 
@@ -307,6 +331,12 @@ abstract class SendCoinsModel(
     abstract fun getFeeLvlItems(): List<FeeLvlItem>
 
     open fun signTransaction(activity: Activity) {
+        if (transaction == null) {
+            // the tx is being rebuilt (fee refresh / focus change raced the tap) - rebuild and let the
+            // user tap again instead of launching the sign screen with nothing to sign
+            txRebuildPublisher.onNext(Unit)
+            return
+        }
         SignTransactionActivity.callMe(activity, account.id, isColdStorage, transaction,
                 SendCoinsActivity.SIGN_TRANSACTION_REQUEST_CODE)
         receivingAddress.value?.let { address ->
@@ -408,7 +438,9 @@ abstract class SendCoinsModel(
      * is the one its Max button computed, which a model may treat differently from a typed figure
      * (e.g. TRON energy service: only a max may be refitted to a re-priced fee).
      */
-    open fun onAmountEntered(isMax: Boolean) {}
+    open fun onAmountEntered(isMax: Boolean) {
+        amountIsMaxEntered = isMax
+    }
 
     /**
      * Extra, coin-specific validation run before the transaction is built; a non-null status

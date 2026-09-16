@@ -9,6 +9,7 @@ import android.view.Window
 import android.view.WindowManager
 import androidx.appcompat.app.AppCompatActivity
 import com.mycelium.wallet.MbwManager
+import com.mrd.bitlib.crypto.InMemoryPrivateKey
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
 import com.mycelium.wallet.activity.*
@@ -122,10 +123,17 @@ class InstantWalletActivity : AppCompatActivity() {
             }
         } else if (requestCode == StringHandlerActivity.IMPORT_SSS_CONTENT_CODE) {
             if (resultCode == RESULT_OK) {
-                finish()
+                val mbwManager = MbwManager.getInstance(this)
+                val key = InMemoryPrivateKey.fromBase58String(
+                    intent?.getStringExtra(BipSsImportActivity.RESULT_SECRET), mbwManager.network)
+                if (key != null) {
+                    sendWithAccount(mbwManager.createOnTheFlyAccount(key, Utils.getBtcCoinType()))
+                } else {
+                    Toaster(this).toast(R.string.unrecognized_format, false)
+                }
             }
         } else {
-            throw IllegalStateException("unknown return codes after scanning... $requestCode $resultCode")
+            // unknown request code (e.g. forwarded results) - nothing to do
         }
     }
 

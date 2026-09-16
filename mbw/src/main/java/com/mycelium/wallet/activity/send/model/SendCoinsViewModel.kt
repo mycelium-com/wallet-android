@@ -362,7 +362,8 @@ abstract class SendCoinsViewModel(application: Application) : AndroidViewModel(a
         } else {
             when (data?.getSerializableExtra(StringHandlerActivity.RESULT_TYPE_KEY) as ResultType) {
                 ResultType.PRIVATE_KEY -> {
-                    throw NotImplementedError("Private key must be implemented per currency")
+                    // only BTC (SendBtcViewModel) can spend from a scanned private key
+                    makeText(activity, context.getString(R.string.not_correct_address_type), LENGTH_LONG).show()
                 }
                 ResultType.ADDRESS -> {
                     if (item != null) {
@@ -411,8 +412,7 @@ abstract class SendCoinsViewModel(application: Application) : AndroidViewModel(a
                             .addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT))
                 }
                 else -> {
-                    throw IllegalStateException("Unexpected result type from scan: " +
-                            data.getSerializableExtra(StringHandlerActivity.RESULT_TYPE_KEY).toString())
+                    makeText(activity, context.getString(R.string.unrecognized_format), LENGTH_LONG).show()
                 }
             }
         }

@@ -1033,10 +1033,29 @@ public class MbwManager {
         return getPin().isSet();
     }
 
+    /**
+     * Height of the Bitcoin chain as seen by the wallet. PIN age and PIN reset are measured in Bitcoin blocks,
+     * so they must not depend on which (possibly ETH/TRON) account is currently selected.
+     */
+    public int getBtcBlockChainHeight() {
+        int height = 0;
+        for (WalletAccount<?> account : getWalletManager(false).getAccounts()) {
+            // archived BTC accounts throw "Using archived account" on getBlockChainHeight()
+            if (account instanceof AbstractBtcAccount && !account.isArchived()) {
+                try {
+                    height = Math.max(height, account.getBlockChainHeight());
+                } catch (RuntimeException ignore) {
+                    // skip accounts that refuse to report a height
+                }
+            }
+        }
+        return height > 0 ? height : getSelectedAccount().getBlockChainHeight();
+    }
+
     // returns the age of the PIN in blocks (~10min)
     public Optional<Integer> getRemainingPinLockdownDuration() {
         Optional<Integer> pinSetHeight = getMetadataStorage().getLastPinSetBlockheight();
-        int blockHeight = getSelectedAccount().getBlockChainHeight();
+        int blockHeight = getBtcBlockChainHeight();
 
         if (!pinSetHeight.isPresent() || blockHeight < pinSetHeight.get()) {
             return Optional.absent();
@@ -1141,7 +1160,7 @@ public class MbwManager {
     }
 
     private void setPinBlockheight() {
-        int blockHeight = getSelectedAccount().getBlockChainHeight();
+        int blockHeight = getBtcBlockChainHeight();
         getMetadataStorage().setLastPinSetBlockheight(blockHeight);
     }
 
@@ -1244,7 +1263,7 @@ public class MbwManager {
     }
 
     public void startResetPinProcedure() {
-        getMetadataStorage().setResetPinStartBlockheight(getSelectedAccount().getBlockChainHeight());
+        getMetadataStorage().setResetPinStartBlockheight(getBtcBlockChainHeight());
     }
 
     public Optional<Integer> getResetPinRemainingBlocksCount() {
@@ -1253,7 +1272,7 @@ public class MbwManager {
             // no reset procedure ongoing
             return Optional.absent();
         } else {
-            int blockAge = getSelectedAccount().getBlockChainHeight() - resetPinStartBlockHeight.get();
+            int blockAge = getBtcBlockChainHeight() - resetPinStartBlockHeight.get();
             return Optional.of(Math.max(0, Constants.MIN_PIN_BLOCKHEIGHT_AGE_RESET_PIN - blockAge));
         }
     }
@@ -1695,6 +1714,11 @@ public class MbwManager {
         getEditor().putBoolean(Constants.PIN_SETTING_REQUIRED_ON_STARTUP, pinRequiredOnStartup).apply();
 
         this._pinRequiredOnStartup = pinRequiredOnStartup;
+        if (pinRequiredOnStartup) {
+            // the user just authenticated to flip this switch - the current session counts as unlocked,
+            // otherwise the startup-PIN gate would fire on the very next screen
+            setStartUpPinUnlocked(true);
+        }
     }
 
     public Cache<String, Object> getBackgroundObjectsCache() {

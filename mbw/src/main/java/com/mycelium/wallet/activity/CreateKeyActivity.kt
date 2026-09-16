@@ -21,6 +21,8 @@ class CreateKeyActivity : AppCompatActivity() {
     /** Called when the activity is first created.  */
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // fresh private keys are shown on this screen
+        com.mycelium.wallet.Utils.preventScreenshots(this)
         manager = MbwManager.getInstance(application)
         setContentView(CreateKeyActivityBinding.inflate(layoutInflater).apply {
             binding = this

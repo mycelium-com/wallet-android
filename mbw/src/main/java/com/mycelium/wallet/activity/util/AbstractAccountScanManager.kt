@@ -37,6 +37,10 @@ abstract class AbstractAccountScanManager @JvmOverloads constructor(
 ) : AccountScanManager {
 
     private var scanAsyncTask: Job? = null
+
+    /** set by [stopBackgroundAccountScan]; blocking wait loops in subclasses must poll it */
+    @Volatile
+    protected var scanStopRequested = false
     private val foundAccounts = ArrayList<HdKeyNodeWrapper>()
 
     @Volatile
@@ -83,7 +87,8 @@ abstract class AbstractAccountScanManager @JvmOverloads constructor(
         } else {
             // start a background task which iterates over all accounts and calls the callback
             // to check if there was activity on it
-            scanAsyncTask = GlobalScope.launch(Dispatchers.Default) {
+            scanStopRequested = false
+            scanAsyncTask = GlobalScope.launch(Dispatchers.IO) {
                 progressUpdate(ScanStatus(Status.initializing, AccountStatus.unknown))
                 if (onBeforeScan()) {
                     progressUpdate(ScanStatus(Status.readyToScan, AccountStatus.scanning))
@@ -152,6 +157,7 @@ abstract class AbstractAccountScanManager @JvmOverloads constructor(
     }
 
     override fun stopBackgroundAccountScan() {
+        scanStopRequested = true
         if (scanAsyncTask != null) {
             scanAsyncTask?.cancel()
             scanAsyncTask = null

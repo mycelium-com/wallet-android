@@ -213,10 +213,12 @@ class TronAccountBacking(
         blockInfo: Map<String, Pair<Long, Long>>,
         typicalBandwidth: BigInteger,
         typicalEnergy: BigInteger,
+        resourceInfo: Map<String, Pair<Long, Long>> = emptyMap(),
     ) {
         walletDB.transaction {
             transfers.forEach { tx ->
                 val (blockNumber, feeSun) = blockInfo[tx.txid] ?: return@forEach
+                val (energyUsed, netUsed) = resourceInfo[tx.txid] ?: (0L to 0L)
                 putTransaction(
                     blockNumber = blockNumber.toInt(),
                     timestamp = tx.blockTimestampMs / 1000,
@@ -229,8 +231,8 @@ class TronAccountBacking(
                     feeLimit = BigInteger.ZERO,
                     hasTokenTransfers = true,
                     success = true,
-                    bandwidth = typicalBandwidth,
-                    energy = typicalEnergy,
+                    bandwidth = if (netUsed > 0) BigInteger.valueOf(netUsed) else typicalBandwidth,
+                    energy = if (energyUsed > 0) BigInteger.valueOf(energyUsed) else typicalEnergy,
                     tronTxType = TronTxType.TRC20_TRANSFER,
                 )
             }

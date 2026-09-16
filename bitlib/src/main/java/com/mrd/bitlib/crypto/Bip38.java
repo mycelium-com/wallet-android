@@ -374,8 +374,8 @@ public class Bip38 {
       InMemoryPrivateKey key = new InMemoryPrivateKey(complete, bip38Key.compressed);
 
       // Validate result
-      for (AddressType type : AddressType.values()) {
-         BitcoinAddress address = key.getPublicKey().toAddress(network, type);
+      // uncompressed keys cannot form segwit addresses - only iterate over the supported ones
+      for (BitcoinAddress address : key.getPublicKey().getAllSupportedAddresses(network).values()) {
          byte[] newSalt = calculateScryptSalt(address);
          if (BitUtils.areEqual(bip38Key.salt, newSalt)) {
             // Get SIPA format

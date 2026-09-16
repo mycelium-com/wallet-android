@@ -10,6 +10,9 @@ import com.mycelium.wapi.wallet.Address
 import com.mycelium.wapi.wallet.BroadcastResult
 import com.mycelium.wapi.wallet.BroadcastResultType
 import com.mycelium.wapi.wallet.Fee
+import com.google.common.base.Optional
+import com.mrd.bitlib.crypto.BipDerivationType
+import com.mycelium.wapi.wallet.ExportableAccount
 import com.mycelium.wapi.wallet.KeyCipher
 import com.mycelium.wapi.wallet.SyncMode
 import com.mycelium.wapi.wallet.SyncPausable
@@ -47,7 +50,7 @@ class EthAccount(private val chainId: Long,
                  private val accountListener: AccountListener?,
                  blockchainService: EthBlockchainService,
                  address: EthAddress? = null) : AbstractEthERC20Account(accountContext.currency, credentials,
-        backing, blockchainService, EthAccount::class.simpleName, address), SyncPausable {
+        backing, blockchainService, EthAccount::class.simpleName, address), SyncPausable, ExportableAccount {
 
     val enabledTokens: List<String>
         get() = accountContext.enabledTokens ?: listOf()
@@ -298,6 +301,12 @@ class EthAccount(private val chainId: Long,
     }
 
     override fun canSign() = credentials != null
+
+    /** Address as public data; the raw 32-byte private key (0x-prefixed hex, MetaMask-importable) as private data. */
+    override fun getExportData(cipher: KeyCipher): ExportableAccount.Data =
+        ExportableAccount.Data(
+            Optional.fromNullable(credentials?.ecKeyPair?.privateKey?.let { Numeric.toHexStringWithPrefixZeroPadded(it, 64) }),
+            mapOf(BipDerivationType.BIP44 to receivingAddress.addressString))
 
     /**
      * ETH leaving the account in still-unconfirmed transactions: the amount plus

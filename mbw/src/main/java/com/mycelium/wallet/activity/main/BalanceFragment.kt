@@ -17,7 +17,9 @@ import com.mycelium.wallet.Constants
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
+import com.mycelium.wallet.activity.BipSsImportActivity
 import com.mycelium.wallet.activity.BipSsImportActivity.Companion.callMe
+import com.mrd.bitlib.crypto.InMemoryPrivateKey
 import com.mycelium.wallet.activity.HandleUrlActivity
 import com.mycelium.wallet.activity.ScanActivity
 import com.mycelium.wallet.activity.StringHandlerActivity
@@ -88,12 +90,15 @@ class BalanceFragment : Fragment() {
         }
         updateExchangeSourceMenu()
         binding?.layoutActoins?.btSend?.setOnClickListener {
+            if (!debounceClick()) return@setOnClickListener
             onClickSend()
         }
         binding?.layoutActoins?.btReceive?.setOnClickListener {
+            if (!debounceClick()) return@setOnClickListener
             onClickReceive()
         }
         binding?.layoutActoins?.btScan?.setOnClickListener {
+            if (!debounceClick()) return@setOnClickListener
             onClickScan()
         }
     }
@@ -183,6 +188,16 @@ class BalanceFragment : Fragment() {
     override fun onStop() {
         MbwManager.getEventBus().unregister(this)
         super.onStop()
+    }
+
+    private var lastActionClickMs = 0L
+
+    /** A fast double tap on Send/Receive/Scan used to start two activities (singleTop cannot help before the first one is on top). */
+    private fun debounceClick(): Boolean {
+        val now = android.os.SystemClock.elapsedRealtime()
+        if (now - lastActionClickMs < 800) return false
+        lastActionClickMs = now
+        return true
     }
 
     fun onClickSend() {
@@ -356,6 +371,19 @@ class BalanceFragment : Fragment() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == StringHandlerActivity.IMPORT_SSS_CONTENT_CODE) {
+            if (resultCode == Activity.RESULT_OK) {
+                val key = InMemoryPrivateKey.fromBase58String(
+                    data?.getStringExtra(BipSsImportActivity.RESULT_SECRET), _mbwManager!!.network)
+                if (key != null) {
+                    val account = _mbwManager!!.createOnTheFlyAccount(key, Utils.getBtcCoinType())
+                    callMeWithResult(requireActivity(), account, true, StringHandlerActivity.SEND_INITIALIZATION_CODE)
+                } else {
+                    Toaster(this).toast(R.string.unrecognized_format, false)
+                }
+            }
+            return
+        }
         if (requestCode == GENERIC_SCAN_REQUEST) {
             if (resultCode != Activity.RESULT_OK) {
                 //report to user in case of error

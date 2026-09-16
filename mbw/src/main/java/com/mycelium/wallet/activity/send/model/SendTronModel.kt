@@ -416,6 +416,7 @@ class SendTronModel(application: Application,
     override fun isZeroFeeAllowed() = true
 
     override fun onAmountEntered(isMax: Boolean) {
+        super.onAmountEntered(isMax)
         amountIsMax = isMax
     }
 

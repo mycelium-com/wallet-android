@@ -177,11 +177,11 @@ class ExchangeViewModel(application: Application) : AndroidViewModel(application
         if (it?.result != null && it.result != BigDecimal.ZERO)
             " = " + it.result.stripTrailingZeros().toPlainString()
         else
-            " ~ " + mbwManager.exchangeRateManager.get(
+            " ~ " + (mbwManager.exchangeRateManager.get(
                 fromCurrency.value?.value("1"),
                 toCurrency.value
             )?.toFriendlyString(Denomination.UNIT)
-                ?: N_A
+                ?: N_A)
     }
 
     val exchangeRateToCurrency = exchangeInfo.map {
@@ -259,6 +259,8 @@ class ExchangeViewModel(application: Application) : AndroidViewModel(application
                     rateLoading.value == true -> false
                     amount == null -> false
                     amount == BigDecimal.ZERO -> false
+                    // no fix-rate quote (backend error, pair below minimum, …): nothing to exchange against
+                    exchangeInfo.value?.result == null -> false
                     exchangeInfo.value?.minFrom != null && amount < exchangeInfo.value?.minFrom  -> {
                         errorTransaction.value = res.getString(R.string.exchange_min_msg,
                                 exchangeInfo.value?.minFrom?.stripTrailingZeros()?.toPlainString(),

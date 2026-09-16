@@ -217,8 +217,8 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener, AmountLi
                             bindingFeeSelector = it.layoutFeeBlock.layoutFeeSelector
                             it.viewModel = viewModel as SendBtcViewModel
                             it.activity = this
-                            it.batch.adapter = batchAdapter
-                            it.batch.addItemDecoration(VerticalSpaceItemDecoration(resources.getDimensionPixelOffset(R.dimen.size_x4)))
+                            it.batchList.adapter = batchAdapter
+                            it.batchList.addItemDecoration(VerticalSpaceItemDecoration(resources.getDimensionPixelOffset(R.dimen.size_x4)))
                             it.addBatchAddress.setOnClickListener {
                                 viewModel.addEmptyOutput()
                             }
@@ -271,7 +271,8 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener, AmountLi
                                 bindingAdvEth?.etNonce?.setOnFocusChangeListener { _, hasFocus ->
                                     if (!hasFocus) {
                                         val nonceText = bindingAdvEth?.etNonce?.text.toString()
-                                        getNonce().value = if (nonceText.isEmpty()) null else BigInteger(nonceText)
+                                        getNonce().value = if (nonceText.isEmpty()) null else nonceText.toBigIntegerOrNull()
+                                                .also { if (it == null) bindingAdvEth?.etNonce?.error = getString(R.string.not_valid_value) }
                                         getTransactionDataStatus().value = SendCoinsModel.TransactionDataStatus.READY
                                     } else {
                                         getTransactionDataStatus().value = SendCoinsModel.TransactionDataStatus.TYPING
@@ -291,7 +292,8 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener, AmountLi
                                 bindingAdvEth?.etGasLimit?.setOnFocusChangeListener { _, hasFocus ->
                                     if (!hasFocus) {
                                         val gasLimit = bindingAdvEth?.etGasLimit?.text.toString()
-                                        getGasLimit().value = if (gasLimit.isEmpty()) null else BigInteger(gasLimit)
+                                        getGasLimit().value = if (gasLimit.isEmpty()) null else gasLimit.toBigIntegerOrNull()
+                                                .also { if (it == null) bindingAdvEth?.etGasLimit?.error = getString(R.string.not_valid_value) }
                                         getTransactionDataStatus().value = SendCoinsModel.TransactionDataStatus.READY
                                     }
                                 }
@@ -308,7 +310,8 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener, AmountLi
                                 bindingAdvEth?.gasPrice?.setOnFocusChangeListener { _, hasFocus ->
                                     if (!hasFocus) {
                                         val gasPrice = bindingAdvEth?.gasPrice?.text.toString()
-                                        getGasPrice().value = if (gasPrice.isEmpty()) null else Convert.toWei(gasPrice, Convert.Unit.GWEI).toBigInteger()
+                                        getGasPrice().value = if (gasPrice.isEmpty()) null else runCatching { Convert.toWei(gasPrice, Convert.Unit.GWEI).toBigInteger() }.getOrNull()
+                                                .also { if (it == null) bindingAdvEth?.gasPrice?.error = getString(R.string.not_valid_value) }
                                         if (getGasLimit().value == null) {
                                             val limit = getDefaultGasLimit()
                                             bindingAdvEth?.etGasLimit?.setText(limit.toString())
@@ -425,6 +428,7 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener, AmountLi
                                         getGasLimit().value = null
                                         bindingAdvEth?.gasPrice?.setText("")
                                         getGasPrice().value = null
+                                        bindingAdvEth?.etData?.setText("")
                                         bindingAdvEth?.spinner?.setSelection(0)
                                         getTransactionDataStatus().value = SendCoinsModel.TransactionDataStatus.READY
                                     }

@@ -27,6 +27,8 @@ import com.mycelium.modularizationtools.CommunicationManager.Companion.init
 import com.mycelium.modularizationtools.ModuleMessageReceiver
 import com.mycelium.wallet.UpdateConfigWorker.Companion.end
 import com.mycelium.wallet.UpdateConfigWorker.Companion.start
+import com.mycelium.wallet.activity.PinProtectedActivity
+import com.mycelium.wallet.activity.StartupActivity
 import com.mycelium.wallet.activity.modern.Toaster.Companion.onStop
 import com.mycelium.wallet.activity.settings.SettingsPreference.getLanguage
 import com.mycelium.wallet.activity.settings.SettingsPreference.mediaFlowEnabled
@@ -161,7 +163,15 @@ class WalletApplication : Application(), ModuleMessageReceiver {
 
         override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {
             numOfCreated++
-            MbwManager.getInstance(applicationContext).activityCount = numOfCreated
+            val mbwManager = MbwManager.getInstance(applicationContext)
+            mbwManager.activityCount = numOfCreated
+            if (activity !is StartupActivity && activity !is PinProtectedActivity && mbwManager.isUnlockPinRequired) {
+                // The process was recreated (or the startup PIN was re-armed) while the system restores a deeper
+                // screen: route through StartupActivity so "Require PIN on start" is enforced.
+                activity.startActivity(Intent(activity, StartupActivity::class.java)
+                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK))
+                activity.finish()
+            }
         }
 
         override fun onActivityPostCreated(activity: Activity, savedInstanceState: Bundle?) {
@@ -225,8 +235,8 @@ class WalletApplication : Application(), ModuleMessageReceiver {
                 }
                 isBackground = true
                 logger.log(Level.INFO, "Went to background")
+                onStop()
             }
-            onStop()
         }
 
         override fun onActivitySaveInstanceState(activity: Activity, outState: Bundle) {}

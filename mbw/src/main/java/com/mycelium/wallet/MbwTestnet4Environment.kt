@@ -85,8 +85,8 @@ class MbwTestnet4Environment : MbwEnvironment() {
                 EthTest.name to listOf(
                     BlockExplorer(
                         "ETS", "etherscan.io",
-                        "https://goerli.etherscan.io/address/",
-                        "https://goerli.etherscan.io/tx/0x",
+                        "https://sepolia.etherscan.io/address/",
+                        "https://sepolia.etherscan.io/tx/0x",
                         null,
                         null
                     )

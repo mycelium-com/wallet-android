@@ -270,6 +270,8 @@ class TRC20Account(
             // bounded concurrency; txs already stored with a block skip the lookup entirely.
             val known = backing.getConfirmedTxBlockNumbers()
             val blockInfo = HashMap<String, Pair<Long, Long>>()
+            // txid → (energy_usage_total, net_usage) from the receipt: what the tx really consumed
+            val resourceInfo = HashMap<String, Pair<Long, Long>>()
             val semaphore = Semaphore(TX_INFO_MAX_CONCURRENCY)
             coroutineScope {
                 transfers.map { tx ->
@@ -278,6 +280,7 @@ class TRC20Account(
                         semaphore.withPermit {
                             try {
                                 val info = blockchainService.getTransactionInfo(tx.txid)
+                                synchronized(resourceInfo) { resourceInfo[tx.txid] = info.energyUsageTotal to info.netUsage }
                                 tx.txid to (info.blockNumber to info.fee)
                             } catch (e: IOException) {
                                 logger.log(Level.WARNING, "getTransactionInfo failed for ${tx.txid}: ${e.message}")
@@ -291,7 +294,7 @@ class TRC20Account(
                     if (info.second >= 0) blockInfo[txid] = info
                 }
             }
-            backing.putTrc20Transactions(transfers, blockInfo, BigInteger.valueOf(TOKEN_TRANSFER_BANDWIDTH), BigInteger.valueOf(TOKEN_TRANSFER_ENERGY))
+            backing.putTrc20Transactions(transfers, blockInfo, BigInteger.valueOf(TOKEN_TRANSFER_BANDWIDTH), BigInteger.valueOf(TOKEN_TRANSFER_ENERGY), resourceInfo)
             resolvePendingTransactions(transfers.map { it.txid })
             return true
         } catch (e: IOException) {

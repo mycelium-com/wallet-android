@@ -96,8 +96,12 @@ class ReceiveCoinsModel(
                 val value = mbwManager.exchangeRateManager.get(amount.value, account.coinType) ?: amount.value
 
                 if (value != null) {
-                    uri.append(if (account is AbstractEthERC20Account) "?value=" else "?amount=")
-                    uri.append(value.valueAsBigDecimal.stripTrailingZeros().toPlainString())
+                    if (account is AbstractEthERC20Account) {
+                        // EIP-681: value in wei / token base units
+                        uri.append("?value=").append(value.value.toString())
+                    } else {
+                        uri.append("?amount=").append(value.valueAsBigDecimal.stripTrailingZeros().toPlainString())
+                    }
                 } else {
                     Toaster(context).toast(R.string.value_conversion_error, false);
                 }

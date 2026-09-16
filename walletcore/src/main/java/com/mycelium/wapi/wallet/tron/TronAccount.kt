@@ -8,7 +8,11 @@ import com.mycelium.wapi.wallet.Address
 import com.mycelium.wapi.wallet.BroadcastResult
 import com.mycelium.wapi.wallet.BroadcastResultType
 import com.mycelium.wapi.wallet.Fee
+import com.google.common.base.Optional
+import com.mrd.bitlib.crypto.BipDerivationType
+import com.mycelium.wapi.wallet.ExportableAccount
 import com.mycelium.wapi.wallet.KeyCipher
+import org.web3j.utils.Numeric
 import com.mycelium.wapi.wallet.SyncMode
 import com.mycelium.wapi.wallet.SyncPausable
 import com.mycelium.wapi.wallet.Transaction
@@ -39,7 +43,7 @@ class TronAccount(
     blockchainService: TronBlockchainService,
     address: TronAddress? = null,
 ) : AbstractTronAccount(accountContext.currency, credentials, backing, blockchainService,
-    TronAccount::class.simpleName, address), SyncPausable {
+    TronAccount::class.simpleName, address), SyncPausable, ExportableAccount {
 
     val enabledTokens: List<String>
         get() = accountContext.enabledTokens ?: listOf()
@@ -218,6 +222,12 @@ class TronAccount(
     }
 
     override fun isDerivedFromInternalMasterseed() = credentials != null
+
+    /** Address as public data; the raw private key as 64 hex chars (TronLink-importable) as private data. */
+    override fun getExportData(cipher: KeyCipher): ExportableAccount.Data =
+        ExportableAccount.Data(
+            Optional.fromNullable(credentials?.ecKeyPair?.privateKey?.let { Numeric.toHexStringNoPrefixZeroPadded(it, 64) }),
+            mapOf(BipDerivationType.BIP44 to receivingAddress.addressString))
 
     override val id: UUID
         get() = credentials?.ecKeyPair?.toUUID() ?: UUID.nameUUIDFromBytes(receivingAddress.addressString.toByteArray())

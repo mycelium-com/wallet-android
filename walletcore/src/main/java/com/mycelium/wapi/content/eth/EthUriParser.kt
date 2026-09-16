@@ -35,8 +35,10 @@ class EthUriParser(override val network: NetworkParameters, private val supporte
         }
 
         // Amount
+        // EIP-681: `value` is expressed in wei (or the token's smallest unit), scientific notation allowed
+        // ("1e18"); the non-standard `amount` parameter stays in whole coins for backwards compatibility.
         val amount: Value? = params["value"]?.let {
-            Value.valueOf(coinType, BigDecimal(it).multiply(BigDecimal.TEN.pow(coinType.unitExponent)).toBigIntegerExact())
+            Value.valueOf(coinType, BigDecimal(it).toBigIntegerExact())
         } ?: params["amount"]?.let {
             Value.valueOf(coinType, BigDecimal(it).multiply(BigDecimal.TEN.pow(coinType.unitExponent)).toBigIntegerExact())
         }

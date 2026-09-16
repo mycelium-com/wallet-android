@@ -3,6 +3,7 @@ package com.mycelium.wallet.activity.modern
 import android.Manifest.permission.POST_NOTIFICATIONS
 import android.content.Intent
 import android.os.Bundle
+import androidx.activity.OnBackPressedCallback
 import android.os.Handler
 import android.text.SpannableString
 import android.text.method.LinkMovementMethod
@@ -226,6 +227,9 @@ class ModernMain : AppCompatActivity(), BackHandler {
         }
         ModularisationVersionHelper.notifyWrongModuleVersion(this)
         handleIntent(intent)
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() = handleBack()
+        })
 
         setupSupportChatFab()
 
@@ -289,11 +293,16 @@ class ModernMain : AppCompatActivity(), BackHandler {
         }
     }
 
+    /**
+     * The tab the user actually sees. The pager is the source of truth once it has pages;
+     * [pendingTabTag] only bridges the window between selectTab()/restore and the first layout
+     * (a stale pending tag used to make Back on Balance not exit — OBS-BACK-1).
+     */
     fun selectedTab(): String =
-        pendingTabTag ?: mTabsAdapter?.let {
+        mTabsAdapter?.let {
             val i = binding.pager.currentItem
             if (i in 0 until it.itemCount) it.getPageTagOrNull(i) else null
-        } ?: TAB_ACCOUNTS
+        } ?: pendingTabTag ?: TAB_ACCOUNTS
 
     fun selectTab(tabTag: String) {
         val index = mTabsAdapter?.indexOf(tabTag) ?: -1
@@ -473,7 +482,7 @@ class ModernMain : AppCompatActivity(), BackHandler {
         super.onStop()
     }
 
-    override fun onBackPressed() {
+    private fun handleBack() {
         backListeners.forEach {
             if(it.onBackPressed()) {
                return
@@ -484,7 +493,7 @@ class ModernMain : AppCompatActivity(), BackHandler {
             // requested.
             // commented out code above doesn't do the trick, neither.
             mbwManager.setStartUpPinUnlocked(false)
-            super.onBackPressed()
+            finish()
         } else {
             selectTab(TAB_BALANCE)
         }

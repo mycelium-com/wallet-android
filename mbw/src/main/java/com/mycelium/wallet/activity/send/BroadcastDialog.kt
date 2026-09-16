@@ -19,6 +19,7 @@ import com.mycelium.wallet.event.TransactionBroadcasted
 import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.erc20.ERC20Account
 import com.mycelium.wapi.wallet.eth.EthAccount
+import com.mycelium.wapi.wallet.tron.AbstractTronAccount
 import com.mycelium.wapi.wallet.exceptions.TransactionBroadcastException
 import com.squareup.otto.Bus
 import java.util.*
@@ -146,7 +147,7 @@ class BroadcastDialog : DialogFragment() {
                 Utils.showSimpleMessageDialog(activity, R.string.transaction_rejected_message) {
                     returnResult(broadcastResult)
                 }
-            BroadcastResultType.NO_SERVER_CONNECTION -> if (isCold || account is EthAccount || account is ERC20Account) {
+            BroadcastResultType.NO_SERVER_CONNECTION -> if (isCold || account is EthAccount || account is ERC20Account || account is AbstractTronAccount) {
                 // When doing cold storage spending we do not offer to queue the transaction
                 // We also do not offer to queue the transaction for eth accounts just yet
                 Utils.showSimpleMessageDialog(activity, R.string.transaction_not_sent) {
@@ -155,7 +156,7 @@ class BroadcastDialog : DialogFragment() {
             } else {
                 // Offer the user to queue the transaction
                 AlertDialog.Builder(activity)
-                        .setTitle(activity!!.getString(R.string.no_server_connection, ""))
+                        .setTitle(activity!!.getString(R.string.no_server_connection, account.coinType.symbol))
                         .setMessage(R.string.queue_transaction_message)
                         .setPositiveButton(R.string.yes) { textId, listener ->
                             account.queueTransaction(transaction)
