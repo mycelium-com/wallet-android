@@ -22,6 +22,7 @@ import com.mycelium.wapi.wallet.exceptions.InsufficientFundsForFeeException
 import com.mycelium.wapi.wallet.genericdb.TronAccountBacking
 import com.mycelium.wapi.wallet.trc20.coins.TRC20Token
 import com.mycelium.wapi.wallet.tron.AbstractTronAccount
+import com.mycelium.wapi.wallet.tron.PendingDebit
 import com.mycelium.wapi.wallet.tron.TronAccount
 import com.mycelium.wapi.wallet.tron.TronAddress
 import com.mycelium.wapi.wallet.tron.TronFeeEstimator
@@ -139,6 +140,7 @@ class TRC20Account(
             }
             val txid = tronTx.txHash?.let { HexUtils.toHex(it) } ?: result.txid
                 ?: return BroadcastResult("No transaction hash", BroadcastResultType.REJECT_INVALID_TX_PARAMS)
+            rememberBalanceBeforeBroadcast(txid)
             backing.putTransaction(
                 blockNumber = -1,
                 timestamp = System.currentTimeMillis() / 1000,
@@ -242,7 +244,7 @@ class TRC20Account(
             logger.log(Level.WARNING, "Couldn't update TRC20 balance for ${token.symbol}. Using cached value.")
             return false
         }
-        val pendingSending = getPendingSending()
+        val pendingSending = unreflectedPending(onChain, getPendingTransfers())
         val confirmed = (onChain - pendingSending).max(BigInteger.ZERO)
         val newBalance = Balance(Value.valueOf(coinType, confirmed), Value.zeroValue(coinType),
             Value.valueOf(coinType, pendingSending), Value.zeroValue(coinType))
@@ -253,10 +255,9 @@ class TRC20Account(
         return true
     }
 
-    private fun getPendingSending(): BigInteger = getUnconfirmedTransactions()
+    private fun getPendingTransfers() = getUnconfirmedTransactions()
         .filter { it.sender.addressString == receivingAddress.addressString && it.receiver.addressString != receivingAddress.addressString }
-        .map { it.value.value }
-        .fold(BigInteger.ZERO, BigInteger::add)
+        .map { PendingDebit(HexUtils.toHex(it.id), it.value.value, it.value.value) }
 
     private suspend fun syncTransactions(): Boolean {
         try {
@@ -269,6 +270,8 @@ class TRC20Account(
             // The trc20 endpoint carries no block number: resolve it (and the fee) per tx with
             // bounded concurrency; txs already stored with a block skip the lookup entirely.
             val known = backing.getConfirmedTxBlockNumbers()
+            // energy-service transfers are stored mined but with the typical energy: fetch their receipt once
+            val placeholderEnergy = backing.getConfirmedTxidsWithEnergy(BigInteger.valueOf(TOKEN_TRANSFER_ENERGY))
             val blockInfo = HashMap<String, Pair<Long, Long>>()
             // txid → (energy_usage_total, net_usage) from the receipt: what the tx really consumed
             val resourceInfo = HashMap<String, Pair<Long, Long>>()
@@ -276,7 +279,16 @@ class TRC20Account(
             coroutineScope {
                 transfers.map { tx ->
                     async(Dispatchers.IO) {
-                        known[tx.txid]?.let { return@async tx.txid to (it to -1L) }
+                        known[tx.txid]?.let { block ->
+                            if (tx.txid in placeholderEnergy) {
+                                try {
+                                    backing.updateResources(tx.txid, blockchainService.getTransactionInfo(tx.txid))
+                                } catch (e: IOException) {
+                                    logger.log(Level.WARNING, "getTransactionInfo failed for ${tx.txid}: ${e.message}")
+                                }
+                            }
+                            return@async tx.txid to (block to -1L)
+                        }
                         semaphore.withPermit {
                             try {
                                 val info = blockchainService.getTransactionInfo(tx.txid)
@@ -295,6 +307,14 @@ class TRC20Account(
                 }
             }
             backing.putTrc20Transactions(transfers, blockInfo, BigInteger.valueOf(TOKEN_TRANSFER_BANDWIDTH), BigInteger.valueOf(TOKEN_TRANSFER_ENERGY), resourceInfo)
+            // rows older than the incremental window are not in `transfers`: repair a few of them per sync
+            (placeholderEnergy - transfers.map { it.txid }.toSet()).take(PLACEHOLDER_REPAIRS_PER_SYNC).forEach { txid ->
+                try {
+                    backing.updateResources(txid, withContext(Dispatchers.IO) { blockchainService.getTransactionInfo(txid) })
+                } catch (e: IOException) {
+                    logger.log(Level.WARNING, "getTransactionInfo failed for $txid: ${e.message}")
+                }
+            }
             resolvePendingTransactions(transfers.map { it.txid })
             return true
         } catch (e: IOException) {
@@ -379,6 +399,7 @@ class TRC20Account(
         const val TOKEN_TRANSFER_BANDWIDTH = 345L
         /** Typical TRC20 transfer energy when the recipient already holds the token. */
         const val TOKEN_TRANSFER_ENERGY = 65_000L
+        private const val PLACEHOLDER_REPAIRS_PER_SYNC = 20
         private const val TX_INFO_MAX_CONCURRENCY = 3
     }
 }

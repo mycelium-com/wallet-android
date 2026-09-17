@@ -63,6 +63,7 @@ import com.google.common.base.Optional;
 import com.mrd.bitlib.crypto.BipSss;
 import com.mrd.bitlib.crypto.HdKeyNode;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
+import com.mrd.bitlib.model.AddressType;
 import com.mrd.bitlib.model.BitcoinAddress;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mycelium.wallet.MbwManager;
@@ -86,7 +87,6 @@ import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.btc.BtcAddress;
-import com.mycelium.wapi.wallet.btc.bip44.HDAccount;
 import com.mycelium.wapi.wallet.btc.bip44.UnrelatedHDAccountConfig;
 import com.mycelium.wapi.wallet.btc.single.AddressSingleConfig;
 import com.mycelium.wapi.wallet.btc.single.PrivateSingleConfig;
@@ -370,6 +370,7 @@ public class AddAdvancedAccountActivity extends AppCompatActivity implements Imp
       private InMemoryPrivateKey key;
       private MetadataStorage.BackupState backupState;
       private List<WalletAccount<?>> existingAccounts = new ArrayList<>();
+      private boolean sameKeyOtherAddresses = false;
 
       ImportSingleAddressAccountAsyncTask(InMemoryPrivateKey key, MetadataStorage.BackupState backupState) {
          this.key = key;
@@ -388,6 +389,17 @@ public class AddAdvancedAccountActivity extends AppCompatActivity implements Imp
                break;
             }
          }
+         if (existingAccounts.isEmpty()) {
+            // The compressed and the uncompressed form of a key have different addresses but the same account id,
+            // so creating the account would silently replace the address set of the existing one.
+            UUID id = SingleAddressAccount.calculateId(key.getPublicKey()
+                    .toAddress(_mbwManager.getNetwork(), AddressType.P2SH_P2WPKH, true));
+            WalletAccount<?> sameIdAccount = walletManager.getAccount(id);
+            if (sameIdAccount != null) {
+               existingAccounts = Collections.singletonList(sameIdAccount);
+               sameKeyOtherAddresses = true;
+            }
+         }
          return AddressCheckResult.BTC;
       }
 
@@ -400,7 +412,7 @@ public class AddAdvancedAccountActivity extends AppCompatActivity implements Imp
             WalletAccount accountToUpgrade = null;
             WalletAccount existingAccount = existingAccounts.get(0);
 
-            if (!existingAccount.canSpend()) {
+            if (!existingAccount.canSpend() && !sameKeyOtherAddresses) {
                accountToUpgrade = existingAccount;
             } else {
                finishAlreadyExist(existingAccount.getReceiveAddress());
@@ -564,9 +576,15 @@ public class AddAdvancedAccountActivity extends AppCompatActivity implements Imp
    }
 
    private void finishAlreadyExist(Address address) {
-      String accountType = getAccountType(address);
+      // look up by coin first: a token account shares the address of its ETH/TRON parent
+      Optional<UUID> accountId = _mbwManager.getAccountId(address, address.getCoinType());
+      if (!accountId.isPresent()) {
+         accountId = _mbwManager.getAccountId(address);
+      }
+      String label = _mbwManager.getMetadataStorage().getLabelByAccount(accountId.get());
       Intent result = new Intent()
-              .putExtra(AddAccountActivity.RESULT_MSG, getString(R.string.account_already_exist, accountType));
+              .putExtra(AddAccountActivity.RESULT_MSG, getString(R.string.address_already_restored_as_account,
+                      address.getCoinType().getName(), label));
       setResult(RESULT_MSG, result);
       finish();
    }
@@ -576,18 +594,6 @@ public class AddAdvancedAccountActivity extends AppCompatActivity implements Imp
               .putExtra(AddAccountActivity.RESULT_MSG, getString(res, address.toString()));
       setResult(RESULT_MSG, result);
       finish();
-   }
-
-   private String getAccountType(Address address) {
-      UUID accountId = _mbwManager.getAccountId(address).get();
-      WalletAccount account = _mbwManager.getWalletManager(false).getAccount(accountId);
-      if (account instanceof HDAccount) {
-         return "BTC HD account";
-      }
-      if (account instanceof SingleAddressAccount) {
-         return "BTC Single Address";
-      }
-      return account.getCoinType().getName();
    }
 
    private void finishOk(UUID account, boolean isUpgrade) {

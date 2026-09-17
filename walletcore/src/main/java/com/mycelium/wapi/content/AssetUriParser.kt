@@ -34,9 +34,14 @@ abstract class AssetUriParser(open val network: NetworkParameters) : UriParser {
         }
 
         val params = splitQuery(uri.rawQuery)
+        // BIP21: "req-" parameters are required to be understood, none is supported here, so such a URI
+        // is invalid (ETH/TRON parsers handle their own "req-asset" and don't use this function)
+        require(params.keys.none { it.startsWith("req-") }) { "unsupported required parameter in URI" }
 
         val amount: Value? = params["amount"]?.let {
-            Value.valueOf(coinType, BigDecimal(it).multiply(BigDecimal.TEN.pow(coinType.unitExponent)).toBigIntegerExact())
+            val decimal = BigDecimal(it)
+            require(decimal.signum() >= 0) { "negative amount in URI" }
+            Value.valueOf(coinType, decimal.multiply(BigDecimal.TEN.pow(coinType.unitExponent)).toBigIntegerExact())
         }
 
         // Label

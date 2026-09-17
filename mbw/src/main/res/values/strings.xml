@@ -100,7 +100,7 @@
     <string name="sign_message">Sign Message</string>
     <string name="cant_sign_message">You cannot sign a message with an HD Bitcoin account</string>
     <string name="enter_message_hint">Please enter the message that you want to sign here</string>
-    <string name="sig_copied">Signature copied to clipboard</string>
+    <string name="sig_copied">Signed message copied to clipboard</string>
     <string name="signed_message_subject_btc">Bitcoin signed message</string>
     <string name="signed_message_share_btc">Share Bitcoin signed message</string>
     <string name="signed_message_subject">%s signed message</string>
@@ -527,7 +527,7 @@
     <string name="try_request_backup_again"><![CDATA[It might be an issue with your internet connection or an internal server issue.<br/>Please try to request Backup Code again or contact <font color="#F2E868">Support Center</font> for help.]]></string>
     <string name="service_unavailable">Service unavailable</string>
     <string name="buysell_bitcoin_title">Buy and sell %s</string>
-    <string name="buysell_select_country_text">Select country where your debit/creadit card was issued.</string>
+    <string name="buysell_select_country_text">Select country where your debit/credit card was issued.</string>
     <string name="search_country">Search country</string>
     <string name="select_your_country">Select your country</string>
     <string name="trusted_providers">Trusted providers</string>
@@ -616,6 +616,10 @@
     <string name="message_verified_to_be_from">Message verified to be from %1$s</string>
     <string name="message_failed_to_verify">"Message failed to verify! "</string>
     <string name="input_look_ahead">Search depth (addresses)</string>
+    <string name="input_look_ahead_invalid">Enter a number from 1 to %d</string>
+    <string name="settings_notifications_blocked">Notifications are turned off in the system settings. Tap to allow them.</string>
+    <string name="local_currency_usd_required">USD is always selected: it is used to calculate the exchange rates of other currencies</string>
+    <string name="pop_transaction_data_missing">This transaction cannot be proven: the wallet has no data about the funds it spent. Only payments sent from this account can be proven.</string>
     <string name="card_code">Card Code:</string>
     <string name="share_of">Share %1$d</string>
     <string name="total_number_of_shares">Total shares</string>
@@ -626,7 +630,13 @@
     <string name="shamir_share_hint"><![CDATA[Total shares: a number of parts to split the private key into.\n\nThreshold: a number of parts needed to reconstruct the private key.]]></string>
     <string name="not_valid_value">Not valid value</string>
     <string name="total_shares_limit">Total shares must be less than 65535</string>
+    <string name="shamir_threshold_invalid">Threshold must be between 1 and the total number of shares</string>
+    <string name="shamir_no_shares">Generate the shares first</string>
+    <string name="shamir_pdf_shares_limit">PDF export is limited to %1$d shares</string>
+    <string name="address_already_restored_as_account">This %1$s address is already restored as account \"%2$s\".</string>
     <string name="i_know_what_iam_doing">I know what I’m doing</string>
     <string name="delete_pk_message"><![CDATA[Do you want to delete the account <b>\"%1$s\"</b> private key holding <b>%2$s</b>?]]></string>
     <string name="activate_by">Activate by</string>
+    <string name="coins_received_channel_name">Payment received</string>
+    <string name="use_eth_acc_first">You can only have one unused Ethereum Account.</string>
 </resources>

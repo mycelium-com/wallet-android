@@ -54,9 +54,12 @@ class SettingsActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_settings)
         supportActionBar?.setDisplayShowTitleEnabled(true)
-        supportFragmentManager
-                .beginTransaction()
-                .replace(R.id.fragment_container, SettingsFragment())
-                .commit()
+        if (savedInstanceState == null) {
+            // on re-creation (rotation) the fragment manager restores the fragments with their state
+            supportFragmentManager
+                    .beginTransaction()
+                    .replace(R.id.fragment_container, SettingsFragment())
+                    .commit()
+        }
     }
 }

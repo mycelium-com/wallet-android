@@ -49,7 +49,8 @@ object ChangellyRetrofitFactory {
             .connectTimeout(15, TimeUnit.SECONDS)
             .readTimeout(15, TimeUnit.SECONDS)
             .configureSSLSocket()
-            .addInterceptor(ChangellyInterceptor()).apply {
+            .addInterceptor(ChangellyInterceptor())
+            .addInterceptor(ExchangeWalletSignatureInterceptor()).apply {
                 if (BuildConfig.DEBUG) {
                     addInterceptor(HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY))
                 }

@@ -62,7 +62,13 @@
 
         <meta-data
             android:name="firebase_analytics_collection_deactivated"
-            android:value="true" /> <!-- file provider to enable secure intent sharing for encrypted backups -->
+            android:value="true" />
+        <!-- modularization-lib's exported MessageReceiver calls startForeground() without a
+             foregroundServiceType, so on targetSdk 34+ any app that starts it crashes our process.
+             MbwMessageReceiver ignores every message, so drop the service from the merged manifest. -->
+        <service
+            android:name="com.mycelium.modularizationtools.MessageReceiver"
+            tools:node="remove" /> <!-- file provider to enable secure intent sharing for encrypted backups -->
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.files"
@@ -72,8 +78,10 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/my_paths" />
         </provider> <!-- Service for Cloud Messaging -->
+        <!-- not exported (as in the Firebase docs): FCM delivers through its own exported receiver, and an
+             exported service let any app startForegroundService() it and crash our process -->
         <service android:name=".lt.notification.FcmListenerService"
-            android:exported="true">
+            android:exported="false">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>

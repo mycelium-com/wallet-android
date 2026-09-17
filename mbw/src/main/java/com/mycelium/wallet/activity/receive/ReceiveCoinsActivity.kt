@@ -79,7 +79,12 @@ class ReceiveCoinsActivity : AppCompatActivity() {
             this, nfcReceiver,
             IntentFilter(NfcAdapter.ACTION_ADAPTER_STATE_CHANGED), ContextCompat.RECEIVER_EXPORTED
         )
+        // the payment URI carries both the address and the requested amount: re-render the QR
+        // when either changes, otherwise it keeps encoding the previous amount
         viewModel.getReceivingAddress().observe(this) {
+            bindingReceiveQr?.ivQrCode?.qrCode = viewModel.getPaymentUri()
+        }
+        viewModel.getRequestedAmount().observe(this) {
             bindingReceiveQr?.ivQrCode?.qrCode = viewModel.getPaymentUri()
         }
         addMenuProvider(MenuImpl())

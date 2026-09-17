@@ -90,7 +90,8 @@ class ERC20Module(
     override fun getAccountById(id: UUID) = accounts[id]
 
     override fun loadAccounts(): Map<UUID, WalletAccount<*>> = backing.loadAccountContexts()
-            .associateBy({ it.uuid }, { accountFromUUID(it.uuid) })
+            .mapNotNull { accountFromUUID(it.uuid) }
+            .associateBy { it.id }
 
     private fun createAccountContext(uuid: UUID, config: ERC20Config? = null): ERC20AccountContext {
         val accountContextInDB = backing.loadAccountContext(uuid)
@@ -133,12 +134,13 @@ class ERC20Module(
         }
     }
 
-    private fun accountFromUUID(uuid: UUID): ERC20Account {
+    private fun accountFromUUID(uuid: UUID): ERC20Account? {
         val accountContext = createAccountContext(uuid)
         val token = ERC20Token(accountContext.accountName + if (networkParameters.isProdnet) "" else " test",
                 accountContext.symbol, accountContext.unitExponent, accountContext.contractAddress)
         val accountBacking = EthAccountBacking(walletDB, accountContext.uuid, ethCoinType, token)
-        val ethAccount = ethereumModule.getAccountById(accountContext.ethAccountId) as EthAccount
+        // an orphaned token (its ETH account was deleted) must not take the whole wallet down
+        val ethAccount = ethereumModule.getAccountById(accountContext.ethAccountId) as? EthAccount ?: return null
         val decryptedKey = secureStore.getDecryptedValue(
             accountContext.ethAccountId.toString().toByteArray(),
             AesKeyCipher.defaultKeyCipher()

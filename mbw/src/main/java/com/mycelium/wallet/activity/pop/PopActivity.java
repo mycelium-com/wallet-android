@@ -50,6 +50,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.google.common.base.Preconditions;
 import com.mrd.bitlib.UnsignedTransaction;
 import com.mrd.bitlib.model.BitcoinTransaction;
+import com.mrd.bitlib.model.TransactionInput;
 import com.mrd.bitlib.util.HexUtils;
 import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.net.ServerEndpointType;
@@ -62,6 +63,7 @@ import com.mycelium.wallet.activity.util.AdaptiveDateFormat;
 import com.mycelium.wallet.activity.util.ValueExtensionsKt;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wallet.pop.PopRequest;
+import com.mycelium.wapi.model.TransactionEx;
 import com.mycelium.wapi.wallet.Transaction;
 import com.mycelium.wapi.wallet.TransactionSummary;
 import com.mycelium.wapi.wallet.WalletAccount;
@@ -90,6 +92,20 @@ public class PopActivity extends AppCompatActivity {
    private static final int SIGN_TRANSACTION_REQUEST_CODE = 6;
    private static final String SIGNED_TRANSACTION = "signedTransaction";
 
+   /** Proof of payment is BTC-only: use the selected account if it is a BTC account, otherwise the first active BTC account. */
+   static WalletAccount getPopAccount(MbwManager mbwManager) {
+      WalletAccount selected = mbwManager.getSelectedAccount();
+      if (selected instanceof WalletBtcAccount) {
+         return selected;
+      }
+      for (WalletAccount account : mbwManager.getWalletManager(false).getActiveSpendingAccounts()) {
+         if (account instanceof WalletBtcAccount) {
+            return account;
+         }
+      }
+      return selected;
+   }
+
    @Override
    protected void onCreate(Bundle savedInstanceState) {
       this.requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -101,7 +117,7 @@ public class PopActivity extends AppCompatActivity {
       if (savedInstanceState != null) {
          popRequest = (PopRequest) savedInstanceState.getSerializable("popRequest");
          txidToProve = (Sha256Hash) savedInstanceState.getSerializable("txidToProve");
-         TransactionSummary restored = txidToProve == null ? null : _mbwManager.getSelectedAccount().getTxSummary(txidToProve.getBytes());
+         TransactionSummary restored = txidToProve == null ? null : getPopAccount(_mbwManager).getTxSummary(txidToProve.getBytes());
          if (restored == null) {
             finish();
             return;
@@ -120,7 +136,7 @@ public class PopActivity extends AppCompatActivity {
       TransactionSummary txToProve;
       if (userSelectedTransaction != null) {
          txidToProve = userSelectedTransaction;
-         txToProve = _mbwManager.getSelectedAccount().getTxSummary(txidToProve.getBytes());
+         txToProve = getPopAccount(_mbwManager).getTxSummary(txidToProve.getBytes());
          if (txToProve == null) {
             new Toaster(this).toast(R.string.pop_no_transaction_selected, false);
             finish();
@@ -128,7 +144,7 @@ public class PopActivity extends AppCompatActivity {
          }
       } else {
          // Get history ordered by block height descending
-         List<TransactionSummary> transactionHistory = _mbwManager.getSelectedAccount().getTransactionSummaries(0, 10000);
+         List<TransactionSummary> transactionHistory = getPopAccount(_mbwManager).getTransactionSummaries(0, 10000);
          TransactionSummary matchingTransaction = findFirstMatchingTransaction(popRequest, transactionHistory);
          if (matchingTransaction == null) {
             launchSelectTransactionActivity();
@@ -238,7 +254,12 @@ public class PopActivity extends AppCompatActivity {
             new Toaster(this).toast(R.string.pop_no_transaction_selected, false);
             return;
          }
-         WalletAccount account = _mbwManager.getSelectedAccount();
+         WalletAccount account = getPopAccount(_mbwManager);
+         if (!(account instanceof WalletBtcAccount) || !hasTransactionDataToProve((WalletBtcAccount) account, txidToProve)) {
+            // createUnsignedPop would fail with a NullPointerException on the missing transaction data
+            new Toaster(this).toast(R.string.pop_transaction_data_missing, false);
+            return;
+         }
 
          final UnsignedTransaction unsignedPop = ((WalletBtcAccount)account).createUnsignedPop(txidToProve, popRequest.getN());
 
@@ -246,15 +267,37 @@ public class PopActivity extends AppCompatActivity {
             @Override
             public void run() {
                disableButtons();
-               CryptoCurrency cryptoCurrency = _mbwManager.getSelectedAccount().getCoinType();
+               CryptoCurrency cryptoCurrency = getPopAccount(_mbwManager).getCoinType();
                BtcTransaction unsignedTransaction = new BtcTransaction(cryptoCurrency, unsignedPop);
-               Intent intent = SignTransactionActivity.getIntent(PopActivity.this, _mbwManager.getSelectedAccount().getId(), false, unsignedTransaction);
+               Intent intent = SignTransactionActivity.getIntent(PopActivity.this, getPopAccount(_mbwManager).getId(), false, unsignedTransaction);
                startActivityForResult(intent, SIGN_TRANSACTION_REQUEST_CODE);
             }
          });
       } catch (Exception e) {
          new Toaster(this).toast("An internal error occurred:" + e.getMessage(), false);
       }
+   }
+
+   /**
+    * A proof re-spends the inputs of the proven transaction, so the transaction and all transactions
+    * it spends from have to be known to the account (not the case e.g. for received payments).
+    */
+   private static boolean hasTransactionDataToProve(WalletBtcAccount account, Sha256Hash txid) {
+      TransactionEx txEx = account.getTransaction(txid);
+      if (txEx == null || txEx.binary == null) {
+         return false;
+      }
+      try {
+         for (TransactionInput input : BitcoinTransaction.fromBytes(txEx.binary).inputs) {
+            TransactionEx parent = account.getTransaction(input.outPoint.txid);
+            if (parent == null || parent.binary == null) {
+               return false;
+            }
+         }
+      } catch (BitcoinTransaction.TransactionParsingException e) {
+         return false;
+      }
+      return true;
    }
 
    public void selectOtherTransaction(View view) {

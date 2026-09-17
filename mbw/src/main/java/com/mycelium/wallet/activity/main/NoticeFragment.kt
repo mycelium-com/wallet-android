@@ -200,8 +200,11 @@ class NoticeFragment : Fragment() {
             .setPositiveButton(
                 this.activity!!.getString(R.string.yes)
             ) { dialog, which ->
-                _mbwManager!!.metadataStorage.clearResetPinStartBlockheight()
-                recheckNotice()
+                // only the owner (who knows the PIN) may cancel the reset countdown
+                _mbwManager!!.runPinProtectedFunction(activity) {
+                    _mbwManager!!.metadataStorage.clearResetPinStartBlockheight()
+                    recheckNotice()
+                }
             }
             .setNegativeButton(
                 this.activity!!.getString(R.string.no)

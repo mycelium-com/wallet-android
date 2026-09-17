@@ -11,6 +11,7 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.text.Html
+import android.text.TextUtils
 import android.view.MenuItem
 import android.view.MotionEvent
 import android.view.View
@@ -236,7 +237,12 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener, AmountLi
                                 getGasLimitStatus().observe(this@SendCoinsActivity, Observer { status ->
                                     bindingAdvEth?.etGasLimit?.setTextColor(resources.getColor(R.color.white))
                                     when (status) {
-                                        SendEthModel.GasLimitStatus.ERROR -> {
+                                        SendEthModel.GasLimitStatus.ERROR, SendEthModel.GasLimitStatus.TOO_HIGH -> {
+                                            bindingAdvEth?.tvGasLimitError?.text = if (status == SendEthModel.GasLimitStatus.TOO_HIGH) {
+                                                getString(R.string.gas_limit_too_high, EthAccount.MAX_TX_GAS_LIMIT.toString())
+                                            } else {
+                                                getString(R.string.gas_limit_error)
+                                            }
                                             bindingAdvEth?.tvGasLimitHelper?.visibility = View.GONE
                                             bindingAdvEth?.tvGasLimitWarning?.visibility = View.GONE
                                             bindingAdvEth?.tvGasLimitError?.visibility = View.VISIBLE
@@ -320,7 +326,8 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener, AmountLi
                                         getTransactionDataStatus().value = SendCoinsModel.TransactionDataStatus.READY
                                     }
                                 }
-                                val tvSatFeeValue:TextView? = findViewById<TextView>(R.id.tvSatFeeValue)
+                                // setContentView() runs after initDatabinding(): Activity.findViewById() is still null here
+                                val tvSatFeeValue: TextView? = binding.root.findViewById(R.id.tvSatFeeValue)
                                 getGasPrice().observe(this@SendCoinsActivity, Observer { gp ->
                                     if (gp == null) {
                                         tvSatFeeValue?.visibility = View.GONE
@@ -329,7 +336,7 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener, AmountLi
                                         bindingFeeTitleEth?.tvFeeUpdatesTimer?.visibility = View.VISIBLE
                                     } else {
                                         val gasLimit =
-                                            if (getGasLimitStatus().value != SendEthModel.GasLimitStatus.ERROR) {
+                                            if (getGasLimitStatus().value?.isValid != false) {
                                                 getGasLimit().value ?: getDefaultGasLimit()
                                             } else {
                                                 getDefaultGasLimit()
@@ -358,7 +365,7 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener, AmountLi
                                 getGasLimit().observe(this@SendCoinsActivity, Observer { gl ->
                                     if (account is ERC20Account) {
                                         var gasLimit = gl
-                                        if (gl == null || getGasLimitStatus().value == SendEthModel.GasLimitStatus.ERROR) {
+                                        if (gl == null || getGasLimitStatus().value?.isValid == false) {
                                             binding.tvThisIsUpdatedFee.visibility = View.GONE
                                             binding.tvHighestPossibleFeeInfo.visibility = View.VISIBLE
                                             binding.llNotEnoughEth.visibility = View.GONE
@@ -373,7 +380,7 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener, AmountLi
                                     }
                                     getGasPrice().value?.let { gp ->
                                         val gasLimit =
-                                            if (getGasLimitStatus().value != SendEthModel.GasLimitStatus.ERROR) {
+                                            if (getGasLimitStatus().value?.isValid != false) {
                                                 gl ?: getDefaultGasLimit()
                                             } else {
                                                 getDefaultGasLimit()
@@ -392,7 +399,7 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener, AmountLi
                                     })
                                     getEstimatedFee().observe(this@SendCoinsActivity, Observer { estimatedFee ->
                                         binding.tvHighestPossibleFeeInfo.text =
-                                            Html.fromHtml(getString(R.string.erc20_highest_possible_fee_info, getParentAccount()!!.label,
+                                            Html.fromHtml(getString(R.string.erc20_highest_possible_fee_info, TextUtils.htmlEncode(getParentAccount()!!.label),
                                                                     estimatedFee.toStringFriendlyWithUnit(getDenomination()), convert(estimatedFee)))
                                     })
                                     getTotalFee().observe(this@SendCoinsActivity, Observer { totalFee ->
@@ -401,10 +408,17 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener, AmountLi
                                             val diff = totalFee - parentAccountBalance
                                             binding.tvPleaseTopUp.text =
                                                 Html.fromHtml(getString(R.string.please_top_up_your_eth_account,
-                                                                        getParentAccount()!!.label, diff.toStringFriendlyWithUnit(getDenomination()), convert(diff)))
+                                                                        TextUtils.htmlEncode(getParentAccount()!!.label), diff.toStringFriendlyWithUnit(getDenomination()), convert(diff)))
                                             binding.tvThisIsUpdatedFee.visibility = View.GONE
                                             binding.tvHighestPossibleFeeInfo.visibility = View.GONE
                                             binding.llNotEnoughEth.visibility = View.VISIBLE
+                                        } else if (binding.llNotEnoughEth.visibility == View.VISIBLE) {
+                                            // a cheaper fee made the parent balance sufficient again
+                                            val customGasLimit = getGasLimit().value != null &&
+                                                    getGasLimitStatus().value?.isValid != false
+                                            binding.llNotEnoughEth.visibility = View.GONE
+                                            binding.tvThisIsUpdatedFee.visibility = if (customGasLimit) View.VISIBLE else View.GONE
+                                            binding.tvHighestPossibleFeeInfo.visibility = if (customGasLimit) View.GONE else View.VISIBLE
                                         }
                                     })
                                     binding.tvParentEthAccountBalanceLabel.text = getString(R.string.parent_eth_account, getParentAccount()!!.label)
@@ -446,6 +460,14 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener, AmountLi
                         .also {
                             it.viewModel = viewModel as SendTronViewModel
                             it.activity = this
+                            // like the ERC-20 block: jump to the parent TRON account to top it up
+                            it.layoutFeeBlock.llNotEnoughTrx.setOnClickListener {
+                                (viewModel as SendTronViewModel).getParentAccount()?.let { parent ->
+                                    mbwManager.setSelectedAccount(parent.id)
+                                    setResult(RESULT_CANCELED)
+                                    finish()
+                                }
+                            }
                         }
             }
             else -> getDefaultBinding()

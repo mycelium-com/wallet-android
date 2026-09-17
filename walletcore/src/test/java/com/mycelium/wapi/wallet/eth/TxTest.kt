@@ -45,6 +45,32 @@ class TxTest {
         }"""
     }
 
+    private fun type2TxJson(confirmations: Int) = """{
+            "txid": "0xdeadbeef", "vin": [{"addresses": ["$ownerAddress"]}], "vout": [{"addresses": ["$recipientAddress"]}],
+            "blockHeight": 0, "confirmations": $confirmations, "blockTime": 1713200000, "value": "0", "fees": "0",
+            "ethereumSpecific": {"nonce": "7", "gasLimit": "21000", "gasUsed": "21000", "gasPrice": "4338980918",
+                "maxFeePerGas": "8000000000", "maxPriorityFeePerGas": "2000000000", "status": true}
+        }"""
+
+    @Test
+    fun `pending type-2 tx reports its cap as gas price`() {
+        // blockbook's gasPrice of a pending type-2 tx is the effective price; replacements must bump the cap
+        val tx = mapper.readValue(type2TxJson(confirmations = 0), Tx::class.java)
+        assertEquals(BigInteger("8000000000"), tx.gasPrice)
+    }
+
+    @Test
+    fun `mined type-2 tx reports the effective gas price`() {
+        val tx = mapper.readValue(type2TxJson(confirmations = 3), Tx::class.java)
+        assertEquals(BigInteger("4338980918"), tx.gasPrice)
+    }
+
+    @Test
+    fun `legacy tx without cap keeps gas price`() {
+        val tx = mapper.readValue(buildTxJson(), Tx::class.java)
+        assertEquals(BigInteger("35000000000"), tx.gasPrice)
+    }
+
     @Test
     fun `getPendingTokenTransfer decodes ERC20 transfer from input data`() {
         val tx = mapper.readValue(buildTxJson(), Tx::class.java)

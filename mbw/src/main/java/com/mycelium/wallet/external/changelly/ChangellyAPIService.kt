@@ -75,6 +75,8 @@ interface ChangellyAPIService {
         @Query("address") address: String,
         @Query("rateId") rateId: String,
         @Query("refundAddress") refundAddress: String,
+        // Sender addresses of the funding tx; an empty list omits the param
+        @Query("fromAddresses") fromAddresses: List<String> = emptyList(),
     ): ChangellyResponse<ChangellyTransactionOffer>
 
     @POST("getTransactions")

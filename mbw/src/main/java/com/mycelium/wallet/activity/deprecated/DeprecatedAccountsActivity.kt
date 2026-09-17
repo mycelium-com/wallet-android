@@ -8,6 +8,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import android.view.WindowManager
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -83,7 +84,7 @@ class DeprecatedAccountsActivity : AppCompatActivity() {
             view.findViewById<TextView>(R.id.tvKey).text = key.key
             view.findViewById<QrImageView>(R.id.ivQr).setQrCode(key.key)
             view.findViewById<View>(R.id.btCopy).setOnClickListener {
-                Utils.setClipboardString(key.key, this)
+                Utils.setSensitiveClipboardString(key.key, this)
                 Toaster(this).toast(R.string.copied_to_clipboard, true)
             }
             keyList.addView(view)
@@ -92,7 +93,12 @@ class DeprecatedAccountsActivity : AppCompatActivity() {
             .setTitle(account.label)
             .setView(container)
             .setPositiveButton(R.string.button_done, null)
-            .show()
+            .create()
+            .also { dialog ->
+                // the dialog has its own window: FLAG_SECURE of the activity does not cover it
+                dialog.window?.setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE)
+                dialog.show()
+            }
     }
 
     companion object {

@@ -5,6 +5,7 @@ import com.mycelium.wapi.SyncStatus
 import com.mycelium.wapi.SyncStatusInfo
 import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
+import com.mycelium.wapi.wallet.exceptions.BuildTransactionException
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.eth.coins.EthCoin
 import com.mycelium.wapi.wallet.genericdb.EthAccountBacking
@@ -60,6 +61,23 @@ abstract class AbstractEthERC20Account(coinType: CryptoCurrency,
      * @param feeCoin the chain coin carrying the rollout flag (ETH coin for both
      *                ETH and ERC-20 sends, since gas is always paid in ETH).
      */
+    /**
+     * A user-chosen max fee below the chain's current base fee can never be included (EIP-1559
+     * chains only, and only when a fee snapshot is known). Throws so the Send screen can show why.
+     */
+    @Throws(BuildTransactionException::class)
+    protected fun checkGasPriceAgainstBaseFee(feeCoin: CryptoCurrency, maxFeePerGas: BigInteger) {
+        if ((feeCoin as? EthCoin)?.supportsEip1559 != true) return
+        val baseFee = blockchainService.lastEip1559Fees()?.baseFeePerGas ?: return
+        if (maxFeePerGas < baseFee) {
+            val gwei = BigInteger.TEN.pow(9).toBigDecimal()
+            throw BuildTransactionException(Throwable("Gas price " +
+                    maxFeePerGas.toBigDecimal().divide(gwei).stripTrailingZeros().toPlainString() +
+                    " gwei is below the network base fee of " +
+                    baseFee.toBigDecimal().divide(gwei).setScale(2, java.math.RoundingMode.UP).toPlainString() + " gwei"))
+        }
+    }
+
     protected fun eip1559Tip(
         feeCoin: CryptoCurrency,
         maxFeePerGas: BigInteger,

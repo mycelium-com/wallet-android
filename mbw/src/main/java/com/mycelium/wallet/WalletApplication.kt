@@ -29,6 +29,8 @@ import com.mycelium.wallet.UpdateConfigWorker.Companion.end
 import com.mycelium.wallet.UpdateConfigWorker.Companion.start
 import com.mycelium.wallet.activity.PinProtectedActivity
 import com.mycelium.wallet.activity.StartupActivity
+import com.mycelium.wallet.activity.export.ShamirSharingActivity
+import com.mycelium.wallet.activity.modern.ModernMain
 import com.mycelium.wallet.activity.modern.Toaster.Companion.onStop
 import com.mycelium.wallet.activity.settings.SettingsPreference.getLanguage
 import com.mycelium.wallet.activity.settings.SettingsPreference.mediaFlowEnabled
@@ -86,6 +88,9 @@ class WalletApplication : Application(), ModuleMessageReceiver {
         registerActivityLifecycleCallbacks(ApplicationLifecycleHandler())
         PackageRemovedReceiver.register(applicationContext)
         if (isMainProcess()) {
+            // Shamir share PDFs are left in the cache if the process dies while the share chooser is open
+            // (ShamirSharingActivity.onDestroy never runs then)
+            Thread { ShamirSharingActivity.deleteExportedPdfs(this) }.start()
             NewsDatabase.initialize(this)
             if (mediaFlowEnabled) {
                 startNewsUpdateRepeating(this)
@@ -168,8 +173,15 @@ class WalletApplication : Application(), ModuleMessageReceiver {
             if (activity !is StartupActivity && activity !is PinProtectedActivity && mbwManager.isUnlockPinRequired) {
                 // The process was recreated (or the startup PIN was re-armed) while the system restores a deeper
                 // screen: route through StartupActivity so "Require PIN on start" is enforced.
-                activity.startActivity(Intent(activity, StartupActivity::class.java)
-                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK))
+                val redirect = Intent(activity, StartupActivity::class.java)
+                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                val launchedPlain = activity is ModernMain &&
+                        (activity.intent.action == null || activity.intent.action == Intent.ACTION_MAIN)
+                if (!launchedPlain) {
+                    // deep link (gift box, exchange, POP…) or a restored screen: reopen it after the PIN
+                    redirect.putExtra(StartupActivity.EXTRA_REDIRECT_INTENT, Intent(activity.intent).setClass(activity, activity.javaClass))
+                }
+                activity.startActivity(redirect)
                 activity.finish()
             }
         }

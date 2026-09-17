@@ -38,6 +38,7 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.ClipData;
+import android.content.ClipDescription;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -52,6 +53,8 @@ import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
+import android.os.Build;
+import android.os.PersistableBundle;
 import android.text.format.DateFormat;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -522,6 +525,28 @@ public class Utils {
       }
    }
 
+   /**
+    * For secrets (private keys, key shares, redeem codes): marks the clip as sensitive so Android 13+
+    * does not show it in the clipboard preview overlay, which is visible even over FLAG_SECURE screens.
+    */
+   public static void setSensitiveClipboardString(String string, Context context) {
+      try {
+         ClipboardManager clipboard = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
+         ClipData clip = ClipData.newPlainText("Mycelium", string);
+         PersistableBundle extras = new PersistableBundle();
+         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            extras.putBoolean(ClipDescription.EXTRA_IS_SENSITIVE, true);
+         } else {
+            extras.putBoolean("android.content.extra.IS_SENSITIVE", true);
+         }
+         clip.getDescription().setExtras(extras);
+         clipboard.setPrimaryClip(clip);
+      } catch (NullPointerException ex) {
+         MbwManager.getInstance(context).reportIgnoredException(new RuntimeException(ex.getMessage()));
+         new Toaster(context).toast(R.string.unable_to_set_clipboard, false);
+      }
+   }
+
    public static String getClipboardString(Context context) {
       try {
          ClipboardManager clipboard = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
@@ -938,6 +963,7 @@ public class Utils {
                return Integer.compare(((EthAccount) w1).getAccountIndex(), ((EthAccount) w2).getAccountIndex());
             } else if (w1 instanceof EthAccount && w2 instanceof ERC20Account) {
                EthAccount linkedEthAccount = getLinkedEthAccount(w2, accounts);
+               if (linkedEthAccount == null) return 0;
                if (linkedEthAccount.equals(w1)) {
                   return -1;
                } else {
@@ -945,6 +971,7 @@ public class Utils {
                }
             } else if (w1 instanceof ERC20Account && w2 instanceof EthAccount) {
                EthAccount linkedEthAccount = getLinkedEthAccount(w1, accounts);
+               if (linkedEthAccount == null) return 0;
                if (linkedEthAccount.equals(w2)) {
                   return 1;
                } else {
@@ -952,7 +979,9 @@ public class Utils {
                }
             } else if (w1 instanceof ERC20Account && w2 instanceof ERC20Account) {
                EthAccount linkedEthAccount1 = getLinkedEthAccount(w1, accounts);
+               if (linkedEthAccount1 == null) return 0;
                EthAccount linkedEthAccount2 = getLinkedEthAccount(w2, accounts);
+               if (linkedEthAccount2 == null) return 0;
                return Integer.compare(linkedEthAccount1.getAccountIndex(), linkedEthAccount2.getAccountIndex());
             } else if (w1 instanceof TronAccount && w2 instanceof TronAccount) {
                return Integer.compare(((TronAccount) w1).getAccountIndex(), ((TronAccount) w2).getAccountIndex());

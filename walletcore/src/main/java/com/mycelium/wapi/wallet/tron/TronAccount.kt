@@ -119,6 +119,7 @@ class TronAccount(
             }
             val txid = tronTx.txHash?.let { HexUtils.toHex(it) } ?: result.txid
                 ?: return BroadcastResult("No transaction hash", BroadcastResultType.REJECT_INVALID_TX_PARAMS)
+            rememberBalanceBeforeBroadcast(txid)
             backing.putTransaction(
                 blockNumber = -1,
                 timestamp = System.currentTimeMillis() / 1000,
@@ -169,12 +170,9 @@ class TronAccount(
         // Reserve locally broadcast, not-yet-confirmed outgoing txs (value + fee): the node's
         // balance does not reflect them yet, and without this the UI would happily double-spend
         // the same TRX until the next sync.
-        var pendingSending = BigInteger.ZERO
-        getUnconfirmedTransactions().forEach { tx ->
-            if (tx.sender.addressString == receivingAddress.addressString) {
-                pendingSending += tx.value.value + (tx.fee?.value ?: BigInteger.ZERO)
-            }
-        }
+        val pendingSending = unreflectedPending(balResponse.confirmed, getUnconfirmedTransactions()
+            .filter { it.sender.addressString == receivingAddress.addressString }
+            .map { PendingDebit(HexUtils.toHex(it.id), it.value.value, it.value.value + (it.fee?.value ?: BigInteger.ZERO)) })
         val confirmed = (balResponse.confirmed - pendingSending).max(BigInteger.ZERO)
         stakedSun = balResponse.stakedSun
         val newBalance = Balance(valueOf(coinType, confirmed), Value.zeroValue(coinType),

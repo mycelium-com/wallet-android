@@ -14,7 +14,9 @@ class NewPinDialog(context: Context, hidden: Boolean) : PinDialog(context, hidde
         this.setTitle(R.string.pin_enter_new_pin)
         val mbwManager = MbwManager.getInstance(context)
         cbResettablePin = findViewById<View>(R.id.cb_resettable_pin) as CheckBox?
-        cbResettablePin!!.isChecked = mbwManager.pin.isSet
+        // a new PIN is resettable by default; changing a PIN keeps the current choice
+        val currentPin = mbwManager.pin
+        cbResettablePin!!.isChecked = !currentPin.isSet || currentPin.isResettable != false
         cbResettablePin.setOnCheckedChangeListener { compoundButton: CompoundButton?, b: Boolean ->
             updateResetInfo(context)
         }

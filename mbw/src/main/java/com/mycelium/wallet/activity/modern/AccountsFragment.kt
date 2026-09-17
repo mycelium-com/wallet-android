@@ -400,6 +400,9 @@ class AccountsFragment : Fragment() {
                                     }
                                     walletManager!!.deleteAccount(accountToDelete.id)
                                     _storage!!.deleteAccountMetadata(accountToDelete.id)
+                                    // ETH/TRON accounts carry their tokens: delete them too, otherwise the
+                                    // orphaned ERC-20/TRC-20 contexts crash the wallet on the next start
+                                    deleteLinkedTokenAccounts(accountToDelete)
                                     _mbwManager!!.setSelectedAccount(
                                         _mbwManager!!.getWalletManager(false).getActiveSpendingAccounts().get(0).id
                                     )
@@ -481,7 +484,7 @@ class AccountsFragment : Fragment() {
                 val deleteDialog2 = AlertDialog.Builder(requireActivity())
                     .setMessage(
                         Html.fromHtml(
-                            (getString(R.string.delete_pk_message, accountToDelete.label, valueString)
+                            (getString(R.string.delete_pk_message, TextUtils.htmlEncode(accountToDelete.label), valueString)
                                     + "<br/><br/>" +
                                     getString(R.string.confirm_delete_private_key_message))
                         )
@@ -625,6 +628,19 @@ class AccountsFragment : Fragment() {
         deleteDialog.setNegativeButton(R.string.button_cancel, null).show()
     }
 
+    /** Removes the ERC-20 / TRC-20 accounts that belong to an ETH / TRON account being deleted. */
+    private fun deleteLinkedTokenAccounts(accountToDelete: WalletAccount<*>) {
+        val tokens: List<WalletAccount<*>> = when (accountToDelete) {
+            is EthAccount -> getLinkedERC20Accounts(accountToDelete)
+            is TronAccount -> getLinkedTRC20Accounts(accountToDelete)
+            else -> emptyList()
+        }
+        for (token in tokens) {
+            walletManager!!.deleteAccount(token.id)
+            _storage!!.deleteAccountMetadata(token.id)
+        }
+    }
+
     private fun getLinkedAccounts(accountToDelete: WalletAccount<*>?): MutableList<WalletAccount<*>> {
         val linkedAccounts: MutableList<WalletAccount<*>> = ArrayList<WalletAccount<*>>()
         if (accountToDelete is EthAccount) {
@@ -667,7 +683,8 @@ class AccountsFragment : Fragment() {
         accountToDelete: WalletAccount<*>,
         linkedAccounts: MutableList<WalletAccount<*>>
     ): String {
-        val accountName = _mbwManager!!.metadataStorage.getLabelByAccount(accountToDelete.id)
+        // the dialog text is rendered as HTML, the label is user input
+        val accountName = TextUtils.htmlEncode(_mbwManager!!.metadataStorage.getLabelByAccount(accountToDelete.id))
         val dialogText: String
 
         if (accountToDelete.isActive) {
@@ -686,7 +703,7 @@ class AccountsFragment : Fragment() {
         if (linkedAccounts.size > 1) {
             dialogText = getString(R.string.delete_archived_account_message_s, accountName)
         } else if (!linkedAccounts.isEmpty() && linkedAccounts.get(0).isVisible()) {
-            val linkedAccountName = _mbwManager!!.metadataStorage.getLabelByAccount(linkedAccounts.get(0).id)
+            val linkedAccountName = TextUtils.htmlEncode(_mbwManager!!.metadataStorage.getLabelByAccount(linkedAccounts.get(0).id))
             dialogText = getString(R.string.delete_archived_account_message, accountName, linkedAccountName)
         } else {
             dialogText = getString(R.string.delete_archived_account_message_s, accountName)
@@ -708,7 +725,7 @@ class AccountsFragment : Fragment() {
             val linkedAccountStrings: MutableList<String?> = ArrayList<String?>()
             for (linkedAccount in linkedAccounts) {
                 val linkedBalance = linkedAccount.accountBalance
-                val linkedAccountName = _mbwManager!!.metadataStorage.getLabelByAccount(linkedAccount.id)
+                val linkedAccountName = TextUtils.htmlEncode(_mbwManager!!.metadataStorage.getLabelByAccount(linkedAccount.id))
                 val linkedValueString = getBalanceString(linkedAccount.coinType, linkedBalance)
                 linkedAccountStrings.add("<b>" + linkedAccountName + "</b> holding <b>" + linkedValueString + "</b>")
             }
@@ -722,7 +739,7 @@ class AccountsFragment : Fragment() {
         ) {
             val linkedBalance = linkedAccounts.get(0).accountBalance
             val linkedValueString = getBalanceString(linkedAccounts.get(0).coinType, linkedBalance)
-            val linkedAccountName = _mbwManager!!.metadataStorage.getLabelByAccount(linkedAccounts.get(0).id)
+            val linkedAccountName = TextUtils.htmlEncode(_mbwManager!!.metadataStorage.getLabelByAccount(linkedAccounts.get(0).id))
             dialogText = getString(
                 R.string.delete_account_message, accountName, valueString,
                 linkedAccountName, linkedValueString
@@ -1274,7 +1291,8 @@ class AccountsFragment : Fragment() {
         account: WalletAccount<*>,
         linkedAccounts: MutableList<WalletAccount<*>>
     ): String {
-        val accountName = _mbwManager!!.metadataStorage.getLabelByAccount(account.id)
+        // the dialog text is rendered as HTML, the label is user input
+        val accountName = TextUtils.htmlEncode(_mbwManager!!.metadataStorage.getLabelByAccount(account.id))
         return getAccountArchiveText(account, linkedAccounts, accountName)
     }
 
@@ -1292,7 +1310,7 @@ class AccountsFragment : Fragment() {
             val linkedAccountStrings: MutableList<String?> = ArrayList<String?>()
             for (linkedAccount in linkedAccounts) {
                 val linkedBalance = linkedAccount.accountBalance
-                val linkedAccountName = _mbwManager!!.metadataStorage.getLabelByAccount(linkedAccount.id)
+                val linkedAccountName = TextUtils.htmlEncode(_mbwManager!!.metadataStorage.getLabelByAccount(linkedAccount.id))
                 val linkedValueString = getBalanceString(linkedAccount.coinType, linkedBalance)
                 linkedAccountStrings.add("<b>" + linkedAccountName + "</b> holding <b>" + linkedValueString + "</b>")
             }
@@ -1302,7 +1320,7 @@ class AccountsFragment : Fragment() {
         } else if (!linkedAccounts.isEmpty() && linkedAccounts.get(0).isVisible()) {
             val linkedBalance = linkedAccounts.get(0).accountBalance
             val linkedValueString = getBalanceString(linkedAccounts.get(0).coinType, linkedBalance)
-            val linkedAccountName = _mbwManager!!.metadataStorage.getLabelByAccount(linkedAccounts.get(0).id)
+            val linkedAccountName = TextUtils.htmlEncode(_mbwManager!!.metadataStorage.getLabelByAccount(linkedAccounts.get(0).id))
             dialogText = getString(
                 R.string.question_archive_account_s, accountName, valueString,
                 linkedAccountName, linkedValueString

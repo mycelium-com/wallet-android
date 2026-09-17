@@ -59,6 +59,9 @@ class ERC20Account(private val chainId: Long,
         backing, blockchainService, ERC20Account::class.simpleName, address), SyncPausable {
 
     override fun createTx(address: Address, amount: Value, fee: Fee, data: TransactionData?): Transaction {
+        if (address !is EthAddress) {
+            throw BuildTransactionException(Throwable("Not an Ethereum address"))
+        }
         val ethTxData = (data as? EthTransactionData)
         val nonce = ethTxData?.nonce ?: accountContext.nonce
         val gasLimit = ethTxData?.gasLimit ?: BigInteger.valueOf(TOKEN_TRANSFER_GAS_LIMIT)
@@ -74,6 +77,9 @@ class ERC20Account(private val chainId: Long,
         if (gasLimit < Transfer.GAS_LIMIT) {
             throw BuildTransactionException(Throwable("Gas limit must be at least ${Transfer.GAS_LIMIT}"))
         }
+        if (gasLimit > EthAccount.MAX_TX_GAS_LIMIT) {
+            throw BuildTransactionException(Throwable("Gas limit must not exceed ${EthAccount.MAX_TX_GAS_LIMIT}"))
+        }
         if (ethAcc.accountBalance.spendable.value < gasPrice.value * gasLimit) {
             throw InsufficientFundsForFeeException(Throwable("Insufficient funds on eth account to pay for fee"))
         }
@@ -81,6 +87,9 @@ class ERC20Account(private val chainId: Long,
         // Gas is paid in ETH, so the rollout flag lives on the ETH coin
         // (basedOnCoinType). When 1559-enabled with a recoverable tip, send the
         // token transfer as a type-2 tx; otherwise legacy.
+        if (ethTxData?.suggestedGasPrice != null) {
+            checkGasPriceAgainstBaseFee(basedOnCoinType, gasPrice.value)
+        }
         val tip = eip1559Tip(basedOnCoinType, gasPrice.value, ethTxData?.maxPriorityFeePerGas)
         return if (tip != null) {
             EthTransaction(basedOnCoinType, address.toString(), Value.zeroValue(basedOnCoinType),

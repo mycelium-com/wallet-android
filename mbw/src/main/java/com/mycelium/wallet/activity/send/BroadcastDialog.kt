@@ -109,7 +109,7 @@ class BroadcastDialog : DialogFragment() {
     }
 
     private fun returnResult(it: BroadcastResult) {
-        bus.post(TransactionBroadcasted(HexUtils.toHex(transaction.id)))
+        bus.post(TransactionBroadcasted(HexUtils.toHex(transaction.id), it))
         if (targetFragment is BroadcastResultListener) {
             (targetFragment as BroadcastResultListener).broadcastResult(it)
         } else if (activity is BroadcastResultListener) {

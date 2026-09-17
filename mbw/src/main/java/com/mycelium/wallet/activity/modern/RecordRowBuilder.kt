@@ -46,7 +46,7 @@ class RecordRowBuilder(private val mbwManager: MbwManager, private val resources
         } else {
             // Display name
             holder.tvLabel.visibility = VISIBLE
-            holder.tvLabel.text = Html.fromHtml(model.label)
+            holder.tvLabel.text = model.label
             holder.tvLabel.setTextColor(textColor)
         }
         holder.tvAddress.text = model.displayAddress

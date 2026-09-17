@@ -201,7 +201,12 @@ class SendTronModel(application: Application,
         val manager = energyService ?: return
         val trc20 = account as TRC20Account
         scope.launch {
-            val available = manager.isAvailableFor(trc20)
+            var available = manager.isAvailableFor(trc20)
+            // the partner may be unreachable only for now (e.g. no network when the screen opened)
+            while (!available) {
+                delay(ENERGY_SERVICE_RECHECK_MS)
+                available = manager.isAvailableFor(trc20)
+            }
             energyServiceAvailable.postValue(available)
             if (available) {
                 // Like the KMP wallet: default to paying in the token when the partner is up
@@ -270,6 +275,10 @@ class SendTronModel(application: Application,
             } catch (e: Exception) {
                 applyEnergyQuote(null)
                 energyError.postValue(context.getString(R.string.error_energy_service_unavailable))
+                energyLoading.postValue(false)
+                // e.g. no network right now: ask again later instead of waiting for the next input change
+                delay(ENERGY_SERVICE_RECHECK_MS)
+                if (currentFeeMode == TronFeeMode.ENERGY_SERVICE) scheduleQuote(refresh = true)
             } finally {
                 energyLoading.postValue(false)
             }
@@ -465,5 +474,7 @@ class SendTronModel(application: Application,
         private const val QUOTE_DEBOUNCE_MS = 500L
         /** A quote this close to expiry is refetched rather than signed with. */
         private const val QUOTE_REFRESH_MARGIN_MS = 60_000L
+        /** How often an unavailable energy service is asked again while the Send screen is open. */
+        private const val ENERGY_SERVICE_RECHECK_MS = 15_000L
     }
 }

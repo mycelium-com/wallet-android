@@ -280,7 +280,15 @@ class AddressBookFragment : Fragment() {
     }
 
     private fun addFromAddress(address: Address?) {
-        EnterAddressLabelUtil.enterAddressLabel(requireContext(), mbwManager!!.metadataStorage, address, "", addressLabelChanged)
+        val enterLabel = Runnable {
+            EnterAddressLabelUtil.enterAddressLabel(requireContext(), mbwManager!!.metadataStorage, address, "", addressLabelChanged)
+        }
+        if (address != null && mbwManager!!.metadataStorage.getLabelByAddress(address).isNotEmpty()) {
+            // the address is already in the book: this renames the entry, guard it like the EDIT action
+            mbwManager!!.runPinProtectedFunction(activity, enterLabel)
+        } else {
+            enterLabel.run()
+        }
     }
 
     private val addressLabelChanged = AddressLabelChangedHandler { address: String?, label: String? ->

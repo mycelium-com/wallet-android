@@ -255,6 +255,7 @@ public class MbwManager {
     private AtomicBoolean lastPinAgeOkay = new AtomicBoolean(false);
     private ScheduledFuture<?> pinOkTimeoutHandle;
     private int failedPinCount = 0;
+    private static final long MAX_FAILED_PIN_DELAY_MILLIS = 30_000;
 
     private volatile boolean showQueuedTransactionsRemovalAlert = true;
     private final CurrencySwitcher _currencySwitcher;
@@ -1087,8 +1088,9 @@ public class MbwManager {
         return _pin;
     }
 
-    public void showClearPinDialog(final Activity activity, final Runnable afterDialogClosed) {
-        this.runPinProtectedFunction(activity, new ClearPinDialog(activity, true), new Runnable() {
+    public ClearPinDialog showClearPinDialog(final Activity activity, final Runnable afterDialogClosed) {
+        ClearPinDialog clearPinDialog = new ClearPinDialog(activity, true);
+        this.runPinProtectedFunction(activity, clearPinDialog, new Runnable() {
             @Override
             public void run() {
                 MbwManager.this.savePin(Pin.CLEAR_PIN);
@@ -1099,6 +1101,7 @@ public class MbwManager {
                 }
             }
         });
+        return clearPinDialog;
     }
 
     public void showSetPinDialog(final Activity activity, final Runnable afterDialogClosed) {
@@ -1118,7 +1121,7 @@ public class MbwManager {
                     newPin = pin.getPin();
                     dialog.setTitle(R.string.pin_confirm_pin);
                 } else if (newPin.equals(pin.getPin())) {
-                    MbwManager.this.savePin(pin);
+                    MbwManager.this.savePin(new Pin(pin.getPin(), pinDialog.isResettable()));
                     new Toaster(activity).toast(R.string.pin_set, false);
                     dialog.dismiss();
                     if (afterDialogClosed != null) {
@@ -1152,6 +1155,8 @@ public class MbwManager {
             // if we were pin-protected and now the pin is removed, reset the blockheight
             if (!pin.isSet()) {
                 getMetadataStorage().clearLastPinSetBlockheight();
+                // "Require PIN on start" makes no sense without a PIN and would re-arm the startup gate
+                setPinRequiredOnStartup(false);
             }
         }
         _pin = pin;
@@ -1191,19 +1196,33 @@ public class MbwManager {
             failedPinCount = getPreferences().getInt(Constants.FAILED_PIN_COUNT, 0);
             pinDialog.setOnPinValid(new PinDialog.OnPinEntered() {
                 @Override
-                public void pinEntered(final PinDialog pinDialog, Pin pin) {
-                    if (failedPinCount > 0) {
-                        long millis = (long) (Math.pow(1.2, failedPinCount) * 10);
-                        try {
-                            Thread.sleep(millis);
-                        } catch (InterruptedException ignored) {
-                            new Toaster(activity).toast(R.string.avoid_get_to_pin_check, false);
-                            vibrate();
-                            pinDialog.dismiss();
-                            Thread.currentThread().interrupt();
-                            return;
-                        }
+                public void pinEntered(final PinDialog pinDialog, final Pin pin) {
+                    long delayMillis = failedPinCount > 0
+                            ? Math.min((long) (Math.pow(1.2, failedPinCount) * 10), MAX_FAILED_PIN_DELAY_MILLIS)
+                            : 0;
+                    if (delayMillis <= 0) {
+                        checkEnteredPin(pinDialog, pin);
+                        return;
                     }
+                    // Throttle guessing without blocking the UI thread (a sleep here ended in ANRs). The result is
+                    // only revealed after the delay, so dismissing the dialog early does not speed up guessing.
+                    pinDialog.lockInput(true);
+                    if (delayMillis >= 1000) {
+                        new Toaster(activity).toast(R.string.please_wait, false);
+                    }
+                    mainLoopHandler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (!pinDialog.isShowing() || activity.isFinishing()) {
+                                return;
+                            }
+                            pinDialog.lockInput(false);
+                            checkEnteredPin(pinDialog, pin);
+                        }
+                    }, delayMillis);
+                }
+
+                private void checkEnteredPin(final PinDialog pinDialog, Pin pin) {
                     if (pin.equals(getPin())) {
                         failedPinCount = 0;
                         getEditor().putInt(Constants.FAILED_PIN_COUNT, failedPinCount).apply();
@@ -1227,13 +1246,40 @@ public class MbwManager {
                                         @Override
                                         public void onClick(DialogInterface dialogInterface, int i) {
                                             pinDialog.dismiss();
+                                            if (!pinDialog.getCancelable() && !activity.isFinishing()) {
+                                                // mandatory PIN (startup gate): ask again instead of leaving a blank
+                                                // screen that only reacts to a tap on the background
+                                                runPinProtectedFunction(activity, new PinDialog(activity, true, false), fun);
+                                            }
                                         }
                                     })
                                     .setNeutralButton(activity.getString(R.string.reset_pin_button), new DialogInterface.OnClickListener() {
                                         @Override
                                         public void onClick(DialogInterface dialogInterface, int i) {
+                                            if (pinDialog instanceof ClearPinDialog) {
+                                                // already in the reset dialog, it stays open for another attempt
+                                                return;
+                                            }
                                             pinDialog.dismiss();
-                                            MbwManager.this.showClearPinDialog(activity, null);
+                                            ClearPinDialog clearPinDialog = MbwManager.this.showClearPinDialog(activity, null);
+                                            if (!pinDialog.getCancelable()) {
+                                                // mandatory PIN (startup gate): Back, "I forgot the PIN" or a wrong PIN
+                                                // in the reset dialog must not end on a blank screen either
+                                                clearPinDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+                                                    @Override
+                                                    public void onDismiss(DialogInterface dialog) {
+                                                        if (activity.isFinishing()) {
+                                                            return;
+                                                        }
+                                                        if (isPinProtected()) {
+                                                            runPinProtectedFunction(activity, new PinDialog(activity, true, false), fun);
+                                                        } else {
+                                                            // PIN was cleared with the right PIN or after the reset period
+                                                            fun.run();
+                                                        }
+                                                    }
+                                                });
+                                            }
                                         }
                                     })
 
@@ -1244,6 +1290,9 @@ public class MbwManager {
                             new Toaster(activity).toast(R.string.pin_invalid_pin, false);
                             vibrate();
                             pinDialog.dismiss();
+                            if (!pinDialog.getCancelable() && !activity.isFinishing()) {
+                                runPinProtectedFunction(activity, new PinDialog(activity, true, false), fun);
+                            }
                         }
                     }
                 }
@@ -1703,7 +1752,9 @@ public class MbwManager {
     }
 
     public boolean isUnlockPinRequired() {
-        return getPinRequiredOnStartup() && !startUpPinUnlocked;
+        // without a PIN there is nothing to unlock - a stale "require on start" flag must not
+        // route deep links / restored screens through StartupActivity
+        return isPinProtected() && getPinRequiredOnStartup() && !startUpPinUnlocked;
     }
 
     public void setStartUpPinUnlocked(boolean unlocked) {

@@ -42,6 +42,7 @@ import com.mycelium.wallet.databinding.FragmentChangelly2ExchangeBinding
 import com.mycelium.wallet.event.ExchangeRatesRefreshed
 import com.mycelium.wallet.event.ExchangeSourceChanged
 import com.mycelium.wallet.event.PageSelectedEvent
+import com.mycelium.wallet.event.AccountChanged
 import com.mycelium.wallet.event.SelectedAccountChanged
 import com.mycelium.wallet.event.SelectedCurrencyChanged
 import com.mycelium.wallet.event.TransactionBroadcasted
@@ -253,14 +254,15 @@ class ExchangeFragment : Fragment(), BackListener {
             }
             errorListener = object : ValueKeyboard.ErrorListener {
                 override fun maxError(maxValue: BigDecimal) {
+                    // before the first quote exchangeInfo is null: use the keyboard's own limit, not "null"
                     viewModel.errorKeyboard.value = resources.getString(R.string.exchange_max_msg,
-                            viewModel.exchangeInfo.value?.maxFrom?.stripTrailingZeros()?.toPlainString(),
+                            (viewModel.exchangeInfo.value?.maxFrom ?: maxValue).stripTrailingZeros().toPlainString(),
                             viewModel.fromDisplaySymbol())
                 }
 
                 override fun minError(minValue: BigDecimal) {
                     viewModel.errorKeyboard.value = resources.getString(R.string.exchange_min_msg,
-                            viewModel.exchangeInfo.value?.minFrom?.stripTrailingZeros()?.toPlainString(),
+                            (viewModel.exchangeInfo.value?.minFrom ?: minValue).stripTrailingZeros().toPlainString(),
                             viewModel.fromDisplaySymbol())
                 }
 
@@ -345,6 +347,7 @@ class ExchangeFragment : Fragment(), BackListener {
                 withContext(Dispatchers.Main) { loader(true) }
             }
             try {
+                val fromAddresses = withContext(Dispatchers.Default) { viewModel.fromAddresses() }
                 val response = Changelly2Repository.createFixTransaction(
                     viewModel.exchangeInfo.value?.id!!,
                     changellyTicker(viewModel.fromCurrency.value!!),
@@ -352,6 +355,7 @@ class ExchangeFragment : Fragment(), BackListener {
                     viewModel.sellValue.value!!,
                     viewModel.toAddress.value!!,
                     viewModel.fromAddress.value!!,
+                    fromAddresses,
                     changellyOnly,
                 )
                 val result = response.result
@@ -579,6 +583,12 @@ class ExchangeFragment : Fragment(), BackListener {
     /** Backend errors arrive as raw JSON bodies ({"error": "…"}, {"error": {"message": "…"}}, {"detail": "…"}); show only the text. */
     private fun humanizeError(msg: String?): String {
         if (msg.isNullOrBlank()) return ""
+        return humanizeErrorText(msg)
+                // the backend sometimes has no limit for a pair and prints "…minimum of null TRX"
+                .replace(Regex("\\s+of\\s+null(\\s+\\S+)?"), "")
+    }
+
+    private fun humanizeErrorText(msg: String): String {
         return try {
             val json = JSONObject(msg)
             val err = json.opt("error")
@@ -601,8 +611,12 @@ class ExchangeFragment : Fragment(), BackListener {
             rateJob?.cancel()
             viewModel.rateLoading.value = true
             val fromAmount = amountOverride ?: try {
-                viewModel.sellValue.value?.toBigDecimal()!!
+                // a zero amount would only get "below minimum" back: show the display rate as for an empty field
+                viewModel.sellValue.value?.toBigDecimal()?.takeIf { it.signum() > 0 }!!
             } catch (_: Exception) {
+                // nothing to validate without an amount: drop the error of the previous one, it would
+                // otherwise stay on screen for the seconds the display rate takes to arrive
+                if (amountOverride == null) viewModel.errorRemote.value = ""
                 viewModel.mbwManager.exchangeRateManager.get(
                     FiatType("USD").value("100"),
                     viewModel.fromCurrency.value
@@ -719,7 +733,8 @@ class ExchangeFragment : Fragment(), BackListener {
      * still validated against minFrom of the successful quote.
      */
     private fun retryDisplayRate(attempt: Int, fromAmount: BigDecimal, message: String): Boolean {
-        val userTyped = try { viewModel.sellValue.value?.toBigDecimal() != null } catch (_: Exception) { false }
+        // a zero amount is not an amount the user wants quoted: treat it like an empty field
+        val userTyped = try { viewModel.sellValue.value?.toBigDecimal()?.takeIf { it.signum() > 0 } != null } catch (_: Exception) { false }
         if (userTyped || attempt >= 3 || !isBelowMinimumError(message)) return false
         updateExchangeRate(attempt + 1, fromAmount.multiply(BigDecimal(100)))
         return true
@@ -768,11 +783,14 @@ class ExchangeFragment : Fragment(), BackListener {
 
     @Subscribe
     fun broadcastResult(result: TransactionBroadcasted) {
+        // The bus carries every broadcast in the app (Send, rebroadcast from history, …):
+        // only the one started by this exchange has a pending changelly order id.
+        val txId = viewModel.changellyTx ?: return
+        viewModel.changellyTx = null
         if (result.result.resultType == BroadcastResultType.SUCCESS && result.txid != null) {
             val fromAccountId = viewModel.fromAccount.value?.id
             val toAccountId = viewModel.toAccount.value?.id
             val history = pref.getStringSet(KEY_HISTORY, null) ?: setOf()
-            val txId = viewModel.changellyTx
             val createTx = result.txid
             pref.edit {
                 putStringSet(KEY_HISTORY, history + txId)
@@ -804,21 +822,24 @@ class ExchangeFragment : Fragment(), BackListener {
     }
 
     @Subscribe
+    fun accountChanged(event: AccountChanged) {
+        // an account can be archived/deleted while it is selected here
+        viewModel.refreshAccounts()
+    }
+
+    @Subscribe
     fun exchangeRatesRefreshed(event: ExchangeRatesRefreshed) {
-        viewModel.fromAccount.value = viewModel.fromAccount.value
-        viewModel.toAccount.value = viewModel.toAccount.value
+        viewModel.refreshAccounts()
     }
 
     @Subscribe
     fun exchangeSourceChanged(event: ExchangeSourceChanged) {
-        viewModel.fromAccount.value = viewModel.fromAccount.value
-        viewModel.toAccount.value = viewModel.toAccount.value
+        viewModel.refreshAccounts()
     }
 
     @Subscribe
     fun onSelectedCurrencyChange(event: SelectedCurrencyChanged) {
-        viewModel.fromAccount.value = viewModel.fromAccount.value
-        viewModel.toAccount.value = viewModel.toAccount.value
+        viewModel.refreshAccounts()
     }
 
     @Subscribe

@@ -9,6 +9,7 @@ import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.tron.TronAddress
 import com.mycelium.wapi.wallet.tron.TronTransactionSummary
 import com.mycelium.wapi.wallet.tron.TronTxType
+import com.mycelium.wapi.wallet.tron.remote.TronTransactionInfo
 import com.mycelium.wapi.wallet.tron.remote.TronTrc20Transfer
 import com.mycelium.wapi.wallet.tron.remote.TronTx
 import java.math.BigInteger
@@ -238,6 +239,18 @@ class TronAccountBacking(
             }
         }
     }
+
+    /** Replaces the stored energy / bandwidth estimate with what the mined tx really consumed. */
+    fun updateResources(txid: String, info: TronTransactionInfo) {
+        if (!info.isConfirmed) return
+        val stored = tronQueries.selectTransactionSummaryById(uuid, txid).executeAsOneOrNull() ?: return
+        val bandwidth = if (info.netUsage > 0) BigInteger.valueOf(info.netUsage) else stored.bandwidth
+        tronQueries.updateResources(BigInteger.valueOf(info.energyUsageTotal), bandwidth, uuid, txid)
+    }
+
+    /** Confirmed txs still carrying [energy] (e.g. the typical-energy placeholder of an energy-service transfer). */
+    fun getConfirmedTxidsWithEnergy(energy: BigInteger): Set<String> =
+        tronQueries.selectConfirmedTxidsWithEnergy(uuid, energy).executeAsList().toSet()
 
     fun deleteAllAccountTransactions() {
         queries.deleteAllAccountTransactions(uuid)

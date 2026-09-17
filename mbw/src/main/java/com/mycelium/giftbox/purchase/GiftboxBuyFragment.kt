@@ -219,8 +219,13 @@ class GiftboxBuyFragment : Fragment() {
         val selectedIndex = if (preselectedValue != null) {
             preselectedList.indexOfFirst { it.equalsTo(preselectedValue) }
         } else -1
+        // Computed on each opening: the cached lazy value was 0 when the dialog was first opened before
+        // a price response (no exchange rate yet, or the price request failed) and disabled every card
+        // value forever, so a selection was never applied. Without a rate the affordability is unknown:
+        // don't block the selection, the Pay button is still validated against the crypto amount.
+        val maxSpendable = viewModel.maxFiatSpendableAmountOrNull()
         val valueAndEnableMap =
-            preselectedList.associateWith { it.lessOrEqualThan(viewModel.maxSpendableAmount.value!!) }
+            preselectedList.associateWith { maxSpendable == null || it.lessOrEqualThan(maxSpendable) }
         AlertDialog.Builder(requireContext())
             .setTitle(R.string.select_card_value_dialog)
             .setSingleChoiceItems(

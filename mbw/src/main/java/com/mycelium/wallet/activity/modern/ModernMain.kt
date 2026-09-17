@@ -86,6 +86,7 @@ import com.mycelium.wallet.external.changelly2.HistoryFragment
 import com.mycelium.wallet.external.changelly2.remote.Api
 import com.mycelium.wallet.external.mediaflow.NewsConstants
 import com.mycelium.wallet.modularisation.ModularisationVersionHelper
+import com.mycelium.wapi.wallet.BroadcastResultType
 import com.mycelium.wapi.api.response.Feature
 import com.mycelium.wapi.wallet.AesKeyCipher
 import com.mycelium.wapi.wallet.SyncMode
@@ -134,6 +135,17 @@ class ModernMain : AppCompatActivity(), BackHandler {
 
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        if (savedInstanceState == null && !isFinishing && !isTaskRoot && isExchangeDeepLink(intent)
+                && !intent.getBooleanExtra(EXTRA_DEEP_LINK_FORWARDED, false)) {
+            // an external deep link (mycelium://action.changelly, action.CHANGELLY) created a new ModernMain on
+            // top of the running wallet: hand it over to the existing instance instead of stacking ModernMains
+            finish()
+            startActivity(Intent(this, ModernMain::class.java)
+                    .setAction(MainActions.ACTION_EXCHANGE)
+                    .putExtra(EXTRA_DEEP_LINK_FORWARDED, true)
+                    .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP))
+            return
+        }
         mbwManager = MbwManager.getInstance(this)
         WalletApplication.applyLanguageChange(baseContext, mbwManager.language)
         setContentView(ModernMainBinding.inflate(layoutInflater).apply {
@@ -330,8 +342,18 @@ class ModernMain : AppCompatActivity(), BackHandler {
         handleIntent(intent)
     }
 
+    private fun isExchangeDeepLink(intent: Intent): Boolean =
+        intent.action == MainActions.ACTION_EXCHANGE || intent.action == MainActions.ACTION_EXCHANGE.lowercase() ||
+                (intent.action == Intent.ACTION_VIEW && intent.data?.scheme == MYCELIUM_SCHEME)
+
     private fun handleIntent(intent: Intent) {
-        when(intent.action) {
+        // the mycelium://action.changelly deep link (ACTION_VIEW) carries the action in the host
+        val action = if (intent.action == Intent.ACTION_VIEW && intent.data?.scheme == MYCELIUM_SCHEME) {
+            intent.data?.host
+        } else {
+            intent.action
+        }
+        when(action) {
             NewsUtils.MEDIA_FLOW_ACTION -> {
                 if(mediaFlowEnabled) {
                     selectTab(TAB_NEWS)
@@ -594,6 +616,8 @@ class ModernMain : AppCompatActivity(), BackHandler {
 
     @Subscribe
     fun transactionBroadcasted(event: TransactionBroadcasted?) {
+        // BroadcastDialog also reports rejected / not-sent / queued results through this event
+        if (event?.result?.resultType != BroadcastResultType.SUCCESS) return
         _toaster?.toast(R.string.transaction_sent, false)
     }
 
@@ -733,5 +757,8 @@ class ModernMain : AppCompatActivity(), BackHandler {
         const val LAST_SYNC = "LAST_SYNC"
         private const val APP_START = "APP_START"
         private const val SELECTED_TAB_TAG = "SELECTED_TAB_TAG"
+        private const val MYCELIUM_SCHEME = "mycelium"
+        /** set on an intent that already reuses the running ModernMain (CLEAR_TOP), see onCreate */
+        const val EXTRA_DEEP_LINK_FORWARDED = "deepLinkForwarded"
     }
 }

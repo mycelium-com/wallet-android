@@ -85,6 +85,19 @@ UPDATE TronAccountBacking
 SET success = (?)
 WHERE uuid = (?) AND txid = (?);
 
+-- What a mined tx really consumed (from its receipt), replacing the estimate stored at broadcast
+updateResources:
+UPDATE TronAccountBacking
+SET energy = (?), bandwidth = (?)
+WHERE uuid = (?) AND txid = (?);
+
+selectConfirmedTxidsWithEnergy:
+SELECT tb.txid
+FROM TronAccountBacking AS tb
+    INNER JOIN AccountBacking AS b
+    ON tb.uuid = b.uuid AND tb.txid = b.txid
+        WHERE tb.uuid = (:uuid) AND tb.energy = (:energy) AND b.blockNumber > 0 AND b.blockNumber < 2147483647;
+
 deleteTransaction:
 DELETE FROM TronAccountBacking
 WHERE uuid = (?) AND txid = (?);

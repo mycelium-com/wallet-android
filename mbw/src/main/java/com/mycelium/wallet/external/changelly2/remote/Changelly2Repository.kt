@@ -71,6 +71,7 @@ object Changelly2Repository {
         amount: String,
         addressTo: String,
         refundAddress: String,
+        fromAddresses: List<String>,
         changellyOnly: Boolean,
     ): ChangellyResponse<ChangellyTransactionOffer> {
         val isVip = userRepository.statusFlow.value.isVIP()
@@ -84,6 +85,7 @@ object Changelly2Repository {
                 addressTo,
                 rateId,
                 refundAddress,
+                fromAddresses,
             )
         }
         try {

@@ -63,7 +63,8 @@ class MessageSigningActivity : AppCompatActivity() {
             }
         }
         binding.btCopyToClipboard.setOnClickListener {
-            Utils.setClipboardString(signature, this@MessageSigningActivity)
+            // the whole signed-message block (message, address, signature): that is what Verify Message expects
+            Utils.setClipboardString(getBody(), this@MessageSigningActivity)
             Toaster(this@MessageSigningActivity).toast(R.string.sig_copied, false)
         }
         binding.btShare.setOnClickListener {

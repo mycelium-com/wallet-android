@@ -263,6 +263,9 @@ class GiftboxBuyViewModel(val productInfo: MCProductInfo) : ViewModel(), OrderHe
         return convertToFiat(getMaxSpendable()) ?: zeroFiatValue
     }
 
+    /** @return null while the exchange rate is unknown (no successful price response yet) */
+    fun maxFiatSpendableAmountOrNull(): Value? = convertToFiat(getMaxSpendable())
+
     private fun getMaxSpendable() =
             mbwManager.getWalletManager(false)
                     .getAccount(accountId.value!!)

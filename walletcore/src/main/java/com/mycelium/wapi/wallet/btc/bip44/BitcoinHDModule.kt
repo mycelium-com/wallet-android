@@ -312,6 +312,11 @@ class BitcoinHDModule(internal val backing: BtcWalletManagerBacking<HDAccountCon
         if (config is ExternalSignaturesAccountConfig && signatureProviders == null)
             return "Unknown"
 
+        // the account id is derived from the keys: a temporary (cold storage) account for this
+        // wallet's own seed shares the metadata row with an existing account - keep its label
+        val existingLabel = readLabel(id)
+        if (existingLabel.isNotEmpty()) return existingLabel
+
         val label = createLabel(getBaseLabel(config))
         storeLabel(id, label)
         return label

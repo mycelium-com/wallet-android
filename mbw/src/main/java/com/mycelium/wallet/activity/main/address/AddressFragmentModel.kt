@@ -3,6 +3,7 @@ package com.mycelium.wallet.activity.main.address
 import android.app.Application
 import android.text.Html
 import android.text.Spanned
+import android.text.TextUtils
 import androidx.lifecycle.MutableLiveData
 import asStringRes
 import com.mrd.bitlib.model.AddressType
@@ -62,8 +63,8 @@ class AddressFragmentModel(
         accountLabel.value = Html.fromHtml(when (account) {
             is Bip44BCHAccount,
             is SingleAddressBCHAccount ->
-                context.getString(R.string.bitcoin_cash) + " - " + account.label
-            else -> account.label
+                context.getString(R.string.bitcoin_cash) + " - " + TextUtils.htmlEncode(account.label)
+            else -> TextUtils.htmlEncode(account.label)
         })
         isSyncError.value = account.lastSyncStatus()?.status in arrayOf(SyncStatus.ERROR)
     }

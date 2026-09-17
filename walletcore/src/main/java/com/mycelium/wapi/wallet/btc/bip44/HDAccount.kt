@@ -257,8 +257,8 @@ open class HDAccount(
                     addresses.addAll(getAddressRange(true, currentInternalAddressId,
                             currentInternalAddressId + INTERNAL_FULL_ADDRESS_LOOK_AHEAD_LENGTH, derivationType))
                     addresses.addAll(getAddressRange(false, currentExternalAddressId,
-                            currentExternalAddressId + mode.mode.lookAhead, derivationType))
-                    ensureAddressIndexes(mode.mode.lookAhead)
+                            currentExternalAddressId + mode.lookAhead, derivationType))
+                    ensureAddressIndexes(mode.lookAhead)
                 }
                 SyncMode.Mode.FULL_SYNC -> {
                     // check the full change-chain and external-chain
@@ -370,7 +370,7 @@ open class HDAccount(
     @Throws(WapiException::class)
     private suspend fun doDiscovery(mode: SyncMode, derivePaths: Set<BipDerivationType>): Set<BipDerivationType> {
         // Ensure that all addresses in the look ahead window have been created
-        val lookAhead = if (mode.mode == SyncMode.Mode.BOOSTED) mode.mode.lookAhead else -1
+        val lookAhead = if (mode.mode == SyncMode.Mode.BOOSTED) mode.lookAhead else -1
         ensureAddressIndexes(lookAhead)
         return doDiscoveryForAddresses(derivePaths.flatMap { getAddressesToDiscover(it, lookAhead) })
     }

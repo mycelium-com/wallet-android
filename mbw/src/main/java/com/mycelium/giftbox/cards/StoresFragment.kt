@@ -105,6 +105,14 @@ class StoresFragment : Fragment() {
         }
         if (viewModel.products.isEmpty() || activityViewModel.reloadStore) {
             loadData()
+        } else {
+            // the fragment (and its adapter) is recreated on configuration change while
+            // the ViewModel keeps the loaded products: show them again
+            adapter.submitList(viewModel.products.toList())
+            if (viewModel.state.value == ListState.LOADING) {
+                // a next page request was cancelled together with the old fragment's lifecycleScope
+                viewModel.state.value = ListState.OK
+            }
         }
         if (BuildConfig.DEBUG) {
             var tapCount = 0
@@ -210,7 +218,10 @@ class StoresFragment : Fragment() {
 
     @Subscribe
     internal fun updateOrder(request: RefreshOrdersRequest) {
-//        loadData(skipCache = true) TODO
+        // no tab recorded yet means the pager shows its first page, STORES
+        if ((activityViewModel.currentTab.value ?: GiftBoxFragment.STORES) == GiftBoxFragment.STORES) {
+            loadData()
+        }
     }
 
     @Subscribe

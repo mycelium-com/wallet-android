@@ -474,6 +474,7 @@ abstract class SendCoinsModel(
             TransactionStatus.INSUFFICIENT_FUNDS -> context.getString(R.string.insufficient_funds)
             TransactionStatus.INSUFFICIENT_FUNDS_FOR_FEE -> context.getString(R.string.insufficient_funds_for_fee)
             TransactionStatus.BUILD_ERROR -> context.getString(R.string.tx_build_error)
+            TransactionStatus.MISSING_ARGUMENTS -> buildErrorMessage ?: ""
             else -> ""
         })
     }
@@ -520,8 +521,13 @@ abstract class SendCoinsModel(
         }
     }
 
+    /** Reason of the last BuildTransactionException (shown with MISSING_ARGUMENTS), null when none. */
+    @Volatile
+    private var buildErrorMessage: String? = null
+
     private fun getTransactionStatus(): TransactionStatus {
         val toSend = mbwManager.exchangeRateManager.get(mbwManager.getWalletManager(false), amount.value!!, account.coinType) ?: amount.value!!
+        buildErrorMessage = null
 
         try {
             return when {
@@ -553,6 +559,9 @@ abstract class SendCoinsModel(
                 else -> TransactionStatus.MISSING_ARGUMENTS
             }
         } catch (ex: BuildTransactionException) {
+            // accounts wrap human-readable reasons in a plain Throwable; anything else is an
+            // internal exception (e.g. ClassCastException) whose text must not reach the user
+            buildErrorMessage = ex.cause?.takeIf { it.javaClass == Throwable::class.java }?.message
             return TransactionStatus.MISSING_ARGUMENTS
         } catch (ex: OutputTooSmallException) {
             return TransactionStatus.OUTPUT_TOO_SMALL

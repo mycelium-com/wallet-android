@@ -67,6 +67,7 @@ import com.mycelium.wallet.activity.AccountCreatorHelper.CreateAccountAsyncTask
 import com.mycelium.wallet.activity.export.DecryptBip38PrivateKeyActivity
 import com.mycelium.wallet.activity.modern.ModernMain
 import com.mycelium.wallet.activity.modern.Toaster
+import com.mycelium.wallet.activity.modern.helper.MainActions
 import com.mycelium.wallet.activity.news.NewsUtils
 import com.mycelium.wallet.activity.pop.PopActivity
 import com.mycelium.wallet.activity.send.GetSpendingRecordActivity
@@ -399,7 +400,23 @@ class StartupActivity : AppCompatActivity(), AccountCreationObserver {
         } else if (getIntent().hasExtra("action")) {
             getIntent().extras?.let { intent.putExtras(it) }
         }
-        startActivity(intent)
+        @Suppress("DEPRECATION")
+        val redirect = getIntent().getParcelableExtra<Intent>(EXTRA_REDIRECT_INTENT)
+        if (redirect?.component?.packageName == packageName) {
+            // the startup-PIN gate intercepted a deeper screen (deep link / restored activity):
+            // put the wallet underneath and reopen that screen on top
+            redirect.removeExtra(EXTRA_REDIRECT_INTENT)
+            // a deep link arrives with NEW_TASK/CLEAR_TOP: drop them, the screen must sit on top of ModernMain
+            redirect.flags = 0
+            if (redirect.component?.className == ModernMain::class.java.name) {
+                // a deep link into the wallet itself (e.g. mycelium://action.changelly): one ModernMain is enough
+                startActivity(redirect)
+            } else {
+                startActivities(arrayOf(intent, redirect))
+            }
+        } else {
+            startActivity(intent)
+        }
         finish()
     }
 
@@ -456,13 +473,30 @@ class StartupActivity : AppCompatActivity(), AccountCreationObserver {
         }
     }
 
-    private fun handleMyceliumUri(intentUri: Uri) {
-        val host = intentUri.getHost()
-        // If we dont understand the url, just call the balance screen
-        val balanceIntent = Intent(this, ModernMain::class.java)
-        startActivity(balanceIntent)
-        // close the startup activity to not pollute the backstack
+    /**
+     * After an unusable deep link: open the wallet if this StartupActivity is the only thing in the task,
+     * otherwise just go back to whatever screen the user was on (no second ModernMain on top of Send).
+     */
+    private fun openWalletOrReturn() {
+        if (isTaskRoot) {
+            startActivity(Intent(this, ModernMain::class.java))
+        }
         finish()
+    }
+
+    private fun handleMyceliumUri(intentUri: Uri) {
+        if (intentUri.host.equals(MainActions.ACTION_EXCHANGE, ignoreCase = true)) {
+            // reuse a running ModernMain (no second one on top of the stack) and switch it to the Exchange tab
+            startActivity(Intent(this, ModernMain::class.java)
+                .setAction(MainActions.ACTION_EXCHANGE)
+                .putExtra(ModernMain.EXTRA_DEEP_LINK_FORWARDED, true)
+                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP))
+            // close the startup activity to not pollute the backstack
+            finish()
+            return
+        }
+        // If we dont understand the url, just open the wallet (or return to the screen the user was on)
+        openWalletOrReturn()
     }
 
     private fun handleBitIdUri(intentUri: Uri) {
@@ -471,8 +505,7 @@ class StartupActivity : AppCompatActivity(), AccountCreationObserver {
         if (!bitid.isPresent()) {
             //Invalid bitid URI
             Toaster(this).toast(R.string.invalid_bitid_uri, false)
-            startActivity(Intent(this, ModernMain::class.java))
-            finish()
+            openWalletOrReturn()
             return
         }
         val bitIdIntent = Intent(this, BitIDAuthenticationActivity::class.java)
@@ -488,8 +521,7 @@ class StartupActivity : AppCompatActivity(), AccountCreationObserver {
             PopRequest(intentUri.toString())
         } catch (e: Exception) {
             Toaster(this).toast(R.string.pop_invalid_pop_uri, false)
-            startActivity(Intent(this, ModernMain::class.java))
-            finish()
+            openWalletOrReturn()
             return
         }
         val popIntent = Intent(this, PopActivity::class.java)
@@ -505,8 +537,7 @@ class StartupActivity : AppCompatActivity(), AccountCreationObserver {
         if (uri == null) {
             // Invalid Bitcoin URI
             Toaster(this).toast(R.string.invalid_bitcoin_uri, false)
-            startActivity(Intent(this, ModernMain::class.java))
-            finish()
+            openWalletOrReturn()
             return
         }
 
@@ -522,8 +553,7 @@ class StartupActivity : AppCompatActivity(), AccountCreationObserver {
             if (uri.address == null && uri is WithCallback && Strings.isNullOrEmpty((uri as WithCallback).callbackURL)) {
                 // Invalid Bitcoin URI
                 Toaster(this).toast(R.string.invalid_bitcoin_uri, false)
-                startActivity(Intent(this, ModernMain::class.java))
-                finish()
+                openWalletOrReturn()
                 return
             }
 
@@ -606,6 +636,8 @@ class StartupActivity : AppCompatActivity(), AccountCreationObserver {
     }
 
     companion object {
+        /** Intent of the screen the startup-PIN gate intercepted; replayed after the PIN (see WalletApplication). */
+        const val EXTRA_REDIRECT_INTENT = "redirectIntent"
         private const val MINIMUM_SPLASH_TIME = 100
         private const val REQUEST_FROM_URI = 2
         private const val IMPORT_WORDLIST = 0

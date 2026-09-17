@@ -48,6 +48,7 @@ import android.widget.ListView;
 
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
+import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wallet.activity.settings.adapter.LocalCurrencyAdapter;
 import com.mycelium.wapi.api.lib.CurrencyCode;
 import com.mycelium.wapi.wallet.coins.AssetInfo;
@@ -83,6 +84,10 @@ public class SetLocalCurrencyActivity extends AppCompatActivity {
         for (AssetInfo currency : MbwManager.getInstance(this).getCurrencyList()) {
             selected.add(CurrencyCode.valueOf(currency.getSymbol()));
         }
+        // USD is always kept in the list (see onPause)
+        if (!selected.contains(CurrencyCode.USD)) {
+            selected.add(CurrencyCode.USD);
+        }
 
         List<CurrencyCode> codes = new ArrayList<>(Arrays.asList(CurrencyCode.values()));
         codes.remove(CurrencyCode.UNKNOWN); // don't know what is UNKNOWN, so hide this for user
@@ -110,6 +115,12 @@ public class SetLocalCurrencyActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 CurrencyCode currencyCode = _adapter.getItem(i);
+                if (currencyCode == CurrencyCode.USD) {
+                    // onPause always stores USD: its rates are needed to calculate the other rates,
+                    // so don't pretend it can be deselected
+                    new Toaster(SetLocalCurrencyActivity.this).toast(R.string.local_currency_usd_required, false);
+                    return;
+                }
                 _adapter.toggleChecked(currencyCode);
             }
         });

@@ -19,6 +19,7 @@ import com.mycelium.wapi.wallet.ExportableAccount
 import com.mycelium.wapi.wallet.KeyCipher.InvalidKeyCipher
 import com.mycelium.wapi.wallet.SyncMode
 import com.mycelium.wapi.wallet.WalletAccount
+import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount
 
 class AccountsActionModeCallback(
     val context: Context,
@@ -46,8 +47,11 @@ class AccountsActionModeCallback(
         )
         val dropPriKeyItem = menu?.findItem(R.id.miDropPrivateKey)
         //        // add checkbox only for SingleAddressAccounts and only if a private key is present
-        val hasPrivateData = (account is ExportableAccount
-                && (account as ExportableAccount).getExportData(AesKeyCipher.defaultKeyCipher()).privateData.isPresent)
+        // Only single-address BTC accounts can drop their key and stay watch-only. ETH/TRON accounts are
+        // ExportableAccount too (key export), but "watch-only" for them would delete the account and
+        // orphan its ERC-20/TRC-20 tokens -> crash loop on the next start.
+        val hasPrivateData = account is SingleAddressAccount && account is ExportableAccount
+                && (account as ExportableAccount).getExportData(AesKeyCipher.defaultKeyCipher()).privateData.isPresent
         dropPriKeyItem?.isVisible = hasPrivateData
         return true
     }

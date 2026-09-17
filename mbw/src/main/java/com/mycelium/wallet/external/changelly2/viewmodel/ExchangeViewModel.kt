@@ -20,6 +20,8 @@ import com.mycelium.wapi.wallet.Address
 import com.mycelium.wapi.wallet.Transaction
 import com.mycelium.wapi.wallet.Util
 import com.mycelium.wapi.wallet.WalletAccount
+import com.mycelium.wapi.wallet.btc.AbstractBtcAccount
+import com.mycelium.wapi.wallet.btc.BtcTransaction
 import com.mycelium.wapi.wallet.btc.FeePerKbFee
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.coins.Value
@@ -29,7 +31,9 @@ import com.mycelium.wallet.external.changelly2.remote.importSymbol
 import com.mycelium.wapi.wallet.trc20.TRC20Account
 import com.mycelium.wapi.wallet.tron.energy.EnergyFeeQuote
 import com.mycelium.wapi.wallet.tron.energy.EnergyServiceException
+import com.mycelium.wapi.wallet.eth.EthAccount
 import com.mycelium.wapi.wallet.eth.coins.EthCoin
+import com.mycelium.wapi.wallet.tron.TronAccount
 import com.mycelium.wapi.wallet.exceptions.BuildTransactionException
 import com.mycelium.wapi.wallet.exceptions.InsufficientFundsException
 import com.mycelium.wapi.wallet.exceptions.InsufficientFundsForFeeException
@@ -109,11 +113,15 @@ class ExchangeViewModel(application: Application) : AndroidViewModel(application
             errorKeyboard.value = ""
             errorTransaction.value = ""
             errorRemote.value = ""
+            lastMinFrom = null
+            lastMaxFrom = null
         }
         addSource(toAccount) {
             errorKeyboard.value = ""
             errorTransaction.value = ""
             errorRemote.value = ""
+            lastMinFrom = null
+            lastMaxFrom = null
         }
     }
 
@@ -247,12 +255,24 @@ class ExchangeViewModel(application: Application) : AndroidViewModel(application
         }
     }
 
+    /**
+     * Limits of the last successful quote for the current pair. A quote for the user's own amount
+     * fails (HTTP 400) when it is below the minimum / above the maximum, so [exchangeInfo] becomes
+     * null and the limits would be lost - keep them to explain why the button is disabled.
+     */
+    private var lastMinFrom: BigDecimal? = null
+    private var lastMaxFrom: BigDecimal? = null
+
     fun isValid(): Boolean =
             try {
                 errorTransaction.value = ""
                 minerFee.value = ""
                 val res = getApplication<WalletApplication>().resources
                 val amount = sellValue.value?.toBigDecimal()
+                exchangeInfo.value?.let {
+                    it.minFrom?.let { min -> lastMinFrom = min }
+                    it.maxFrom?.let { max -> lastMaxFrom = max }
+                }
                 when {
                     toAddress.value == null -> false
                     fromAddress.value == null -> false
@@ -260,7 +280,18 @@ class ExchangeViewModel(application: Application) : AndroidViewModel(application
                     amount == null -> false
                     amount == BigDecimal.ZERO -> false
                     // no fix-rate quote (backend error, pair below minimum, …): nothing to exchange against
-                    exchangeInfo.value?.result == null -> false
+                    exchangeInfo.value?.result == null -> {
+                        val min = lastMinFrom
+                        val max = lastMaxFrom
+                        if (min != null && amount < min) {
+                            errorTransaction.value = res.getString(R.string.exchange_min_msg,
+                                    min.stripTrailingZeros().toPlainString(), fromDisplaySymbol())
+                        } else if (max != null && amount > max) {
+                            errorTransaction.value = res.getString(R.string.exchange_max_msg,
+                                    max.stripTrailingZeros().toPlainString(), fromDisplaySymbol())
+                        }
+                        false
+                    }
                     exchangeInfo.value?.minFrom != null && amount < exchangeInfo.value?.minFrom  -> {
                         errorTransaction.value = res.getString(R.string.exchange_min_msg,
                                 exchangeInfo.value?.minFrom?.stripTrailingZeros()?.toPlainString(),
@@ -293,9 +324,9 @@ class ExchangeViewModel(application: Application) : AndroidViewModel(application
                         minerFee.value =
                                 res.getString(R.string.miner_fee) + " " +
                                         this.totalFee().toStringFriendlyWithUnit() + " " +
-                                        mbwManager.exchangeRateManager
+                                        (mbwManager.exchangeRateManager
                                                 .get(this.totalFee(), mbwManager.getFiatCurrency(this.type))
-                                                ?.toStringFriendlyWithUnit()?.let { "≈$it" }
+                                                ?.toStringFriendlyWithUnit()?.let { "≈$it" } ?: "")
                     }
         } catch (e: OutputTooSmallException) {
             errorTransaction.value = res.getString(R.string.amount_too_small_short,
@@ -443,6 +474,28 @@ class ExchangeViewModel(application: Application) : AndroidViewModel(application
         return null
     }
 
+    /**
+     * Sender addresses reported with the exchange order, as the KMP wallet does: the addresses of
+     * the UTXOs a BTC send of the current amount would spend, the account address otherwise.
+     */
+    fun fromAddresses(): List<String> {
+        val account = fromAccount.value ?: return emptyList()
+        return when (account) {
+            is AbstractBtcAccount -> try {
+                val fee = FeePerKbFee(mbwManager.getFeeProvider(account.basedOnCoinType).estimation.normal)
+                val tx = account.createTx(account.dummyAddress, account.coinType.value(sellValue.value!!), fee, null)
+                (tx as BtcTransaction).unsignedTx!!.fundingOutputs
+                        .map { it.script.getAddress(mbwManager.network).toString() }
+                        .distinct()
+            } catch (e: Exception) {
+                emptyList()
+            }
+            is EthAccount, is ERC20Account, is TronAccount, is TRC20Account ->
+                listOfNotNull(account.receiveAddress?.toString())
+            else -> emptyList()
+        }
+    }
+
     fun convert(value: Value) =
             " ~${mbwManager.exchangeRateManager.get(value, mbwManager.getFiatCurrency(value.type))?.toStringFriendlyWithUnit() ?: ""}"
 
@@ -472,7 +525,21 @@ class ExchangeViewModel(application: Application) : AndroidViewModel(application
         errorTransaction.value = ""
         errorRemote.value = ""
         errorKeyboard.value = ""
+        refreshAccounts()
+    }
+
+    /**
+     * Re-emits the selected accounts so the balances/fiat values are recomputed, replacing any
+     * account that was archived or deleted meanwhile: reading the balance of an archived account
+     * throws ("Using archived account"), which crashed the app on the next rates refresh.
+     */
+    fun refreshAccounts() {
+        val walletManager = mbwManager.getWalletManager(false)
         fromAccount.value = fromAccount.value
+            ?.takeIf { walletManager.getAccount(it.id)?.isActive == true }
+            ?: walletManager.getAllActiveAccounts().firstOrNull { it.canSpend() && isSupported(it.coinType) }
         toAccount.value = toAccount.value
+            ?.takeIf { walletManager.getAccount(it.id)?.isActive == true }
+            ?: getToAccountForInit()
     }
 }

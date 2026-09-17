@@ -115,7 +115,7 @@
     <string name="tx_details_num_confirmations">Confirmations</string>
     <string name="remove_queued_transaction">Do you really want to remove this queued transaction and prevent it from broadcasting?</string>
     <string name="remove_queued_transaction_title">Queued Transaction</string>
-    <string name="remove_queued_transaction_hint">Your balance will be corrected after the next synchronisation with the network</string>
+    <string name="remove_queued_transaction_hint">The transaction was removed and your balance has been corrected</string>
     <string name="remove_queued_transaction_error">Unable to remove transaction</string>
 
     <string name="payment_request_unable_to_read_payment_request">Unable to read payment request</string>
@@ -302,6 +302,7 @@
     <string name="gas_limit_helper">Min 21 000 units</string>
     <string name="gas_limit_warning">You have set gas limit below 90 000 units. It may be not enough for Ethereum network to process your transaction, while Gas still be used.</string>
     <string name="gas_limit_error">Minimal gas limit for Ethereum network transactions is 21 000 units.</string>
+    <string name="gas_limit_too_high">Maximal gas limit for an Ethereum network transaction is %s units.</string>
     <string name="next_fee_update_in_s">Next update in %ds</string>
     <string name="received">Received</string>
     <string name="link_to_track_transaction">Exchange status</string>

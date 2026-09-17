@@ -22,6 +22,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.web3j.crypto.Credentials
 import java.io.IOException
+import java.math.BigInteger
 import java.util.concurrent.TimeUnit
 import java.util.logging.Level
 import java.util.logging.Logger
@@ -87,6 +88,29 @@ abstract class AbstractTronAccount(
     fun getUnconfirmedTransactions(): List<TronTransactionSummary> =
         backing.getUnconfirmedTransactions(receivingAddress.addressString)
 
+    /**
+     * Node balance (sun / token base units) seen right before each local broadcast, by txid, in
+     * broadcast order. TronGrid's account balance picks a tx up as soon as its block is produced
+     * (~3 s) — usually before the history sync has marked our local record confirmed — so reserving
+     * the record again took the amount off twice until the next sync.
+     */
+    private val balanceBeforeBroadcast = LinkedHashMap<String, BigInteger>()
+
+    protected fun rememberBalanceBeforeBroadcast(txid: String) {
+        val cached = accountBalance
+        synchronized(balanceBeforeBroadcast) {
+            // the cached balance subtracts the pending reservation: add it back to get the node's figure
+            balanceBeforeBroadcast[txid] = cached.confirmed.value + cached.pendingSending.value
+        }
+    }
+
+    /** Sum of the pending outgoing debits the node balance does not reflect yet, see [unreflectedPendingDebits]. */
+    protected fun unreflectedPending(nodeBalance: BigInteger, pending: List<PendingDebit>): BigInteger =
+        synchronized(balanceBeforeBroadcast) {
+            balanceBeforeBroadcast.keys.retainAll(pending.map { it.txid }.toSet())
+            unreflectedPendingDebits(balanceBeforeBroadcast, nodeBalance, pending)
+        }
+
     fun deleteTransaction(txid: String) {
         backing.deleteTransaction(txid)
         updateBalanceCache()
@@ -138,6 +162,7 @@ abstract class AbstractTronAccount(
             }
             if (info.isConfirmed) {
                 val fee = info.fee.takeIf { it > 0 }?.let { Value.valueOf(basedOnCoinType, it) }
+                backing.updateResources(txid, info)
                 if (info.isSuccess) {
                     backing.confirmTransaction(txid, info.blockNumber.toInt(), info.blockTimestampMs / 1000, fee)
                 } else {
@@ -248,4 +273,31 @@ abstract class AbstractTronAccount(
         // Incremental sync fetches txs from (newest confirmed timestamp - this overlap)
         const val SYNC_OVERLAP_MS = 600_000L
     }
+}
+
+/** An unconfirmed outgoing tx: [value] leaves the account, [debit] = value + estimated fee in the same unit. */
+data class PendingDebit(val txid: String, val value: BigInteger, val debit: BigInteger)
+
+/**
+ * Pending debits to reserve on top of [nodeBalance]. Walking the txs in broadcast order, the drop of the
+ * node balance since the first broadcast is consumed by the txs it already covers; only the value is
+ * compared (the actual fee may be below the estimate). Txs broadcast before a restart have no recorded
+ * balance and are always reserved.
+ */
+internal fun unreflectedPendingDebits(
+    balanceBeforeBroadcast: LinkedHashMap<String, BigInteger>,
+    nodeBalance: BigInteger,
+    pending: List<PendingDebit>,
+): BigInteger {
+    val order = balanceBeforeBroadcast.keys.toList()
+    var drop = balanceBeforeBroadcast.values.firstOrNull()?.let { it - nodeBalance } ?: BigInteger.ZERO
+    var reserved = BigInteger.ZERO
+    pending.sortedBy { order.indexOf(it.txid).takeIf { i -> i >= 0 } ?: Int.MAX_VALUE }.forEach {
+        if (it.txid in balanceBeforeBroadcast && it.value.signum() > 0 && drop >= it.value) {
+            drop -= it.debit.min(drop)
+        } else {
+            reserved += it.debit
+        }
+    }
+    return reserved
 }

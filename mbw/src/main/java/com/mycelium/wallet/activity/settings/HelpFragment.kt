@@ -38,7 +38,14 @@ class HelpFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        (requireActivity() as SettingsActivity).supportActionBar?.setTitle(R.string.help_menu)
+        // set the whole action bar like the other sub-screens: after a rotation the activity is recreated
+        // and the root screen no longer configures it for us
+        (requireActivity() as SettingsActivity).supportActionBar?.run {
+            setTitle(R.string.help_menu)
+            setHomeAsUpIndicator(R.drawable.ic_back_arrow)
+            setDisplayShowHomeEnabled(false)
+            setDisplayHomeAsUpEnabled(true)
+        }
         val mbwManager = MbwManager.getInstance(requireContext())
         binding?.missingTxs?.setOnClickListener {
             AlertDialog.Builder(requireContext())
@@ -76,23 +83,28 @@ fun Fragment.boostGapLimitDialog(
     vararg accounts: WalletAccount<*>
 ) {
     val bind = LayoutGapInputBinding.inflate(LayoutInflater.from(requireContext()))
-    bind.text.setText("200")
-    AlertDialog.Builder(requireContext())
+    bind.text.setText(SyncMode.Mode.BOOSTED.lookAhead.toString())
+    val dialog = AlertDialog.Builder(requireContext())
         .setTitle(getString(R.string.input_look_ahead))
         .setView(bind.root)
-        .setPositiveButton(R.string.button_ok, object : DialogInterface.OnClickListener {
-            override fun onClick(
-                p0: DialogInterface?,
-                p1: Int
-            ) {
-                try {
-                    val lookAheadCount = bind.text.text.toString().toInt()
-                    val mode = SyncMode.BOOSTED
-                    mode.mode.lookAhead = lookAheadCount
-                    mbwManager.getWalletManager(false).startSynchronization(mode, accounts.toList())
-                } catch (_: NumberFormatException) {
-                }
-            }
-        })
+        // the click listener is set after show() so an invalid value keeps the dialog open
+        .setPositiveButton(R.string.button_ok, null)
+        .setNegativeButton(R.string.cancel, null)
         .show()
+    dialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener {
+        // toIntOrNull() is null for empty input and for values overflowing Int
+        val lookAheadCount = bind.text.text.toString().trim().toIntOrNull()
+        if (lookAheadCount == null || lookAheadCount !in 1..MAX_BOOSTED_LOOK_AHEAD) {
+            bind.text.error = getString(R.string.input_look_ahead_invalid, MAX_BOOSTED_LOOK_AHEAD)
+        } else {
+            mbwManager.getWalletManager(false)
+                .startSynchronization(SyncMode.boosted(lookAheadCount), accounts.toList())
+            dialog.dismiss()
+        }
+    }
 }
+
+// Upper bound for the user defined gap limit: 5x the default BOOSTED look ahead (200).
+// Every address of the window is derived for each derivation type and queried from the server,
+// so huge values (e.g. 200200) keep the BOOSTED sync busy for many minutes without progress.
+private const val MAX_BOOSTED_LOOK_AHEAD = 1000

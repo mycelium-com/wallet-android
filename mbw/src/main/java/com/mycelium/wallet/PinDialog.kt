@@ -1,6 +1,8 @@
  package com.mycelium.wallet
 
+import android.app.Activity
 import android.content.Context
+import android.content.pm.ActivityInfo
 import android.os.Handler
 import android.os.Message
 import android.view.WindowManager
@@ -57,6 +59,9 @@ open class PinDialog(context: Context, val hidden: Boolean, val cancelable: Bool
     protected var pinPadIsRandomized = MbwManager.getInstance(context).isPinPadRandomized
     protected var isTwoFactorAuth = MbwManager.getInstance(context).isTwoFactorEnabled
     protected var isFingerprintEnabled = MbwManager.getInstance(context).isFingerprintEnabled
+    private var inputLocked = false
+    private val hostActivity = context as? Activity
+    private var orientationBeforeLock: Int? = null
 
     open fun setOnPinValid(_onPinValid: OnPinEntered?) {
         pinValidCallback = _onPinValid
@@ -77,12 +82,20 @@ open class PinDialog(context: Context, val hidden: Boolean, val cancelable: Bool
 
     override fun onStart() {
         super.onStart()
-
+        // A rotation recreates the activity and silently drops this plain dialog together with the
+        // pending PIN-protected action, so keep the current orientation while the PIN is entered.
+        // Only the dialog that took the lock gives it back - stacked PIN dialogs don't unlock early.
+        hostActivity?.takeIf { it.requestedOrientation != ActivityInfo.SCREEN_ORIENTATION_LOCKED }?.let {
+            orientationBeforeLock = it.requestedOrientation
+            it.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LOCKED
+        }
     }
 
     override fun onStop() {
         fingerprintHandler.successListener = null
         fingerprintHandler.failListener = null
+        orientationBeforeLock?.let { hostActivity?.requestedOrientation = it }
+        orientationBeforeLock = null
         super.onStop()
     }
 
@@ -173,6 +186,16 @@ open class PinDialog(context: Context, val hidden: Boolean, val cancelable: Bool
         }
     }
 
+    /**
+     * Disables the pin pad while the delay after wrong PIN attempts is running.
+     */
+    fun lockInput(locked: Boolean) {
+        inputLocked = locked
+        enableButtons(!locked)
+        numpadBinding?.pinBack?.isEnabled = !locked
+        numpadBinding?.pinClr?.isEnabled = !locked
+    }
+
     protected open fun checkPin() {
         if (enteredPin.length >= 6) {
             acceptPin()
@@ -202,7 +225,7 @@ open class PinDialog(context: Context, val hidden: Boolean, val cancelable: Bool
                         Pin(enteredPin)
                     )
                 }
-                enableButtons(true)
+                enableButtons(!inputLocked)
                 clearDigits()
             }
         }

@@ -32,29 +32,34 @@ class EthBlockchainService @JvmOverloads constructor(
     @Volatile
     private var lastEip1559: Eip1559Snapshot? = null
 
-    private fun client(urlString: String): String {
-        val client = OkHttpClient.Builder()
-            .connectTimeout(10, TimeUnit.SECONDS)
-            .readTimeout(15, TimeUnit.SECONDS)
-            .build()
+    // One shared connection pool/dispatcher for every call. A new OkHttpClient per request
+    // kept its own pool alive for 5 min, so each sync (up to ~20 getTransaction calls per
+    // account, triggered on every resume) leaked hundreds of TLS sessions until OOM.
+    private val httpClient = OkHttpClient.Builder()
+        .connectTimeout(10, TimeUnit.SECONDS)
+        .readTimeout(15, TimeUnit.SECONDS)
+        .build()
+    private val streamingClient = httpClient.newBuilder()
+        .readTimeout(30, TimeUnit.SECONDS)
+        .build()
+    private val sendClient = streamingClient.newBuilder()
+        .writeTimeout(30, TimeUnit.SECONDS)
+        .build()
 
+    private fun client(urlString: String): String {
         val request = Request.Builder().url(urlString).build()
 
-        val response = client.newCall(request).execute()
-        if (!response.isSuccessful) throw IOException("Unexpected code $response")
-        val body = response.body?.string() ?: throw IOException("Empty body")
-        return body
+        httpClient.newCall(request).execute().use { response ->
+            if (!response.isSuccessful) throw IOException("Unexpected code $response")
+            return response.body?.string() ?: throw IOException("Empty body")
+        }
     }
 
     // Stream-parse to avoid OOM on accounts with large tx histories (loading
     // the full body as a String can require 100+ MB before parsing starts).
     private fun <T> streamedRequest(urlString: String, type: Class<T>): T {
-        val client = OkHttpClient.Builder()
-            .connectTimeout(10, TimeUnit.SECONDS)
-            .readTimeout(30, TimeUnit.SECONDS)
-            .build()
         val request = Request.Builder().url(urlString).build()
-        val response = client.newCall(request).execute()
+        val response = streamingClient.newCall(request).execute()
         if (!response.isSuccessful) {
             response.close()
             throw IOException("Unexpected code $response")
@@ -108,18 +113,13 @@ class EthBlockchainService @JvmOverloads constructor(
     }
 
     fun sendTransaction(hex: String): SendResult {
-        val client = OkHttpClient.Builder()
-            .connectTimeout(10, TimeUnit.SECONDS)
-            .writeTimeout(30, TimeUnit.SECONDS)
-            .readTimeout(30, TimeUnit.SECONDS)
-            .build()
         val request = Request.Builder()
                 .url("${endpoints.random()}/api/v2/sendtx/")
                 .post(RequestBody.create(null, hex))
                 .build()
-        val response = client.newCall(request).execute()
-
-        val result = mapper.readValue(response.body!!.string(), SendTxResponse::class.java)
+        val result = sendClient.newCall(request).execute().use { response ->
+            mapper.readValue(response.body!!.string(), SendTxResponse::class.java)
+        }
         return SendResult(result.result != null, result.error)
     }
 
@@ -296,8 +296,15 @@ class Tx {
     val gasUsed: BigInteger?
         get() = ethereumSpecific!!.gasUsed
 
+    /**
+     * For a pending type-2 tx blockbook reports the effective price (base fee + tip) as `gasPrice`,
+     * which is below the tx's cap: a replacement bumped off it is rejected ("could not replace
+     * existing tx"). Until the tx mines, use the cap; once mined the effective price is what was paid.
+     */
     val gasPrice: BigInteger
-        get() = ethereumSpecific!!.gasPrice
+        get() = ethereumSpecific!!.let {
+            if (confirmations.signum() == 0 && it.maxFeePerGas.signum() > 0) it.maxFeePerGas else it.gasPrice
+        }
 
     val success: Boolean
         get() = ethereumSpecific!!.status
@@ -447,6 +454,7 @@ private class EthereumSpecific {
     val gasLimit: BigInteger = BigInteger.ZERO
     val gasUsed: BigInteger = BigInteger.ZERO
     val gasPrice: BigInteger = BigInteger.ZERO
+    val maxFeePerGas: BigInteger = BigInteger.ZERO
     val data: String? = null
     val status: Boolean = true
 

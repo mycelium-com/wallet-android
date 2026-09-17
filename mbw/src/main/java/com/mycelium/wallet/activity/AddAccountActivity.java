@@ -148,7 +148,7 @@ public class AddAccountActivity extends AppCompatActivity {
                     boolean canCreateAccount = wallet.getModuleById(EthereumModule.ID).canCreateAccount(new EthereumMasterseedConfig());
                     if (!canCreateAccount) {
                         // TODO replace with string res
-                        _toaster.toast("You can only have one unused Ethereum Account.", false);
+                        _toaster.toast(R.string.use_eth_acc_first, false);
                         return;
                     }
 
@@ -288,6 +288,11 @@ public class AddAccountActivity extends AppCompatActivity {
                     int selected = arrayAdapter.getSelected();
                     if (selected == arrayAdapter.getCount() - 1) {
                         // "Create new account" item
+                        if (!_mbwManager.getWalletManager(false).getModuleById(EthereumModule.ID)
+                                .canCreateAccount(new EthereumMasterseedConfig())) {
+                            _toaster.toast(R.string.use_eth_acc_first, false);
+                            return;
+                        }
                         showERC20TokensOptions(null);
                     } else {
                         UUID ethAccountId = accounts.get(selected).getId();
@@ -351,6 +356,11 @@ public class AddAccountActivity extends AppCompatActivity {
                                     return null;
                                 },
                                 uuid -> {
+                                    if (uuid == null) {
+                                        _progress.dismiss();
+                                        _toaster.toast(R.string.use_eth_acc_first, false);
+                                        return null;
+                                    }
                                     EthAccount ethAccount1 = (EthAccount) _mbwManager.getWalletManager(false).getAccount(uuid);
                                     new ERC20CreationAsyncTask(_mbwManager, list, ethAccount1,
                                             () -> {

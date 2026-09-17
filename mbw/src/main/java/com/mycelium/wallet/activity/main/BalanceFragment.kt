@@ -452,7 +452,12 @@ class BalanceFragment : Fragment() {
 
                     ResultType.SHARE -> {
                         val share = data.getShare()
-                        callMe(activity!!, share, StringHandlerActivity.IMPORT_SSS_CONTENT_CODE)
+                        // start for result from the fragment: BipSsImportActivity.callMe() would deliver
+                        // the combined secret to ModernMain.onActivityResult, where nobody handles it
+                        startActivityForResult(
+                            Intent(requireContext(), BipSsImportActivity::class.java).putExtra("share", share),
+                            StringHandlerActivity.IMPORT_SSS_CONTENT_CODE
+                        )
                     }
 
                     ResultType.URI -> {

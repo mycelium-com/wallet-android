@@ -14,6 +14,7 @@ import com.mycelium.giftbox.GiftboxPreference
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.addaccount.ERC20EthAccountAdapter
+import com.mycelium.wallet.activity.modern.Toaster
 import com.mycelium.wallet.activity.addaccount.createERC20
 import com.mycelium.wallet.activity.addaccount.createETH
 import com.mycelium.wallet.activity.modern.ModernMain
@@ -212,7 +213,11 @@ class SelectAccountFragment : DialogFragment() {
                             loader(true)
                         }, {
                             loader(false)
-                            addToken(viewModel.mbwManager.getWalletManager(false).getAccount(it!!) as EthAccount, token)
+                            if (it == null) {
+                                Toaster(this@SelectAccountFragment).toast(R.string.use_eth_acc_first, false)
+                            } else {
+                                addToken(viewModel.mbwManager.getWalletManager(false).getAccount(it) as EthAccount, token)
+                            }
                         })
                     } else {
                         val ethAccountId = accounts[selected].id

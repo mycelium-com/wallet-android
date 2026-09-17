@@ -185,7 +185,7 @@ public class PopSelectTransactionActivity extends AppCompatActivity implements A
          boolean showMatching = getArguments().getBoolean("match");
 
          mbwManager = MbwManager.getInstance(getActivity());
-         WalletAccount account = mbwManager.getSelectedAccount();
+         WalletAccount account = PopActivity.getPopAccount(mbwManager);
 
          List<TransactionSummary> history = account.getTransactionSummaries(0, Integer.MAX_VALUE);
 

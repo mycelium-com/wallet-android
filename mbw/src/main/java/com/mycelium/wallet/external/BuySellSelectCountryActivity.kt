@@ -40,7 +40,11 @@ class BuySellSelectCountryActivity : AppCompatActivity() {
         binding.search.doOnTextChanged { text, _, _, _ ->
             adapter.submitList(availableCounties?.filter { country ->
                 text?.split(" ")?.all { country.contains(it, true) } ?: false
-            })
+            }) {
+                // items inserted above the first visible one (e.g. when the query is cleared) keep
+                // the list scrolled to the old first item, so it looked like it was still filtered
+                binding.list.scrollToPosition(0)
+            }
         }
     }
 

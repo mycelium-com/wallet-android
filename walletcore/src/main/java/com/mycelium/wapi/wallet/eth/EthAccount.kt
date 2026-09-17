@@ -24,6 +24,7 @@ import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.coins.Value.Companion.max
 import com.mycelium.wapi.wallet.coins.Value.Companion.valueOf
 import com.mycelium.wapi.wallet.exceptions.BuildTransactionException
+import com.mycelium.wapi.wallet.exceptions.InsufficientFundsForFeeException
 import com.mycelium.wapi.wallet.exceptions.InsufficientFundsException
 import com.mycelium.wapi.wallet.genericdb.EthAccountBacking
 import kotlinx.coroutines.Dispatchers
@@ -77,10 +78,13 @@ class EthAccount(private val chainId: Long,
     override fun createTx(toAddress: Address, value: Value, fee: Fee, data: TransactionData?): Transaction {
         val ethTxData = data as? EthTransactionData
         val nonce = ethTxData?.nonce ?: accountContext.nonce
-        val gasLimit = ethTxData?.gasLimit ?: BigInteger.valueOf(typicalEstimatedTransactionSize.toLong())
         val inputData = ethTxData?.inputData ?: ""
+        val gasLimit = ethTxData?.gasLimit ?: defaultGasLimit(inputData)
         val gasPrice = ethTxData?.suggestedGasPrice?.let { Value.valueOf(coinType, it) } ?: (fee as FeePerKbFee).feePerKb
 
+        if (toAddress !is EthAddress) {
+            throw BuildTransactionException(Throwable("Not an Ethereum address"))
+        }
         if (gasPrice.value <= BigInteger.ZERO) {
             throw BuildTransactionException(Throwable("Gas price should be positive and non-zero"))
         }
@@ -90,9 +94,19 @@ class EthAccount(private val chainId: Long,
         if (gasLimit < Transfer.GAS_LIMIT) {
             throw BuildTransactionException(Throwable("Gas limit must be at least ${Transfer.GAS_LIMIT}"))
         }
+        if (gasLimit > MAX_TX_GAS_LIMIT) {
+            throw BuildTransactionException(Throwable("Gas limit must not exceed $MAX_TX_GAS_LIMIT"))
+        }
+        // max spendable is clamped at zero, so a zero-value tx would pass with a fee above the balance
+        if (gasPrice.value * gasLimit > accountBalance.spendable.value) {
+            throw InsufficientFundsForFeeException(Throwable("Insufficient funds to pay for fee"))
+        }
         if (value > calculateMaxSpendableAmount(gasPrice, null, ethTxData)) {
             throw InsufficientFundsException(Throwable("Insufficient funds to send " + Convert.fromWei(value.value.toBigDecimal(), Convert.Unit.ETHER) +
                     " ether with gas price " + Convert.fromWei(gasPrice.valueAsBigDecimal, Convert.Unit.GWEI) + " gwei"))
+        }
+        if (ethTxData?.suggestedGasPrice != null) {
+            checkGasPriceAgainstBaseFee(coinType, gasPrice.value)
         }
         // EIP-1559: treat the chosen gas price as the maxFeePerGas cap and pair
         // it with the matching tip (explicit, or recovered from the snapshot).
@@ -395,6 +409,31 @@ class EthAccount(private val chainId: Long,
 
     companion object {
         private const val MAX_PENDING_SCAN = 20
+
+        /** EIP-7825 (Fusaka) per-transaction gas limit cap: nodes reject anything above it. */
+        @JvmField
+        val MAX_TX_GAS_LIMIT: BigInteger = BigInteger.valueOf(16_777_216)
+
+        /**
+         * Gas limit when the user did not set one. Calldata is charged per token (zero byte = 1, non-zero = 4):
+         * 4 gas per token of intrinsic cost, but since Pectra (EIP-7623) a tx must also cover the floor of
+         * 10 gas per token — the floor is what a data-only transfer pays, and a lower limit is rejected
+         * ("IntrinsicGas"). Execution cost of a contract call is not estimated; set the limit manually for that.
+         */
+        @JvmStatic
+        fun defaultGasLimit(inputData: String?): BigInteger {
+            val bytes = inputData?.takeIf { it.isNotBlank() }?.let {
+                try {
+                    Numeric.hexStringToByteArray(it)
+                } catch (e: Exception) {
+                    null
+                }
+            } ?: return Transfer.GAS_LIMIT
+            val tokens = bytes.sumOf { if (it.toInt() == 0) 1L else 4L }
+            return Transfer.GAS_LIMIT + BigInteger.valueOf(tokens * CALLDATA_FLOOR_GAS_PER_TOKEN)
+        }
+
+        private const val CALLDATA_FLOOR_GAS_PER_TOKEN = 10L
     }
 
     override fun archiveAccount() {
@@ -429,7 +468,8 @@ class EthAccount(private val chainId: Long,
     override fun calculateMaxSpendableAmount(gasPrice: Value, ign: EthAddress?, txData: TransactionData?): Value {
         val gp =
             (txData as? EthTransactionData)?.suggestedGasPrice?.let { Value.valueOf(coinType, it) } ?: gasPrice
-        val gl = (txData as? EthTransactionData)?.gasLimit ?: typicalEstimatedTransactionSize.toBigInteger()
+        val gl = (txData as? EthTransactionData)?.let { it.gasLimit ?: defaultGasLimit(it.inputData) }
+            ?: typicalEstimatedTransactionSize.toBigInteger()
         val spendable = accountBalance.spendable - gp * gl
         return max(spendable, Value.zeroValue(coinType))
     }

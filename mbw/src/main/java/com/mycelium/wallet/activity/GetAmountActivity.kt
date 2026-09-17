@@ -6,6 +6,7 @@ import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
 import android.text.Html
+import android.text.TextUtils
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
@@ -307,7 +308,7 @@ class GetAmountActivity : AppCompatActivity(), NumberEntryListener {
 
                 binding.tvPleaseTopUp.apply {
                     text =
-                        Html.fromHtml(getString(R.string.please_top_up_your_eth_account, parentEthAccount.label, fee.toStringFriendlyWithUnit(denomination), convertedFee))
+                        Html.fromHtml(getString(R.string.please_top_up_your_eth_account, TextUtils.htmlEncode(parentEthAccount.label), fee.toStringFriendlyWithUnit(denomination), convertedFee))
                     setOnClickListener {
                         _mbwManager!!.setSelectedAccount(parentEthAccount.id)
                         setResult(RESULT_OK, Intent().putExtra(EXIT_TO_MAIN_SCREEN, true))
@@ -466,6 +467,9 @@ class GetAmountActivity : AppCompatActivity(), NumberEntryListener {
         }
     }
 
+    /** Reason of the last BuildTransactionException from [validateAmount], shown as a toast. */
+    private var lastBuildError: String? = null
+
     private fun validateAmount(value: Value?): AmountValidation {
         if (value == null) {
             return AmountValidation.ExchangeRateNotAvailable
@@ -482,6 +486,7 @@ class GetAmountActivity : AppCompatActivity(), NumberEntryListener {
             // under certain conditions the max-miner-fee check fails - report it back to the server, so we can better
             // debug it
             _mbwManager!!.reportIgnoredException("MinerFeeException", e)
+            lastBuildError = e.cause?.message ?: e.message
             return AmountValidation.Invalid
         } catch (e: Exception) {
             Log.e("GetAmountActivity", "validateAmount", e)
@@ -514,6 +519,9 @@ class GetAmountActivity : AppCompatActivity(), NumberEntryListener {
                     }
                 } else if (result == AmountValidation.ExchangeRateNotAvailable) {
                     Toaster(this@GetAmountActivity).toast(com.mycelium.wallet.R.string.exchange_rate_unavailable, true)
+                } else if (result == AmountValidation.Invalid && !lastBuildError.isNullOrBlank()) {
+                    // e.g. a custom gas price below the network base fee - say why instead of a silent red amount
+                    Toaster(this@GetAmountActivity).toast(lastBuildError!!, true)
                 }
                 // else {
                 // The amount we want to send is not large enough for the network to

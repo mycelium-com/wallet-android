@@ -26,6 +26,9 @@ class ChangellyInterceptor : Interceptor {
         const val API_HEADER_KEY = "X-Api-Key"
         const val SIGN_HEADER_KEY = "X-Api-Signature"
 
+        // Params the backend declares as lists: sent as a JSON array even with a single value
+        val LIST_PARAMS = setOf("fromAddresses")
+
         val privateKey = getChangellyApiKey()
         fun getChangellyApiKey(): PrivateKey {
             val keySpec = PKCS8EncodedKeySpec(ChangellyHeaderInterceptor.PRIVATE_KEY)
@@ -70,7 +73,7 @@ class ChangellyInterceptor : Interceptor {
     private fun getParamsFromRequest(request: Request): JSONObject = JSONObject().apply {
         request.url.queryParameterNames.forEach { name ->
             val values = request.url.queryParameterValues(name)
-            if (values.size > 1) {
+            if (values.size > 1 || name in LIST_PARAMS) {
                 put(name, JSONArray(values))
             } else {
                 val param = request.url.queryParameter(name)

@@ -93,6 +93,9 @@ abstract class AbstractBtcAccount protected constructor(backing: BtcAccountBacki
 
     @Throws(BuildTransactionException::class, InsufficientFundsException::class, OutputTooSmallException::class)
     override fun createTx(address: Address, amount: Value, fee: Fee, data: TransactionData?): Transaction {
+        if (address !is BtcAddress) {
+            throw BuildTransactionException(Throwable("Not a Bitcoin address"))
+        }
         return try {
             val btcFee = fee as FeePerKbFee
             val btcTransaction =
@@ -116,6 +119,9 @@ abstract class AbstractBtcAccount protected constructor(backing: BtcAccountBacki
         fee: Fee,
         data: TransactionData?
     ): Transaction {
+        if (outputs.any { it.first !is BtcAddress }) {
+            throw BuildTransactionException(Throwable("Not a Bitcoin address"))
+        }
         return try {
             val btcFee = fee as FeePerKbFee
             val btcTransaction = BtcTransaction(coinType, outputs.map { it.first as BtcAddress to it.second }, btcFee.feePerKb)
@@ -692,7 +698,8 @@ abstract class AbstractBtcAccount protected constructor(backing: BtcAccountBacki
         return true
     }
 
-    override fun getTransaction(txid: Sha256Hash): TransactionEx =
+    // null when the transaction is not stored for this account (e.g. the parent of a received payment)
+    override fun getTransaction(txid: Sha256Hash): TransactionEx? =
         accountBacking.getTransaction(txid)
 
     @Synchronized
@@ -806,6 +813,7 @@ abstract class AbstractBtcAccount protected constructor(backing: BtcAccountBacki
                     accountBacking.deleteUnspentOutput(outPoint)
                 }
             }
+            restoreSpentOutputs(tx)
             // remove it from the accountBacking
             accountBacking.deleteTransaction(transactionId)
             accountBacking.setTransactionSuccessful()
@@ -814,6 +822,20 @@ abstract class AbstractBtcAccount protected constructor(backing: BtcAccountBacki
         }
         updateLocalBalance() //will still need a new sync besides re-calculating
         return true
+    }
+
+    /**
+     * Gives back our outputs a locally dropped transaction was spending (e.g. the change of its
+     * parent): sync does not restore them, so they vanished from the balance until a full reload.
+     */
+    private fun restoreSpentOutputs(tx: BitcoinTransaction) {
+        for (input in tx.inputs) {
+            val parentOutput = accountBacking.getParentTransactionOutput(input.outPoint) ?: continue
+            if (accountBacking.getTransaction(input.outPoint.txid) != null && isMine(parentOutput)
+                    && accountBacking.getUnspentOutput(input.outPoint) == null) {
+                accountBacking.putUnspentOutput(parentOutput)
+            }
+        }
     }
 
     override fun removeAllQueuedTransactions() {
@@ -845,6 +867,8 @@ abstract class AbstractBtcAccount protected constructor(backing: BtcAccountBacki
                 }
             }
 
+            restoreSpentOutputs(tx)
+
             // Remove a queued transaction from our outgoing buffer
             accountBacking.removeOutgoingTransaction(transaction)
 
@@ -856,8 +880,6 @@ abstract class AbstractBtcAccount protected constructor(backing: BtcAccountBacki
         }
 
         // calc the new balance to remove the outgoing amount
-        // the total balance will still be wrong, as we already deleted some UTXOs to build the queued transaction
-        // these will get restored after the next sync
         updateLocalBalance()
 
         //markTransactionAsSpent(transaction);

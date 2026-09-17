@@ -51,7 +51,8 @@ class SendEthModel(application: Application,
             if (value != this.value) {
                 super.setValue(value)
                 val oldData = (transactionData.value as? EthTransactionData) ?: EthTransactionData()
-                transactionData.value = EthTransactionData(value, oldData.gasLimit, oldData.inputData, oldData.suggestedGasPrice)
+                transactionData.value = EthTransactionData(value, oldData.gasLimit, oldData.inputData, oldData.suggestedGasPrice,
+                        oldData.maxPriorityFeePerGas)
             }
         }
     }
@@ -73,12 +74,12 @@ class SendEthModel(application: Application,
                             tx.fee != null && tx.gasUsed > BigInteger.ZERO -> tx.fee!!.value / tx.gasUsed
                             else -> null
                         }
-                        val suggestedGasPrice = oldGasPrice?.let {
-                            val bumped = it * BigInteger.valueOf(110) / BigInteger.valueOf(100)
-                            feeEstimation.normal.value.max(bumped)
-                        }
+                        // a replacement must raise both the cap and the tip by >= 10 %; the old tip is not
+                        // stored, but it never exceeds the old cap, so a tip of oldCap * 1.1 always clears it
+                        val bumped = oldGasPrice?.let { it * BigInteger.valueOf(110) / BigInteger.valueOf(100) }
+                        val suggestedGasPrice = bumped?.let { feeEstimation.normal.value.max(it) }
                         nonce.value = tx.nonce
-                        transactionData.value = EthTransactionData(tx.nonce, oldData.gasLimit, oldData.inputData, suggestedGasPrice)
+                        transactionData.value = EthTransactionData(tx.nonce, oldData.gasLimit, oldData.inputData, suggestedGasPrice, bumped)
                     }
                 }
             }
@@ -91,6 +92,7 @@ class SendEthModel(application: Application,
                 gasLimitStatus.value = if (value != null) {
                     when {
                         value < Transfer.GAS_LIMIT -> GasLimitStatus.ERROR
+                        value > EthAccount.MAX_TX_GAS_LIMIT -> GasLimitStatus.TOO_HIGH
                         account is ERC20Account && value < BigInteger.valueOf(TOKEN_TRANSFER_GAS_LIMIT) -> GasLimitStatus.WARNING
                         else -> GasLimitStatus.OK
                     }
@@ -102,7 +104,8 @@ class SendEthModel(application: Application,
                 val oldData =
                     (transactionData.value as? EthTransactionData) ?: EthTransactionData()
                 transactionData.value =
-                    EthTransactionData(oldData.nonce, value, oldData.inputData, oldData.suggestedGasPrice)
+                    EthTransactionData(oldData.nonce, value, oldData.inputData, oldData.suggestedGasPrice,
+                            oldData.maxPriorityFeePerGas)
             }
         }
     }
@@ -114,7 +117,9 @@ class SendEthModel(application: Application,
                 val oldData =
                         (transactionData.value as? EthTransactionData) ?: EthTransactionData()
                 transactionData.value =
-                        EthTransactionData(oldData.nonce, oldData.gasLimit, oldData.inputData, value)
+                        EthTransactionData(oldData.nonce, oldData.gasLimit, oldData.inputData, value,
+                                // the tip may not exceed the cap
+                                value?.let { oldData.maxPriorityFeePerGas?.min(it) })
                 if (value != null) {
                     feeUpdater.stop()
                 } else {
@@ -130,7 +135,8 @@ class SendEthModel(application: Application,
                 super.setValue(value)
                 val oldData = (transactionData.value as? EthTransactionData) ?: EthTransactionData()
                 transactionData.value = EthTransactionData(oldData.nonce, oldData.gasLimit,
-                        if (value == null || value.isEmpty()) null else value, oldData.suggestedGasPrice)
+                        if (value == null || value.isEmpty()) null else value, oldData.suggestedGasPrice,
+                        oldData.maxPriorityFeePerGas)
             }
         }
     }
@@ -201,8 +207,10 @@ class SendEthModel(application: Application,
         val gl = (transactionData.value as? EthTransactionData)?.gasLimit
 
         return transaction?.estimatedTransactionSize
-            ?: if (gl != null && gasLimitStatus.value != GasLimitStatus.ERROR) {
+            ?: if (gl != null && gasLimitStatus.value?.isValid != false) {
                 gl.toInt()
+            } else if (account is EthAccount) {
+                EthAccount.defaultGasLimit((transactionData.value as? EthTransactionData)?.inputData).toInt()
             } else {
                 account.typicalEstimatedTransactionSize
             }
@@ -231,8 +239,9 @@ class SendEthModel(application: Application,
             }
         }
     
-    enum class GasLimitStatus {
-        OK, WARNING, ERROR
+    /** [isValid] = false: the entered limit is not used for fee estimation (TOO_HIGH would also overflow Int). */
+    enum class GasLimitStatus(val isValid: Boolean) {
+        OK(true), WARNING(true), ERROR(false), TOO_HIGH(false)
     }
 
     companion object {
@@ -265,8 +274,13 @@ class FeeUpdater(
             scheduleAtFixedRate(timerTask {
                 runBlocking {
                     stopUpdateSecondsTimer()
-                    feeUpdateRoutine()
-                    startUpdateSecondsTimer()
+                    try {
+                        feeUpdateRoutine()
+                    } catch (e: Exception) {
+                        // keep the schedule alive; the next tick retries
+                    } finally {
+                        startUpdateSecondsTimer()
+                    }
                 }
             }, 0L, feeUpdateIntervalMs)
         }
@@ -293,6 +307,6 @@ class FeeUpdater(
 
     private fun getUpdateSecondsTimer() = startCoroutineTimer(
         CoroutineScope(Dispatchers.Default + SupervisorJob()), 0, 1000) {
-            secondsUntilNextUpdate.postValue((secondsUntilNextUpdate.value?.minus(1)))
+            secondsUntilNextUpdate.postValue(maxOf(0L, (secondsUntilNextUpdate.value ?: 0L) - 1))
         }
 }
