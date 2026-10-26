@@ -51,6 +51,7 @@
     <string name="pref_miner_fee_title">Miner fees</string>
     <string name="pref_miner_fee_block_summary">Transactions are sent with a miner fee to get included within the next %1s block(s) on average</string>
     <string name="wordlist_additional_backup_not_possible_pin_too_new">Sorry, an additional backup is currently not possible.\nYour PIN was recently changed.\n\nTo increase the security of your funds, we prevent you (or anyone else) to export the master-seed shortly after setting a new PIN.\n\n You have to wait for at least %1$d blocks (~ %2$s)</string>
+    <string name="export_private_not_possible_pin_too_new">Your PIN was recently changed, so private keys cannot be exported yet. Only public data will be shown.\n\nTo increase the security of your funds, we prevent you (or anyone else) from exporting private keys shortly after setting a new PIN.\n\nYou have to wait for at least %1$d blocks (~ %2$s)</string>
     <string name="wordlist_additional_backup_not_possible_no_pin">Sorry, an additional backup is currently not possible.\nYou haven\'t set a PIN\n\nTo increase the security of your funds, we prevent you (or anyone else) to export the master-seed without having set a PIN-Code.\n\nPlease go to Settings and configure a PIN.</string>
     <string name="pin_pad_clear">CLR</string>
     <string name="pin_pad_backspace">DEL</string>

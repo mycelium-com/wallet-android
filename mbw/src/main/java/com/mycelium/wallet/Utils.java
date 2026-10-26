@@ -824,12 +824,34 @@ public class Utils {
             .setPositiveButton(R.string.yes, (dialog, id) -> {
                dialog.dismiss();
                account.interruptSync();
-               ExportAsQrActivity.callMe(parent, ((ExportableAccount) account).getExportData(AesKeyCipher.defaultKeyCipher()),
+               exportWithPinAgeCheck(parent, ((ExportableAccount) account).getExportData(AesKeyCipher.defaultKeyCipher()),
                        account);
-
             }).setNegativeButton(R.string.no, null);
       AlertDialog alertDialog = builder.create();
       alertDialog.show();
+   }
+
+   /**
+    * Opens the export screen. If the PIN was set too recently, private data is withheld (same
+    * lockdown as for the additional wordlist backup) so a freshly set PIN doesn't give immediate
+    * access to private keys - only public data is shown.
+    */
+   public static void exportWithPinAgeCheck(final Activity parent, ExportableAccount.Data data, final WalletAccount<?> account) {
+      MbwManager mbwManager = MbwManager.getInstance(parent);
+      if (data.getPrivateData().isPresent() && mbwManager.isPinProtected() && !mbwManager.isPinOldEnough()) {
+         final ExportableAccount.Data publicOnly =
+                 new ExportableAccount.Data(Optional.<String>absent(), data.getPublicDataMap());
+         int remainingBlocks = mbwManager.getRemainingPinLockdownDuration()
+                 .or(Constants.MIN_PIN_BLOCKHEIGHT_AGE_ADDITIONAL_BACKUP);
+         new AlertDialog.Builder(parent)
+                 .setMessage(parent.getString(R.string.export_private_not_possible_pin_too_new, remainingBlocks,
+                         formatBlockcountAsApproxDuration(mbwManager, remainingBlocks, Constants.BTC_BLOCK_TIME_IN_SECONDS)))
+                 .setPositiveButton(R.string.ok, (d, w) -> ExportAsQrActivity.callMe(parent, publicOnly, account))
+                 .setNegativeButton(R.string.cancel, null)
+                 .show();
+      } else {
+         ExportAsQrActivity.callMe(parent, data, account);
+      }
    }
 
    /**
