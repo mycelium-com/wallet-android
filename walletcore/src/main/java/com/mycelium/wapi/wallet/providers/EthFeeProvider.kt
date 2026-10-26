@@ -120,6 +120,10 @@ class EthFeeProvider(
  * and only got mined because the base fee fell). Every answer is a base-fee reading, so the
  * highest one is taken as the base fee and the tiers are derived from it, exactly as for the
  * degenerate all-equal answer. A 1559 chain never signs legacy from this path.
+ *
+ * A legacy-signed chain (none of the real ETH chains any more) gets the same base-fee readings,
+ * so they are passed through only when they really spread out; otherwise every tier showed
+ * the same gas price and only "low priority" differed (its slider dips below the estimate).
  */
 internal fun legacyFallbackEstimates(
     coinType: EthCoin,
@@ -130,7 +134,20 @@ internal fun legacyFallbackEstimates(
     require(readings.size == 4) { "expected low/economy/normal/high, got ${readings.size}" }
     if (!coinType.supportsEip1559) {
         service.clearEip1559Fees()
-        return FeeEstimationsGeneric(readings[0], readings[1], readings[2], readings[3], now)
+        val values = readings.map { it.value }
+        val differentiated = values.zipWithNext().all { (a, b) -> a <= b } &&
+                values[3] * BigInteger.TEN >= values[0] * BigInteger.valueOf(11)
+        if (differentiated) {
+            return FeeEstimationsGeneric(readings[0], readings[1], readings[2], readings[3], now)
+        }
+        val prices = deriveLegacyGasPrices(values.maxOrNull()!!)
+        return FeeEstimationsGeneric(
+            low = Value.valueOf(coinType, prices[0]),
+            economy = Value.valueOf(coinType, prices[1]),
+            normal = Value.valueOf(coinType, prices[2]),
+            high = Value.valueOf(coinType, prices[3]),
+            lastCheck = now
+        )
     }
     val base = readings.maxOf { it.value }
     val tiers = deriveFeeTiers(base)
@@ -159,4 +176,18 @@ internal fun deriveFeeTiers(baseFeeWei: BigInteger): List<Eip1559Tier> = listOf(
     val cap = baseFeeWei * BigInteger.valueOf(headroomPercent) / BigInteger.valueOf(100) +
             BigInteger.valueOf(tipWei)
     Eip1559Tier(level, cap, BigInteger.valueOf(tipWei))
+}
+
+/**
+ * Per-tier legacy gas prices (low → high, in wei) built from the current base fee. A legacy
+ * tx pays its whole gas price with no refund, so the headroom is kept smaller than for the
+ * 1559 caps in [deriveFeeTiers]; everything above the base fee is the miner's tip.
+ */
+internal fun deriveLegacyGasPrices(baseFeeWei: BigInteger): List<BigInteger> = listOf(
+    100L to 50_000_000L,
+    105L to 200_000_000L,
+    112L to 700_000_000L,
+    125L to 2_000_000_000L,
+).map { (headroomPercent, tipWei) ->
+    baseFeeWei * BigInteger.valueOf(headroomPercent) / BigInteger.valueOf(100) + BigInteger.valueOf(tipWei)
 }

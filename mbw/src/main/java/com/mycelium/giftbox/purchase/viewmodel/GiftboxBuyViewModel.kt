@@ -1,5 +1,6 @@
 package com.mycelium.giftbox.purchase.viewmodel
 
+import com.mycelium.wallet.activity.util.displaySymbol
 import androidx.core.content.ContextCompat
 import androidx.core.text.isDigitsOnly
 import androidx.lifecycle.*
@@ -255,7 +256,7 @@ class GiftboxBuyViewModel(val productInfo: MCProductInfo) : ViewModel(), OrderHe
     }
     val minerFeeFiatString = minerFeeFiat.map {
         if (it.lessThan(Value(it.type, 1.toBigInteger()))) {
-            "<0.01 " + it.type.symbol
+            "<0.01 " + it.type.displaySymbol
         } else it.toStringFriendlyWithUnit()
     }
     val maxSpendableAmount: MutableLiveData<Value> by lazy { MutableLiveData(maxFiatSpendableAmount()) }

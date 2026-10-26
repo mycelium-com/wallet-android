@@ -12,6 +12,7 @@ import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
 import com.mycelium.wallet.WalletApplication
+import com.mycelium.wallet.activity.util.displaySymbol
 import com.mycelium.wallet.activity.util.toFriendlyString
 import com.mycelium.wallet.activity.util.toStringFriendlyWithUnit
 import com.mycelium.wallet.activity.util.toStringWithUnit
@@ -179,7 +180,7 @@ class ExchangeViewModel(application: Application) : AndroidViewModel(application
      * Symbol shown for the sold asset: the wallet's own (e.g. "USDT" for TRC20 USDT) rather than
      * the backend's network-suffixed ticker ("USDTTRX") echoed in [exchangeInfo].
      */
-    fun fromDisplaySymbol(): String? = fromCurrency.value?.symbol ?: exchangeInfo.value?.from?.uppercase()
+    fun fromDisplaySymbol(): String? = fromCurrency.value?.displaySymbol ?: exchangeInfo.value?.from?.uppercase()
 
     val exchangeRateToValue = exchangeInfo.map {
         if (it?.result != null && it.result != BigDecimal.ZERO)
@@ -193,7 +194,7 @@ class ExchangeViewModel(application: Application) : AndroidViewModel(application
     }
 
     val exchangeRateToCurrency = exchangeInfo.map {
-        toCurrency.value?.symbol ?: it?.to?.uppercase()
+        toCurrency.value?.displaySymbol ?: it?.to?.uppercase()
     }
 
     val fiatSellValue = sellValue.map {

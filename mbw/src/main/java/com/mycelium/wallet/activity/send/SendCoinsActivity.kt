@@ -1,5 +1,6 @@
 package com.mycelium.wallet.activity.send
 
+import com.mycelium.wallet.activity.util.displaySymbol
 import android.app.Activity
 import android.app.AlertDialog
 import android.content.Context
@@ -156,7 +157,7 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener, AmountLi
         initFeeView()
         initFeeLvlView()
         supportActionBar?.run {
-            title = getString(R.string.send_cointype, viewModel.getAccount().coinType.symbol) + " (${viewModel.getAccount().label})"
+            title = getString(R.string.send_cointype, viewModel.getAccount().coinType.displaySymbol) + " (${viewModel.getAccount().label})"
             setHomeAsUpIndicator(R.drawable.ic_back_arrow)
             setHomeButtonEnabled(true)
             setDisplayHomeAsUpEnabled(true)

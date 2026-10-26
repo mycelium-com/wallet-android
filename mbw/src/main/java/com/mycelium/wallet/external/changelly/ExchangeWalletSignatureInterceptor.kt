@@ -6,6 +6,7 @@ import com.mrd.bitlib.model.AddressType
 import com.mrd.bitlib.model.NetworkParameters
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.WalletApplication
+import com.mycelium.wallet.activity.settings.SettingsPreference
 import com.mycelium.wapi.wallet.AesKeyCipher
 import okhttp3.Interceptor
 import okhttp3.Response
@@ -15,7 +16,8 @@ import okio.Buffer
  * Identifies the wallet to the exchange backend the same way the gift card API does: the identity
  * key for [WEBSITE] signs the request body as a Bitcoin signed message, and its mainnet P2PKH
  * address is the user id. Must be added after [ChangellyInterceptor], which builds the JSON-RPC
- * body that goes over the wire. Wallets without a master seed send no identity.
+ * body that goes over the wire. Wallets without a master seed, or with the setting turned off,
+ * send no identity.
  */
 class ExchangeWalletSignatureInterceptor(
     private val identityKey: () -> InMemoryPrivateKey? = ::walletIdentityKey
@@ -48,6 +50,7 @@ class ExchangeWalletSignatureInterceptor(
 }
 
 private fun walletIdentityKey(): InMemoryPrivateKey? {
+    if (!SettingsPreference.exchangeWalletIdentityEnabled) return null
     val masterSeedManager = MbwManager.getInstance(WalletApplication.getInstance()).masterSeedManager
     if (!masterSeedManager.hasBip32MasterSeed()) return null
     val cipher = AesKeyCipher.defaultKeyCipher()

@@ -1,5 +1,6 @@
 package com.mycelium.giftbox.purchase
 
+import com.mycelium.wallet.activity.util.displaySymbol
 import android.content.Intent
 import android.os.Bundle
 import android.text.Html
@@ -76,7 +77,7 @@ class GiftBoxBuyResultFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         viewModel.minerFeeFiat.value = args.minerFeeFiat?.let {
             if (it.lessThan(Value(it.type, 1.toBigInteger()))) {
-                "<0.01 " + it.type.symbol
+                "<0.01 " + it.type.displaySymbol
             } else it.toStringFriendlyWithUnit()
         }
         viewModel.minerFeeCrypto.value = "~" + args.minerFeeCrypto?.toStringWithUnit()

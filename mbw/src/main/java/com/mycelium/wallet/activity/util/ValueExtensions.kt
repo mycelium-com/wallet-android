@@ -1,6 +1,7 @@
 package com.mycelium.wallet.activity.util
 
 import com.mycelium.view.Denomination
+import com.mycelium.wapi.wallet.Util
 import com.mycelium.wapi.wallet.btc.coins.BitcoinMain
 import com.mycelium.wapi.wallet.btc.coins.BitcoinTest
 import com.mycelium.wapi.wallet.coins.AssetInfo
@@ -46,9 +47,13 @@ private fun Value.format(denomination: Denomination, maxFractionDigits: Int, wit
     formatter.minimumFractionDigits = if (isFiat) 2 else 0
     val number = formatter.format(result)
     if (!withUnit) return number
-    val unit = if (isFiat) type.symbol else denomination.getUnicodeString(type.symbol)
+    val unit = if (isFiat) type.symbol else denomination.getUnicodeString(type.displaySymbol)
     return String.format("%s %s", number, unit)
 }
+
+/** [AssetInfo.getSymbol] as shown to the user, see [Util.displaySymbol]. */
+val AssetInfo.displaySymbol: String
+    get() = Util.displaySymbol(symbol)
 
 fun AssetInfo.isBtc(): Boolean {
     return this == BitcoinMain || this == BitcoinTest

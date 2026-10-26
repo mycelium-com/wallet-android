@@ -74,6 +74,18 @@ class ExternalServiceFragment : PreferenceFragmentCompat() {
                         true
                     }
                 })
+                preferenceCategory?.addPreference(CheckBoxPreference(requireActivity()).apply {
+                    title = getString(R.string.settings_exchange_wallet_identity_title)
+                    summary = getString(R.string.settings_exchange_wallet_identity_summary)
+                    layoutResource = R.layout.preference_layout
+                    isChecked = SettingsPreference.exchangeWalletIdentityEnabled
+                    widgetLayoutResource = R.layout.preference_switch
+                    onPreferenceClickListener = Preference.OnPreferenceClickListener { preference: Preference ->
+                        val p = preference as CheckBoxPreference
+                        SettingsPreference.exchangeWalletIdentityEnabled = p.isChecked
+                        true
+                    }
+                })
             }
         }
         findPreference<CheckBoxPreference>("media_flow")?.apply {

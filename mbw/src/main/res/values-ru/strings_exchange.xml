@@ -195,6 +195,8 @@
     <string name="exchange_max_msg">Сумма превышает максимальную допустимую для обмена: %s %s</string>
     <string name="settings_exchange_quick_exchange_title">Подтверждение обмена</string>
     <string name="settings_exchange_quick_exchange_summary">Показывать диалог подтверждения перед обменом</string>
+    <string name="settings_exchange_wallet_identity_title">Отправлять ID кошелька</string>
+    <string name="settings_exchange_wallet_identity_summary">Идентифицировать кошелёк в обменнике подписанным адресом кошелька</string>
     <string name="exchange_accept_dialog_title">Обмен</string>
     <string name="exchange_accept_dialog_msg">Вы отправляете: %s %s\nКомиссия майнеров: %s\n\nВы получаете: %s %s</string>
 <!--    <string name="unredeemed">Неиспользованная карта</string>-->

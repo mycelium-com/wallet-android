@@ -825,7 +825,7 @@ public class MbwManager {
                         }
                     }
                     return null;
-                }));
+                }, configuration::refreshedERC20Label));
 
         TronBlockchainService tronBlockchainService = new TronBlockchainService(configuration.getTronEndpoints());
         configuration.addTronServerListChangedListener(tronBlockchainService);

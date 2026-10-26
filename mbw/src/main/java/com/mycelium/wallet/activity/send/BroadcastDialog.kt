@@ -1,5 +1,6 @@
 package com.mycelium.wallet.activity.send
 
+import com.mycelium.wallet.activity.util.displaySymbol
 import android.app.AlertDialog
 import android.app.Dialog
 import android.os.AsyncTask
@@ -156,7 +157,7 @@ class BroadcastDialog : DialogFragment() {
             } else {
                 // Offer the user to queue the transaction
                 AlertDialog.Builder(activity)
-                        .setTitle(activity!!.getString(R.string.no_server_connection, account.coinType.symbol))
+                        .setTitle(activity!!.getString(R.string.no_server_connection, account.coinType.displaySymbol))
                         .setMessage(R.string.queue_transaction_message)
                         .setPositiveButton(R.string.yes) { textId, listener ->
                             account.queueTransaction(transaction)

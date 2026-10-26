@@ -37,6 +37,19 @@ object Util {
         if (symbolList.contains(symbol.substring(1))) symbol.substring(1)
         else symbol
 
+    /**
+     * Symbol shown to the user. ERC20 USDT keeps its legacy "USDT20" internally — it is the
+     * exchange-rate key, the Changelly ticker and the logo name, and keeps it apart from TRC20
+     * USDT — but reads as plain USDT on screen.
+     */
+    @JvmStatic
+    fun displaySymbol(symbol: String): String =
+        when (symbol) {
+            "USDT20" -> "USDT"
+            "tUSDT20" -> "tUSDT"
+            else -> symbol
+        }
+
     @JvmStatic
     fun addTestnetSymbolDecoration(symbol: String, isTestnet: Boolean): String =
             if (isTestnet) {

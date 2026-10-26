@@ -13,8 +13,7 @@ abstract class EthCoin(id: String?, name: String?, symbol: String?)
 
     /**
      * Whether EIP-1559 (type-2) fees and signing are enabled for this chain.
-     * Off by default → legacy gas price + type-0 signing (unchanged behaviour).
-     * Enabled on testnet first; mainnet stays legacy until validated.
+     * Off by default → legacy gas price + type-0 signing. Enabled on mainnet and Sepolia.
      */
     open val supportsEip1559: Boolean = false
 

@@ -40,7 +40,12 @@ class ERC20Module(
          * otherwise misreport its balance for good, even after the catalogue is
          * corrected.
          */
-        private val catalogueUnitExponent: (String) -> Int? = { null }) : WalletModule(metaDataStorage) {
+        private val catalogueUnitExponent: (String) -> Int? = { null },
+        /**
+         * (contract address, stored label) -> label to use instead, or null to keep the stored one.
+         * Lets the app config rename tokens without stranding accounts on the old default name.
+         */
+        private val refreshedLabel: (String, String) -> String? = { _, _ -> null }) : WalletModule(metaDataStorage) {
     private val accounts = mutableMapOf<UUID, ERC20Account>()
     override val id = ID
     private val ethCoinType = if (networkParameters.isProdnet) EthMain else EthTest
@@ -92,6 +97,16 @@ class ERC20Module(
     override fun loadAccounts(): Map<UUID, WalletAccount<*>> = backing.loadAccountContexts()
             .mapNotNull { accountFromUUID(it.uuid) }
             .associateBy { it.id }
+
+    /** Accounts added before a token was renamed still carry its old default label — refresh those. */
+    override fun afterAccountsLoaded() {
+        accounts.values.forEach { account ->
+            val stored = readLabel(account.id).ifEmpty { account.label }
+            val fresh = refreshedLabel(account.coinType.contractAddress, stored) ?: return@forEach
+            account.label = fresh
+            storeLabel(account.id, fresh)
+        }
+    }
 
     private fun createAccountContext(uuid: UUID, config: ERC20Config? = null): ERC20AccountContext {
         val accountContextInDB = backing.loadAccountContext(uuid)

@@ -5,7 +5,7 @@ import com.mycelium.wapi.wallet.eth.EthBlockchainService
 import com.mycelium.wapi.wallet.eth.EthFeeLevel
 import com.mycelium.wapi.wallet.eth.Eip1559Snapshot
 import com.mycelium.wapi.wallet.eth.Eip1559Tier
-import com.mycelium.wapi.wallet.eth.coins.EthMain
+import com.mycelium.wapi.wallet.eth.coins.EthCoin
 import com.mycelium.wapi.wallet.eth.coins.EthTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
@@ -57,10 +57,24 @@ class LegacyFallbackEstimatesTest {
     fun `legacy chain passes readings through and clears the snapshot`() {
         service.cacheEip1559Fees(Eip1559Snapshot(BigInteger.TEN,
             listOf(Eip1559Tier(EthFeeLevel.LOW, BigInteger.TEN, BigInteger.ONE))))
-        val readings = listOf(v(1), v(2), v(3), v(4)).map { Value.valueOf(EthMain, it.value) }
-        val est = legacyFallbackEstimates(EthMain, readings, service, 1L)
+        val readings = listOf(v(1), v(2), v(3), v(4)).map { Value.valueOf(LegacyEth, it.value) }
+        val est = legacyFallbackEstimates(LegacyEth, readings, service, 1L)
         assertEquals(BigInteger.ONE, est.low.value)
         assertEquals(BigInteger.valueOf(4), est.high.value)
         assertNull(service.lastEip1559Fees())
     }
+
+    @Test
+    fun `legacy chain derives distinct tiers from equal readings`() {
+        // mainnet blockbook on 2026-10-01: the same base-fee reading for every block target
+        val readings = List(4) { Value.valueOf(LegacyEth, 6_276_996_629) }
+        val est = legacyFallbackEstimates(LegacyEth, readings, service, 1L)
+        assertTrue("tiers must differ",
+            est.low.value < est.economy.value && est.economy.value < est.normal.value && est.normal.value < est.high.value)
+        assertTrue("low must not undercut the base fee", est.low.value > BigInteger.valueOf(6_276_996_629))
+        assertNull(service.lastEip1559Fees())
+    }
 }
+
+/** Both real ETH chains sign type-2 now; the legacy path is kept for chains without EIP-1559. */
+private object LegacyEth : EthCoin("ethereum.legacy", "Ethereum legacy", "lETH")

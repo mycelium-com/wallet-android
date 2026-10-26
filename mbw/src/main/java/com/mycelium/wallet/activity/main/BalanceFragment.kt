@@ -1,5 +1,6 @@
 package com.mycelium.wallet.activity.main
 
+import com.mycelium.wallet.activity.util.displaySymbol
 import android.app.Activity
 import android.app.AlertDialog
 import android.content.Context
@@ -291,7 +292,7 @@ class BalanceFragment : Fragment() {
             } else {
                 resources.getString(
                     R.string.balance_rate,
-                    account.coinType.symbol,
+                    account.coinType.displaySymbol,
                     _mbwManager!!.getFiatCurrency(account.coinType).symbol,
                     value.toFriendlyString()
                 )

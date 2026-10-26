@@ -1,5 +1,6 @@
 package com.mycelium.wallet.external.changelly2.adapter
 
+import com.mycelium.wallet.activity.util.displaySymbol
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
@@ -42,7 +43,7 @@ class SelectAccountAdapter : AccountAdapter() {
                 (holder as AddAccountHolder).let {
                     val addAccount = item as AddAccountModel
                     it.binding.label.text = addAccount.coinType.name
-                    it.binding.coinType.text = addAccount.coinType.symbol
+                    it.binding.coinType.text = addAccount.coinType.displaySymbol
                     it.binding.root.setOnClickListener {
                         addAccountListener?.invoke(addAccount.coinType)
                     }

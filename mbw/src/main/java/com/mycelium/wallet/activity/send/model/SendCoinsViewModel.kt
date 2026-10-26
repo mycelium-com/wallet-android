@@ -1,5 +1,6 @@
 package com.mycelium.wallet.activity.send.model
 
+import com.mycelium.wallet.activity.util.displaySymbol
 import android.app.Activity
 import android.app.Application
 import android.app.ProgressDialog
@@ -116,7 +117,7 @@ abstract class SendCoinsViewModel(application: Application) : AndroidViewModel(a
 
     open fun init(account: WalletAccount<*>, intent: Intent) {
         amountHint = context.getString(R.string.amount_hint_denomination,
-                mbwManager.getDenomination(account.coinType).getUnicodeString(account.coinType.symbol))
+                mbwManager.getDenomination(account.coinType).getUnicodeString(account.coinType.displaySymbol))
 
         MbwManager.getEventBus().register(eventListener)
     }

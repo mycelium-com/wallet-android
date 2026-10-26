@@ -1,5 +1,6 @@
 package com.mycelium.wallet.activity
 
+import com.mycelium.wallet.activity.util.displaySymbol
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.AlertDialog
@@ -209,11 +210,11 @@ class GetAmountActivity : AppCompatActivity(), NumberEntryListener {
             val currencyListMenu = PopupMenu(this, view)
             val cryptocurrencies = _mbwManager!!.getWalletManager(false).getCryptocurrenciesSymbols()
             currencyList.forEach { asset ->
-                var itemTitle = asset.symbol
+                var itemTitle = asset.displaySymbol
                 // we want to display cryptocurrency items as "Symbol (denomination if it differs from UNIT)", e.g. "BTC (bits)"
                 val denomination = _mbwManager!!.getDenomination(viewModel.account!!.coinType)
                 if (cryptocurrencies.contains(asset.symbol) && denomination !== Denomination.UNIT) {
-                    itemTitle += " (" + denomination.getUnicodeString(asset.symbol) + ")"
+                    itemTitle += " (" + denomination.getUnicodeString(asset.displaySymbol) + ")"
                 }
                 currencyListMenu.menu.add(Menu.NONE, asset.hashCode(), Menu.NONE, itemTitle)
             }

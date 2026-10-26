@@ -22,6 +22,7 @@ object SettingsPreference {
     private const val BALANCE_KEY = "balance"
     private const val PARTNER_ENABLED = "partner-enabled"
     private const val EXCHANGE_CONFIRMATION_ENABLE = "exchange_confiramation_enable"
+    private const val EXCHANGE_WALLET_IDENTITY_ENABLE = "exchange_wallet_identity_enable"
     private val sharedPreferences: SharedPreferences = WalletApplication.getInstance().getSharedPreferences(Constants.SETTINGS_NAME, Context.MODE_PRIVATE)
     private val gson by lazy {
         GsonBuilder().setDateFormat("yyyy-MM-dd'T'HH:mm:ssZ").create()
@@ -45,6 +46,11 @@ object SettingsPreference {
     var exchangeConfirmationEnabled
         get() = sharedPreferences.getBoolean(EXCHANGE_CONFIRMATION_ENABLE, false)
         set(value) = sharedPreferences.edit().putBoolean(EXCHANGE_CONFIRMATION_ENABLE, value).apply()
+
+    @JvmStatic
+    var exchangeWalletIdentityEnabled
+        get() = sharedPreferences.getBoolean(EXCHANGE_WALLET_IDENTITY_ENABLE, true)
+        set(value) = sharedPreferences.edit().putBoolean(EXCHANGE_WALLET_IDENTITY_ENABLE, value).apply()
 
 
     fun getPartnersHeaderTitle(): String? = getPartnersLocalized()?.title

@@ -1,5 +1,6 @@
 package com.mycelium.wallet.activity.receive
 
+import com.mycelium.wallet.activity.util.displaySymbol
 import android.app.Activity
 import android.app.Application
 import android.content.Context
@@ -51,7 +52,7 @@ abstract class ReceiveCoinsViewModel(application: Application) : AndroidViewMode
     }
 
     open fun getHint(): String = context.getString(R.string.amount_hint_denomination,
-            mbwManager.getDenomination(account.coinType).getUnicodeString(account.coinType.symbol))
+            mbwManager.getDenomination(account.coinType).getUnicodeString(account.coinType.displaySymbol))
 
     abstract fun getFormattedValue(sum: Value): String
 
@@ -59,7 +60,7 @@ abstract class ReceiveCoinsViewModel(application: Application) : AndroidViewMode
 
     abstract fun getCurrencyName(): String
 
-    fun getCurrencySymbol():String = account.coinType.symbol
+    fun getCurrencySymbol():String = account.coinType.displaySymbol
 
     override fun onCleared() = model.onCleared()
 

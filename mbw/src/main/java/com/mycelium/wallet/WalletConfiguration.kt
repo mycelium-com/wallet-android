@@ -373,10 +373,18 @@ class WalletConfiguration(private val prefs: SharedPreferences,
      * of their own — a manual name is never overwritten. The " (n)" suffix the module
      * adds for a second account of the same token is carried over.
      */
-    fun refreshedTRC20Label(contractAddress: String, storedLabel: String): String? {
+    fun refreshedTRC20Label(contractAddress: String, storedLabel: String): String? =
+        refreshedLabel(TRC20_TOKENS, contractAddress, storedLabel, ignoreCase = false)
+
+    /** [refreshedTRC20Label] for ERC20 accounts (hex contract addresses, compared case-insensitively). */
+    fun refreshedERC20Label(contractAddress: String, storedLabel: String): String? =
+        refreshedLabel(TOKENS, contractAddress, storedLabel, ignoreCase = true)
+
+    private fun refreshedLabel(tokens: List<TokenData>, contractAddress: String, storedLabel: String,
+                               ignoreCase: Boolean): String? {
         val namePostfix = if (Utils.isProdnet()) "" else " test"
-        val token = TRC20_TOKENS.firstOrNull {
-            contractAddress == (if (Utils.isProdnet()) it.prodAddress else it.testnetAddress)
+        val token = tokens.firstOrNull {
+            contractAddress.equals(if (Utils.isProdnet()) it.prodAddress else it.testnetAddress, ignoreCase)
         } ?: return null
         val current = token.name + namePostfix
         if (storedLabel == current) return null
@@ -403,8 +411,8 @@ class WalletConfiguration(private val prefs: SharedPreferences,
 
         // TRC20 tokens (contract addresses on TRON mainnet; testnet = Nile)
         val TRC20_TOKENS = listOf(
-            TokenData("Tether USDT", "USDT", 6, "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t", "TXYZopYRdj2D9XRtbG411XZZ3kM5VkAeBf",
-                legacyNames = listOf("Tether USD")),
+            TokenData("USDT", "USDT", 6, "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t", "TXYZopYRdj2D9XRtbG411XZZ3kM5VkAeBf",
+                legacyNames = listOf("Tether USD", "Tether USDT")),
             TokenData("USD Coin", "USDC", 6, "TEkxiTehnzSmSe2XqrBj4w32RUN966rdz8"),
             TokenData("USD1", "USD1", 18, "TPFqcBAaaUMCSVRCqPaQ9QnzKhmuoLR6Rc", "TNuoKL1ni8aoshfFL1ASca1Gou9RXwAzfn"),
             TokenData("Decentralized USD", "USDD", 18, "TXDk8mbtRbXeYuMNS83CfKPaYYT8XWv9Hz"),
@@ -426,10 +434,11 @@ class WalletConfiguration(private val prefs: SharedPreferences,
                 //            TokenData("YEENUS", "YEENUS", 8, "0x187E63F9eBA692A0ac98d3edE6fEb870AF0079e1", "0xc6fDe3FD2Cc2b173aEC24cc3f267cb3Cd78a26B7"),
             TokenData("0x", "ZRX", 18, "0xe41d2489571d322189246dafa5ebde1f4699f498"),
             TokenData(
-                "Tether USD(ERC20)", "USDT20",
+                "USDT", "USDT20",
                 6,
                 "0xdac17f958d2ee523a2206206994597c13d831ec7",
-                "0xaA8E23Fb1079EA71e0a56F48a2aA51851D8433D0"
+                "0xaA8E23Fb1079EA71e0a56F48a2aA51851D8433D0",
+                legacyNames = listOf("Tether USD(ERC20)")
             ),
             TokenData(
                 "USD Coin",
