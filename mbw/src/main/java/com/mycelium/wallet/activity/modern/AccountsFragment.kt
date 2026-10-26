@@ -479,8 +479,9 @@ class AccountsFragment : Fragment() {
                 keepAddrCheckbox.text = getString(R.string.delete_private_key_checkbox)
                 keepAddrCheckbox.isChecked = false
 
-                val balance = Preconditions.checkNotNull<Balance>(accountToDelete!!.accountBalance)
-                val valueString = getBalanceString(accountToDelete.coinType, balance)
+                // an archived account throws on balance access
+                val valueString = if (accountToDelete!!.isArchived) "?"
+                    else getBalanceString(accountToDelete.coinType, accountToDelete.accountBalance)
                 val deleteDialog2 = AlertDialog.Builder(requireActivity())
                     .setMessage(
                         Html.fromHtml(

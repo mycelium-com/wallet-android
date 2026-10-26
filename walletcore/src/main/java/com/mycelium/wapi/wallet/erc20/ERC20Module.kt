@@ -42,10 +42,10 @@ class ERC20Module(
          */
         private val catalogueUnitExponent: (String) -> Int? = { null },
         /**
-         * (contract address, stored label) -> label to use instead, or null to keep the stored one.
-         * Lets the app config rename tokens without stranding accounts on the old default name.
+         * (contract address, stored label) -> whether that label is a default name the app once gave
+         * the token (so it is relabelled to the current scheme) rather than one the user chose.
          */
-        private val refreshedLabel: (String, String) -> String? = { _, _ -> null }) : WalletModule(metaDataStorage) {
+        private val isDefaultLabel: (String, String) -> Boolean = { _, _ -> false }) : WalletModule(metaDataStorage) {
     private val accounts = mutableMapOf<UUID, ERC20Account>()
     override val id = ID
     private val ethCoinType = if (networkParameters.isProdnet) EthMain else EthTest
@@ -60,10 +60,9 @@ class ERC20Module(
                     Credentials.create(Keys.deserialize(secureStore.getDecryptedValue(
                         config.ethAccount.id.toString().toByteArray(), AesKeyCipher.defaultKeyCipher()))) else null
                 val token = config.token as ERC20Token
-                baseLabel = token.name
-
                 val uuid = UUID(BitUtils.uint64ToLong(HexUtils.toBytes(token.contractAddress.substring(2)), 0),
                         config.ethAccount.id.mostSignificantBits)
+                baseLabel = tokenLabel(defaultLabel(token), accounts.filterKeys { it != uuid }.values.map { it.label })
                 val accountContext = createAccountContext(uuid, config)
                 backing.createAccountContext(accountContext.uuid, accountContext)
                 val accountBacking = EthAccountBacking(walletDB, accountContext.uuid, ethCoinType, token)
@@ -73,7 +72,7 @@ class ERC20Module(
             else -> throw NotImplementedError("Unknown config")
         }
         accounts[result.id] = result
-        result.label = config.token.name
+        result.label = baseLabel
         storeLabel(result.id, baseLabel)
         return result
     }
@@ -98,11 +97,15 @@ class ERC20Module(
             .mapNotNull { accountFromUUID(it.uuid) }
             .associateBy { it.id }
 
-    /** Accounts added before a token was renamed still carry its old default label — refresh those. */
+    private fun defaultLabel(token: ERC20Token) = "${Util.displaySymbol(token.symbol)}(ERC20)"
+
+    /** Accounts still carrying an old default label ("USDT", "Tether USD(ERC20)"…) move to the "USDT(ERC20)" scheme. */
     override fun afterAccountsLoaded() {
         accounts.values.forEach { account ->
             val stored = readLabel(account.id).ifEmpty { account.label }
-            val fresh = refreshedLabel(account.coinType.contractAddress, stored) ?: return@forEach
+            if (!isDefaultLabel(account.coinType.contractAddress, stored)) return@forEach
+            val others = accounts.values.filter { it !== account }.map { it.label }
+            val fresh = tokenLabel(defaultLabel(account.coinType), others)
             account.label = fresh
             storeLabel(account.id, fresh)
         }

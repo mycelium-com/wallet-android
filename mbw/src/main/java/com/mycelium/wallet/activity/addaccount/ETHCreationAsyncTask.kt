@@ -21,7 +21,7 @@ class ETHCreationAsyncTask(val mbwManager: MbwManager,
         startListener()
     }
 
-    // empty when the module refuses (an unused ETH account already exists)
+    // null if account creation failed
     override fun doInBackground(vararg params: Void?): UUID? =
             mbwManager.getWalletManager(false)
                     .createAccounts(EthereumMasterseedConfig()).firstOrNull()

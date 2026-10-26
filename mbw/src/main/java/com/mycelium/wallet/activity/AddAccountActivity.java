@@ -81,8 +81,6 @@ import com.mycelium.wapi.wallet.btc.bip44.AdditionalHDAccountConfig;
 import com.mycelium.wapi.wallet.btc.bip44.BitcoinHDModule;
 import com.mycelium.wapi.wallet.erc20.coins.ERC20Token;
 import com.mycelium.wapi.wallet.eth.EthAccount;
-import com.mycelium.wapi.wallet.eth.EthereumMasterseedConfig;
-import com.mycelium.wapi.wallet.eth.EthereumModule;
 import com.mycelium.wapi.wallet.eth.EthereumModuleKt;
 
 import java.util.ArrayList;
@@ -141,16 +139,8 @@ public class AddAccountActivity extends AppCompatActivity {
             _mbwManager.runPinProtectedFunction(AddAccountActivity.this, new Runnable() {
                 @Override
                 public void run() {
-                    final WalletManager wallet = _mbwManager.getWalletManager(false);
                     // at this point, we have to have a master seed, since we created one on startup
                     Preconditions.checkState(_mbwManager.getMasterSeedManager().hasBip32MasterSeed());
-
-                    boolean canCreateAccount = wallet.getModuleById(EthereumModule.ID).canCreateAccount(new EthereumMasterseedConfig());
-                    if (!canCreateAccount) {
-                        // TODO replace with string res
-                        _toaster.toast(R.string.use_eth_acc_first, false);
-                        return;
-                    }
 
                     if (ethCreationAsyncTask == null || ethCreationAsyncTask.getStatus() != AsyncTask.Status.RUNNING) {
                         ethCreationAsyncTask = new ETHCreationAsyncTask(_mbwManager,
@@ -288,11 +278,6 @@ public class AddAccountActivity extends AppCompatActivity {
                     int selected = arrayAdapter.getSelected();
                     if (selected == arrayAdapter.getCount() - 1) {
                         // "Create new account" item
-                        if (!_mbwManager.getWalletManager(false).getModuleById(EthereumModule.ID)
-                                .canCreateAccount(new EthereumMasterseedConfig())) {
-                            _toaster.toast(R.string.use_eth_acc_first, false);
-                            return;
-                        }
                         showERC20TokensOptions(null);
                     } else {
                         UUID ethAccountId = accounts.get(selected).getId();

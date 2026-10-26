@@ -5,6 +5,7 @@ import com.mrd.bitlib.util.BitUtils
 import com.mycelium.generated.wallet.database.WalletDB
 import com.mycelium.wapi.wallet.AccountListener
 import com.mycelium.wapi.wallet.KeyCipher
+import com.mycelium.wapi.wallet.Util
 import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.WalletManager
 import com.mycelium.wapi.wallet.coins.Balance
@@ -31,10 +32,10 @@ class TRC20Module(
     private val accountListener: AccountListener?,
     private val tronModule: TronModule,
     /**
-     * (contract address, stored label) -> label to use instead, or null to keep the stored one.
-     * Lets the app config rename tokens without stranding accounts on the old default name.
+     * (contract address, stored label) -> whether that label is a default name the app once gave
+     * the token (so it is relabelled to the current scheme) rather than one the user chose.
      */
-    private val refreshedLabel: (String, String) -> String? = { _, _ -> null },
+    private val isDefaultLabel: (String, String) -> Boolean = { _, _ -> false },
 ) : WalletModule(metaDataStorage) {
     private val accounts = mutableMapOf<UUID, TRC20Account>()
     override val id = ID
@@ -47,9 +48,9 @@ class TRC20Module(
             is TRC20Config -> {
                 val token = config.token as TRC20Token
                 val tronAccount = config.tronAccount
-                baseLabel = token.name
                 val uuid = accountId(token, tronAccount)
                 accounts[uuid]?.let { return it }
+                baseLabel = tokenLabel(defaultLabel(token), accounts.values.map { it.label })
                 val credentials = tronModule.credentialsOf(tronAccount)
                 val accountContext = createAccountContext(uuid, config)
                 backing.createAccountContext(accountContext.uuid, accountContext)
@@ -96,11 +97,15 @@ class TRC20Module(
         .mapNotNull { accountFromUUID(it.uuid) }
         .associateBy { it.id }
 
-    /** Accounts added before a token was renamed still carry its old default label — refresh those. */
+    private fun defaultLabel(token: TRC20Token) = "${Util.displaySymbol(token.symbol)}(TRC20)"
+
+    /** Accounts still carrying an old default label ("USDT", "Tether USD"…) move to the "USDT(TRC20)" scheme. */
     override fun afterAccountsLoaded() {
         accounts.values.forEach { account ->
             val stored = readLabel(account.id).ifEmpty { account.label }
-            val fresh = refreshedLabel(account.contractAddress, stored) ?: return@forEach
+            if (!isDefaultLabel(account.contractAddress, stored)) return@forEach
+            val others = accounts.values.filter { it !== account }.map { it.label }
+            val fresh = tokenLabel(defaultLabel(account.coinType), others)
             account.label = fresh
             storeLabel(account.id, fresh)
         }

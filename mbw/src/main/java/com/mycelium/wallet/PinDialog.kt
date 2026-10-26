@@ -29,7 +29,10 @@ open class PinDialog(context: Context, val hidden: Boolean, val cancelable: Bool
                 numpadBinding?.pinFinger?.isVisible = false
                 twoFactorHelper.fingerprintSuccess()
             } else {
-                dismiss()
+                // the biometric result can arrive after the host activity is gone
+                if (isShowing && hostActivity?.isDestroyed != true) {
+                    dismiss()
+                }
                 if (fingerprintCallback != null) {
                     fingerprintCallback!!.onSuccess()
                 }

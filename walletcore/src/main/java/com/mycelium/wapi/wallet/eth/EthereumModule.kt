@@ -62,12 +62,8 @@ class EthereumModule(
             backing.loadAccountContexts()
                     .associateBy({ it.uuid }, { ethAccountFromUUID(it.uuid) })
 
-    override fun canCreateAccount(config: Config) = when (config) {
-        // like BTC HD: no second masterseed-derived account while an unused one exists
-        is EthereumMasterseedConfig -> accounts.values.none { it.isDerivedFromInternalMasterseed() && !it.hasHadActivity() }
-        is EthAddressConfig -> true
-        else -> false
-    }
+    override fun canCreateAccount(config: Config) = config is EthereumMasterseedConfig
+            || config is EthAddressConfig
 
     override fun createAccount(config: Config): WalletAccount<*> {
         val result: WalletAccount<*>

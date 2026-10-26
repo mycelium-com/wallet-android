@@ -368,34 +368,27 @@ class WalletConfiguration(private val prefs: SharedPreferences,
     }
 
     /**
-     * Label a TRC20 account should carry now, when the one it stored is a default the token no
-     * longer uses (it was renamed). Null when the label is already current or the user chose one
-     * of their own — a manual name is never overwritten. The " (n)" suffix the module
-     * adds for a second account of the same token is carried over.
+     * Whether a TRC20 account's stored label is a default the app gave it before labels became
+     * "USDT(TRC20)": the token's name or one of its [TokenData.legacyNames], possibly with a
+     * " (n)" counter. Anything else is the user's own name and is never overwritten.
      */
-    fun refreshedTRC20Label(contractAddress: String, storedLabel: String): String? =
-        refreshedLabel(TRC20_TOKENS, contractAddress, storedLabel, ignoreCase = false)
+    fun isDefaultTRC20Label(contractAddress: String, storedLabel: String): Boolean =
+        isDefaultLabel(TRC20_TOKENS, contractAddress, storedLabel, ignoreCase = false)
 
-    /** [refreshedTRC20Label] for ERC20 accounts (hex contract addresses, compared case-insensitively). */
-    fun refreshedERC20Label(contractAddress: String, storedLabel: String): String? =
-        refreshedLabel(TOKENS, contractAddress, storedLabel, ignoreCase = true)
+    /** [isDefaultTRC20Label] for ERC20 accounts (hex contract addresses, compared case-insensitively). */
+    fun isDefaultERC20Label(contractAddress: String, storedLabel: String): Boolean =
+        isDefaultLabel(TOKENS, contractAddress, storedLabel, ignoreCase = true)
 
-    private fun refreshedLabel(tokens: List<TokenData>, contractAddress: String, storedLabel: String,
-                               ignoreCase: Boolean): String? {
+    private fun isDefaultLabel(tokens: List<TokenData>, contractAddress: String, storedLabel: String,
+                               ignoreCase: Boolean): Boolean {
         val namePostfix = if (Utils.isProdnet()) "" else " test"
         val token = tokens.firstOrNull {
             contractAddress.equals(if (Utils.isProdnet()) it.prodAddress else it.testnetAddress, ignoreCase)
-        } ?: return null
-        val current = token.name + namePostfix
-        if (storedLabel == current) return null
-        token.legacyNames.forEach { legacy ->
-            val legacyLabel = legacy + namePostfix
-            if (storedLabel == legacyLabel) return current
-            Regex("^" + Regex.escape(legacyLabel) + " \\((\\d+)\\)$").find(storedLabel)?.let {
-                return "$current (${it.groupValues[1]})"
-            }
+        } ?: return false
+        return (listOf(token.name) + token.legacyNames).any { name ->
+            val default = name + namePostfix
+            storedLabel == default || Regex("^" + Regex.escape(default) + " \\(\\d+\\)$").matches(storedLabel)
         }
-        return null
     }
 
     companion object {

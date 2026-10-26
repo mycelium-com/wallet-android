@@ -582,8 +582,11 @@ class StartupActivity : AppCompatActivity(), AccountCreationObserver {
                     initMasterSeed()
                     return
                 }
-                //finish initialization
-                delayedFinish.run()
+                //finish initialization; after a process death delayedInitialization is still running
+                // and posts delayedFinish itself once MbwManager is ready
+                if (_mbwManager != null) {
+                    delayedFinish.run()
+                }
                 return
             }
 

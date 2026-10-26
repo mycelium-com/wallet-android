@@ -825,7 +825,7 @@ public class MbwManager {
                         }
                     }
                     return null;
-                }, configuration::refreshedERC20Label));
+                }, configuration::isDefaultERC20Label));
 
         TronBlockchainService tronBlockchainService = new TronBlockchainService(configuration.getTronEndpoints());
         configuration.addTronServerListChangedListener(tronBlockchainService);
@@ -836,7 +836,7 @@ public class MbwManager {
         walletManager.getFeeEstimations().addProvider(new TronFeeProvider(isTestnet));
         walletManager.add(new TRC20Module(new TRC20Backing(db, genericBacking), walletDB, tronBlockchainService,
                 networkParameters, getMetadataStorage(), accountListener, tronModule,
-                configuration::refreshedTRC20Label));
+                configuration::isDefaultTRC20Label));
         energyServiceManager = new EnergyServiceManager(
                 new EnergyServiceClient(new EnergyServiceConfig(BuildConfig.EnergyServiceUrl, BuildConfig.EnergyServiceApiKey),
                         "MyceliumWallet/" + BuildConfig.VERSION_NAME + " (android)", Locale.getDefault().getLanguage()),

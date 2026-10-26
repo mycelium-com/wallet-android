@@ -30,6 +30,12 @@ abstract class WalletModule(private val metaDataStorage: IMetaDataStorage) {
         return defaultName
     }
 
+    /** Token account label: "USDT(ERC20)", then "USDT(ERC20) 2", "USDT(ERC20) 3"… — the first not in [taken]. */
+    protected fun tokenLabel(baseName: String, taken: Collection<String>): String =
+        generateSequence(1) { it + 1 }
+            .map { if (it == 1) baseName else "$baseName $it" }
+            .first { it !in taken }
+
     fun storeLabel(accountId: UUID, label: String): String {
         val metadataKeyCategory = MetadataCategory("al")
         metaDataStorage.storeKeyCategoryValueEntry(metadataKeyCategory.of(accountId.toString()), label)
