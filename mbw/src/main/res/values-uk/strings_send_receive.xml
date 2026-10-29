@@ -257,6 +257,9 @@ BTC-Pay Server, гаманець, перевіряючи лише 20 майбу�
     <string name="cancel_eth_tx_loading">Оцінка комісії за скасування…</string>
     <string name="cancel_eth_tx_new_fee">Комісія за скасування</string>
     <string name="cancel_eth_tx_no_connection">Немає з\'єднання з сервером. Спробуйте пізніше.</string>
+    <string name="cancel_eth_tx_queue_blocked">Попередня транзакція (nonce %1$s) має комісію нижчу за поточну комісію мережі й не може бути включена в блок. Транзакції підтверджуються по черзі, тож це скасування чекатиме за нею. Спочатку скасуйте попередню.</string>
+    <string name="cancel_eth_tx_cancel_blocking">Спочатку скасуйте nonce %1$s</string>
+    <string name="send_eth_stuck_queue_warning">Ваша попередня транзакція (nonce %1$s) має комісію нижчу за поточну комісію мережі й застрягла. Нове надсилання чекатиме за нею. Спочатку скасуйте її в історії транзакцій.</string>
     <string name="cancel_eth_tx_old_fee">Початкова комісія</string>
     <string name="cancel_eth_tx_recipient">Початковий отримувач</string>
     <string name="cancel_eth_tx_success">Скасування надіслано.</string>

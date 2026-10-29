@@ -82,6 +82,9 @@
     <string name="cancel_eth_tx_loading">Szacowanie prowizji za anulowanie…</string>
     <string name="cancel_eth_tx_new_fee">Prowizja za anulowanie</string>
     <string name="cancel_eth_tx_no_connection">Brak połączenia z serwerem. Spróbuj ponownie później.</string>
+    <string name="cancel_eth_tx_queue_blocked">Wcześniejsza transakcja (nonce %1$s) ma prowizję niższą niż obecna prowizja sieciowa i nie może zostać wydobyta. Transakcje są potwierdzane po kolei, więc to anulowanie czekałoby za nią. Najpierw anuluj wcześniejszą transakcję.</string>
+    <string name="cancel_eth_tx_cancel_blocking">Najpierw anuluj nonce %1$s</string>
+    <string name="send_eth_stuck_queue_warning">Twoja wcześniejsza transakcja (nonce %1$s) ma prowizję niższą niż obecna prowizja sieciowa i utknęła. Nowa wysyłka będzie czekać za nią. Najpierw anuluj ją w historii transakcji.</string>
     <string name="cancel_eth_tx_old_fee">Pierwotna prowizja</string>
     <string name="cancel_eth_tx_recipient">Pierwotny odbiorca</string>
     <string name="cancel_eth_tx_success">Anulowanie rozgłoszone.</string>

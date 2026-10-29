@@ -103,6 +103,9 @@
     <string name="cancel_eth_tx_loading">Изчисляване на таксата за отмяна…</string>
     <string name="cancel_eth_tx_new_fee">Такса за отмяна</string>
     <string name="cancel_eth_tx_no_connection">Няма връзка със сървъра. Опитайте отново по-късно.</string>
+    <string name="cancel_eth_tx_queue_blocked">По-ранна транзакция (nonce %1$s) е с такса под текущата мрежова такса и не може да бъде потвърдена. Транзакциите се потвърждават по ред, така че тази отмяна ще чака след нея. Първо отменете по-ранната.</string>
+    <string name="cancel_eth_tx_cancel_blocking">Първо отменете nonce %1$s</string>
+    <string name="send_eth_stuck_queue_warning">Вашата по-ранна транзакция (nonce %1$s) е с такса под текущата мрежова такса и е блокирала. Ново изпращане ще чака след нея. Първо я отменете от историята на транзакциите.</string>
     <string name="cancel_eth_tx_old_fee">Първоначална такса</string>
     <string name="cancel_eth_tx_recipient">Първоначален получател</string>
     <string name="cancel_eth_tx_success">Отмяната е излъчена.</string>

@@ -135,6 +135,9 @@
     <string name="cancel_eth_tx_loading">Estimando comisión de cancelación…</string>
     <string name="cancel_eth_tx_new_fee">Comisión de cancelación</string>
     <string name="cancel_eth_tx_no_connection">Sin conexión al servidor. Inténtelo de nuevo más tarde.</string>
+    <string name="cancel_eth_tx_queue_blocked">Una transacción anterior (nonce %1$s) tiene una comisión inferior a la comisión actual de la red y no puede minarse. Las transacciones se confirman en orden, por lo que esta cancelación esperaría detrás de ella. Cancele primero la anterior.</string>
+    <string name="cancel_eth_tx_cancel_blocking">Cancelar primero el nonce %1$s</string>
+    <string name="send_eth_stuck_queue_warning">Su transacción anterior (nonce %1$s) tiene una comisión inferior a la comisión actual de la red y está atascada. Un nuevo envío esperará detrás de ella. Cancélela primero desde el historial de transacciones.</string>
     <string name="cancel_eth_tx_old_fee">Comisión original</string>
     <string name="cancel_eth_tx_recipient">Destinatario original</string>
     <string name="cancel_eth_tx_success">Cancelación transmitida.</string>

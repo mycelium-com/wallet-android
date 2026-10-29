@@ -294,6 +294,10 @@ class GetAmountActivity : AppCompatActivity(), NumberEntryListener {
     }
 
     private fun updateERC20RelatedUI() {
+        // Gas paid in the token through the paymaster: the parent ETH balance plays no part.
+        if ((txData as? EthTransactionData)?.tokenFee != null) {
+            return
+        }
         (viewModel.account as? ERC20Account)?.ethAcc?.let { parentEthAccount ->
             val gasLimit = (txData as? EthTransactionData)?.gasLimit
                 ?: BigInteger.valueOf(TOKEN_TRANSFER_GAS_LIMIT)

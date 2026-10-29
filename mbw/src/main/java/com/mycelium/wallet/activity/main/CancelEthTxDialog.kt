@@ -5,6 +5,7 @@ import android.view.View
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
+import com.mrd.bitlib.util.HexUtils
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.modern.Toaster
@@ -19,6 +20,7 @@ import com.mycelium.wapi.wallet.SyncMode
 import com.mycelium.wapi.wallet.erc20.ERC20Account
 import com.mycelium.wapi.wallet.eth.AbstractEthERC20Account
 import com.mycelium.wapi.wallet.eth.CancelEstimate
+import com.mycelium.wapi.wallet.eth.EthTxStatus
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -63,6 +65,7 @@ object CancelEthTxDialog {
                     return@launch
                 }
                 populate(binding, account, record, estimate)
+                showQueueBlocker(fragment, dialog, binding, account, record)
 
                 if (!estimate.hasEnoughEth) {
                     binding.tvInsufficientEth.visibility = View.VISIBLE
@@ -111,6 +114,39 @@ object CancelEthTxDialog {
             estimate.newFee.toStringWithUnit(ethDenomination))
         bindRow(binding.rowEthBalance, ctx.getString(R.string.cancel_eth_tx_eth_balance),
             estimate.ethSpendable.toStringWithUnit(ethDenomination))
+    }
+
+    /**
+     * Txs mine in nonce order: while an earlier one is priced under the base fee, this cancel
+     * waits behind it as long as it does (2026-10-26: cancels of 27–29 behind a stuck 26). Says
+     * so, and offers to cancel the earlier one when its record is on this device.
+     */
+    private suspend fun showQueueBlocker(
+        fragment: Fragment,
+        dialog: AlertDialog,
+        binding: DialogCancelEthTxBinding,
+        account: AbstractEthERC20Account,
+        record: EthTransactionSummary,
+    ) {
+        val nonce = record.nonce ?: return
+        val blocker = account.findStuckQueueTx(beforeNonce = nonce) ?: return
+        if (!fragment.isAdded || !dialog.isShowing) return
+        val ctx = binding.root.context
+        binding.tvQueueBlocked.text = ctx.getString(R.string.cancel_eth_tx_queue_blocked, blocker.nonce.toString())
+        binding.tvQueueBlocked.visibility = View.VISIBLE
+
+        // ERC20 cancels and sends of the same address also live in the parent ETH account.
+        val txId = HexUtils.toBytes(blocker.txid.removePrefix("0x"))
+        val owner = listOfNotNull(account, (account as? ERC20Account)?.ethAcc)
+            .firstOrNull { (it.getTxSummary(txId) as? EthTransactionSummary)?.status == EthTxStatus.PENDING }
+            ?: return
+        val blockerRecord = owner.getTxSummary(txId) as EthTransactionSummary
+        binding.btnCancelBlocking.text = ctx.getString(R.string.cancel_eth_tx_cancel_blocking, blocker.nonce.toString())
+        binding.btnCancelBlocking.visibility = View.VISIBLE
+        binding.btnCancelBlocking.setOnClickListener {
+            dialog.dismiss()
+            show(fragment, owner, blockerRecord)
+        }
     }
 
     private fun bindRow(rowBinding: RowCancelEthTxBinding, label: String, value: String) {

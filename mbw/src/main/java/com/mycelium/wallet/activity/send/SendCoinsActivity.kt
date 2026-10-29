@@ -432,6 +432,8 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener, AmountLi
                                                                     estimatedFee.toStringFriendlyWithUnit(getDenomination()), convert(estimatedFee)))
                                     })
                                     getTotalFee().observe(this@SendCoinsActivity, Observer { totalFee ->
+                                        // gas paid in the token: the parent ETH balance is not involved
+                                        if (getFeeMode().value == EthFeeMode.TOKEN) return@Observer
                                         val parentAccountBalance = getParentAccount()!!.accountBalance.spendable
                                         if (parentAccountBalance.lessThan(totalFee)) {
                                             val diff = totalFee - parentAccountBalance
@@ -459,6 +461,21 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener, AmountLi
                                     }
                                     bindingAdvBlock?.tvTxOptionsLabel?.text = Html.fromHtml(getString(R.string.edit_gas_limit_advanced_users))
                                     bindingAdvBlock?.icEditGasInfo?.visibility = View.VISIBLE
+                                    // Paying gas in the token (UserOperation): ETH fee texts, the
+                                    // top-up hint and nonce/gas options describe the other mode.
+                                    getFeeMode().observe(this@SendCoinsActivity, Observer { mode ->
+                                        val tokenMode = mode == EthFeeMode.TOKEN
+                                        if (tokenMode) {
+                                            isAdvancedBlockExpanded.value = false
+                                            binding.tvHighestPossibleFeeInfo.visibility = View.GONE
+                                            binding.tvThisIsUpdatedFee.visibility = View.GONE
+                                            binding.llNotEnoughEth.visibility = View.GONE
+                                        } else {
+                                            binding.tvHighestPossibleFeeInfo.visibility = View.VISIBLE
+                                            getTotalFee().value?.let { getTotalFee().value = it } // re-evaluate the ETH top-up hint
+                                        }
+                                        binding.layoutSendAdvBlock.root.visibility = if (tokenMode) View.GONE else View.VISIBLE
+                                    })
                                 } else {
                                     bindingAdvBlock?.tvTxOptionsLabel?.text = Html.fromHtml(getString(R.string.transaction_options_advanced_users))
                                     bindingAdvEth?.icInfoGasLimit?.visibility = View.VISIBLE

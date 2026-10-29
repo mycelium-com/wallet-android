@@ -133,6 +133,9 @@
     <string name="cancel_eth_tx_loading">Caricamento dei dati della transazione...</string>
     <string name="cancel_eth_tx_new_fee">Nuova commissione</string>
     <string name="cancel_eth_tx_no_connection">Nessuna connessione di rete</string>
+    <string name="cancel_eth_tx_queue_blocked">Una transazione precedente (nonce %1$s) ha una commissione inferiore alla commissione di rete attuale e non può essere minata. Le transazioni vengono confermate in ordine, quindi questo annullamento resterebbe in attesa dietro di essa. Annulla prima quella precedente.</string>
+    <string name="cancel_eth_tx_cancel_blocking">Annulla prima il nonce %1$s</string>
+    <string name="send_eth_stuck_queue_warning">La tua transazione precedente (nonce %1$s) ha una commissione inferiore alla commissione di rete attuale ed è bloccata. Un nuovo invio resterà in attesa dietro di essa. Annullala prima dalla cronologia delle transazioni.</string>
     <string name="cancel_eth_tx_old_fee">Commissione originale</string>
     <string name="cancel_eth_tx_recipient">Destinatario</string>
     <string name="cancel_eth_tx_success">Transazione di annullamento inviata</string>

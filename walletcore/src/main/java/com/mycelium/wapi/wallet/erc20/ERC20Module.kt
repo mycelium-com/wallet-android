@@ -62,7 +62,8 @@ class ERC20Module(
                 val token = config.token as ERC20Token
                 val uuid = UUID(BitUtils.uint64ToLong(HexUtils.toBytes(token.contractAddress.substring(2)), 0),
                         config.ethAccount.id.mostSignificantBits)
-                baseLabel = tokenLabel(defaultLabel(token), accounts.filterKeys { it != uuid }.values.map { it.label })
+                baseLabel = tokenLabel(defaultLabel(token), config.ethAccount.accountIndex,
+                        accounts.filterKeys { it != uuid }.values.map { it.label })
                 val accountContext = createAccountContext(uuid, config)
                 backing.createAccountContext(accountContext.uuid, accountContext)
                 val accountBacking = EthAccountBacking(walletDB, accountContext.uuid, ethCoinType, token)
@@ -105,7 +106,7 @@ class ERC20Module(
             val stored = readLabel(account.id).ifEmpty { account.label }
             if (!isDefaultLabel(account.coinType.contractAddress, stored)) return@forEach
             val others = accounts.values.filter { it !== account }.map { it.label }
-            val fresh = tokenLabel(defaultLabel(account.coinType), others)
+            val fresh = tokenLabel(defaultLabel(account.coinType), account.ethAcc.accountIndex, others)
             account.label = fresh
             storeLabel(account.id, fresh)
         }

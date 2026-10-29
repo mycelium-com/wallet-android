@@ -128,6 +128,9 @@
     <string name="cancel_eth_tx_loading">Ocenjevanje provizije za preklic…</string>
     <string name="cancel_eth_tx_new_fee">Provizija za preklic</string>
     <string name="cancel_eth_tx_no_connection">Ni povezave s strežnikom. Poskusite znova kasneje.</string>
+    <string name="cancel_eth_tx_queue_blocked">Prejšnja transakcija (nonce %1$s) ima provizijo nižjo od trenutne omrežne provizije in je ni mogoče izkopati. Transakcije se potrjujejo po vrsti, zato bi ta preklic čakal za njo. Najprej prekličite prejšnjo.</string>
+    <string name="cancel_eth_tx_cancel_blocking">Najprej prekliči nonce %1$s</string>
+    <string name="send_eth_stuck_queue_warning">Vaša prejšnja transakcija (nonce %1$s) ima provizijo nižjo od trenutne omrežne provizije in je obtičala. Novo pošiljanje bo čakalo za njo. Najprej jo prekličite v zgodovini transakcij.</string>
     <string name="cancel_eth_tx_old_fee">Originalna provizija</string>
     <string name="cancel_eth_tx_recipient">Originalni prejemnik</string>
     <string name="cancel_eth_tx_success">Preklic oddan.</string>

@@ -25,3 +25,7 @@ nohup.out
 /crowdin.properties
 **/ndk_locator_record.json
 .kotlin/
+# local working material, not part of the app
+/analytics/
+/docs/
+/CLAUDE.md

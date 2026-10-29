@@ -10,6 +10,15 @@ plugins {
 apply plugin: "kotlin-parcelize"
 apply plugin: 'kotlin-kapt'
 
+/** Value from local.properties (not committed), "" when absent. */
+def localProperty(String key) {
+    def file = rootProject.file('local.properties')
+    if (!file.exists()) return ''
+    def props = new Properties()
+    file.withInputStream { props.load(it) }
+    return props.getProperty(key, '')
+}
+
 configurations {
     compile.exclude group: 'org.apache.httpcomponents', module: 'httpclient'
 }
@@ -470,6 +479,12 @@ android {
         // Energy service endpoint/key per build type; override with -PenergyServiceUrl / -PenergyServiceApiKey
         variant.buildConfigField "String", "EnergyServiceUrl", "\"${project.findProperty('energyServiceUrl') ?: flavor.ext.EnergyServiceUrl[variant.buildType.name]}\""
         variant.buildConfigField "String", "EnergyServiceApiKey", "\"${project.findProperty('energyServiceApiKey') ?: flavor.ext.EnergyServiceApiKey[variant.buildType.name]}\""
+        // ERC-20 gas paid in the token (ERC-4337 paymaster + EIP-7702, as in WalletKMP). The bundler is
+        // reached either through a proxy keeping the Pimlico key server-side (-PaaBundlerUrl /
+        // local.properties aa.bundler.url) or directly with the Pimlico key below (one key for every
+        // chain; it ends up in the APK). Override with -PpimlicoApiKey / local.properties pimlico.api.key.
+        variant.buildConfigField "String", "PimlicoApiKey", "\"${project.findProperty('pimlicoApiKey') ?: localProperty('pimlico.api.key') ?: 'pim_S98di3LSSmFdeppzHq3yXS'}\""
+        variant.buildConfigField "String", "AaBundlerUrl", "\"${project.findProperty('aaBundlerUrl') ?: localProperty('aa.bundler.url')}\""
         variant.buildConfigField "String", "WapiServers", "${flavor.ext.WapiServers}"
         variant.buildConfigField "String", "appIdSpvBch", "\"${flavor.ext.appIdSpvBch[variant.buildType.name]}\""
         variant.buildConfigField "String", "appIdGeb", "\"${flavor.ext.appIdGeb[variant.buildType.name]}\""

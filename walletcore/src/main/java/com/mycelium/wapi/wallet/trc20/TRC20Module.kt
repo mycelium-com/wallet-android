@@ -50,7 +50,7 @@ class TRC20Module(
                 val tronAccount = config.tronAccount
                 val uuid = accountId(token, tronAccount)
                 accounts[uuid]?.let { return it }
-                baseLabel = tokenLabel(defaultLabel(token), accounts.values.map { it.label })
+                baseLabel = tokenLabel(defaultLabel(token), tronAccount.accountIndex, accounts.values.map { it.label })
                 val credentials = tronModule.credentialsOf(tronAccount)
                 val accountContext = createAccountContext(uuid, config)
                 backing.createAccountContext(accountContext.uuid, accountContext)
@@ -105,7 +105,7 @@ class TRC20Module(
             val stored = readLabel(account.id).ifEmpty { account.label }
             if (!isDefaultLabel(account.contractAddress, stored)) return@forEach
             val others = accounts.values.filter { it !== account }.map { it.label }
-            val fresh = tokenLabel(defaultLabel(account.coinType), others)
+            val fresh = tokenLabel(defaultLabel(account.coinType), account.tronAcc.accountIndex, others)
             account.label = fresh
             storeLabel(account.id, fresh)
         }

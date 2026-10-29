@@ -31,6 +31,9 @@
     <string name="cancel_eth_tx_loading">취소 수수료 추정 중…</string>
     <string name="cancel_eth_tx_new_fee">취소 수수료</string>
     <string name="cancel_eth_tx_no_connection">서버 연결이 없습니다. 잠시 후 다시 시도해 주십시오.</string>
+    <string name="cancel_eth_tx_queue_blocked">이전 거래(nonce %1$s)의 수수료가 현재 네트워크 수수료보다 낮아 채굴될 수 없습니다. 거래는 순서대로 확정되므로 이 취소는 해당 거래 뒤에서 대기하게 됩니다. 먼저 이전 거래를 취소해 주십시오.</string>
+    <string name="cancel_eth_tx_cancel_blocking">먼저 nonce %1$s 취소</string>
+    <string name="send_eth_stuck_queue_warning">이전 거래(nonce %1$s)의 수수료가 현재 네트워크 수수료보다 낮아 멈춰 있습니다. 새 송금은 해당 거래 뒤에서 대기하게 됩니다. 먼저 거래 내역에서 취소해 주십시오.</string>
     <string name="cancel_eth_tx_old_fee">원래 수수료</string>
     <string name="cancel_eth_tx_recipient">원래 수신자</string>
     <string name="cancel_eth_tx_success">취소가 전송되었습니다.</string>

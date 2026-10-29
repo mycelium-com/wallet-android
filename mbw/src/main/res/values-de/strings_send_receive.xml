@@ -258,6 +258,9 @@
     <string name="cancel_eth_tx_loading">Stornierungsgebühr wird geschätzt…</string>
     <string name="cancel_eth_tx_new_fee">Stornierungsgebühr</string>
     <string name="cancel_eth_tx_no_connection">Keine Serververbindung. Versuchen Sie es später erneut.</string>
+    <string name="cancel_eth_tx_queue_blocked">Eine frühere Transaktion (Nonce %1$s) liegt unter der aktuellen Netzwerkgebühr und kann nicht bestätigt werden. Transaktionen werden der Reihe nach bestätigt, daher würde diese Stornierung hinter ihr warten. Stornieren Sie zuerst die frühere.</string>
+    <string name="cancel_eth_tx_cancel_blocking">Zuerst Nonce %1$s stornieren</string>
+    <string name="send_eth_stuck_queue_warning">Ihre frühere Transaktion (Nonce %1$s) liegt unter der aktuellen Netzwerkgebühr und hängt fest. Eine neue Sendung wird hinter ihr warten. Stornieren Sie sie zuerst im Transaktionsverlauf.</string>
     <string name="cancel_eth_tx_old_fee">Ursprüngliche Gebühr</string>
     <string name="cancel_eth_tx_recipient">Ursprünglicher Empfänger</string>
     <string name="cancel_eth_tx_success">Stornierung gesendet.</string>

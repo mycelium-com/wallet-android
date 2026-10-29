@@ -5,6 +5,11 @@
     tools:showIn="@layout/send_coins_activity_eth">
 
     <data>
+
+        <import type="android.view.View" />
+
+        <import type="com.mycelium.wallet.activity.send.model.EthFeeMode" />
+
         <variable
             name="viewModel"
             type="com.mycelium.wallet.activity.send.model.SendEthViewModel" />
@@ -21,9 +26,145 @@
             layout="@layout/send_coins_fee_heap_eth"
             bind:viewModel="@{viewModel}" />
 
-        <include
-            android:id="@+id/layoutFeeSelector"
-            layout="@layout/send_coins_fee_selector" />
+        <!-- Fee payment mode: ETH from the parent account vs the token through a paymaster -->
+        <LinearLayout
+            android:id="@+id/llFeeMode"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/horizontal_page_margin"
+            android:layout_marginBottom="6dp"
+            android:orientation="horizontal"
+            android:visibility="@{viewModel.tokenFeeAvailable ? View.VISIBLE : View.GONE}"
+            tools:visibility="visible">
+
+            <TextView
+                android:id="@+id/btFeeModeEth"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@{viewModel.feeMode == EthFeeMode.ETH ? @drawable/bg_fee_mode_selected : @drawable/bg_fee_mode}"
+                android:gravity="center"
+                android:onClick="@{() -> viewModel.selectEthFee()}"
+                android:paddingVertical="8dp"
+                android:text="@string/eth_fee_mode_eth"
+                android:textColor="@{viewModel.feeMode == EthFeeMode.ETH ? @color/white : @color/white_alpha_0_6}"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/btFeeModeToken"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="8dp"
+                android:background="@{viewModel.feeMode == EthFeeMode.TOKEN ? @drawable/bg_fee_mode_selected : @drawable/bg_fee_mode}"
+                android:gravity="center"
+                android:onClick="@{() -> viewModel.selectTokenFee()}"
+                android:paddingVertical="8dp"
+                android:text="@{@string/tron_fee_mode_token(viewModel.tokenSymbol())}"
+                android:textColor="@{viewModel.feeMode == EthFeeMode.TOKEN ? @color/white : @color/white_alpha_0_6}"
+                android:textSize="14sp"
+                tools:text="Pay fee in USDC" />
+        </LinearLayout>
+
+        <!-- Fee quoted in the token -->
+        <LinearLayout
+            android:id="@+id/llTokenFee"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/horizontal_page_margin"
+            android:orientation="vertical"
+            android:visibility="@{viewModel.feeMode == EthFeeMode.TOKEN ? View.VISIBLE : View.GONE}"
+            tools:visibility="visible">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/tvTokenFee"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:layout_marginBottom="5dp"
+                    android:fontFamily="@font/roboto_mono_regular"
+                    android:text="@{viewModel.tokenFeeLoading ? @string/tron_energy_service_loading : viewModel.tokenFeeText}"
+                    android:textColor="@color/horizontalpicker_text_color"
+                    android:textSize="14sp"
+                    tools:text="0.42 USDC" />
+
+                <TextView
+                    android:id="@+id/tvTokenFeeFiat"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="4dp"
+                    android:layout_weight="1"
+                    android:ellipsize="middle"
+                    android:fontFamily="@font/roboto_mono_regular"
+                    android:text="@{viewModel.tokenFeeLoading ? `` : viewModel.tokenFeeFiat()}"
+                    android:textColor="@color/horizontalpicker_text_color"
+                    android:textSize="14sp"
+                    tools:text="~0.42 USD" />
+
+                <ProgressBar
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:layout_marginStart="8dp"
+                    android:visibility="@{viewModel.tokenFeeLoading ? View.VISIBLE : View.GONE}" />
+
+                <ImageView
+                    android:id="@+id/icInfoTokenFee"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:onClick="@{() -> viewModel.tokenFeeInfoClickListener()}"
+                    android:src="@drawable/ic_info" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/tvTokenFeeMax"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="4dp"
+                android:text="@{@string/eth_token_fee_max(viewModel.tokenFeeMaxText)}"
+                android:textColor="@color/white_alpha_0_6"
+                android:textSize="12sp"
+                android:visibility="@{viewModel.tokenFeeMaxText.empty || viewModel.tokenFeeLoading ? View.GONE : View.VISIBLE}"
+                tools:text="Reserved for the fee: up to 0.50 USDC" />
+
+            <TextView
+                android:id="@+id/tvTokenFeeHint"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="4dp"
+                android:onClick="@{() -> viewModel.tokenFeeInfoClickListener()}"
+                android:text="@{@string/eth_token_fee_hint(viewModel.tokenSymbol())}"
+                android:textColor="@color/white_alpha_0_6"
+                android:textSize="12sp"
+                tools:text="The network fee is paid in USDC — no ETH needed. What is this?" />
+
+            <TextView
+                android:id="@+id/tvTokenFeeError"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="6dp"
+                android:text="@{viewModel.tokenFeeError}"
+                android:textColor="@color/error_red"
+                android:textSize="13sp"
+                android:visibility="@{viewModel.tokenFeeError.empty ? View.GONE : View.VISIBLE}"
+                tools:text="Paying the fee in USDC is unavailable right now." />
+        </LinearLayout>
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="@{viewModel.feeMode == EthFeeMode.TOKEN ? View.GONE : View.VISIBLE}">
+
+            <include
+                android:id="@+id/layoutFeeSelector"
+                layout="@layout/send_coins_fee_selector" />
+        </FrameLayout>
 
         <include layout="@layout/send_coins_fee_description" />
     </LinearLayout>

@@ -47,7 +47,7 @@ import java.util.UUID
 import java.util.logging.Level
 
 
-class ERC20Account(private val chainId: Long,
+class ERC20Account(val chainId: Long,
                    private val accountContext: ERC20AccountContext,
                    private val token: ERC20Token,
                    val ethAcc: EthAccount,
@@ -71,7 +71,7 @@ class ERC20Account(private val chainId: Long,
         val inputData = getInputData(address.toString(), amount.value)
         val estimatedGasUsed = ethTxData?.gasLimit?.toInt() ?: ((Transfer.GAS_LIMIT.toInt() + TOKEN_TRANSFER_GAS_LIMIT) / 2).toInt()
 
-        if (calculateMaxSpendableAmount(gasPrice, null, null) < amount) {
+        if (calculateMaxSpendableAmount(gasPrice, null, ethTxData) < amount) {
             throw InsufficientFundsException(Throwable("Insufficient funds"))
         }
         if (gasLimit < Transfer.GAS_LIMIT) {
@@ -80,7 +80,8 @@ class ERC20Account(private val chainId: Long,
         if (gasLimit > EthAccount.MAX_TX_GAS_LIMIT) {
             throw BuildTransactionException(Throwable("Gas limit must not exceed ${EthAccount.MAX_TX_GAS_LIMIT}"))
         }
-        if (ethAcc.accountBalance.spendable.value < gasPrice.value * gasLimit) {
+        // gas paid in the token (paymaster): the ETH account is not touched
+        if (ethTxData?.tokenFee == null && ethAcc.accountBalance.spendable.value < gasPrice.value * gasLimit) {
             throw InsufficientFundsForFeeException(Throwable("Insufficient funds on eth account to pay for fee"))
         }
 
@@ -173,6 +174,21 @@ class ERC20Account(private val chainId: Long,
         }
     }
 
+    /**
+     * Writes a transfer that was sent as a UserOperation (gas paid in the token) and has already
+     * mined. Without it the balance stays at the pre-send value until blockbook indexes the
+     * bundle, and a second send right after — "Max" above all — is priced against tokens that
+     * are gone. [debited] is what left the account in this token: the amount plus the fee.
+     * The next sync overwrites the row with blockbook's view of the same tx (same net value).
+     */
+    fun recordTokenPaidTransfer(txid: String, blockNumber: Long, recipient: String, debited: BigInteger) {
+        backing.putTransaction(blockNumber.toInt(), System.currentTimeMillis() / 1000, txid, "",
+                receivingAddress.addressString, recipient, Value.valueOf(basedOnCoinType, debited),
+                // the gas was paid in ETH by the bundler, not by this account
+                Value.zeroValue(basedOnCoinType), 1, BigInteger.ZERO, BigInteger.ZERO, true, null, true)
+        updateBalanceCache()
+    }
+
     override fun ethFeeSpendable(): Value = ethAcc.accountBalance.spendable
 
     override suspend fun cancelTransaction(
@@ -259,8 +275,11 @@ class ERC20Account(private val chainId: Long,
 
     override fun broadcastOutgoingTransactions() = true
 
-    override fun calculateMaxSpendableAmount(minerFeePerKilobyte: Value, destinationAddress: EthAddress?, txData: TransactionData?): Value =
-            accountBalance.spendable
+    /** The whole token balance, less the fee when the fee is paid in the token too. */
+    override fun calculateMaxSpendableAmount(minerFeePerKilobyte: Value, destinationAddress: EthAddress?, txData: TransactionData?): Value {
+        val tokenFee = (txData as? EthTransactionData)?.tokenFee ?: return accountBalance.spendable
+        return Value.valueOf(coinType, (accountBalance.spendable.value - tokenFee).max(BigInteger.ZERO))
+    }
 
     override val syncTotalRetrievedTransactions = 0 // TODO implement after full transaction history implementation
 

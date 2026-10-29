@@ -132,6 +132,9 @@
     <string name="cancel_eth_tx_loading">Εκτίμηση προμήθειας ακύρωσης…</string>
     <string name="cancel_eth_tx_new_fee">Προμήθεια ακύρωσης</string>
     <string name="cancel_eth_tx_no_connection">Δεν υπάρχει σύνδεση με τον διακομιστή. Δοκιμάστε ξανά αργότερα.</string>
+    <string name="cancel_eth_tx_queue_blocked">Μια προηγούμενη συναλλαγή (nonce %1$s) έχει προμήθεια χαμηλότερη από την τρέχουσα προμήθεια δικτύου και δεν μπορεί να επιβεβαιωθεί. Οι συναλλαγές επιβεβαιώνονται με τη σειρά, οπότε αυτή η ακύρωση θα περίμενε πίσω της. Ακυρώστε πρώτα την προηγούμενη.</string>
+    <string name="cancel_eth_tx_cancel_blocking">Ακυρώστε πρώτα το nonce %1$s</string>
+    <string name="send_eth_stuck_queue_warning">Η προηγούμενη συναλλαγή σας (nonce %1$s) έχει προμήθεια χαμηλότερη από την τρέχουσα προμήθεια δικτύου και έχει κολλήσει. Μια νέα αποστολή θα περιμένει πίσω της. Ακυρώστε την πρώτα από το ιστορικό συναλλαγών.</string>
     <string name="cancel_eth_tx_old_fee">Αρχική προμήθεια</string>
     <string name="cancel_eth_tx_recipient">Αρχικός παραλήπτης</string>
     <string name="cancel_eth_tx_success">Η ακύρωση μεταδόθηκε.</string>

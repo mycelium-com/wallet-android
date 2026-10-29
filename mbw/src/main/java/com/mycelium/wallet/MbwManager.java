@@ -184,6 +184,8 @@ import com.mycelium.wapi.wallet.eth.EthAddress;
 import com.mycelium.wapi.wallet.eth.EthAddressConfig;
 import com.mycelium.wapi.wallet.eth.EthBacking;
 import com.mycelium.wapi.wallet.eth.EthBlockchainService;
+import com.mycelium.wapi.wallet.eth.aa.AAChains;
+import com.mycelium.wapi.wallet.eth.aa.AATransactionManager;
 import com.mycelium.wapi.wallet.eth.EthereumMasterseedConfig;
 import com.mycelium.wapi.wallet.eth.EthereumModule;
 import com.mycelium.wapi.wallet.fiat.coins.FiatType;
@@ -590,6 +592,33 @@ public class MbwManager {
         return energyServiceManager;
     }
 
+    private AATransactionManager aaTransactionManager;
+
+    /**
+     * ERC-20 gas paid in the token (ERC-4337 paymaster + EIP-7702); null when no bundler is
+     * configured for this build, and in temp/cold-storage managers.
+     */
+    @Nullable
+    public AATransactionManager getAaTransactionManager() {
+        return aaTransactionManager;
+    }
+
+    @Nullable
+    private static AATransactionManager createAaTransactionManager(boolean isTestnet) {
+        long chainId = isTestnet ? AAChains.ETHEREUM_SEPOLIA : AAChains.ETHEREUM_MAINNET;
+        String bundlerUrl;
+        if (!BuildConfig.AaBundlerUrl.isEmpty()) {
+            bundlerUrl = BuildConfig.AaBundlerUrl;
+        } else if (!BuildConfig.PimlicoApiKey.isEmpty()) {
+            bundlerUrl = AAChains.INSTANCE.pimlicoBundlerUrl(chainId, BuildConfig.PimlicoApiKey);
+        } else {
+            return null;
+        }
+        return new AATransactionManager(isTestnet
+                ? AAChains.INSTANCE.sepolia(bundlerUrl, null)
+                : AAChains.INSTANCE.mainnet(bundlerUrl, null));
+    }
+
     private void initPerCurrencySettings() {
         initBTCSettings();
     }
@@ -841,6 +870,7 @@ public class MbwManager {
                 new EnergyServiceClient(new EnergyServiceConfig(BuildConfig.EnergyServiceUrl, BuildConfig.EnergyServiceApiKey),
                         "MyceliumWallet/" + BuildConfig.VERSION_NAME + " (android)", Locale.getDefault().getLanguage()),
                 new PrefsEnergyOrderStore(_applicationContext.getSharedPreferences("energy_service", Context.MODE_PRIVATE)));
+        aaTransactionManager = createAaTransactionManager(isTestnet);
 
         walletManager.add(new InvestmentModule(getMetadataStorage()));
         walletManager.init();

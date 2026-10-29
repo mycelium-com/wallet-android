@@ -255,6 +255,9 @@
     <string name="cancel_eth_tx_loading">Оценка комиссии за отмену…</string>
     <string name="cancel_eth_tx_new_fee">Комиссия за отмену</string>
     <string name="cancel_eth_tx_no_connection">Нет соединения с сервером. Попробуйте позже.</string>
+    <string name="cancel_eth_tx_queue_blocked">Более ранняя транзакция (nonce %1$s) оплачена ниже текущей комиссии сети и не может быть включена в блок. Транзакции подтверждаются по порядку, поэтому эта отмена будет ждать после неё. Сначала отмените более раннюю.</string>
+    <string name="cancel_eth_tx_cancel_blocking">Сначала отменить nonce %1$s</string>
+    <string name="send_eth_stuck_queue_warning">Ваша более ранняя транзакция (nonce %1$s) оплачена ниже текущей комиссии сети и застряла. Новая отправка будет ждать после неё. Сначала отмените её в истории транзакций.</string>
     <string name="cancel_eth_tx_old_fee">Исходная комиссия</string>
     <string name="cancel_eth_tx_recipient">Исходный получатель</string>
     <string name="cancel_eth_tx_success">Отмена отправлена.</string>

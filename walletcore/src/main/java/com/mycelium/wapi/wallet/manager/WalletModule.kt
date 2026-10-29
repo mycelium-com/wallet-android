@@ -30,11 +30,16 @@ abstract class WalletModule(private val metaDataStorage: IMetaDataStorage) {
         return defaultName
     }
 
-    /** Token account label: "USDT(ERC20)", then "USDT(ERC20) 2", "USDT(ERC20) 3"… — the first not in [taken]. */
-    protected fun tokenLabel(baseName: String, taken: Collection<String>): String =
-        generateSequence(1) { it + 1 }
-            .map { if (it == 1) baseName else "$baseName $it" }
-            .first { it !in taken }
+    /**
+     * Token account label numbered after its parent's derivation index, like the parent's own
+     * "Ethereum N": index 0 -> "USDT(ERC20)", index 1 -> "USDT(ERC20) 2". A parent with no index
+     * (imported key, [parentIndex] < 0) takes the first number not in [taken].
+     */
+    protected fun tokenLabel(baseName: String, parentIndex: Int, taken: Collection<String>): String {
+        fun numbered(n: Int) = if (n == 1) baseName else "$baseName $n"
+        return if (parentIndex >= 0) numbered(parentIndex + 1)
+        else generateSequence(1) { it + 1 }.map(::numbered).first { it !in taken }
+    }
 
     fun storeLabel(accountId: UUID, label: String): String {
         val metadataKeyCategory = MetadataCategory("al")

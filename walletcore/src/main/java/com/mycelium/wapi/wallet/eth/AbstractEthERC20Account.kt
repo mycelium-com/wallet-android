@@ -9,9 +9,12 @@ import com.mycelium.wapi.wallet.exceptions.BuildTransactionException
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.eth.coins.EthCoin
 import com.mycelium.wapi.wallet.genericdb.EthAccountBacking
+import com.mycelium.wapi.wallet.providers.deriveFeeTiers
+import com.mycelium.wapi.wallet.providers.deriveLegacyGasPrices
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.web3j.crypto.Credentials
+import org.web3j.crypto.Sign
 import java.io.IOException
 import java.math.BigInteger
 import java.util.concurrent.TimeUnit
@@ -377,7 +380,7 @@ abstract class AbstractEthERC20Account(coinType: CryptoCurrency,
             // oldTip*1.1. Use the current fastest tier as a floor so a cancel
             // issued during a fee spike still lands; fall back to the legacy
             // network estimate when no snapshot is cached.
-            val fastest = blockchainService.lastEip1559Fees()?.tier(EthFeeLevel.HIGH)
+            val fastest = freshEip1559Fees(networkGasPrice)?.tier(EthFeeLevel.HIGH)
             val networkCap = fastest?.maxFeePerGas ?: networkGasPrice
             val networkTip = fastest?.maxPriorityFeePerGas ?: networkGasPrice
             val (newCap, newTip) = type2CancelFees(bumpedOld, networkCap, networkTip)
@@ -396,7 +399,12 @@ abstract class AbstractEthERC20Account(coinType: CryptoCurrency,
             )
         }
 
-        val newGasPrice = bumpedOld.max(networkGasPrice)
+        // networkGasPrice is the bare base fee (see currentBaseFee): a cancel priced at it gets
+        // stuck on the first base-fee uptick — 2026-10-26 every cancel of 0x065A…86E3 went out
+        // at the base fee of its moment and stuck minutes later. Price it like the "high" tier.
+        val networkLegacyPrice = if (networkGasPrice.signum() > 0)
+            deriveLegacyGasPrices(networkGasPrice).last() else networkGasPrice
+        val newGasPrice = bumpedOld.max(networkLegacyPrice)
         val newFeeWei = newGasPrice * cancelGasLimit
         return CancelEstimate(
             nonce = nonce,
@@ -408,6 +416,58 @@ abstract class AbstractEthERC20Account(coinType: CryptoCurrency,
             ethSpendable = ethSpendable,
             hasEnoughEth = ethSpendable.value >= newFeeWei,
         )
+    }
+
+    /**
+     * EIP-1559 tiers fetched now for a cancel. The snapshot cached by the fee provider is only as
+     * fresh as the last time a send screen was open — hours, possibly, and a cancel priced at an
+     * old market gets stuck itself. Falls back to tiers derived from [baseFee] (Blockbook's
+     * estimate), and only then to the cached snapshot.
+     */
+    private suspend fun freshEip1559Fees(baseFee: BigInteger): Eip1559Snapshot? {
+        try {
+            return withContext(Dispatchers.IO) { blockchainService.eip1559FeeEstimation() }
+        } catch (e: Exception) {
+            logger.log(Level.WARNING, "EIP-1559 estimator failed for cancel, deriving from base fee", e)
+        }
+        if (baseFee.signum() > 0) return Eip1559Snapshot(baseFee, deriveFeeTiers(baseFee))
+        return blockchainService.lastEip1559Fees()
+    }
+
+    /**
+     * Blockbook's Ethereum `estimatefee` ignores the block target and answers the current base
+     * fee + 1000 wei: a tx priced below it cannot be mined right now.
+     */
+    private suspend fun currentBaseFee(): BigInteger? = try {
+        withContext(Dispatchers.IO) {
+            Value.parse(basedOnCoinType, blockchainService.feeEstimation(NETWORK_FASTEST_BLOCK).result).value
+        }
+    } catch (e: Exception) {
+        null
+    }
+
+    /**
+     * The earliest of this address's pending txs priced under the current base fee — it cannot be
+     * mined, and an account's txs mine strictly in nonce order, so it holds up every later one.
+     * Null when nothing is stuck. With [beforeNonce], only txs ahead of that slot count.
+     *
+     * 2026-10-26, 0x065A…86E3: a cancel at nonce 26 priced at a base fee that had since risen
+     * fourfold; the user cancelled 27, 28 and 29, none of which could mine before it.
+     *
+     * Uses the server's whole-address view: cancels and token sends share one nonce sequence but
+     * live in different local accounts. Of several txs in one slot the dearest is the one the
+     * mempool kept.
+     */
+    suspend fun findStuckQueueTx(beforeNonce: BigInteger? = null): QueueBlocker? {
+        val address = receivingAddress.addressString
+        val txs = try {
+            withContext(Dispatchers.IO) { blockchainService.getTransactions(address) }
+        } catch (e: Exception) {
+            return null
+        }
+        if (txs.none { it.confirmations.signum() == 0 && it.from.equals(address, true) }) return null
+        val baseFee = currentBaseFee() ?: return null
+        return pickStuckQueueTx(txs, address, beforeNonce, baseFee)
     }
 
     /**
@@ -466,6 +526,13 @@ abstract class AbstractEthERC20Account(coinType: CryptoCurrency,
 
     override fun canSpend() = credentials != null
 
+    /**
+     * Signs a raw 32-byte hash with the account key, no message prefix — for the EIP-7702
+     * authorization and the ERC-4337 UserOperation of a token-paid send.
+     */
+    fun signHash(hash: ByteArray): Sign.SignatureData =
+        Sign.signMessage(hash, credentials?.ecKeyPair ?: throw IllegalStateException("Watch-only account cannot sign"), false)
+
     override fun isSyncing() = syncing
 
     override val isActive: Boolean
@@ -510,6 +577,27 @@ abstract class AbstractEthERC20Account(coinType: CryptoCurrency,
         private val CANCEL_GAS_LIMIT: BigInteger = BigInteger.valueOf(50_000)
     }
 }
+
+/** The selection behind [AbstractEthERC20Account.findStuckQueueTx], apart from the network. */
+internal fun pickStuckQueueTx(
+    txs: List<Tx>,
+    address: String,
+    beforeNonce: BigInteger?,
+    baseFee: BigInteger,
+): QueueBlocker? = txs
+    .filter { it.confirmations.signum() == 0 && it.from.equals(address, true) }
+    .filter { beforeNonce == null || it.nonce < beforeNonce }
+    .groupBy { it.nonce }.toSortedMap().values
+    .map { slot -> slot.maxByOrNull { it.gasPrice }!! }
+    .firstOrNull { it.gasPrice < baseFee }
+    ?.let { QueueBlocker(it.txid, it.nonce, it.gasPrice) }
+
+/** A pending tx of ours that cannot be mined at the current base fee (see findStuckQueueTx). */
+data class QueueBlocker(
+    val txid: String,
+    val nonce: BigInteger,
+    val gasPrice: BigInteger,
+)
 
 /**
  * Snapshot of the parameters and balances needed to display a cancel-tx

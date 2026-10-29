@@ -165,6 +165,9 @@
     <string name="cancel_eth_tx_success">Cancellation broadcast.</string>
     <string name="cancel_eth_tx_failed">Cancellation failed: %1$s</string>
     <string name="cancel_eth_tx_no_connection">No server connection. Try again later.</string>
+    <string name="cancel_eth_tx_queue_blocked">An earlier transaction (nonce %1$s) is priced below the current network fee and cannot be mined. Transactions confirm in order, so this cancellation would wait behind it. Cancel the earlier one first.</string>
+    <string name="cancel_eth_tx_cancel_blocking">Cancel nonce %1$s first</string>
+    <string name="send_eth_stuck_queue_warning">Your earlier transaction (nonce %1$s) is priced below the current network fee and is stuck. A new send will wait behind it. Cancel it from the transaction history first.</string>
     <string name="menu_item_rebroadcast_transaction">Rebroadcast transaction</string>
     <string name="menu_item_delete_unconfirmed_transaction">Delete unconfirmed transaction</string>
     <string name="delete_unconfirmed_transaction_title">Delete unconfirmed transaction</string>
@@ -266,6 +269,25 @@
     <string name="tron_tx_type_permission_update">Permission update</string>
     <string name="tron_tx_type_unknown">Other</string>
     <string name="tron_fee_mode_trx">Pay fee in TRX</string>
+    <string name="eth_fee_mode_eth">Pay fee in ETH</string>
+    <string name="eth_token_fee_title">Paymaster</string>
+    <string name="eth_token_fee_hint">The network fee is paid in %1$s — no ETH needed. What is this?</string>
+    <string name="eth_token_fee_info_title">Pay Fees with %1$s</string>
+    <string name="eth_token_fee_info_message">Ethereum normally needs ETH to pay for gas. With this option the fee is taken in %1$s instead: a paymaster pays the gas in ETH and is reimbursed in %2$s within the same transaction.
+
+The fee shown is an estimate. Up to %3$s may be reserved for it, but only the actual cost is charged.
+
+To do this your address is upgraded to a smart account (EIP-7702) with your signature. It stays under the control of your key — you keep sending and receiving as usual.</string>
+    <string name="eth_token_fee_max">Reserved for the fee: up to %1$s</string>
+    <string name="eth_token_fee_processing_quote">Calculating the fee…</string>
+    <string name="eth_token_fee_processing_sending">Sending… this can take up to two minutes.</string>
+    <string name="eth_token_fee_unavailable">Paying the fee in %1$s is unavailable right now. Try again later or pay the fee in ETH.</string>
+    <string name="eth_token_fee_insufficient">Insufficient %1$s balance to cover amount and fee</string>
+    <string name="eth_token_fee_timeout">The transaction was submitted but is not confirmed yet. Do not send it again — check your transaction history first.</string>
+    <string name="eth_token_fee_error">Sending failed: %1$s</string>
+    <string name="eth_token_fee_pending_eth_tx">An earlier transaction of this account (fee paid in ETH) is still pending. Paying the fee in the token for the first time needs it confirmed first — wait for it or pay this fee in ETH.</string>
+    <string name="eth_token_fee_changed_title">Fee changed</string>
+    <string name="eth_token_fee_changed_message">Network gas price went up. The fee is now %1$s (up to %2$s). Send anyway?</string>
     <string name="tron_fee_mode_token">Pay fee in %1$s</string>
     <string name="tron_energy_service_title">Energy Service</string>
     <string name="tron_energy_service_hint">The fee is paid in %1$s through the Energy Service — what is this?</string>

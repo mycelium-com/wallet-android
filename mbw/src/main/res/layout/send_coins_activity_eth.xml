@@ -7,6 +7,8 @@
 
         <import type="android.text.Html" />
 
+        <import type="android.view.View" />
+
         <import type="androidx.lifecycle.AndroidViewModel" />
 
         <variable
@@ -42,6 +44,18 @@
                 layout="@layout/send_coins_activity_warnings_heap"
                 bind:activity="@{activity}"
                 bind:viewModel="@{viewModel}" />
+
+            <!--An earlier pending tx priced under the base fee holds up the queue-->
+            <TextView
+                android:id="@+id/tvStuckQueueWarning"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="@dimen/horizontal_page_margin"
+                android:layout_marginTop="4dp"
+                android:text="@{viewModel.stuckQueueNonce != null ? @string/send_eth_stuck_queue_warning(viewModel.stuckQueueNonce) : null}"
+                android:textColor="@color/warning_yellow"
+                android:textSize="14sp"
+                android:visibility="@{viewModel.stuckQueueNonce != null ? View.VISIBLE : View.GONE}" />
 
 
             <LinearLayout
