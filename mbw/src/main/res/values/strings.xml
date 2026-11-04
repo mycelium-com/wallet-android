@@ -639,4 +639,9 @@
     <string name="activate_by">Activate by</string>
     <string name="coins_received_channel_name">Payment received</string>
     <string name="use_eth_acc_first">You can only have one unused Ethereum Account.</string>
+    <string name="scan_word_list_not_supported_here">Recovery word list detected. It can\'t be used here: a word list is only for restoring a wallet.</string>
+    <string name="shamir_export_not_possible_pin_too_new">Your PIN was recently changed, so private keys cannot be exported yet.\n\nTo increase the security of your funds, we prevent you (or anyone else) from exporting private keys shortly after setting a new PIN.\n\nYou have to wait for at least %1$d blocks (~ %2$s)</string>
+    <string name="exchange_no_accounts_with_funds">You don’t have any accounts with funds to exchange.\nPlease top up one of your BTC, ETH, ERC-20, TRX or TRC-20 accounts and try again.</string>
+    <string name="transaction_broadcast_outcome_unknown">The connection was lost while the transaction was being sent, so it is not known yet whether it reached the network. It is shown as pending in the transaction history until this is resolved. Check the history before sending again.</string>
+    <string name="eth_token_fee_outcome_unknown">The connection was lost while the transaction was being sent, so it is not known yet whether it reached the network. Do not send it again: check the transaction history in a few minutes first.</string>
 </resources>

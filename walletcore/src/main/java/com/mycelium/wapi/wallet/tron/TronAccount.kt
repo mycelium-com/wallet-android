@@ -25,6 +25,7 @@ import com.mycelium.wapi.wallet.coins.Value.Companion.valueOf
 import com.mycelium.wapi.wallet.eth.toUUID
 import com.mycelium.wapi.wallet.exceptions.BuildTransactionException
 import com.mycelium.wapi.wallet.exceptions.InsufficientFundsException
+import com.mycelium.wapi.wallet.exceptions.InsufficientFundsForFeeException
 import com.mycelium.wapi.wallet.genericdb.TronAccountBacking
 import com.mycelium.wapi.wallet.tron.remote.TronBlockchainService
 import kotlinx.coroutines.Dispatchers
@@ -81,6 +82,10 @@ class TronAccount(
             throw BuildTransactionException(Throwable("Not a TRON address"))
         }
         if (value > calculateMaxSpendableAmount(valueOf(coinType, feeLimit), null, tronTxData)) {
+            // the amount alone fits, only amount + fee limit does not
+            if (value <= accountBalance.spendable) {
+                throw InsufficientFundsForFeeException(Throwable("Insufficient funds to pay for fee"))
+            }
             throw InsufficientFundsException(Throwable("Insufficient funds to send $value with fee limit $feeLimit sun"))
         }
         return TronTransaction(coinType, toAddress.addressString, value, feeLimit, bandwidth, energy, estimatedFee)
@@ -112,34 +117,32 @@ class TronAccount(
     override fun broadcastTx(tx: Transaction): BroadcastResult {
         val tronTx = tx as TronTransaction
         val signed = tronTx.signedBytes ?: return BroadcastResult("Transaction is not signed", BroadcastResultType.REJECT_INVALID_TX_PARAMS)
-        try {
-            val result = blockchainService.broadcast(signed)
-            if (!result.success) {
-                return BroadcastResult(result.message, BroadcastResultType.REJECT_INVALID_TX_PARAMS)
-            }
-            val txid = tronTx.txHash?.let { HexUtils.toHex(it) } ?: result.txid
-                ?: return BroadcastResult("No transaction hash", BroadcastResultType.REJECT_INVALID_TX_PARAMS)
-            rememberBalanceBeforeBroadcast(txid)
-            backing.putTransaction(
-                blockNumber = -1,
-                timestamp = System.currentTimeMillis() / 1000,
-                txid = txid,
-                raw = HexUtils.toHex(signed),
-                from = receivingAddress.addressString,
-                to = tronTx.toAddress,
-                value = tronTx.tronValue,
-                fee = valueOf(coinType, tronTx.estimatedFee),
-                feeLimit = tronTx.feeLimit,
-                bandwidth = tronTx.bandwidth,
-                energy = tronTx.energy,
-            )
-            // Reflect the outgoing pending tx in the balance right away so the spent TRX
-            // cannot be re-spent before the next sync
-            updateBalanceCache()
-        } catch (e: IOException) {
-            return BroadcastResult(BroadcastResultType.NO_SERVER_CONNECTION)
+        val txid = tronTx.txHash?.let { HexUtils.toHex(it) }
+            ?: return BroadcastResult("No transaction hash", BroadcastResultType.REJECT_INVALID_TX_PARAMS)
+        val result = broadcastSigned(signed, txid)
+        // UNKNOWN_OUTCOME: the tx may be on the network — record it as pending anyway so its TRX
+        // stays reserved (no double send); sync drops it if the node never saw it.
+        if (result.resultType != BroadcastResultType.SUCCESS && result.resultType != BroadcastResultType.UNKNOWN_OUTCOME) {
+            return result
         }
-        return BroadcastResult(BroadcastResultType.SUCCESS)
+        rememberBalanceBeforeBroadcast(txid)
+        backing.putTransaction(
+            blockNumber = -1,
+            timestamp = System.currentTimeMillis() / 1000,
+            txid = txid,
+            raw = HexUtils.toHex(signed),
+            from = receivingAddress.addressString,
+            to = tronTx.toAddress,
+            value = tronTx.tronValue,
+            fee = valueOf(coinType, tronTx.estimatedFee),
+            feeLimit = tronTx.feeLimit,
+            bandwidth = tronTx.bandwidth,
+            energy = tronTx.energy,
+        )
+        // Reflect the outgoing pending tx in the balance right away so the spent TRX
+        // cannot be re-spent before the next sync
+        updateBalanceCache()
+        return result
     }
 
     override val coinType

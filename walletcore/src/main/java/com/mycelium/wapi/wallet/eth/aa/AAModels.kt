@@ -157,6 +157,11 @@ enum class AAError {
     /** An ETH-paid tx of the sender is pending; the EIP-7702 authorization would conflict with it. */
     PENDING_EOA_TX,
     TIMEOUT,
+    /**
+     * The submission's answer was lost and the bundler could not be asked afterwards: the op may
+     * or may not have been taken. Must not be shown as a failure (the user would pay twice).
+     */
+    OUTCOME_UNKNOWN,
     NETWORK_ERROR,
     UNKNOWN
 }

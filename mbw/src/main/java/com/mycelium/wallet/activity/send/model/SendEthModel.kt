@@ -12,6 +12,7 @@ import com.mycelium.wallet.activity.send.SpinnerItem
 import com.mycelium.wallet.activity.send.TransactionItem
 import com.mycelium.wallet.activity.send.view.SelectableRecyclerView
 import com.mycelium.wallet.activity.util.AdaptiveDateFormat
+import com.mycelium.wallet.activity.util.displaySymbol
 import com.mycelium.wallet.activity.util.toStringWithUnit
 import com.mycelium.wallet.activity.util.get
 import com.mycelium.wallet.startCoroutineTimer
@@ -41,6 +42,8 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import org.web3j.tx.Transfer
+import org.web3j.utils.Convert
+import java.math.BigDecimal
 import java.math.BigInteger
 import java.util.Date
 import java.util.Timer
@@ -82,8 +85,15 @@ class SendEthModel(application: Application,
                 val oldData = (transactionData.value as? EthTransactionData) ?: EthTransactionData()
                 when (value) {
                     is NoneItem -> {
+                        // the gas price field still shows the replacement's price — clear it with the replacement
+                        if (replacementGasPrice != null && gasPrice.value == replacementGasPrice) {
+                            presetGasPriceText.value = ""
+                        }
+                        replacementGasPrice = null
+                        replacementTip = null
                         nonce.value = null
                         transactionData.value = EthTransactionData(null, oldData.gasLimit, oldData.inputData, null, tokenFee = oldData.tokenFee)
+                        applyTxPrefill(null)
                     }
                     is TransactionItem -> {
                         val tx = value.tx as EthTransactionSummary
@@ -96,8 +106,18 @@ class SendEthModel(application: Application,
                         // stored, but it never exceeds the old cap, so a tip of oldCap * 1.1 always clears it
                         val bumped = oldGasPrice?.let { it * BigInteger.valueOf(110) / BigInteger.valueOf(100) }
                         val suggestedGasPrice = bumped?.let { feeEstimation.normal.value.max(it) }
+                        replacementGasPrice = suggestedGasPrice
+                        replacementTip = bumped
                         nonce.value = tx.nonce
                         transactionData.value = EthTransactionData(tx.nonce, oldData.gasLimit, oldData.inputData, suggestedGasPrice, bumped, oldData.tokenFee)
+                        // show the bumped price in the Advanced gas price field (M-74); applying the
+                        // field also fills the default gas limit and switches the fee display to it
+                        suggestedGasPrice?.let {
+                            presetGasPriceText.value = Convert.fromWei(BigDecimal(it), Convert.Unit.GWEI)
+                                    .stripTrailingZeros().toPlainString()
+                        }
+                        // recipient and amount follow every selection, not only the preselected one
+                        applyTxPrefill(tx)
                     }
                 }
             }
@@ -128,6 +148,24 @@ class SendEthModel(application: Application,
         }
     }
 
+    /**
+     * Bumped cap and tip of the tx selected for replacement, null without one. A cleared gas price
+     * field (it is reset to "not set" on every keystroke) falls back to them, so the replacement
+     * never goes out at the plain network price, and a typed price keeps the bumped tip.
+     */
+    private var replacementGasPrice: BigInteger? = null
+    private var replacementTip: BigInteger? = null
+
+    /**
+     * Recipient and amount the replace spinner put in, null when none. Declared before `init`:
+     * the preselection there sets them, and a later initializer would reset them.
+     */
+    private var prefilledAddress: Address? = null
+    private var prefilledAmount: Value? = null
+
+    /** Text the app puts into the gas price field (replacement prefill); null = leave the field alone. */
+    val presetGasPriceText: MutableLiveData<String?> = MutableLiveData()
+
     val gasPrice: MutableLiveData<BigInteger?> = object : MutableLiveData<BigInteger?>() {
         override fun setValue(value: BigInteger?) {
             if (value != this.value) {
@@ -135,9 +173,10 @@ class SendEthModel(application: Application,
                 val oldData =
                         (transactionData.value as? EthTransactionData) ?: EthTransactionData()
                 transactionData.value =
-                        EthTransactionData(oldData.nonce, oldData.gasLimit, oldData.inputData, value,
+                        EthTransactionData(oldData.nonce, oldData.gasLimit, oldData.inputData, value ?: replacementGasPrice,
                                 // the tip may not exceed the cap
-                                value?.let { oldData.maxPriorityFeePerGas?.min(it) }, oldData.tokenFee)
+                                if (value != null) (replacementTip ?: oldData.maxPriorityFeePerGas)?.min(value) else replacementTip,
+                                oldData.tokenFee)
                 if (value != null) {
                     feeUpdater.stop()
                 } else {
@@ -157,6 +196,19 @@ class SendEthModel(application: Application,
                         oldData.maxPriorityFeePerGas, oldData.tokenFee)
             }
         }
+    }
+
+    /**
+     * An Advanced field (nonce, gas limit, gas price, input data) holds text that does not parse. The field
+     * then falls back to "not set", which would let Send go out with values the user did not mean.
+     */
+    @Volatile
+    private var advancedInputInvalid = false
+
+    fun setAdvancedInputInvalid(invalid: Boolean) {
+        if (advancedInputInvalid == invalid) return
+        advancedInputInvalid = invalid
+        txRebuildPublisher.onNext(Unit)
     }
 
     val estimatedFee: MutableLiveData<Value> = MutableLiveData()
@@ -198,6 +250,7 @@ class SendEthModel(application: Application,
         presetNonce?.let {
             nonce.value = it
         }
+        preselectReplacedTx(presetNonce)
         feeUpdater.start()
         // A replacement reuses an ETH-paid nonce slot: a UserOperation cannot replace it.
         if (feeToken != null && presetNonce == null) {
@@ -205,6 +258,59 @@ class SendEthModel(application: Application,
             checkTokenFeeAvailability()
         }
     }
+
+    /**
+     * Opened from a tx's "Replace transaction" menu: select that tx in the replace spinner (which
+     * also sets its nonce, the bumped fee and its recipient and amount, see [applyTxPrefill]) (M-74).
+     */
+    private fun preselectReplacedTx(presetNonce: BigInteger?) {
+        if (presetNonce == null) return
+        val item = txItems.filterIsInstance<TransactionItem>()
+            .firstOrNull { (it.tx as? EthTransactionSummary)?.nonce == presetNonce } ?: return
+        selectedTxItem.value = item
+    }
+
+    /**
+     * Prefills the recipient and amount of the tx selected for replacement ([tx] null = "none").
+     * What a previous selection prefilled is taken back first, unless the user has changed it.
+     * ETH account: only plain transfers and self-sends (cancellations, any gas limit) — a contract
+     * call would need its calldata, which is not stored. ERC-20 account: its rows hold the token
+     * recipient and amount. Zero-value txs (e.g. a cancellation) still get their recipient.
+     */
+    private fun applyTxPrefill(tx: EthTransactionSummary?) {
+        prefilledAddress?.let {
+            if (receivingAddress.value === it) {
+                receivingLabel.value = ""
+                receivingAddress.value = null
+            }
+        }
+        prefilledAmount?.let {
+            if (amount.value == it) amount.value = Value.zeroValue(account.coinType)
+        }
+        prefilledAddress = null
+        prefilledAmount = null
+        if (tx == null) return
+        val prefill = when (account) {
+            is ERC20Account -> true
+            is EthAccount -> !tx.hasTokenTransfers && (tx.gasLimit <= Transfer.GAS_LIMIT ||
+                    tx.receiver.addressString.equals(tx.sender.addressString, true))
+            else -> false
+        }
+        if (!prefill || tx.value.type != account.coinType) return
+        if (receivingAddress.value?.toString()?.equals(tx.receiver.toString(), true) != true) {
+            // the label belongs to the previous recipient
+            receivingLabel.value = ""
+            receivingAddress.value = tx.receiver
+            prefilledAddress = tx.receiver
+        }
+        if (tx.value.isPositive()) {
+            amount.value = tx.value
+            prefilledAmount = tx.value
+        }
+    }
+
+    /** Spinner position of the preselected tx, 0 ("none") when there is none. */
+    fun selectedTxPosition(): Int = selectedTxItem.value?.let { txItems.indexOf(it) }?.takeIf { it > 0 } ?: 0
 
     private fun checkTokenFeeAvailability() {
         val manager = aa ?: return
@@ -273,7 +379,7 @@ class SendEthModel(application: Application,
                 tokenFeeMaxText.postValue("")
                 tokenFeeError.postValue(context.getString(
                     if (isBalanceRevert(e)) R.string.eth_token_fee_insufficient else R.string.eth_token_fee_unavailable,
-                    account.coinType.symbol))
+                    account.coinType.displaySymbol))
                 txRebuildPublisher.onNext(Unit)
             } finally {
                 tokenFeeLoading.postValue(false)
@@ -402,6 +508,7 @@ class SendEthModel(application: Application,
     }
 
     override fun validateExtra(toSend: Value): TransactionStatus? {
+        if (advancedInputInvalid) return TransactionStatus.MISSING_ARGUMENTS
         if (!isTokenFeeMode()) return null
         val quote = currentQuote ?: return TransactionStatus.MISSING_ARGUMENTS
         if (toSend + Value.valueOf(account.coinType, quote.maxTokenAmount) > account.accountBalance.spendable) {
@@ -410,7 +517,28 @@ class SendEthModel(application: Application,
         return null
     }
 
+    override fun updateErrorMessage(transactionStatus: TransactionStatus) {
+        when {
+            // the invalid Advanced field carries its own "Not valid value" error; repeating it
+            // under the Amount pointed at the wrong field (R5B-04)
+            transactionStatus == TransactionStatus.MISSING_ARGUMENTS && advancedInputInvalid ->
+                errorText.postValue("")
+            transactionStatus != TransactionStatus.OK && tokenFeeShort() ->
+                errorText.postValue(context.getString(R.string.eth_token_fee_insufficient, account.coinType.displaySymbol))
+            else -> super.updateErrorMessage(transactionStatus)
+        }
+    }
+
+    /** Token-fee mode: the balance cannot cover the entered amount (or nothing) plus the quoted maximum fee. */
+    private fun tokenFeeShort(): Boolean {
+        if (!isTokenFeeMode()) return false
+        val quote = currentQuote ?: return false
+        val toSend = enteredTokenAmount() ?: Value.zeroValue(account.coinType)
+        return toSend + Value.valueOf(account.coinType, quote.maxTokenAmount) > account.accountBalance.spendable
+    }
+
     fun release() {
+        feeUpdater.stop()
         receivingAddress.removeObserver(addressObserver)
         quoteJob?.cancel()
         scope.cancel()
@@ -430,9 +558,11 @@ class SendEthModel(application: Application,
     }
 
     private fun populateTxItems() {
-        val outgoingUnconfirmedTransactions = (account as AbstractEthERC20Account).getUnconfirmedTransactions().filter {
-            it.sender.addressString.equals(account.receivingAddress.addressString, true)
-        }
+        // Only txs that can still be replaced: PENDING (not REPLACED/CANCELED/DROPPED), with a
+        // nonce, and per nonce only the latest broadcast — an earlier one is superseded (M-74).
+        val outgoingUnconfirmedTransactions = (account as AbstractEthERC20Account).getLivePendingTransactions().filter {
+            it.nonce != null && it.sender.addressString.equals(account.receivingAddress.addressString, true)
+        }.sortedByDescending { it.timestamp }.distinctBy { it.nonce }
         val items: MutableList<SpinnerItem> = mutableListOf()
 
         items.add(NoneItem()) // fallback item
@@ -522,59 +652,97 @@ class FeeUpdater(
     private val feeUpdateRoutine: suspend () -> Unit,
     private val onStop: (() -> Unit)? = null
 ) {
-    val secondsUntilNextUpdate: MutableLiveData<Long> = MutableLiveData(feeUpdateIntervalMs / 1000L)
-    private lateinit var updateSecondsTimer: Job
-    private lateinit var feeUpdateScheduledTask: Timer
+    /**
+     * Seconds until the next fee refresh. Its observers are the screen's data binding, so it is
+     * active only while the Send screen is visible: updates pause in the background (M-60) and
+     * restart with an immediate refresh when the screen comes back.
+     */
+    val secondsUntilNextUpdate: MutableLiveData<Long> = object : MutableLiveData<Long>(feeUpdateIntervalMs / 1000L) {
+        override fun onActive() = setVisible(true)
+        override fun onInactive() = setVisible(false)
+    }
+    private var updateSecondsTimer: Job? = null
+    private var feeUpdateScheduledTask: Timer? = null
+    /** Requested by the model ([start]/[stop]), e.g. off while a manual gas price is set. */
+    private var wanted = false
+    private var visible = true
+    /** Bumped on every halt: an in-flight update of an older run must not restart the countdown. */
+    private var generation = 0
+
     @Volatile
     var hasStarted = false
         private set
 
+    @Synchronized
     fun start() {
-        if (hasStarted) return
+        wanted = true
+        applyState()
+    }
 
+    @Synchronized
+    fun stop() {
+        wanted = false
+        applyState()
+    }
+
+    @Synchronized
+    private fun setVisible(isVisible: Boolean) {
+        visible = isVisible
+        applyState()
+    }
+
+    private fun applyState() {
+        if (wanted && visible) startRunning() else halt()
+    }
+
+    private fun startRunning() {
+        if (hasStarted) return
         hasStarted = true
-        startUpdateSecondsTimer()
+        val gen = ++generation
         feeUpdateScheduledTask = Timer().apply {
             // Initial delay 0: fetch fees immediately on entry rather than only
             // after the first interval. Otherwise the cached estimate is shown
             // for the first interval and — with EIP-1559 — the fee snapshot is
             // empty, so a send in that window silently falls back to legacy.
             scheduleAtFixedRate(timerTask {
-                runBlocking {
+                synchronized(this@FeeUpdater) {
+                    if (gen != generation) return@timerTask
                     stopUpdateSecondsTimer()
-                    try {
-                        feeUpdateRoutine()
-                    } catch (e: Exception) {
-                        // keep the schedule alive; the next tick retries
-                    } finally {
-                        startUpdateSecondsTimer()
-                    }
+                }
+                try {
+                    runBlocking { feeUpdateRoutine() }
+                } catch (e: Throwable) {
+                    // keep the schedule alive (an exception would kill the Timer thread); the next tick retries
+                }
+                synchronized(this@FeeUpdater) {
+                    if (gen == generation && hasStarted) startUpdateSecondsTimer()
                 }
             }, 0L, feeUpdateIntervalMs)
         }
     }
 
-    fun stop() {
+    private fun halt() {
         if (!hasStarted) return
-
-        feeUpdateScheduledTask.cancel()
-        stopUpdateSecondsTimer()
         hasStarted = false
+        generation++
+        feeUpdateScheduledTask?.cancel()
+        feeUpdateScheduledTask = null
+        stopUpdateSecondsTimer()
         onStop?.invoke()
     }
 
     private fun startUpdateSecondsTimer() {
-        updateSecondsTimer = getUpdateSecondsTimer()
-        updateSecondsTimer.start()
+        updateSecondsTimer?.cancel()
+        val total = feeUpdateIntervalMs / 1000L
+        // counts from the start of this countdown, not from the LiveData value (postValue is async)
+        updateSecondsTimer = startCoroutineTimer(CoroutineScope(Dispatchers.Default + SupervisorJob()), 0, 1000) { counter ->
+            secondsUntilNextUpdate.postValue(maxOf(0L, total - counter))
+        }
     }
 
     private fun stopUpdateSecondsTimer() {
-        updateSecondsTimer.cancel()
+        updateSecondsTimer?.cancel()
+        updateSecondsTimer = null
         secondsUntilNextUpdate.postValue(feeUpdateIntervalMs / 1000L)
     }
-
-    private fun getUpdateSecondsTimer() = startCoroutineTimer(
-        CoroutineScope(Dispatchers.Default + SupervisorJob()), 0, 1000) {
-            secondsUntilNextUpdate.postValue(maxOf(0L, (secondsUntilNextUpdate.value ?: 0L) - 1))
-        }
 }

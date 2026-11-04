@@ -55,6 +55,7 @@
         <androidx.appcompat.widget.AppCompatSpinner
             android:id="@+id/spinner"
             selectedItem="@={viewModel.selectedTxItem}"
+            selectedTxPosition="@{viewModel.presetTxPosition}"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:textSize="14sp"
@@ -87,6 +88,7 @@
 
         <com.mycelium.wallet.activity.send.view.CustomEditText
             android:id="@+id/etNonce"
+            android:afterTextChanged="@{viewModel::onNonceTextChanged}"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
@@ -125,6 +127,8 @@
 
         <com.mycelium.wallet.activity.send.view.CustomEditText
             android:id="@+id/etGasLimit"
+            android:afterTextChanged="@{viewModel::onGasLimitTextChanged}"
+            presetText="@{viewModel.autoGasLimitText}"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:inputType="number"
@@ -188,6 +192,8 @@
 
         <com.mycelium.wallet.activity.send.view.CustomEditText
             android:id="@+id/gasPrice"
+            android:afterTextChanged="@{viewModel::onGasPriceTextChanged}"
+            presetText="@{viewModel.presetGasPriceText}"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:inputType="numberDecimal"
@@ -231,6 +237,8 @@
             android:minWidth="220dp"
             android:inputType="text"
             android:text="@={viewModel.inputData}"
+            android:afterTextChanged="@{viewModel::onInputDataTextChanged}"
+            android:error="@{viewModel.inputDataError}"
             android:textSize="14sp"
             android:imeOptions="actionDone"
             android:theme="@style/EditText.Theme"

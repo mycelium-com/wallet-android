@@ -24,6 +24,7 @@ import com.mycelium.wallet.activity.modern.AddressBookFragment
 import com.mycelium.wallet.activity.pop.PopActivity
 import com.mycelium.wallet.activity.send.BroadcastDialog
 import com.mycelium.wallet.activity.send.ManualAddressEntry
+import com.mycelium.wallet.activity.send.helper.RecipientAddressError
 import com.mycelium.wallet.activity.send.SendCoinsActivity
 import com.mycelium.wallet.activity.send.VerifyPaymentRequestActivity
 import com.mycelium.wallet.activity.send.adapter.BatchItem
@@ -373,11 +374,7 @@ abstract class SendCoinsViewModel(application: Application) : AndroidViewModel(a
                         if (data.getAddress().coinType == getAccount().basedOnCoinType) {
                             model.receivingAddress.value = data.getAddress()
                         } else {
-                            makeText(
-                                activity,
-                                context.getString(R.string.not_correct_address_type),
-                                LENGTH_LONG
-                            ).show()
+                            makeText(activity, wrongAddressMessage(data.getAddress().toString()), LENGTH_LONG).show()
                         }
                     }
                 }
@@ -395,11 +392,7 @@ abstract class SendCoinsViewModel(application: Application) : AndroidViewModel(a
                         if (uri.address?.coinType == getAccount().basedOnCoinType) {
                             processAssetUri(uri)
                         } else {
-                            makeText(
-                                activity,
-                                context.getString(R.string.not_correct_address_type),
-                                LENGTH_LONG
-                            ).show()
+                            makeText(activity, wrongAddressMessage(uri.address?.toString()), LENGTH_LONG).show()
                         }
                     }
                 }
@@ -432,6 +425,11 @@ abstract class SendCoinsViewModel(application: Application) : AndroidViewModel(a
             model.amount.value = uri.value
         }
     }
+
+    /** "This is a TRON address. USDT is sent on the Ethereum network…" rather than a bare type error. */
+    private fun wrongAddressMessage(scanned: String?): String =
+        scanned?.let { RecipientAddressError.describe(context, getAccount().coinType, it) }
+            ?: context.getString(R.string.not_correct_address_type)
 
     private fun handleAddressBookResults(data: Intent?, item: BatchItem? = null) {
         // Get result from address chooser

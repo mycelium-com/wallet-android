@@ -191,6 +191,10 @@ class BroadcastDialog : DialogFragment() {
                 Utils.showSimpleMessageDialog(activity, getString(R.string.transaction_rejected_invalid_tx_params, broadcastResult.errorMessage)) {
                     returnResult(broadcastResult)
                 }
+            BroadcastResultType.UNKNOWN_OUTCOME -> // Connection lost after sending: never claim it failed (double-send risk)
+                Utils.showSimpleMessageDialog(activity, R.string.transaction_broadcast_outcome_unknown) {
+                    returnResult(broadcastResult)
+                }
             BroadcastResultType.SUCCESS -> {
                 // Toast success and finish
                 activity?.let { Toaster(it).toast(R.string.transaction_sent, false) }

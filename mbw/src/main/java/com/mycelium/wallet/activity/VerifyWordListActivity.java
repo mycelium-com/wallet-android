@@ -107,6 +107,7 @@ public class VerifyWordListActivity extends AppCompatActivity implements WordAut
    private void askForPassword(boolean wasWrong) {
       if (passphrase.length() > 0) {
          final EditText pass = new EditText(this);
+         Utils.markAccessibilityDataSensitive(pass);
 
          final AlertDialog.Builder builder = new AlertDialog.Builder(this);
          if (wasWrong) {

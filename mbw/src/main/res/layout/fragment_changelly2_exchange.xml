@@ -115,6 +115,8 @@
 <!--                    app:layout_constraintStart_toStartOf="@id/startGuidline"-->
 <!--                    app:layout_constraintTop_toTopOf="@id/exchangeRateToCurrency" />-->
 
+                <!-- one LTR-isolated string instead of three chained views: the chain was mirrored and
+                     bidi-scrambled in RTL locales (DEF-R5-P62-01) -->
                 <TextView
                     android:id="@+id/exchangeRateFrom"
                     android:layout_width="wrap_content"
@@ -124,43 +126,19 @@
                     android:drawablePadding="4dp"
                     android:paddingTop="4dp"
                     android:paddingBottom="4dp"
-                    android:text="@{vm.exchangeRateFrom}"
-                    android:textSize="14sp"
-                    android:textColor="#888888"
-                    app:layout_constraintStart_toEndOf="@id/startGuidline"
-                    app:layout_constraintTop_toBottomOf="@id/sellLayout"
-                    bind:text="1 BTC = " />
-
-                <TextView
-                    android:id="@+id/exchangeRateToValue"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
                     android:ellipsize="end"
                     android:singleLine="true"
+                    android:textDirection="ltr"
+                    android:text="@{vm.exchangeRateText}"
                     android:textSize="14sp"
                     android:textColor="#888888"
                     app:layout_constrainedWidth="true"
-                    android:text="@{vm.exchangeRateToValue}"
-                    app:layout_constraintBaseline_toBaselineOf="@id/exchangeRateFrom"
-                    app:layout_constraintEnd_toStartOf="@id/exchangeRateToCurrency"
+                    app:layout_constraintEnd_toStartOf="@id/progress"
                     app:layout_constraintHorizontal_bias="0.0"
                     app:layout_constraintHorizontal_chainStyle="packed"
-                    app:layout_constraintStart_toEndOf="@id/exchangeRateFrom"
-                    bind:text="69 420" />
-
-                <TextView
-                    android:id="@+id/exchangeRateToCurrency"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="4dp"
-                    android:lines="1"
-                    android:textSize="14sp"
-                    android:textColor="#888888"
-                    android:text="@{vm.exchangeRateToCurrency}"
-                    app:layout_constraintBaseline_toBaselineOf="@id/exchangeRateFrom"
-                    app:layout_constraintEnd_toStartOf="@id/progress"
-                    app:layout_constraintStart_toEndOf="@id/exchangeRateToValue"
-                    bind:text="USDT" />
+                    app:layout_constraintStart_toEndOf="@id/startGuidline"
+                    app:layout_constraintTop_toBottomOf="@id/sellLayout"
+                    bind:text="1 BTC = 69 420 USDT" />
 
                 <androidx.appcompat.widget.AppCompatImageView
                     android:id="@+id/progress"
@@ -170,10 +148,10 @@
                     android:layout_marginStart="8dp"
                     android:layout_marginEnd="32dp"
                     app:srcCompat="@drawable/ic_progress"
-                    app:layout_constraintBottom_toBottomOf="@id/exchangeRateToCurrency"
+                    app:layout_constraintBottom_toBottomOf="@id/exchangeRateFrom"
                     app:layout_constraintEnd_toStartOf="@id/swapAccount"
-                    app:layout_constraintStart_toEndOf="@id/exchangeRateToCurrency"
-                    app:layout_constraintTop_toTopOf="@id/exchangeRateToCurrency" />
+                    app:layout_constraintStart_toEndOf="@id/exchangeRateFrom"
+                    app:layout_constraintTop_toTopOf="@id/exchangeRateFrom" />
 
                 <!--                </LinearLayout>-->
 

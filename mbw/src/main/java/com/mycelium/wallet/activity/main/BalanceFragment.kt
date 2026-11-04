@@ -406,6 +406,14 @@ class BalanceFragment : Fragment() {
 
                     ResultType.ADDRESS -> {
                         val address = data.getAddress()
+                        val selectedAccount = _mbwManager!!.selectedAccount
+                        if (address.coinType != selectedAccount.basedOnCoinType) {
+                            // address of another coin: reject up front instead of opening Send
+                            Toaster(this).toast(
+                                getString(R.string.address_invalid, selectedAccount.basedOnCoinType.name), false
+                            )
+                            return
+                        }
                         startActivity(
                             getIntent(
                                 activity!!,
@@ -419,6 +427,14 @@ class BalanceFragment : Fragment() {
 
                     ResultType.ASSET_URI -> {
                         val uri = data.getAssetUri()
+                        val selectedAccount = _mbwManager!!.selectedAccount
+                        val uriAddress = uri.address
+                        if (uriAddress != null && uriAddress.coinType != selectedAccount.basedOnCoinType) {
+                            Toaster(this).toast(
+                                getString(R.string.address_invalid, selectedAccount.basedOnCoinType.name), false
+                            )
+                            return
+                        }
                         startActivity(
                             getIntent(activity!!, _mbwManager!!.selectedAccount.id, uri, false)
                                 .addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT)
@@ -479,6 +495,11 @@ class BalanceFragment : Fragment() {
                     ResultType.BIT_ID_REQUEST -> {
                         val request = data.getBitIdRequest()
                         BitIDAuthenticationActivity.callMe(activity, request)
+                    }
+
+                    ResultType.WORD_LIST -> {
+                        // a seed word list can't be used from Balance; say so instead of doing nothing
+                        Toaster(this).toast(R.string.scan_word_list_not_supported_here, false)
                     }
 
                     else -> {}

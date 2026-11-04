@@ -265,7 +265,7 @@
     <string name="vip_code_limits_description">これでどんな金額でもスワップできます。</string>
     <string name="vip_code_limits_title">制限なし</string>
     <string name="vip_code_privacy_related_notice">そして、すでにご存知の重要なプライバシー関連事項があります。</string>
-    <string name="vip_code_who_can_get">Mycelium トークン保有者\nSU7 Max プレゼントキャンペーン参加者\n個人招待を受け取った忠実な MyceIium ユーザー</string>
+    <string name="vip_code_who_can_get">Mycelium トークン保有者\nSU7 Max プレゼントキャンペーン参加者\n個人招待を受け取った忠実な Mycelium ユーザー</string>
     <string name="vip_code_who_can_get_title">VIP ステータスの対象者</string>
     <string name="vip_exchange_expired_title">VIP SWAP は利用できません</string>
     <string name="vip_exchange_status_expired_alert_message">VIP ステータスの有効期限が切れたため、通常 (非 VIP) レートが適用されます。</string>

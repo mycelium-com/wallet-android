@@ -266,7 +266,7 @@ Při každé %1$s transakci můžete přidat poplatek těžařům z libovolného
     <string name="vip_code_limits_description">Nyní můžete směňovat jakékoli částky.</string>
     <string name="vip_code_limits_title">Žádné limity</string>
     <string name="vip_code_privacy_related_notice">A jedna VELMI DŮLEŽITÁ věc týkající se soukromí, o které byste již měli vědět.</string>
-    <string name="vip_code_who_can_get">Držitelé tokenů Mycelium\nÚčastníci giveaway SU7 Max\nVěrní uživatelé MyceIium, kteří obdrželi osobní\npozvánku</string>
+    <string name="vip_code_who_can_get">Držitelé tokenů Mycelium\nÚčastníci giveaway SU7 Max\nVěrní uživatelé Mycelium, kteří obdrželi osobní\npozvánku</string>
     <string name="vip_code_who_can_get_title">Kdo má nárok na VIP status</string>
     <string name="vip_exchange_expired_title">VIP SWAP není dostupný</string>
     <string name="vip_exchange_status_expired_alert_message">Váš VIP status vypršel, takže nyní platí běžné (ne-VIP) sazby.</string>

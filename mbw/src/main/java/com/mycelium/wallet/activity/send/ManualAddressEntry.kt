@@ -11,11 +11,13 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.widget.doOnTextChanged
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
+import com.mycelium.wallet.activity.send.helper.RecipientAddressError
 import com.mycelium.wallet.databinding.ManualEntryBinding
 import com.mycelium.wapi.wallet.Address
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.erc20.coins.ERC20Token
 import com.mycelium.wapi.wallet.trc20.coins.TRC20Token
+import java.util.UUID
 
 class ManualAddressEntry : AppCompatActivity() {
     private var coinAddress: Address? = null
@@ -37,7 +39,12 @@ class ManualAddressEntry : AppCompatActivity() {
         statusViews = listOf(binding.tvRecipientInvalid, binding.tvRecipientValid,
             binding.tvEnterRecipientDescription)
         mbwManager = MbwManager.getInstance(this)
-        coinType = mbwManager.selectedAccount.coinType
+        // parse for the account being sent from; the selected account can be a different coin
+        val sendingAccount = (intent.getSerializableExtra(SendCoinsActivity.ACCOUNT) as UUID?)?.let {
+            mbwManager.getWalletManager(intent.getBooleanExtra(SendCoinsActivity.IS_COLD_STORAGE, false))
+                .getAccount(it)
+        }
+        coinType = (sendingAccount ?: mbwManager.selectedAccount).coinType
         binding.etRecipient.doOnTextChanged { _, _, _, _ -> updateUI() }
         binding.btOk.setOnClickListener { finishOk(coinAddress!!) }
         binding.etRecipient.inputType = InputType.TYPE_TEXT_FLAG_AUTO_COMPLETE
@@ -64,6 +71,10 @@ class ManualAddressEntry : AppCompatActivity() {
             coinAddress = coinType.parseAddress(entered!!.trim { it <= ' ' })
         }
         val recipientValid = coinAddress != null
+        if (!recipientValid) {
+            binding.tvRecipientInvalid.text = RecipientAddressError.describe(this, coinType, entered ?: "")
+                ?: getString(R.string.recipient_invalid)
+        }
         for (tv in statusViews) {
             tv.visibility = GONE
         }

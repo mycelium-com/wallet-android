@@ -216,6 +216,7 @@ public class EnterWordListActivity extends AppCompatActivity implements WordAuto
       if (usesPassphrase) {
          View view = LayoutInflater.from(this).inflate(R.layout.layout_password, null);
          final EditText pass = view.findViewById(R.id.et_password);
+         Utils.markAccessibilityDataSensitive(view);
 
          AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.MyceliumModern_Dialog);
          builder.setTitle(R.string.type_password_title);

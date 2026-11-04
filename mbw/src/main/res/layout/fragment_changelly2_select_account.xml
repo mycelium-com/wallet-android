@@ -61,7 +61,7 @@
             android:layout_marginTop="8dp"
             android:layout_marginEnd="@dimen/activity_horizontal_margin"
             android:gravity="center"
-            android:text="@string/you_dont_have_btc_or_eth_accounts_with_funds"
+            android:text="@string/exchange_no_accounts_with_funds"
             android:textSize="14dp" />
 
         <Button

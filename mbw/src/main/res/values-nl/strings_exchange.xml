@@ -265,7 +265,7 @@ U kunt elke keer dat u een %1$s-transactie maakt miner\'s fee toevoegen vanaf el
     <string name="vip_code_limits_description">U kunt nu elk bedrag swappen.</string>
     <string name="vip_code_limits_title">Geen limieten</string>
     <string name="vip_code_privacy_related_notice">En één HEEL BELANGRIJK privacy-gerelateerd ding waarvan u zich al bewust zou moeten zijn.</string>
-    <string name="vip_code_who_can_get">Mycelium-tokenhouders\nSU7 Max giveaway-deelnemers\nLoyale MyceIium-gebruikers die een persoonlijke\nuitnodiging hebben ontvangen</string>
+    <string name="vip_code_who_can_get">Mycelium-tokenhouders\nSU7 Max giveaway-deelnemers\nLoyale Mycelium-gebruikers die een persoonlijke\nuitnodiging hebben ontvangen</string>
     <string name="vip_code_who_can_get_title">Wie komt in aanmerking voor VIP-status</string>
     <string name="vip_exchange_expired_title">Vip SWAP is niet beschikbaar</string>
     <string name="vip_exchange_status_expired_alert_message">Uw VIP-status is verlopen, dus reguliere (niet-VIP) tarieven zijn nu van toepassing.</string>

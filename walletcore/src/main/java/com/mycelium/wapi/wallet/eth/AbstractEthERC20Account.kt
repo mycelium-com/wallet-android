@@ -17,9 +17,13 @@ import org.web3j.crypto.Credentials
 import org.web3j.crypto.Sign
 import java.io.IOException
 import java.math.BigInteger
+import java.net.ConnectException
+import java.net.NoRouteToHostException
+import java.net.UnknownHostException
 import java.util.concurrent.TimeUnit
 import java.util.logging.Level
 import java.util.logging.Logger
+import javax.net.ssl.SSLHandshakeException
 
 abstract class AbstractEthERC20Account(coinType: CryptoCurrency,
                                        protected val credentials: Credentials? = null,
@@ -100,6 +104,24 @@ abstract class AbstractEthERC20Account(coinType: CryptoCurrency,
         backing.deleteTransaction(txid)
         updateBalanceCache()
     }
+
+    /**
+     * Sends the signed raw tx [signedHex] (hash [txid]) and survives a lost response: see
+     * [broadcastSignedEthTx]. Never re-signs, so a re-send carries the same hash and cannot pay twice.
+     * Blocking — call off the main thread.
+     */
+    protected fun sendSignedTx(signedHex: String, txid: String): BroadcastResult =
+        broadcastSignedEthTx(
+            txid,
+            send = { blockchainService.sendTransaction(signedHex) },
+            // blockbook answers /tx/<hash> for mempool txs too; anything but a 200 throws
+            isKnown = { blockchainService.getTransaction(txid); true },
+            delaysMs = broadcastRecheckDelaysMs,
+            logger = logger,
+        )
+
+    /** Pauses of [sendSignedTx]'s re-checks; tests set zeros. */
+    internal var broadcastRecheckDelaysMs: LongArray = ETH_BROADCAST_RECHECK_DELAYS_MS
 
     @Throws(IOException::class)
     protected suspend fun getNewNonce(): BigInteger {
@@ -576,6 +598,97 @@ abstract class AbstractEthERC20Account(coinType: CryptoCurrency,
         // refunded on success, so this only costs more on a delegate revert.
         private val CANCEL_GAS_LIMIT: BigInteger = BigInteger.valueOf(50_000)
     }
+}
+
+/** Pauses before asking the node again about a broadcast whose response was lost. */
+internal val ETH_BROADCAST_RECHECK_DELAYS_MS = longArrayOf(1_000L, 2_000L, 4_000L)
+
+/** No new re-check starts after this long; each request still has its own OkHttp timeouts. */
+private const val ETH_BROADCAST_RECOVERY_BUDGET_MS = 60_000L
+
+/**
+ * Broadcast of an already signed tx, the network side of [AbstractEthERC20Account.sendSignedTx].
+ *
+ * An [IOException] from [send] does not mean the tx failed: the connection may have dropped after
+ * the node got it. Then the node is asked (after each of [delaysMs]) whether it knows [txid], and if
+ * not the same signed bytes are sent again — same hash, so this can't create a second payment.
+ *  - known, accepted on re-send, or a re-send answered "already known" / "nonce too low" → SUCCESS
+ *  - a re-send explicitly rejected for another reason (and still unknown) → REJECT_INVALID_TX_PARAMS
+ *  - no answer at all → UNKNOWN_OUTCOME, or NO_SERVER_CONNECTION when no attempt ever got as far
+ *    as a connection (DNS / connect / TLS handshake failed), i.e. the tx provably never left.
+ * The "already known" mapping only applies to re-sends: on the first send "nonce too low" is a
+ * genuine failure (a stale nonce).
+ *
+ * [isKnown] returns true when the node has the tx and throws [IOException] otherwise.
+ */
+internal fun broadcastSignedEthTx(
+    txid: String,
+    send: () -> EthBlockchainService.SendResult,
+    isKnown: () -> Boolean,
+    sleep: (Long) -> Unit = { Thread.sleep(it) },
+    delaysMs: LongArray = ETH_BROADCAST_RECHECK_DELAYS_MS,
+    logger: Logger? = null,
+): BroadcastResult {
+    val firstError = try {
+        val result = send()
+        // "already known": this very tx (same hash) is already in the node's mempool, e.g. the
+        // retry of a send whose outcome was unknown. "nonce too low" stays a rejection here: on a
+        // first send it can mean a different tx took the nonce.
+        return if (result.success || isAlreadyInMempool(result.message)) BroadcastResult(BroadcastResultType.SUCCESS)
+        else BroadcastResult(result.message, BroadcastResultType.REJECT_INVALID_TX_PARAMS)
+    } catch (e: IOException) {
+        e
+    }
+    logger?.log(Level.WARNING, "Broadcast of $txid failed (${firstError.message}), checking whether the node got it")
+    var maybeSent = !isProvablyNotSent(firstError)
+    val deadline = System.currentTimeMillis() + ETH_BROADCAST_RECOVERY_BUDGET_MS
+    fun knownNow(): Boolean = try {
+        isKnown()
+    } catch (e: IOException) {
+        false
+    }
+    for (delayMs in delaysMs) {
+        if (System.currentTimeMillis() > deadline) break
+        try {
+            sleep(delayMs)
+        } catch (e: InterruptedException) {
+            Thread.currentThread().interrupt()
+            break
+        }
+        if (knownNow()) return BroadcastResult(BroadcastResultType.SUCCESS)
+        val resent = try {
+            send()
+        } catch (e: IOException) {
+            if (!isProvablyNotSent(e)) maybeSent = true
+            logger?.log(Level.WARNING, "Re-send of $txid failed: ${e.message}")
+            continue
+        }
+        if (resent.success || isAlreadySubmitted(resent.message)) return BroadcastResult(BroadcastResultType.SUCCESS)
+        // an explicit rejection of a tx the node already holds would be a false failure
+        if (knownNow()) return BroadcastResult(BroadcastResultType.SUCCESS)
+        return BroadcastResult(resent.message, BroadcastResultType.REJECT_INVALID_TX_PARAMS)
+    }
+    return if (maybeSent) BroadcastResult(firstError.message, BroadcastResultType.UNKNOWN_OUTCOME)
+    else BroadcastResult(firstError.message, BroadcastResultType.NO_SERVER_CONNECTION)
+}
+
+/** The request never reached the server: no connection was established. */
+internal fun isProvablyNotSent(e: IOException): Boolean =
+    e is UnknownHostException || e is ConnectException || e is NoRouteToHostException || e is SSLHandshakeException
+
+/**
+ * A node's answer to a re-send of a tx it already has (geth/erigon/nethermind wording): in its
+ * mempool ("already known", "known transaction") or already mined ("nonce too low").
+ */
+internal fun isAlreadyInMempool(message: String?): Boolean {
+    val m = message?.lowercase() ?: return false
+    return "already known" in m || "known transaction" in m || "alreadyknown" in m || "already_exists" in m
+}
+
+internal fun isAlreadySubmitted(message: String?): Boolean {
+    val m = message?.lowercase() ?: return false
+    return "already known" in m || "known transaction" in m || "alreadyknown" in m ||
+            "already imported" in m || "nonce too low" in m
 }
 
 /** The selection behind [AbstractEthERC20Account.findStuckQueueTx], apart from the network. */

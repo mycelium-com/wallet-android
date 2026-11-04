@@ -102,6 +102,10 @@ class EthAccount(private val chainId: Long,
             throw InsufficientFundsForFeeException(Throwable("Insufficient funds to pay for fee"))
         }
         if (value > calculateMaxSpendableAmount(gasPrice, null, ethTxData)) {
+            // the amount alone fits, only amount + fee does not
+            if (value <= accountBalance.spendable) {
+                throw InsufficientFundsForFeeException(Throwable("Insufficient funds to pay for fee"))
+            }
             throw InsufficientFundsException(Throwable("Insufficient funds to send " + Convert.fromWei(value.value.toBigDecimal(), Convert.Unit.ETHER) +
                     " ether with gas price " + Convert.fromWei(gasPrice.valueAsBigDecimal, Convert.Unit.GWEI) + " gwei"))
         }
@@ -156,30 +160,44 @@ class EthAccount(private val chainId: Long,
     }
 
     override fun broadcastTx(tx: Transaction): BroadcastResult {
-        try {
-            val result = blockchainService.sendTransaction((tx as EthTransaction).signedHex!!)
-            if (!result.success) {
-                return BroadcastResult(result.message, BroadcastResultType.REJECT_INVALID_TX_PARAMS)
-            }
-            val newTxid = "0x" + HexUtils.toHex(tx.txHash)
-            // For type-2 txs the persisted/displayed price is the cap
-            // (maxFeePerGas); effectiveGasPrice resolves to gasPrice for legacy.
-            // Once the tx mines, sync overwrites this with the real on-chain
-            // effective price + gasUsed.
-            val price = tx.effectiveGasPrice
-            backing.putTransaction(-1, System.currentTimeMillis() / 1000, newTxid,
-                    tx.signedHex!!, receivingAddress.addressString, tx.toAddress, tx.ethValue,
-                    valueOf(coinType, price * tx.gasLimit), 0, tx.nonce, price, gasLimit = tx.gasLimit)
+        tx as EthTransaction
+        val signedHex = tx.signedHex
+        val hash = tx.txHash
+        if (signedHex == null || hash == null) {
+            return BroadcastResult("Transaction is not signed", BroadcastResultType.REJECT_INVALID_TX_PARAMS)
+        }
+        val newTxid = "0x" + HexUtils.toHex(hash)
+        // A lost response is checked against the node and re-sent as the same bytes;
+        // UNKNOWN_OUTCOME means the tx may be on the network.
+        val result = sendSignedTx(signedHex, newTxid)
+        val accepted = result.resultType == BroadcastResultType.SUCCESS
+        if (!accepted && result.resultType != BroadcastResultType.UNKNOWN_OUTCOME) {
+            return result
+        }
+        // Stored as PENDING in both cases: an UNKNOWN_OUTCOME tx keeps its amount + gas reserved
+        // and shows in the history; reconcileLocalPending() marks it DROPPED after
+        // DROP_GRACE_SECONDS if no endpoint ever sees it, or REPLACED once another tx mines at its nonce.
+        // For type-2 txs the persisted/displayed price is the cap
+        // (maxFeePerGas); effectiveGasPrice resolves to gasPrice for legacy.
+        // Once the tx mines, sync overwrites this with the real on-chain
+        // effective price + gasUsed.
+        val price = tx.effectiveGasPrice
+        backing.putTransaction(-1, System.currentTimeMillis() / 1000, newTxid,
+                signedHex, receivingAddress.addressString, tx.toAddress, tx.ethValue,
+                valueOf(coinType, price * tx.gasLimit), 0, tx.nonce, price, gasLimit = tx.gasLimit)
+        if (accepted) {
             markPendingReplacedByNonce(tx.nonce, newTxid)
             bumpNonceAfterBroadcast(tx.nonce)
-            // Reflect the outgoing amount immediately. Without this the screen
-            // keeps showing the pre-send balance as spendable until the next
-            // periodic sync, roughly a minute later.
-            updateBalanceCache()
-        } catch (e: IOException) {
-            return BroadcastResult(BroadcastResultType.NO_SERVER_CONNECTION)
         }
-        return BroadcastResult(BroadcastResultType.SUCCESS)
+        // UNKNOWN_OUTCOME deliberately leaves the nonce alone: a retry then reuses this nonce,
+        // so it and the lost tx are mutually exclusive — at most one can ever mine (if the lost
+        // one is in the mempool the node refuses the retry as an underpriced replacement).
+        // The next sync's getNewNonce() moves past it once the node reports it pending.
+        // Reflect the outgoing amount immediately. Without this the screen
+        // keeps showing the pre-send balance as spendable until the next
+        // periodic sync, roughly a minute later.
+        updateBalanceCache()
+        return result
     }
 
     override fun ethFeeSpendable(): Value = accountBalance.spendable
@@ -232,12 +250,15 @@ class EthAccount(private val chainId: Long,
         val signedHex = Numeric.toHexString(signedBytes)
         val cancelTxHash = Hash.sha3(signedBytes)
 
+        val cancelTxid = "0x" + HexUtils.toHex(cancelTxHash)
         return try {
-            val result = withContext(Dispatchers.IO) { blockchainService.sendTransaction(signedHex) }
-            if (!result.success) {
-                return BroadcastResult(result.message, BroadcastResultType.REJECT_INVALID_TX_PARAMS)
+            // Same lost-response recovery as broadcastTx. An UNKNOWN_OUTCOME cancel is returned as
+            // is and nothing is recorded: it spends the original's nonce, so whatever happened at
+            // most one of the two mines and sync resolves which.
+            val result = withContext(Dispatchers.IO) { sendSignedTx(signedHex, cancelTxid) }
+            if (result.resultType != BroadcastResultType.SUCCESS) {
+                return result
             }
-            val cancelTxid = "0x" + HexUtils.toHex(cancelTxHash)
             backing.putTransaction(
                 -1,
                 System.currentTimeMillis() / 1000,

@@ -56,6 +56,12 @@ public class WordAutoCompleterFragment extends Fragment implements UsKeyboardFra
    private List<Button> _completionButtons;
    private String[] _completions;
    private int _minimumCharacters;
+   private UsKeyboardFragment _keyboard;
+   // rest of a word that was auto-completed from a unique prefix: letters the user keeps typing
+   // that match it are swallowed instead of starting the next word (R5C-04)
+   private String _autoCompletedTail = "";
+   // letters swallowed so far; replayed as the start of the next word if typing diverges from the tail
+   private String _swallowed = "";
 
    public interface WordAutoCompleterListener {
       void onWordSelected(String word);
@@ -98,6 +104,30 @@ public class WordAutoCompleterFragment extends Fragment implements UsKeyboardFra
       showCompletionButtons();
    }
 
+   /**
+    * @return the only word starting with the prefix, or null if there are none or several
+    * (only once the minimum number of characters is typed)
+    */
+   private String uniqueCompletion(String prefix) {
+      if (_completions == null || prefix.length() < Math.max(_minimumCharacters, 1)) {
+         return null;
+      }
+      List<String> matches = determineCompletions(prefix, 2);
+      return matches.size() == 1 ? matches.get(0) : null;
+   }
+
+   private boolean isPrefixOfAnyWord(String prefix) {
+      if (_completions == null) {
+         return true;
+      }
+      for (String w : _completions) {
+         if (w.startsWith(prefix)) {
+            return true;
+         }
+      }
+      return false;
+   }
+
    private void setCurrentWord(String word) {
       _currentWord = word;
       _listener.onCurrentWordChanged(word);
@@ -107,6 +137,24 @@ public class WordAutoCompleterFragment extends Fragment implements UsKeyboardFra
          acceptWord(_currentWord);
 
       }
+      refreshKeyboard();
+   }
+
+   private void refreshKeyboard() {
+      if (_keyboard != null) {
+         _keyboard.refreshKeys();
+      }
+   }
+
+   @Override
+   public void onKeyboardAttached(UsKeyboardFragment keyboard) {
+      _keyboard = keyboard;
+   }
+
+   @Override
+   public boolean isCharacterAllowed(char character) {
+      // only letters that can still continue a word of the list
+      return isPrefixOfAnyWord(_currentWord + character);
    }
 
    private boolean exactMatch(String entered){
@@ -128,6 +176,7 @@ public class WordAutoCompleterFragment extends Fragment implements UsKeyboardFra
    public void setCompletions(String[] completions) {
       _completions = completions.clone();
       showCompletionButtons();
+      refreshKeyboard();
    }
 
    public void setMinimumCompletionCharacters(int minimumCharacters) {
@@ -140,12 +189,47 @@ public class WordAutoCompleterFragment extends Fragment implements UsKeyboardFra
 
    @Override
    public void onCharacterKeyClicked(char character) {
-      setCurrentWord(_currentWord + character);
+      if (!_autoCompletedTail.isEmpty() && _currentWord.isEmpty()) {
+         if (_autoCompletedTail.charAt(0) == character) {
+            _autoCompletedTail = _autoCompletedTail.substring(1);
+            _swallowed = _autoCompletedTail.isEmpty() ? "" : _swallowed + character;
+            return;
+         }
+         // the user is typing the next word after all: replay what was swallowed, then this key
+         String replay = _swallowed;
+         _autoCompletedTail = "";
+         _swallowed = "";
+         for (int i = 0; i < replay.length(); i++) {
+            typeCharacter(replay.charAt(i));
+         }
+      } else {
+         _autoCompletedTail = "";
+         _swallowed = "";
+      }
+      typeCharacter(character);
+   }
+
+   private void typeCharacter(char character) {
+      if (!isCharacterAllowed(character)) {
+         // the key should be disabled already; never build a prefix no word starts with
+         return;
+      }
+      String typed = _currentWord + character;
+      String unique = uniqueCompletion(typed);
+      if (unique != null && !unique.equals(typed) && isAdded() && _listener != null) {
+         // only one word starts with what was typed: complete it (an exact unique match is accepted below)
+         acceptWord(unique);
+         _autoCompletedTail = unique.substring(typed.length());
+         return;
+      }
+      setCurrentWord(typed);
       showCompletionButtons();
    }
 
    @Override
    public void onDelClicked() {
+      _autoCompletedTail = "";
+      _swallowed = "";
       if (_currentWord.length() > 0) {
          setCurrentWord(_currentWord.substring(0, _currentWord.length() - 1));
          showCompletionButtons();

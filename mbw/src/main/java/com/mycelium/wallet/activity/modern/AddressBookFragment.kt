@@ -39,7 +39,10 @@ import com.mycelium.wallet.databinding.AddressBookBinding
 import com.mycelium.wallet.event.AddressBookChanged
 import com.mycelium.wallet.event.AssetSelected
 import com.mycelium.wapi.wallet.Address
+import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
+import com.mycelium.wapi.wallet.erc20.coins.ERC20Token
+import com.mycelium.wapi.wallet.trc20.coins.TRC20Token
 import com.squareup.otto.Subscribe
 import java.util.UUID
 
@@ -51,6 +54,7 @@ class AddressBookFragment : Fragment() {
     private var ownAddresses: Boolean? = null // set to null on purpose
     private var availableForSendingAddresses: Boolean? = null
     private var currency: CryptoCurrency? = null
+    private var sendingAccount: WalletAccount<*>? = null
     private var isSelectOnly = false
 
     /**
@@ -67,12 +71,13 @@ class AddressBookFragment : Fragment() {
         mbwManager = MbwManager.getInstance(context)
         ownAddresses = requireArguments().getBoolean(OWN)
         availableForSendingAddresses = requireArguments().getBoolean(AVAILABLE_FOR_SENDING)
-        currency = if (requireArguments().containsKey(SendCoinsActivity.ACCOUNT)) {
+        sendingAccount = if (requireArguments().containsKey(SendCoinsActivity.ACCOUNT)) {
             mbwManager!!.getWalletManager(requireArguments().getBoolean(SendCoinsActivity.IS_COLD_STORAGE))
-                    .getAccount((requireArguments().getSerializable(SendCoinsActivity.ACCOUNT) as UUID?)!!)!!.coinType
+                    .getAccount((requireArguments().getSerializable(SendCoinsActivity.ACCOUNT) as UUID?)!!)!!
         } else {
-            mbwManager!!.selectedAccount.coinType
+            mbwManager!!.selectedAccount
         }
+        currency = sendingAccount!!.coinType
         isSelectOnly = requireArguments().getBoolean(SELECT_ONLY)
         sendingFromAccountId = requireArguments().getSerializable(SendCoinsActivity.ACCOUNT) as UUID?
     }
@@ -129,7 +134,7 @@ class AddressBookFragment : Fragment() {
     private fun updateUiMine() {
         val activeAccounts = ArrayList(mbwManager!!.getWalletManager(false).getAllActiveAccounts())
         val entries = Utils.sortAccounts(activeAccounts, mbwManager!!.metadataStorage)
-                .filter { it.receiveAddress != null && currency!!.id == it.coinType.id }
+                .filter { it.receiveAddress != null && isSameAsset(currency!!, it.coinType) }
                 .filter { it.id != sendingFromAccountId }
                 .map { account ->
                     val name = mbwManager!!.metadataStorage.getLabelByAccount(account.id)
@@ -161,7 +166,9 @@ class AddressBookFragment : Fragment() {
 
     private fun updateUiSending() {
         val rawEntries: Map<Address, String> = mbwManager!!.metadataStorage.allAddressLabels
-        val account = mbwManager!!.selectedAccount
+        // the account being sent from, not the selected one: they differ when a send is
+        // started from somewhere other than the account's own screen
+        val account = sendingAccount!!
         val entries = Utils.sortAddressbookEntries(rawEntries.filter { (key, value) -> key.coinType == account.basedOnCoinType }
                 .map { (key, value) -> AddressBookManager.Entry(key, value) })
         if (entries.isEmpty()) {
@@ -359,6 +366,19 @@ class AddressBookFragment : Fragment() {
     }
 
     companion object {
+        /**
+         * Token ids are their display names, so USDT on Ethereum and USDT on Tron share the id
+         * "USDT" — matching on id offered TRC20 accounts as ERC20 recipients and vice versa.
+         * Tokens are told apart by network and contract instead.
+         */
+        @JvmStatic
+        fun isSameAsset(a: CryptoCurrency, b: CryptoCurrency): Boolean = when {
+            a is ERC20Token && b is ERC20Token -> a.contractAddress.equals(b.contractAddress, ignoreCase = true)
+            a is TRC20Token && b is TRC20Token -> a.contractAddress == b.contractAddress
+            a is ERC20Token || b is ERC20Token || a is TRC20Token || b is TRC20Token -> false
+            else -> a.id == b.id
+        }
+
         const val SCAN_RESULT_CODE: Short = 1
         const val ADDRESS_RESULT_NAME = "address_result"
         const val ADDRESS_RESULT_ID = "address_result_id"

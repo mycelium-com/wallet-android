@@ -439,6 +439,15 @@
         <item name="height">56dp</item>
         <item name="titleTextStyle">@style/MyceliumDark.ActionBar.Title</item>
         <item name="android:titleTextStyle">@style/MyceliumDark.ActionBar.Title</item>
+        <item name="subtitleTextStyle">@style/MyceliumDark.ActionBar.Subtitle</item>
+        <item name="android:subtitleTextStyle">@style/MyceliumDark.ActionBar.Subtitle</item>
+    </style>
+
+    <!-- small enough to fit under the 24sp title inside the 56dp bar (send screen: account label) -->
+    <style name="MyceliumDark.ActionBar.Subtitle">
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">@color/white_alpha_0_6</item>
+        <item name="android:includeFontPadding">false</item>
     </style>
 
     <style name="MyceliumDark.ActionBar.Title">

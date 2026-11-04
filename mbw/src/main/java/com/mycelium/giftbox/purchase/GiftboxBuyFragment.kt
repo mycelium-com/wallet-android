@@ -255,7 +255,18 @@ class GiftboxBuyFragment : Fragment() {
     }
 
     fun broadcastResult(transaction: Transaction?, broadcastResult: BroadcastResult) {
-        if (broadcastResult.resultType == BroadcastResultType.SUCCESS) {
+        // UNKNOWN_OUTCOME: the payment may have reached the network (connection lost after
+        // sending). Treat it as sent — the result screen tracks the order — and never re-enable
+        // Send, which would pay a second time.
+        val outcomeUnknown = broadcastResult.resultType == BroadcastResultType.UNKNOWN_OUTCOME
+        if (broadcastResult.resultType == BroadcastResultType.SUCCESS || outcomeUnknown) {
+            if (outcomeUnknown) {
+                // shown on the activity, so it survives the navigation below
+                AlertDialog.Builder(requireActivity())
+                    .setMessage(R.string.transaction_broadcast_outcome_unknown)
+                    .setPositiveButton(R.string.button_ok, null)
+                    .show()
+            }
             findNavController().navigate(
                 GiftboxBuyFragmentDirections.toResult(
                     args.accountId,

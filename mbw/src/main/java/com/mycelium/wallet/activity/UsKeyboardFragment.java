@@ -45,21 +45,39 @@ import android.widget.Button;
 import com.google.common.base.Preconditions;
 import com.mycelium.wallet.R;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 public class UsKeyboardFragment extends Fragment {
 
+   private static final float DISABLED_KEY_ALPHA = 0.3f;
+
    private UsKeyboardListener _listener;
+   private final List<Button> _letterKeys = new ArrayList<>();
 
    public interface UsKeyboardListener {
       public void onCharacterKeyClicked(char character);
 
       public void onDelClicked();
+
+      /**
+       * @return false if typing this character can't lead to a valid input; the key is disabled then.
+       */
+      default boolean isCharacterAllowed(char character) {
+         return true;
+      }
+
+      /** Called when the keyboard starts reporting to this listener, so it can ask for {@link #refreshKeys()}. */
+      default void onKeyboardAttached(UsKeyboardFragment keyboard) {
+      }
    }
 
    @Override
    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
       View root = Preconditions.checkNotNull(inflater.inflate(R.layout.us_keyboard_fragment, container, false));
+      // the view is re-created on configuration changes while the fragment instance is retained
+      _letterKeys.clear();
 
       // Hook up top row
       HookUpLetterKey(root, R.id.btQ);
@@ -94,16 +112,37 @@ public class UsKeyboardFragment extends Fragment {
       HookUpLetterKey(root, R.id.btM);
       HookUpDelKey(root, R.id.btDel);
 
+      refreshKeys();
       return root;
    }
 
    public void setListener(UsKeyboardListener listener) {
       _listener = listener;
+      if (listener != null) {
+         listener.onKeyboardAttached(this);
+      }
+      refreshKeys();
+   }
+
+   /**
+    * Enables only the letter keys the listener allows (e.g. letters that can continue a BIP39 word).
+    */
+   public void refreshKeys() {
+      for (Button b : _letterKeys) {
+         boolean allowed = _listener == null || _listener.isCharacterAllowed(keyCharacter(b));
+         b.setEnabled(allowed);
+         b.setAlpha(allowed ? 1f : DISABLED_KEY_ALPHA);
+      }
+   }
+
+   private static char keyCharacter(Button b) {
+      return b.getText().toString().toLowerCase(Locale.US).charAt(0);
    }
 
    private void HookUpLetterKey(View root, int buttonId) {
       Button b = (Button) root.findViewById(buttonId);
       b.setOnClickListener(aToZClickListener);
+      _letterKeys.add(b);
    }
 
    private void HookUpDelKey(View root, int buttonId) {
@@ -125,6 +164,7 @@ public class UsKeyboardFragment extends Fragment {
    @Override
    public void onResume() {
       super.onResume();
+      refreshKeys();
    }
 
    OnClickListener aToZClickListener = new OnClickListener() {
@@ -135,7 +175,7 @@ public class UsKeyboardFragment extends Fragment {
             return;
          }
          Button b = (Button) view;
-         _listener.onCharacterKeyClicked(b.getText().toString().toLowerCase(Locale.US).charAt(0));
+         _listener.onCharacterKeyClicked(keyCharacter(b));
       }
    };
 

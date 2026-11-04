@@ -25,6 +25,9 @@ class AARpcClient(private val config: ChainAAConfig) {
         .connectTimeout(30, TimeUnit.SECONDS)
         .readTimeout(60, TimeUnit.SECONDS)
         .writeTimeout(60, TimeUnit.SECONDS)
+        // no silent re-POST after a lost response: the surfaced error must belong to the request
+        // that may have reached the bundler (see isProvablyNotSent)
+        .retryOnConnectionFailure(false)
         .build()
 
     // ------------------------------------------------------------------ bundler

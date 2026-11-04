@@ -1,6 +1,7 @@
 package com.mycelium.wapi.wallet.eth.aa
 
 import com.fasterxml.jackson.databind.JsonNode
+import com.mycelium.wapi.wallet.eth.isProvablyNotSent
 import org.web3j.crypto.Hash
 import org.web3j.crypto.Sign
 import org.web3j.rlp.RlpEncoder
@@ -214,7 +215,13 @@ class AATransactionManager @JvmOverloads constructor(
 
         val hash = UserOperationEncoder.getUserOpHash(withPaymaster, config.entryPointAddress, config.chainId)
         val signed = withPaymaster.copy(signature = signatureBytes(signer(hash)))
-        val userOpHash = retryWhileBundlerBehind { rpc.sendUserOperation(signed, authorization) }
+        val userOpHash = try {
+            retryWhileBundlerBehind { rpc.sendUserOperation(signed, authorization) }
+        } catch (e: IOException) {
+            // The answer may be lost although the bundler took the op: never report that as a
+            // failure (the user would send again, with the next nonce, and pay twice).
+            return recoverLostSubmission(Numeric.toHexString(hash), signed, authorization, token, sender, nonce, e)
+        }
         logger.info("UserOperation submitted: $userOpHash")
 
         // Submitted: the nonce is spent and the authorization (if any) travels with it, whatever
@@ -230,6 +237,79 @@ class AATransactionManager @JvmOverloads constructor(
                 receipt.tokenDebited(token.contractAddress, sender))
         } else {
             AATransactionResult.Failure(AAError.USER_OP_REVERTED, "UserOperation reverted on-chain (${receipt.transactionHash})")
+        }
+    }
+
+    /**
+     * `eth_sendUserOperation` failed with a transport error, so the bundler may or may not have
+     * the op. Its hash [userOpHash] is known locally (the one we signed), so: look for a receipt
+     * and re-submit the very same signed op a few times (same hash — it cannot run twice; a bundler
+     * that has it answers "already known", one where it already ran AA25). Once it is known to be
+     * submitted, or the bundler never answered although the request may have gone out, wait for the
+     * receipt as for a normal send; no receipt in time is then [AAError.OUTCOME_UNKNOWN], not a
+     * failure. Only when no attempt ever reached the bundler is it a plain [AAError.NETWORK_ERROR].
+     *
+     * The EntryPoint nonce is only recorded as used once the op is known to be submitted: while
+     * the outcome is open the next op reuses it, so the two are mutually exclusive.
+     */
+    private fun recoverLostSubmission(userOpHash: String, signed: UserOperation, authorization: Authorization7702?,
+                                      token: FeeTokenConfig, sender: String, nonce: BigInteger,
+                                      firstError: IOException): AATransactionResult {
+        logger.log(Level.WARNING, "eth_sendUserOperation failed (${firstError.message}), checking whether the bundler got $userOpHash")
+        var maybeSent = !isProvablyNotSent(firstError)
+        var submitted = false
+        for (delayMs in LOST_SUBMISSION_RECHECK_DELAYS_MS) {
+            Thread.sleep(delayMs)
+            try {
+                if (rpc.getUserOperationReceipt(userOpHash) != null) {
+                    submitted = true
+                    break
+                }
+            } catch (e: Exception) {
+                logger.log(Level.INFO, "receipt check of $userOpHash: ${e.message}")
+            }
+            try {
+                rpc.sendUserOperation(signed, authorization)
+                submitted = true
+                break
+            } catch (e: AARpcException) {
+                val m = e.message?.lowercase().orEmpty()
+                if ("already" in m || "duplicate" in m) {
+                    submitted = true
+                    break
+                }
+                if ("aa25" in m) {
+                    // nonce used: by our op if it already ran (the receipt check above finds it
+                    // next round), or a bundler a block behind — not proof either way
+                    maybeSent = true
+                    continue
+                }
+                // a definite rejection of the op itself: the first attempt cannot have gone through
+                logger.log(Level.WARNING, "re-submit of $userOpHash rejected", e)
+                return AATransactionResult.Failure(classify(e.message), e.message ?: "")
+            } catch (e: IOException) {
+                if (!isProvablyNotSent(e)) maybeSent = true
+                logger.log(Level.INFO, "re-submit of $userOpHash: ${e.message}")
+            }
+        }
+        if (!submitted && !maybeSent) {
+            return AATransactionResult.Failure(AAError.NETWORK_ERROR, firstError.message ?: "")
+        }
+        val receipt = waitForReceipt(userOpHash)
+        if (submitted || receipt != null) {
+            val key = sender.lowercase()
+            usedEntryPointNonce.merge(key, nonce, BigInteger::max)
+            if (authorization != null) delegatedSenders.add(key)
+        }
+        return when {
+            receipt == null && submitted ->
+                AATransactionResult.Failure(AAError.TIMEOUT, "UserOperation $userOpHash not included in time")
+            receipt == null ->
+                AATransactionResult.Failure(AAError.OUTCOME_UNKNOWN, "UserOperation $userOpHash: outcome unknown")
+            receipt.success -> AATransactionResult.Success(receipt.userOpHash, receipt.transactionHash,
+                receipt.blockNumber, receipt.tokenDebited(token.contractAddress, sender))
+            else -> AATransactionResult.Failure(AAError.USER_OP_REVERTED,
+                "UserOperation reverted on-chain (${receipt.transactionHash})")
         }
     }
 
@@ -407,5 +487,7 @@ class AATransactionManager @JvmOverloads constructor(
         private const val STALE_NONCE_RETRIES = 6
         private const val STALE_NONCE_RETRY_MS = 4_000L
         private const val RECEIPT_POLL_MS = 3_000L
+        /** Pauses before asking the bundler again about a submission whose answer was lost. */
+        private val LOST_SUBMISSION_RECHECK_DELAYS_MS = longArrayOf(1_000L, 2_000L, 4_000L)
     }
 }

@@ -369,7 +369,10 @@ class ExchangeFragment : Fragment(), BackListener {
                         // actual send, so an ETH/ERC-20 exchange signs type-2
                         // instead of falling back to legacy on a stale cache.
                         viewModel.refreshEthFeesForSend()
-                        val unsignedTx = prepareTx(addressTo, amount)
+                        // TRC20: bandwidth + energy for the real payin address, as on the Send screen
+                        val txData = if (viewModel.usesEnergyService()) null
+                                     else viewModel.trc20TxDataForSend(addressTo, amount)
+                        val unsignedTx = prepareTx(addressTo, amount, txData)
                         withContext(Dispatchers.Main) {
                             if (unsignedTx != null) {
                                 acceptDialog(unsignedTx, response) {
@@ -474,7 +477,8 @@ class ExchangeFragment : Fragment(), BackListener {
         }
     }
 
-    private fun prepareTx(addressTo: String, amount: String): Transaction? =
+    private fun prepareTx(addressTo: String, amount: String,
+                          txData: com.mycelium.wapi.wallet.TransactionData? = null): Transaction? =
             viewModel.fromAccount.value?.let { account ->
                 if (account is TRC20Account && viewModel.usesEnergyService()) {
                     // Fee is paid in the token through the energy service; the partner broadcasts.
@@ -495,7 +499,7 @@ class ExchangeFragment : Fragment(), BackListener {
                     }
                     else -> TODO("Account not supported yet")
                 }
-                viewModel.prepateTx(address, amount)
+                viewModel.prepateTx(address, amount, txData)
             }
 
     /** Fee shown in the confirmation: the token fee of the energy service, or the chain fee. */
@@ -787,7 +791,12 @@ class ExchangeFragment : Fragment(), BackListener {
         // only the one started by this exchange has a pending changelly order id.
         val txId = viewModel.changellyTx ?: return
         viewModel.changellyTx = null
-        if (result.result.resultType == BroadcastResultType.SUCCESS && result.txid != null) {
+        // UNKNOWN_OUTCOME: the deposit may well be on its way (BroadcastDialog already told the
+        // user to check the history). Book the order exactly like a sent one, so its status stays
+        // trackable and the form is reset — never invite the same exchange again as if nothing left.
+        val maybeSent = result.result.resultType == BroadcastResultType.SUCCESS
+                || result.result.resultType == BroadcastResultType.UNKNOWN_OUTCOME
+        if (maybeSent && result.txid != null) {
             val fromAccountId = viewModel.fromAccount.value?.id
             val toAccountId = viewModel.toAccount.value?.id
             val history = pref.getStringSet(KEY_HISTORY, null) ?: setOf()

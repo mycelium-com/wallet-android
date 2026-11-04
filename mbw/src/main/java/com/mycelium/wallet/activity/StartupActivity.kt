@@ -66,6 +66,7 @@ import com.mycelium.wallet.activity.AccountCreatorHelper.AccountCreationObserver
 import com.mycelium.wallet.activity.AccountCreatorHelper.CreateAccountAsyncTask
 import com.mycelium.wallet.activity.export.DecryptBip38PrivateKeyActivity
 import com.mycelium.wallet.activity.modern.ModernMain
+import com.mycelium.giftbox.GiftBoxRootActivity
 import com.mycelium.wallet.activity.modern.Toaster
 import com.mycelium.wallet.activity.modern.helper.MainActions
 import com.mycelium.wallet.activity.news.NewsUtils
@@ -75,7 +76,6 @@ import com.mycelium.wallet.activity.send.SendInitializationActivity.Companion.ca
 import com.mycelium.wallet.activity.send.SendInitializationActivity.Companion.callMeWithResult
 import com.mycelium.wallet.bitid.BitIDAuthenticationActivity
 import com.mycelium.wallet.bitid.BitIDSignRequest
-import com.mycelium.wallet.content.actions.HdNodeAction.Companion.isKeyNode
 import com.mycelium.wallet.content.actions.PrivateKeyAction.Companion.getPrivateKey
 import com.mycelium.wallet.databinding.StartupActivityBinding
 import com.mycelium.wallet.event.AccountChanged
@@ -322,10 +322,12 @@ class StartupActivity : AppCompatActivity(), AccountCreationObserver {
             val hasClipboardExportedPrivateKeys = hasPrivateKeyOnClipboard(_mbwManager!!.network)
             val hasClipboardExportedPublicKeys = hasPublicKeyOnClipboard(_mbwManager!!.network)
 
-            if (hasClipboardExportedPublicKeys) {
-                warnUserOnClipboardKeys(false)
-            } else if (hasClipboardExportedPrivateKeys) {
+            // Check private keys first: xprv/tprv also parse as HD key nodes and must not be
+            // reported as "Public Key Found on Clipboard".
+            if (hasClipboardExportedPrivateKeys) {
                 warnUserOnClipboardKeys(true)
+            } else if (hasClipboardExportedPublicKeys) {
+                warnUserOnClipboardKeys(false)
             } else {
                 normalStartup()
             }
@@ -334,25 +336,21 @@ class StartupActivity : AppCompatActivity(), AccountCreationObserver {
         private fun hasPrivateKeyOnClipboard(network: NetworkParameters): Boolean {
             // do we have a private key on the clipboard?
             try {
-                val key = getPrivateKey(network, Utils.getClipboardString(this@StartupActivity))
+                val content = Utils.getClipboardString(this@StartupActivity)
+                val key = getPrivateKey(network, content)
                 if (key != null) {
                     return true
                 }
-                HdKeyNode.parse(Utils.getClipboardString(this@StartupActivity), network)
-                return true
+                return HdKeyNode.parse(content, network).isPrivateHdKeyNode
             } catch (ex: KeyGenerationException) {
                 return false
             }
         }
 
         private fun hasPublicKeyOnClipboard(network: NetworkParameters): Boolean {
-            // do we have a public key on the clipboard?
+            // do we have a public key (xpub/tpub) on the clipboard? Private HD nodes are excluded.
             try {
-                if (isKeyNode(network, Utils.getClipboardString(this@StartupActivity))) {
-                    return true
-                }
-                HdKeyNode.parse(Utils.getClipboardString(this@StartupActivity), network)
-                return true
+                return !HdKeyNode.parse(Utils.getClipboardString(this@StartupActivity), network).isPrivateHdKeyNode
             } catch (ex: KeyGenerationException) {
                 return false
             }
@@ -492,6 +490,19 @@ class StartupActivity : AppCompatActivity(), AccountCreationObserver {
                 .putExtra(ModernMain.EXTRA_DEEP_LINK_FORWARDED, true)
                 .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP))
             // close the startup activity to not pollute the backstack
+            finish()
+            return
+        }
+        if (intentUri.host.equals(ACTION_GIFTBOX_HOST, ignoreCase = true)) {
+            // StartupActivity is the only handler of mycelium:// (GiftBoxRootActivity no longer declares its own
+            // VIEW filter, which made Android show an "Open with" chooser listing the wallet twice)
+            val giftBox = Intent(this, GiftBoxRootActivity::class.java)
+            if (isTaskRoot) {
+                // cold start: put the wallet underneath so Back from the gift box lands on ModernMain
+                startActivities(arrayOf(Intent(this, ModernMain::class.java), giftBox))
+            } else {
+                startActivity(giftBox)
+            }
             finish()
             return
         }
@@ -641,6 +652,7 @@ class StartupActivity : AppCompatActivity(), AccountCreationObserver {
     companion object {
         /** Intent of the screen the startup-PIN gate intercepted; replayed after the PIN (see WalletApplication). */
         const val EXTRA_REDIRECT_INTENT = "redirectIntent"
+        private const val ACTION_GIFTBOX_HOST = "action.giftbox"
         private const val MINIMUM_SPLASH_TIME = 100
         private const val REQUEST_FROM_URI = 2
         private const val IMPORT_WORDLIST = 0

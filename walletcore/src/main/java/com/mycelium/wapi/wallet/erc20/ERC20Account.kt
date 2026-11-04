@@ -138,39 +138,49 @@ class ERC20Account(val chainId: Long,
 
     override fun broadcastTx(tx: Transaction): BroadcastResult {
         try {
-            val result = blockchainService.sendTransaction((tx as EthTransaction).signedHex!!)
-            if (!result.success) {
-                return BroadcastResult(result.message, BroadcastResultType.REJECT_INVALID_TX_PARAMS)
+            tx as EthTransaction
+            val signedHex = tx.signedHex
+            val hash = tx.txHash
+            if (signedHex == null || hash == null) {
+                return BroadcastResult("Transaction is not signed", BroadcastResultType.REJECT_INVALID_TX_PARAMS)
             }
-            val newTxid = "0x" + HexUtils.toHex(tx.txHash)
+            val newTxid = "0x" + HexUtils.toHex(hash)
+            // A lost response is checked against the node and re-sent as the same bytes;
+            // UNKNOWN_OUTCOME means the tx may be on the network (see EthAccount.broadcastTx).
+            val result = sendSignedTx(signedHex, newTxid)
+            val accepted = result.resultType == BroadcastResultType.SUCCESS
+            if (!accepted && result.resultType != BroadcastResultType.UNKNOWN_OUTCOME) {
+                return result
+            }
+            // PENDING in both cases, so an UNKNOWN_OUTCOME transfer keeps the tokens reserved and
+            // shows in the history until sync confirms, replaces or drops it.
             // type-2 → store the cap (maxFeePerGas); legacy → the gas price.
             val price = tx.effectiveGasPrice
             backing.putTransaction(-1, System.currentTimeMillis() / 1000, newTxid,
-                    tx.signedHex!!, receivingAddress.addressString, tx.toAddress,
+                    signedHex, receivingAddress.addressString, tx.toAddress,
                     Value.valueOf(basedOnCoinType, tx.tokenValue!!.value), Value.valueOf(basedOnCoinType, price * tx.gasLimit), 0,
                     tx.nonce, price, true, null, true, tx.gasLimit, tx.estimatedGasUsed.toBigInteger())
-            markPendingReplacedByNonce(tx.nonce, newTxid)
-            bumpNonceAfterBroadcast(tx.nonce)
-            // ERC20 shares an on-chain address with its parent EthAccount, so
-            // bump there too to prevent the next ETH or token send from reusing
-            // this nonce before the next sync, and mirror the REPLACED marking
-            // since the nonce is shared across both accounts' backings.
-            ethAcc.markPendingReplacedByNonce(tx.nonce, newTxid)
-            ethAcc.bumpNonceAfterBroadcast(tx.nonce)
+            if (accepted) {
+                markPendingReplacedByNonce(tx.nonce, newTxid)
+                bumpNonceAfterBroadcast(tx.nonce)
+                // ERC20 shares an on-chain address with its parent EthAccount, so
+                // bump there too to prevent the next ETH or token send from reusing
+                // this nonce before the next sync, and mirror the REPLACED marking
+                // since the nonce is shared across both accounts' backings.
+                ethAcc.markPendingReplacedByNonce(tx.nonce, newTxid)
+                ethAcc.bumpNonceAfterBroadcast(tx.nonce)
+            }
+            // UNKNOWN_OUTCOME keeps the nonce (here and on the parent): a retry reuses it and
+            // cannot mine alongside the lost transfer.
             // Show the outgoing tokens as pending right away instead of after the
             // next periodic sync, and refresh the parent too — the gas for this
             // transfer is now committed ETH.
             updateBalanceCache()
             ethAcc.updateBalanceCache()
-            return BroadcastResult(BroadcastResultType.SUCCESS)
+            return result
         } catch (e: Exception) {
-            return when (e) {
-                is IOException -> BroadcastResult(BroadcastResultType.NO_SERVER_CONNECTION)
-                else -> {
-                    logger.log(Level.SEVERE, "Error sending ERC-20 transaction: ${e.localizedMessage}")
-                    BroadcastResult(e.localizedMessage, BroadcastResultType.REJECT_INVALID_TX_PARAMS)
-                }
-            }
+            logger.log(Level.SEVERE, "Error sending ERC-20 transaction: ${e.localizedMessage}")
+            return BroadcastResult(e.localizedMessage, BroadcastResultType.REJECT_INVALID_TX_PARAMS)
         }
     }
 

@@ -5,6 +5,7 @@ import android.graphics.Canvas;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 import android.util.AttributeSet;
+import android.view.MotionEvent;
 import android.view.View;
 
 import com.mycelium.wallet.R;
@@ -76,6 +77,55 @@ public class SelectableRecyclerView extends RecyclerView {
         int selectIndex = adapter.findIndex(selected);
         selectIndex = selectIndex == -1 ? adapter.getItemCount() / 2 : selectIndex;
         setSelectedItem(selectIndex);
+    }
+
+    private final int touchSlop = android.view.ViewConfiguration.get(getContext()).getScaledTouchSlop();
+    private float downX;
+    private float downY;
+    private boolean gestureDecided;
+
+    /**
+     * The fee pickers sit inside the send screen's vertical NestedScrollView, which steals
+     * any drag that is even slightly diagonal — swiping the picker scrolled the page instead.
+     * Claim the gesture on touch-down and hand it back to the parent only once it is
+     * clearly vertical; a horizontal drag then stays with the picker for its whole length.
+     */
+    @Override
+    public boolean dispatchTouchEvent(MotionEvent e) {
+        switch (e.getActionMasked()) {
+            case MotionEvent.ACTION_DOWN:
+                downX = e.getX();
+                downY = e.getY();
+                gestureDecided = false;
+                requestParentDisallowIntercept(true);
+                break;
+            case MotionEvent.ACTION_MOVE:
+                if (!gestureDecided) {
+                    float dx = Math.abs(e.getX() - downX);
+                    float dy = Math.abs(e.getY() - downY);
+                    if (dx > touchSlop || dy > touchSlop) {
+                        gestureDecided = true;
+                        // horizontal wins ties: a picker swipe is rarely perfectly level
+                        if (dy > dx * 1.5f) {
+                            requestParentDisallowIntercept(false);
+                        }
+                    }
+                }
+                break;
+            case MotionEvent.ACTION_UP:
+            case MotionEvent.ACTION_CANCEL:
+                requestParentDisallowIntercept(false);
+                break;
+            default:
+                break;
+        }
+        return super.dispatchTouchEvent(e);
+    }
+
+    private void requestParentDisallowIntercept(boolean disallow) {
+        if (getParent() != null) {
+            getParent().requestDisallowInterceptTouchEvent(disallow);
+        }
     }
 
     @Override

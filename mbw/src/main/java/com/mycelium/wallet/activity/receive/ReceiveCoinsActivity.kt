@@ -97,8 +97,13 @@ class ReceiveCoinsActivity : AppCompatActivity() {
 
     private fun createAddressDropdown(addressTypes: List<AddressType>) {
         val btcViewModel = viewModel as ReceiveBtcViewModel
-        // setting initial text based on current address type
-        bindingReceiveBtcAddrType?.selectedAddressText?.text = getString(btcViewModel.getAccountDefaultAddressType()?.asStringRes() ?: 0)
+        // the label follows the type actually shown — after a configuration change the view model
+        // still holds the user's pick, which may differ from the account default
+        btcViewModel.addressType.observe(this) { type ->
+            (type ?: btcViewModel.getAccountDefaultAddressType())?.let {
+                bindingReceiveBtcAddrType?.selectedAddressText?.text = getString(it.asStringRes())
+            }
+        }
 
         bindingReceiveBtcAddrType?.addressDropdownImageView?.visibility = if (addressTypes.size > 1) {
             val addressTypesMenu = PopupMenu(this, bindingReceiveBtcAddrType?.addressDropdownImageView)

@@ -166,7 +166,7 @@ public abstract class Script implements Serializable {
       return -1;
    }
 
-   protected static byte[][] chunksFromScriptBytes(byte[] script) throws ScriptParsingException {
+   public static byte[][] chunksFromScriptBytes(byte[] script) throws ScriptParsingException {
       try {
          ByteReader reader = new ByteReader(script);
          int numChunks = countChunks(reader);

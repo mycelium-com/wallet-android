@@ -4,11 +4,16 @@ import android.app.Activity
 import android.app.AlertDialog
 import android.app.Application
 import android.content.Intent
+import android.text.Editable
+import android.widget.EditText
+import android.widget.Spinner
+import androidx.databinding.BindingAdapter
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.modern.Toaster
 import com.mycelium.wallet.activity.util.EthFeeFormatter
+import com.mycelium.wallet.activity.util.displaySymbol
 import com.mycelium.wallet.activity.util.toStringFriendlyWithUnit
 import com.mycelium.wapi.content.AssetUri
 import com.mycelium.wapi.content.eth.EthUri
@@ -36,6 +41,7 @@ import com.mycelium.wapi.wallet.eth.EthTransaction
 import com.mycelium.wapi.wallet.eth.aa.AAError
 import com.mycelium.wapi.wallet.eth.aa.AATransactionManager
 import com.mycelium.wapi.wallet.eth.aa.AATransactionResult
+import org.web3j.utils.Convert
 import java.math.BigInteger
 import java.util.regex.Pattern
 
@@ -135,9 +141,87 @@ open class SendEthViewModel(application: Application) : SendCoinsViewModel(appli
         if (it is ERC20Account) {
             BigInteger.valueOf(ERC20Account.TOKEN_TRANSFER_GAS_LIMIT)
         } else {
-            BigInteger.valueOf(it.typicalEstimatedTransactionSize.toLong())
+            // calldata costs intrinsic gas (EIP-7623 floor): 21000 alone would be rejected with data
+            EthAccount.defaultGasLimit(getInputData().value)
         }
     }
+
+    // Raw Advanced text, checked on every keystroke (bound in send_coins_advanced_eth.xml): an
+    // unparsable field is applied as "not set", so Send must stay off until it is fixed.
+    private var nonceTextValid = true
+    private var gasLimitTextValid = true
+    private var gasPriceTextValid = true
+    private var inputDataTextValid = true
+
+    fun onNonceTextChanged(s: Editable?) {
+        nonceTextValid = s.isNullOrEmpty() || s.toString().toBigIntegerOrNull() != null
+        pushAdvancedValidity()
+    }
+
+    fun onGasLimitTextChanged(s: Editable?) {
+        gasLimitTextValid = s.isNullOrEmpty() || s.toString().toBigIntegerOrNull() != null
+        gasLimitText = s?.toString() ?: ""
+        val pending = autoGasLimitText.value
+        // Still auto: empty (the default applies), the value the app is putting in, or the default
+        // for the data as it is now (the activity fills that in when a gas price is applied).
+        // Anything else is the user's own limit.
+        gasLimitIsAuto = gasLimitText.isEmpty() || gasLimitText == pending ||
+                (getAccount() is EthAccount && gasLimitText == EthAccount.defaultGasLimit(validInputData(getInputData().value)).toString())
+        // consumed: a later rebind (rotation) must not put an old auto value over the user's text
+        if (pending != null && pending != gasLimitText) autoGasLimitText.value = null
+        pushAdvancedValidity()
+    }
+
+    fun onGasPriceTextChanged(s: Editable?) {
+        gasPriceTextValid = s.isNullOrEmpty() ||
+                runCatching { Convert.toWei(s.toString(), Convert.Unit.GWEI) }.isSuccess
+        val preset = (model as? SendEthModel)?.presetGasPriceText
+        if (preset?.value != null && preset.value != s?.toString()) preset.value = null
+        pushAdvancedValidity()
+    }
+
+    /** Gas price text the app prefills (bumped price of the tx being replaced); bound to the field. */
+    fun getPresetGasPriceText() = (model as SendEthModel).presetGasPriceText
+
+    /**
+     * Gas limit the app puts into the field when the input data changes (N2); bound to the field.
+     * The auto value is always [EthAccount.defaultGasLimit] of the whole current data — never
+     * derived from the previous value, so a bulk edit (paste, IME commit) lands on the right
+     * figure. It follows the data while [gasLimitIsAuto]: that flag drops only when the user
+     * edits the limit field. An empty field is left alone (the default applies).
+     */
+    val autoGasLimitText: MutableLiveData<String?> = MutableLiveData()
+    private var gasLimitText = ""
+    private var gasLimitIsAuto = true
+
+    /** Error shown on the Input Data field; bound to it. */
+    val inputDataError: MutableLiveData<String?> = MutableLiveData()
+
+    fun onInputDataTextChanged(s: Editable?) {
+        val text = s?.toString().orEmpty()
+        inputDataTextValid = isValidInputData(text)
+        val error = if (inputDataTextValid) null else context.getString(R.string.not_valid_value)
+        if (inputDataError.value != error) inputDataError.value = error
+        pushAdvancedValidity()
+        // invalid data (Send is off) keeps the last limit instead of jumping on a half-typed byte
+        if (!inputDataTextValid || getAccount() !is EthAccount || gasLimitText.isEmpty() || !gasLimitIsAuto) return
+        val updated = EthAccount.defaultGasLimit(validInputData(text)).toString()
+        // also when the field already shows it: an older auto value may still be on its way
+        if (updated != gasLimitText || autoGasLimitText.value != null) autoGasLimitText.value = updated
+    }
+
+    /** Empty, or whole bytes of hex with an optional 0x prefix ("0x" alone = no data). */
+    private fun isValidInputData(text: String) = INPUT_DATA_PATTERN.matcher(text).matches()
+
+    private fun validInputData(text: String?) = text?.takeIf { it.isNotEmpty() && isValidInputData(it) }
+
+    private fun pushAdvancedValidity() {
+        (model as? SendEthModel)?.setAdvancedInputInvalid(
+                !(nonceTextValid && gasLimitTextValid && gasPriceTextValid && inputDataTextValid))
+    }
+
+    /** Position to preselect in the replace spinner (read once by the binding). */
+    fun getPresetTxPosition(): Int = (model as SendEthModel).selectedTxPosition()
 
     fun getSecondsUntilNextUpdate() = (model as SendEthModel).feeUpdater.secondsUntilNextUpdate
 
@@ -172,7 +256,7 @@ open class SendEthViewModel(application: Application) : SendCoinsViewModel(appli
     fun getTokenFeeMaxText() = ethModel.tokenFeeMaxText
     fun getTokenFeeLoading() = ethModel.tokenFeeLoading
     fun getTokenFeeError() = ethModel.tokenFeeError
-    fun tokenSymbol(): String = model.account.coinType.symbol
+    fun tokenSymbol(): String = model.account.coinType.displaySymbol
     fun selectEthFee() = ethModel.setFeeMode(EthFeeMode.ETH)
     fun selectTokenFee() = ethModel.setFeeMode(EthFeeMode.TOKEN)
 
@@ -286,6 +370,7 @@ open class SendEthViewModel(application: Application) : SendCoinsViewModel(appli
             is AATransactionResult.Success -> finishAsSent(activity, result.transactionHash, send.amount)
             is AATransactionResult.Failure -> showTokenFeeError(activity, when (result.error) {
                 AAError.TIMEOUT -> context.getString(R.string.eth_token_fee_timeout)
+                AAError.OUTCOME_UNKNOWN -> context.getString(R.string.eth_token_fee_outcome_unknown)
                 AAError.PENDING_EOA_TX -> context.getString(R.string.eth_token_fee_pending_eth_tx)
                 else -> context.getString(R.string.eth_token_fee_error, result.message)
             })
@@ -328,4 +413,25 @@ open class SendEthViewModel(application: Application) : SendCoinsViewModel(appli
         (model as? SendEthModel)?.release()
         super.onCleared()
     }
+}
+
+private val INPUT_DATA_PATTERN: Pattern = Pattern.compile("^(0x)?([0-9a-fA-F]{2})*$")
+
+/** Puts app-provided text into an Advanced field; null leaves the field (and the user's text) alone. */
+@BindingAdapter("presetText")
+fun setPresetText(editText: EditText, text: String?) {
+    if (text == null || editText.text.toString() == text) return
+    editText.setText(text)
+    editText.setSelection(editText.text.length)
+}
+
+/** Preselects the tx the Send screen was opened to replace; 0 ("none") leaves the spinner alone. */
+@BindingAdapter("selectedTxPosition")
+fun setSelectedTxPosition(spinner: Spinner, position: Int) {
+    if (position <= 0) return
+    val select = Runnable {
+        if (position < spinner.count && spinner.selectedItemPosition != position) spinner.setSelection(position)
+    }
+    // the activity sets the spinner adapter right after binding the view model
+    if (spinner.adapter != null) select.run() else spinner.post(select)
 }

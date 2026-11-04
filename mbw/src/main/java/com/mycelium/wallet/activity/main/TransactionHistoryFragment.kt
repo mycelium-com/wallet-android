@@ -544,15 +544,18 @@ class TransactionHistoryFragment : Fragment() {
      * TODO: consider parallel attempts to PFP
      */
     private fun tryCreateBumpTransaction(txid: Sha256Hash, feePerKB: Long): UnsignedTransaction? {
-        val transaction = model.account.value!!.getTxSummary(txid.bytes) // TODO refactor: return if getTxSummary() returns null
-        val txFee = transaction!!.inputs.map { it.value.valueAsLong }.sum() -
-                transaction.outputs.map { it.value.valueAsLong }.sum()
-        if (txFee * 1000 / transaction.rawSize >= feePerKB) {
+        val account = model.account.value as AbstractBtcAccount
+        // Fee and size as the transaction and its parents vouch for them, not as the server reports
+        val (txFee, txSize) = account.getCpfpParentFeeAndVsize(txid) ?: run {
+            Toaster(requireActivity()).toast(resources.getString(R.string.unable_to_build_tx, ""), false)
+            return null
+        }
+        if (txFee * 1000 / txSize >= feePerKB) {
             Toaster(requireActivity()).toast(resources.getString(R.string.bumping_not_necessary), false)
             return null
         }
         try {
-            return (model.account.value as AbstractBtcAccount).createUnsignedCPFPTransaction(txid, feePerKB, txFee)
+            return account.createUnsignedCPFPTransaction(txid, feePerKB)
         } catch (e: InsufficientBtcException) {
             Toaster(requireActivity()).toast(R.string.insufficient_funds, false)
         } catch (e: UnableToBuildTransactionException) {

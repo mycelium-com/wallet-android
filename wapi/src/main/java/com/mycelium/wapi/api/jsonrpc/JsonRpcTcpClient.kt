@@ -103,15 +103,20 @@ open class JsonRpcTcpClient(private var endpoints : Array<TcpEndpoint>, androidA
                 val currentEndpoint = endpoints[curEndpointIndex]
                 try {
                     logger.log(Level.INFO, "Connecting to ${currentEndpoint.host}:${currentEndpoint.port}")
-                    socket = when {
-                        currentEndpoint.host.endsWith(".onion") ->
-                            Socket(Proxy(Proxy.Type.SOCKS, InetSocketAddress("127.0.0.1", 9050)))
-                        currentEndpoint.useSsl -> ssf.createSocket()
-                        else -> Socket()
+                    // Tor authenticates an .onion by its address; everything else needs TLS bound to the host name
+                    val plain = if (currentEndpoint.host.endsWith(".onion")) {
+                        Socket(Proxy(Proxy.Type.SOCKS, InetSocketAddress("127.0.0.1", 9050)))
+                    } else {
+                        Socket()
                     }.apply {
                         soTimeout = MAX_READ_RESPONSE_TIMEOUT.toInt()
                         connect(InetSocketAddress(currentEndpoint.host, currentEndpoint.port))
                         keepAlive = true
+                    }
+                    socket = when {
+                        currentEndpoint.host.endsWith(".onion") || !currentEndpoint.useSsl -> plain
+                        else -> startVerifiedTls(ssf, plain, currentEndpoint.host, currentEndpoint.port)
+                    }.apply {
                         incoming = BufferedReader(InputStreamReader(getInputStream()))
                         outgoing = BufferedOutputStream(getOutputStream())
                     }

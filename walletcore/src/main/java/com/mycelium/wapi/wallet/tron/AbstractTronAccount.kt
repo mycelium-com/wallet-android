@@ -5,6 +5,8 @@ import com.mrd.bitlib.util.HexUtils
 import com.mycelium.wapi.SyncStatus
 import com.mycelium.wapi.SyncStatusInfo
 import com.mycelium.wapi.wallet.Address
+import com.mycelium.wapi.wallet.BroadcastResult
+import com.mycelium.wapi.wallet.BroadcastResultType
 import com.mycelium.wapi.wallet.Fee
 import com.mycelium.wapi.wallet.KeyCipher
 import com.mycelium.wapi.wallet.OutputViewModel
@@ -110,6 +112,44 @@ abstract class AbstractTronAccount(
             balanceBeforeBroadcast.keys.retainAll(pending.map { it.txid }.toSet())
             unreflectedPendingDebits(balanceBeforeBroadcast, nodeBalance, pending)
         }
+
+    /**
+     * Broadcasts [signed] (whose id is [txid]). A plain [IOException] does not mean the tx failed:
+     * the connection may have dropped after the node already accepted it. In that case the node is
+     * asked a few times whether it knows the tx, and if not the very same signed bytes are re-sent
+     * (same txid, so this can't double-spend; a node that has it answers DUP_TRANSACTION_ERROR).
+     * Returns [BroadcastResultType.UNKNOWN_OUTCOME] when the node stays unreachable.
+     * Blocking — call off the main thread.
+     */
+    protected fun broadcastSigned(signed: ByteArray, txid: String): BroadcastResult {
+        val firstError = try {
+            val result = blockchainService.broadcast(signed)
+            return if (result.success) BroadcastResult(BroadcastResultType.SUCCESS)
+            else BroadcastResult(result.message, BroadcastResultType.REJECT_INVALID_TX_PARAMS)
+        } catch (e: IOException) {
+            e
+        }
+        logger.log(Level.WARNING, "Broadcast of $txid failed (${firstError.message}), checking whether the node got it")
+        for (delayMs in BROADCAST_RECHECK_DELAYS_MS) {
+            try {
+                Thread.sleep(delayMs)
+            } catch (e: InterruptedException) {
+                Thread.currentThread().interrupt()
+                break
+            }
+            try {
+                if (blockchainService.isTransactionKnown(txid)) return BroadcastResult(BroadcastResultType.SUCCESS)
+                val result = blockchainService.broadcast(signed)
+                if (result.success) return BroadcastResult(BroadcastResultType.SUCCESS)
+                // an explicit rejection of a tx the node already processed would be a false failure
+                if (blockchainService.isTransactionKnown(txid)) return BroadcastResult(BroadcastResultType.SUCCESS)
+                return BroadcastResult(result.message, BroadcastResultType.REJECT_INVALID_TX_PARAMS)
+            } catch (e: IOException) {
+                logger.log(Level.WARNING, "Re-check of $txid failed: ${e.message}")
+            }
+        }
+        return BroadcastResult(firstError.message, BroadcastResultType.UNKNOWN_OUTCOME)
+    }
 
     fun deleteTransaction(txid: String) {
         backing.deleteTransaction(txid)
@@ -266,6 +306,9 @@ abstract class AbstractTronAccount(
     companion object {
         // Refresh the ref-block before signing if older than this
         private const val BLOCK_REF_MAX_AGE_MS = 60_000L
+
+        // Pauses before asking the node again about a broadcast whose response was lost
+        private val BROADCAST_RECHECK_DELAYS_MS = longArrayOf(1_000L, 2_000L, 4_000L)
 
         // How long a broadcast tx may stay unseen by the node before it is treated as dropped
         private val PENDING_TX_GRACE_MS = TimeUnit.SECONDS.toMillis(150)

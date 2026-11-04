@@ -1268,7 +1268,13 @@ public class MbwManager {
                         fun.run();
                     } else {
                         getEditor().putInt(Constants.FAILED_PIN_COUNT, ++failedPinCount).apply();
-                        if (_pin.isResettable()) {
+                        if (pinDialog instanceof ClearPinDialog) {
+                            // already in the reset ("I forgot the PIN") dialog: behave like the normal PIN entry -
+                            // error + retry in place (the pad was cleared and re-enabled by PinDialog), instead of
+                            // stacking another "Invalid PIN / RESET PIN" dialog on top of it
+                            new Toaster(activity).toast(R.string.pin_invalid_pin, false);
+                            vibrate();
+                        } else if (_pin.isResettable()) {
                             // Show hint, that this pin is resettable
                             new AlertDialog.Builder(activity)
                                     .setTitle(R.string.pin_invalid_pin)
@@ -1286,10 +1292,6 @@ public class MbwManager {
                                     .setNeutralButton(activity.getString(R.string.reset_pin_button), new DialogInterface.OnClickListener() {
                                         @Override
                                         public void onClick(DialogInterface dialogInterface, int i) {
-                                            if (pinDialog instanceof ClearPinDialog) {
-                                                // already in the reset dialog, it stays open for another attempt
-                                                return;
-                                            }
                                             pinDialog.dismiss();
                                             ClearPinDialog clearPinDialog = MbwManager.this.showClearPinDialog(activity, null);
                                             if (!pinDialog.getCancelable()) {

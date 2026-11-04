@@ -6,8 +6,10 @@ import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.view.ActionMode
+import com.mycelium.wallet.Constants
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
+import com.mycelium.wallet.Utils
 import com.mycelium.wallet.activity.export.ShamirSharingActivity
 import com.mycelium.wallet.activity.modern.ModernMain
 import com.mycelium.wallet.activity.modern.Toaster
@@ -42,7 +44,7 @@ class AccountsActionModeCallback(
     override fun onPrepareActionMode(mode: ActionMode, menu: Menu?): Boolean {
         val item = menu?.findItem(R.id.miMakeBackup)
         item?.setShowAsAction(
-            if (showBackupMissingWarning(mbwManager.getSelectedAccount(), mbwManager))
+            if (showBackupMissingWarning(account, mbwManager))
                 MenuItem.SHOW_AS_ACTION_IF_ROOM else MenuItem.SHOW_AS_ACTION_NEVER
         )
         val dropPriKeyItem = menu?.findItem(R.id.miDropPrivateKey)
@@ -74,7 +76,7 @@ class AccountsActionModeCallback(
             }
 
             R.id.miShamirBackup -> {
-                shamirExportSelectedPrivateKey()
+                shamirExportFocusedPrivateKey()
                 true
             }
 
@@ -98,9 +100,28 @@ class AccountsActionModeCallback(
         context.startActivity(intent)
     }
 
-    private fun shamirExportSelectedPrivateKey() {
+    /**
+     * Shamir-shares the private key of the account this action mode was opened for (the focused
+     * item, which may be archived and therefore differ from the selected account).
+     */
+    private fun shamirExportFocusedPrivateKey() {
+        val account = this.account
+        if (account !is SingleAddressAccount || !account.canSpend()) {
+            return
+        }
         runPinProtected(Runnable {
-            val account = MbwManager.getInstance(context).getSelectedAccount()
+            // Same lockdown as "Export account keys": a freshly set PIN must not give immediate
+            // access to private keys.
+            if (mbwManager.isPinProtected && !mbwManager.isPinOldEnough) {
+                val remainingBlocks = mbwManager.remainingPinLockdownDuration
+                    .or(Constants.MIN_PIN_BLOCKHEIGHT_AGE_ADDITIONAL_BACKUP)
+                AlertDialog.Builder(context)
+                    .setMessage(context.getString(R.string.shamir_export_not_possible_pin_too_new, remainingBlocks,
+                        Utils.formatBlockcountAsApproxDuration(mbwManager, remainingBlocks, Constants.BTC_BLOCK_TIME_IN_SECONDS)))
+                    .setPositiveButton(R.string.ok, null)
+                    .show()
+                return@Runnable
+            }
             val builder = AlertDialog.Builder(context)
             builder.setMessage(R.string.export_account_data_warning).setCancelable(true)
                 .setPositiveButton(R.string.yes, { dialog, id ->
@@ -108,7 +129,11 @@ class AccountsActionModeCallback(
                     account.interruptSync()
                     try {
                         val privateKey = account.getPrivateKey(AesKeyCipher.defaultKeyCipher())
-                        ShamirSharingActivity.callMe(context, privateKey!!)
+                        if (privateKey != null) {
+                            ShamirSharingActivity.callMe(context, privateKey)
+                        } else {
+                            toaster.toast("Something went wrong", false)
+                        }
                     } catch (e: InvalidKeyCipher) {
                         toaster.toast("Something went wrong", false)
                     }

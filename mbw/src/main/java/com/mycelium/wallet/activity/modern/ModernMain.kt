@@ -701,10 +701,13 @@ class ModernMain : AppCompatActivity(), BackHandler {
                     if (counter == 4) {
                         syncMode = SyncMode.FULL_SYNC_CURRENT_ACCOUNT_FORCED
                         counter = 0
-                    } else if (TAB_ACCOUNTS == selectedTab()) {
-                        // if we are in the accounts tab, sync all accounts if the users forces a sync
-                        syncMode = SyncMode.NORMAL_ALL_ACCOUNTS_FORCED
+                    } else {
+                        // count every manual refresh (Balance/History/Accounts), not only Accounts
                         counter++
+                        if (TAB_ACCOUNTS == selectedTab()) {
+                            // if we are in the accounts tab, sync all accounts if the users forces a sync
+                            syncMode = SyncMode.NORMAL_ALL_ACCOUNTS_FORCED
+                        }
                     }
                     if (!startSynchronization(syncMode)) {
                         binding.pager.postDelayed(

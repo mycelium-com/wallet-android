@@ -30,6 +30,7 @@ class HDAccountExternalSignature(
         if (!isValidEncryptionKey(cipher)) {
             throw KeyCipher.InvalidKeyCipher()
         }
+        requireFundingBackedByHistory(unsigned.fundingOutputs)
 
         // Get the signatures from the external signature provider
         return sigProvider.getSignedTransaction(unsigned, this)

@@ -181,6 +181,10 @@ class StoresFragment : Fragment() {
                     activityViewModel.countries.value = it?.countries
                     viewModel.setProducts(it?.products.orEmpty(), offset != -1L)
                     adapter.submitList(viewModel.products.toList())
+                    // a search without matches: show the "No stores found" placeholder instead of an empty list
+                    if (viewModel.products.isEmpty() && !viewModel.search.value.isNullOrBlank()) {
+                        viewModel.state.value = ListState.NOT_FOUND
+                    }
                 },
                 error = { code, msg ->
                     adapter.submitList(listOf(StoresAdapter.ERROR_ITEM))

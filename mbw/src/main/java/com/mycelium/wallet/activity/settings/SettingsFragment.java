@@ -631,7 +631,8 @@ public class SettingsFragment extends PreferenceFragmentCompat {
             }
 
             private boolean isValid(Preference preference, String text) {
-                return (isTitleValid(preference, text) || isSummaryValid(preference, text)) && isIndependent(preference);
+                // dependent prefs (e.g. "Randomize PIN pad" -> "Set PIN") are searchable too; see releaseMissingDependencies()
+                return isTitleValid(preference, text) || isSummaryValid(preference, text);
             }
 
             private void findSearchResult(String s) {
@@ -672,6 +673,27 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                         }
                     }
                 }
+                releaseMissingDependencies(getPreferenceScreen());
+            }
+
+            /**
+             * A found preference may depend on one that was filtered out (e.g. "Require PIN on start" on
+             * "Set PIN"). Drop such a dependency so a later (re)attach cannot throw "Dependency not found"
+             * (#2313), keeping the enabled state it had from the dependency.
+             */
+            private void releaseMissingDependencies(PreferenceGroup group) {
+                for (int i = 0; i < group.getPreferenceCount(); i++) {
+                    Preference preference = group.getPreference(i);
+                    String dependency = preference.getDependency();
+                    if (dependency != null && findPreference(dependency) == null) {
+                        boolean enabled = preference.isEnabled();
+                        preference.setDependency(null);
+                        preference.setEnabled(enabled);
+                    }
+                    if (preference instanceof PreferenceGroup) {
+                        releaseMissingDependencies((PreferenceGroup) preference);
+                    }
+                }
             }
 
             private boolean checkInDeep(Preference preference, String text) {
@@ -695,10 +717,6 @@ public class SettingsFragment extends PreferenceFragmentCompat {
             private boolean isSummaryValid(Preference preference, String search) {
                 return preference.getSummary() != null
                         && preference.getSummary().toString().toLowerCase().contains(search.toLowerCase());
-            }
-
-            private boolean isIndependent(Preference preference) {
-                return preference.getDependency() == null;
             }
 
         });

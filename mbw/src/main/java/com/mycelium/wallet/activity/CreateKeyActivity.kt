@@ -27,6 +27,7 @@ class CreateKeyActivity : AppCompatActivity() {
         setContentView(CreateKeyActivityBinding.inflate(layoutInflater).apply {
             binding = this
         }.root)
+        com.mycelium.wallet.Utils.markAccessibilityDataSensitive(binding.root)
         supportActionBar!!.hide()
         binding.btShuffle.setOnClickListener { createNewKey() }
         binding.btUse.setOnClickListener {

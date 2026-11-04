@@ -75,11 +75,16 @@ object CancelEthTxDialog {
                 }
 
                 confirmBtn.setOnClickListener {
-                    confirmBtn.isEnabled = false
-                    dialog.getButton(AlertDialog.BUTTON_NEGATIVE).isEnabled = false
-                    fragment.viewLifecycleOwner.lifecycleScope.launch {
-                        broadcastCancel(fragment, account, record, estimate)
-                        dialog.dismiss()
+                    val activity = fragment.activity ?: return@setOnClickListener
+                    // The cancel signs and broadcasts a fee-paying tx: same PIN gate as send / bump fee.
+                    MbwManager.getInstance(ctx).runPinProtectedFunction(activity) {
+                        if (!fragment.isAdded || !dialog.isShowing) return@runPinProtectedFunction
+                        confirmBtn.isEnabled = false
+                        dialog.getButton(AlertDialog.BUTTON_NEGATIVE).isEnabled = false
+                        fragment.viewLifecycleOwner.lifecycleScope.launch {
+                            broadcastCancel(fragment, account, record, estimate)
+                            dialog.dismiss()
+                        }
                     }
                 }
             }
@@ -191,6 +196,10 @@ object CancelEthTxDialog {
             }
             BroadcastResultType.NO_SERVER_CONNECTION ->
                 toaster.toast(R.string.cancel_eth_tx_no_connection, false)
+            // the cancel may be on the network: not a failure (it shares the original's nonce, so
+            // retrying it cannot cost more than one of the two)
+            BroadcastResultType.UNKNOWN_OUTCOME ->
+                toaster.toast(R.string.eth_token_fee_outcome_unknown, false)
             else ->
                 toaster.toast(
                     ctx.getString(R.string.cancel_eth_tx_failed, result.errorMessage ?: ""),

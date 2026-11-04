@@ -133,13 +133,15 @@ class TRC20Account(
     override fun broadcastTx(tx: Transaction): BroadcastResult {
         val tronTx = tx as TronTransaction
         val signed = tronTx.signedBytes ?: return BroadcastResult("Transaction is not signed", BroadcastResultType.REJECT_INVALID_TX_PARAMS)
+        val txid = tronTx.txHash?.let { HexUtils.toHex(it) }
+            ?: return BroadcastResult("No transaction hash", BroadcastResultType.REJECT_INVALID_TX_PARAMS)
         try {
-            val result = blockchainService.broadcast(signed)
-            if (!result.success) {
-                return BroadcastResult(result.message, BroadcastResultType.REJECT_INVALID_TX_PARAMS)
+            val result = broadcastSigned(signed, txid)
+            // UNKNOWN_OUTCOME: the transfer may be on the network — record it as pending anyway so
+            // the tokens stay reserved (no double send); sync drops it if the node never saw it.
+            if (result.resultType != BroadcastResultType.SUCCESS && result.resultType != BroadcastResultType.UNKNOWN_OUTCOME) {
+                return result
             }
-            val txid = tronTx.txHash?.let { HexUtils.toHex(it) } ?: result.txid
-                ?: return BroadcastResult("No transaction hash", BroadcastResultType.REJECT_INVALID_TX_PARAMS)
             rememberBalanceBeforeBroadcast(txid)
             backing.putTransaction(
                 blockNumber = -1,
@@ -159,7 +161,7 @@ class TRC20Account(
             // Reflect the outgoing pending transfer in the balance right away so the spent
             // tokens cannot be re-spent before the next sync
             updateBalanceCache()
-            return BroadcastResult(BroadcastResultType.SUCCESS)
+            return result
         } catch (e: IOException) {
             return BroadcastResult(BroadcastResultType.NO_SERVER_CONNECTION)
         } catch (e: Exception) {

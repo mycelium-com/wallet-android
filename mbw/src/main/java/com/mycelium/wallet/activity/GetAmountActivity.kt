@@ -306,14 +306,17 @@ class GetAmountActivity : AppCompatActivity(), NumberEntryListener {
 
             if (isNotEnoughEth) {
                 val denomination = _mbwManager!!.getDenomination(parentEthAccount.coinType)
+                // ask only for what is missing, not the whole fee (the parent may hold part of it)
+                val missing = Value.valueOf(fee.type,
+                    (fee.value - parentEthAccount.accountBalance.spendable.value).max(BigInteger.ZERO))
                 val convertedFee = " ~${
-                    _mbwManager!!.exchangeRateManager.get(fee, _mbwManager!!.getFiatCurrency(viewModel.account!!.coinType))
+                    _mbwManager!!.exchangeRateManager.get(missing, _mbwManager!!.getFiatCurrency(viewModel.account!!.coinType))
                         ?.toStringFriendlyWithUnit() ?: ""
                 }"
 
                 binding.tvPleaseTopUp.apply {
                     text =
-                        Html.fromHtml(getString(R.string.please_top_up_your_eth_account, TextUtils.htmlEncode(parentEthAccount.label), fee.toStringFriendlyWithUnit(denomination), convertedFee))
+                        Html.fromHtml(getString(R.string.please_top_up_your_eth_account, TextUtils.htmlEncode(parentEthAccount.label), missing.toStringFriendlyWithUnit(denomination), convertedFee))
                     setOnClickListener {
                         _mbwManager!!.setSelectedAccount(parentEthAccount.id)
                         setResult(RESULT_OK, Intent().putExtra(EXIT_TO_MAIN_SCREEN, true))

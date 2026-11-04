@@ -35,6 +35,7 @@ class DeprecatedAccountsActivity : AppCompatActivity() {
         com.mycelium.wallet.Utils.preventScreenshots(this)
         binding = ActivityDeprecatedAccountsBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        com.mycelium.wallet.Utils.markAccessibilityDataSensitive(binding.root)
         mbwManager = MbwManager.getInstance(this)
         supportActionBar?.run {
             setTitle(R.string.deprecated_accounts_title)
@@ -76,6 +77,7 @@ class DeprecatedAccountsActivity : AppCompatActivity() {
     private fun showKeysDialog(account: DeprecatedAccount, keys: List<DeprecatedAccountKey>) {
         val container = LayoutInflater.from(this)
             .inflate(R.layout.dialog_deprecated_account_keys, null) as ViewGroup
+        com.mycelium.wallet.Utils.markAccessibilityDataSensitive(container)
         val keyList = container.findViewById<ViewGroup>(R.id.keyList)
         keys.forEach { key ->
             val view = LayoutInflater.from(this)

@@ -20,7 +20,7 @@ import java.util.concurrent.TimeUnit
  *        signing silently never happened. Blank is fine: [EthFeeProvider] then
  *        derives the snapshot from the base fee instead.
  */
-class EthBlockchainService @JvmOverloads constructor(
+open class EthBlockchainService @JvmOverloads constructor(
     private var endpoints: List<HttpEndpoint>,
     private val eip1559EstimatorUrl: String = "",
 ) : ServerEthListChangedListener {
@@ -42,8 +42,12 @@ class EthBlockchainService @JvmOverloads constructor(
     private val streamingClient = httpClient.newBuilder()
         .readTimeout(30, TimeUnit.SECONDS)
         .build()
+    // No silent retries for broadcasts: OkHttp would otherwise re-POST after a lost response and
+    // surface only the retry's error (e.g. UnknownHostException once the network is gone), which
+    // broadcastSignedEthTx would take as "provably not sent" although the first POST reached the node.
     private val sendClient = streamingClient.newBuilder()
         .writeTimeout(30, TimeUnit.SECONDS)
+        .retryOnConnectionFailure(false)
         .build()
 
     private fun client(urlString: String): String {
@@ -112,7 +116,8 @@ class EthBlockchainService @JvmOverloads constructor(
         return result
     }
 
-    fun sendTransaction(hex: String): SendResult {
+    // open: unit tests fake the node to drop a response after sending
+    open fun sendTransaction(hex: String): SendResult {
         val request = Request.Builder()
                 .url("${endpoints.random()}/api/v2/sendtx/")
                 .post(RequestBody.create(null, hex))
@@ -150,7 +155,7 @@ class EthBlockchainService @JvmOverloads constructor(
         return BalanceResponse(result.balance, result.unconfirmedBalance)
     }
 
-    fun getTransaction(hash: String): Tx {
+    open fun getTransaction(hash: String): Tx {
         val urlString = "${endpoints.random()}/api/v2/tx/$hash"
 
         return streamedRequest(urlString, Tx::class.java)

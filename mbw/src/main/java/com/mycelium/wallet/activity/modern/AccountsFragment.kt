@@ -788,6 +788,10 @@ class AccountsFragment : Fragment() {
 
     private var currentActionMode: ActionMode? = null
 
+    // The account the current action mode was opened for. Menu actions must act on it even when the
+    // adapter's focus points elsewhere (e.g. at an account that was just deleted).
+    private var actionModeAccount: WalletAccount<out Address>? = null
+
     private val recordAddressClickListener: AccountListAdapter.ItemClickListener =
         object : AccountListAdapter.ItemClickListener {
             override fun onItemClick(account: WalletAccount<*>) {
@@ -801,7 +805,8 @@ class AccountsFragment : Fragment() {
         }
 
     private fun updateIncludingMenus() {
-        val account = requireFocusedAccount()
+        // the newly focused item, not the account of a still-open action mode
+        val account = accountListAdapter!!.focusedAccount ?: return
         val isBch = account is SingleAddressBCHAccount
                 || account is Bip44BCHAccount
 
@@ -870,6 +875,7 @@ class AccountsFragment : Fragment() {
 
         val parent = requireActivity() as AppCompatActivity
 
+        actionModeAccount = account
         currentActionMode = parent.startSupportActionMode(
             AccountsActionModeCallback(
                 requireContext(),
@@ -946,9 +952,9 @@ class AccountsFragment : Fragment() {
                 },
                 {
                     currentActionMode = null
-                    if (accountListAdapter!!.focusedAccount != null) {
-                        accountListAdapter!!.setFocusedAccountId(null)
-                    }
+                    actionModeAccount = null
+                    // also clear a focus that points at a deleted account, otherwise it stays stale
+                    accountListAdapter!!.setFocusedAccountId(null)
                     Unit
                 })
         )
@@ -1120,7 +1126,9 @@ class AccountsFragment : Fragment() {
         if (!isAdded) {
             return
         }
-        runPinProtected(Runnable { activate(requireFocusedAccount()) })
+        // resolve before the PIN dialog: the action mode (and its account) may be gone afterwards
+        val account = requireFocusedAccount()
+        runPinProtected(Runnable { activate(account) })
     }
 
     private fun activate(account: WalletAccount<*>) {
@@ -1362,7 +1370,8 @@ class AccountsFragment : Fragment() {
     }
 
     private fun requireFocusedAccount(): WalletAccount<out Address> =
-        accountListAdapter!!.focusedAccount!!
+        actionModeAccount?.takeIf { walletManager!!.getAccount(it.id) != null }
+            ?: accountListAdapter!!.focusedAccount!!
 
     @Subscribe
     fun addressChanged(event: ReceivingAddressChanged?) {

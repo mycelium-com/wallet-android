@@ -223,8 +223,28 @@ class TronBlockchainService(endpoints: List<TronEndpoint>) : ServerTronListChang
         val txid = root.path("txid").takeIf { it.isTextual }?.asText()
         // DUP_TRANSACTION = the node already knows this tx (e.g. a retried broadcast).
         // Treating it as a failure would make the user re-send and double-spend.
-        if (!ok && code == "DUP_TRANSACTION") return SendResult(true, txid, message, code)
+        // java-tron reports it as DUP_TRANSACTION_ERROR; keep the short form for older proxies.
+        if (!ok && (code == "DUP_TRANSACTION_ERROR" || code == "DUP_TRANSACTION")) return SendResult(true, txid, message, code)
         return SendResult(ok, txid, message ?: code, code)
+    }
+
+    /**
+     * Whether the node knows the transaction, either mined (`wallet/gettransactionbyid`) or still
+     * in its pending pool (`wallet/gettransactionfrompending`). Used to resolve a broadcast whose
+     * outcome is unknown because the connection dropped after the request was sent.
+     * Throws [IOException] when the node can't be reached at all (outcome still unknown).
+     */
+    @Throws(IOException::class)
+    fun isTransactionKnown(txId: String): Boolean {
+        val mined = post("wallet/gettransactionbyid", obj { put("value", txId) })
+        if (mined.path("txID").isTextual) return true
+        return try {
+            post("wallet/gettransactionfrompending", obj { put("value", txId) }).path("txID").isTextual
+        } catch (e: IOException) {
+            // the node answered the first query, so it is reachable; the pending-pool API may
+            // just be unavailable on this endpoint
+            false
+        }
     }
 
     // ---------------------------------------------------------------- contracts

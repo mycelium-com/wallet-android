@@ -859,6 +859,26 @@ public class Utils {
     */
    public static void preventScreenshots(Activity activity) {
       activity.getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE);
+      // FLAG_SECURE does not hide the content from the accessibility tree. Screens that use it show
+      // secrets (seed words, Shamir shares, private keys), so keep them away from accessibility
+      // services that are not real accessibility tools (TalkBack & co. still read them).
+      // Only touch an already installed decor: installing it here would break activities that
+      // call this before setContentView - those mark their root view themselves.
+      View decor = activity.getWindow().peekDecorView();
+      if (decor != null) {
+         markAccessibilityDataSensitive(decor);
+      }
+   }
+
+   /**
+    * Marks the view (and, by inheritance, all its descendants) as accessibility-data-sensitive
+    * (API 34+): only services with isAccessibilityTool=true (TalkBack, Switch Access, ...) may
+    * read it. No-op on older Android versions.
+    */
+   public static void markAccessibilityDataSensitive(View view) {
+      if (view != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+         view.setAccessibilityDataSensitive(View.ACCESSIBILITY_DATA_SENSITIVE_YES);
+      }
    }
 
    public static boolean checkIsLinked(WalletAccount account, final Collection<? extends WalletAccount> accounts) {
