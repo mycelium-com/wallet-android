@@ -49,11 +49,18 @@ class ExchangeWalletSignatureInterceptor(
     }
 }
 
+// The master seed never changes once configured, so the derived key is cached for the process:
+// otherwise each of the parallel exchange requests at startup decrypted/derived it again.
+@Volatile
+private var cachedIdentityKey: InMemoryPrivateKey? = null
+
 private fun walletIdentityKey(): InMemoryPrivateKey? {
     if (!SettingsPreference.exchangeWalletIdentityEnabled) return null
+    cachedIdentityKey?.let { return it }
     val masterSeedManager = MbwManager.getInstance(WalletApplication.getInstance()).masterSeedManager
     if (!masterSeedManager.hasBip32MasterSeed()) return null
     val cipher = AesKeyCipher.defaultKeyCipher()
     return masterSeedManager.getIdentityAccountKeyManager(cipher)
         .getPrivateKeyForWebsite(ExchangeWalletSignatureInterceptor.WEBSITE, cipher)
+        .also { cachedIdentityKey = it }
 }

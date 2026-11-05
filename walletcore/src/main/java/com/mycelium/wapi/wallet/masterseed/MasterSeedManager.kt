@@ -51,6 +51,9 @@ class MasterSeedManager(private val secureKeyValueStore: SecureKeyValueStore) {
         return secureKeyValueStore.hasCiphertextValue(MASTER_SEED_ID)
     }
 
+    // Synchronized: support chat (main thread) and every exchange request (OkHttp threads) ask for
+    // it concurrently at startup; unsynchronized, each of them re-derived and re-stored the root.
+    @Synchronized
     @Throws(InvalidKeyCipher::class)
     fun getIdentityAccountKeyManager(cipher: KeyCipher): IdentityAccountKeyManager {
         if (identityAccountKeyManager != null) {
@@ -58,6 +61,12 @@ class MasterSeedManager(private val secureKeyValueStore: SecureKeyValueStore) {
         }
         if (!hasBip32MasterSeed()) {
             throw RuntimeException("accessed identity account with no master seed configured")
+        }
+        // The m/13' account root is persisted on first use; re-deriving it from the seed on every
+        // process start costs several EC multiplications (hundreds of ms on a debug build).
+        IdentityAccountKeyManager.openExisting(secureKeyValueStore)?.let {
+            identityAccountKeyManager = it
+            return it
         }
         val rootNode = HdKeyNode.fromSeed(getMasterSeed(cipher).bip32Seed, null)
         identityAccountKeyManager = IdentityAccountKeyManager.createNew(rootNode, secureKeyValueStore, cipher)

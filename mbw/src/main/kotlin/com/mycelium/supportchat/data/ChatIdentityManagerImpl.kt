@@ -4,6 +4,10 @@ import com.mrd.bitlib.crypto.PrivateKey
 import com.mycelium.wapi.wallet.AesKeyCipher
 import com.mycelium.wapi.wallet.KeyCipher
 import com.mycelium.supportchat.data.model.ChatIdentityManager
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.withContext
 import kotlin.coroutines.cancellation.CancellationException
 
 /**
@@ -20,7 +24,9 @@ class ChatIdentityManagerImpl(
 
     private var publicKey: ByteArray? = null
     private var privateKey: PrivateKey? = null
+    @Volatile
     private var isInitialized = false
+    private val initMutex = Mutex()
 
     /**
      * Initialize identity with the default cipher.
@@ -29,12 +35,19 @@ class ChatIdentityManagerImpl(
     @Throws(KeyCipher.InvalidKeyCipher::class, CancellationException::class)
     override suspend fun initialize() {
         if (isInitialized) return
-
-        val identityKeyManager = identityKeyManagerProvider()
-        val cipher = AesKeyCipher.defaultKeyCipher()
-        publicKey = identityKeyManager.getPublicKeyForWebsite(SUPPORT_WEBSITE, cipher)
-        privateKey = identityKeyManager.getPrivateKeyForWebsite(SUPPORT_WEBSITE, cipher)
-        isInitialized = true
+        // Called from ModernMain's composition (main dispatcher) on every start: key derivation
+        // and secure-store I/O must not block the first frame of the accounts screen.
+        initMutex.withLock {
+            if (isInitialized) return
+            withContext(Dispatchers.Default) {
+                val identityKeyManager = identityKeyManagerProvider()
+                val cipher = AesKeyCipher.defaultKeyCipher()
+                val key = identityKeyManager.getPrivateKeyForWebsite(SUPPORT_WEBSITE, cipher)
+                privateKey = key
+                publicKey = key.publicKey.publicKeyBytes
+            }
+            isInitialized = true
+        }
     }
 
     /**
