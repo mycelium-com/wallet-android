@@ -277,7 +277,6 @@ BTC-Pay Server, гаманець, перевіряючи лише 20 майбу�
     <string name="miner_fee_priority_name">Пріоритетна</string>
     <string name="new_bitcoin_address_created">Створено новий випадковий приватний ключ з наступними Bitcoin-адресами:</string>
     <string name="select_key_for_signing">Виберіть ключ для підписання</string>
-    <string name="transaction_from_address_prefix">Від: %s</string>
     <string name="transaction_label_title">Назва транзакції</string>
     <string name="transaction_not_broadcasted_info">Не вдалося надіслати</string>
     <string name="transaction_to_address_prefix">Кому: %s</string>

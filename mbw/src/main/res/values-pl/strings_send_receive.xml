@@ -216,10 +216,8 @@
     <string name="provide_your_recovery_e_mail_address">Podaj poniżej swój adres e-mail do odzyskiwania. Wyślemy Ci bezpieczny link i instrukcje, jak zresetować hasło.</string>
     <string name="rebroadcast_transaction_title">Ponownie rozgłoś transakcję</string>
     <string name="receive_cointype">Odbierz %1$s</string>
-    <string name="receive_title_fio">Klucz publiczny FIO</string>
     <string name="received">Otrzymano</string>
     <string name="receiver_address_hint">1Address1234\n567890abcdef\nghijklmnop</string>
-    <string name="recipient_has_no_such_address">%1$s nie ma podłączonego adresu %2$s</string>
     <string name="recipient_invalid">Nieprawidłowy adres lub nazwa FIO</string>
     <string name="recipient_valid">Prawidłowy odbiorca</string>
     <string name="remove_queued_transaction">Czy na pewno chcesz usunąć tę kolejkowaną transakcję i zapobiec jej rozgłoszeniu?</string>
@@ -232,12 +230,10 @@
     <string name="restore_address_as">Przywróć adres jako</string>
     <string name="retrieving_pubkey_address">Pobieranie kolejnego nieużywanego adresu…</string>
     <string name="return_to_payment">Powrót do zamówień</string>
-    <string name="s_fio_request">%s żądanie FIO</string>
     <string name="s_payment_request">%s żądanie płatności</string>
     <string name="select_key_for_signing">Wybierz klucz do podpisania</string>
     <string name="send_cointype">Wyślij %1$s</string>
     <string name="send_fee_hint"><b>UWAGA.</b> Transakcje z niskim priorytetem prowizji dla górników mogą nigdy nie zostać potwierdzone lub potwierdzone w ciągu wielu godzin, a nawet dni. Nie wybieraj niskiego priorytetu, jeśli nie rozumiesz, jak działa sieć bitcoin.</string>
-    <string name="send_fio_request">Wyślij żądanie FIO</string>
     <string name="send_mail">Wyślij wiadomość…</string>
     <string name="sending_addresses">Książka adresowa</string>
     <string name="sending_assets">Wysyłanie aktywów %s.</string>
@@ -261,7 +257,6 @@
     <string name="tips_rmc_check_address">Jeśli wysłałeś aktywa cyfrowe na losowy adres bitcoin, nie zostały one zniszczone.\nAby je odzyskać, masz dwie opcje:\n1) Użyj Colored Coins API, aby ręcznie odesłać swoje aktywa z powrotem na adres zarządzany przez Mycelium Wallet.\n2) Wyślij zgłoszenie do pomocy technicznej Mycelium Wallet w celu odzyskania aktywów. Za tę usługę mogą obowiązywać dodatkowe opłaty. Otrzymasz szczegółowe informacje po skontaktowaniu się z pomocą.\n\nW obu przypadkach musisz posiadać klucz prywatny adresu, na który wysłałeś aktywa cyfrowe.</string>
     <string name="too_many_transaction_records">Nie można pobrać pełnej historii transakcji konta z powodu jej dużego rozmiaru. Rozważ przeniesienie środków na nowe konto.</string>
     <string name="total_amount">Łączna kwota:</string>
-    <string name="transaction_from_address_prefix">Od: %s</string>
     <string name="transaction_gas_limit">Limit gazu (jednostki):</string>
     <string name="transaction_history_title">Historia transakcji</string>
     <string name="transaction_input_data">Dane wejściowe:</string>

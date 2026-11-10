@@ -167,20 +167,14 @@
     <string name="backup_not_generated">Le code de sauvegarde n\'a pas été généré</string>
     <string name="backup_not_verified">Sauvegarde non vérifiée</string>
     <string name="backup_now">Sauvegarder maintenant</string>
-    <string name="base_label_fio_account_legacy">Compte FIO Legacy</string>
     <string name="bch_accounts_found"><![CDATA[Nous avons trouvé %1$s Bitcoin <font color="#f08c18">Cash</font> sur vos comptes BTC.<br><br>%2$d compte(s) Bitcoin <font color="#f08c18">Cash</font> correspondant(s) créé(s).\nLe solde Bitcoin <font color="#f08c18">Cash</font> peut être consulté dans l\'onglet Comptes.<br><br>Vous pouvez maintenant aller dans l\'onglet Solde de votre/vos compte(s) Bitcoin <font color="#f08c18">Cash</font> et l\'échanger instantanément contre du BTC.]]></string>
     <string name="bch_accounts_not_found"><![CDATA[Nous n\'avons trouvé aucun Bitcoin <font color="#f08c18">Cash</font> sur vos comptes BTC.<br>Nous surveillons en continu vos comptes BTC et nous vous informerons si du Bitcoin <font color="#f08c18">Cash</font> est trouvé.]]></string>
     <string name="block_access_to_account">Nous désactivons intentionnellement l\'onglet Mes Comptes pendant que vous gérez votre compte %1$s. Cela vous empêche d\'envoyer vos actifs numériques ailleurs que vers un autre compte %1$s.</string>
-    <string name="btcv_account_creation_started">Création d\'un nouveau compte BTCV…</string>
-    <string name="btcvault_hd_account">Ajouter un compte HD Bitcoin Vault</string>
     <string name="cant_disable_active_account">Vous ne pouvez pas désactiver le compte actif</string>
     <string name="choose_the_currency_and_btc_receiving_account">Choisissez la devise et le compte de réception BTC</string>
     <string name="confirm_delete_account_message_end">Voulez-vous le supprimer ?</string>
     <string name="confirm_delete_private_key_message">Avant de supprimer la clé privée, assurez-vous d\'en avoir une sauvegarde stockée hors ligne et en lieu sûr. Vous devrez la \"rajouter\" depuis la sauvegarde lorsque vous aurez besoin de dépenser les bitcoins de ce compte.</string>
     <string name="confirm_delete_private_key_message_end">Voulez-vous le passer en mode lecture seule ?</string>
-    <string name="connect_accounts">Enregistrer</string>
-    <string name="create_fio_account">Créer un compte FIO</string>
-    <string name="create_fio_legacy_presale_account">Créer un compte FIO Legacy</string>
     <string name="create_new_account">Ajouter un nouveau compte ETH</string>
     <string name="delete_account">Supprimer le compte</string>
     <string name="delete_account_message"><![CDATA[Voulez-vous supprimer le compte <b>\"%1$s\"</b> contenant <b>%2$s</b> et <b>\"%3$s\"</b> contenant <b>%4$s</b> ?]]></string>
@@ -201,7 +195,6 @@
     <string name="erc20_account_creation_started">Création d\'un nouveau compte ERC-20…</string>
     <string name="eth_account_creation_started">Création d\'un nouveau compte ETH…</string>
     <string name="export">Exporter les clés du compte</string>
-    <string name="export_fio_public_key_title">Exporter la clé publique FIO</string>
     <string name="export_not_possible">L\'exportation n\'est pas possible, vous avez déjà un compte %s</string>
     <string name="export_private_key_red_warning">Ne copiez cette clé que dans un environnement sécurisé.\nQuiconque y a accès prend le contrôle de tous les bitcoins disponibles actuellement et à l\'avenir pour ce compte.\n\nMaintenez appuyé ici pour afficher le \nQR-Code </string>
     <string name="ext_sig_change_to">Monnaie vers :</string>
@@ -214,16 +207,13 @@
     <string name="hardware_wallets">Portefeuilles matériels</string>
     <string name="hd_account_bch">Ajouter un compte HD Bitcoin Cash</string>
     <string name="hd_eth_account">Ajouter un compte Ethereum</string>
-    <string name="hd_fio_account">Ajouter un compte FIO</string>
     <string name="import_xpub_should_xpriv">Seuls les comptes dépensables avec actifs numériques sont pris en charge pour le compte de niveau 0. Veuillez utiliser xpriv au lieu de xpub</string>
     <string name="ledger_please_wait">Veuillez patienter…</string>
     <string name="ledger_unplugged_aid_preference">Définir l\'AID Ledger débranché</string>
     <string name="ledger_unplugged_aid_preference_summary">Prend en charge un AID différent pour les builds\npersonnalisés Ledger débranchés</string>
     <string name="list_added_tokens_new_account">Tokens ERC-20 sur le nouveau compte</string>
     <string name="loading_accounts">Chargement des comptes</string>
-    <string name="master_seed_not_configured">La master seed n\'est pas configurée</string>
     <string name="migrating_accounts">Migration des comptes</string>
-    <string name="new_fio_legacy_presale_account_desc">Créez un compte FIO Legacy UNIQUEMENT si vous avez acheté un domaine FIO pendant la prévente FIO.</string>
     <string name="no_account_yet_register">Pas encore de compte ? <font color="#F2E868">S\'inscrire</font></string>
     <string name="no_spendable_accounts">Aucun compte dépensable</string>
     <string name="parent_eth_account">ETH %s :</string>
@@ -241,7 +231,6 @@
     <string name="select_account_to_pay_with">Sélectionnez le compte avec lequel payer :</string>
     <string name="select_eth_account_to_erc20">Sélectionnez le compte ETH pour stocker vos tokens ERC-20</string>
     <string name="select_eth_account_to_erc20_subtext">Les tokens ERC-20 existent sur les comptes ETH et nécessitent de l\'ETH pour effectuer des transactions.\nUn seul compte ETH peut stocker un nombre illimité de types de tokens ERC-20 - un de chaque type par compte ETH.</string>
-    <string name="select_name_to_associate_read_only_account">Comptes connectés à ce FIO Name. Seul <b>un</b> compte par cryptomonnaie peut être connecté à <b>un</b> FIO Name.</string>
     <string name="select_token_new_account">Ajouter des tokens ERC-20 au nouveau compte ETH</string>
     <string name="set_up_2fa_to_secure_your_account">Configurez 2FA pour sécuriser votre compte</string>
     <string name="single_address_account">Compte à adresse unique</string>

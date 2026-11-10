@@ -195,9 +195,6 @@
     <string name="no_exchange_available">Nessuno scambio disponibile</string>
     <string name="no_gift_cards_linked">Nessuna gift card collegata</string>
     <string name="no_purchased_gift_card">Nessuna gift card acquistata</string>
-    <string name="partner_fiopresale">FIO Presale</string>
-    <string name="partner_fiopresale_info"/>
-    <string name="partner_fiopresale_short">FIO Presale</string>
     <string name="partner_more_info"><u>La tua privacy è la nostra massima priorità</u></string>
     <string name="partner_more_info_text">\n        Mycelium è uno dei wallet bitcoin mobili più affidabili e utili.<br />\n        Sviluppare, mantenere e supportare questo prodotto non è gratuito.<br />\n        I link e i loghi dei partner sono incorporati staticamente nell\'app e non dipendono da alcuna rete pubblicitaria.\n        La loro presenza non può essere utilizzata per tracciare gli utenti che non vi cliccano.\n        Non viene guadagnato denaro mostrando questi link partner o quando gli utenti vi cliccano.\n        I referral avvengono solo quando gli utenti decidono di effettuare un acquisto sui siti web dei nostri partner.\n    </string>
     <string name="pref_exchange_source">Sorgente di scambio</string>

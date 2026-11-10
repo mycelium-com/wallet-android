@@ -168,7 +168,6 @@
     <!-- Credit Card End-->
     <!-- Simplex start -->
     <!-- Simplex end -->
-    <string name="about_fio_protocol_title">Rreth FIO Protocol</string>
     <string name="accept">Prano</string>
     <string name="access_from_any_device">Qasje nga çdo pajisje</string>
     <string name="activate_by">Aktivizo deri më</string>
@@ -236,14 +235,12 @@
     <string name="check_gap_bug_spannable_string">Më vjen keq që ju ndërpres… \n \nKemi zbuluar një gabim në logjikën e llogarisë që do të krijojë probleme nëse ndonjë ditë duhet të rikuperoni nga rezerva juaj me 12 fjalë.\n\nPër më shumë informacion shihni këtu: https://wallet.mycelium.com/info/gaps \n\nMund të përpiqemi ta zgjidhim për ju? Shtypni OK, për të ndarë me ne një adresë për llogari të prekur.</string>
     <string name="check_internet_and_try_again">Mycelium nuk mund të lidhet me serverin për shkak të lidhjes së dobët në internet.\nJu lutem verifikoni lidhjen tuaj në internet dhe provoni përsëri.</string>
     <string name="checkbox_wordlist_passphrase">Kam një passphrase</string>
-    <string name="choose_blockchain">Zgjidh blockchain-in</string>
     <string name="cold_storage">Cold Storage</string>
     <string name="colorize">ngjyros</string>
     <string name="colu">Aset Dixhital</string>
     <string name="configuration_change_restart_warning">Rifillimi i aplikacionit kërkohet për të aplikuar ndryshimet e konfigurimit.</string>
     <string name="confirm">Konfirmo</string>
     <string name="confirm_change_on_device"><![CDATA[Ju lutem konfirmoni daljen e <b>kusurit</b> në %3$s tuaj.<br><br><b>Vlera:</b><br>%1$s<br><b>Adresa e Kusurit:</b><br>%2$s]]></string>
-    <string name="confirm_fio_link">Doni të regjistroni një FIO Name për llogarinë tuaj HD Bitcoin %1$s?</string>
     <string name="confirm_output_on_device"><![CDATA[Ju lutem konfirmoni daljen në %3$s tuaj.<br><br><b>Vlera:</b><br>%1$s<br><b>Adresa e Destinacionit:</b><br>%2$s<br>]]></string>
     <string name="confirmation">Konfirmimi i shkëmbimit</string>
     <string name="connect_your_ext_sig_device_info">Kjo funksionon vetëm nëse telefoni juaj mbështet USB-OTG (on-the-go).\n\nPër të lidhur pajisjen ju nevojitet një adapter ose kabllo USB-OTG. Bashkangjitni pajisjen me kabllon e saj USB në anën e klientit dhe lidhni anën host me telefonin tuaj.</string>
@@ -256,7 +253,6 @@
     <string name="country">Vendi</string>
     <string name="course_outdated">Kursi i shkëmbimit është i vjetëruar</string>
     <string name="create_backup">Krijo Rezervë</string>
-    <string name="create_fio_domain">Krijo FIO Domain</string>
     <string name="credit_card_buy">Kartë Krediti</string>
     <string name="credit_card_buy_description">Bli Bitcoin duke përdorur kartë krediti</string>
     <string name="credit_card_buy_setting_description">Bli Bitcoin duke përdorur kartë krediti</string>
@@ -273,8 +269,6 @@
     <string name="decryption_password_hint">JUA JIF JAL EKA LIM IABC D</string>
     <string name="delete_document">Doni të fshini dokumentin?</string>
     <string name="delete_pk_message"><![CDATA[Doni të fshini çelësin privat të llogarisë <b>\"%1$s\"</b> që mban <b>%2$s</b>?]]></string>
-    <string name="delete_received_fio_request">Fshi FIO Request të marrë</string>
-    <string name="delete_received_fio_request_msg">A jeni i sigurt që dëshironi ta fshini këtë FIO Request?</string>
     <string name="deposits_without_destination_tag_will_be_lost">Depozitat pa Destination Tag do të humbin!</string>
     <string name="description">Përshkrimi:</string>
     <string name="description_bump_fee">Dërgo një transaksion që rrit tarifën për këtë transaksion të pakonfirmuar.\n\nDoni të shpenzoni %2$s për ta çuar tarifën në %1$dsat/B?</string>
@@ -285,7 +279,6 @@
     <string name="discover">Zbulo</string>
     <string name="do_you_want_resubmit">Keni përditësuar informacionin më poshtë. Doni të ridorëzoni aplikimin tuaj?</string>
     <string name="doc_selfie"><![CDATA[Dokumente & Selfie]]></string>
-    <string name="domain_details">Detajet e Domain-it</string>
     <string name="download">Shkarko</string>
     <string name="due_to_high_cryptocurrencies_volatility">Për shkak të paqëndrueshmërisë së lartë të kriptomonedhave, kursi përfundimtar mund të jetë pak më i lartë ose më i ulët se ai i vlerësuar këtu.</string>
     <string name="edit_gas_limit_advanced_users"><![CDATA[Modifiko Gas Limit <i>(për përdorues të avancuar)</i>]]></string>
@@ -301,7 +294,6 @@
     <string name="excange_title">Shkëmbe BCH në BTC</string>
     <string name="exceed_card_value">Tejkalo vlerën e kartës</string>
     <string name="exchanging">duke shkëmbyer</string>
-    <string name="expiration_date">Data e skadimit:</string>
     <string name="expire_date">Data e skadimit:</string>
     <string name="expires_at">Data e skadimit:</string>
     <string name="external_app_needed">Për të përditësuar pajisjen ju duhet një mjet i jashtëm, klikoni okay për ta nisur.</string>
@@ -318,7 +310,6 @@
     <string name="first_bch_installed_message"><![CDATA[Tani duhet ta sinkronizojmë me blockchain-in për të rikuperuar bilancin tuaj Bitcoin <font color="#f08c18">Cash</font>.<br><br>Kjo procedurë merr kohë dhe kryhet në sfond.<br>Sa më shumë çelësa privatë të keni aq më shumë zgjat, ju lutem kini durim. Për shembull, nëse keni rreth 1000 çelësa privatë, mund të zgjasë më shumë se 3 orë për të arritur sinkronizimin e plotë.<br>Do t\'ju informojmë kur të mbarojë.<br><br>Mund të kontrolloni gjithmonë progresin e sinkronizimit këtu: Cilësimet -> Moduli Bitcoin <font color="#f08c18">Cash</font>.<br><br>Për çdo llogari BTC me Bitcoin <font color="#f08c18">Cash</font> të parikuperuar, do të krijohet një llogari përkatëse Bitcoin <font color="#f08c18">Cash</font>.<br><br>Shkoni te skeda Bilanci e llogarisë suaj Bitcoin <font color="#f08c18">Cash</font> për ta shkëmbyer menjëherë në BTC.]]></string>
     <string name="first_bch_installed_title"><![CDATA[Moduli Mycelium Bitcoin <font color="#f08c18">Cash</font> është instaluar!]]></string>
     <string name="first_name">Emri</string>
-    <string name="following_fio_domains_registered">FIO Domains të mëposhtme u regjistruan</string>
     <string name="format" translatable="false">%1$td/%1$tm/%1$tY</string>
     <string name="found_clipboard_public_key_title">Çelës Publik i Gjetur në Memorje</string>
     <string name="found_clipboard_public_keys_message">Memorja përmban një çelës publik.\nDoni të pastroni memorjen?</string>
@@ -378,7 +369,6 @@
     <string name="label_use_device_location">përdor vendndodhjen e pajisjes</string>
     <string name="last_name">Mbiemri</string>
     <string name="learn_more_rmc"><u>Mëso më shumë rreth RMC</u></string>
-    <string name="leave_a_message_for_s">Lini një mesazh për %s</string>
     <string name="legal_information">Informacion ligjor</string>
     <string name="less">më pak</string>
     <string name="list_added_tokens">Tokenat ERC-20 në llogarinë \"%s\"</string>
@@ -406,7 +396,6 @@
     <string name="module_uninstall_progress">Duke çinstaluar…</string>
     <string name="modules">Modulet</string>
     <string name="more">më shumë</string>
-    <string name="my_fio_domains">Domenet e mia FIO</string>
     <string name="mycelium_no_responaility_rmc">Nëse vazhdoni, ju pranoni të vazhdoni në RMC, një shërbim i palës së tretë. Të gjitha bashkëveprimet tuaja me RMC janë jashtë kontrollit të Mycelium dhe i nënshtrohen Marrëveshjes së Përdoruesit, Kushteve të Përdorimit dhe Politikës së Privatësisë të RMC. Ju lutemi lexojini me kujdes. Asnjë informacion personal nuk do të mblidhet, ruhet ose përdoret nga Mycelium.\n\nMYCELIUM NUK PRANON ASNJË PËRGJEGJËSI DHE NUK DO TË JETË PËRGJEGJËS PËR ÇDO HUMBJE OSE DËM ÇFARËDO QË VUAJTET SI REZULTAT I AKSESIMIT, PËRDORIMIT OSE BESIMIT NË INFORMACIONIN DHE SHËRBIMET E EMETUESIT TË RMC</string>
     <string name="mycelium_services">Shërbimet e Mycelium</string>
     <string name="mycelium_terms_of_use">Mycelium Terms Of Use</string>
@@ -422,7 +411,6 @@
     <string name="no_digital_asset">Çelësi juaj privat BIP32 nuk mban asnjë aktiv dixhital.\n\nNëse besoni të kundërtën, provoni ta skanoni përsëri.</string>
     <string name="no_funds">Nuk ka fonde</string>
     <string name="no_google_play_installed">Asnjë Google Play i instaluar në pajisje</string>
-    <string name="no_logs">Nuk ka regjistrime</string>
     <string name="no_operations_history">Nuk ka histori operacionesh</string>
     <string name="no_orbot">Asnjë Orbot i instaluar</string>
     <string name="no_order_linked">Aktualisht nuk keni asnjë blerje të lidhur me llogarinë tuaj. Filloni duke eksploruar katalogun e dyqaneve.</string>
@@ -479,7 +467,6 @@
     <string name="register">Regjistrohu</string>
     <string name="registration">Regjistrimi</string>
     <string name="removed">i çinstaluar</string>
-    <string name="renew_fio_domain">Rinovo domenin FIO</string>
     <string name="repeat_password">Përsëris fjalëkalimin</string>
     <string name="rescan">Riskano</string>
     <string name="resend_confirmation_email">Ridërgo email-in e konfirmimit.</string>
@@ -508,7 +495,6 @@
     <string name="select_card_value_dialog">Zgjidhni vlerën e kartës:</string>
     <string name="select_country">Zgjidhni vendin</string>
     <string name="select_flows">Zgjidh flows</string>
-    <string name="select_name_to_associate">Lidhni llogaritë me emrin tuaj FIO. Vetëm <b>një</b> llogari për çdo kriptomonedhë mund të lidhet me <b>një</b> emër FIO.</string>
     <string name="select_token">Shtoni tokenat ERC-20 në llogarinë \"%s\"</string>
     <string name="select_you_region">Zgjidhni rajonin tuaj</string>
     <string name="select_your_country">Zgjidhni vendin tuaj</string>
@@ -524,7 +510,6 @@
     <string name="set_password">Vendos fjalëkalimin</string>
     <string name="shamir_share_hint"><![CDATA[Total shares: numri i pjesëve në të cilat do të ndahet çelësi privat.\n\nThreshold: numri i pjesëve të nevojshme për të rikrijuar çelësin privat.]]></string>
     <string name="share">Shpërnda</string>
-    <string name="share_fio_public_key">Shpërnda çelësin publik FIO</string>
     <string name="share_logs">Shpërnda regjistrimet</string>
     <string name="share_news">Shpërnda lajmet</string>
     <string name="share_of">Pjesa %1$d</string>
@@ -553,7 +538,6 @@
     <string name="support_team_text">Ju lutemi përshkruani problemin dhe hapat për ta riprodhuar atë. Për të marrë një pamje të plotë të problemit, ju lutemi bashkëngjitni regjistrimet.</string>
     <string name="sync_failed_reason_s">Sinkronizimi dështoi. Arsyeja: %s</string>
     <string name="sync_failed_s">Sinkronizimi dështoi. %s</string>
-    <string name="tab_fio_requests">Kërkesat FIO</string>
     <string name="tab_partners">Bizneset</string>
     <string name="tab_vip">VIP</string>
     <string name="tap_next">Trokitni për %s</string>

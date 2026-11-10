@@ -161,20 +161,14 @@
     <string name="backup_not_verified">Backup non verificato</string>
     <string name="backup_now">Esegui il backup ora</string>
     <string name="backup_private_key">Backup chiave privata</string>
-    <string name="base_label_fio_account_legacy">FIO Legacy</string>
     <string name="bch_accounts_found"><![CDATA[Abbiamo trovato %1$s Bitcoin <font color="#f08c18">Cash</font> sui tuoi account BTC.<br><br>%2$d account Bitcoin <font color="#f08c18">Cash</font> corrispondenti creati.\nIl saldo Bitcoin <font color="#f08c18">Cash</font> può essere verificato nella scheda Account.<br><br>Ora puoi andare alla scheda Saldo del tuo account Bitcoin <font color="#f08c18">Cash</font> e scambiarlo istantaneamente in BTC.]]></string>
     <string name="bch_accounts_not_found"><![CDATA[Non abbiamo trovato Bitcoin <font color="#f08c18">Cash</font> sui tuoi account BTC.<br>Continueremo a monitorare i tuoi account BTC e ti informeremo se troviamo Bitcoin <font color="#f08c18">Cash</font>.]]></string>
     <string name="block_access_to_account">Disattiviamo intenzionalmente la scheda I miei account mentre stai gestendo il tuo account %1$s. Questo per evitare di inviare i tuoi asset digitali altrove se non a un altro account %1$s.</string>
-    <string name="btcv_account_creation_started">Creazione account BTCV avviata</string>
-    <string name="btcvault_hd_account">Account HD Bitcoin Vault</string>
     <string name="cant_disable_active_account">Impossibile disabilitare l\'account attivo</string>
     <string name="choose_the_currency_and_btc_receiving_account">Scegli la valuta e l\'account di ricezione BTC</string>
     <string name="confirm_delete_account_message_end">Vuoi continuare?</string>
     <string name="confirm_delete_private_key_message">Sei sicuro di voler eliminare la chiave privata di questo account?</string>
     <string name="confirm_delete_private_key_message_end">Vuoi continuare?</string>
-    <string name="connect_accounts">Collega account</string>
-    <string name="create_fio_account">Crea account FIO</string>
-    <string name="create_fio_legacy_presale_account">Crea account FIO Legacy presale</string>
     <string name="create_new_account">Crea nuovo account</string>
     <string name="delete_account">Elimina account</string>
     <string name="delete_account_message"><![CDATA[Vuoi eliminare l\'account <b>\"%1$s\"</b> contenente <b>%2$s</b> e <b>\"%3$s\"</b> contenente <b>%4$s</b>?]]></string>
@@ -192,7 +186,6 @@
     <string name="erc20_account_creation_started">Creazione account ERC-20 avviata</string>
     <string name="eth_account_creation_started">Creazione account ETH avviata</string>
     <string name="export">Esporta</string>
-    <string name="export_fio_public_key_title">Esporta chiave pubblica FIO</string>
     <string name="export_not_possible">L\'esportazione non è possibile, hai già un account %s</string>
     <string name="export_private_key_red_warning">ATTENZIONE: chiunque abbia accesso alla tua chiave privata può rubare i tuoi fondi.</string>
     <string name="ext_sig_change_to">Resto a</string>
@@ -205,7 +198,6 @@
     <string name="hardware_wallets">Wallet hardware</string>
     <string name="hd_account_bch">Account HD BCH</string>
     <string name="hd_eth_account">Account HD ETH</string>
-    <string name="hd_fio_account">Account HD FIO</string>
     <string name="import_xpub_should_xpriv">Per importare un account spendibile, fornisci una xpriv invece di una xpub</string>
     <string name="ledger_cold_storage_header">Cold storage Ledger</string>
     <string name="ledger_initial_status">Stato iniziale Ledger</string>
@@ -215,9 +207,7 @@
     <string name="ledger_unplugged_aid_preference_summary">AID utilizzato quando il Ledger è scollegato</string>
     <string name="list_added_tokens_new_account">Aggiungi nuovo account token</string>
     <string name="loading_accounts">Caricamento account...</string>
-    <string name="master_seed_not_configured">Master seed non configurato</string>
     <string name="migrating_accounts">Migrazione account in corso...</string>
-    <string name="new_fio_legacy_presale_account_desc">Nuovo account FIO Legacy presale</string>
     <string name="no_account_yet_register">Non hai ancora un account? <font color="#F2E868">Registrati</font></string>
     <string name="no_spendable_accounts">Nessun account spendibile</string>
     <string name="parent_eth_account">ETH %s:</string>
@@ -235,7 +225,6 @@
     <string name="select_account_to_pay_with">Seleziona l\'account con cui pagare</string>
     <string name="select_eth_account_to_erc20">Seleziona account ETH per ERC-20</string>
     <string name="select_eth_account_to_erc20_subtext">Seleziona l\'account ETH per pagare la commissione del miner</string>
-    <string name="select_name_to_associate_read_only_account">Account collegati a questo FIO Name. Solo <b>un</b> account per ogni criptovaluta può essere collegato a <b>un</b> FIO Name.</string>
     <string name="select_token_new_account">Seleziona token per il nuovo account</string>
     <string name="set_up_2fa_to_secure_your_account">Configura 2FA per proteggere il tuo account</string>
     <string name="single_address_account">Account Single Address</string>

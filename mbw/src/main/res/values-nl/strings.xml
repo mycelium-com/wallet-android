@@ -143,7 +143,6 @@
     <!-- Credit Card End-->
     <!-- Simplex start -->
     <!-- Simplex end -->
-    <string name="about_fio_protocol_title">Over FIO Protocol</string>
     <string name="accept">Accepteren</string>
     <string name="access_from_any_device">Toegang vanaf elk apparaat</string>
     <string name="activate_by">Activeren via</string>
@@ -213,13 +212,11 @@
     <string name="changelog_version_placeholder">Versie: %s</string>
     <string name="check_gap_bug_spannable_string">Sorry dat we u onderbreken… \n \nWe hebben een bug ontdekt in de account-logica die problemen veroorzaakt als u ooit moet herstellen vanuit uw 12-woorden back-up.\n\nVoor meer informatie zie hier: https://wallet.mycelium.com/info/gaps \n\nMogen we proberen dit voor u op te lossen? Druk op OK om één adres per getroffen account met ons te delen.</string>
     <string name="check_internet_and_try_again">Mycelium kan geen verbinding maken met de server vanwege een slechte internetverbinding.\nControleer uw internetverbinding en probeer het opnieuw.</string>
-    <string name="choose_blockchain">Kies blockchain</string>
     <string name="colorize">kleuren</string>
     <string name="colu">Digital Asset</string>
     <string name="configuration_change_restart_warning">Een herstart van de applicatie is vereist om de configuratiewijzigingen toe te passen.</string>
     <string name="confirm">Bevestigen</string>
     <string name="confirm_change_on_device"><![CDATA[Bevestig <b>change</b>-output op uw %3$s.<br><br><b>Waarde:</b><br>%1$s<br><b>Wisselgeldadres:</b><br>%2$s]]></string>
-    <string name="confirm_fio_link">Wilt u een FIO Name registreren voor uw HD Bitcoin-account %1$s?</string>
     <string name="confirm_output_on_device"><![CDATA[Bevestig de output op uw %3$s.<br><br><b>Waarde:</b><br>%1$s<br><b>Bestemmingsadres:</b><br>%2$s<br>]]></string>
     <string name="confirmation">Wisselbevestiging</string>
     <string name="connect_your_ext_sig_device_info">Dit werkt alleen als uw telefoon USB-OTG (on-the-go) ondersteunt.\n\nOm het apparaat aan te sluiten heeft u een USB-OTG-adapter of -kabel nodig. Sluit het apparaat aan met zijn eigen USB-kabel aan de client-zijde en verbind de host-zijde met uw telefoon.</string>
@@ -235,7 +232,6 @@
     <string name="country">Land</string>
     <string name="course_outdated">Wisselkoers is verouderd</string>
     <string name="create_backup">Back-up aanmaken</string>
-    <string name="create_fio_domain">FIO Domain aanmaken</string>
     <string name="credit_card_buy">Creditcard</string>
     <string name="credit_card_buy_description">Bitcoin kopen met creditcard</string>
     <string name="credit_card_buy_setting_description">Bitcoin kopen met creditcard</string>
@@ -252,8 +248,6 @@
     <string name="decryption_password_hint">UWWA CHTW OORD ABCD</string>
     <string name="delete_document">Wilt u het document verwijderen?</string>
     <string name="delete_pk_message"><![CDATA[Wilt u het account <b>\"%1$s\"</b> private key met <b>%2$s</b> verwijderen?]]></string>
-    <string name="delete_received_fio_request">Ontvangen FIO Request verwijderen</string>
-    <string name="delete_received_fio_request_msg">Weet u zeker dat u dit FIO Request wilt verwijderen?</string>
     <string name="deposits_without_destination_tag_will_be_lost">Stortingen zonder Destination Tag gaan verloren!</string>
     <string name="description">Beschrijving:</string>
     <string name="description_bump_fee">Verzend een transactie die de fee voor deze onbevestigde transactie verhoogt.\n\nWilt u %2$s uitgeven om de fee op %1$dsat/B te krijgen?</string>
@@ -264,7 +258,6 @@
     <string name="discover">Ontdekken</string>
     <string name="do_you_want_resubmit">U heeft de onderstaande informatie bijgewerkt. Wilt u uw aanvraag opnieuw indienen?</string>
     <string name="doc_selfie"><![CDATA[Documenten & Selfie]]></string>
-    <string name="domain_details">Domeingegevens</string>
     <string name="dontagree">Ik ga niet akkoord</string>
     <string name="download">Downloaden</string>
     <string name="due_to_high_cryptocurrencies_volatility">Vanwege de hoge volatiliteit van cryptocurrencies kan de uiteindelijke koers iets hoger of lager zijn dan hier geschat.</string>
@@ -282,7 +275,6 @@
     <string name="excange_title">BCH naar BTC wisselen</string>
     <string name="exceed_card_value">Overschrijdt kaartwaarde</string>
     <string name="exchanging">wisselen</string>
-    <string name="expiration_date">Vervaldatum:</string>
     <string name="expire_date">Vervaldatum:</string>
     <string name="expires_at">Vervaldatum:</string>
     <string name="external_app_needed">Om het apparaat bij te werken heeft u een externe tool nodig, klik op OK om deze te starten.</string>
@@ -299,7 +291,6 @@
     <string name="first_bch_installed_message"><![CDATA[Nu dienen we het te synchroniseren met de blockchain om uw Bitcoin <font color="#f08c18">Cash</font>-saldo op te halen.<br><br>Deze procedure kost wat tijd en wordt op de achtergrond uitgevoerd.<br>Hoe meer private keys u heeft, hoe langer het duurt; even geduld a.u.b. Als u bijvoorbeeld ongeveer 1000 private keys heeft, kan het meer dan 3 uur duren om volledig gesynchroniseerd te zijn.<br>We informeren u wanneer dit is voltooid.<br><br>U kunt de synchronisatievoortgang altijd hier controleren: Instellingen -> Bitcoin <font color="#f08c18">Cash</font>-module.<br><br>Voor elk BTC-account zonder opgehaalde Bitcoin <font color="#f08c18">Cash</font>, wordt een bijbehorend Bitcoin <font color="#f08c18">Cash</font>-account aangemaakt.<br><br>Ga naar het tabblad Saldo van uw Bitcoin <font color="#f08c18">Cash</font>-account om het direct om te wisselen naar BTC.]]></string>
     <string name="first_bch_installed_title"><![CDATA[Mycelium Bitcoin <font color="#f08c18">Cash</font>-module is geïnstalleerd!]]></string>
     <string name="first_name">Voornaam</string>
-    <string name="following_fio_domains_registered">Volgende FIO Domains geregistreerd</string>
     <string name="format" translatable="false">%1$td/%1$tm/%1$tY</string>
     <string name="found_clipboard_public_key_title">Public Key gevonden op klembord</string>
     <string name="found_clipboard_public_keys_message">Het klembord bevat een public key.\nWilt u het klembord wissen?</string>
@@ -366,7 +357,6 @@
     <string name="last_log_entries">Laatste logvermeldingen</string>
     <string name="last_name">Achternaam</string>
     <string name="learn_more_rmc"><u>Meer informatie over RMC</u></string>
-    <string name="leave_a_message_for_s">Laat een bericht achter voor %s</string>
     <string name="legal_information">Juridische informatie</string>
     <string name="less">minder</string>
     <string name="list_added_tokens">ERC-20-tokens op \"%s\"-account</string>
@@ -395,7 +385,6 @@
     <string name="module_uninstall_progress">Verwijderen…</string>
     <string name="modules">Modules</string>
     <string name="more">meer</string>
-    <string name="my_fio_domains">Mijn FIO-domeinen</string>
     <string name="mycelium_no_responaility_rmc">Als u doorgaat, gaat u akkoord met het overstappen naar RMC, een service van een derde partij. Al uw interacties met RMC zijn buiten de controle van Mycelium en zijn onderhevig aan de Gebruikersovereenkomst, Gebruiksvoorwaarden en het Privacybeleid van RMC. Lees deze zorgvuldig. Er wordt geen persoonlijke informatie verzameld, opgeslagen of gebruikt door Mycelium.\n\nMYCELIUM AANVAARDT GEEN VERANTWOORDELIJKHEID EN IS NIET AANSPRAKELIJK VOOR ENIG VERLIES OF SCHADE GELEDEN ALS GEVOLG VAN HET BENADEREN, GEBRUIK VAN OF VERTROUWEN OP DE INFORMATIE EN DIENSTEN VAN DE RMC-UITGEVER</string>
     <string name="mycelium_services">Mycelium-services</string>
     <string name="mycelium_terms_of_use">Mycelium-gebruiksvoorwaarden</string>
@@ -411,7 +400,6 @@
     <string name="no_digital_asset">Uw BIP32-private key bevat geen digitale activa.\n\nAls u denkt van wel, probeer hem dan opnieuw te scannen.</string>
     <string name="no_funds">Geen middelen</string>
     <string name="no_google_play_installed">Geen Google Play geïnstalleerd op het apparaat</string>
-    <string name="no_logs">Geen logs</string>
     <string name="no_operations_history">Geen operatiegeschiedenis</string>
     <string name="no_orbot">Geen Orbot geïnstalleerd</string>
     <string name="no_order_linked">U heeft momenteel geen aankopen gekoppeld aan uw account. Begin door de winkelcatalogus te verkennen.</string>
@@ -469,7 +457,6 @@
     <string name="register">Registreren</string>
     <string name="registration">Registratie</string>
     <string name="removed">verwijderd</string>
-    <string name="renew_fio_domain">FIO-domein verlengen</string>
     <string name="repeat_password">Wachtwoord herhalen</string>
     <string name="rescan">Opnieuw scannen</string>
     <string name="resend_confirmation_email">Bevestigingsmail opnieuw verzenden.</string>
@@ -499,7 +486,6 @@
     <string name="select_card_value_dialog">Selecteer kaartwaarde:</string>
     <string name="select_country">Selecteer land</string>
     <string name="select_flows">Flows selecteren</string>
-    <string name="select_name_to_associate">Verbind accounts met uw FIO-naam. Slechts <b>één</b> account per cryptocurrency kan worden verbonden met <b>één</b> FIO-naam.</string>
     <string name="select_token">ERC-20-tokens toevoegen aan \"%s\"-account</string>
     <string name="select_you_region">Selecteer uw regio</string>
     <string name="select_your_country">Selecteer uw land</string>
@@ -515,7 +501,6 @@
     <string name="set_password">Wachtwoord instellen</string>
     <string name="shamir_share_hint"><![CDATA[Totaal aantal aandelen: het aantal delen waarin de private key wordt opgesplitst.\n\nDrempel: het aantal delen dat nodig is om de private key te reconstrueren.]]></string>
     <string name="share">Delen</string>
-    <string name="share_fio_public_key">FIO public key delen</string>
     <string name="share_logs">Logs delen</string>
     <string name="share_news">Nieuws delen</string>
     <string name="share_of">Aandeel %1$d</string>
@@ -549,7 +534,6 @@
     <string name="support_team_text">Beschrijf het probleem en de stappen om het te reproduceren. Voeg de logs toe om een volledig beeld van het probleem te krijgen.</string>
     <string name="sync_failed_reason_s">Synchronisatie mislukt. Reden: %s</string>
     <string name="sync_failed_s">Synchronisatie mislukt. %s</string>
-    <string name="tab_fio_requests">FIO-verzoeken</string>
     <string name="tab_partners">Bedrijven</string>
     <string name="tab_vip">VIP</string>
     <string name="tap_next">Tik voor %s</string>

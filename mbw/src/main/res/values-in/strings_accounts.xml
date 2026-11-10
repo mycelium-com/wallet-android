@@ -98,21 +98,15 @@
     <string name="backup_not_verified">Backup tidak diverifikasi</string>
     <string name="backup_now">Backup sekarang</string>
     <string name="backup_private_key">Backup</string>
-    <string name="base_label_fio_account_legacy">Akun FIO Legacy</string>
     <string name="bch_accounts_found"><![CDATA[Kami telah menemukan %1$s Bitcoin <font color="#f08c18">Cash</font> pada akun BTC Anda.<br><br>%2$d akun Bitcoin <font color="#f08c18">Cash</font> terkait telah dibuat.\nSaldo Bitcoin <font color="#f08c18">Cash</font> dapat diperiksa di tab Akun.<br><br>Sekarang Anda dapat membuka tab Saldo akun Bitcoin <font color="#f08c18">Cash</font> Anda dan langsung menukarnya dengan BTC.]]></string>
     <string name="bch_accounts_not_found"><![CDATA[Kami tidak menemukan Bitcoin <font color="#f08c18">Cash</font> apa pun pada akun BTC Anda.<br>Kami terus memantau akun BTC Anda dan akan memberi tahu Anda jika Bitcoin <font color="#f08c18">Cash</font> ditemukan.]]></string>
     <string name="bip32_root_account">Akun Root</string>
     <string name="block_access_to_account">Kami sengaja menonaktifkan tab Akun Saya saat Anda mengelola akun %1$s. Hal ini untuk mencegah Anda mengirim aset digital ke tempat lain selain ke akun %1$s lainnya.</string>
-    <string name="btcv_account_creation_started">Membuat Akun BTCV baru…</string>
-    <string name="btcvault_hd_account">Tambah Akun HD Bitcoin Vault</string>
     <string name="cant_disable_active_account">Anda tidak dapat menonaktifkan akun aktif</string>
     <string name="choose_the_currency_and_btc_receiving_account">Pilih mata uang dan akun penerima BTC</string>
     <string name="confirm_delete_account_message_end">Apakah Anda ingin menghapusnya?</string>
     <string name="confirm_delete_private_key_message">Sebelum menghapus private key, pastikan Anda memiliki cadangannya disimpan offline dan di tempat yang aman. Anda harus \"menambahkannya kembali\" dari cadangan saat Anda perlu membelanjakan bitcoin dari akun ini.</string>
     <string name="confirm_delete_private_key_message_end">Apakah Anda ingin menjadikannya watch-only?</string>
-    <string name="connect_accounts">Simpan</string>
-    <string name="create_fio_account">Buat Akun FIO</string>
-    <string name="create_fio_legacy_presale_account">Buat Akun FIO Legacy</string>
     <string name="create_new_account">Tambah Akun ETH baru</string>
     <string name="delete_account">Hapus Akun</string>
     <string name="delete_account_message"><![CDATA[Apakah Anda ingin menghapus akun <b>\"%1$s\"</b> yang berisi <b>%2$s</b> dan <b>\"%3$s\"</b> yang berisi <b>%4$s</b>?]]></string>
@@ -139,7 +133,6 @@
     <string name="eth_account_creation_started">Membuat Akun ETH baru…</string>
     <string name="export">Ekspor kunci akun</string>
     <string name="export_account_data_warning">Anda akan mengekspor data sensitif dari akun yang dipilih.\n\nSiapa pun yang mendapatkan akses ke kunci ini dapat mengambil alih kepemilikan bitcoin yang dikendalikannya atau mendapatkan informasi yang dapat menggagalkan privasi Anda.\n\nApakah Anda ingin melanjutkan?</string>
-    <string name="export_fio_public_key_title">Ekspor public key FIO</string>
     <string name="export_history">Ekspor riwayat transaksi</string>
     <string name="export_not_possible">Ekspor tidak dimungkinkan, Anda sudah memiliki akun %s</string>
     <string name="export_private_key_red_warning">Hanya salin kunci ini di lingkungan yang aman.\nSiapa pun yang memiliki akses ke kunci ini akan mendapatkan kontrol atas semua bitcoin saat ini dan di masa mendatang yang tersedia untuk akun ini.\n\nTekan lama di sini untuk menampilkan \nQR-Code </string>
@@ -168,7 +161,6 @@
     <string name="hd_account_bch">Tambah Akun HD Bitcoin Cash</string>
     <string name="hd_account_selector_no_account_found">Tidak ada akun aktif yang ditemukan.</string>
     <string name="hd_eth_account">Tambah Akun Ethereum</string>
-    <string name="hd_fio_account">Tambah Akun FIO</string>
     <string name="hide_unused_account_menu">Hapus Akun</string>
     <string name="import_decrypt_bip38_description">Anda akan mendekripsi private key yang dilindungi password BIP38.</string>
     <string name="import_decrypt_bip38_enter_password">Masukkan password enkripsi BIP38.</string>
@@ -201,9 +193,7 @@
     <string name="ledger_unplugged_aid_preference_summary">Dukung AID berbeda untuk ledger\nunplugged custom builds</string>
     <string name="list_added_tokens_new_account">Token ERC-20 pada akun baru</string>
     <string name="loading_accounts">Memuat akun</string>
-    <string name="master_seed_not_configured">Master seed belum dikonfigurasi</string>
     <string name="migrating_accounts">Memigrasikan akun</string>
-    <string name="new_fio_legacy_presale_account_desc">Buat FIO Legacy Account HANYA jika Anda telah membeli FIO domain selama FIO Presale.</string>
     <string name="no_account_yet_register">Belum punya akun? <font color="#F2E868">Daftar</font></string>
     <string name="no_spendable_accounts">Tidak ada akun yang dapat dibelanjakan</string>
     <string name="parent_eth_account">ETH %s:</string>
@@ -226,7 +216,6 @@
     <string name="select_eth_account_to_erc20_subtext">Token ERC-20 berada di Akun ETH dan memerlukan ETH untuk melakukan transaksi.\nSatu Akun ETH dapat menyimpan jenis token ERC-20 tanpa batas - satu dari setiap jenis per akun ETH.</string>
     <string name="select_ext_sig_account_to_spend_from">Pilih akun untuk dibelanjakan</string>
     <string name="select_ledger_account_to_spend_from">Pilih akun untuk dibelanjakan</string>
-    <string name="select_name_to_associate_read_only_account">Akun yang terhubung ke FIO Name ini. Hanya <b>satu</b> akun untuk setiap cryptocurrency yang dapat dihubungkan dengan <b>satu</b> FIO Name.</string>
     <string name="select_spending_account">Pilih Akun Pembelanjaan</string>
     <string name="select_token_new_account">Tambahkan token ERC-20 ke Akun ETH baru</string>
     <string name="set_up_2fa_to_secure_your_account">Atur 2FA untuk mengamankan akun Anda</string>

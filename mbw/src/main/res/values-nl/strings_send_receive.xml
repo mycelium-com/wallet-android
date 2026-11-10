@@ -220,10 +220,8 @@
     <string name="qr_code">QR-code</string>
     <string name="rebroadcast_transaction_title">Transactie opnieuw uitzenden</string>
     <string name="receive_cointype">%1$s ontvangen</string>
-    <string name="receive_title_fio">FIO Public key</string>
     <string name="received">Ontvangen</string>
     <string name="receiver_address_hint">1Address1234\n567890abcdef\nghijklmnop</string>
-    <string name="recipient_has_no_such_address">%1$s heeft geen %2$s-adres gekoppeld</string>
     <string name="recipient_invalid">Ongeldig adres of FIO-naam</string>
     <string name="recipient_valid">Ontvanger geldig</string>
     <string name="remove_queued_transaction">Wilt u deze in de wachtrij geplaatste transactie echt verwijderen en voorkomen dat deze wordt uitgezonden?</string>
@@ -236,11 +234,9 @@
     <string name="restore_address_as">Adres herstellen als</string>
     <string name="retrieving_pubkey_address">Volgend ongebruikt adres ophalen…</string>
     <string name="return_to_payment">Terug naar bestellingen</string>
-    <string name="s_fio_request">%s FIO-verzoek</string>
     <string name="s_payment_request">%s betalingsverzoek</string>
     <string name="send_cointype">%1$s verzenden</string>
     <string name="send_fee_hint"><b>LET OP.</b> Transacties met lage prioriteit miner fee worden mogelijk nooit bevestigd of pas na vele uren of zelfs dagen. Kies geen lage prioriteit als u niet begrijpt hoe het bitcoin-netwerk werkt.</string>
-    <string name="send_fio_request">FIO-verzoek verzenden</string>
     <string name="send_mail">Mail verzenden…</string>
     <string name="sending_addresses">Adresboek</string>
     <string name="sending_assets">%s-activa verzenden.</string>
@@ -263,7 +259,6 @@
     <string name="tips_rmc_check_address">Als u digitale activa naar een willekeurig bitcoinadres heeft gestuurd, zijn ze niet vernietigd.\nOm ze terug te halen heeft u twee opties:\n1) Gebruik Colored Coins API om uw activa handmatig terug te sturen naar het adres dat door Mycelium Wallet wordt beheerd.\n2) Dien een ticket in bij Mycelium Wallet-support voor het ophalen van uw activa. Voor deze service kunnen extra kosten gelden. U ontvangt gedetailleerde informatie nadat u contact heeft opgenomen met support.\n\nIn beide gevallen moet u een private key bezitten van het adres waarnaar u digitale activa heeft gestuurd.</string>
     <string name="too_many_transaction_records">Kan de volledige transactiegeschiedenis van het account niet ophalen vanwege de enorme omvang. Overweeg om middelen naar een nieuw account te verplaatsen.</string>
     <string name="total_amount">Totaalbedrag:</string>
-    <string name="transaction_from_address_prefix">Van: %s</string>
     <string name="transaction_gas_limit">Gas Limit (eenheden):</string>
     <string name="transaction_history_title">Transactiegeschiedenis</string>
     <string name="transaction_input_data">Inputdata:</string>

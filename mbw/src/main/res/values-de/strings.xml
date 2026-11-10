@@ -499,7 +499,6 @@
     <string name="input_look_ahead">Search depth (addresses)</string>
     <string name="card_code">Kartencode:</string>
     <string name="i_know_what_iam_doing">Ich weiß, was ich tue</string>
-    <string name="about_fio_protocol_title">Über das FIO-Protokoll</string>
     <string name="access_from_any_device">Zugriff von jedem Gerät</string>
     <string name="activate_by">Aktivieren bis</string>
     <string name="at_least_6_characters">Mindestens 6 Zeichen, einschließlich einer Zahl, einem Groß- und einem Kleinbuchstaben</string>
@@ -512,10 +511,8 @@
     <string name="by_clicking_sign_up_you_agree_to_our_terms_of_use">Durch Klicken auf „Registrieren“ stimmen Sie unseren <font color="#F2E868">Nutzungsbedingungen</font> zu</string>
     <string name="can_t_scan_it">Können Sie es nicht scannen?</string>
     <string name="change_password">Passwort ändern</string>
-    <string name="choose_blockchain">Blockchain wählen</string>
     <string name="confirm">Bestätigen</string>
     <string name="country">Land</string>
-    <string name="create_fio_domain">FIO-Domain erstellen</string>
     <string name="date_of_birth">Geburtsdatum</string>
     <string name="dear_user">Sehr geehrter Benutzer,</string>
     <string name="dear_user_s_s">Sehr geehrte/r %s %s,</string>
@@ -524,18 +521,15 @@
     <string name="deposits_without_destination_tag_will_be_lost">Einzahlungen ohne Destination Tag gehen verloren!</string>
     <string name="do_you_want_resubmit">Sie haben die untenstehenden Informationen aktualisiert. Möchten Sie Ihren Antrag erneut einreichen?</string>
     <string name="doc_selfie"><![CDATA[Dokumente & Selfie]]></string>
-    <string name="domain_details">Domain-Details</string>
     <string name="download">Herunterladen</string>
     <string name="edit_gas_limit_advanced_users"><![CDATA[Gas-Limit bearbeiten <i>(für fortgeschrittene Benutzer)</i>]]></string>
     <string name="email">E-Mail</string>
     <string name="est_total_balance">Geschätzter Gesamtsaldo</string>
     <string name="every_1000_shares_20mb">\nalle 1000 Shares = ~20MB</string>
-    <string name="expiration_date">Ablaufdatum:</string>
     <string name="fatca_declaration">FATCA-Erklärung</string>
     <string name="fatca_legislations_requires">Die FATCA-Gesetzgebung verpflichtet bestimmte US-Steuerzahler, die ausländische Finanzanlagen halten, in ihrer jährlichen Einkommensteuererklärung Informationen über diese Vermögenswerte zu melden. Weitere Informationen zur Berechtigung finden Sie unter <font color="#F2E868">www.irs.gov/fatca.</font> Bitte prüfen Sie, ob Sie unter die FATCA-Gesetzgebung fallen.</string>
     <string name="finish">Fertig</string>
     <string name="first_name">Vorname</string>
-    <string name="following_fio_domains_registered">Folgende FIO-Domains registriert</string>
     <string name="format" translatable="false">%1$td.%1$tm.%1$tY</string>
     <string name="generate_shares">Shares erzeugen</string>
     <string name="get_a_verification_code">Holen Sie sich einen Bestätigungscode aus der\nGoogle Authenticator-App.</string>
@@ -553,14 +547,12 @@
     <string name="industry_leading_security">Branchenführende Sicherheit</string>
     <string name="institutional_grade_crypto_storage">Krypto-Speicher auf institutionellem Niveau\nund branchenführende Sicherheit, vertraut von den\ngrößten Krypto-Fonds der Welt. Sie können Ihr\nKrypto-Portfolio mit Vertrauen verwalten.</string>
     <string name="last_name">Nachname</string>
-    <string name="leave_a_message_for_s">Nachricht hinterlassen für %s</string>
     <string name="legal_information">Rechtliche Informationen</string>
     <string name="list_added_tokens">ERC-20-Tokens auf Konto „%s“</string>
     <string name="loading">Wird geladen…</string>
     <string name="log_in">Anmelden</string>
     <string name="log_out">Abmelden</string>
     <string name="mm_dd_yyyy">TT/MM/JJJJ</string>
-    <string name="my_fio_domains">Meine FIO-Domains</string>
     <string name="nationality">Staatsangehörigkeit</string>
     <string name="new_password">Neues Passwort</string>
     <string name="next">Weiter</string>
@@ -576,7 +568,6 @@
     <string name="referral_code">Empfehlungscode</string>
     <string name="register">Registrieren</string>
     <string name="registration">Registrierung</string>
-    <string name="renew_fio_domain">FIO-Domain erneuern</string>
     <string name="repeat_password">Passwort wiederholen</string>
     <string name="resend_confirmation_email">Bestätigungs-E-Mail erneut senden.</string>
     <string name="resend_verification_code">Verifizierungscode erneut senden...</string>
@@ -589,7 +580,6 @@
     <string name="search_markets">Märkte suchen</string>
     <string name="secure_private_code">Sicherer privater Code</string>
     <string name="see_more">Mehr anzeigen</string>
-    <string name="select_name_to_associate">Konten mit Ihrem FIO-Namen verbinden. Es kann <b>nur ein</b> Konto pro Kryptowährung mit <b>einem</b> FIO-Namen verbunden werden.</string>
     <string name="select_token">ERC-20-Tokens zum Konto „%s“ hinzufügen</string>
     <string name="select_your_country">Wählen Sie Ihr Land</string>
     <string name="selfie">Selfie</string>
@@ -598,12 +588,10 @@
     <string name="service_unavailable">Dienst nicht verfügbar</string>
     <string name="set_password">Passwort festlegen</string>
     <string name="shamir_share_hint"><![CDATA[Gesamtanzahl Shares: in wie viele Teile der private Schlüssel aufgeteilt wird.\n\nSchwellenwert: wie viele Teile zur Wiederherstellung des privaten Schlüssels nötig sind.]]></string>
-    <string name="share_fio_public_key">FIO Public Key teilen</string>
     <string name="share_of">Share %1$d</string>
     <string name="start">Start</string>
     <string name="step_n">Schritt %d</string>
     <string name="support_center">Support-Center</string>
-    <string name="tab_fio_requests">FIO-Anfragen</string>
     <string name="thank_you_for_completing_the_application_form">Vielen Dank für das Ausfüllen des Antragsformulars</string>
     <string name="threshold">Schwellenwert</string>
     <string name="total_number_of_shares">Gesamtzahl Shares</string>

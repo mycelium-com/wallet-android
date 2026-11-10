@@ -81,7 +81,6 @@
     <string name="bitid_success">Ви успішно увійшли на %1$s!</string>
     <string name="bitid_timeout">Час очікування з\'єднання вичерпано, спробуйте пізніше.</string>
     <string name="bitid_unsecure_warning">Попередження: цей сайт отримає callback через http. Для конфіденційних даних слід використовувати https.</string>
-    <string name="fio_account_creation_started">Створення нового FIO-акаунту…</string>
     <string name="ledger_enter_2fa_pin">Підтвердьте адресу виходу за допомогою вашої Security Card</string>
     <string name="ledger_enter_pin">Введіть PIN для Ledger Wallet</string>
     <string name="ledger_enter_transaction_pin">Введіть 2FA для Ledger Wallet</string>

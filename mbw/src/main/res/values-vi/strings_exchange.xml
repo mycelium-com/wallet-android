@@ -182,9 +182,6 @@
     <string name="no_exchange_available">Không có sàn giao dịch khả dụng cho tài khoản</string>
     <string name="no_gift_cards_linked">Bắt đầu bằng cách khám phá danh mục cửa hàng hoặc kiểm tra trạng thái đơn hàng của bạn.</string>
     <string name="no_purchased_gift_card">BẠN CHƯA MUA\nTHẺ QUÀ TẶNG NÀO</string>
-    <string name="partner_fiopresale">Bán trước địa chỉ FIO</string>
-    <string name="partner_fiopresale_info"/>
-    <string name="partner_fiopresale_short">Chìa khóa của bạn cho trải nghiệm blockchain tốt hơn</string>
     <string name="partner_more_info"><u>Quyền riêng tư của bạn là ưu tiên hàng đầu của chúng tôi</u></string>
     <string name="partner_more_info_text">
         Mycelium là một trong những ví bitcoin di động đáng tin cậy và hữu ích nhất.<br />

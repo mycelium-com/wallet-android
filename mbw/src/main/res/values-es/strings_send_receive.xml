@@ -233,10 +233,8 @@
     <string name="proof_of_address">Comprobante de domicilio</string>
     <string name="provide_your_recovery_e_mail_address">Proporcione su correo electrónico de recuperación a continuación. Le enviaremos un enlace seguro e instrucciones sobre cómo restablecer su contraseña.</string>
     <string name="receive_cointype">Recibir %1$s</string>
-    <string name="receive_title_fio">Clave pública FIO</string>
     <string name="received">Recibido</string>
     <string name="receiver_address_hint">1Direccion1234\n567890abcdef\nghijklmnop</string>
-    <string name="recipient_has_no_such_address">%1$s no tiene una dirección %2$s conectada</string>
     <string name="recipient_invalid">Dirección o FIO Name inválido</string>
     <string name="recipient_valid">Destinatario válido</string>
     <string name="replace_transaction">Transacción a ser reemplazada con:</string>
@@ -244,11 +242,9 @@
     <string name="residential_address">Dirección residencial</string>
     <string name="restore_address_as">Restaurar dirección como</string>
     <string name="return_to_payment">Volver a pedidos</string>
-    <string name="s_fio_request">Solicitud FIO de %s</string>
     <string name="s_payment_request">Solicitud de pago de %s</string>
     <string name="send_cointype">Enviar %1$s</string>
     <string name="send_fee_hint"><b>ATENCIÓN.</b> Las transacciones con comisión de minero de baja prioridad pueden no confirmarse nunca o confirmarse en muchas horas o incluso días. No elija baja prioridad si no entiende cómo funciona la red bitcoin.</string>
-    <string name="send_fio_request">Enviar solicitud FIO</string>
     <string name="send_mail">Enviar correo…</string>
     <string name="sending_addresses">Libreta de direcciones</string>
     <string name="sending_assets">Enviando %s activos.</string>
@@ -270,7 +266,6 @@
     <string name="tips_rmc_check_address">Si ha enviado activos digitales a una dirección bitcoin aleatoria no se destruyen.\nPara recuperarlos tiene dos opciones:\n1) Use la API de Colored Coins para enviar manualmente sus activos de vuelta a la dirección gestionada por Mycelium Wallet.\n2) Envíe un ticket al soporte de Mycelium Wallet para recuperar sus activos. Por este servicio pueden aplicarse cargos adicionales. Recibirá información detallada después de contactar con soporte.\n\nEn ambos casos, debe poseer una clave privada de la dirección a la que ha enviado los activos digitales.</string>
     <string name="too_many_transaction_records">No se puede obtener el historial completo de transacciones de la cuenta debido a su enorme tamaño. Considere mover los fondos a una nueva cuenta.</string>
     <string name="total_amount">Cantidad total:</string>
-    <string name="transaction_from_address_prefix">De: %s</string>
     <string name="transaction_gas_limit">Gas Limit (unidades):</string>
     <string name="transaction_input_data">Input Data:</string>
     <string name="transaction_not_sent_nonstandard">No se pudo transmitir la transacción debido a un error:\n%1$s\nReporte este incidente al soporte técnico.\nLa transacción en bruto se ha copiado al portapapeles, si es posible adjúntela a su solicitud.</string>

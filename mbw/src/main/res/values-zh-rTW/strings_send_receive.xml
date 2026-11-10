@@ -251,12 +251,10 @@
     <string name="provide_your_recovery_e_mail_address">請在下方提供您的恢復電子郵件地址。我們會傳送一個安全連結與密碼重設說明給您。</string>
     <string name="qr_code">QR 碼</string>
     <string name="receive_cointype">接收 %1$s</string>
-    <string name="receive_title_fio">FIO 公鑰</string>
     <string name="received">已接收</string>
     <string name="receiver_address_hint">1Address1234
 567890abcdef
 ghijklmnop</string>
-    <string name="recipient_has_no_such_address">%1$s 沒有連結 %2$s 地址</string>
     <string name="recipient_invalid">無效的地址或 FIO 名稱</string>
     <string name="recipient_valid">收款人有效</string>
     <string name="replace_transaction">用以下交易取代：</string>
@@ -264,11 +262,9 @@ ghijklmnop</string>
     <string name="residential_address">住址</string>
     <string name="restore_address_as">還原地址為</string>
     <string name="return_to_payment">返回訂單</string>
-    <string name="s_fio_request">%s FIO 請求</string>
     <string name="s_payment_request">%s 付款請求</string>
     <string name="send_cointype">發送 %1$s</string>
     <string name="send_fee_hint"><b>注意。</b>使用低優先順序礦工費的交易可能永遠不會被確認，或者需要許多小時甚至數天才會被確認。如果您不了解比特幣網路的運作方式，請勿選擇低優先順序。</string>
-    <string name="send_fio_request">傳送 FIO 請求</string>
     <string name="send_mail">傳送郵件…</string>
     <string name="sending_addresses">地址簿</string>
     <string name="sending_assets">正在傳送 %s 資產。</string>
@@ -295,7 +291,6 @@ ghijklmnop</string>
 在這兩種情況下，您都必須擁有您發送數位資產到的地址的私鑰。</string>
     <string name="too_many_transaction_records">由於交易歷史過於龐大，無法擷取完整的帳戶交易歷史。請考慮將資金移至新帳戶。</string>
     <string name="total_amount">總金額：</string>
-    <string name="transaction_from_address_prefix">從：%s</string>
     <string name="transaction_gas_limit">Gas Limit（單位）：</string>
     <string name="transaction_input_data">輸入資料：</string>
     <string name="transaction_not_sent_nonstandard">因為發生錯誤，廣播交易失敗：

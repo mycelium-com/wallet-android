@@ -78,13 +78,10 @@
     <string name="backup_not_verified">Bản sao lưu chưa được xác minh</string>
     <string name="backup_now">Sao lưu ngay</string>
     <string name="backup_words_title">Sao lưu Master Seed</string>
-    <string name="base_label_fio_account_legacy">Tài khoản FIO Legacy</string>
     <string name="bch_accounts_found"><![CDATA[Chúng tôi đã tìm thấy %1$s Bitcoin <font color="#f08c18">Cash</font> trên các tài khoản BTC của bạn.<br><br>Đã tạo %2$d tài khoản Bitcoin <font color="#f08c18">Cash</font> tương ứng.\nSố dư Bitcoin <font color="#f08c18">Cash</font> có thể được kiểm tra trong tab Tài khoản.<br><br>Bây giờ bạn có thể vào tab Số dư của (các) tài khoản Bitcoin <font color="#f08c18">Cash</font> và đổi ngay sang BTC.]]></string>
     <string name="bch_accounts_not_found"><![CDATA[Chúng tôi không tìm thấy Bitcoin <font color="#f08c18">Cash</font> nào trên các tài khoản BTC của bạn.<br>Chúng tôi đang liên tục theo dõi các tài khoản BTC của bạn và sẽ thông báo nếu tìm thấy Bitcoin <font color="#f08c18">Cash</font>.]]></string>
     <string name="bip32_root_account">Tài khoản gốc</string>
     <string name="block_access_to_account">Chúng tôi cố ý vô hiệu hóa tab Tài khoản của tôi khi bạn đang quản lý tài khoản %1$s. Điều này nhằm ngăn bạn gửi tài sản kỹ thuật số đến bất kỳ nơi nào khác ngoài một tài khoản %1$s khác.</string>
-    <string name="btcv_account_creation_started">Đang tạo tài khoản BTCV mới…</string>
-    <string name="btcvault_hd_account">Thêm tài khoản Bitcoin Vault HD</string>
     <string name="cant_disable_active_account">Bạn không thể vô hiệu hóa tài khoản đang hoạt động</string>
     <string name="choose_the_currency_and_btc_receiving_account">Chọn tiền tệ và tài khoản nhận BTC</string>
     <string name="clipboard">Clipboard</string>
@@ -92,9 +89,6 @@
     <string name="confirm_delete_account_message_end">Bạn có muốn xóa nó không?</string>
     <string name="confirm_delete_private_key_message">Trước khi xóa khóa riêng tư, hãy đảm bảo bạn đã lưu trữ bản sao lưu của nó ngoại tuyến và ở nơi an toàn. Bạn sẽ phải \"thêm lại\" từ bản sao lưu khi cần chi tiêu bitcoin từ tài khoản này.</string>
     <string name="confirm_delete_private_key_message_end">Bạn có muốn chuyển nó thành chỉ xem không?</string>
-    <string name="connect_accounts">Lưu</string>
-    <string name="create_fio_account">Tạo tài khoản FIO</string>
-    <string name="create_fio_legacy_presale_account">Tạo tài khoản FIO Legacy</string>
     <string name="create_new_account">Thêm tài khoản ETH mới</string>
     <string name="delete_account">Xóa tài khoản</string>
     <string name="delete_account_message"><![CDATA[Bạn có muốn xóa tài khoản <b>\"%1$s\"</b> đang giữ <b>%2$s</b> và <b>\"%3$s\"</b> đang giữ <b>%4$s</b> không?]]></string>
@@ -118,7 +112,6 @@
     <string name="erc20_account_creation_started">Đang tạo tài khoản ERC-20 mới…</string>
     <string name="eth_account_creation_started">Đang tạo tài khoản ETH mới…</string>
     <string name="export">Xuất khóa tài khoản</string>
-    <string name="export_fio_public_key_title">Xuất khóa công khai FIO</string>
     <string name="export_history">Xuất lịch sử giao dịch</string>
     <string name="export_not_possible">Không thể xuất, bạn đã có tài khoản %s</string>
     <string name="export_private_key_red_warning">Chỉ sao chép khóa này trong môi trường an toàn.\nBất kỳ ai có quyền truy cập sẽ kiểm soát toàn bộ bitcoin hiện tại và trong tương lai cho tài khoản này.\n\nNhấn giữ ở đây để hiển thị \nQR-Code </string>
@@ -155,7 +148,6 @@
     <string name="hd_account_creation_started">Đang tạo tài khoản HD Bitcoin mới…</string>
     <string name="hd_account_selector_no_account_found">Không tìm thấy tài khoản đang hoạt động.</string>
     <string name="hd_eth_account">Thêm tài khoản Ethereum</string>
-    <string name="hd_fio_account">Thêm tài khoản FIO</string>
     <string name="hide_unused_account_menu">Xóa tài khoản</string>
     <string name="import_decrypt_bip38_display_password">Hiển thị mật khẩu</string>
     <string name="import_wordlist_questions">Vui lòng chọn độ dài của danh sách từ để khôi phục và cho biết liệu nó có được bảo vệ bằng mật khẩu hay không.</string>
@@ -192,11 +184,9 @@
     <string name="master_seed_configuration_description">Bạn có muốn khôi phục bản sao lưu hay tạo ví mới?</string>
     <string name="master_seed_configuration_title">Chào mừng đến với Mycelium</string>
     <string name="master_seed_create_new_button">Tạo mới</string>
-    <string name="master_seed_not_configured">Master seed chưa được cấu hình</string>
     <string name="master_seed_restore_backup_button">Khôi phục bản sao lưu</string>
     <string name="migrating_accounts">Đang di chuyển tài khoản</string>
     <string name="my_accounts">Tài khoản của tôi</string>
-    <string name="new_fio_legacy_presale_account_desc">Chỉ tạo tài khoản FIO Legacy nếu bạn đã mua miền FIO trong giai đoạn FIO Presale.</string>
     <string name="no_account_yet_register">Chưa có tài khoản? <font color="#F2E868">Đăng ký</font></string>
     <string name="no_spendable_accounts">Không có tài khoản có thể chi tiêu</string>
     <string name="parent_eth_account">ETH %s:</string>
@@ -219,7 +209,6 @@
     <string name="select_eth_account_to_erc20_subtext">Token ERC-20 tồn tại trên các tài khoản ETH và yêu cầu ETH để thực hiện giao dịch.\nMột tài khoản ETH có thể lưu trữ không giới hạn loại token ERC-20 - mỗi loại một token cho mỗi tài khoản ETH.</string>
     <string name="select_ext_sig_account_to_spend_from">Chọn tài khoản để chi tiêu</string>
     <string name="select_ledger_account_to_spend_from">Chọn tài khoản để chi tiêu</string>
-    <string name="select_name_to_associate_read_only_account">Tài khoản được kết nối với FIO Name này. Chỉ <b>một</b> tài khoản cho mỗi loại tiền điện tử có thể được kết nối với <b>một</b> FIO Name.</string>
     <string name="select_spending_account">Chọn tài khoản chi tiêu</string>
     <string name="select_token_new_account">Thêm token ERC-20 vào tài khoản ETH mới</string>
     <string name="set_up_2fa_to_secure_your_account">Cài đặt 2FA để bảo mật tài khoản của bạn</string>

@@ -82,100 +82,10 @@
     <string name="pop_no_matching_transactions">沒有檢索到匹配PoP請求的交易。你可以選擇非匹配的交易。</string>
     <string name="pop_transaction_info_advice">檢查以下付款信息</string>
     <string name="add_fingerprint_in_settings">您必須先新增指紋才能使用指紋驗證</string>
-    <string name="add_new_fio_name">新增 FIO 名稱</string>
     <string name="avoid_get_to_pin_check">發生了奇怪的事情，請避免進入 PIN 碼檢查</string>
     <string name="change_settings_bech32">Bech32 (原生 SegWit)</string>
     <string name="change_settings_p2sh_p2wpkh">P2SH_P2WPKH (傳統相容)</string>
     <string name="change_settings_privacy_guard_mode">隱私保護模式（預設）</string>
-    <string name="checking_fio_address">正在檢查 FIO 名稱…</string>
-    <string name="create_new_fio_name">建立新的 FIO 名稱</string>
-    <string name="enter_fio_name">輸入您要請款的 FIO 名稱</string>
-    <string name="fio_account_creation_started">正在建立新的 FIO 帳戶…</string>
-    <string name="fio_account_import_error">找不到 FIO 地址/帳戶：%s。
-請檢查地址/帳戶的正確性或網路連線。</string>
-    <string name="fio_account_s">FIO 帳戶：%s</string>
-    <string name="fio_acknowledge_mapping">我了解一旦連結後，每個已連結錢包中的一個地址將會公開</string>
-    <string name="fio_address">FIO 地址</string>
-    <string name="fio_address_available">此 FIO 名稱可供註冊。</string>
-    <string name="fio_address_check_service_unavailable">FIO 協議似乎發生了一些問題。請檢查您的網路連線或稍後再試。</string>
-    <string name="fio_address_is_invalid">無效的 FIO 名稱</string>
-    <string name="fio_address_occupied"><![CDATA[此名稱在 @%s 網域中已被使用。請嘗試其他名稱或註冊您自己的 <font color="#30B7E4"><u>FIO 網域</u></font>。]]></string>
-    <string name="fio_annual_fee">註冊 FIO 名稱並使用 FIO 服務，年費為 %s，包含 100 次免手續費交易。</string>
-    <string name="fio_annual_fee_domain">以年費 %s 註冊。費用由 FIO Network 收取。</string>
-    <string name="fio_confirm_and_pay">確認並付款</string>
-    <string name="fio_connect_accounts_desc"><![CDATA[將 FIO 名稱 <b>"%s"</b> 連結至您的帳戶並享受 FIO 協議的好處。]]></string>
-    <string name="fio_create_domain_hint">輸入 FIO 網域</string>
-    <string name="fio_create_domain_title">建立 FIO 網域</string>
-    <string name="fio_create_name_banner_desc">簡單便捷的新方式發送
-與請求加密貨幣！</string>
-    <string name="fio_create_name_desc"><![CDATA[在您的 FIO 網域 <b>%s</b> 下建立並註冊新的 FIO 名稱，享受 FIO 協議的好處。]]></string>
-    <string name="fio_create_name_description"><b>FIO 協議</b>是發送、接收與請求<b>任何加密貨幣</b>的簡單新方式，所有加密貨幣帳戶共用一個公開別名！
-
-- 含備註的加密貨幣交易
-- 適用於所有代幣與硬幣
-- 由您的私鑰保護
-- 完全去中心化
-
-<b>建立您的 FIO 名稱</b>（例如 nakamoto@mycelium）並提升您每日的加密貨幣使用體驗！</string>
-    <string name="fio_create_name_hint_text">輸入 FIO 名稱（僅限字母、數字 -、_、.）</string>
-    <string name="fio_create_name_title">建立 FIO 名稱</string>
-    <string name="fio_create_request">FIO 請求</string>
-    <string name="fio_create_request_currency_title">請求 %s</string>
-    <string name="fio_create_unique_address">建立唯一的 FIO 名稱</string>
-    <string name="fio_domain_available">此 FIO 網域可供註冊。</string>
-    <string name="fio_domain_is_invalid">無效的 FIO 網域</string>
-    <string name="fio_domain_label">FIO 網域：</string>
-    <string name="fio_domain_occupied">此網域已被使用，請嘗試其他名稱</string>
-    <string name="fio_enter_fio_name_title">傳送請求至</string>
-    <string name="fio_expiration_details_0_30_days">到期日後天數：0–30 天</string>
-    <string name="fio_expiration_details_0_30_days_desc">不允許在已過期的 FIO 網域下註冊新的 FIO 名稱。
-已註冊的 FIO 名稱在 FIO 網域到期日後仍可使用 30 天。</string>
-    <string name="fio_expiration_details_30_90_days">到期日後天數：31–90 天</string>
-    <string name="fio_expiration_details_30_90_days_desc">不允許進行下列操作：
-- 註冊新的 FIO 名稱
-- 續約已過期網域下的 FIO 名稱
-- 使用已過期網域下的 FIO 名稱進行請求、發送或拒絕</string>
-    <string name="fio_expiration_details_90_days">到期日後天數：滿 90 天</string>
-    <string name="fio_expiration_details_90_days_desc">網域被銷毀，可由任何使用者重新註冊。
-該網域上的所有地址與相關資料都將被銷毀。</string>
-    <string name="fio_expiration_details_anyone_can_renew">只要願意支付續約費用，任何人都可以續約網域。</string>
-    <string name="fio_expiration_details_desc">若 FIO 網域的續約費用未在到期日前繳付，則該網域與其上的地址將受到下列限制：</string>
-    <string name="fio_legacy_account">FIO 舊版帳戶</string>
-    <string name="fio_legacy_already_created">FIO 舊版帳戶已建立</string>
-    <string name="fio_manage_name_and_domain">您可以在此管理您的 FIO 名稱與網域：</string>
-    <string name="fio_manage_name_need_mapping_s"><b>%s</b> 尚未連結至 FIO 名稱。請選擇要連結的 FIO 名稱：</string>
-    <string name="fio_name">FIO 名稱</string>
-    <string name="fio_name_details">FIO 名稱詳情</string>
-    <string name="fio_name_label">FIO 名稱：</string>
-    <string name="fio_name_readable_wallet_identifier"><b>FIO 名稱</b> - 一個人類可讀的錢包識別碼（例如 john@edge 或 alice@gold），讓您不必看見甚至不必知道區塊鏈公開地址。FIO 地址自動支援錢包/交易所中的任何代幣，且不需手動對應。</string>
-    <string name="fio_names">最近使用</string>
-    <string name="fio_names_registered">您在此網域中的 FIO 名稱：</string>
-    <string name="fio_names_registered_read_only_account">此網域中的 FIO 名稱：</string>
-    <string name="fio_not_sufficient_funds_on_selected_account">所選帳戶中的資金不足</string>
-    <string name="fio_payment_request">FIO 付款請求</string>
-    <string name="fio_protocol_decentralized"><font color="#2AA5DB"><u><b>FIO 協議</b></u></font>是一個去中心化的服務層，連接諸如錢包、交易所、加密貨幣支付處理器等加密貨幣端點，以及任何持有及/或轉移加密資產的應用程式。</string>
-    <string name="fio_recipient_invalid">無效的 FIO 名稱</string>
-    <string name="fio_register_address">註冊 FIO 名稱</string>
-    <string name="fio_register_address_failed">註冊 FIO 名稱失敗：%s</string>
-    <string name="fio_register_domain">註冊 FIO 網域</string>
-    <string name="fio_register_domain_desc">您可以建立自己的 FIO 網域以註冊任何想要的 FIO 名稱。可能會收取 FIO 代幣費用。
-還沒有 FIO 代幣嗎？您可以在<font color="#31A7CE">這裡</font>購買。</string>
-    <string name="fio_register_domain_failed">註冊 FIO 網域失敗：%s</string>
-    <string name="fio_register_name">註冊 FIO 名稱</string>
-    <string name="fio_register_new_name">註冊新的 FIO 名稱</string>
-    <string name="fio_registration_complete">註冊完成！</string>
-    <string name="fio_registration_fee">註冊費用</string>
-    <string name="fio_remaining_balance">剩餘 FIO 餘額</string>
-    <string name="fio_requests_ability_to_request_funds"><b>FIO 請求</b> - 從任何其他錢包請求資金的能力，利用錢包/應用程式內通知與簡單的核准機制。FIO 請求在交易雙方之間完全加密，且不會干擾實際底層的區塊鏈交易。</string>
-    <string name="fio_requests_tab_fio_protocol_desc_part1"><b>FIO 協議</b>是發送、接收與請求<b>任何加密貨幣</b>的簡單新方式，所有加密貨幣帳戶共用一個公開別名！</string>
-    <string name="fio_requests_tab_fio_protocol_desc_part2">- 含備註的加密貨幣交易
-- 適用於所有代幣與硬幣
-- 由您的私鑰保護
-- 完全去中心化</string>
-    <string name="fio_requires_hd_account">目前您只能將 HD Bitcoin 帳戶連結至 FIO 標籤。請切換至其他帳戶。</string>
-    <string name="fio_server_error_logs">FIO 伺服器錯誤記錄</string>
-    <string name="my_fio_names">我的 FIO 名稱</string>
-    <string name="no_fio_names_registered">此網域中沒有 FIO 名稱</string>
     <string name="pin_code">PIN 碼</string>
     <string name="pref_bitcoin_denomination">加密貨幣計價單位</string>
     <string name="pref_bitcoin_denomination_summary">設定偏好的加密貨幣計價單位</string>
@@ -188,15 +98,9 @@
     <string name="pref_set_pin">設定 PIN 碼</string>
     <string name="randomize_pin">隨機化 PIN 鍵盤</string>
     <string name="randomize_pin_text">透過隨機化 PIN 鍵盤配置，大幅提升安全性</string>
-    <string name="renew_fio_name">續約 FIO 名稱</string>
-    <string name="settings_fiopresale_summary">顯示 FIO 地址預售選項</string>
-    <string name="settings_fiopresale_title">啟用 FIO 地址預售</string>
     <string name="settings_media_flow_notification_category">Media Flow</string>
     <string name="settings_media_flow_title">啟用 Media Flow</string>
     <string name="settings_service_enabled">啟用 %1$s</string>
     <string name="settings_show_news_all_notification">顯示 Media Flow 通知</string>
-    <string name="settings_summary_fio_fee">FIO 礦工費由 FIO 區塊產生者決定。
-目前的礦工費為 %s %s。</string>
-    <string name="share_fio_name">分享 FIO 名稱</string>
     <string name="use_pin">使用 PIN 碼</string>
 </resources>

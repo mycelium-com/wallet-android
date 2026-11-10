@@ -196,11 +196,9 @@
     <string name="rebroadcast_transaction_title">Tranzaksiyanı yenidən yayımla</string>
     <string name="receive">Al</string>
     <string name="receive_cointype">%1$s al</string>
-    <string name="receive_title_fio">FIO açıq açarı</string>
     <string name="received">Alındı</string>
     <string name="receiver_address_hint">1Address1234\n567890abcdef\nghijklmnop</string>
     <string name="receiving">%1$s alınır</string>
-    <string name="recipient_has_no_such_address">%1$s ilə əlaqəli %2$s ünvanı yoxdur</string>
     <string name="recipient_invalid">Yanlış ünvan və ya FIO Adı</string>
     <string name="recipient_title">Alıcı ünvanını daxil edin:</string>
     <string name="recipient_valid">Alıcı etibarlıdır</string>
@@ -214,7 +212,6 @@
     <string name="restore_address_as">Ünvanı kimi bərpa et</string>
     <string name="retrieving_pubkey_address">Növbəti istifadə olunmamış ünvan əldə edilir…</string>
     <string name="return_to_payment">Sifarişlərə qayıt</string>
-    <string name="s_fio_request">%s FIO Sorğusu</string>
     <string name="s_payment_request">%s Ödəniş Sorğusu</string>
     <string name="scan_address_book_desc">Ünvanı skan et.</string>
     <string name="scan_qr_code">QR kodunu skan et</string>
@@ -223,7 +220,6 @@
     <string name="send_bitcoins">Bitcoin göndər</string>
     <string name="send_cointype">%1$s göndər</string>
     <string name="send_fee_hint"><b>DİQQƏT.</b> Aşağı prioritetli miner komissiyalı tranzaksiyalar heç vaxt təsdiqlənməyə və ya saatlarla, hətta günlərlə təsdiqlənməyə bilər. Bitcoin şəbəkəsinin necə işlədiyini başa düşmürsünüzsə aşağı prioriteti seçməyin.</string>
-    <string name="send_fio_request">FIO Sorğusu göndər</string>
     <string name="send_mail">Poçt göndər…</string>
     <string name="sending">%1$s göndərilir</string>
     <string name="sending_addresses">Ünvan kitabı</string>
@@ -257,7 +253,6 @@
     <string name="too_many_transaction_records">Böyük ölçüsü səbəbiylə tam hesab tranzaksiya tarixçəsini almaq mümkün deyil. Vəsaitləri yeni hesaba köçürməyi düşünün.</string>
     <string name="total_amount">Ümumi məbləğ:</string>
     <string name="transaction_details">Tranzaksiya təfərrüatları</string>
-    <string name="transaction_from_address_prefix">Kimdən: %s</string>
     <string name="transaction_gas_limit">Gas Limit (vahid):</string>
     <string name="transaction_history_title">Tranzaksiya tarixçəsi</string>
     <string name="transaction_input_data">Giriş məlumatı:</string>

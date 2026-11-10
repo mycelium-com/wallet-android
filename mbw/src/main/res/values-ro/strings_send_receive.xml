@@ -214,10 +214,8 @@
     <string name="queue_transaction_message">Difuzarea tranzacției a eșuat.\nDoriți să puneți tranzacția în coadă astfel încât să fie trimisă automat când reveniți online?</string>
     <string name="rebroadcast_transaction_title">Redifuzează tranzacția</string>
     <string name="receive_cointype">Primește %1$s</string>
-    <string name="receive_title_fio">Cheie publică FIO</string>
     <string name="received">Primite</string>
     <string name="receiver_address_hint">1Address1234\n567890abcdef\nghijklmnop</string>
-    <string name="recipient_has_no_such_address">%1$s nu are nicio adresă %2$s conectată</string>
     <string name="recipient_invalid">Adresă sau Nume FIO invalid</string>
     <string name="recipient_valid">Destinatar valid</string>
     <string name="remove_queued_transaction">Doriți cu adevărat să eliminați această tranzacție din coadă și să împiedicați difuzarea ei?</string>
@@ -230,12 +228,10 @@
     <string name="restore_address_as">Restabilește adresa ca</string>
     <string name="retrieving_pubkey_address">Se obține următoarea adresă neutilizată…</string>
     <string name="return_to_payment">Înapoi la comenzi</string>
-    <string name="s_fio_request">%s cerere FIO</string>
     <string name="s_payment_request">%s cerere de plată</string>
     <string name="select_key_for_signing">Selectați cheia pentru semnare</string>
     <string name="send_cointype">Trimite %1$s</string>
     <string name="send_fee_hint"><b>ATENȚIE.</b> Tranzacțiile cu taxa de miner cu prioritate scăzută s-ar putea să nu fie niciodată confirmate sau să fie confirmate în multe ore sau chiar zile. Nu alegeți prioritate scăzută dacă nu înțelegeți cum funcționează rețeaua bitcoin.</string>
-    <string name="send_fio_request">Trimite cerere FIO</string>
     <string name="send_mail">Trimite e-mail…</string>
     <string name="sending_addresses">Agendă</string>
     <string name="sending_assets">Se trimit active %s.</string>
@@ -261,7 +257,6 @@
     <string name="tips_rmc_check_address">Dacă ați trimis active digitale către o adresă bitcoin aleatorie, acestea nu sunt distruse.\nPentru a le recupera aveți două opțiuni:\n1) Folosiți API-ul Colored Coins pentru a vă trimite manual activele înapoi la adresa gestionată de Mycelium Wallet.\n2) Trimiteți un tichet la asistența Mycelium Wallet pentru a recupera activele. Pentru acest serviciu se pot aplica taxe suplimentare. Veți primi informații detaliate după contactarea asistenței.\n\nÎn ambele cazuri, trebuie să dețineți o cheie privată a adresei la care ați trimis activele digitale.</string>
     <string name="too_many_transaction_records">Imposibil de obținut istoricul complet al tranzacțiilor contului din cauza dimensiunii sale uriașe. Luați în considerare mutarea fondurilor într-un cont nou.</string>
     <string name="total_amount">Sumă totală:</string>
-    <string name="transaction_from_address_prefix">De la: %s</string>
     <string name="transaction_gas_limit">Limită gas (unități):</string>
     <string name="transaction_history_title">Istoricul tranzacțiilor</string>
     <string name="transaction_input_data">Date de intrare:</string>

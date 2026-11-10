@@ -131,21 +131,15 @@
     <string name="backup_not_generated">バックアップコードが生成されていません</string>
     <string name="backup_not_verified">バックアップが確認されていません</string>
     <string name="backup_now">今すぐバックアップ</string>
-    <string name="base_label_fio_account_legacy">FIO Legacyアカウント</string>
     <string name="bch_accounts_found"><![CDATA[BTCアカウントで%1$s Bitcoin <font color="#f08c18">Cash</font>を見つけました。<br><br>%2$d個の対応するBitcoin <font color="#f08c18">Cash</font>アカウントが作成されました。\nBitcoin <font color="#f08c18">Cash</font>残高は「アカウント」タブで確認できます。<br><br>Bitcoin <font color="#f08c18">Cash</font>アカウントの残高タブから、すぐにBTCに交換することができます。]]></string>
     <string name="bch_accounts_not_found"><![CDATA[BTCアカウントでBitcoin <font color="#f08c18">Cash</font>は見つかりませんでした。<br>BTCアカウントを継続的に監視し、Bitcoin <font color="#f08c18">Cash</font>が見つかった場合はお知らせします。]]></string>
     <string name="bip32_root_account">Rootアカウント</string>
     <string name="block_access_to_account">%1$sアカウントを管理している間、「マイアカウント」タブを意図的に無効にしています。これは、別の%1$sアカウント以外の場所にデジタル資産を送信することを防ぐためです。</string>
-    <string name="btcv_account_creation_started">新しいBTCVアカウントを作成中…</string>
-    <string name="btcvault_hd_account">Bitcoin Vault HDアカウントを追加</string>
     <string name="cant_disable_active_account">アクティブなアカウントを無効化することはできません</string>
     <string name="choose_the_currency_and_btc_receiving_account">通貨とBTC受信アカウントを選択</string>
     <string name="confirm_delete_account_message_end">削除しますか？</string>
     <string name="confirm_delete_private_key_message">秘密鍵を削除する前に、バックアップをオフラインで安全な場所に保管していることを確認してください。このアカウントからビットコインを使うときには、バックアップから「再追加」する必要があります。</string>
     <string name="confirm_delete_private_key_message_end">ウォッチオンリーにしますか？</string>
-    <string name="connect_accounts">保存</string>
-    <string name="create_fio_account">FIOアカウントを作成</string>
-    <string name="create_fio_legacy_presale_account">FIO Legacyアカウントを作成</string>
     <string name="create_new_account">新しいETHアカウントを追加</string>
     <string name="delete_account">アカウントを削除</string>
     <string name="delete_account_message"><![CDATA[アカウント<b>「%1$s」</b>（残高<b>%2$s</b>）と<b>「%3$s」</b>（残高<b>%4$s</b>）を削除しますか？]]></string>
@@ -166,7 +160,6 @@
     <string name="erc20_account_creation_started">新しいERC-20アカウントを作成中…</string>
     <string name="eth_account_creation_started">新しいETHアカウントを作成中…</string>
     <string name="export">アカウントキーをエクスポート</string>
-    <string name="export_fio_public_key_title">FIO公開鍵をエクスポート</string>
     <string name="export_history">取引履歴をエクスポート</string>
     <string name="export_not_possible">すでに%sアカウントがあるためエクスポートできません</string>
     <string name="export_private_key_red_warning">この鍵は安全な環境でのみコピーしてください。\nアクセスできる人は誰でも、このアカウントの現在および将来利用可能なすべてのビットコインを管理できるようになります。\n\nここを長押しすると\nQRコードが表示されます </string>
@@ -198,7 +191,6 @@
     <string name="hardware_wallets">ハードウェアウォレット</string>
     <string name="hd_account_bch">Bitcoin Cash HDアカウントを追加</string>
     <string name="hd_eth_account">Ethereumアカウントを追加</string>
-    <string name="hd_fio_account">FIOアカウントを追加</string>
     <string name="import_xpub_should_xpriv">アカウントレベル0ではデジタル資産を持つ使用可能アカウントのみがサポートされています。xpubの代わりにxprivを使用してください</string>
     <string name="import_xpub_wrong_depth">アカウントレベル(3)のxpubアドレスのみインポートできます。\nこれはレベル%1$sでした。</string>
     <string name="keepkey_import_account">KeepKey-HD ビットコインアカウントをインポート</string>
@@ -220,9 +212,7 @@
     <string name="ledger_unplugged_aid_preference_summary">Ledger unplugged のカスタムビルド用に\n別の AID をサポートします</string>
     <string name="list_added_tokens_new_account">新規アカウントの ERC-20 トークン</string>
     <string name="loading_accounts">アカウントを読み込み中</string>
-    <string name="master_seed_not_configured">Master Seed が構成されていません</string>
     <string name="migrating_accounts">アカウントを移行中</string>
-    <string name="new_fio_legacy_presale_account_desc">FIO プレセール期間中に FIO ドメインを購入した場合のみ FIO Legacy Account を作成してください。</string>
     <string name="no_account_yet_register">まだアカウントがありませんか? <font color="#F2E868">登録</font></string>
     <string name="no_spendable_accounts">使用可能なアカウントがありません</string>
     <string name="parent_eth_account">ETH %s:</string>
@@ -241,7 +231,6 @@
     <string name="select_eth_account_to_erc20">ERC-20 トークンを保存する ETH アカウントを選択</string>
     <string name="select_eth_account_to_erc20_subtext">ERC-20 トークンは ETH アカウントに存在し、取引には ETH が必要です。\n単一の ETH アカウントには無制限の種類の ERC-20 トークンを保存できます - ETH アカウントごとに各種類 1 つずつです。</string>
     <string name="select_ext_sig_account_to_spend_from">送金元のアカウントを選択</string>
-    <string name="select_name_to_associate_read_only_account">この FIO ネームに接続されているアカウント。各暗号通貨につき <b>1 つ</b> のアカウントのみ <b>1 つ</b> の FIO ネームに接続できます。</string>
     <string name="select_token_new_account">新しい ETH アカウントに ERC-20 トークンを追加</string>
     <string name="set_up_2fa_to_secure_your_account">アカウントを保護するため 2FA をセットアップ</string>
     <string name="single_address_account">シングルアドレスアカウント</string>

@@ -22,7 +22,6 @@
     <!-- Simplex start -->
     <!-- Simplex end -->
     <string name="about">Hakkında</string>
-    <string name="about_fio_protocol_title">FIO Protokolü Hakkında</string>
     <string name="accept">Kabul Et</string>
     <string name="access_from_any_device">Herhangi bir cihazdan erişim</string>
     <string name="activate_action">Etkinleştir</string>
@@ -108,7 +107,6 @@
     <string name="check_internet_and_try_again">Mycelium, zayıf internet bağlantısı nedeniyle sunucuya bağlanamıyor.\nLütfen internet bağlantınızı doğrulayın ve tekrar deneyin.</string>
     <string name="check_update">Güncelleme Kontrolü</string>
     <string name="checkbox_wordlist_passphrase">Bir parolam var</string>
-    <string name="choose_blockchain">Blockchain seçin</string>
     <string name="cick_button_to_show_word">Başlamak için aşağıdaki düğmeye dokunun</string>
     <string name="close">Kapat</string>
     <string name="cold_storage">Soğuk Depolama</string>
@@ -121,7 +119,6 @@
     <string name="confirm">Onayla</string>
     <string name="confirm_change_on_device"><![CDATA[Lütfen %3$s cihazınızda <b>para üstü</b> çıktısını onaylayın.<br><br><b>Değer:</b><br>%1$s<br><b>Para Üstü Adresi:</b><br>%2$s]]></string>
     <string name="confirm_delete_pk_title">Emin misiniz?</string>
-    <string name="confirm_fio_link">HD Bitcoin hesabınız %1$s için bir FIO Adı kaydetmek ister misiniz?</string>
     <string name="confirm_output_on_device"><![CDATA[Lütfen %3$s cihazınızda çıkışı onaylayın.<br><br><b>Değer:</b><br>%1$s<br><b>Hedef Adresi:</b><br>%2$s<br>]]></string>
     <string name="confirmation">Takas onayı</string>
     <string name="connect_your_ext_sig_device_info">Bu yalnızca telefonunuz USB-OTG (on-the-go) destekliyorsa çalışır.\n\nCihazı bağlamak için bir USB-OTG-adaptörü veya kabloya ihtiyacınız var. Cihazı kendi USB-Kablosu ile istemci tarafına takın ve sunucu tarafını telefonunuza bağlayın.</string>
@@ -139,7 +136,6 @@
     <string name="country">Ülke</string>
     <string name="course_outdated">Döviz kuru güncel değil</string>
     <string name="create_backup">Yedek Oluştur</string>
-    <string name="create_fio_domain">FIO Domaini Oluştur</string>
     <string name="credit_card_buy">Kredi Kartı</string>
     <string name="credit_card_buy_description">Kredi kartı kullanarak Bitcoin satın al</string>
     <string name="credit_card_buy_setting_description">Kredi kartı kullanarak Bitcoin satın al</string>
@@ -160,8 +156,6 @@
     <string name="delete_document">Belgeyi silmek istiyor musunuz?</string>
     <string name="delete_last_entered_word">Son Kelimeyi Sil</string>
     <string name="delete_pk_message"><![CDATA[<b>%2$s</b> tutan <b>"%1$s"</b> hesabının özel anahtarını silmek istiyor musunuz?]]></string>
-    <string name="delete_received_fio_request">Alınan FIO İsteğini Sil</string>
-    <string name="delete_received_fio_request_msg">Bu FIO İsteğini silmek istediğinizden emin misiniz?</string>
     <string name="deposits_without_destination_tag_will_be_lost">Hedef Etiketi olmadan yapılan yatırımlar kaybolacaktır!</string>
     <string name="description">Açıklama:</string>
     <string name="description_bump_fee">Bu onaylanmamış işlemin ücretini artıran bir işlem gönder.\n\nÜcreti %1$dsat/B yapmak için %2$s harcamak istiyor musunuz?</string>
@@ -173,7 +167,6 @@
     <string name="discover">Keşfet</string>
     <string name="do_you_want_resubmit">Aşağıdaki bilgileri güncellediniz. Başvurunuzu yeniden göndermek istiyor musunuz?</string>
     <string name="doc_selfie"><![CDATA[Belgeler & Selfie]]></string>
-    <string name="domain_details">Domain detayları</string>
     <string name="dont_allow_archiving_unused_notification">Kullanılmamış bir HD Bitcoin hesabını arşivleyemezsiniz</string>
     <string name="dont_allow_hiding_used_notification">Kullanılmış bir hesabı gizleyemezsiniz, ancak arşivleyebilirsiniz</string>
     <string name="dontagree">Kabul etmiyorum</string>
@@ -198,7 +191,6 @@
     <string name="excange_title">BCH\'yi BTC\'ye Takas Et</string>
     <string name="exceed_card_value">Kart değerini aşıyor</string>
     <string name="exchanging">takas ediliyor</string>
-    <string name="expiration_date">Sona erme tarihi:</string>
     <string name="expire_date">Sona erme tarihi:</string>
     <string name="expires_at">Sona erme tarihi:</string>
     <string name="explore">Keşfet</string>
@@ -217,7 +209,6 @@
     <string name="first_bch_installed_message"><![CDATA[Now we need to sync it with the blockchain in order to retrieve your Bitcoin <font color="#f08c18">Cash</font>  balance.<br><br>This procedure takes some time and is performed in the background.<br>The more private keys you have the longer it takes, please be patient. For example, if you have around 1000 private keys, it could take more than 3 hours to reach full sync.<br>We will inform you when it is done.<br><br>You can always check the sync progress here:  Settings -> Bitcoin <font color="#f08c18">Cash</font> module.<br><br>For every BTC account with not retrieved Bitcoin <font color="#f08c18">Cash</font>, corresponding Bitcoin <font color="#f08c18">Cash</font> account will be created.<br><br>Go to Balance tab of your Bitcoin <font color="#f08c18">Cash</font> account to instantly  exchange it to BTC.]]></string>
     <string name="first_bch_installed_title"><![CDATA[Mycelium Bitcoin <font color="#f08c18">Cash</font> modülü kuruldu!]]></string>
     <string name="first_name">Ad</string>
-    <string name="following_fio_domains_registered">Aşağıdaki FIO Alan Adları kaydedildi</string>
     <string name="format" translatable="false">%1$td/%1$tm/%1$tY</string>
     <string name="found_clipboard_public_key_title">Panoda Genel Anahtar Bulundu</string>
     <string name="found_clipboard_public_keys_message">Pano bir genel anahtar içeriyor.\nPanoyu temizlemek ister misiniz?</string>
@@ -297,7 +288,6 @@
     <string name="last_log_entries">Son kayıt girişleri</string>
     <string name="last_name">Soyad</string>
     <string name="learn_more_rmc"><u>RMC hakkında daha fazla bilgi edinin</u></string>
-    <string name="leave_a_message_for_s">%s için bir mesaj bırakın</string>
     <string name="legal_information">Yasal Bilgiler</string>
     <string name="less">daha az</string>
     <string name="list_added_tokens">\"%s\" hesabındaki ERC-20 tokenleri</string>
@@ -328,7 +318,6 @@
     <string name="module_uninstall_progress">Kaldırılıyor…</string>
     <string name="modules">Modüller</string>
     <string name="more">daha fazla</string>
-    <string name="my_fio_domains">FIO Alan Adlarım</string>
     <string name="mycelium_license">Mycelium Lisansı</string>
     <string name="mycelium_no_responaility_rmc">Devam ederseniz, üçüncü taraf bir hizmet olan RMC\'ye geçmeyi kabul edersiniz. RMC ile tüm etkileşimleriniz Mycelium\'un kontrolü dışındadır ve RMC\'nin Kullanıcı Sözleşmesi, Kullanım Şartları ve Gizlilik Politikasına tabidir. Lütfen bunları dikkatlice okuyun. Mycelium tarafından hiçbir kişisel bilgi toplanmayacak, saklanmayacak veya kullanılmayacaktır.\n\nMYCELIUM, RMC İHRAÇCISININ BİLGİLERİNE VE HİZMETLERİNE ERİŞİM, KULLANIM VEYA GÜVEN SONUCU OLUŞAN HERHANGİ BİR KAYIP VEYA HASARDAN HİÇBİR ŞEKİLDE SORUMLULUK KABUL ETMEZ VE SORUMLU TUTULAMAZ</string>
     <string name="mycelium_services">Mycelium hizmetleri</string>
@@ -351,7 +340,6 @@
     <string name="no_digital_asset">BIP32 özel anahtarınız herhangi bir dijital varlık tutmuyor.\n\nAksini düşünüyorsanız tekrar taramayı deneyin.</string>
     <string name="no_funds">Bakiye yok</string>
     <string name="no_google_play_installed">Cihazda Google Play yüklü değil</string>
-    <string name="no_logs">Kayıt yok</string>
     <string name="no_network_connection">Ağ Bağlantısı Yok</string>
     <string name="no_operations_history">İşlem geçmişi yok</string>
     <string name="no_orbot">Orbot yüklü değil</string>
@@ -424,7 +412,6 @@
     <string name="register">Kaydol</string>
     <string name="registration">Kayıt</string>
     <string name="removed">kaldırıldı</string>
-    <string name="renew_fio_domain">FIO Alan Adını Yenile</string>
     <string name="repeat_password">Şifreyi tekrarla</string>
     <string name="rescan">Yeniden tara</string>
     <string name="resend_confirmation_email">Onay e-postasını yeniden gönder.</string>
@@ -459,7 +446,6 @@
     <string name="select_country">Ülke seçin</string>
     <string name="select_flows">Akışları seç</string>
     <string name="select_local_currencies">Para birimlerinizi seçin</string>
-    <string name="select_name_to_associate">Hesapları FIO Adınıza bağlayın. <b>Bir</b> FIO Adı ile her kripto para başına yalnızca <b>bir</b> hesap bağlanabilir.</string>
     <string name="select_token">\"%s\" hesabına ERC-20 tokenleri ekle</string>
     <string name="select_you_region">Bölgenizi seçin</string>
     <string name="select_your_country">Ülkenizi seçin</string>
@@ -477,7 +463,6 @@
     <string name="set_password">Şifre belirle</string>
     <string name="shamir_share_hint"><![CDATA[Toplam pay: özel anahtarın bölüneceği parça sayısı.\n\nEşik: özel anahtarı yeniden oluşturmak için gereken parça sayısı.]]></string>
     <string name="share">Paylaş</string>
-    <string name="share_fio_public_key">FIO genel anahtarını paylaş</string>
     <string name="share_logs">Logları Paylaş</string>
     <string name="share_news">Haberleri Paylaş</string>
     <string name="share_of">Pay %1$d</string>
@@ -533,7 +518,6 @@
     <string name="sync_failed_s">Senkronizasyon başarısız oldu. %s</string>
     <string name="synchronizing_please_wait">Senkronize ediliyor, lütfen bekleyin …</string>
     <string name="tab_balance">Bakiye</string>
-    <string name="tab_fio_requests">FIO İstekleri</string>
     <string name="tab_partners">İşletmeler</string>
     <string name="tab_vip">VIP</string>
     <string name="tap_next">%s için dokunun</string>

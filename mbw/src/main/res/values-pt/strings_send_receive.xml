@@ -279,19 +279,15 @@
     <string name="proof_of_address">Comprovante de endereço</string>
     <string name="provide_your_recovery_e_mail_address">Informe abaixo seu e-mail de recuperação. Enviaremos um link seguro e instruções sobre como redefinir sua senha.</string>
     <string name="receive_cointype">Receber %1$s</string>
-    <string name="receive_title_fio">FIO Public Key</string>
     <string name="receiver_address_hint">1Endereço1234\n567890abcdef\nghijklmnop</string>
-    <string name="recipient_has_no_such_address">%1$s não tem endereço %2$s conectado</string>
     <string name="recipient_invalid">Endereço ou FIO Name inválido</string>
     <string name="recipient_valid">Destinatário válido</string>
     <string name="replace_transaction">Transação a ser substituída por:</string>
     <string name="requires_btc_amount">A transação Colored Coin não pode ser feita. Você precisa de uma pequena quantia de BTC para pagar a taxa de mineração. Financie um dos seus endereços Bitcoin e tente novamente.</string>
     <string name="residential_address">Endereço residencial</string>
     <string name="restore_address_as">Restaurar endereço como</string>
-    <string name="s_fio_request">Solicitação FIO de %s</string>
     <string name="s_payment_request">Solicitação de pagamento %s</string>
     <string name="send_cointype">Enviar %1$s</string>
-    <string name="send_fio_request">Enviar solicitação FIO</string>
     <string name="send_mail">Enviar e-mail…</string>
     <string name="sending_addresses">Catálogo de endereços</string>
     <string name="sending_assets">Enviando ativos %s.</string>
@@ -309,7 +305,6 @@
     <string name="thank_you_for_signing_up_with_bequant">Obrigado por se cadastrar na Bequant!</string>
     <string name="tips_rmc_check_address">Se você enviou ativos digitais para um endereço Bitcoin aleatório, eles não foram destruídos.\nPara recuperá-los, você tem duas opções:\n1) Use a API Colored Coins para enviar manualmente seus ativos de volta para o endereço gerenciado pelo Mycelium Wallet.\n2) Envie um ticket para o suporte do Mycelium Wallet para recuperação dos seus ativos. Para este serviço, podem ser cobradas taxas adicionais. Você receberá informações detalhadas após contatar o suporte.\n\nEm ambos os casos, você precisa ter a chave privada do endereço para o qual enviou os ativos digitais.</string>
     <string name="too_many_transaction_records">Não foi possível buscar todo o histórico de transações da conta devido ao seu tamanho enorme. Considere mover os fundos para uma nova conta.</string>
-    <string name="transaction_from_address_prefix">De: %s</string>
     <string name="transaction_gas_limit">Gas Limit (unidades):</string>
     <string name="transaction_input_data">Input Data:</string>
     <string name="transaction_not_sent_nonstandard">Falha ao transmitir a transação devido a um erro:\n%1$s\nReporte este incidente ao suporte técnico.\nA transação bruta foi copiada para a área de transferência. Se possível, anexe-a à sua solicitação.</string>

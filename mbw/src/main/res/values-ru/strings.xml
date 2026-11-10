@@ -469,7 +469,6 @@
     <string name="i_know_what_iam_doing">Я понимаю, что я делаю</string>
     <string name="delete_pk_message"><![CDATA[Вы хотите удалить приватный ключ аккаунта <b>"%1$s"</b> с балансом <b>%2$s</b>?]]></string>
     <string name="activate_by">Активировать до</string>
-    <string name="about_fio_protocol_title">О протоколе FIO</string>
     <string name="access_from_any_device">Доступ с любого устройства</string>
     <string name="and">и</string>
     <string name="are_you_interested_in_media_flow">Не считаете полезным? Отключите Media Flow</string>
@@ -490,14 +489,11 @@
     <string name="can_t_scan_it">Не получается отсканировать?</string>
     <string name="change_password">Сменить пароль</string>
     <string name="check_gap_bug_spannable_string">Извините, что прерываем… \n \nМы обнаружили баг в логике аккаунтов, который может вызвать проблемы, если вам когда-нибудь понадобится восстановить кошелёк из 12-словной резервной копии.\n\nДополнительная информация: https://wallet.mycelium.com/info/gaps \n\nМожем ли мы попытаться его исправить? Нажмите OK, чтобы поделиться с нами одним адресом из каждого затронутого аккаунта.</string>
-    <string name="choose_blockchain">Выберите блокчейн</string>
     <string name="confirm">Подтвердить</string>
     <string name="confirm_change_on_device"><![CDATA[Пожалуйста, подтвердите выход <b>сдачи</b> на вашем %3$s.<br><br><b>Сумма:</b><br>%1$s<br><b>Адрес сдачи:</b><br>%2$s]]></string>
-    <string name="confirm_fio_link">Зарегистрировать FIO Name для вашего HD Bitcoin аккаунта %1$s?</string>
     <string name="confirm_output_on_device"><![CDATA[Пожалуйста, подтвердите выход на вашем %3$s.<br><br><b>Сумма:</b><br>%1$s<br><b>Адрес назначения:</b><br>%2$s<br>]]></string>
     <string name="connection_logs">Логи</string>
     <string name="continue_without">Продолжить без %1$s</string>
-    <string name="create_fio_domain">Создать FIO домен</string>
     <string name="date_of_birth">Дата рождения</string>
     <string name="dear_user">Уважаемый пользователь,</string>
     <string name="dear_user_s_s">Уважаемый %s %s,</string>
@@ -508,20 +504,17 @@
     <string name="discover">Обзор</string>
     <string name="do_you_want_resubmit">Вы обновили информацию ниже. Отправить вашу заявку повторно?</string>
     <string name="doc_selfie"><![CDATA[Документы и селфи]]></string>
-    <string name="domain_details">Детали домена</string>
     <string name="download">Скачать</string>
     <string name="edit_gas_limit_advanced_users"><![CDATA[Изменить Gas Limit <i>(для продвинутых пользователей)</i>]]></string>
     <string name="email">Email</string>
     <string name="est_total_balance">Прим. общий баланс</string>
     <string name="europe">Европа</string>
     <string name="exchanging">обмен</string>
-    <string name="expiration_date">Дата истечения:</string>
     <string name="extsig_confrim_on_hardware"><![CDATA[Подтвердите эту транзакцию на вашем %1$s]]></string>
     <string name="fatca_declaration">FATCA-декларация</string>
     <string name="fatca_legislations_requires">Законодательство FATCA требует от определённых налогоплательщиков США, владеющих иностранными финансовыми активами, сообщать информацию об этих активах в годовой налоговой декларации. Подробнее о критериях см. на <font color="#F2E868">www.irs.gov/fatca.</font> Пожалуйста, проверьте, попадаете ли вы под FATCA.</string>
     <string name="finish">Готово</string>
     <string name="first_name">Имя</string>
-    <string name="following_fio_domains_registered">Зарегистрированы следующие FIO домены</string>
     <string name="format" translatable="false">%1$td.%1$tm.%1$tY</string>
     <string name="gaps_button_ignore">Игнорировать</string>
     <string name="gaps_button_ok">OK</string>
@@ -541,7 +534,6 @@
     <string name="industry_leading_security">Лидирующая в отрасли безопасность</string>
     <string name="institutional_grade_crypto_storage">Хранение криптовалют институционального уровня и\nлидирующая в отрасли безопасность, доверяемая\nкрупнейшими криптофондами мира. Вы можете уверенно\nуправлять вашим криптопортфелем.</string>
     <string name="last_name">Фамилия</string>
-    <string name="leave_a_message_for_s">Оставить сообщение для %s</string>
     <string name="legal_information">Юридическая информация</string>
     <string name="loading">Загрузка…</string>
     <string name="loading_media_flow_feed_please_wait">Загрузка ленты Media Flow, подождите %s</string>
@@ -556,12 +548,10 @@
     <string name="mixed_mode_explanation"><![CDATA[К сожалению, прошивка %1$s не поддерживает режим смешанной траты Mycelium.<br><br>Обычно при подписании транзакции на аппаратном устройстве оно показывает только один выход — адрес назначения. В режиме смешанной траты вам придётся подписать два выхода: один — адрес назначения, другой — адрес сдачи.<br><br>Вы по-прежнему контролируете процесс, и аппаратный кошелёк покажет, что сдача идёт на ваш аккаунт.<br><br>Подробнее см. этот <a href="https://github.com/mycelium-com/wallet-android/issues/483">Github issue</a>]]></string>
     <string name="mm_dd_yyyy">дд/мм/гггг</string>
     <string name="module_uninstall_progress">Удаление…</string>
-    <string name="my_fio_domains">Мои FIO домены</string>
     <string name="nationality">Гражданство</string>
     <string name="new_password">Новый пароль</string>
     <string name="next">Далее</string>
     <string name="no_google_play_installed">Google Play не установлен на устройстве</string>
-    <string name="no_logs">Логов нет</string>
     <string name="no_orbot">Orbot не установлен</string>
     <string name="no_turn_it_off">Выключить</string>
     <string name="nothing_happened">Ничего не произошло?</string>
@@ -589,7 +579,6 @@
     <string name="referral_code">Реферальный код</string>
     <string name="register">Зарегистрировать</string>
     <string name="registration">Регистрация</string>
-    <string name="renew_fio_domain">Продлить FIO домен</string>
     <string name="repeat_password">Повторите пароль</string>
     <string name="resend_confirmation_email">Отправить подтверждение повторно.</string>
     <string name="resend_verification_code">Отправить код подтверждения повторно...</string>
@@ -605,7 +594,6 @@
     <string name="see_more">Показать больше</string>
     <string name="select_all">Показать все</string>
     <string name="select_flows">Выбрать потоки</string>
-    <string name="select_name_to_associate">Подключите аккаунты к вашему FIO Name. К <b>одному</b> FIO Name можно подключить только <b>один</b> аккаунт каждой криптовалюты.</string>
     <string name="select_you_region">Выберите ваш регион</string>
     <string name="selfie">Селфи</string>
     <string name="sell_bitcoin">ПРОДАТЬ BITCOIN</string>
@@ -620,7 +608,6 @@
     <string name="step_n">Шаг %d</string>
     <string name="summary_media_flow">Показывать Media Flow</string>
     <string name="support_center">Центр поддержки</string>
-    <string name="tab_fio_requests">FIO запросы</string>
     <string name="thank_you_for_completing_the_application_form">Спасибо за заполнение формы заявки</string>
     <string name="there_are_no_bookmarks_yet">Закладок пока нет.</string>
     <string name="to_get_your_bitcoin_cash_retrieved"><![CDATA[Чтобы получить ваш Bitcoin <font color="#f08c18">Cash</font>, этот недавно установленный модуль требует время для синхронизации. Это может занять от 20 минут до нескольких часов в зависимости от количества транзакций. По завершении синхронизации появится информационный диалог.<br/><br/>Прогресс синхронизации можно проверить в шторке уведомлений или в Настройки → раздел модуля Bitcoin <font color="#f08c18">Cash</font>.<br/><br/>Связанный аккаунт Bitcoin <font color="#f08c18">Cash</font> будет создан для каждого BTC аккаунта, содержащего Bitcoin <font color="#f08c18">Cash</font>, который ещё не был получен.<br/><br/>Перейдите на вкладку Баланс вашего Bitcoin <font color="#f08c18">Cash</font> аккаунта, чтобы мгновенно обменять его на BTC.]]></string>

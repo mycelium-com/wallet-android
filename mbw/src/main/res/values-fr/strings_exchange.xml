@@ -197,9 +197,6 @@
     <string name="no_exchange_available">Aucun échange disponible pour le compte</string>
     <string name="no_gift_cards_linked">Commencez en explorant le catalogue des boutiques ou consultez le statut de vos commandes.</string>
     <string name="no_purchased_gift_card">VOUS N\'AVEZ ENCORE\nACHETÉ AUCUNE CARTE CADEAU</string>
-    <string name="partner_fiopresale">Prévente d\'adresses FIO</string>
-    <string name="partner_fiopresale_info"/>
-    <string name="partner_fiopresale_short">Votre clé pour une meilleure expérience blockchain</string>
     <string name="pref_exchange_source">Source d\'échange</string>
     <string name="press_exchange_button_below_to_confirm">Appuyez sur le bouton Échanger ci-dessous pour confirmer</string>
     <string name="receiving_exchange">réception</string>

@@ -181,9 +181,6 @@
     <string name="no_exchange_available">Brak dostępnej wymiany dla konta</string>
     <string name="no_gift_cards_linked">Zacznij od przeglądania katalogu sklepów lub sprawdź status swoich zamówień.</string>
     <string name="no_purchased_gift_card">NIE ZAKUPIŁEŚ JESZCZE\nŻADNEJ KARTY PODARUNKOWEJ</string>
-    <string name="partner_fiopresale">FIO Address Presale</string>
-    <string name="partner_fiopresale_info"/>
-    <string name="partner_fiopresale_short">Twój klucz do lepszego doświadczenia z blockchainem</string>
     <string name="partner_more_info"><u>Twoja prywatność jest naszym priorytetem</u></string>
     <string name="partner_more_info_text">
         Mycelium jest jednym z najbardziej zaufanych i użytecznych mobilnych portfeli bitcoin.<br />

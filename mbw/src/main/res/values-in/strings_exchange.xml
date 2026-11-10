@@ -183,9 +183,6 @@
     <string name="no_exchange_available">Tidak ada Exchange yang tersedia untuk Akun</string>
     <string name="no_gift_cards_linked">Mulai dengan menjelajahi katalog toko atau periksa status Pesanan Anda.</string>
     <string name="no_purchased_gift_card">ANDA BELUM MEMBELI\nGIFT CARD APA PUN</string>
-    <string name="partner_fiopresale">FIO Address Presale</string>
-    <string name="partner_fiopresale_info"/>
-    <string name="partner_fiopresale_short">Kunci Anda untuk pengalaman blockchain yang lebih baik</string>
     <string name="partner_more_info"><u>Privasi Anda adalah prioritas utama kami</u></string>
     <string name="partner_more_info_text">
         Mycelium adalah salah satu wallet bitcoin mobile yang paling tepercaya dan berguna.<br />

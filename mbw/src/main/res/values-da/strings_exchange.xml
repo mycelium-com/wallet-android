@@ -184,9 +184,6 @@
     <string name="no_exchange_available">Ingen veksling tilgængelig for kontoen</string>
     <string name="no_gift_cards_linked">Kom i gang ved at udforske butikskataloget eller tjek status på dine ordrer.</string>
     <string name="no_purchased_gift_card">DU HAR IKKE KØBT\nNOGET GAVEKORT ENDNU</string>
-    <string name="partner_fiopresale">FIO Address Presale</string>
-    <string name="partner_fiopresale_info"/>
-    <string name="partner_fiopresale_short">Din nøgle til en bedre blockchain-oplevelse</string>
     <string name="partner_more_info"><u>Dit privatliv er vores topprioritet</u></string>
     <string name="partner_more_info_text">
         Mycelium er en af de mest betroede og nyttige mobile bitcoin-tegnebøger.<br />

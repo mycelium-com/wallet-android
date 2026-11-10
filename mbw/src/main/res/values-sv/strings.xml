@@ -169,7 +169,6 @@
     <!-- Credit Card End-->
     <!-- Simplex start -->
     <!-- Simplex end -->
-    <string name="about_fio_protocol_title">Om FIO Protocol</string>
     <string name="accept">Acceptera</string>
     <string name="access_from_any_device">Åtkomst från valfri enhet</string>
     <string name="activate_by">Aktivera senast</string>
@@ -237,13 +236,11 @@
     <string name="check_gap_bug_spannable_string">Ledsen att avbryta dig… \n \nVi har upptäckt en bugg i kontologiken som kommer att skapa problem om du någon gång behöver återställa från din säkerhetskopia på 12 ord.\n\nFör mer information se här: https://wallet.mycelium.com/info/gaps \n\nFår vi försöka lösa det åt dig? Tryck OK för att dela en adress per berört konto med oss.</string>
     <string name="check_internet_and_try_again">Mycelium kan inte ansluta till servern på grund av dålig internetanslutning.\nVerifiera din internetanslutning och försök igen.</string>
     <string name="checkbox_wordlist_passphrase">Jag har en lösenfras</string>
-    <string name="choose_blockchain">Välj blockkedja</string>
     <string name="colorize">färglägg</string>
     <string name="colu">Digital tillgång</string>
     <string name="configuration_change_restart_warning">Omstart av appen krävs för att tillämpa konfigurationsändringar.</string>
     <string name="confirm">Bekräfta</string>
     <string name="confirm_change_on_device"><![CDATA[Bekräfta <b>växel</b>-utdata på din %3$s.<br><br><b>Värde:</b><br>%1$s<br><b>Växeladress:</b><br>%2$s]]></string>
-    <string name="confirm_fio_link">Vill du registrera ett FIO-namn för ditt HD Bitcoin-konto %1$s?</string>
     <string name="confirm_output_on_device"><![CDATA[Bekräfta utdata på din %3$s.<br><br><b>Värde:</b><br>%1$s<br><b>Destinationsadress:</b><br>%2$s<br>]]></string>
     <string name="confirmation">Bekräftelse av växling</string>
     <string name="connect_your_ext_sig_device_info">Detta fungerar bara om din telefon stöder USB-OTG (on-the-go).\n\nFör att ansluta enheten behöver du en USB-OTG-adapter eller -kabel. Anslut enheten med dess egen USB-kabel på klientsidan och anslut värdsidan till din telefon.</string>
@@ -257,7 +254,6 @@
     <string name="country">Land</string>
     <string name="course_outdated">Växelkursen är inaktuell</string>
     <string name="create_backup">Skapa säkerhetskopia</string>
-    <string name="create_fio_domain">Skapa FIO-domän</string>
     <string name="credit_card_buy">Kreditkort</string>
     <string name="credit_card_buy_description">Köp Bitcoin med kreditkort</string>
     <string name="credit_card_buy_setting_description">Köp Bitcoin med kreditkort</string>
@@ -274,8 +270,6 @@
     <string name="decryption_password_hint">DIT TLÖ SEN ORD ABC D</string>
     <string name="delete_document">Vill du radera dokumentet?</string>
     <string name="delete_pk_message"><![CDATA[Vill du radera den privata nyckeln för kontot <b>\"%1$s\"</b> som innehåller <b>%2$s</b>?]]></string>
-    <string name="delete_received_fio_request">Radera mottagen FIO-begäran</string>
-    <string name="delete_received_fio_request_msg">Är du säker på att du vill radera denna FIO-begäran?</string>
     <string name="deposits_without_destination_tag_will_be_lost">Insättningar utan Destination Tag kommer att gå förlorade!</string>
     <string name="description">Beskrivning:</string>
     <string name="description_bump_fee">Skicka en transaktion som ökar avgiften för denna obekräftade transaktion.\n\nVill du spendera %2$s för att få avgiften till %1$dsat/B?</string>
@@ -286,7 +280,6 @@
     <string name="discover">Upptäck</string>
     <string name="do_you_want_resubmit">Du har uppdaterat informationen nedan. Vill du skicka in din ansökan på nytt?</string>
     <string name="doc_selfie"><![CDATA[Dokument & selfie]]></string>
-    <string name="domain_details">Domändetaljer</string>
     <string name="download">Hämta</string>
     <string name="due_to_high_cryptocurrencies_volatility">På grund av kryptovalutornas höga volatilitet kan den slutgiltiga kursen vara något högre eller lägre än den uppskattade här.</string>
     <string name="edit_gas_limit_advanced_users"><![CDATA[Redigera Gas Limit <i>(för avancerade användare)</i>]]></string>
@@ -302,7 +295,6 @@
     <string name="excange_title">Växla BCH till BTC</string>
     <string name="exceed_card_value">Överskrider kortvärdet</string>
     <string name="exchanging">växlar</string>
-    <string name="expiration_date">Utgångsdatum:</string>
     <string name="expire_date">Utgångsdatum:</string>
     <string name="expires_at">Utgångsdatum:</string>
     <string name="external_app_needed">För att uppdatera enheten behöver du ett externt verktyg, klicka på okej för att starta det.</string>
@@ -319,7 +311,6 @@
     <string name="first_bch_installed_message"><![CDATA[Nu behöver vi synkronisera den med blockkedjan för att hämta ditt Bitcoin <font color="#f08c18">Cash</font>-saldo.<br><br>Den här proceduren tar lite tid och utförs i bakgrunden.<br>Ju fler privata nycklar du har, desto längre tid tar det, ha tålamod. Till exempel, om du har omkring 1000 privata nycklar kan det ta mer än 3 timmar att nå full synkronisering.<br>Vi informerar dig när det är klart.<br><br>Du kan alltid kontrollera synkroniseringsförloppet här: Inställningar -> Bitcoin <font color="#f08c18">Cash</font>-modulen.<br><br>För varje BTC-konto med ej hämtad Bitcoin <font color="#f08c18">Cash</font> kommer ett motsvarande Bitcoin <font color="#f08c18">Cash</font>-konto att skapas.<br><br>Gå till saldofliken för ditt Bitcoin <font color="#f08c18">Cash</font>-konto för att omedelbart växla det till BTC.]]></string>
     <string name="first_bch_installed_title"><![CDATA[Mycelium Bitcoin <font color="#f08c18">Cash</font>-modulen har installerats!]]></string>
     <string name="first_name">Förnamn</string>
-    <string name="following_fio_domains_registered">Följande FIO-domäner registrerade</string>
     <string name="format" translatable="false">%1$td/%1$tm/%1$tY</string>
     <string name="found_clipboard_public_key_title">Publik nyckel hittades i urklipp</string>
     <string name="found_clipboard_public_keys_message">Urklipp innehåller en publik nyckel.\nVill du rensa urklippet?</string>
@@ -378,7 +369,6 @@
     <string name="label_use_device_location">använd enhetens plats</string>
     <string name="last_name">Efternamn</string>
     <string name="learn_more_rmc"><u>Läs mer om RMC</u></string>
-    <string name="leave_a_message_for_s">Lämna ett meddelande till %s</string>
     <string name="legal_information">Juridisk information</string>
     <string name="less">mindre</string>
     <string name="list_added_tokens">ERC-20-tokens på \"%s\"-konto</string>
@@ -406,7 +396,6 @@
     <string name="module_uninstall_progress">Avinstallerar…</string>
     <string name="modules">Moduler</string>
     <string name="more">mer</string>
-    <string name="my_fio_domains">Mina FIO-domäner</string>
     <string name="mycelium_no_responaility_rmc">Om du fortsätter samtycker du till att gå vidare till RMC, en tredjepartstjänst. Alla dina interaktioner med RMC är utanför Myceliums kontroll och omfattas av RMC:s användaravtal, användarvillkor och integritetspolicy. Läs dem noggrant. Ingen personlig information kommer att samlas in, lagras eller användas av Mycelium.\n\nMYCELIUM TAR INGET ANSVAR OCH ÄR INTE ANSVARIGT FÖR NÅGON FÖRLUST ELLER SKADA SOM ORSAKAS AV ÅTKOMST TILL, ANVÄNDNING AV ELLER FÖRLITNING PÅ RMC-UTGIVARENS INFORMATION OCH TJÄNSTER</string>
     <string name="mycelium_services">Mycelium-tjänster</string>
     <string name="mycelium_terms_of_use">Mycelium användarvillkor</string>
@@ -422,7 +411,6 @@
     <string name="no_digital_asset">Din BIP32 privata nyckel innehåller inga digitala tillgångar.\n\nOm du tror något annat, försök att skanna den igen.</string>
     <string name="no_funds">Inga medel</string>
     <string name="no_google_play_installed">Ingen Google Play installerad på enheten</string>
-    <string name="no_logs">Inga loggar</string>
     <string name="no_operations_history">Ingen operationshistorik</string>
     <string name="no_orbot">Ingen Orbot installerad</string>
     <string name="no_order_linked">Du har för närvarande inga köp kopplade till ditt konto. Kom igång genom att utforska butikskatalogen.</string>
@@ -479,7 +467,6 @@
     <string name="register">Registrera</string>
     <string name="registration">Registrering</string>
     <string name="removed">avinstallerad</string>
-    <string name="renew_fio_domain">Förnya FIO-domän</string>
     <string name="repeat_password">Upprepa lösenord</string>
     <string name="rescan">Skanna om</string>
     <string name="resend_confirmation_email">Skicka bekräftelsemejl igen.</string>
@@ -508,7 +495,6 @@
     <string name="select_card_value_dialog">Välj kortvärde:</string>
     <string name="select_country">Välj land</string>
     <string name="select_flows">Välj flöden</string>
-    <string name="select_name_to_associate">Anslut konton till ditt FIO-namn. Endast <b>ett</b> konto per kryptovaluta kan anslutas till <b>ett</b> FIO-namn.</string>
     <string name="select_token">Lägg till ERC-20-tokens till \"%s\"-konto</string>
     <string name="select_you_region">Välj din region</string>
     <string name="select_your_country">Välj ditt land</string>
@@ -524,7 +510,6 @@
     <string name="set_password">Ange lösenord</string>
     <string name="shamir_share_hint"><![CDATA[Totala andelar: ett antal delar att dela upp den privata nyckeln i.\n\nTröskel: ett antal delar som behövs för att rekonstruera den privata nyckeln.]]></string>
     <string name="share">Dela</string>
-    <string name="share_fio_public_key">Dela FIO offentlig nyckel</string>
     <string name="share_logs">Dela loggar</string>
     <string name="share_news">Dela nyheter</string>
     <string name="share_of">Andel %1$d</string>
@@ -553,7 +538,6 @@
     <string name="support_team_text">Beskriv problemet och stegen för att återskapa det. För att få en fullständig bild av problemet, bifoga loggarna.</string>
     <string name="sync_failed_reason_s">Synkronisering misslyckades. Orsak: %s</string>
     <string name="sync_failed_s">Synkronisering misslyckades. %s</string>
-    <string name="tab_fio_requests">FIO-förfrågningar</string>
     <string name="tab_partners">Företag</string>
     <string name="tab_vip">VIP</string>
     <string name="tap_next">Tryck för %s</string>

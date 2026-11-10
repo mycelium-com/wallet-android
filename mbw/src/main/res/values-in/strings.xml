@@ -98,7 +98,6 @@
     <string name="copy">Salin</string>
     <!-- Simplex start -->
     <!-- Simplex end -->
-    <string name="about_fio_protocol_title">Tentang FIO Protocol</string>
     <string name="access_from_any_device">Akses dari perangkat mana pun</string>
     <string name="activate_by">Aktifkan dengan</string>
     <string name="additional_backup_words_title">Cadangan master seed tambahan</string>
@@ -170,7 +169,6 @@
     <string name="check_gap_bug_spannable_string">Maaf mengganggu Anda… \n \nKami menemukan bug dalam logika akun yang akan menimbulkan masalah jika suatu hari Anda perlu memulihkan dari cadangan 12 kata Anda.\n\nUntuk informasi lebih lanjut, lihat di sini: https://wallet.mycelium.com/info/gaps \n\nBolehkah kami mencoba menyelesaikannya untuk Anda? Tekan OK, untuk berbagi satu alamat per akun yang terpengaruh dengan kami.</string>
     <string name="check_internet_and_try_again">Mycelium tidak dapat terhubung ke server karena koneksi internet yang buruk.\nSilakan verifikasi koneksi internet Anda dan coba lagi.</string>
     <string name="checkbox_wordlist_passphrase">Saya memiliki passphrase</string>
-    <string name="choose_blockchain">Pilih blockchain</string>
     <string name="cold_storage">Cold Storage</string>
     <string name="cold_storage_desc">Anda akan membelanjakan dari private key di cold storage. Ini dapat berupa cadangan kertas private key atau slip private key dari ATM Bitcoin. Format berikut didukung:\nPrivate Key, Master Seed, xPriv Key\n\nSetelah transaksi terkirim, setiap jejaknya akan dihapus dari memori internal.</string>
     <string name="colorize">warnai</string>
@@ -178,7 +176,6 @@
     <string name="configuration_change_restart_warning">Aplikasi perlu dimulai ulang untuk menerapkan perubahan konfigurasi.</string>
     <string name="confirm">Konfirmasi</string>
     <string name="confirm_change_on_device"><![CDATA[Silakan konfirmasi output <b>kembalian</b> pada %3$s Anda.<br><br><b>Nilai:</b><br>%1$s<br><b>Alamat Kembalian:</b><br>%2$s]]></string>
-    <string name="confirm_fio_link">Apakah Anda ingin mendaftarkan FIO Name untuk akun HD Bitcoin Anda %1$s?</string>
     <string name="confirm_output_on_device"><![CDATA[Silakan konfirmasi output pada %3$s Anda.<br><br><b>Nilai:</b><br>%1$s<br><b>Alamat Tujuan:</b><br>%2$s<br>]]></string>
     <string name="confirmation">Konfirmasi pertukaran</string>
     <string name="connect_your_ext_sig_device_info">Ini hanya berfungsi jika ponsel Anda mendukung USB-OTG (on-the-go).\n\nUntuk menghubungkan perangkat, Anda memerlukan adapter atau kabel USB-OTG. Pasang perangkat dengan kabel USB-nya sendiri di sisi klien dan hubungkan sisi host dengan ponsel Anda.</string>
@@ -192,7 +189,6 @@
     <string name="country">Negara</string>
     <string name="course_outdated">Nilai tukar sudah usang</string>
     <string name="create_backup">Buat Cadangan</string>
-    <string name="create_fio_domain">Buat FIO Domain</string>
     <string name="credit_card_buy">Kartu Kredit</string>
     <string name="credit_card_buy_description">Beli Bitcoin menggunakan kartu kredit</string>
     <string name="credit_card_buy_setting_description">Beli Bitcoin menggunakan kartu kredit</string>
@@ -210,8 +206,6 @@
     <string name="decryption_password_hint">KAT ASA NDI ABC D</string>
     <string name="delete_document">Apakah Anda ingin menghapus dokumen?</string>
     <string name="delete_pk_message"><![CDATA[Apakah Anda ingin menghapus akun <b>\"%1$s\"</b> private key yang berisi <b>%2$s</b>?]]></string>
-    <string name="delete_received_fio_request">Hapus FIO Request yang diterima</string>
-    <string name="delete_received_fio_request_msg">Apakah Anda yakin ingin menghapus FIO Request ini?</string>
     <string name="deposits_without_destination_tag_will_be_lost">Setoran tanpa Destination Tag akan hilang!</string>
     <string name="description">Deskripsi:</string>
     <string name="description_bump_fee">Kirim transaksi yang meningkatkan biaya untuk transaksi yang belum dikonfirmasi ini.\n\nApakah Anda ingin membelanjakan %2$s untuk membuat biaya menjadi %1$dsat/B?</string>
@@ -223,7 +217,6 @@
     <string name="discover">Temukan</string>
     <string name="do_you_want_resubmit">Anda telah memperbarui informasi di bawah ini. Apakah Anda ingin mengirim ulang aplikasi Anda?</string>
     <string name="doc_selfie"><![CDATA[Dokumen & Selfie]]></string>
-    <string name="domain_details">Detail domain</string>
     <string name="dont_allow_archiving_unused_notification">Anda tidak dapat mengarsipkan akun HD Bitcoin yang tidak digunakan</string>
     <string name="dont_allow_hiding_used_notification">Anda tidak dapat menyembunyikan akun yang telah digunakan, tetapi Anda dapat mengarsipkannya</string>
     <string name="download">Unduh</string>
@@ -245,7 +238,6 @@
     <string name="excange_title">Tukar BCH ke BTC</string>
     <string name="exceed_card_value">Melebihi nilai kartu</string>
     <string name="exchanging">menukar</string>
-    <string name="expiration_date">Tanggal kedaluwarsa:</string>
     <string name="expire_date">Tanggal kedaluwarsa:</string>
     <string name="expires_at">Tanggal kedaluwarsa:</string>
     <string name="external_app_needed">Untuk memperbarui perangkat, Anda memerlukan alat eksternal, klik OK untuk meluncurkannya.</string>
@@ -263,7 +255,6 @@
     <string name="first_bch_installed_message"><![CDATA[Sekarang kita perlu menyinkronkannya dengan blockchain untuk mengambil saldo Bitcoin <font color="#f08c18">Cash</font> Anda.<br><br>Prosedur ini memerlukan beberapa waktu dan dilakukan di latar belakang.<br>Semakin banyak private key yang Anda miliki, semakin lama waktunya, harap bersabar. Misalnya, jika Anda memiliki sekitar 1000 private key, mungkin diperlukan lebih dari 3 jam untuk mencapai sinkronisasi penuh.<br>Kami akan memberi tahu Anda saat selesai.<br><br>Anda selalu dapat memeriksa progres sinkronisasi di sini: Pengaturan -> modul Bitcoin <font color="#f08c18">Cash</font>.<br><br>Untuk setiap akun BTC dengan Bitcoin <font color="#f08c18">Cash</font> yang belum diambil, akun Bitcoin <font color="#f08c18">Cash</font> yang sesuai akan dibuat.<br><br>Buka tab Saldo akun Bitcoin <font color="#f08c18">Cash</font> Anda untuk segera menukarnya ke BTC.]]></string>
     <string name="first_bch_installed_title"><![CDATA[Modul Mycelium Bitcoin <font color="#f08c18">Cash</font> telah dipasang!]]></string>
     <string name="first_name">Nama Depan</string>
-    <string name="following_fio_domains_registered">FIO Domains berikut terdaftar</string>
     <string name="format" translatable="false">%1$td/%1$tm/%1$tY</string>
     <string name="found_clipboard_public_key_title">Public Key Ditemukan di Clipboard</string>
     <string name="found_clipboard_public_keys_message">Clipboard berisi public key.\nApakah Anda ingin menghapus clipboard?</string>
@@ -334,7 +325,6 @@
     <string name="last_log_entries">Entri log terakhir</string>
     <string name="last_name">Nama Belakang</string>
     <string name="learn_more_rmc"><u>Pelajari lebih lanjut tentang RMC</u></string>
-    <string name="leave_a_message_for_s">Tinggalkan pesan untuk %s</string>
     <string name="legal_information">Informasi Hukum</string>
     <string name="less">lebih sedikit</string>
     <string name="list_added_tokens">Token ERC-20 pada akun \"%s\"</string>
@@ -362,7 +352,6 @@
     <string name="module_uninstall_progress">Menghapus instalasi…</string>
     <string name="modules">Modul</string>
     <string name="more">lainnya</string>
-    <string name="my_fio_domains">FIO Domains Saya</string>
     <string name="mycelium_no_responaility_rmc">Jika Anda melanjutkan, Anda setuju untuk melanjutkan ke RMC, layanan pihak ketiga. Semua interaksi Anda dengan RMC berada di luar kendali Mycelium dan tunduk pada User Agreement, Terms of Use, dan Privacy Policy RMC. Harap baca dengan cermat. Tidak ada informasi pribadi yang akan dikumpulkan, disimpan, atau digunakan oleh Mycelium.\n\nMYCELIUM TIDAK BERTANGGUNG JAWAB DAN TIDAK AKAN BERTANGGUNG JAWAB ATAS KEHILANGAN ATAU KERUSAKAN APA PUN YANG DIDERITA SEBAGAI HASIL DARI MENGAKSES, MENGGUNAKAN, ATAU MENGANDALKAN INFORMASI DAN LAYANAN PENERBIT RMC</string>
     <string name="mycelium_services">Layanan Mycelium</string>
     <string name="mycelium_terms_of_use">Mycelium Terms Of Use</string>
@@ -379,7 +368,6 @@
     <string name="no_digital_asset">BIP32 private key Anda tidak menyimpan aset digital apa pun.\n\nJika Anda yakin sebaliknya, coba pindai lagi.</string>
     <string name="no_funds">Tidak ada dana</string>
     <string name="no_google_play_installed">Tidak ada Google Play yang terpasang di perangkat</string>
-    <string name="no_logs">Tidak ada log</string>
     <string name="no_operations_history">Tidak ada riwayat operasi</string>
     <string name="no_orbot">Tidak ada Orbot terpasang</string>
     <string name="no_order_linked">Anda saat ini tidak memiliki pembelian yang terhubung ke akun Anda. Mulai dengan menjelajahi katalog toko.</string>
@@ -444,7 +432,6 @@
     <string name="register">Daftar</string>
     <string name="registration">Pendaftaran</string>
     <string name="removed">dihapus</string>
-    <string name="renew_fio_domain">Perpanjang FIO Domain</string>
     <string name="repeat_password">Ulangi kata sandi</string>
     <string name="rescan">Pindai ulang</string>
     <string name="resend_confirmation_email">Kirim ulang email konfirmasi.</string>
@@ -475,7 +462,6 @@
     <string name="select_country">Pilih negara</string>
     <string name="select_flows">Pilih flow</string>
     <string name="select_local_currencies">Pilih mata uang Anda</string>
-    <string name="select_name_to_associate">Hubungkan akun dengan FIO Name Anda. Hanya <b>satu</b> akun untuk setiap cryptocurrency yang dapat dihubungkan dengan <b>satu</b> FIO Name.</string>
     <string name="select_token">Tambahkan token ERC-20 ke akun \"%s\"</string>
     <string name="select_you_region">Pilih wilayah Anda</string>
     <string name="select_your_country">Pilih negara Anda</string>
@@ -492,7 +478,6 @@
     <string name="set_password">Atur kata sandi</string>
     <string name="shamir_share_hint"><![CDATA[Total share: jumlah bagian untuk membagi private key.\n\nThreshold: jumlah bagian yang diperlukan untuk merekonstruksi private key.]]></string>
     <string name="share">Bagikan</string>
-    <string name="share_fio_public_key">Bagikan FIO public key</string>
     <string name="share_logs">Bagikan Log</string>
     <string name="share_news">Bagikan Berita</string>
     <string name="share_of">Bagikan %1$d</string>
@@ -540,7 +525,6 @@
     <string name="sync_failed_reason_s">Sinkronisasi gagal. Alasan: %s</string>
     <string name="sync_failed_s">Sinkronisasi gagal. %s</string>
     <string name="tab_balance">Saldo</string>
-    <string name="tab_fio_requests">FIO Requests</string>
     <string name="tab_partners">Bisnis</string>
     <string name="tab_vip">VIP</string>
     <string name="tap_next">Ketuk untuk %s</string>

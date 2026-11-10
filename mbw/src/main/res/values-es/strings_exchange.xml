@@ -194,9 +194,6 @@
     <string name="no_exchange_available">No hay intercambio disponible para la cuenta</string>
     <string name="no_gift_cards_linked">Empiece explorando el catálogo de tiendas o consulte el estado de sus pedidos.</string>
     <string name="no_purchased_gift_card">AÚN NO HA COMPRADO\nNINGUNA TARJETA REGALO</string>
-    <string name="partner_fiopresale">Preventa FIO Address</string>
-    <string name="partner_fiopresale_info"/>
-    <string name="partner_fiopresale_short">Su clave para una mejor experiencia con la blockchain</string>
     <string name="partner_more_info"><u>Su privacidad es nuestra principal prioridad</u></string>
     <string name="partner_more_info_text">
         Mycelium es uno de los monederos móviles bitcoin más confiables y útiles.<br />

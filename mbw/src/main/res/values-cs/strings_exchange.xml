@@ -192,9 +192,6 @@
     <string name="no_exchange_available">Pro účet není dostupná žádná směna</string>
     <string name="no_gift_cards_linked">Začněte prozkoumáním katalogu obchodů nebo zkontrolujte stav svých objednávek.</string>
     <string name="no_purchased_gift_card">ZATÍM JSTE NEZAKOUPILI\nŽÁDNOU DÁRKOVOU KARTU</string>
-    <string name="partner_fiopresale">FIO Address Presale</string>
-    <string name="partner_fiopresale_info"/>
-    <string name="partner_fiopresale_short">Váš klíč k lepší blockchainové zkušenosti</string>
     <string name="partner_more_info"><u>Vaše soukromí je naší nejvyšší prioritou</u></string>
     <string name="partner_more_info_text">
         Mycelium je jednou z nejdůvěryhodnějších a nejužitečnějších mobilních bitcoin peněženek.<br />

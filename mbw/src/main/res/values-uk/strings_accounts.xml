@@ -165,7 +165,6 @@
     <string name="add_advanced_account_warning">Попередження:\n Ці ключі не будуть включені до резервної копії вашого Master Seed. Ви маєте впевнитися, що зробили окрему резервну копію цих ключів.</string>
     <string name="backup_menu_entry">Створити резервну копію</string>
     <string name="backup_words_title">Резервна копія Master Seed</string>
-    <string name="btcv_account_creation_started">Створення нового BTCV-акаунту…</string>
     <string name="clipboard_not_available">Буфер обміну недійсний</string>
     <string name="delete_private_key_checkbox">Видалити приватний ключ, зробивши акаунт лише для перегляду.</string>
     <string name="edit_account_label_title">Редагувати назву акаунту</string>
@@ -223,7 +222,6 @@
     <string name="ledger_unplugged_aid">Ledger Unplugged AID</string>
     <string name="ledger_unplugged_aid_preference">Встановити AID для ledger unplugged</string>
     <string name="ledger_unplugged_aid_preference_summary">Підтримка іншого AID для\ncustom-збірок ledger unplugged</string>
-    <string name="master_seed_not_configured">Master seed не налаштовано</string>
     <string name="rescan_account_menu_item">Перезавантажити акаунт</string>
     <string name="seed_already_configured">Не вдалося імпортувати: master seed уже налаштовано</string>
     <string name="select_ext_sig_account_to_spend_from">Виберіть акаунт для витрачання</string>

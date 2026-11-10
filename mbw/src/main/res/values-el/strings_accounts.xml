@@ -141,21 +141,15 @@
     <string name="backup_not_generated">Ο Κωδικός Αντιγράφου Ασφαλείας δεν δημιουργήθηκε</string>
     <string name="backup_not_verified">Το αντίγραφο ασφαλείας δεν επαληθεύτηκε</string>
     <string name="backup_now">Αντίγραφο ασφαλείας τώρα</string>
-    <string name="base_label_fio_account_legacy">FIO Legacy Λογαριασμός</string>
     <string name="bch_accounts_found"><![CDATA[Βρήκαμε %1$s Bitcoin <font color="#f08c18">Cash</font> στους BTC λογαριασμούς σας.<br><br>Δημιουργήθηκαν %2$d αντίστοιχοι λογαριασμοί Bitcoin <font color="#f08c18">Cash</font>.\nΤο υπόλοιπο Bitcoin <font color="#f08c18">Cash</font> μπορεί να ελεγχθεί στην καρτέλα Λογαριασμοί.<br><br>Τώρα μπορείτε να μεταβείτε στην καρτέλα Υπόλοιπο των Bitcoin <font color="#f08c18">Cash</font> λογαριασμών σας και να τα ανταλλάξετε άμεσα με BTC.]]></string>
     <string name="bch_accounts_not_found"><![CDATA[Δεν βρήκαμε Bitcoin <font color="#f08c18">Cash</font> στους BTC λογαριασμούς σας.<br>Παρακολουθούμε συνεχώς τους BTC λογαριασμούς σας και θα σας ενημερώσουμε αν βρεθούν Bitcoin <font color="#f08c18">Cash</font>.]]></string>
     <string name="bip32_root_account">Root Λογαριασμός</string>
     <string name="block_access_to_account">Απενεργοποιούμε σκόπιμα την καρτέλα Οι Λογαριασμοί μου ενώ διαχειρίζεστε τον %1$s λογαριασμό σας. Αυτό γίνεται για να αποτραπεί η αποστολή των ψηφιακών σας στοιχείων οπουδήποτε αλλού εκτός από έναν άλλον λογαριασμό %1$s.</string>
-    <string name="btcv_account_creation_started">Δημιουργία νέου Λογαριασμού BTCV…</string>
-    <string name="btcvault_hd_account">Προσθήκη Λογαριασμού Bitcoin Vault HD</string>
     <string name="cant_disable_active_account">Δεν μπορείτε να απενεργοποιήσετε τον ενεργό λογαριασμό</string>
     <string name="choose_the_currency_and_btc_receiving_account">Επιλέξτε το νόμισμα και τον λογαριασμό λήψης BTC</string>
     <string name="confirm_delete_account_message_end">Θέλετε να τον διαγράψετε;</string>
     <string name="confirm_delete_private_key_message">Πριν διαγράψετε το μυστικό κλειδί, βεβαιωθείτε ότι έχετε αντίγραφο ασφαλείας του αποθηκευμένο εκτός σύνδεσης σε ασφαλές μέρος. Θα πρέπει να το \"προσθέσετε ξανά\" από το αντίγραφο ασφαλείας όταν χρειαστεί να ξοδέψετε τα bitcoins από αυτόν τον λογαριασμό.</string>
     <string name="confirm_delete_private_key_message_end">Θέλετε να γίνει watch-only;</string>
-    <string name="connect_accounts">Αποθήκευση</string>
-    <string name="create_fio_account">Δημιουργία Λογαριασμού FIO</string>
-    <string name="create_fio_legacy_presale_account">Δημιουργία Λογαριασμού FIO Legacy</string>
     <string name="create_new_account">Προσθήκη νέου Λογαριασμού ETH</string>
     <string name="delete_account">Διαγραφή Λογαριασμού</string>
     <string name="delete_account_message"><![CDATA[Θέλετε να διαγράψετε τον λογαριασμό <b>\"%1$s\"</b> που περιέχει <b>%2$s</b> και τον <b>\"%3$s\"</b> που περιέχει <b>%4$s</b>;]]></string>
@@ -176,7 +170,6 @@
     <string name="erc20_account_creation_started">Δημιουργία νέου Λογαριασμού ERC-20…</string>
     <string name="eth_account_creation_started">Δημιουργία νέου Λογαριασμού ETH…</string>
     <string name="export">Εξαγωγή κλειδιών λογαριασμού</string>
-    <string name="export_fio_public_key_title">Εξαγωγή δημόσιου κλειδιού FIO</string>
     <string name="export_not_possible">Η εξαγωγή δεν είναι δυνατή, έχετε ήδη λογαριασμό %s</string>
     <string name="export_private_key_red_warning">Αντιγράψτε αυτό το κλειδί μόνο σε ασφαλές περιβάλλον.\nΟποιοσδήποτε έχει πρόσβαση σε αυτό αποκτά τον έλεγχο όλων των τρεχόντων και των μελλοντικών διαθέσιμων bitcoin για αυτόν τον λογαριασμό.\n\nΠατήστε παρατεταμένα εδώ για να εμφανιστεί \nο κωδικός QR </string>
     <string name="ext_sig_amount">Ποσό:</string>
@@ -207,7 +200,6 @@
     <string name="hardware_wallets">Hardware wallets</string>
     <string name="hd_account_bch">Προσθήκη Λογαριασμού Bitcoin Cash HD</string>
     <string name="hd_eth_account">Προσθήκη Λογαριασμού Ethereum</string>
-    <string name="hd_fio_account">Προσθήκη Λογαριασμού FIO</string>
     <string name="import_xpub_should_xpriv">Υποστηρίζονται μόνο ξοδεύσιμοι λογαριασμοί με Ψηφιακά Στοιχεία για επίπεδο λογαριασμού 0. Παρακαλώ χρησιμοποιήστε xpriv αντί για xpub</string>
     <string name="import_xpub_wrong_depth">Είναι δυνατή η εισαγωγή μόνο xpub διευθύνσεων επιπέδου λογαριασμού (3).\nΑυτό ήταν επίπεδο %1$s.</string>
     <string name="keepkey_import_account">Εισαγωγή λογαριασμού KeepKey-HD Bitcoin</string>
@@ -219,9 +211,7 @@
     <string name="ledger_unplugged_aid_preference_summary">Υποστήριξη διαφορετικού AID για ledger\nunplugged custom builds</string>
     <string name="list_added_tokens_new_account">Διακριτικά ERC-20 σε νέο λογαριασμό</string>
     <string name="loading_accounts">Φόρτωση λογαριασμών</string>
-    <string name="master_seed_not_configured">Το Master Seed δεν έχει ρυθμιστεί</string>
     <string name="migrating_accounts">Μεταφορά λογαριασμών</string>
-    <string name="new_fio_legacy_presale_account_desc">Δημιουργήστε FIO Legacy λογαριασμό ΜΟΝΟ εάν έχετε αγοράσει FIO domain κατά τη διάρκεια του FIO Presale.</string>
     <string name="no_account_yet_register">Δεν έχετε λογαριασμό ακόμη; <font color="#F2E868">Εγγραφείτε</font></string>
     <string name="no_spendable_accounts">Δεν υπάρχουν ξοδεύσιμοι λογαριασμοί</string>
     <string name="parent_eth_account">ETH %s:</string>
@@ -240,7 +230,6 @@
     <string name="select_eth_account_to_erc20">Επιλέξτε ETH Λογαριασμό για να αποθηκεύσετε τα διακριτικά ERC-20</string>
     <string name="select_eth_account_to_erc20_subtext">Τα διακριτικά ERC-20 υπάρχουν σε ETH Λογαριασμούς και απαιτούν ETH για να γίνουν συναλλαγές.\nΈνας ETH Λογαριασμός μπορεί να αποθηκεύσει απεριόριστους τύπους διακριτικών ERC-20 - έναν από κάθε τύπο ανά ETH λογαριασμό.</string>
     <string name="select_ext_sig_account_to_spend_from">Επιλέξτε λογαριασμό από τον οποίο θα ξοδέψετε</string>
-    <string name="select_name_to_associate_read_only_account">Λογαριασμοί συνδεδεμένοι με αυτό το FIO Name. Μόνο <b>ένας</b> λογαριασμός ανά κρυπτονόμισμα μπορεί να συνδεθεί με <b>ένα</b> FIO Name.</string>
     <string name="select_token_new_account">Προσθήκη διακριτικών ERC-20 σε νέο ETH Λογαριασμό</string>
     <string name="set_up_2fa_to_secure_your_account">Ρυθμίστε 2FA για να ασφαλίσετε τον λογαριασμό σας</string>
     <string name="single_address_account">Single Address Λογαριασμός</string>

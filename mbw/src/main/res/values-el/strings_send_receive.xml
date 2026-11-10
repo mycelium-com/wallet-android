@@ -230,10 +230,8 @@
     <string name="proof_of_address">Απόδειξη Διεύθυνσης</string>
     <string name="provide_your_recovery_e_mail_address">Δώστε τη διεύθυνση e-mail ανάκτησης παρακάτω. Θα σας στείλουμε έναν ασφαλή σύνδεσμο και οδηγίες για το πώς να επαναφέρετε τον κωδικό σας.</string>
     <string name="receive_cointype">Λήψη %1$s</string>
-    <string name="receive_title_fio">FIO Public key</string>
     <string name="received">Λήφθηκαν</string>
     <string name="receiver_address_hint">1Address1234\n567890abcdef\nghijklmnop</string>
-    <string name="recipient_has_no_such_address">Ο %1$s δεν έχει συνδεδεμένη διεύθυνση %2$s</string>
     <string name="recipient_invalid">Μη έγκυρη διεύθυνση ή FIO Name</string>
     <string name="recipient_valid">Έγκυρος Παραλήπτης</string>
     <string name="replace_transaction">Συναλλαγή προς αντικατάσταση με:</string>
@@ -241,11 +239,9 @@
     <string name="residential_address">Διεύθυνση Κατοικίας</string>
     <string name="restore_address_as">Επαναφορά διεύθυνσης ως</string>
     <string name="return_to_payment">Επιστροφή στις Παραγγελίες</string>
-    <string name="s_fio_request">%s Αίτημα FIO</string>
     <string name="s_payment_request">%s Αίτημα Πληρωμής</string>
     <string name="send_cointype">Αποστολή %1$s</string>
     <string name="send_fee_hint"><b>ΠΡΟΣΟΧΗ.</b> Οι συναλλαγές με τέλος miner χαμηλής προτεραιότητας μπορεί να μην επιβεβαιωθούν ποτέ ή να επιβεβαιωθούν σε πολλές ώρες ή ακόμα και ημέρες. Μην επιλέγετε χαμηλή προτεραιότητα αν δεν κατανοείτε πώς λειτουργεί το δίκτυο bitcoin.</string>
-    <string name="send_fio_request">Αποστολή Αιτήματος FIO</string>
     <string name="send_mail">Αποστολή email…</string>
     <string name="sending_addresses">Βιβλίο Διευθύνσεων</string>
     <string name="sending_assets">Αποστολή στοιχείων %s.</string>
@@ -267,7 +263,6 @@
     <string name="tips_rmc_check_address">Αν έχετε στείλει ψηφιακά στοιχεία σε μια τυχαία διεύθυνση bitcoin δεν καταστρέφονται.\nΓια να τα ανακτήσετε έχετε δύο επιλογές:\n1) Χρησιμοποιήστε το Colored Coins API για να στείλετε χειροκίνητα τα στοιχεία σας πίσω στη διεύθυνση που διαχειρίζεται το Mycelium Wallet.\n2) Υποβάλετε εισιτήριο στην υποστήριξη του Mycelium Wallet για ανάκτηση των στοιχείων σας. Για αυτή την υπηρεσία, μπορεί να ισχύουν επιπλέον χρεώσεις. Θα λάβετε λεπτομερείς πληροφορίες αφού επικοινωνήσετε με την υποστήριξη.\n\nΣε αμφότερες τις περιπτώσεις, πρέπει να έχετε στην κατοχή σας το ιδιωτικό κλειδί της διεύθυνσης στην οποία στείλατε τα ψηφιακά στοιχεία.</string>
     <string name="too_many_transaction_records">Αδυναμία ανάκτησης πλήρους ιστορικού συναλλαγών λογαριασμού λόγω του τεράστιου μεγέθους. Σκεφτείτε να μεταφέρετε τα κεφάλαια σε νέο λογαριασμό.</string>
     <string name="total_amount">Συνολικό ποσό:</string>
-    <string name="transaction_from_address_prefix">Από: %s</string>
     <string name="transaction_gas_limit">Όριο Gas (μονάδες):</string>
     <string name="transaction_input_data">Δεδομένα Εισόδου:</string>
     <string name="transaction_not_broadcasted_info">Αδυναμία μετάδοσης</string>

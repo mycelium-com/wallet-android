@@ -232,10 +232,8 @@
     <string name="proof_of_address">地址证明</string>
     <string name="provide_your_recovery_e_mail_address">请在下方提供您的恢复邮箱地址。我们会向您发送安全链接以及如何重置密码的说明。</string>
     <string name="receive_cointype">接收 %1$s</string>
-    <string name="receive_title_fio">FIO 公钥</string>
     <string name="received">已接收</string>
     <string name="receiver_address_hint">1Address1234\n567890abcdef\nghijklmnop</string>
-    <string name="recipient_has_no_such_address">%1$s 没有连接 %2$s 地址</string>
     <string name="recipient_invalid">无效的地址或 FIO 名称</string>
     <string name="recipient_valid">收件人有效</string>
     <string name="replace_transaction">替换为以下交易：</string>
@@ -243,11 +241,9 @@
     <string name="residential_address">居住地址</string>
     <string name="restore_address_as">将地址恢复为</string>
     <string name="return_to_payment">返回订单</string>
-    <string name="s_fio_request">%s FIO 请求</string>
     <string name="s_payment_request">%s 付款请求</string>
     <string name="send_cointype">发送 %1$s</string>
     <string name="send_fee_hint"><b>注意。</b>低优先级矿工手续费的交易可能永远不会被确认，或在数小时甚至数天后才被确认。如果您不了解比特币网络的工作原理，请不要选择低优先级。</string>
-    <string name="send_fio_request">发送 FIO 请求</string>
     <string name="send_mail">发送邮件…</string>
     <string name="sending_addresses">地址簿</string>
     <string name="sending_assets">正在发送 %s 资产。</string>
@@ -269,7 +265,6 @@
     <string name="tips_rmc_check_address">如果您将数字资产发送到了随机的比特币地址，它们并未被销毁。\n要找回它们，您有两个选择：\n1) 使用 Colored Coins API 手动将您的资产发送回 Mycelium 钱包管理的地址。\n2) 向 Mycelium 钱包客服提交工单以找回您的资产。此服务可能会收取额外费用。联系客服后您将收到详细信息。\n\n两种情况下，您都必须拥有发送数字资产到的那个地址的私钥。</string>
     <string name="too_many_transaction_records">无法获取完整的账户交易历史，因为其规模过大。请考虑将资金转移到新账户。</string>
     <string name="total_amount">总金额：</string>
-    <string name="transaction_from_address_prefix">来自：%s</string>
     <string name="transaction_gas_limit">Gas Limit（单位）：</string>
     <string name="transaction_input_data">输入数据：</string>
     <string name="transaction_not_sent_nonstandard">由于错误，广播交易失败：\n%1$s\n请将此事件报告给技术支持。\n原始交易已复制到剪贴板，如果可能请将其附加到您的请求中。</string>

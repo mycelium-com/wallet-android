@@ -164,20 +164,14 @@
     <string name="backup_not_generated">Záložní kód nebyl vygenerován</string>
     <string name="backup_not_verified">Záloha nebyla ověřena</string>
     <string name="backup_now">Zálohovat nyní</string>
-    <string name="base_label_fio_account_legacy">FIO Legacy účet</string>
     <string name="bch_accounts_found"><![CDATA[Našli jsme %1$s Bitcoin <font color="#f08c18">Cash</font> na vašich BTC účtech.<br><br>Vytvořeno %2$d odpovídajících Bitcoin <font color="#f08c18">Cash</font> účtů.\nZůstatek Bitcoin <font color="#f08c18">Cash</font> lze zkontrolovat na záložce Účty.<br><br>Nyní můžete přejít na záložku Zůstatek vašeho Bitcoin <font color="#f08c18">Cash</font> účtu a okamžitě jej směnit na BTC.]]></string>
     <string name="bch_accounts_not_found"><![CDATA[Na vašich BTC účtech jsme nenašli žádný Bitcoin <font color="#f08c18">Cash</font>.<br>Průběžně sledujeme vaše BTC účty a budeme vás informovat, pokud bude nalezen Bitcoin <font color="#f08c18">Cash</font>.]]></string>
     <string name="block_access_to_account">Záměrně deaktivujeme záložku Mé účty, když spravujete svůj účet %1$s. Je to proto, abychom zabránili odeslání vašich digitálních aktiv kamkoli jinam, kromě jiného účtu %1$s.</string>
-    <string name="btcv_account_creation_started">Vytváření nového BTCV účtu…</string>
-    <string name="btcvault_hd_account">Přidat Bitcoin Vault HD účet</string>
     <string name="cant_disable_active_account">Nemůžete deaktivovat aktivní účet</string>
     <string name="choose_the_currency_and_btc_receiving_account">Vyberte měnu a BTC přijímací účet</string>
     <string name="confirm_delete_account_message_end">Chcete jej smazat?</string>
     <string name="confirm_delete_private_key_message">Před smazáním soukromého klíče se ujistěte, že máte jeho zálohu uloženou offline a na bezpečném místě. Budete jej muset \"přidat zpět\" ze zálohy, až budete potřebovat utratit bitcoiny z tohoto účtu.</string>
     <string name="confirm_delete_private_key_message_end">Chcete jej převést na pouze pro sledování?</string>
-    <string name="connect_accounts">Uložit</string>
-    <string name="create_fio_account">Vytvořit FIO účet</string>
-    <string name="create_fio_legacy_presale_account">Vytvořit FIO Legacy účet</string>
     <string name="create_new_account">Přidat nový ETH účet</string>
     <string name="delete_account">Smazat účet</string>
     <string name="delete_account_message"><![CDATA[Chcete smazat účet <b>\"%1$s\"</b> obsahující <b>%2$s</b> a <b>\"%3$s\"</b> obsahující <b>%4$s</b>?]]></string>
@@ -198,7 +192,6 @@
     <string name="erc20_account_creation_started">Vytváření nového ERC-20 účtu…</string>
     <string name="eth_account_creation_started">Vytváření nového ETH účtu…</string>
     <string name="export">Exportovat klíče účtu</string>
-    <string name="export_fio_public_key_title">Exportovat veřejný FIO klíč</string>
     <string name="export_not_possible">Export není možný, již máte účet %s</string>
     <string name="export_private_key_red_warning">Tento klíč kopírujte pouze v zabezpečeném prostředí.\nKdokoli, kdo k němu má přístup, získá kontrolu nad veškerými současnými i budoucími bitcoiny tohoto účtu.\n\nPodržením stiskněte zde pro zobrazení \nQR kódu </string>
     <string name="ext_sig_change_to">Vrátit na:</string>
@@ -211,7 +204,6 @@
     <string name="hardware_wallets">Hardwarové peněženky</string>
     <string name="hd_account_bch">Přidat HD účet Bitcoin Cash</string>
     <string name="hd_eth_account">Přidat účet Ethereum</string>
-    <string name="hd_fio_account">Přidat FIO účet</string>
     <string name="import_xpub_should_xpriv">Pro úroveň účtu 0 jsou podporovány pouze utratitelné účty s digitálními aktivy. Místo xpub použijte prosím xpriv</string>
     <string name="ledger_cold_storage_header">Ledger peněženka</string>
     <string name="ledger_please_wait">Prosím čekejte …</string>
@@ -220,9 +212,7 @@
     <string name="ledger_unplugged_aid_preference_summary">Podpora jiného AID pro vlastní sestavení\nledger unplugged</string>
     <string name="list_added_tokens_new_account">ERC-20 tokeny na novém účtu</string>
     <string name="loading_accounts">Načítání účtů</string>
-    <string name="master_seed_not_configured">Master Seed není nakonfigurován</string>
     <string name="migrating_accounts">Migrace účtů</string>
-    <string name="new_fio_legacy_presale_account_desc">Vytvořte FIO Legacy účet POUZE pokud jste si zakoupili FIO doménu během FIO Presale.</string>
     <string name="no_account_yet_register">Ještě nemáte účet? <font color="#F2E868">Zaregistrujte se</font></string>
     <string name="no_spendable_accounts">Žádné utratitelné účty</string>
     <string name="parent_eth_account">ETH %s:</string>
@@ -240,7 +230,6 @@
     <string name="select_account_to_pay_with">Vyberte účet, kterým chcete platit:</string>
     <string name="select_eth_account_to_erc20">Vyberte ETH účet pro uložení vašich ERC-20 tokenů</string>
     <string name="select_eth_account_to_erc20_subtext">ERC-20 tokeny existují na ETH účtech a vyžadují ETH k provádění transakcí.\nJeden ETH účet může uložit neomezený počet typů ERC-20 tokenů — jeden od každého typu na ETH účet.</string>
-    <string name="select_name_to_associate_read_only_account">Účty připojené k tomuto FIO Name. K jednomu FIO Name může být připojen pouze <b>jeden</b> účet z každé kryptoměny.</string>
     <string name="select_token_new_account">Přidat ERC-20 tokeny k novému ETH účtu</string>
     <string name="set_up_2fa_to_secure_your_account">Nastavte 2FA pro zabezpečení svého účtu</string>
     <string name="single_address_account">Účet s jednou adresou</string>

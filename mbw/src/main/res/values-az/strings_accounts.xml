@@ -47,13 +47,10 @@
     <string name="backup_now">İndi ehtiyat nüsxə çıxar</string>
     <string name="backup_private_key">Ehtiyat nüsxə</string>
     <string name="backup_words_title">Master Seed Ehtiyat Nüsxəsi</string>
-    <string name="base_label_fio_account_legacy">FIO Köhnə Hesab</string>
     <string name="bch_accounts_found"><![CDATA[Sizin BTC hesablarınızda %1$s Bitcoin <font color="#f08c18">Cash</font> tapdıq.<br><br>%2$d uyğun Bitcoin <font color="#f08c18">Cash</font> hesab(lar)ı yaradıldı.\nBitcoin <font color="#f08c18">Cash</font> balansı Hesablar tabında yoxlanıla bilər.<br><br>İndi Bitcoin <font color="#f08c18">Cash</font> hesab(lar)ınızın Balans tabına keçə və onu dərhal BTC ilə dəyişdirə bilərsiniz.]]></string>
     <string name="bch_accounts_not_found"><![CDATA[Sizin BTC hesablarınızda heç bir Bitcoin <font color="#f08c18">Cash</font> tapmadıq.<br>BTC hesablarınızı daimi izləyirik və Bitcoin <font color="#f08c18">Cash</font> tapılarsa sizə məlumat verəcəyik.]]></string>
     <string name="bip32_root_account">Kök Hesabı</string>
     <string name="block_access_to_account">Siz %1$s hesabınızı idarə edərkən Hesablarım tabını qəsdən deaktiv edirik. Bu, rəqəmsal aktivlərinizi başqa %1$s hesabından başqa heç bir yerə göndərməməyiniz üçündür.</string>
-    <string name="btcv_account_creation_started">Yeni BTCV hesabı yaradılır…</string>
-    <string name="btcvault_hd_account">Bitcoin Vault HD hesabı əlavə et</string>
     <string name="cant_disable_active_account">Aktiv hesabı deaktiv edə bilməzsiniz</string>
     <string name="choose_the_currency_and_btc_receiving_account">Valyutanı və BTC qəbul hesabını seçin</string>
     <string name="clipboard">Mübadilə yaddaşı</string>
@@ -63,10 +60,7 @@
     <string name="confirm_delete_account_message_end">Onu silmək istəyirsiniz?</string>
     <string name="confirm_delete_private_key_message">Şəxsi açarı silməzdən əvvəl, onun ehtiyat nüsxəsinin oflayn və təhlükəsiz yerdə saxlanıldığından əmin olun. Bu hesabdan bitcoinləri xərcləməli olduğunuzda onu ehtiyat nüsxədən \"yenidən əlavə etməli\" olacaqsınız.</string>
     <string name="confirm_delete_private_key_message_end">Onu yalnız izləmə rejiminə çevirmək istəyirsiniz?</string>
-    <string name="connect_accounts">Saxla</string>
     <string name="copy_private_key_to_clipboard">Şəxsi açarı mübadilə yaddaşına köçür</string>
-    <string name="create_fio_account">FIO hesabı yarat</string>
-    <string name="create_fio_legacy_presale_account">FIO Köhnə hesabı yarat</string>
     <string name="create_new_account">Yeni ETH hesabı əlavə et</string>
     <string name="delete_account">Hesabı sil</string>
     <string name="delete_account_message"><![CDATA[<b>%2$s</b> tutan <b>"%1$s"</b> hesabını və <b>%4$s</b> tutan <b>"%3$s"</b> hesabını silmək istəyirsiniz?]]></string>
@@ -101,7 +95,6 @@
     <string name="eth_account_creation_started">Yeni ETH hesabı yaradılır…</string>
     <string name="export">Hesab açarlarını ixrac et</string>
     <string name="export_account_data_warning">Seçilmiş hesabın həssas məlumatlarını ixrac etmək üzrəsiniz.\n\nBu açarlara giriş əldə edən hər kəs ya nəzarət etdiyi bitcoin-ə sahib ola bilər, ya da məxfiliyinizi pozacaq məlumat əldə edə bilər.\n\nDavam etmək istəyirsiniz?</string>
-    <string name="export_fio_public_key_title">FIO ictimai açarını ixrac et</string>
     <string name="export_history">Tranzaksiya tarixçəsini ixrac et</string>
     <string name="export_not_possible">İxrac mümkün deyil, sizin artıq %s hesabınız var</string>
     <string name="export_private_key_red_warning">Bu açarı yalnız təhlükəsiz mühitdə köçürün.\nOna giriş əldə edən hər kəs bu hesab üçün cari və gələcəkdə əlçatan olacaq bütün bitcoin üzərində nəzarət əldə edir.\n\nQR kodu göstərmək üçün buranı uzun basın \n</string>
@@ -142,7 +135,6 @@
     <string name="hd_account_creation_started">Yeni HD Bitcoin Hesabı yaradılır…</string>
     <string name="hd_account_selector_no_account_found">Aktiv hesab tapılmadı.</string>
     <string name="hd_eth_account">Ethereum Hesabı əlavə et</string>
-    <string name="hd_fio_account">FIO Hesabı əlavə et</string>
     <string name="hide_unused_account_menu">Hesabı sil</string>
     <string name="import_decrypt_bip38_description">BIP38 parolla qorunan şəxsi açarı deşifrə etmək üzrəsiniz.</string>
     <string name="import_decrypt_bip38_display_password">Parolu göstər</string>
@@ -189,11 +181,9 @@
     <string name="master_seed_configuration_description">Ehtiyat nüsxəni bərpa etmək, yoxsa yeni pul kisəsi yaratmaq istəyirsiniz?</string>
     <string name="master_seed_configuration_title">Mycelium-a xoş gəldiniz</string>
     <string name="master_seed_create_new_button">Yeni yarat</string>
-    <string name="master_seed_not_configured">Master seed konfiqurasiya edilməyib</string>
     <string name="master_seed_restore_backup_button">Ehtiyat nüsxəni bərpa et</string>
     <string name="migrating_accounts">Hesablar miqrasiya edilir</string>
     <string name="my_accounts">Hesablarım</string>
-    <string name="new_fio_legacy_presale_account_desc">FIO Köhnə Hesabı YALNIZ FIO Presale zamanı FIO domeni almısınızsa yaradın.</string>
     <string name="no_account_yet_register">Hələ hesabınız yoxdur? <font color="#F2E868">Qeydiyyatdan keçin</font></string>
     <string name="no_spendable_accounts">Xərclənə bilən hesab yoxdur</string>
     <string name="parent_eth_account">ETH %s:</string>
@@ -217,7 +207,6 @@
     <string name="select_eth_account_to_erc20_subtext">ERC-20 tokenləri ETH Hesablarında mövcuddur və tranzaksiya etmək üçün ETH tələb edir.\nTək ETH Hesabı limitsiz növdə ERC-20 tokenləri saxlaya bilər - hər ETH hesabı üzrə hər növdən bir.</string>
     <string name="select_ext_sig_account_to_spend_from">Xərcləmək üçün hesab seçin</string>
     <string name="select_ledger_account_to_spend_from">Xərcləmək üçün hesab seçin</string>
-    <string name="select_name_to_associate_read_only_account">Bu FIO Adına bağlı hesablar. Yalnız <b>bir</b> kriptovalyuta üçün <b>bir</b> hesab <b>bir</b> FIO Adı ilə bağlana bilər.</string>
     <string name="select_spending_account">Xərcləmə hesabını seçin</string>
     <string name="select_token_new_account">Yeni ETH Hesabına ERC-20 tokenləri əlavə edin</string>
     <string name="set_up_2fa_to_secure_your_account">Hesabınızı qorumaq üçün 2FA quraşdırın</string>

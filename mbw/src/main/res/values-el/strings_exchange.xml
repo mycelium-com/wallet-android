@@ -191,9 +191,6 @@
     <string name="no_exchange_available">Δεν υπάρχει διαθέσιμη Ανταλλαγή για τον Λογαριασμό</string>
     <string name="no_gift_cards_linked">Ξεκινήστε εξερευνώντας τον κατάλογο καταστημάτων ή ελέγξτε την κατάσταση των Παραγγελιών σας.</string>
     <string name="no_purchased_gift_card">ΔΕΝ ΕΧΕΤΕ ΑΓΟΡΑΣΕΙ\nΚΑΜΙΑ ΔΩΡΟΚΑΡΤΑ ΑΚΟΜΗ</string>
-    <string name="partner_fiopresale">FIO Address Presale</string>
-    <string name="partner_fiopresale_info"/>
-    <string name="partner_fiopresale_short">Το κλειδί σας για μια καλύτερη εμπειρία blockchain</string>
     <string name="partner_more_info"><u>Το απόρρητό σας είναι η ύψιστη προτεραιότητά μας</u></string>
     <string name="partner_more_info_text">
         Το Mycelium είναι ένα από τα πιο αξιόπιστα και χρήσιμα κινητά πορτοφόλια bitcoin.<br />

@@ -217,10 +217,8 @@
     <string name="provide_your_recovery_e_mail_address">Cung cấp địa chỉ e-mail khôi phục của bạn bên dưới. Chúng tôi sẽ gửi cho bạn một liên kết bảo mật và hướng dẫn cách đặt lại mật khẩu.</string>
     <string name="rebroadcast_transaction_title">Phát lại giao dịch</string>
     <string name="receive_cointype">Nhận %1$s</string>
-    <string name="receive_title_fio">FIO Public key</string>
     <string name="received">Đã nhận</string>
     <string name="receiver_address_hint">1Address1234\n567890abcdef\nghijklmnop</string>
-    <string name="recipient_has_no_such_address">%1$s không có địa chỉ %2$s được kết nối</string>
     <string name="recipient_invalid">Địa chỉ hoặc tên FIO không hợp lệ</string>
     <string name="recipient_valid">Người nhận hợp lệ</string>
     <string name="remove_queued_transaction">Bạn có thực sự muốn xóa giao dịch đang chờ này và ngăn nó được phát đi không?</string>
@@ -233,12 +231,10 @@
     <string name="restore_address_as">Khôi phục địa chỉ dưới dạng</string>
     <string name="retrieving_pubkey_address">Đang lấy địa chỉ chưa sử dụng tiếp theo…</string>
     <string name="return_to_payment">Quay lại đơn hàng</string>
-    <string name="s_fio_request">%s Yêu cầu FIO</string>
     <string name="s_payment_request">%s Yêu cầu thanh toán</string>
     <string name="select_key_for_signing">Chọn khóa để ký</string>
     <string name="send_cointype">Gửi %1$s</string>
     <string name="send_fee_hint"><b>CHÚ Ý.</b> Giao dịch với phí khai thác ưu tiên thấp có thể không bao giờ được xác nhận hoặc được xác nhận sau nhiều giờ hoặc thậm chí nhiều ngày. Đừng chọn ưu tiên thấp nếu bạn không hiểu cách mạng bitcoin hoạt động.</string>
-    <string name="send_fio_request">Gửi yêu cầu FIO</string>
     <string name="send_mail">Gửi thư…</string>
     <string name="sending_addresses">Sổ địa chỉ</string>
     <string name="sending_assets">Đang gửi tài sản %s.</string>
@@ -262,7 +258,6 @@
     <string name="tips_rmc_check_address">Nếu bạn đã gửi tài sản số đến một địa chỉ bitcoin ngẫu nhiên, chúng không bị phá hủy.\nĐể lấy lại chúng, bạn có hai lựa chọn:\n1) Sử dụng Colored Coins API để gửi tài sản của bạn về địa chỉ được quản lý bởi Mycelium Wallet một cách thủ công.\n2) Gửi yêu cầu hỗ trợ tới Mycelium Wallet để lấy lại tài sản của bạn. Đối với dịch vụ này, có thể có phí bổ sung. Bạn sẽ nhận được thông tin chi tiết sau khi liên hệ với bộ phận hỗ trợ.\n\nTrong cả hai trường hợp, bạn phải sở hữu private key của địa chỉ mà bạn đã gửi tài sản số đến.</string>
     <string name="too_many_transaction_records">Không thể lấy đầy đủ lịch sử giao dịch của tài khoản do kích thước rất lớn. Hãy cân nhắc chuyển tiền sang tài khoản mới.</string>
     <string name="total_amount">Tổng số lượng:</string>
-    <string name="transaction_from_address_prefix">Từ: %s</string>
     <string name="transaction_gas_limit">Giới hạn Gas (đơn vị):</string>
     <string name="transaction_history_title">Lịch sử giao dịch</string>
     <string name="transaction_input_data">Dữ liệu đầu vào:</string>

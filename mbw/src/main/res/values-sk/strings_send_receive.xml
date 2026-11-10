@@ -166,10 +166,8 @@
     <string name="queue_transaction_message">Nepodarilo sa rozoslať transakciu.\nChcete transakciu zaradiť do frontu, aby sa odoslala automaticky, keď budete online?</string>
     <string name="rebroadcast_transaction_title">Znovu rozoslať transakciu</string>
     <string name="receive_cointype">Prijať %1$s</string>
-    <string name="receive_title_fio">FIO verejný kľúč</string>
     <string name="received">Prijaté</string>
     <string name="receiver_address_hint">1Adresa1234\n567890abcdef\nghijklmnop</string>
-    <string name="recipient_has_no_such_address">%1$s nemá pripojenú %2$s adresu</string>
     <string name="recipient_invalid">Neplatná adresa alebo FIO meno</string>
     <string name="recipient_valid">Príjemca platný</string>
     <string name="remove_queued_transaction">Naozaj chcete odstrániť túto zaradenú transakciu a zabrániť jej rozoslaniu?</string>
@@ -182,12 +180,10 @@
     <string name="restore_address_as">Obnoviť adresu ako</string>
     <string name="retrieving_pubkey_address">Získava sa ďalšia nepoužitá adresa…</string>
     <string name="return_to_payment">Späť na objednávky</string>
-    <string name="s_fio_request">%s FIO žiadosť</string>
     <string name="s_payment_request">%s žiadosť o platbu</string>
     <string name="select_key_for_signing">Vyberte kľúč na podpis</string>
     <string name="send_cointype">Odoslať %1$s</string>
     <string name="send_fee_hint"><b>POZOR.</b> Transakcie s nízkym poplatkom za ťažbu nemusia byť nikdy potvrdené alebo môžu byť potvrdené až po hodinách alebo dokonca dňoch. Nevyberajte nízku prioritu, ak nerozumiete, ako bitcoin sieť funguje.</string>
-    <string name="send_fio_request">Odoslať FIO žiadosť</string>
     <string name="send_mail">Odoslať e-mail…</string>
     <string name="sending_addresses">Adresár</string>
     <string name="sending_assets">Odosiela sa %s aktív.</string>
@@ -211,7 +207,6 @@
     <string name="tips_rmc_check_address">Ak ste odoslali digitálne aktíva na náhodnú bitcoin adresu, nie sú zničené.\nNa ich získanie máte dve možnosti:\n1) Použite Colored Coins API na manuálne odoslanie vašich aktív späť na adresu spravovanú Mycelium peňaženkou.\n2) Odošlite tiket na podporu Mycelium peňaženky pre získanie vašich aktív. Za túto službu môžu byť účtované dodatočné poplatky. Po kontaktovaní podpory dostanete podrobné informácie.\n\nV oboch prípadoch musíte vlastniť privátny kľúč adresy, na ktorú ste odoslali digitálne aktíva.</string>
     <string name="too_many_transaction_records">Nemožno načítať úplnú históriu transakcií účtu kvôli jej obrovskej veľkosti. Zvážte presunutie prostriedkov na nový účet.</string>
     <string name="total_amount">Celková suma:</string>
-    <string name="transaction_from_address_prefix">Od: %s</string>
     <string name="transaction_gas_limit">Gas limit (jednotky):</string>
     <string name="transaction_history_title">História transakcií</string>
     <string name="transaction_input_data">Vstupné údaje:</string>

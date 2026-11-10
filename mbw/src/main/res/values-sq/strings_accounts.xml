@@ -134,21 +134,15 @@
     <string name="backup_not_generated">Kodi i Rezervës nuk u gjenerua</string>
     <string name="backup_not_verified">Rezerva nuk u verifikua</string>
     <string name="backup_now">Bëj rezervë tani</string>
-    <string name="base_label_fio_account_legacy">FIO Legacy Account</string>
     <string name="bch_accounts_found"><![CDATA[Kemi gjetur %1$s Bitcoin <font color="#f08c18">Cash</font> në llogaritë tuaja BTC.<br><br>%2$d llogari përkatëse Bitcoin <font color="#f08c18">Cash</font> u krijuan.\nBilanci Bitcoin <font color="#f08c18">Cash</font> mund të kontrollohet në skedën Llogaritë.<br><br>Tani mund të shkoni te skeda Bilanci e llogarisë suaj Bitcoin <font color="#f08c18">Cash</font> dhe ta shkëmbeni menjëherë në BTC.]]></string>
     <string name="bch_accounts_not_found"><![CDATA[Nuk kemi gjetur asnjë Bitcoin <font color="#f08c18">Cash</font> në llogaritë tuaja BTC.<br>Ne po monitorojmë vazhdimisht llogaritë tuaja BTC dhe do t\'ju informojmë nëse gjendet Bitcoin <font color="#f08c18">Cash</font>.]]></string>
     <string name="bip32_root_account">Llogaria Rrënjë</string>
     <string name="block_access_to_account">Ne çaktivizojmë qëllimisht skedën Llogaritë e mia ndërsa ju jeni duke menaxhuar llogarinë tuaj %1$s. Kjo është për t\'ju parandaluar nga dërgimi i aseteve tuaja dixhitale kudo tjetër përveçse në një llogari tjetër %1$s.</string>
-    <string name="btcv_account_creation_started">Duke krijuar Llogari të re BTCV…</string>
-    <string name="btcvault_hd_account">Shto Bitcoin Vault HD Account</string>
     <string name="cant_disable_active_account">Nuk mund të çaktivizoni një llogari aktive</string>
     <string name="choose_the_currency_and_btc_receiving_account">Zgjidh monedhën dhe llogarinë marrëse të BTC</string>
     <string name="confirm_delete_account_message_end">Doni ta fshini?</string>
     <string name="confirm_delete_private_key_message">Përpara se të fshini çelësin privat, sigurohuni që keni rezervën e tij të ruajtur offline dhe në një vend të sigurt. Do t\'ju duhet ta \"shtoni përsëri\" nga rezerva kur të keni nevojë të shpenzoni bitcoin-at nga kjo llogari.</string>
     <string name="confirm_delete_private_key_message_end">Doni ta bëni vetëm-shikim?</string>
-    <string name="connect_accounts">Ruaj</string>
-    <string name="create_fio_account">Krijo Llogari FIO</string>
-    <string name="create_fio_legacy_presale_account">Krijo FIO Legacy Account</string>
     <string name="create_new_account">Shto Llogari të re ETH</string>
     <string name="delete_account">Fshi Llogarinë</string>
     <string name="delete_account_message"><![CDATA[Doni të fshini llogarinë <b>\"%1$s\"</b> që mban <b>%2$s</b> dhe <b>\"%3$s\"</b> që mban <b>%4$s</b>?]]></string>
@@ -169,7 +163,6 @@
     <string name="erc20_account_creation_started">Duke krijuar Llogari të re ERC-20…</string>
     <string name="eth_account_creation_started">Duke krijuar Llogari të re ETH…</string>
     <string name="export">Eksporto çelësat e llogarisë</string>
-    <string name="export_fio_public_key_title">Eksporto çelësin publik FIO</string>
     <string name="export_history">Eksporto historikun e transaksioneve</string>
     <string name="export_not_possible">Eksportimi nuk është i mundur sepse keni tashmë llogari %s</string>
     <string name="export_private_key_red_warning">Kopjoni këtë çelës vetëm në një ambient të sigurt.\nKushdo që ka qasje në të fiton kontrollin mbi të gjitha bitcoin-at aktualë dhe të ardhshëm të disponueshëm për këtë llogari.\n\nShtypni gjatë këtu për të treguar \nQR-Kodin </string>
@@ -201,7 +194,6 @@
     <string name="hardware_wallets">Hardware wallets</string>
     <string name="hd_account_bch">Shto Bitcoin Cash HD Account</string>
     <string name="hd_eth_account">Shto Ethereum Account</string>
-    <string name="hd_fio_account">Shto FIO Account</string>
     <string name="import_xpub_should_xpriv">Mbështeten vetëm llogaritë e shpenzueshme me Asete Dixhitale për nivelin e llogarisë 0. Ju lutem përdorni xpriv në vend të xpub</string>
     <string name="import_xpub_wrong_depth">Mund të importohen vetëm adresa xpub të nivelit të llogarisë (3).\nKjo ishte niveli %1$s.</string>
     <string name="keepkey_import_account">Importo një llogari KeepKey-HD Bitcoin</string>
@@ -218,9 +210,7 @@
     <string name="ledger_unplugged_aid_preference_summary">Mbështet një AID të ndryshëm për\nndërtime me porosi të ledger unplugged</string>
     <string name="list_added_tokens_new_account">Tokenat ERC-20 në llogarinë e re</string>
     <string name="loading_accounts">Duke ngarkuar llogaritë</string>
-    <string name="master_seed_not_configured">Master seed nuk është konfiguruar</string>
     <string name="migrating_accounts">Duke migruar llogaritë</string>
-    <string name="new_fio_legacy_presale_account_desc">Krijoni llogari FIO Legacy VETËM nëse keni blerë domenin FIO gjatë FIO Presale.</string>
     <string name="no_account_yet_register">Ende nuk keni llogari? <font color="#F2E868">Regjistrohu</font></string>
     <string name="no_spendable_accounts">Nuk ka llogari të shpenzueshme</string>
     <string name="parent_eth_account">ETH %s:</string>
@@ -239,7 +229,6 @@
     <string name="select_eth_account_to_erc20">Zgjidhni llogarinë ETH për të ruajtur tokenat tuaja ERC-20</string>
     <string name="select_eth_account_to_erc20_subtext">Tokenat ERC-20 ekzistojnë në llogaritë ETH dhe kërkojnë ETH për të bërë transaksione.\nNjë llogari e vetme ETH mund të ruajë lloje të pakufizuara tokenash ERC-20 - një nga secili lloj për llogari ETH.</string>
     <string name="select_ext_sig_account_to_spend_from">Zgjidhni llogarinë nga e cila do të shpenzoni</string>
-    <string name="select_name_to_associate_read_only_account">Llogaritë e lidhura me këtë emër FIO. Vetëm <b>një</b> llogari për çdo kriptomonedhë mund të lidhet me <b>një</b> emër FIO.</string>
     <string name="select_token_new_account">Shtoni tokenat ERC-20 në llogarinë e re ETH</string>
     <string name="set_up_2fa_to_secure_your_account">Konfiguro 2FA për të siguruar llogarinë tuaj</string>
     <string name="single_address_account">Llogaria Single Address</string>

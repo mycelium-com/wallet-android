@@ -171,9 +171,6 @@
     <string name="no_exchange_available">Hesab üçün Mübadilə əlçatan deyil</string>
     <string name="no_gift_cards_linked">Mağazaların kataloqunu kəşf edərək və ya Sifarişlərinizin statusunu yoxlayaraq başlayın.</string>
     <string name="no_purchased_gift_card">HƏLƏ HEÇ BİR HƏDİYYƏ\nKARTI ALMAMISINIZ</string>
-    <string name="partner_fiopresale">FIO Ünvan Presale</string>
-    <string name="partner_fiopresale_info"/>
-    <string name="partner_fiopresale_short">Daha yaxşı blockchain təcrübəsinə açarınız</string>
     <string name="partner_more_info"><u>Məxfiliyiniz bizim üçün ən yüksək prioritetdir</u></string>
     <string name="partner_more_info_text">
         Mycelium ən etibarlı və faydalı mobil bitcoin pul kisələrindən biridir.<br />

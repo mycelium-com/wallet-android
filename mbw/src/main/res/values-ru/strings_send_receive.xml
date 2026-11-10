@@ -283,9 +283,7 @@
     <string name="please_fill_proof_of_address">Заполните личную информацию так, как она указана в документе, подтверждающем адрес.</string>
     <string name="proof_of_address">Подтверждение адреса</string>
     <string name="provide_your_recovery_e_mail_address">Укажите ниже ваш e-mail для восстановления. Мы отправим вам безопасную ссылку и инструкции по сбросу пароля.</string>
-    <string name="receive_title_fio">FIO Public Key</string>
     <string name="residential_address">Адрес проживания</string>
-    <string name="send_fio_request">Отправить FIO запрос</string>
     <string name="send_mail">Отправить письмо…</string>
     <string name="show_address_path">Показать путь адреса</string>
     <string name="signing_transaction_instruction">Режим совместимости со смешанной тратой</string>

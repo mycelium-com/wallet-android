@@ -217,7 +217,6 @@
     <!-- Credit Card End-->
     <!-- Simplex start -->
     <!-- Simplex end -->
-    <string name="about_fio_protocol_title">O FIO Protocole</string>
     <string name="accept">Prijať</string>
     <string name="access_from_any_device">Prístup z akéhokoľvek zariadenia</string>
     <string name="activate_by">Aktivovať do</string>
@@ -294,7 +293,6 @@
     <string name="check_gap_bug_spannable_string">Prepáčte, že vás vyrušujeme… \n \nObjavili sme chybu v logike účtu, ktorá spôsobí problémy, ak budete niekedy potrebovať obnovenie z vašej zálohy 12 slov.\n\nPre ďalšie informácie pozrite tu: https://wallet.mycelium.com/info/gaps \n\nMôžeme to za vás vyriešiť? Stlačte OK, aby ste s nami zdieľali jednu adresu na ovplyvnený účet.</string>
     <string name="check_internet_and_try_again">Mycelium sa nemôže pripojiť k serveru kvôli zlému internetovému pripojeniu.\nOverte svoje internetové pripojenie a skúste to znova.</string>
     <string name="checkbox_wordlist_passphrase">Mám frázu</string>
-    <string name="choose_blockchain">Vybrať blockchain</string>
     <string name="cick_button_to_show_word">Začnite klepnutím na tlačidlo nižšie</string>
     <string name="cold_storage_desc">Chystáte sa minúť z privátneho kľúča v offline úložisku. Môže to byť papierová záloha privátneho kľúča alebo lístok s privátnym kľúčom z Bitcoin ATM. Podporované sú nasledujúce formáty:\nPrivátny kľúč, Master Seed, xPriv kľúč\n\nPo odoslaní transakcie bude každá stopa po nej vymazaná z internej pamäte.</string>
     <string name="colorize">ofarbiť</string>
@@ -303,7 +301,6 @@
     <string name="configuration_change_restart_warning">Pre uplatnenie zmien konfigurácie je potrebný reštart aplikácie.</string>
     <string name="confirm">Potvrdiť</string>
     <string name="confirm_change_on_device"><![CDATA[Potvrďte výstup pre <b>výdavky</b> na vašom %3$s.<br><br><b>Hodnota:</b><br>%1$s<br><b>Adresa pre výdavky:</b><br>%2$s]]></string>
-    <string name="confirm_fio_link">Chcete zaregistrovať FIO meno pre váš HD Bitcoin účet %1$s?</string>
     <string name="confirm_output_on_device"><![CDATA[Potvrďte výstup na vašom %3$s.<br><br><b>Hodnota:</b><br>%1$s<br><b>Cieľová adresa:</b><br>%2$s<br>]]></string>
     <string name="confirmation">Potvrdenie výmeny</string>
     <string name="connect_your_ext_sig_device_info">Funguje to len ak váš telefón podporuje USB-OTG (on-the-go).\n\nNa pripojenie zariadenia potrebujete USB-OTG-adaptér alebo kábel. Pripojte zariadenie pomocou jeho vlastného USB kábla na strane klienta a stranu hostiteľa pripojte k vášmu telefónu.</string>
@@ -318,7 +315,6 @@
     <string name="country">Krajina</string>
     <string name="course_outdated">Výmenný kurz je zastaraný</string>
     <string name="create_backup">Vytvoriť zálohu</string>
-    <string name="create_fio_domain">Vytvoriť FIO doménu</string>
     <string name="credit_card_buy">Kreditná karta</string>
     <string name="credit_card_buy_description">Kúpiť Bitcoin pomocou kreditnej karty</string>
     <string name="credit_card_buy_setting_description">Kúpiť Bitcoin pomocou kreditnej karty</string>
@@ -336,8 +332,6 @@
     <string name="delete_document">Chcete odstrániť dokument?</string>
     <string name="delete_last_entered_word">Odstrániť posledné slovo</string>
     <string name="delete_pk_message"><![CDATA[Chcete odstrániť privátny kľúč účtu <b>"%1$s"</b> obsahujúci <b>%2$s</b>?]]></string>
-    <string name="delete_received_fio_request">Odstrániť prijatú FIO požiadavku</string>
-    <string name="delete_received_fio_request_msg">Naozaj chcete odstrániť túto FIO požiadavku?</string>
     <string name="deposits_without_destination_tag_will_be_lost">Vklady bez Cieľového Tagu budú stratené!</string>
     <string name="description">Popis:</string>
     <string name="description_bump_fee">Odoslať transakciu, ktorá zvyšuje poplatok za túto nepotvrdenú transakciu.\n\nChcete minúť %2$s, aby ste získali poplatok %1$dsat/B?</string>
@@ -349,7 +343,6 @@
     <string name="discover">Objaviť</string>
     <string name="do_you_want_resubmit">Aktualizovali ste informácie nižšie. Chcete znova odoslať svoju žiadosť?</string>
     <string name="doc_selfie"><![CDATA[Dokumenty & selfie]]></string>
-    <string name="domain_details">Detaily domény</string>
     <string name="dont_allow_archiving_unused_notification">Nemôžete archivovať nepoužitý HD Bitcoin účet</string>
     <string name="dont_allow_hiding_used_notification">Nemôžete skryť použitý účet, ale môžete ho archivovať</string>
     <string name="dontagree">Nesúhlasím</string>
@@ -371,7 +364,6 @@
     <string name="excange_title">Vymeniť BCH za BTC</string>
     <string name="exceed_card_value">Prekročiť hodnotu karty</string>
     <string name="exchanging">vymieňa sa</string>
-    <string name="expiration_date">Dátum vypršania:</string>
     <string name="expire_date">Dátum vypršania:</string>
     <string name="expires_at">Dátum vypršania:</string>
     <string name="external_app_needed">Na aktualizáciu zariadenia potrebujete externý nástroj, kliknutím na OK ho spustíte.</string>
@@ -389,7 +381,6 @@
     <string name="first_bch_installed_message"><![CDATA[Teraz ho potrebujeme synchronizovať s blockchainom, aby sme získali váš zostatok Bitcoin <font color="#f08c18">Cash</font>.<br><br>Tento postup chvíľu trvá a vykonáva sa na pozadí.<br>Čím viac súkromných kľúčov máte, tým dlhšie to trvá, prosím buďte trpezliví. Napríklad ak máte okolo 1000 súkromných kľúčov, dosiahnutie plnej synchronizácie môže trvať viac ako 3 hodiny.<br>Budeme vás informovať, keď sa to dokončí.<br><br>Postup synchronizácie môžete vždy skontrolovať tu: Nastavenia -> Bitcoin <font color="#f08c18">Cash</font> modul.<br><br>Pre každý BTC účet, na ktorom nebol získaný Bitcoin <font color="#f08c18">Cash</font>, sa vytvorí zodpovedajúci Bitcoin <font color="#f08c18">Cash</font> účet.<br><br>Prejdite na záložku Zostatok vášho Bitcoin <font color="#f08c18">Cash</font> účtu a okamžite ho zameňte za BTC.]]></string>
     <string name="first_bch_installed_title"><![CDATA[Mycelium Bitcoin <font color="#f08c18">Cash</font> modul bol nainštalovaný!]]></string>
     <string name="first_name">Krstné meno</string>
-    <string name="following_fio_domains_registered">Zaregistrované nasledujúce FIO domény</string>
     <string name="format" translatable="false">%1$td/%1$tm/%1$tY</string>
     <string name="found_clipboard_public_key_title">Verejný kľúč nájdený v schránke</string>
     <string name="found_clipboard_public_keys_message">Schránka obsahuje verejný kľúč.\nChcete vyčistiť schránku?</string>
@@ -462,7 +453,6 @@
     <string name="last_log_entries">Posledné záznamy denníka</string>
     <string name="last_name">Priezvisko</string>
     <string name="learn_more_rmc"><u>Zistiť viac o RMC</u></string>
-    <string name="leave_a_message_for_s">Zanechať správu pre %s</string>
     <string name="legal_information">Právne informácie</string>
     <string name="less">menej</string>
     <string name="list_added_tokens">ERC-20 tokeny na účte \"%s\"</string>
@@ -491,7 +481,6 @@
     <string name="module_uninstall_progress">Odinštaluje sa…</string>
     <string name="modules">Moduly</string>
     <string name="more">viac</string>
-    <string name="my_fio_domains">Moje FIO domény</string>
     <string name="mycelium_no_responaility_rmc">Ak budete pokračovať, súhlasíte s prechodom na RMC, službu tretej strany. Všetky vaše interakcie s RMC sú mimo kontroly Mycelium a podliehajú používateľskej zmluve, podmienkam použitia a zásadám ochrany osobných údajov RMC. Prosím prečítajte si ich pozorne. Žiadne osobné informácie nebudú zhromažďované, uchovávané ani používané spoločnosťou Mycelium.\n\nMYCELIUM NEPRIJÍMA ŽIADNU ZODPOVEDNOSŤ A NEBUDE ZODPOVEDAŤ ZA ŽIADNU STRATU ANI ŠKODU AKÉHOKOĽVEK DRUHU UTRPENÚ V DÔSLEDKU PRÍSTUPU, POUŽITIA ALEBO SPOĽAHNUTIA SA NA INFORMÁCIE A SLUŽBY VYDAVATEĽA RMC</string>
     <string name="mycelium_services">Mycelium služby</string>
     <string name="mycelium_terms_of_use">Mycelium podmienky použitia</string>
@@ -510,7 +499,6 @@
     <string name="no_digital_asset">Váš BIP32 súkromný kľúč nedrží žiadne digitálne aktíva.\n\nAk si myslíte opak, skúste ho znova naskenovať.</string>
     <string name="no_funds">Žiadne prostriedky</string>
     <string name="no_google_play_installed">Na zariadení nie je nainštalovaný Google Play</string>
-    <string name="no_logs">Žiadne záznamy</string>
     <string name="no_operations_history">Žiadna história operácií</string>
     <string name="no_orbot">Orbot nie je nainštalovaný</string>
     <string name="no_order_linked">Momentálne nemáte žiadne nákupy prepojené s vaším účtom. Začnite preskúmaním katalógu obchodov.</string>
@@ -574,7 +562,6 @@
     <string name="register">Registrovať</string>
     <string name="registration">Registrácia</string>
     <string name="removed">odinštalované</string>
-    <string name="renew_fio_domain">Obnoviť FIO doménu</string>
     <string name="repeat_password">Zopakujte heslo</string>
     <string name="rescan">Preskenovať</string>
     <string name="resend_confirmation_email">Znovu poslať potvrdzovací e-mail.</string>
@@ -607,7 +594,6 @@
     <string name="select_country">Vyberte krajinu</string>
     <string name="select_flows">Vyberte toky</string>
     <string name="select_local_currencies">Vyberte vaše meny</string>
-    <string name="select_name_to_associate">Pripojte účty k vášmu FIO menu. Iba <b>jeden</b> účet pre každú kryptomenu môže byť pripojený s <b>jedným</b> FIO menom.</string>
     <string name="select_token">Pridať ERC-20 tokeny do účtu \"%s\"</string>
     <string name="select_you_region">Vyberte váš región</string>
     <string name="select_your_country">Vyberte vašu krajinu</string>
@@ -624,7 +610,6 @@
     <string name="set_password">Nastaviť heslo</string>
     <string name="shamir_share_hint"><![CDATA[Celkový počet zdieľaní: počet častí, na ktoré sa rozdelí privátny kľúč.\n\nPrah: počet častí potrebných na rekonštrukciu privátneho kľúča.]]></string>
     <string name="share">Zdieľať</string>
-    <string name="share_fio_public_key">Zdieľať FIO verejný kľúč</string>
     <string name="share_logs">Zdieľať logy</string>
     <string name="share_news">Zdieľať novinky</string>
     <string name="share_of">Zdieľanie %1$d</string>
@@ -669,7 +654,6 @@
     <string name="sync_failed_reason_s">Synchronizácia zlyhala. Dôvod: %s</string>
     <string name="sync_failed_s">Synchronizácia zlyhala. %s</string>
     <string name="synchronizing_please_wait">Synchronizuje sa, prosím čakajte …</string>
-    <string name="tab_fio_requests">FIO žiadosti</string>
     <string name="tab_partners">Firmy</string>
     <string name="tab_vip">VIP</string>
     <string name="tap_next">Klepnite pre %s</string>

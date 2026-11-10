@@ -89,22 +89,16 @@
     <string name="backup_not_verified">Backup ikke verificeret</string>
     <string name="backup_now">Backup nu</string>
     <string name="backup_words_title">Master Seed-backup</string>
-    <string name="base_label_fio_account_legacy">FIO Legacy-konto</string>
     <string name="bch_accounts_found"><![CDATA[Vi har fundet %1$s Bitcoin <font color="#f08c18">Cash</font> på dine BTC-konti.<br><br>%2$d tilsvarende Bitcoin <font color="#f08c18">Cash</font>-konto/konti oprettet.\nBitcoin <font color="#f08c18">Cash</font>-saldo kan tjekkes på fanen Konti.<br><br>Nu kan du gå til fanen Saldo for din(e) Bitcoin <font color="#f08c18">Cash</font>-konto/konti og straks veksle den til BTC.]]></string>
     <string name="bch_accounts_not_found"><![CDATA[Vi har ikke fundet nogen Bitcoin <font color="#f08c18">Cash</font> på dine BTC-konti.<br>Vi overvåger løbende dine BTC-konti og vil informere dig, hvis Bitcoin <font color="#f08c18">Cash</font> findes.]]></string>
     <string name="bip32_root_account">Rodkonto</string>
     <string name="block_access_to_account">Vi deaktiverer bevidst fanen Mine konti, mens du administrerer din %1$s-konto. Dette er for at forhindre dig i at sende dine digitale aktiver andre steder hen end til en anden %1$s-konto.</string>
-    <string name="btcv_account_creation_started">Opretter ny BTCV-konto…</string>
-    <string name="btcvault_hd_account">Tilføj Bitcoin Vault HD-konto</string>
     <string name="cant_disable_active_account">Du kan ikke deaktivere en aktiv konto</string>
     <string name="choose_the_currency_and_btc_receiving_account">Vælg valutaen og BTC-modtagerkontoen</string>
     <string name="clipboard_not_available">Udklipsholder ugyldig</string>
     <string name="confirm_delete_account_message_end">Vil du slette den?</string>
     <string name="confirm_delete_private_key_message">Før du sletter den private nøgle, så sørg for, at du har dens backup gemt offline og et sikkert sted. Du bliver nødt til at \"tilføje den igen\" fra backup, når du har brug for at bruge bitcoins fra denne konto.</string>
     <string name="confirm_delete_private_key_message_end">Vil du gøre den watch-only?</string>
-    <string name="connect_accounts">Gem</string>
-    <string name="create_fio_account">Opret FIO-konto</string>
-    <string name="create_fio_legacy_presale_account">Opret FIO Legacy-konto</string>
     <string name="create_new_account">Tilføj ny ETH-konto</string>
     <string name="delete_account">Slet konto</string>
     <string name="delete_account_message"><![CDATA[Vil du slette konto <b>\"%1$s\"</b> der indeholder <b>%2$s</b> og <b>\"%3$s\"</b> der indeholder <b>%4$s</b>?]]></string>
@@ -127,7 +121,6 @@
     <string name="erc20_account_creation_started">Opretter ny ERC-20-konto…</string>
     <string name="eth_account_creation_started">Opretter ny ETH-konto…</string>
     <string name="export">Eksportér kontonøgler</string>
-    <string name="export_fio_public_key_title">Eksportér FIO offentlig nøgle</string>
     <string name="export_history">Eksportér transaktionshistorik</string>
     <string name="export_not_possible">Eksport er ikke mulig, du har allerede en %s-konto</string>
     <string name="export_private_key_red_warning">Kopiér kun denne nøgle i et sikkert miljø.\nEnhver, der har adgang til den, får kontrol over alle nuværende og fremtidige tilgængelige bitcoin for denne konto.\n\nLangtryk her for at vise \nQR-koden </string>
@@ -164,7 +157,6 @@
     <string name="hd_account_creation_started">Opretter ny HD Bitcoin-konto…</string>
     <string name="hd_account_selector_no_account_found">Ingen aktive konti fundet.</string>
     <string name="hd_eth_account">Tilføj Ethereum-konto</string>
-    <string name="hd_fio_account">Tilføj FIO-konto</string>
     <string name="hide_unused_account_menu">Slet konto</string>
     <string name="import_wordlist_questions">Vælg venligst længden af ordlisten, der skal gendannes, og angiv, om den er beskyttet af en adgangskode.</string>
     <string name="import_xpub_should_xpriv">Kun konti, der kan bruges med digitale aktiver, understøttes for kontoniveau 0. Brug venligst xpriv i stedet for xpub</string>
@@ -196,9 +188,7 @@
     <string name="ledger_unplugged_aid_preference_summary">Understøt en anden AID for ledger\nunplugged custom builds</string>
     <string name="list_added_tokens_new_account">ERC-20 tokens på ny konto</string>
     <string name="loading_accounts">Indlæser konti</string>
-    <string name="master_seed_not_configured">Master seed er ikke konfigureret</string>
     <string name="migrating_accounts">Migrerer konti</string>
-    <string name="new_fio_legacy_presale_account_desc">Opret KUN FIO Legacy-konto, hvis du har købt FIO-domæne under FIO Presale.</string>
     <string name="no_account_yet_register">Ingen konto endnu? <font color="#F2E868">Registrér</font></string>
     <string name="no_spendable_accounts">Ingen konti, der kan bruges til at sende fra</string>
     <string name="parent_eth_account">ETH %s:</string>
@@ -220,7 +210,6 @@
     <string name="select_eth_account_to_erc20_subtext">ERC-20-tokens findes på ETH-konti og kræver ETH for at foretage transaktioner.\nEn enkelt ETH-konto kan gemme et ubegrænset antal typer ERC-20-tokens - en af hver type pr. ETH-konto.</string>
     <string name="select_ext_sig_account_to_spend_from">Vælg konto at bruge fra</string>
     <string name="select_ledger_account_to_spend_from">Vælg konto at bruge fra</string>
-    <string name="select_name_to_associate_read_only_account">Konti forbundet med dette FIO-navn. Kun <b>én</b> konto pr. kryptovaluta kan være forbundet med <b>ét</b> FIO-navn.</string>
     <string name="select_spending_account">Vælg brugskonto</string>
     <string name="select_token_new_account">Tilføj ERC-20-tokens til ny ETH-konto</string>
     <string name="set_up_2fa_to_secure_your_account">Opsæt 2FA for at sikre din konto</string>

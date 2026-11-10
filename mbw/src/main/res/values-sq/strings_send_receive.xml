@@ -227,10 +227,8 @@
     <string name="provide_your_recovery_e_mail_address">Jepni adresën tuaj të e-mail-it të rikuperimit më poshtë. Ne do t\'ju dërgojmë një lidhje të sigurt dhe udhëzime se si të rivendosni fjalëkalimin tuaj.</string>
     <string name="rebroadcast_transaction_title">Ritransmeto transaksionin</string>
     <string name="receive_cointype">Merr %1$s</string>
-    <string name="receive_title_fio">Çelësi publik FIO</string>
     <string name="received">Marrë</string>
     <string name="receiver_address_hint">1Address1234\n567890abcdef\nghijklmnop</string>
-    <string name="recipient_has_no_such_address">%1$s nuk ka asnjë adresë %2$s të lidhur</string>
     <string name="recipient_invalid">Adresë ose emër FIO i pavlefshëm</string>
     <string name="recipient_valid">Marrës i vlefshëm</string>
     <string name="replace_transaction">Transaksioni për t\'u zëvendësuar me:</string>
@@ -238,11 +236,9 @@
     <string name="residential_address">Adresa e banimit</string>
     <string name="restore_address_as">Rikthe adresën si</string>
     <string name="return_to_payment">Kthehu te porositë</string>
-    <string name="s_fio_request">Kërkesa FIO %s</string>
     <string name="s_payment_request">Kërkesa e pagesës %s</string>
     <string name="send_cointype">Dërgo %1$s</string>
     <string name="send_fee_hint"><b>VËMENDJE.</b> Transaksionet me tarifë minatori me prioritet të ulët mund të mos konfirmohen kurrë ose të konfirmohen pas shumë orësh apo edhe ditësh. Mos zgjidhni prioritet të ulët nëse nuk e kuptoni se si funksionon rrjeti bitcoin.</string>
-    <string name="send_fio_request">Dërgo kërkesë FIO</string>
     <string name="send_mail">Dërgo email…</string>
     <string name="sending_addresses">Libri i adresave</string>
     <string name="sending_assets">Duke dërguar asetet %s.</string>
@@ -265,7 +261,6 @@
     <string name="tips_rmc_check_address">Nëse keni dërguar aktive dixhitale në një adresë bitcoin të rastësishme ato nuk shkatërrohen.\nPër t\'i marrë ato keni dy opsione:\n1) Përdorni Colored Coins API për të dërguar manualisht asetet tuaja përsëri në adresën e menaxhuar nga Mycelium Wallet.\n2) Dërgoni një ticket te mbështetja e Mycelium Wallet për të marrë asetet tuaja. Për këtë shërbim mund të aplikohen tarifa shtesë. Do të merrni informacion të detajuar pasi të kontaktoni mbështetjen.\n\nNë të dyja rastet, duhet të zotëroni një çelës privat të adresës ku keni dërguar asetet dixhitale.</string>
     <string name="too_many_transaction_records">Nuk mund të merret historia e plotë e transaksioneve të llogarisë për shkak të madhësisë së saj të madhe. Konsideroni të lëvizni fondet në një llogari të re.</string>
     <string name="total_amount">Sasia totale:</string>
-    <string name="transaction_from_address_prefix">Nga: %s</string>
     <string name="transaction_gas_limit">Gas Limit (njësi):</string>
     <string name="transaction_history_title">Historia e transaksioneve</string>
     <string name="transaction_input_data">Të dhënat hyrëse:</string>

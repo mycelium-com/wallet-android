@@ -263,9 +263,6 @@
     <string name="exchange_to_do_so_memo">Passo 4. Copie e cole o memo abaixo.</string>
     <string name="gd_buy_sell_rmc_button">Comprar RMC</string>
     <string name="no_exchange_available">Nenhuma exchange disponível para a conta</string>
-    <string name="partner_fiopresale">FIO Address Presale</string>
-    <string name="partner_fiopresale_info"/>
-    <string name="partner_fiopresale_short">Sua chave para uma melhor experiência em blockchain</string>
     <string name="partner_more_info"><u>Sua privacidade é nossa principal prioridade</u></string>
     <string name="partner_more_info_text">\n        O Mycelium é uma das carteiras Bitcoin móveis mais confiáveis e úteis.<br />\n        Desenvolver, manter e dar suporte a este produto não é gratuito.<br />\n        Os links e logotipos de parceiros são incorporados estaticamente no app e não dependem de nenhuma rede de anúncios.\n        A presença deles não pode ser usada para rastrear usuários que não os clicam.\n        Nenhum dinheiro é ganho com a exibição desses links de parceiros nem quando os usuários clicam neles.\n        As referências ocorrem apenas quando os usuários decidem fazer uma compra nos sites de nossos parceiros.\n    </string>
     <string name="pref_exchange_source">Fonte de câmbio</string>

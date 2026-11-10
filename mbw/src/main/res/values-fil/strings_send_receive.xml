@@ -197,11 +197,9 @@
     <string name="rebroadcast_transaction_title">I-rebroadcast ang transaksyon</string>
     <string name="receive">Tumanggap</string>
     <string name="receive_cointype">Tumanggap ng %1$s</string>
-    <string name="receive_title_fio">FIO Public key</string>
     <string name="received">Natanggap</string>
     <string name="receiver_address_hint">1Address1234\n567890abcdef\nghijklmnop</string>
     <string name="receiving">Tumatanggap ng %1$s</string>
-    <string name="recipient_has_no_such_address">Walang nakakonektang %2$s address ang %1$s</string>
     <string name="recipient_invalid">Hindi wastong address o FIO Name</string>
     <string name="recipient_title">Ilagay ang address ng tatanggap:</string>
     <string name="recipient_valid">Wasto ang Tatanggap</string>
@@ -215,7 +213,6 @@
     <string name="restore_address_as">Ibalik ang address bilang</string>
     <string name="retrieving_pubkey_address">Kinukuha ang susunod na hindi nagamit na address…</string>
     <string name="return_to_payment">Bumalik sa Mga Order</string>
-    <string name="s_fio_request">%s FIO Request</string>
     <string name="s_payment_request">%s Payment Request</string>
     <string name="scan_address_book_desc">I-scan ang address.</string>
     <string name="scan_qr_code">I-scan ang QR Code</string>
@@ -224,7 +221,6 @@
     <string name="send_bitcoins">Magpadala ng Bitcoins</string>
     <string name="send_cointype">Magpadala ng %1$s</string>
     <string name="send_fee_hint"><b>BABALA.</b> Ang mga transaksyon na may mababang priyoridad na miner fee ay maaaring hindi makumpirma o makumpirma sa loob ng maraming oras o kahit araw. Huwag pumili ng mababang priyoridad kung hindi mo naiintindihan kung paano gumagana ang bitcoin network.</string>
-    <string name="send_fio_request">Magpadala ng FIO Request</string>
     <string name="send_mail">Magpadala ng mail…</string>
     <string name="sending">Pinapadala ang %1$s</string>
     <string name="sending_addresses">Address Book</string>
@@ -258,7 +254,6 @@
     <string name="too_many_transaction_records">Hindi makukuha ang buong kasaysayan ng transaksyon ng account dahil sa malaking laki nito. Isaalang-alang ang paglilipat ng pondo sa bagong account.</string>
     <string name="total_amount">Kabuuang halaga:</string>
     <string name="transaction_details">Mga Detalye ng Transaksyon</string>
-    <string name="transaction_from_address_prefix">Mula: %s</string>
     <string name="transaction_gas_limit">Gas Limit (units):</string>
     <string name="transaction_history_title">Kasaysayan ng transaksyon</string>
     <string name="transaction_input_data">Input Data:</string>
