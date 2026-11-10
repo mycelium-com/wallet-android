@@ -315,6 +315,7 @@ To do this your address is upgraded to a smart account (EIP-7702) with your sign
     <string name="error_energy_service_insufficient_balance">Insufficient %1$s balance to cover amount and service fee</string>
     <string name="error_energy_service_unavailable">Energy Service is temporarily unavailable. Please try again later.</string>
     <string name="error_energy_quote_expired">Energy Service quote expired. Please try again.</string>
+    <string name="error_energy_fee_changed">The Energy Service fee has changed to %1$s. Nothing was sent. Please review the new fee and confirm again.</string>
     <string name="error_energy_order_in_flight">A previous transfer is still processing. Wait for it to complete or check your transaction history.</string>
     <string name="error_energy_order_still_processing">The transfer is still processing and may complete shortly. Do not send it again — check your transaction history first.</string>
     <string name="tron_fee_info_title">Network fee (TRON)</string>

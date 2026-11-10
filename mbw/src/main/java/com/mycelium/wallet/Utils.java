@@ -894,6 +894,19 @@ public class Utils {
       return false;
    }
 
+   /** TRX or a TRC20 token held in this wallet — quoted by the server directly against fiat, like ERC20. */
+   public static boolean isTronAsset(WalletManager walletManager, String symbol) {
+      for (WalletAccount account : walletManager.getAllActiveAccounts()) {
+         Object coinType = account.getCoinType();
+         if ((coinType instanceof com.mycelium.wapi.wallet.tron.coins.TronCoin
+               || coinType instanceof com.mycelium.wapi.wallet.trc20.coins.TRC20Token)
+               && account.getCoinType().getSymbol().equals(symbol)) {
+            return true;
+         }
+      }
+      return false;
+   }
+
    public static WalletAccount getLinkedAccount(WalletAccount account, final Collection<? extends WalletAccount> accounts) {
       for (WalletAccount walletAccount : accounts) {
          if (!walletAccount.getId().equals(account.getId()) && account.isMineAddress(walletAccount.getReceiveAddress())) {

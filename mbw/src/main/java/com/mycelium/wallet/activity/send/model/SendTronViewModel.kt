@@ -25,6 +25,7 @@ import com.mycelium.wapi.wallet.trc20.TRC20Account
 import com.mycelium.wapi.wallet.tron.TronAccount
 import com.mycelium.wapi.wallet.tron.TronAddress
 import com.mycelium.wapi.wallet.tron.TronTransaction
+import com.mycelium.wapi.wallet.tron.energy.EnergyFeeQuote
 import com.mycelium.wapi.wallet.tron.energy.EnergyTransferResult
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -144,10 +145,16 @@ open class SendTronViewModel(application: Application) : SendCoinsViewModel(appl
 
     override fun sendTransaction(activity: Activity) {
         if (tronModel.isEnergyMode()) {
+            // The fee on screen right now is what the user confirms; capture it before the PIN.
+            val approved = tronModel.approvedEnergyQuote()
+            if (approved == null) {
+                toaster.toast(R.string.error_energy_quote_expired, false)
+                return
+            }
             if (isColdStorage()) {
-                sendViaEnergyService(activity)
+                sendViaEnergyService(activity, approved)
             } else {
-                mbwManager.runPinProtectedFunction(activity) { sendViaEnergyService(activity) }
+                mbwManager.runPinProtectedFunction(activity) { sendViaEnergyService(activity, approved) }
             }
             return
         }
@@ -165,7 +172,7 @@ open class SendTronViewModel(application: Application) : SendCoinsViewModel(appl
      * here and handed to the partner, which sponsors the energy and broadcasts them. Progress is
      * shown until the partner reports the order terminal.
      */
-    private fun sendViaEnergyService(activity: Activity) {
+    private fun sendViaEnergyService(activity: Activity, approved: EnergyFeeQuote) {
         val account = model.account as? TRC20Account ?: return
         val manager = mbwManager.energyServiceManager ?: return
         if (tronModel.energyOrderPending.value == true) {
@@ -183,7 +190,7 @@ open class SendTronViewModel(application: Application) : SendCoinsViewModel(appl
         energyScope.launch {
             // The quote on screen prices the fee; the partner binds a quote to the amount it was
             // asked about, so the transfer is quoted again here for exactly what is being sent.
-            val sendQuote = withContext(Dispatchers.IO) { tronModel.quoteForSend() }
+            val sendQuote = withContext(Dispatchers.IO) { tronModel.quoteForSend(approved) }
             if (sendQuote == null) {
                 progress.dismiss()
                 toaster.toast(R.string.error_energy_quote_expired, false)
@@ -191,7 +198,7 @@ open class SendTronViewModel(application: Application) : SendCoinsViewModel(appl
             }
             val (quote, amount) = sendQuote
             val result = withContext(Dispatchers.IO) {
-                manager.execute(account, quote, recipient, amount, feeLimit, AesKeyCipher.defaultKeyCipher()) { status ->
+                manager.execute(account, quote, approved, recipient, amount, feeLimit, AesKeyCipher.defaultKeyCipher()) { status ->
                     energyScope.launch { progress.setMessage(statusText(status)) }
                 }
             }
@@ -213,6 +220,11 @@ open class SendTronViewModel(application: Application) : SendCoinsViewModel(appl
                         .create().show()
                 }
                 is EnergyTransferResult.QuoteExpired -> showError(activity, context.getString(R.string.error_energy_quote_expired))
+                is EnergyTransferResult.FeeChanged -> {
+                    tronModel.showRepricedQuote(result.quote)
+                    showError(activity, context.getString(R.string.error_energy_fee_changed,
+                        manager.feeInAccountUnits(account, result.quote).toStringWithUnit()))
+                }
                 is EnergyTransferResult.InsufficientBalance -> showError(activity, context.getString(R.string.error_energy_service_insufficient_balance, tokenSymbol()))
                 is EnergyTransferResult.Error -> showError(activity, context.getString(R.string.tron_energy_service_error, result.message))
             }

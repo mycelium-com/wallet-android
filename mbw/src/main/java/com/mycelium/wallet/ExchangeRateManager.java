@@ -64,6 +64,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -129,11 +130,19 @@ public class ExchangeRateManager implements ExchangeRateProvider {
 
             try {
                 List<GetExchangeRatesResponse> responses = new ArrayList<>(cryptocurrencies.size() * selectedCurrencies.size());
+                // ERC20 USDT ("USDT20") and TRC20 USDT ("USDT") share one server ticker — ask once.
+                Set<String> requestSymbols = new LinkedHashSet<>();
                 for (String cryptocurrency : cryptocurrencies) {
-                    cryptocurrency = cryptocurrency.equals("USDT20") ? "USDT" : cryptocurrency;
+                    String symbol = Util.trimTestnetSymbolDecoration(cryptocurrency);
+                    if (symbol.equals("USDT20") || symbol.equals("tUSDT20")) {
+                        symbol = "USDT";
+                    }
+                    requestSymbols.add(symbol);
+                }
+                for (String symbol : requestSymbols) {
                     for (String currency : selectedCurrencies) {
                         responses.add(_api.getExchangeRates(new GetExchangeRatesRequest(Wapi.VERSION,
-                                Util.trimTestnetSymbolDecoration(cryptocurrency), currency)).getResult());
+                                symbol, currency)).getResult());
                     }
                 }
                 for (String currency : selectedCurrencies) {
@@ -231,27 +240,43 @@ public class ExchangeRateManager implements ExchangeRateProvider {
         }
         _latestRates = new HashMap<>();
         for (GetExchangeRatesResponse response : latestRates) {
-            String fromCurrency = Util.addTestnetSymbolDecoration(response.getFromCurrency(), !Utils.isProdnet());
-            fromCurrency = fromCurrency.equals("USDT") ? "USDT20" : fromCurrency;
             String toCurrency = Util.addTestnetSymbolDecoration(response.getToCurrency(), !Utils.isProdnet());
-            if (_latestRates.get(fromCurrency) != null) {
-                _latestRates.get(fromCurrency).put(toCurrency, response);
-            } else {
-                _latestRates.put(fromCurrency, new HashMap<>(Collections.singletonMap(toCurrency, response)));
-            }
-            backing.storeExchangeRates(fromCurrency, response.getExchangeRates());
-            if (_currentExchangeSourceName.get(fromCurrency) == null) {
-                // This only happens the first time the wallet picks up exchange rates.
-                List<String> exchangeSourceNames = getExchangeSourceNames(fromCurrency);
-                if (exchangeSourceNames != null && !exchangeSourceNames.isEmpty()) {
-                    String exchange = exchangeSourceNames.contains(Constants.DEFAULT_EXCHANGE) ?
-                            Constants.DEFAULT_EXCHANGE : exchangeSourceNames.get(0);
-                    _currentExchangeSourceName.put(fromCurrency, exchange);
-                }
+            for (String fromCurrency : rateKeys(response.getFromCurrency())) {
+                putLatestRate(fromCurrency, toCurrency, response);
             }
         }
         _latestRatesTime = System.currentTimeMillis();
+    }
 
+    /**
+     * Wallet symbols a server rate applies to. The server's "USDT" serves both TRC20 USDT
+     * (wallet symbol "USDT") and ERC20 USDT (legacy wallet symbol "USDT20").
+     */
+    private static List<String> rateKeys(String serverFromCurrency) {
+        boolean testnet = !Utils.isProdnet();
+        String key = Util.addTestnetSymbolDecoration(serverFromCurrency, testnet);
+        if (serverFromCurrency.equals("USDT") || serverFromCurrency.equals("USDT20")) {
+            return Arrays.asList(testnet ? "tUSDT" : "USDT", testnet ? "tUSDT20" : "USDT20");
+        }
+        return Collections.singletonList(key);
+    }
+
+    private void putLatestRate(String fromCurrency, String toCurrency, GetExchangeRatesResponse response) {
+        if (_latestRates.get(fromCurrency) != null) {
+            _latestRates.get(fromCurrency).put(toCurrency, response);
+        } else {
+            _latestRates.put(fromCurrency, new HashMap<>(Collections.singletonMap(toCurrency, response)));
+        }
+        backing.storeExchangeRates(fromCurrency, response.getExchangeRates());
+        if (_currentExchangeSourceName.get(fromCurrency) == null) {
+            // This only happens the first time the wallet picks up exchange rates.
+            List<String> exchangeSourceNames = getExchangeSourceNames(fromCurrency);
+            if (exchangeSourceNames != null && !exchangeSourceNames.isEmpty()) {
+                String exchange = exchangeSourceNames.contains(Constants.DEFAULT_EXCHANGE) ?
+                        Constants.DEFAULT_EXCHANGE : exchangeSourceNames.get(0);
+                _currentExchangeSourceName.put(fromCurrency, exchange);
+            }
+        }
     }
 
     /**

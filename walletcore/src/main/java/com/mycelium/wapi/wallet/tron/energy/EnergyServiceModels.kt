@@ -65,6 +65,28 @@ data class EnergyFeeQuote(
         walletDecimals < tokenDecimals -> feeAmountUnits / BigInteger.TEN.pow(tokenDecimals - walletDecimals)
         else -> feeAmountUnits
     }
+
+    /**
+     * Whether this quote still prices what the user approved when they saw [approved]: the fee goes
+     * to the same partner wallet and, in the wallet's units, is at most [FEE_TOLERANCE_PERCENT]
+     * above the approved one. The partner answers every quote afresh — the one a transfer is
+     * signed with is never the one that was on screen — so nothing it sends later may raise the
+     * fee or redirect it beyond what the user agreed to.
+     */
+    fun isWithinApproval(approved: EnergyFeeQuote, walletDecimals: Int): Boolean {
+        val wallet = feeWallet ?: return false
+        if (wallet != approved.feeWallet) return false
+        val fee = feeInWalletUnits(walletDecimals)
+        if (fee.signum() < 0) return false
+        val ceiling = approved.feeInWalletUnits(walletDecimals)
+        return fee * HUNDRED <= ceiling * BigInteger.valueOf(100L + FEE_TOLERANCE_PERCENT)
+    }
+
+    companion object {
+        /** How far the fee may move up between the quote on screen and the one signed with. */
+        const val FEE_TOLERANCE_PERCENT = 10L
+        private val HUNDRED = BigInteger.valueOf(100)
+    }
 }
 
 /** `POST api/v1/transfer/execute` answer — the order is always processed asynchronously. */
@@ -96,6 +118,11 @@ sealed class EnergyTransferResult {
     data class Pending(val orderId: String) : EnergyTransferResult()
     data class Error(val message: String, val cause: Exception? = null) : EnergyTransferResult()
     object QuoteExpired : EnergyTransferResult()
+    /**
+     * Nothing was signed: the partner's quote for the actual transfer charges more than the fee the
+     * user approved, or to a different fee wallet. [quote] is that new quote, to show for re-approval.
+     */
+    data class FeeChanged(val quote: EnergyFeeQuote) : EnergyTransferResult()
     object InsufficientBalance : EnergyTransferResult()
 }
 
