@@ -57,6 +57,7 @@ import com.mycelium.wallet.external.changelly2.remote.exchangeNetwork
 import com.mycelium.wapi.wallet.AesKeyCipher
 import com.mycelium.wapi.wallet.tron.TronFeeEstimator
 import com.mycelium.wapi.wallet.tron.TronTransaction
+import com.mycelium.wapi.wallet.tron.energy.EnergyFeeQuote
 import com.mycelium.wapi.wallet.tron.energy.EnergyServiceManager
 import com.mycelium.wapi.wallet.tron.energy.EnergyTransferResult
 import java.math.BigInteger
@@ -375,8 +376,10 @@ class ExchangeFragment : Fragment(), BackListener {
                         val unsignedTx = prepareTx(addressTo, amount, txData)
                         withContext(Dispatchers.Main) {
                             if (unsignedTx != null) {
+                                // The energy fee the confirmation shows is the one approved.
+                                val approvedQuote = viewModel.energyQuote.value
                                 acceptDialog(unsignedTx, response) {
-                                    sendTx(result.id!!, unsignedTx)
+                                    sendTx(result.id!!, unsignedTx, approvedQuote)
                                 }
                             }
                         }
@@ -515,10 +518,14 @@ class ExchangeFragment : Fragment(), BackListener {
         return unsignedTx?.totalFee()?.toStringWithUnit()
     }
 
-    private fun sendTx(txId: String, createTx: Transaction) {
+    private fun sendTx(txId: String, createTx: Transaction, approvedQuote: EnergyFeeQuote?) {
         val fromAccount = viewModel.fromAccount.value
         if (fromAccount is TRC20Account && viewModel.usesEnergyService()) {
-            sendViaEnergyService(txId, fromAccount, createTx as TronTransaction)
+            if (approvedQuote == null) {
+                showErrorNotificationDialog(getString(R.string.error_energy_quote_expired))
+                return
+            }
+            sendViaEnergyService(txId, fromAccount, createTx as TronTransaction, approvedQuote)
             return
         }
         viewLifecycleOwner.lifecycleScope.launch(Dispatchers.Default) {
@@ -544,7 +551,7 @@ class ExchangeFragment : Fragment(), BackListener {
      * payin address, both signed here and broadcast by the partner. Reports success through the
      * same [TransactionBroadcasted] event the standard broadcast dialog posts.
      */
-    private fun sendViaEnergyService(txId: String, account: TRC20Account, tx: TronTransaction) {
+    private fun sendViaEnergyService(txId: String, account: TRC20Account, tx: TronTransaction, approvedQuote: EnergyFeeQuote) {
         val manager = viewModel.mbwManager.energyServiceManager ?: return
         val quote = viewModel.energyQuote.value ?: return
         val recipient = TronAddress(Utils.getTronCoinType(), tx.toAddress)
@@ -556,7 +563,7 @@ class ExchangeFragment : Fragment(), BackListener {
         }
         viewLifecycleOwner.lifecycleScope.launch {
             val result = withContext(Dispatchers.IO) {
-                manager.execute(account, quote, recipient, amount, tx.feeLimit, AesKeyCipher.defaultKeyCipher()) { status ->
+                manager.execute(account, quote, approvedQuote, recipient, amount, tx.feeLimit, AesKeyCipher.defaultKeyCipher()) { status ->
                     activity?.runOnUiThread {
                         progress.setMessage(when (status) {
                             "submitting" -> getString(R.string.energy_processing_submitting)
@@ -576,6 +583,11 @@ class ExchangeFragment : Fragment(), BackListener {
                 }
                 is EnergyTransferResult.Pending -> showErrorNotificationDialog(getString(R.string.error_energy_order_still_processing))
                 is EnergyTransferResult.QuoteExpired -> showErrorNotificationDialog(getString(R.string.error_energy_quote_expired))
+                is EnergyTransferResult.FeeChanged -> {
+                    viewModel.energyQuote.value = result.quote
+                    showErrorNotificationDialog(getString(R.string.error_energy_fee_changed,
+                        manager.feeInAccountUnits(account, result.quote).toStringWithUnit()))
+                }
                 is EnergyTransferResult.InsufficientBalance -> showErrorNotificationDialog(getString(R.string.error_energy_service_insufficient_balance, account.coinType.symbol))
                 is EnergyTransferResult.Error -> showErrorNotificationDialog(getString(R.string.tron_energy_service_error, result.message))
             }

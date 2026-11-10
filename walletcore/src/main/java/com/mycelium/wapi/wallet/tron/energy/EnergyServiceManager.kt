@@ -71,16 +71,26 @@ class EnergyServiceManager(
     fun feeInAccountUnits(account: TRC20Account, quote: EnergyFeeQuote): Value =
         Value.valueOf(account.coinType, quote.feeInWalletUnits(account.coinType.unitExponent))
 
+    /** Whether [quote] stays within the fee the user approved in [approved]; see [EnergyFeeQuote.isWithinApproval]. */
+    fun isWithinApproval(account: TRC20Account, quote: EnergyFeeQuote, approved: EnergyFeeQuote): Boolean =
+        quote.isWithinApproval(approved, account.coinType.unitExponent)
+
     /**
      * Signs the fee payment and the main transfer, submits both to the partner and waits for the
      * order to become terminal. On success the two txs are stored in the account's history.
      *
      * The fee tx is broadcast first by the partner: if amount + fee exceed the balance the fee
      * lands and the transfer reverts, so callers must check `amount + fee <= spendable` upfront.
+     *
+     * @param quote the partner's quote the transfer is signed against
+     * @param approved the quote whose fee the user saw and confirmed. Nothing is signed unless
+     *        [quote] pays the same fee wallet and a fee within [EnergyFeeQuote.FEE_TOLERANCE_PERCENT]
+     *        of it — otherwise [EnergyTransferResult.FeeChanged] is returned for re-approval.
      */
     fun execute(
         account: TRC20Account,
         quote: EnergyFeeQuote,
+        approved: EnergyFeeQuote,
         recipient: TronAddress,
         amount: Value,
         feeLimit: BigInteger,
@@ -89,6 +99,11 @@ class EnergyServiceManager(
     ): EnergyTransferResult {
         if (quote.isExpired()) return EnergyTransferResult.QuoteExpired
         val feeWallet = quote.feeWallet ?: return EnergyTransferResult.Error("No fee wallet address in quote")
+        if (!isWithinApproval(account, quote, approved)) {
+            logger.log(Level.WARNING, "energy service: fee re-quoted beyond what was approved " +
+                    "(${quote.feeAmount} to $feeWallet vs ${approved.feeAmount} to ${approved.feeWallet}) — not signing")
+            return EnergyTransferResult.FeeChanged(quote)
+        }
         if (orderStore.getPendingOrder(account.id) != null) {
             return EnergyTransferResult.Error("A previous transfer is still processing")
         }

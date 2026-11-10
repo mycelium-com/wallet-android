@@ -298,6 +298,22 @@ class SendTronModel(application: Application,
     private fun usableQuote(to: TronAddress): EnergyFeeQuote? = currentQuote
         ?.takeIf { quotedFor == to.addressString && !it.isExpired(System.currentTimeMillis() + QUOTE_REFRESH_MARGIN_MS) }
 
+    /**
+     * The quote whose fee is on screen for the current recipient — what the user approves by
+     * confirming the send. Null when there is none for this recipient.
+     */
+    fun approvedEnergyQuote(): EnergyFeeQuote? {
+        val to = receivingAddress.value as? TronAddress ?: return null
+        return currentQuote?.takeIf { quotedFor == to.addressString }
+    }
+
+    /** Puts a re-priced [quote] (see [EnergyTransferResult.FeeChanged]) on screen for re-approval. */
+    fun showRepricedQuote(quote: EnergyFeeQuote) {
+        val to = receivingAddress.value as? TronAddress ?: return
+        quotedFor = to.addressString
+        applyEnergyQuote(quote)
+    }
+
     /** A quote and the amount it is bound to; the partner rejects a transfer of any other amount. */
     data class EnergySendQuote(val quote: EnergyFeeQuote, val amount: Value)
 
@@ -308,10 +324,12 @@ class SendTronModel(application: Application,
      * the transfer about to be signed is quoted here for exactly what is being sent.
      *
      * When that lands on a fee that no longer leaves room for a "max", the amount is refitted and
-     * quoted again rather than failing in the user's face. Blocking (network) — call off the main
-     * thread; null when the partner cannot be reached or refuses the amount.
+     * quoted again rather than failing in the user's face — but only by a fee within what the user
+     * approved in [approved]; a bigger one is handed back unchanged so that
+     * [EnergyServiceManager.execute] refuses it for re-approval. Blocking (network) — call off the
+     * main thread; null when the partner cannot be reached or refuses the amount.
      */
-    fun quoteForSend(): EnergySendQuote? {
+    fun quoteForSend(approved: EnergyFeeQuote): EnergySendQuote? {
         val manager = energyService ?: return null
         val trc20 = account as? TRC20Account ?: return null
         val to = receivingAddress.value as? TronAddress ?: return null
@@ -323,11 +341,14 @@ class SendTronModel(application: Application,
                 return EnergySendQuote(manager.getFeeQuote(trc20, to, toSend), toSend)
             } catch (e: EnergyServiceException) {
                 if (!e.isInsufficientBalance) return null
-                val fee = try {
-                    manager.feeInAccountUnits(trc20, manager.getFeeQuote(trc20, to, null))
+                val probe = try {
+                    manager.getFeeQuote(trc20, to, null)
                 } catch (e2: Exception) {
                     return null
                 }
+                // A fee the user did not approve must not decide how much reaches the recipient.
+                if (!manager.isWithinApproval(trc20, probe, approved)) return EnergySendQuote(probe, toSend)
+                val fee = manager.feeInAccountUnits(trc20, probe)
                 val max = trc20.accountBalance.spendable - fee
                 if (!amountIsMax || !max.isPositive() || max >= toSend) return null
                 toSend = max

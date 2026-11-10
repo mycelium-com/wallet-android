@@ -68,7 +68,8 @@ public class GetExchangeRate {
         targetExchangeRate = null;
 
         if (isBtc(sourceCurrency) || isEth(sourceCurrency)
-                || (isERC20Token(walletManager, sourceCurrency) && !isEth(targetCurrency))) {
+                || (isERC20Token(walletManager, sourceCurrency) && !isEth(targetCurrency))
+                || Utils.isTronAsset(walletManager, sourceCurrency)) {
             sourcePrice = BigDecimal.ONE;
         } else {
             sourceExchangeRate = exchangeRateManager.getExchangeRate(targetCurrency, sourceCurrency);
@@ -78,7 +79,8 @@ public class GetExchangeRate {
         }
 
         if (isBtc(targetCurrency) || isEth(targetCurrency)
-                || isERC20Token(walletManager, targetCurrency)) {
+                || isERC20Token(walletManager, targetCurrency)
+                || Utils.isTronAsset(walletManager, targetCurrency)) {
             targetPrice = BigDecimal.ONE;
         } else {
             targetExchangeRate = exchangeRateManager.getExchangeRate(sourceCurrency, targetCurrency);
