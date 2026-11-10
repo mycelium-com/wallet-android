@@ -14,21 +14,24 @@ import java.util.*
 
 class ETHCreationAsyncTask(val mbwManager: MbwManager,
                            val startListener: () -> Unit,
-                           val endListener: (UUID?) -> Unit) : AsyncTask<Void, Int, UUID>() {
+                           val endListener: (UUID?) -> Unit) : AsyncTask<Void, Int, UUID?>() {
 
     override fun onPreExecute() {
         super.onPreExecute()
         startListener()
     }
 
-    override fun doInBackground(vararg params: Void?): UUID =
+    // null if account creation failed
+    override fun doInBackground(vararg params: Void?): UUID? =
             mbwManager.getWalletManager(false)
-                    .createAccounts(EthereumMasterseedConfig()).first()
+                    .createAccounts(EthereumMasterseedConfig()).firstOrNull()
 
 
     override fun onPostExecute(accountId: UUID?) {
-        MbwManager.getEventBus().post(AccountCreated(accountId))
-        MbwManager.getEventBus().post(AccountChanged(accountId))
+        if (accountId != null) {
+            MbwManager.getEventBus().post(AccountCreated(accountId))
+            MbwManager.getEventBus().post(AccountChanged(accountId))
+        }
         endListener(accountId)
     }
 }
@@ -38,10 +41,12 @@ fun MbwManager.createETH(startListener: () -> Unit, endListener: (UUID?) -> Unit
         withContext(Dispatchers.Main) {
             startListener()
         }
-        val accountId = getWalletManager(false).createAccounts(EthereumMasterseedConfig()).first()
+        val accountId = getWalletManager(false).createAccounts(EthereumMasterseedConfig()).firstOrNull()
         withContext(Dispatchers.Main) {
-            MbwManager.getEventBus().post(AccountCreated(accountId))
-            MbwManager.getEventBus().post(AccountChanged(accountId))
+            if (accountId != null) {
+                MbwManager.getEventBus().post(AccountCreated(accountId))
+                MbwManager.getEventBus().post(AccountChanged(accountId))
+            }
             endListener(accountId)
         }
     }

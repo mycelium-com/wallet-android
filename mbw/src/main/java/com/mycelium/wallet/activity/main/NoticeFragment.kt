@@ -24,6 +24,7 @@ import com.mycelium.wapi.wallet.btc.bip44.HDAccount
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount
 import com.mycelium.wapi.wallet.colu.ColuAccount
 import com.mycelium.wapi.wallet.eth.EthAccount
+import com.mycelium.wapi.wallet.tron.TronAccount
 import com.squareup.otto.Subscribe
 import java.util.concurrent.TimeUnit
 
@@ -108,7 +109,7 @@ class NoticeFragment : Fragment() {
 
         // First check if we have HD accounts with funds, but have no master seed backup
         if (meta.masterSeedBackupState != BackupState.VERIFIED) {
-            if (account is HDAccount || account is EthAccount) {
+            if (account is HDAccount || account is EthAccount || account is TronAccount) {
                 /*
               We have an HD account and no master seed backup, tell the user to act
               We shouldn't check balance, in security reason user should create backup
@@ -199,8 +200,11 @@ class NoticeFragment : Fragment() {
             .setPositiveButton(
                 this.activity!!.getString(R.string.yes)
             ) { dialog, which ->
-                _mbwManager!!.metadataStorage.clearResetPinStartBlockheight()
-                recheckNotice()
+                // only the owner (who knows the PIN) may cancel the reset countdown
+                _mbwManager!!.runPinProtectedFunction(activity) {
+                    _mbwManager!!.metadataStorage.clearResetPinStartBlockheight()
+                    recheckNotice()
+                }
             }
             .setNegativeButton(
                 this.activity!!.getString(R.string.no)

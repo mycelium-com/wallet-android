@@ -1,5 +1,6 @@
 package com.mycelium.giftbox.purchase
 
+import com.mycelium.wallet.activity.util.displaySymbol
 import android.content.Intent
 import android.os.Bundle
 import android.text.Html
@@ -36,20 +37,16 @@ import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.modern.Toaster
 import com.mycelium.wallet.activity.txdetails.BtcDetailsFragment
-import com.mycelium.wallet.activity.txdetails.BtcvDetailsFragment
 import com.mycelium.wallet.activity.txdetails.EthDetailsFragment
-import com.mycelium.wallet.activity.txdetails.FioDetailsFragment
 import com.mycelium.wallet.activity.util.toStringFriendlyWithUnit
 import com.mycelium.wallet.activity.util.toStringWithUnit
 import com.mycelium.wallet.activity.view.loader
 import com.mycelium.wallet.databinding.FragmentGiftboxBuyResultBinding
 import com.mycelium.wallet.startCoroutineTimer
 import com.mycelium.wapi.wallet.TransactionSummary
-import com.mycelium.wapi.wallet.btcvault.hd.BitcoinVaultHdAccount
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.erc20.ERC20Account
 import com.mycelium.wapi.wallet.eth.EthAccount
-import com.mycelium.wapi.wallet.fio.FioAccount
 import kotlinx.coroutines.Job
 import java.text.DateFormat
 import java.util.Date
@@ -80,7 +77,7 @@ class GiftBoxBuyResultFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         viewModel.minerFeeFiat.value = args.minerFeeFiat?.let {
             if (it.lessThan(Value(it.type, 1.toBigInteger()))) {
-                "<0.01 " + it.type.symbol
+                "<0.01 " + it.type.displaySymbol
             } else it.toStringFriendlyWithUnit()
         }
         viewModel.minerFeeCrypto.value = "~" + args.minerFeeCrypto?.toStringWithUnit()
@@ -138,16 +135,6 @@ class GiftBoxBuyResultFragment : Fragment() {
                     transaction.add(
                         R.id.spec_details_fragment,
                         EthDetailsFragment.newInstance(tx)
-                    )
-                } else if (account is FioAccount) {
-                    transaction.add(
-                        R.id.spec_details_fragment,
-                        FioDetailsFragment.newInstance(tx)
-                    )
-                } else if (account is BitcoinVaultHdAccount) {
-                    transaction.add(
-                        R.id.spec_details_fragment,
-                        BtcvDetailsFragment.newInstance(tx, accountId)
                     )
                 } else {
                     transaction.add(

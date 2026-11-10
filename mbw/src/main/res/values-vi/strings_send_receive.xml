@@ -83,6 +83,9 @@
     <string name="cancel_eth_tx_loading">Đang ước tính phí hủy…</string>
     <string name="cancel_eth_tx_new_fee">Phí hủy</string>
     <string name="cancel_eth_tx_no_connection">Không có kết nối máy chủ. Hãy thử lại sau.</string>
+    <string name="cancel_eth_tx_queue_blocked">Một giao dịch trước đó (nonce %1$s) có phí thấp hơn phí mạng hiện tại và không thể được đào. Các giao dịch được xác nhận theo thứ tự, nên việc hủy này sẽ phải chờ sau nó. Hãy hủy giao dịch trước đó trước.</string>
+    <string name="cancel_eth_tx_cancel_blocking">Hủy nonce %1$s trước</string>
+    <string name="send_eth_stuck_queue_warning">Giao dịch trước đó của bạn (nonce %1$s) có phí thấp hơn phí mạng hiện tại và đang bị kẹt. Lần gửi mới sẽ phải chờ sau nó. Hãy hủy nó từ lịch sử giao dịch trước.</string>
     <string name="cancel_eth_tx_old_fee">Phí gốc</string>
     <string name="cancel_eth_tx_recipient">Người nhận gốc</string>
     <string name="cancel_eth_tx_success">Đã phát yêu cầu hủy.</string>

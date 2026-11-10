@@ -107,6 +107,9 @@
     <string name="cancel_eth_tx_loading">Duke vlerësuar tarifën e anulimit…</string>
     <string name="cancel_eth_tx_new_fee">Tarifa e anulimit</string>
     <string name="cancel_eth_tx_no_connection">Nuk ka lidhje me serverin. Provoni përsëri më vonë.</string>
+    <string name="cancel_eth_tx_queue_blocked">Një transaksion i mëparshëm (nonce %1$s) ka tarifë më të ulët se tarifa aktuale e rrjetit dhe nuk mund të minohet. Transaksionet konfirmohen me radhë, prandaj ky anulim do të priste pas tij. Anuloni fillimisht atë të mëparshmin.</string>
+    <string name="cancel_eth_tx_cancel_blocking">Anulo fillimisht nonce %1$s</string>
+    <string name="send_eth_stuck_queue_warning">Transaksioni juaj i mëparshëm (nonce %1$s) ka tarifë më të ulët se tarifa aktuale e rrjetit dhe ka ngecur. Një dërgim i ri do të presë pas tij. Anulojeni fillimisht nga historiku i transaksioneve.</string>
     <string name="cancel_eth_tx_old_fee">Tarifa origjinale</string>
     <string name="cancel_eth_tx_recipient">Marrësi origjinal</string>
     <string name="cancel_eth_tx_success">Anulimi u transmetua.</string>

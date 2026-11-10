@@ -264,7 +264,7 @@ Du kan enten tilføje minergebyr fra enhver konto med bitcoins, hver gang du for
     <string name="vip_code_limits_description">Du kan nu swappe ethvert beløb.</string>
     <string name="vip_code_limits_title">Ingen grænser</string>
     <string name="vip_code_privacy_related_notice">Og en MEGET VIGTIG privatlivsrelateret ting, du allerede bør være opmærksom på.</string>
-    <string name="vip_code_who_can_get">Mycelium-tokenholdere\nSU7 Max-giveaway-deltagere\nLoyale MyceIium-brugere, der modtog en personlig\ninvitation</string>
+    <string name="vip_code_who_can_get">Mycelium-tokenholdere\nSU7 Max-giveaway-deltagere\nLoyale Mycelium-brugere, der modtog en personlig\ninvitation</string>
     <string name="vip_code_who_can_get_title">Hvem er berettiget til VIP-status</string>
     <string name="vip_exchange_expired_title">VIP SWAP er ikke tilgængelig</string>
     <string name="vip_exchange_status_expired_alert_message">Din VIP-status er udløbet, så almindelige (ikke-VIP) satser gælder nu.</string>

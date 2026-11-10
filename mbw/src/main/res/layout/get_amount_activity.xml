@@ -93,7 +93,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="2dp"
                     android:fontFamily="@font/roboto_mono_regular"
-                    android:textColor="@color/fio_white_alpha_0_8"
+                    android:textColor="@color/white_alpha_0_8"
                     android:textSize="14sp"
                     app:layout_constraintEnd_toEndOf="@id/btCurrency"
                     app:layout_constraintTop_toBottomOf="@id/btCurrency"
@@ -162,7 +162,7 @@
                 android:layout_gravity="start"
                 android:layout_marginTop="2dp"
                 android:text="@string/how_is_it_calculated"
-                android:textColor="@color/fio_prm_btn_line"
+                android:textColor="@color/primary_button_line"
                 android:textSize="16sp"
                 android:visibility="@{viewModel.howMaxSpendableCalculated ? View.VISIBLE : View.GONE}"
                 tools:visibility="visible" />

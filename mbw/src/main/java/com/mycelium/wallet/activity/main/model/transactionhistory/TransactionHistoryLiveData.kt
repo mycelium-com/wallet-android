@@ -7,8 +7,6 @@ import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.event.*
 import com.mycelium.wapi.wallet.TransactionSummary
 import com.mycelium.wapi.wallet.WalletAccount
-import com.mycelium.wapi.wallet.fio.FIOOBTransaction
-import com.mycelium.wapi.wallet.fio.FioModule
 import com.squareup.otto.Subscribe
 import java.lang.ref.WeakReference
 import java.util.concurrent.ExecutorService
@@ -19,8 +17,7 @@ import kotlin.math.max
  * This class is intended to manage transaction history for current selected account.
  */
 class TransactionHistoryLiveData(val mbwManager: MbwManager,
-                                 private var account: WalletAccount<*>,
-                                 private val fioMetadataMap : MutableMap<String, FIOOBTransaction>)
+                                 private var account: WalletAccount<*>)
     : LiveData<Set<TransactionSummary>>() {
     private var historyList = mutableSetOf<TransactionSummary>()
 
@@ -29,7 +26,6 @@ class TransactionHistoryLiveData(val mbwManager: MbwManager,
     private var syncProgressTaskWR: WeakReference<AsyncTask<Void, List<TransactionSummary>, List<TransactionSummary>>>? = null
     @Volatile
     private var executorService: ExecutorService
-    val fioModule = mbwManager.getWalletManager(false).getModuleById(FioModule.ID) as FioModule
 
     init {
         value = historyList
@@ -69,12 +65,7 @@ class TransactionHistoryLiveData(val mbwManager: MbwManager,
         }
 
         override fun doInBackground(vararg voids: Void): List<TransactionSummary> =
-            (account.getTransactionSummaries(0, max(20, value!!.size)) as List<TransactionSummary>)
-                .onEach { txSummary ->
-                    fioModule.getFioTxMetadata(txSummary.idHex)?.let {
-                        fioMetadataMap[txSummary.idHex] = it
-                    }
-                }
+            account.getTransactionSummaries(0, max(20, value!!.size)) as List<TransactionSummary>
 
         override fun onPostExecute(transactions: List<TransactionSummary>) {
             updateValue(transactions)

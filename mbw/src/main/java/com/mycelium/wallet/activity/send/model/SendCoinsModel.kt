@@ -66,8 +66,6 @@ abstract class SendCoinsModel(
     val isColdStorage = intent.getBooleanExtra(SendCoinsActivity.IS_COLD_STORAGE, false)
     val recipientRepresentation = MutableLiveData(SendCoinsViewModel.RecipientRepresentation.ASK)
     val alternativeAmountWarning: MutableLiveData<Boolean> = MutableLiveData()
-    val fioMemo: MutableLiveData<String?> = MutableLiveData()
-    val payerFioName: MutableLiveData<String?> = MutableLiveData()
 
     val outputList = MutableLiveData(listOf<BatchItem>())
     val isBatch = MutableLiveData(false)
@@ -100,16 +98,6 @@ abstract class SendCoinsModel(
         }
     }
 
-
-    val payeeFioName: MutableLiveData<String?> = object : MutableLiveData<String?>() {
-        override fun setValue(value: String?) {
-            if (value != this.value) {
-                super.setValue(value)
-                receiverChanged.onNext(Unit)
-                txRebuildPublisher.onNext(Unit)
-            }
-        }
-    }
 
     val amount: MutableLiveData<Value> = object : MutableLiveData<Value>() {
         override fun setValue(value: Value) {
@@ -149,8 +137,32 @@ abstract class SendCoinsModel(
         override fun setValue(value: Value) {
             if (value != this.value) {
                 super.setValue(value)
+                refitMaxAmount(value)
                 txRebuildPublisher.onNext(Unit)
             }
+        }
+    }
+
+    /** True while the current amount is the one the amount screen's Max button computed. */
+    protected var amountIsMaxEntered = false
+
+    /**
+     * A "Max" amount was computed for the fee selected at that moment; when the user then picks
+     * another fee level the old figure either no longer fits (insufficient funds for fee) or
+     * silently leaves change behind. Recompute it for the new fee — a typed amount is left alone.
+     * TRON does its own refitting (energy service quotes), so it is excluded here.
+     */
+    @Suppress("UNCHECKED_CAST")
+    private fun refitMaxAmount(fee: Value) {
+        if (!amountIsMaxEntered || this is SendTronModel) return
+        val destination = receivingAddress.value ?: return
+        try {
+            val max = (account as WalletAccount<Address>).calculateMaxSpendableAmount(fee, destination, transactionData.value)
+            if (max.isPositive() && max != amount.value) {
+                amount.value = max
+            }
+        } catch (e: Exception) {
+            // keep the old amount; the rebuild will report the real problem
         }
     }
 
@@ -247,7 +259,7 @@ abstract class SendCoinsModel(
                 .observeOn(Schedulers.computation())
                 .switchMapCompletable {
                     feeDataset.postValue(updateFeeDataset())
-                    if (selectedFee.value!!.equalZero()) {
+                    if (selectedFee.value!!.equalZero() && !isZeroFeeAllowed()) {
                         feeWarning.postValue(Html.fromHtml(context.getString(R.string.fee_is_zero)))
                     }
                     Completable.complete()
@@ -297,7 +309,6 @@ abstract class SendCoinsModel(
                         ""
                     })
                     recipientRepresentation.postValue(when {
-                        payeeFioName.value != null -> SendCoinsViewModel.RecipientRepresentation.FIO
                         receivingAddress != null || hasPaymentRequest -> SendCoinsViewModel.RecipientRepresentation.COIN
                         else -> SendCoinsViewModel.RecipientRepresentation.ASK
                     })
@@ -320,6 +331,12 @@ abstract class SendCoinsModel(
     abstract fun getFeeLvlItems(): List<FeeLvlItem>
 
     open fun signTransaction(activity: Activity) {
+        if (transaction == null) {
+            // the tx is being rebuilt (fee refresh / focus change raced the tap) - rebuild and let the
+            // user tap again instead of launching the sign screen with nothing to sign
+            txRebuildPublisher.onNext(Unit)
+            return
+        }
         SignTransactionActivity.callMe(activity, account.id, isColdStorage, transaction,
                 SendCoinsActivity.SIGN_TRANSACTION_REQUEST_CODE)
         receivingAddress.value?.let { address ->
@@ -413,6 +430,24 @@ abstract class SendCoinsModel(
         }
     }
 
+    /** Chains where a zero fee is a normal outcome (e.g. TRON with free bandwidth) skip the zero-fee warning. */
+    protected open fun isZeroFeeAllowed() = false
+
+    /**
+     * The amount screen is about to hand over an amount the user entered. [isMax] tells whether it
+     * is the one its Max button computed, which a model may treat differently from a typed figure
+     * (e.g. TRON energy service: only a max may be refitted to a re-priced fee).
+     */
+    open fun onAmountEntered(isMax: Boolean) {
+        amountIsMaxEntered = isMax
+    }
+
+    /**
+     * Extra, coin-specific validation run before the transaction is built; a non-null status
+     * short-circuits the build (e.g. TRON energy service: amount + token fee must fit the balance).
+     */
+    protected open fun validateExtra(toSend: Value): TransactionStatus? = null
+
     protected open fun estimateTxSize() = transaction?.estimatedTransactionSize ?: account.typicalEstimatedTransactionSize
 
     /**
@@ -439,6 +474,7 @@ abstract class SendCoinsModel(
             TransactionStatus.INSUFFICIENT_FUNDS -> context.getString(R.string.insufficient_funds)
             TransactionStatus.INSUFFICIENT_FUNDS_FOR_FEE -> context.getString(R.string.insufficient_funds_for_fee)
             TransactionStatus.BUILD_ERROR -> context.getString(R.string.tx_build_error)
+            TransactionStatus.MISSING_ARGUMENTS -> buildErrorMessage ?: ""
             else -> ""
         })
     }
@@ -485,8 +521,13 @@ abstract class SendCoinsModel(
         }
     }
 
+    /** Reason of the last BuildTransactionException (shown with MISSING_ARGUMENTS), null when none. */
+    @Volatile
+    private var buildErrorMessage: String? = null
+
     private fun getTransactionStatus(): TransactionStatus {
         val toSend = mbwManager.exchangeRateManager.get(mbwManager.getWalletManager(false), amount.value!!, account.coinType) ?: amount.value!!
+        buildErrorMessage = null
 
         try {
             return when {
@@ -509,6 +550,7 @@ abstract class SendCoinsModel(
                 receivingAddress.value != null &&
                         (account is EthAccount || !toSend.isZero()) &&
                         transactionDataStatus.value != TransactionDataStatus.TYPING -> {
+                    validateExtra(toSend)?.let { return it }
                     // createTx potentially takes long, if server interaction is involved
                     transaction = account.createTx(receivingAddress.value!!, toSend, FeePerKbFee(selectedFee.value!!), transactionData.value)
                     spendingUnconfirmed.postValue(account.isSpendingUnconfirmed(transaction!!))
@@ -517,6 +559,9 @@ abstract class SendCoinsModel(
                 else -> TransactionStatus.MISSING_ARGUMENTS
             }
         } catch (ex: BuildTransactionException) {
+            // accounts wrap human-readable reasons in a plain Throwable; anything else is an
+            // internal exception (e.g. ClassCastException) whose text must not reach the user
+            buildErrorMessage = ex.cause?.takeIf { it.javaClass == Throwable::class.java }?.message
             return TransactionStatus.MISSING_ARGUMENTS
         } catch (ex: OutputTooSmallException) {
             return TransactionStatus.OUTPUT_TOO_SMALL

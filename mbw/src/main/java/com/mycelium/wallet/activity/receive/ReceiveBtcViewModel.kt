@@ -16,7 +16,6 @@ import com.mycelium.wapi.wallet.btc.BtcAddress
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount
-import com.mycelium.wapi.wallet.btcvault.hd.BitcoinVaultHdAccount
 import com.mycelium.wapi.wallet.coins.Value
 
 class ReceiveBtcViewModel(application: Application) : ReceiveCoinsViewModel(application) {
@@ -29,10 +28,6 @@ class ReceiveBtcViewModel(application: Application) : ReceiveCoinsViewModel(appl
                 model = ReceiveCoinsModel(getApplication(), account, BTC_ACCOUNT_LABEL, showIncomingUtxo)
                 addressType.value = account.receivingAddress.get().type
             }
-            is BitcoinVaultHdAccount -> {
-                model = ReceiveCoinsModel(getApplication(), account, BTCV_ACCOUNT_LABEL, showIncomingUtxo)
-                addressType.value = account.receiveAddress?.type
-            }
             else -> throw IllegalStateException()
         }
     }
@@ -42,7 +37,6 @@ class ReceiveBtcViewModel(application: Application) : ReceiveCoinsViewModel(appl
         model.receivingAddress.value = when (account) {
             is HDAccount -> BtcAddress(Utils.getBtcCoinType(), (account as HDAccount).getReceivingAddress(addressType)!!)
             is SingleAddressAccount -> BtcAddress(Utils.getBtcCoinType(), (account as SingleAddressAccount).getAddress(addressType))
-            is BitcoinVaultHdAccount -> (account as BitcoinVaultHdAccount).getReceiveAddress(addressType)
             else -> throw IllegalStateException()
         }
         model.updateObservingAddress()
@@ -52,7 +46,6 @@ class ReceiveBtcViewModel(application: Application) : ReceiveCoinsViewModel(appl
         return when (account) {
             is HDAccount -> (account as HDAccount).receivingAddress.get().type
             is SingleAddressAccount -> (account as SingleAddressAccount).address.type
-            is BitcoinVaultHdAccount -> (account as BitcoinVaultHdAccount).receiveAddress?.type
             else -> throw IllegalStateException()
         }
     }
@@ -107,7 +100,6 @@ class ReceiveBtcViewModel(application: Application) : ReceiveCoinsViewModel(appl
 
     companion object {
         private const val BTC_ACCOUNT_LABEL = "bitcoin"
-        private const val BTCV_ACCOUNT_LABEL = "bitcoinvault"
         private const val ADDRESS_TYPE = "addressType"
     }
 }

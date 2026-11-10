@@ -6,11 +6,12 @@
         <domain includeSubdomains="true">media.mycelium.com</domain>
         <domain includeSubdomains="true">media-dev.mycelium.com</domain>
         <domain includeSubdomains="true">etherscan.io</domain>
-        <domain includeSubdomains="true">fioprotocol.io</domain>
         <domain includeSubdomains="true">greymass.com</domain>
         <domain includeSubdomains="true">reg.bequant.io</domain>
         <domain includeSubdomains="true">boatarde.xyz</domain>
         <domain includeSubdomains="true">mbwexchange.com</domain>
         <domain includeSubdomains="true">mbwswaps.com</domain>
+        <!-- TRON energy service staging/testnet hosts (plain http) -->
+        <domain includeSubdomains="false">164.90.215.54</domain>
     </domain-config>
 </network-security-config>

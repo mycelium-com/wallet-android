@@ -50,7 +50,7 @@ public class InvoiceBuilder {
         double fromTop = 1.5F;
         writer.addText(1F, fromTop, 16, "From: " + fromName);
 
-        Locale usLocale = new Locale("en_US");
+        Locale usLocale = Locale.US;
         fromTop += 0.7F;
         writer.addText(1F, fromTop, 14, "Date: " + DateFormat.getDateInstance(DateFormat.LONG, usLocale).format(now));
 

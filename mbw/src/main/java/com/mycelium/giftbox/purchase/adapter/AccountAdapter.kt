@@ -1,5 +1,6 @@
 package com.mycelium.giftbox.purchase.adapter
 
+import com.mycelium.wallet.activity.util.displaySymbol
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.ListAdapter
@@ -35,7 +36,7 @@ open class AccountAdapter : ListAdapter<AccountListItem, RecyclerView.ViewHolder
                 val accountHolder = holder as AccountItemViewHolder
                 val account = item as AccountViewModel
                 accountHolder.label.text = account.label
-                accountHolder.coinType.text = account.coinType.symbol
+                accountHolder.coinType.text = account.coinType.displaySymbol
                 accountHolder.value.text = account.additional["fiat"]?.toString()
                 accountHolder.value2.text = account.balance?.spendable?.toStringFriendlyWithUnit()
                 accountHolder.itemView.setOnClickListener {

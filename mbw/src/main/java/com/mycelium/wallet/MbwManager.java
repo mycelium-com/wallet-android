@@ -35,7 +35,6 @@
 package com.mycelium.wallet;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.mycelium.wapi.wallet.fio.FioModuleKt.getActiveFioAccount;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 import android.app.Activity;
@@ -80,6 +79,23 @@ import com.mycelium.generated.logger.database.LoggerDB;
 import com.mycelium.generated.logger.database.Logs;
 import com.mycelium.generated.rates.database.RatesDB;
 import com.mycelium.generated.wallet.database.WalletDB;
+import com.mycelium.wapi.content.tron.TronUriParser;
+import com.mycelium.wapi.wallet.providers.TronFeeProvider;
+import com.mycelium.wapi.wallet.trc20.TRC20Backing;
+import com.mycelium.wapi.wallet.trc20.TRC20Module;
+import com.mycelium.wapi.wallet.trc20.coins.TRC20Token;
+import com.mycelium.wapi.wallet.tron.TronAccountContext;
+import com.mycelium.wapi.wallet.tron.TronAddress;
+import com.mycelium.wapi.wallet.tron.TronAddressConfig;
+import com.mycelium.wapi.wallet.tron.TronBacking;
+import com.mycelium.wapi.wallet.tron.energy.EnergyServiceClient;
+import com.mycelium.wapi.wallet.tron.energy.EnergyServiceConfig;
+import com.mycelium.wapi.wallet.tron.energy.EnergyServiceManager;
+import com.mycelium.wallet.tron.PrefsEnergyOrderStore;
+import com.mycelium.wapi.wallet.tron.TronFeeEstimator;
+import com.mycelium.wapi.wallet.tron.TronMasterseedConfig;
+import com.mycelium.wapi.wallet.tron.TronModule;
+import com.mycelium.wapi.wallet.tron.remote.TronBlockchainService;
 import com.mycelium.lt.api.LtApiClient;
 import com.mycelium.net.HttpEndpoint;
 import com.mycelium.net.ServerEndpointType;
@@ -111,7 +127,6 @@ import com.mycelium.wallet.exchange.RatesBacking;
 import com.mycelium.wallet.extsig.keepkey.KeepKeyManager;
 import com.mycelium.wallet.extsig.ledger.LedgerManager;
 import com.mycelium.wallet.extsig.trezor.TrezorManager;
-import com.mycelium.wallet.fio.AbiFioSerializationProviderWrapper;
 import com.mycelium.wallet.lt.LocalTraderManager;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wallet.persistence.TradeSessionDb;
@@ -120,12 +135,10 @@ import com.mycelium.wapi.api.WapiClientElectrumX;
 import com.mycelium.wapi.api.jsonrpc.TcpEndpoint;
 import com.mycelium.wapi.content.ContentResolver;
 import com.mycelium.wapi.content.btc.BitcoinUriParser;
-import com.mycelium.wapi.content.btcv.BitcoinVaultUriParser;
 import com.mycelium.wapi.content.colu.mss.MSSUriParser;
 import com.mycelium.wapi.content.colu.mt.MTUriParser;
 import com.mycelium.wapi.content.colu.rmc.RMCUriParser;
 import com.mycelium.wapi.content.eth.EthUriParser;
-import com.mycelium.wapi.content.fio.FIOUriParser;
 import com.mycelium.wapi.wallet.AccountListener;
 import com.mycelium.wapi.wallet.Address;
 import com.mycelium.wapi.wallet.AesKeyCipher;
@@ -157,9 +170,6 @@ import com.mycelium.wapi.wallet.btc.single.PrivateSingleConfig;
 import com.mycelium.wapi.wallet.btc.single.PublicPrivateKeyStore;
 import com.mycelium.wapi.wallet.btc.single.PublicSingleConfig;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
-import com.mycelium.wapi.wallet.btcvault.hd.BitcoinVaultHDBacking;
-import com.mycelium.wapi.wallet.btcvault.hd.BitcoinVaultHDModule;
-import com.mycelium.wapi.wallet.btcvault.hd.BitcoinVaultHdAccount;
 import com.mycelium.wapi.wallet.coins.AssetInfo;
 import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 import com.mycelium.wapi.wallet.colu.ColuApiImpl;
@@ -174,22 +184,11 @@ import com.mycelium.wapi.wallet.eth.EthAddress;
 import com.mycelium.wapi.wallet.eth.EthAddressConfig;
 import com.mycelium.wapi.wallet.eth.EthBacking;
 import com.mycelium.wapi.wallet.eth.EthBlockchainService;
+import com.mycelium.wapi.wallet.eth.aa.AAChains;
+import com.mycelium.wapi.wallet.eth.aa.AATransactionManager;
 import com.mycelium.wapi.wallet.eth.EthereumMasterseedConfig;
 import com.mycelium.wapi.wallet.eth.EthereumModule;
 import com.mycelium.wapi.wallet.fiat.coins.FiatType;
-import com.mycelium.wapi.wallet.fio.FIOAddressConfig;
-import com.mycelium.wapi.wallet.fio.FIOPrivateKeyConfig;
-import com.mycelium.wapi.wallet.fio.FioAccount;
-import com.mycelium.wapi.wallet.fio.FioAccountContext;
-import com.mycelium.wapi.wallet.fio.FioAddress;
-import com.mycelium.wapi.wallet.fio.FioApiEndpoints;
-import com.mycelium.wapi.wallet.fio.FioBacking;
-import com.mycelium.wapi.wallet.fio.FioEndpoints;
-import com.mycelium.wapi.wallet.fio.FioHistoryEndpoints;
-import com.mycelium.wapi.wallet.fio.FioKeyManager;
-import com.mycelium.wapi.wallet.fio.FioModule;
-import com.mycelium.wapi.wallet.fio.RecordObtData;
-import com.mycelium.wapi.wallet.fio.coins.FIOToken;
 import com.mycelium.wapi.wallet.genericdb.AccountContextsBacking;
 import com.mycelium.wapi.wallet.genericdb.AdaptersKt;
 import com.mycelium.wapi.wallet.genericdb.Backing;
@@ -200,10 +199,8 @@ import com.mycelium.wapi.wallet.manager.FeeEstimations;
 import com.mycelium.wapi.wallet.manager.WalletListener;
 import com.mycelium.wapi.wallet.masterseed.MasterSeedManager;
 import com.mycelium.wapi.wallet.providers.BtcFeeProvider;
-import com.mycelium.wapi.wallet.providers.BtcvFeeProvider;
 import com.mycelium.wapi.wallet.providers.EthFeeProvider;
 import com.mycelium.wapi.wallet.providers.FeeProvider;
-import com.mycelium.wapi.wallet.providers.FioFeeProvider;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 import app.cash.sqldelight.driver.android.AndroidSqliteDriver;
@@ -239,7 +236,6 @@ import javax.annotation.Nonnull;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 
-import fiofoundation.io.fiosdk.errors.FIOError;
 import kotlin.Unit;
 import kotlin.jvm.Synchronized;
 
@@ -261,6 +257,7 @@ public class MbwManager {
     private AtomicBoolean lastPinAgeOkay = new AtomicBoolean(false);
     private ScheduledFuture<?> pinOkTimeoutHandle;
     private int failedPinCount = 0;
+    private static final long MAX_FAILED_PIN_DELAY_MILLIS = 30_000;
 
     private volatile boolean showQueuedTransactionsRemovalAlert = true;
     private final CurrencySwitcher _currencySwitcher;
@@ -290,7 +287,6 @@ public class MbwManager {
     private final KeepKeyManager _keepkeyManager;
     private final LedgerManager _ledgerManager;
     private final WapiClientElectrumX _wapi;
-    private final WapiClientElectrumX btcvWapi;
     private volatile LoadingProgressTracker migrationProgressTracker;
 
     private final LtApiClient _ltApi;
@@ -314,7 +310,6 @@ public class MbwManager {
     private final WalletManager _walletManager;
     private WalletManager _tempWalletManager;
     private MasterSeedManager masterSeedManager;
-    public FioKeyManager fioKeyManager;
     private ContentResolver contentResolver;
     private final RandomSource _randomSource;
     private final EventTranslator _eventTranslator;
@@ -339,14 +334,10 @@ public class MbwManager {
 
         SqlDriver driver = new AndroidSqliteDriver(WalletDB.Companion.getSchema(), _applicationContext, "wallet.db");
         db = WalletDB.Companion.invoke(driver, AdaptersKt.getAccountBackingAdapter(), AdaptersKt.getAccountContextAdapter(),
-                AdaptersKt.getBTCVAccountBackingAdapter(), AdaptersKt.getBTCVContextAdapter(),
-                AdaptersKt.getBTCVOutgoingTxAdapter(), AdaptersKt.getBTCVPtxoAdapter(),
-                AdaptersKt.getBTCVRefersPtxoAdapter(), AdaptersKt.getBTCVTransactionAdapter(), AdaptersKt.getBTCVUtxoAdapter(),
+                AdaptersKt.getDeprecatedAccountAdapter(), AdaptersKt.getEnergyServiceFeeLinkAdapter(),
                 AdaptersKt.getErc20ContextAdapter(), AdaptersKt.getEthAccountBackingAdapter(), AdaptersKt.getEthContextAdapter(),
-                AdaptersKt.getFeeEstimatorAdapter(), AdaptersKt.getFioAccountBackingAdapter(), AdaptersKt.getFioContextAdapter(),
-                AdaptersKt.getFioKnownNamesAdapter(), AdaptersKt.getFioNameAccountMappingsAdapter(),
-                AdaptersKt.getFioOtherBlockchainTransactionsAdapter(),
-                AdaptersKt.getFioReceivedRequestsAdapter(), AdaptersKt.getFioSentRequestsAdapter());
+                AdaptersKt.getFeeEstimatorAdapter(),
+                AdaptersKt.getTrc20ContextAdapter(), AdaptersKt.getTronAccountBackingAdapter(), AdaptersKt.getTronContextAdapter());
         driver.execute(null, "PRAGMA foreign_keys=ON;", 0, null);
 
         // Preferences
@@ -361,10 +352,7 @@ public class MbwManager {
         migrationProgressTracker = getMigrationProgressTracker();
 
         _wapi = initWapi(configuration.getElectrumEndpoints(), configuration.getWapiEndpoints());
-        List<TcpEndpoint> btcvEndpoints = configuration.getElectrumVEndpoints();
-        btcvWapi = initWapi(btcvEndpoints, configuration.getWapiEndpoints(), false);
         configuration.setElectrumServerListChangedListener(_wapi);
-        configuration.setElectrumVServerListChangedListener(btcvWapi);
         _httpErrorCollector = HttpErrorCollector.registerInVM(_applicationContext, _wapi);
 
         _randomSource = new AndroidRandomSource();
@@ -575,8 +563,7 @@ public class MbwManager {
         result.add(new MSSUriParser(network));
         result.add(new RMCUriParser(network));
         result.add(new EthUriParser(network, getSupportedERC20Tokens()));
-        result.add(new FIOUriParser(network));
-        result.add(new BitcoinVaultUriParser(network));
+        result.add(new TronUriParser(network, getSupportedTRC20Tokens()));
         return result;
     }
 
@@ -584,29 +571,62 @@ public class MbwManager {
         return contentResolver;
     }
 
-    public FioEndpoints getFioEndpoints() {
-        return new FioEndpoints(new FioApiEndpoints(configuration.getFioApiEndpoints()),
-                new FioHistoryEndpoints(configuration.getFioHistoryEndpoints()));
-    }
-
     public Map<String, ERC20Token> getSupportedERC20Tokens() {
         return configuration.getSupportedERC20Tokens();
     }
 
+    public Map<String, TRC20Token> getSupportedTRC20Tokens() {
+        return configuration.getSupportedTRC20Tokens();
+    }
+
+    private TronFeeEstimator tronFeeEstimator;
+
+    public TronFeeEstimator getTronFeeEstimator() {
+        return tronFeeEstimator;
+    }
+
+    private EnergyServiceManager energyServiceManager;
+
+    /** TRON energy service ("pay TRC20 fees in USDT"); null in temp/cold-storage managers. */
+    public EnergyServiceManager getEnergyServiceManager() {
+        return energyServiceManager;
+    }
+
+    private AATransactionManager aaTransactionManager;
+
+    /**
+     * ERC-20 gas paid in the token (ERC-4337 paymaster + EIP-7702); null when no bundler is
+     * configured for this build, and in temp/cold-storage managers.
+     */
+    @Nullable
+    public AATransactionManager getAaTransactionManager() {
+        return aaTransactionManager;
+    }
+
+    @Nullable
+    private static AATransactionManager createAaTransactionManager(boolean isTestnet) {
+        long chainId = isTestnet ? AAChains.ETHEREUM_SEPOLIA : AAChains.ETHEREUM_MAINNET;
+        String bundlerUrl;
+        if (!BuildConfig.AaBundlerUrl.isEmpty()) {
+            bundlerUrl = BuildConfig.AaBundlerUrl;
+        } else if (!BuildConfig.PimlicoApiKey.isEmpty()) {
+            bundlerUrl = AAChains.INSTANCE.pimlicoBundlerUrl(chainId, BuildConfig.PimlicoApiKey);
+        } else {
+            return null;
+        }
+        return new AATransactionManager(isTestnet
+                ? AAChains.INSTANCE.sepolia(bundlerUrl, null)
+                : AAChains.INSTANCE.mainnet(bundlerUrl, null));
+    }
+
     private void initPerCurrencySettings() {
         initBTCSettings();
-        initBTCVSettings();
     }
 
     private void initBTCSettings() {
         BTCSettings btcSettings = new BTCSettings(defaultAddressType, new Reference<>(changeAddressMode));
         currenciesSettingsMap.put(BitcoinHDModule.ID, btcSettings);
         currenciesSettingsMap.put(BitcoinSingleAddressModule.ID, btcSettings);
-    }
-
-    private void initBTCVSettings() {
-        BTCSettings btcSettings = new BTCSettings(defaultAddressType, new Reference<>(changeAddressMode));
-        currenciesSettingsMap.put(BitcoinVaultHDModule.ID, btcSettings);
     }
 
     private void createTempWalletManager() {
@@ -746,14 +766,6 @@ public class MbwManager {
 
         @Override
         public void onAccountActiveStateChanged(@NonNull final UUID id) {
-            WalletAccount<?> account = _walletManager.getAccount(id);
-            if (account instanceof BitcoinVaultHdAccount) {
-                BitcoinVaultHDModule module =
-                        (BitcoinVaultHDModule) _walletManager.getModuleById(BitcoinVaultHDModule.ID);
-                if (module != null) {
-                    module.setupClientIsActive();
-                }
-            }
         }
     };
 
@@ -826,7 +838,7 @@ public class MbwManager {
 
         AccountContextsBacking genericBacking = new AccountContextsBacking(db);
         EthBacking ethBacking = new EthBacking(db, genericBacking);
-        EthBlockchainService ethBlockchainService = new EthBlockchainService(configuration.getBlockBookEndpoints());
+        EthBlockchainService ethBlockchainService = new EthBlockchainService(configuration.getBlockBookEndpoints(), BuildConfig.Eip1559Estimator);
         configuration.addEthServerListChangedListener(ethBlockchainService);
         EthereumModule ethereumModule = new EthereumModule(secureKeyValueStore, ethBacking, walletDB,
                 ethBlockchainService, networkParameters, getMetadataStorage(), accountListener);
@@ -834,20 +846,31 @@ public class MbwManager {
         walletManager.getFeeEstimations().addProvider(new EthFeeProvider(isTestnet, ethBlockchainService, feeBacking));
 
         walletManager.add(new ERC20Module(secureKeyValueStore, new ERC20Backing(db, genericBacking), walletDB,
-                ethBlockchainService, networkParameters, getMetadataStorage(), accountListener, ethereumModule));
+                ethBlockchainService, networkParameters, getMetadataStorage(), accountListener, ethereumModule,
+                contractAddress -> {
+                    for (ERC20Token token : configuration.getSupportedERC20Tokens().values()) {
+                        if (token.getContractAddress().equalsIgnoreCase(contractAddress)) {
+                            return token.getUnitExponent();
+                        }
+                    }
+                    return null;
+                }, configuration::isDefaultERC20Label));
 
-        FioModule fioModule = new FioModule(configuration, new AbiFioSerializationProviderWrapper(), new FioApiEndpoints(configuration.getFioApiEndpoints()), new FioHistoryEndpoints(configuration.getFioHistoryEndpoints()),
-                secureKeyValueStore, new FioBacking(db, genericBacking), walletDB, networkParameters, getMetadataStorage(),
-                new FioKeyManager(new MasterSeedManager(secureKeyValueStore), secureKeyValueStore), accountListener, walletManager, configuration.getFioTpid());
-        walletManager.add(fioModule);
-        walletManager.getFeeEstimations().addProvider(new FioFeeProvider(isTestnet));
-
-        BitcoinVaultHDBacking bitcoinVaultBacking = new BitcoinVaultHDBacking(db, genericBacking);
-        walletManager.add(new BitcoinVaultHDModule(bitcoinVaultBacking, secureKeyValueStore,
-                environment.getBTCVNetwork(),
-                walletDB, btcvWapi, (BTCSettings) currenciesSettingsMap.get(BitcoinVaultHDModule.ID),
-                getMetadataStorage(), accountListener));
-         walletManager.getFeeEstimations().addProvider(new BtcvFeeProvider(isTestnet, btcvWapi, feeBacking));
+        TronBlockchainService tronBlockchainService = new TronBlockchainService(configuration.getTronEndpoints());
+        configuration.addTronServerListChangedListener(tronBlockchainService);
+        tronFeeEstimator = new TronFeeEstimator(tronBlockchainService);
+        TronModule tronModule = new TronModule(secureKeyValueStore, new TronBacking(db, genericBacking), walletDB,
+                tronBlockchainService, networkParameters, getMetadataStorage(), accountListener);
+        walletManager.add(tronModule);
+        walletManager.getFeeEstimations().addProvider(new TronFeeProvider(isTestnet));
+        walletManager.add(new TRC20Module(new TRC20Backing(db, genericBacking), walletDB, tronBlockchainService,
+                networkParameters, getMetadataStorage(), accountListener, tronModule,
+                configuration::isDefaultTRC20Label));
+        energyServiceManager = new EnergyServiceManager(
+                new EnergyServiceClient(new EnergyServiceConfig(BuildConfig.EnergyServiceUrl, BuildConfig.EnergyServiceApiKey),
+                        "MyceliumWallet/" + BuildConfig.VERSION_NAME + " (android)", Locale.getDefault().getLanguage()),
+                new PrefsEnergyOrderStore(_applicationContext.getSharedPreferences("energy_service", Context.MODE_PRIVATE)));
+        aaTransactionManager = createAaTransactionManager(isTestnet);
 
         walletManager.add(new InvestmentModule(getMetadataStorage()));
         walletManager.init();
@@ -912,18 +935,17 @@ public class MbwManager {
                 (BTCSettings) currenciesSettingsMap.get(BitcoinSingleAddressModule.ID), walletManager, getMetadataStorage(), null, accountEventManager));
 
         Backing<EthAccountContext> genericBacking = new InMemoryAccountContextsBacking<>();
-        EthBlockchainService ethBlockchainService = new EthBlockchainService(configuration.getBlockBookEndpoints());
+        EthBlockchainService ethBlockchainService = new EthBlockchainService(configuration.getBlockBookEndpoints(), BuildConfig.Eip1559Estimator);
         configuration.addEthServerListChangedListener(ethBlockchainService);
         EthereumModule ethModule = new EthereumModule(secureKeyValueStore, genericBacking, db,
                 ethBlockchainService, networkParameters, getMetadataStorage(), accountListener);
         walletManager.add(ethModule);
 
-        Backing<FioAccountContext> fioGenericBacking = new InMemoryAccountContextsBacking<>();
-        fioKeyManager = new FioKeyManager(new MasterSeedManager(secureKeyValueStore), secureKeyValueStore);
-        FioModule fioModule = new FioModule(configuration, new AbiFioSerializationProviderWrapper(), new FioApiEndpoints(configuration.getFioApiEndpoints()), new FioHistoryEndpoints(configuration.getFioHistoryEndpoints()),
-                secureKeyValueStore, fioGenericBacking, db, networkParameters, getMetadataStorage(),
-                fioKeyManager, accountListener, walletManager, configuration.getFioTpid());
-        walletManager.add(fioModule);
+        Backing<TronAccountContext> tronGenericBacking = new InMemoryAccountContextsBacking<>();
+        TronBlockchainService tronBlockchainService = new TronBlockchainService(configuration.getTronEndpoints());
+        walletManager.add(new TronModule(secureKeyValueStore, tronGenericBacking, db,
+                tronBlockchainService, networkParameters, getMetadataStorage(), accountListener));
+
         walletManager.disableTransactionHistorySynchronization();
         return walletManager;
     }
@@ -1042,10 +1064,29 @@ public class MbwManager {
         return getPin().isSet();
     }
 
+    /**
+     * Height of the Bitcoin chain as seen by the wallet. PIN age and PIN reset are measured in Bitcoin blocks,
+     * so they must not depend on which (possibly ETH/TRON) account is currently selected.
+     */
+    public int getBtcBlockChainHeight() {
+        int height = 0;
+        for (WalletAccount<?> account : getWalletManager(false).getAccounts()) {
+            // archived BTC accounts throw "Using archived account" on getBlockChainHeight()
+            if (account instanceof AbstractBtcAccount && !account.isArchived()) {
+                try {
+                    height = Math.max(height, account.getBlockChainHeight());
+                } catch (RuntimeException ignore) {
+                    // skip accounts that refuse to report a height
+                }
+            }
+        }
+        return height > 0 ? height : getSelectedAccount().getBlockChainHeight();
+    }
+
     // returns the age of the PIN in blocks (~10min)
     public Optional<Integer> getRemainingPinLockdownDuration() {
         Optional<Integer> pinSetHeight = getMetadataStorage().getLastPinSetBlockheight();
-        int blockHeight = getSelectedAccount().getBlockChainHeight();
+        int blockHeight = getBtcBlockChainHeight();
 
         if (!pinSetHeight.isPresent() || blockHeight < pinSetHeight.get()) {
             return Optional.absent();
@@ -1077,8 +1118,9 @@ public class MbwManager {
         return _pin;
     }
 
-    public void showClearPinDialog(final Activity activity, final Runnable afterDialogClosed) {
-        this.runPinProtectedFunction(activity, new ClearPinDialog(activity, true), new Runnable() {
+    public ClearPinDialog showClearPinDialog(final Activity activity, final Runnable afterDialogClosed) {
+        ClearPinDialog clearPinDialog = new ClearPinDialog(activity, true);
+        this.runPinProtectedFunction(activity, clearPinDialog, new Runnable() {
             @Override
             public void run() {
                 MbwManager.this.savePin(Pin.CLEAR_PIN);
@@ -1089,6 +1131,7 @@ public class MbwManager {
                 }
             }
         });
+        return clearPinDialog;
     }
 
     public void showSetPinDialog(final Activity activity, final Runnable afterDialogClosed) {
@@ -1108,7 +1151,7 @@ public class MbwManager {
                     newPin = pin.getPin();
                     dialog.setTitle(R.string.pin_confirm_pin);
                 } else if (newPin.equals(pin.getPin())) {
-                    MbwManager.this.savePin(pin);
+                    MbwManager.this.savePin(new Pin(pin.getPin(), pinDialog.isResettable()));
                     new Toaster(activity).toast(R.string.pin_set, false);
                     dialog.dismiss();
                     if (afterDialogClosed != null) {
@@ -1142,6 +1185,8 @@ public class MbwManager {
             // if we were pin-protected and now the pin is removed, reset the blockheight
             if (!pin.isSet()) {
                 getMetadataStorage().clearLastPinSetBlockheight();
+                // "Require PIN on start" makes no sense without a PIN and would re-arm the startup gate
+                setPinRequiredOnStartup(false);
             }
         }
         _pin = pin;
@@ -1150,7 +1195,7 @@ public class MbwManager {
     }
 
     private void setPinBlockheight() {
-        int blockHeight = getSelectedAccount().getBlockChainHeight();
+        int blockHeight = getBtcBlockChainHeight();
         getMetadataStorage().setLastPinSetBlockheight(blockHeight);
     }
 
@@ -1181,19 +1226,33 @@ public class MbwManager {
             failedPinCount = getPreferences().getInt(Constants.FAILED_PIN_COUNT, 0);
             pinDialog.setOnPinValid(new PinDialog.OnPinEntered() {
                 @Override
-                public void pinEntered(final PinDialog pinDialog, Pin pin) {
-                    if (failedPinCount > 0) {
-                        long millis = (long) (Math.pow(1.2, failedPinCount) * 10);
-                        try {
-                            Thread.sleep(millis);
-                        } catch (InterruptedException ignored) {
-                            new Toaster(activity).toast(R.string.avoid_get_to_pin_check, false);
-                            vibrate();
-                            pinDialog.dismiss();
-                            Thread.currentThread().interrupt();
-                            return;
-                        }
+                public void pinEntered(final PinDialog pinDialog, final Pin pin) {
+                    long delayMillis = failedPinCount > 0
+                            ? Math.min((long) (Math.pow(1.2, failedPinCount) * 10), MAX_FAILED_PIN_DELAY_MILLIS)
+                            : 0;
+                    if (delayMillis <= 0) {
+                        checkEnteredPin(pinDialog, pin);
+                        return;
                     }
+                    // Throttle guessing without blocking the UI thread (a sleep here ended in ANRs). The result is
+                    // only revealed after the delay, so dismissing the dialog early does not speed up guessing.
+                    pinDialog.lockInput(true);
+                    if (delayMillis >= 1000) {
+                        new Toaster(activity).toast(R.string.please_wait, false);
+                    }
+                    mainLoopHandler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (!pinDialog.isShowing() || activity.isFinishing()) {
+                                return;
+                            }
+                            pinDialog.lockInput(false);
+                            checkEnteredPin(pinDialog, pin);
+                        }
+                    }, delayMillis);
+                }
+
+                private void checkEnteredPin(final PinDialog pinDialog, Pin pin) {
                     if (pin.equals(getPin())) {
                         failedPinCount = 0;
                         getEditor().putInt(Constants.FAILED_PIN_COUNT, failedPinCount).apply();
@@ -1209,7 +1268,13 @@ public class MbwManager {
                         fun.run();
                     } else {
                         getEditor().putInt(Constants.FAILED_PIN_COUNT, ++failedPinCount).apply();
-                        if (_pin.isResettable()) {
+                        if (pinDialog instanceof ClearPinDialog) {
+                            // already in the reset ("I forgot the PIN") dialog: behave like the normal PIN entry -
+                            // error + retry in place (the pad was cleared and re-enabled by PinDialog), instead of
+                            // stacking another "Invalid PIN / RESET PIN" dialog on top of it
+                            new Toaster(activity).toast(R.string.pin_invalid_pin, false);
+                            vibrate();
+                        } else if (_pin.isResettable()) {
                             // Show hint, that this pin is resettable
                             new AlertDialog.Builder(activity)
                                     .setTitle(R.string.pin_invalid_pin)
@@ -1217,13 +1282,36 @@ public class MbwManager {
                                         @Override
                                         public void onClick(DialogInterface dialogInterface, int i) {
                                             pinDialog.dismiss();
+                                            if (!pinDialog.getCancelable() && !activity.isFinishing()) {
+                                                // mandatory PIN (startup gate): ask again instead of leaving a blank
+                                                // screen that only reacts to a tap on the background
+                                                runPinProtectedFunction(activity, new PinDialog(activity, true, false), fun);
+                                            }
                                         }
                                     })
                                     .setNeutralButton(activity.getString(R.string.reset_pin_button), new DialogInterface.OnClickListener() {
                                         @Override
                                         public void onClick(DialogInterface dialogInterface, int i) {
                                             pinDialog.dismiss();
-                                            MbwManager.this.showClearPinDialog(activity, null);
+                                            ClearPinDialog clearPinDialog = MbwManager.this.showClearPinDialog(activity, null);
+                                            if (!pinDialog.getCancelable()) {
+                                                // mandatory PIN (startup gate): Back, "I forgot the PIN" or a wrong PIN
+                                                // in the reset dialog must not end on a blank screen either
+                                                clearPinDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+                                                    @Override
+                                                    public void onDismiss(DialogInterface dialog) {
+                                                        if (activity.isFinishing()) {
+                                                            return;
+                                                        }
+                                                        if (isPinProtected()) {
+                                                            runPinProtectedFunction(activity, new PinDialog(activity, true, false), fun);
+                                                        } else {
+                                                            // PIN was cleared with the right PIN or after the reset period
+                                                            fun.run();
+                                                        }
+                                                    }
+                                                });
+                                            }
                                         }
                                     })
 
@@ -1234,6 +1322,9 @@ public class MbwManager {
                             new Toaster(activity).toast(R.string.pin_invalid_pin, false);
                             vibrate();
                             pinDialog.dismiss();
+                            if (!pinDialog.getCancelable() && !activity.isFinishing()) {
+                                runPinProtectedFunction(activity, new PinDialog(activity, true, false), fun);
+                            }
                         }
                     }
                 }
@@ -1253,7 +1344,7 @@ public class MbwManager {
     }
 
     public void startResetPinProcedure() {
-        getMetadataStorage().setResetPinStartBlockheight(getSelectedAccount().getBlockChainHeight());
+        getMetadataStorage().setResetPinStartBlockheight(getBtcBlockChainHeight());
     }
 
     public Optional<Integer> getResetPinRemainingBlocksCount() {
@@ -1262,7 +1353,7 @@ public class MbwManager {
             // no reset procedure ongoing
             return Optional.absent();
         } else {
-            int blockAge = getSelectedAccount().getBlockChainHeight() - resetPinStartBlockHeight.get();
+            int blockAge = getBtcBlockChainHeight() - resetPinStartBlockHeight.get();
             return Optional.of(Math.max(0, Constants.MIN_PIN_BLOCKHEIGHT_AGE_RESET_PIN - blockAge));
         }
     }
@@ -1451,6 +1542,10 @@ public class MbwManager {
         return masterSeedManager;
     }
 
+    public WalletDB getWalletDB() {
+        return db;
+    }
+
     public UUID createOnTheFlyAccount(Address address) {
         UUID accountId;
         if (address instanceof BtcAddress) {
@@ -1458,8 +1553,8 @@ public class MbwManager {
                     new BtcAddress(Utils.getBtcCoinType(), ((BtcAddress) address).getAddress()))).get(0);
         } else if (address instanceof EthAddress) {
             accountId = _tempWalletManager.createAccounts(new EthAddressConfig((EthAddress) address)).get(0);
-        } else if (address instanceof FioAddress) {
-            accountId = _tempWalletManager.createAccounts(new FIOAddressConfig((FioAddress) address)).get(0);
+        } else if (address instanceof TronAddress) {
+            accountId = _tempWalletManager.createAccounts(new TronAddressConfig((TronAddress) address)).get(0);
         } else {
             throw new IllegalArgumentException("Not implemented");
         }
@@ -1469,9 +1564,7 @@ public class MbwManager {
     }
 
     public UUID createOnTheFlyAccount(InMemoryPrivateKey privateKey, CryptoCurrency coinType) {
-        final Config config = coinType instanceof FIOToken
-                ? new FIOPrivateKeyConfig(privateKey)
-                : new PrivateSingleConfig(privateKey, AesKeyCipher.defaultKeyCipher());
+        final Config config = new PrivateSingleConfig(privateKey, AesKeyCipher.defaultKeyCipher());
         final UUID accountId = _tempWalletManager.createAccounts(config).get(0);
         _tempWalletManager.getAccount(accountId).setAllowZeroConfSpending(true);
         _tempWalletManager.startSynchronization(accountId);
@@ -1607,7 +1700,7 @@ public class MbwManager {
     }
 
     /**
-     * Checks if user has created first Bitcoin HD, Ethereum, FIO accounts out of mnemonic seed
+     * Checks if user has created first Bitcoin HD and Ethereum accounts out of mnemonic seed
      * and returns configs for the accounts that hasn't been created yet
      * @return list of configs for the accounts that still has to be created
      */
@@ -1619,6 +1712,9 @@ public class MbwManager {
         }
         if (accounts.get(Utils.getEthCoinType()) == null) {
             needsToBeCreated.add(new EthereumMasterseedConfig());
+        }
+        if (accounts.get(Utils.getTronCoinType()) == null) {
+            needsToBeCreated.add(new TronMasterseedConfig());
         }
         return needsToBeCreated;
     }
@@ -1649,10 +1745,6 @@ public class MbwManager {
 
     public WapiClientElectrumX getWapi() {
         return _wapi;
-    }
-
-    public WapiClientElectrumX getBtcvWapi() {
-        return btcvWapi;
     }
 
     public TorManager getTorManager() {
@@ -1687,44 +1779,14 @@ public class MbwManager {
         }
     }
 
-    @Nullable
-    public RecordObtData obtDataRecordCache = null;
-
-    @Subscribe
-    public void onTransactionBroadcast(TransactionBroadcasted tbe) {
-        if (tbe.getTxid() != null && obtDataRecordCache != null) {
-            FioAccount fioAccount = getActiveFioAccount(_walletManager, obtDataRecordCache.getPayerFioAddress());
-            new Thread(() -> {
-                try {
-                    fioAccount.recordObtData(
-                            BigInteger.ZERO, // let the sdk figure it out
-                            obtDataRecordCache.getPayerFioAddress(),
-                            obtDataRecordCache.getPayeeFioAddress(),
-                            obtDataRecordCache.getPayerTokenPublicAddress(),
-                            obtDataRecordCache.getPayeeTokenPublicAddress(),
-                            obtDataRecordCache.getAmount(),
-                            obtDataRecordCache.getChainCode(),
-                            obtDataRecordCache.getTokenCode(),
-                            tbe.getTxid(),
-                            obtDataRecordCache.getMemo());
-                } catch (Exception e) {
-                    // TODO: 10/8/20 Actually handle the failure to send the obt record.
-                    logger.log(Level.WARNING, "Sending fio obt record failed!", e);
-                    FioModule fioModule = (FioModule) getWalletManager(false).getModuleById(FioModule.ID);
-                    if (e instanceof FIOError) {
-                        fioModule.addFioServerLog(((FIOError) e).toJson());
-                    }
-                }
-            }).start();
-        }
-    }
-
     public boolean getPinRequiredOnStartup() {
         return this._pinRequiredOnStartup;
     }
 
     public boolean isUnlockPinRequired() {
-        return getPinRequiredOnStartup() && !startUpPinUnlocked;
+        // without a PIN there is nothing to unlock - a stale "require on start" flag must not
+        // route deep links / restored screens through StartupActivity
+        return isPinProtected() && getPinRequiredOnStartup() && !startUpPinUnlocked;
     }
 
     public void setStartUpPinUnlocked(boolean unlocked) {
@@ -1735,6 +1797,11 @@ public class MbwManager {
         getEditor().putBoolean(Constants.PIN_SETTING_REQUIRED_ON_STARTUP, pinRequiredOnStartup).apply();
 
         this._pinRequiredOnStartup = pinRequiredOnStartup;
+        if (pinRequiredOnStartup) {
+            // the user just authenticated to flip this switch - the current session counts as unlocked,
+            // otherwise the startup-PIN gate would fire on the very next screen
+            setStartUpPinUnlocked(true);
+        }
     }
 
     public Cache<String, Object> getBackgroundObjectsCache() {
@@ -1789,8 +1856,6 @@ public class MbwManager {
 
         if (walletAccount instanceof EthAccount) {
             return !((EthAccount) walletAccount).hasHadActivity();
-        } else if (walletAccount instanceof FioAccount) {
-            return !((FioAccount) walletAccount).hasHadActivity() || !isDerivedFromInternalMasterseed;
         } else {
             return !isDerivedFromInternalMasterseed && !isBch;
         }

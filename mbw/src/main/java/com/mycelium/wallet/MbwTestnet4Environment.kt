@@ -11,15 +11,12 @@ import com.mycelium.wallet.external.BuySellServiceDescriptor
 import com.mycelium.wallet.external.LocalTraderServiceDescription
 import com.mycelium.wallet.external.SepaServiceDescription
 import com.mycelium.wapi.wallet.btc.coins.BitcoinTest
-import com.mycelium.wapi.wallet.btcvault.BTCVNetworkParameters
-import com.mycelium.wapi.wallet.btcvault.BTCVNetworkParameters.Companion.testNetwork
 import com.mycelium.wapi.wallet.eth.coins.EthTest
-import com.mycelium.wapi.wallet.fio.coins.FIOTest
+import com.mycelium.wapi.wallet.tron.coins.TronTest
 
 class MbwTestnet4Environment : MbwEnvironment() {
     override fun getNetwork(): NetworkParameters? = NetworkParameters.testNetwork
 
-    override fun getBTCVNetwork(): BTCVNetworkParameters = testNetwork
 
     override fun getLtEndpoints(): ServerEndpoints = testnetLtEndpoints
 
@@ -88,24 +85,17 @@ class MbwTestnet4Environment : MbwEnvironment() {
                 EthTest.name to listOf(
                     BlockExplorer(
                         "ETS", "etherscan.io",
-                        "https://goerli.etherscan.io/address/",
-                        "https://goerli.etherscan.io/tx/0x",
+                        "https://sepolia.etherscan.io/address/",
+                        "https://sepolia.etherscan.io/tx/0x",
                         null,
                         null
                     )
                 ),
-                FIOTest.name to listOf(
+                TronTest.name to listOf(
                     BlockExplorer(
-                        "FBI", "fio.bloks.io",
-                        "https://fio-test.bloks.io/account/",
-                        "https://fio-test.bloks.io/transaction/",
-                        null,
-                        null
-                    ),
-                    BlockExplorer(
-                        "EFI", "explorer.fioprotocol.io",
-                        "https://explorer.testnet.fioprotocol.io/account/",
-                        "https://explorer.testnet.fioprotocol.io/transaction/",
+                        "TSC", "nile.tronscan.org",
+                        "https://nile.tronscan.org/#/address/",
+                        "https://nile.tronscan.org/#/transaction/",
                         null,
                         null
                     )

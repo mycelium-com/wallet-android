@@ -135,6 +135,9 @@
     <string name="cancel_eth_tx_loading">正在估算取消手續費…</string>
     <string name="cancel_eth_tx_new_fee">取消手續費</string>
     <string name="cancel_eth_tx_no_connection">無法連線至伺服器，請稍後再試。</string>
+    <string name="cancel_eth_tx_queue_blocked">較早的一筆交易（nonce %1$s）的手續費低於目前的網路手續費，無法被打包。交易會依序確認，因此此取消交易將排在它之後等待。請先取消較早的那筆交易。</string>
+    <string name="cancel_eth_tx_cancel_blocking">先取消 nonce %1$s</string>
+    <string name="send_eth_stuck_queue_warning">您較早的一筆交易（nonce %1$s）的手續費低於目前的網路手續費，已卡住。新的發送將排在它之後等待。請先從交易紀錄中將其取消。</string>
     <string name="cancel_eth_tx_old_fee">原始手續費</string>
     <string name="cancel_eth_tx_recipient">原始收款人</string>
     <string name="cancel_eth_tx_success">取消交易已廣播。</string>

@@ -63,6 +63,7 @@ import com.google.common.base.Optional;
 import com.mrd.bitlib.crypto.BipSss;
 import com.mrd.bitlib.crypto.HdKeyNode;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
+import com.mrd.bitlib.model.AddressType;
 import com.mrd.bitlib.model.BitcoinAddress;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mycelium.wallet.MbwManager;
@@ -86,7 +87,6 @@ import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.btc.BtcAddress;
-import com.mycelium.wapi.wallet.btc.bip44.HDAccount;
 import com.mycelium.wapi.wallet.btc.bip44.UnrelatedHDAccountConfig;
 import com.mycelium.wapi.wallet.btc.single.AddressSingleConfig;
 import com.mycelium.wapi.wallet.btc.single.PrivateSingleConfig;
@@ -94,11 +94,9 @@ import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
 import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.eth.EthAddress;
 import com.mycelium.wapi.wallet.eth.EthAddressConfig;
+import com.mycelium.wapi.wallet.tron.TronAddress;
+import com.mycelium.wapi.wallet.tron.TronAddressConfig;
 import com.mycelium.wapi.wallet.eth.coins.EthCoin;
-import com.mycelium.wapi.wallet.fio.FIOAddressConfig;
-import com.mycelium.wapi.wallet.fio.FIOUnrelatedHDConfig;
-import com.mycelium.wapi.wallet.fio.FioAddress;
-import com.mycelium.wapi.wallet.fio.FioKeyManager;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -153,27 +151,6 @@ public class AddAdvancedAccountActivity extends AppCompatActivity implements Imp
 
       binding.btGenerateNewBchSingleKey.setVisibility(View.GONE);
 
-      binding.btCreateFioLegacyAccount.setVisibility(
-              _mbwManager.getMasterSeedManager().hasBip32MasterSeed() ? View.VISIBLE : View.GONE);
-
-      binding.btCreateFioLegacyAccount.setOnClickListener(view -> {
-         if (!_mbwManager.getMasterSeedManager().hasBip32MasterSeed()) {
-            new Toaster(this).toast(R.string.master_seed_not_configured, false);
-            return;
-         }
-         FioKeyManager fioKeyManager = _mbwManager.fioKeyManager;
-         HdKeyNode legacyFioNode = fioKeyManager.getLegacyFioNode();
-         //since uuid is used for account creation we can check hdKeynode uuid for account existence
-         if (_mbwManager.getWalletManager(false).getAccount(legacyFioNode.getUuid()) == null) {
-            ArrayList<HdKeyNode> nodes = new ArrayList<HdKeyNode>() {{
-               add(legacyFioNode);
-            }};
-            List<UUID> account = _mbwManager.getWalletManager(false).createAccounts(new FIOUnrelatedHDConfig(nodes, getString(R.string.base_label_fio_account_legacy)));
-            finishOk(account.get(0), false);
-         } else {
-            new Toaster(this).toast(R.string.fio_legacy_already_created, false);
-         }
-      });
    }
 
    @Override
@@ -393,6 +370,7 @@ public class AddAdvancedAccountActivity extends AppCompatActivity implements Imp
       private InMemoryPrivateKey key;
       private MetadataStorage.BackupState backupState;
       private List<WalletAccount<?>> existingAccounts = new ArrayList<>();
+      private boolean sameKeyOtherAddresses = false;
 
       ImportSingleAddressAccountAsyncTask(InMemoryPrivateKey key, MetadataStorage.BackupState backupState) {
          this.key = key;
@@ -411,6 +389,17 @@ public class AddAdvancedAccountActivity extends AppCompatActivity implements Imp
                break;
             }
          }
+         if (existingAccounts.isEmpty()) {
+            // The compressed and the uncompressed form of a key have different addresses but the same account id,
+            // so creating the account would silently replace the address set of the existing one.
+            UUID id = SingleAddressAccount.calculateId(key.getPublicKey()
+                    .toAddress(_mbwManager.getNetwork(), AddressType.P2SH_P2WPKH, true));
+            WalletAccount<?> sameIdAccount = walletManager.getAccount(id);
+            if (sameIdAccount != null) {
+               existingAccounts = Collections.singletonList(sameIdAccount);
+               sameKeyOtherAddresses = true;
+            }
+         }
          return AddressCheckResult.BTC;
       }
 
@@ -423,7 +412,7 @@ public class AddAdvancedAccountActivity extends AppCompatActivity implements Imp
             WalletAccount accountToUpgrade = null;
             WalletAccount existingAccount = existingAccounts.get(0);
 
-            if (!existingAccount.canSpend()) {
+            if (!existingAccount.canSpend() && !sameKeyOtherAddresses) {
                accountToUpgrade = existingAccount;
             } else {
                finishAlreadyExist(existingAccount.getReceiveAddress());
@@ -485,7 +474,7 @@ public class AddAdvancedAccountActivity extends AppCompatActivity implements Imp
    }
 
    enum AddressCheckResult {
-      AccountExists, BTC, NonBtc, ETH
+      AccountExists, BTC, NonBtc, ETH, TRON
    }
 
    private class ImportReadOnlySingleAddressAccountAsyncTask extends AsyncTask<Void, Integer, AddressCheckResult> {
@@ -507,6 +496,8 @@ public class AddAdvancedAccountActivity extends AppCompatActivity implements Imp
             return AddressCheckResult.BTC;
          } else if (address instanceof EthAddress) {
             return AddressCheckResult.ETH;
+         } else if (address instanceof TronAddress) {
+            return AddressCheckResult.TRON;
          } else {
             return AddressCheckResult.NonBtc;
          }
@@ -528,52 +519,13 @@ public class AddAdvancedAccountActivity extends AppCompatActivity implements Imp
                        .createAccounts(new EthAddressConfig((EthAddress) address)).get(0);
                finishOk(account2, false);
                break;
+            case TRON:
+               UUID account3 = _mbwManager.getWalletManager(false)
+                       .createAccounts(new TronAddressConfig((TronAddress) address)).get(0);
+               finishOk(account3, false);
+               break;
             case NonBtc:
-               if ("FIO".equals(address.getCoinType().getSymbol())) {
-                  new FIOCreationAsyncTask((FioAddress) address).execute();
-               }
-         }
-      }
-   }
-
-   private class FIOCreationAsyncTask extends AsyncTask<Void, Integer, UUID> {
-      private ProgressDialog _progress;
-      private FioAddress address;
-
-      FIOCreationAsyncTask(FioAddress address) {
-         this.address = address;
-      }
-
-      @Override
-      protected void onPreExecute() {
-         super.onPreExecute();
-         _progress = new ProgressDialog(AddAdvancedAccountActivity.this);
-         _progress.setCancelable(false);
-         _progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-         _progress.setMessage(getString(R.string.fio_account_creation_started));
-         _progress.show();
-      }
-
-      @Override
-      protected UUID doInBackground(Void... params) {
-         try {
-            List<UUID> accounts = _mbwManager.getWalletManager(false).createAccounts(new FIOAddressConfig(address));
-            if (accounts.size() > 0) {
-               return accounts.get(0);
-            }
-         } catch (Exception e) {
-            // ignore
-         }
-         return null;
-      }
-
-      @Override
-      protected void onPostExecute(UUID account) {
-         _progress.dismiss();
-         if (account != null) {
-            finishOk(account, false);
-         } else {
-            finishError(address, R.string.fio_account_import_error);
+               break;
          }
       }
    }
@@ -624,9 +576,15 @@ public class AddAdvancedAccountActivity extends AppCompatActivity implements Imp
    }
 
    private void finishAlreadyExist(Address address) {
-      String accountType = getAccountType(address);
+      // look up by coin first: a token account shares the address of its ETH/TRON parent
+      Optional<UUID> accountId = _mbwManager.getAccountId(address, address.getCoinType());
+      if (!accountId.isPresent()) {
+         accountId = _mbwManager.getAccountId(address);
+      }
+      String label = _mbwManager.getMetadataStorage().getLabelByAccount(accountId.get());
       Intent result = new Intent()
-              .putExtra(AddAccountActivity.RESULT_MSG, getString(R.string.account_already_exist, accountType));
+              .putExtra(AddAccountActivity.RESULT_MSG, getString(R.string.address_already_restored_as_account,
+                      address.getCoinType().getName(), label));
       setResult(RESULT_MSG, result);
       finish();
    }
@@ -636,18 +594,6 @@ public class AddAdvancedAccountActivity extends AppCompatActivity implements Imp
               .putExtra(AddAccountActivity.RESULT_MSG, getString(res, address.toString()));
       setResult(RESULT_MSG, result);
       finish();
-   }
-
-   private String getAccountType(Address address) {
-      UUID accountId = _mbwManager.getAccountId(address).get();
-      WalletAccount account = _mbwManager.getWalletManager(false).getAccount(accountId);
-      if (account instanceof HDAccount) {
-         return "BTC HD account";
-      }
-      if (account instanceof SingleAddressAccount) {
-         return "BTC Single Address";
-      }
-      return account.getCoinType().getName();
    }
 
    private void finishOk(UUID account, boolean isUpgrade) {

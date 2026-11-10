@@ -1,5 +1,6 @@
 package com.mycelium.wallet.activity.receive
 
+import com.mycelium.wallet.activity.util.displaySymbol
 import android.app.Application
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.util.toString
@@ -15,12 +16,12 @@ class ReceiveERC20ViewModel(application: Application) : ReceiveCoinsViewModel(ap
     override fun getFormattedValue(sum: Value) = sum.toString(mbwManager.getDenomination(account.coinType))
 
     override fun getTitle(): String = if (Value.isNullOrZero(model.amount.value)) {
-        context.getString(R.string.address_title, account.coinType.symbol)
+        context.getString(R.string.address_title, account.coinType.displaySymbol)
     } else {
         context.getString(R.string.payment_request)
     }
 
-    override fun getCurrencyName(): String = account.coinType.symbol
+    override fun getCurrencyName(): String = account.coinType.displaySymbol
 
     companion object {
         private const val ACCOUNT_LABEL = "ethereum"

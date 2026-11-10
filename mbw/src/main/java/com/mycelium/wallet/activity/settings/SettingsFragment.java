@@ -14,6 +14,7 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.text.Html;
 import android.text.InputType;
 import android.util.Log;
@@ -116,6 +117,9 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     private ProgressDialog pleaseWait;
 
     private boolean isSearchViewOpen = false;
+    private static final String STATE_SEARCH_QUERY = "search_query";
+    // search query to restore after re-creation (e.g. rotation)
+    private String pendingSearchQuery;
 
     private final Preference.OnPreferenceClickListener localCurrencyClickListener = new Preference.OnPreferenceClickListener() {
         public boolean onPreferenceClick(Preference preference) {
@@ -187,7 +191,8 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                     } catch (Exception e) {
                         aidBinary = null;
                     }
-                    if (aidBinary == null) {
+                    // HexUtils.toBytes("") returns an empty array: an empty AID is invalid too
+                    if (aidBinary == null || aidBinary.length == 0) {
                         Utils.showSimpleMessageDialog(getActivity(), getString(R.string.ledger_check_unplugged_aid));
                     } else {
                         mbwManager.getLedgerManager().setUnpluggedAID(aid);
@@ -207,6 +212,9 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
+        if (savedInstanceState != null) {
+            pendingSearchQuery = savedInstanceState.getString(STATE_SEARCH_QUERY);
+        }
         addPreferencesFromResource(R.xml.preferences);
         setHasOptionsMenu(true);
 
@@ -623,7 +631,8 @@ public class SettingsFragment extends PreferenceFragmentCompat {
             }
 
             private boolean isValid(Preference preference, String text) {
-                return (isTitleValid(preference, text) || isSummaryValid(preference, text)) && isIndependent(preference);
+                // dependent prefs (e.g. "Randomize PIN pad" -> "Set PIN") are searchable too; see releaseMissingDependencies()
+                return isTitleValid(preference, text) || isSummaryValid(preference, text);
             }
 
             private void findSearchResult(String s) {
@@ -664,6 +673,27 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                         }
                     }
                 }
+                releaseMissingDependencies(getPreferenceScreen());
+            }
+
+            /**
+             * A found preference may depend on one that was filtered out (e.g. "Require PIN on start" on
+             * "Set PIN"). Drop such a dependency so a later (re)attach cannot throw "Dependency not found"
+             * (#2313), keeping the enabled state it had from the dependency.
+             */
+            private void releaseMissingDependencies(PreferenceGroup group) {
+                for (int i = 0; i < group.getPreferenceCount(); i++) {
+                    Preference preference = group.getPreference(i);
+                    String dependency = preference.getDependency();
+                    if (dependency != null && findPreference(dependency) == null) {
+                        boolean enabled = preference.isEnabled();
+                        preference.setDependency(null);
+                        preference.setEnabled(enabled);
+                    }
+                    if (preference instanceof PreferenceGroup) {
+                        releaseMissingDependencies((PreferenceGroup) preference);
+                    }
+                }
             }
 
             private boolean checkInDeep(Preference preference, String text) {
@@ -689,16 +719,35 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                         && preference.getSummary().toString().toLowerCase().contains(search.toLowerCase());
             }
 
-            private boolean isIndependent(Preference preference) {
-                return preference.getDependency() == null;
-            }
-
         });
         ActionBar actionBar = ((SettingsActivity) requireActivity()).getSupportActionBar();
         actionBar.setDisplayShowHomeEnabled(true);
         actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setHomeAsUpIndicator(R.drawable.ic_back_arrow);
         actionBar.setTitle(R.string.settings);
+        if (pendingSearchQuery != null) {
+            // restore the search that was active before re-creation (rotation),
+            // posted so the menu is already attached to the action bar
+            final String query = pendingSearchQuery;
+            pendingSearchQuery = null;
+            new Handler(Looper.getMainLooper()).post(() -> {
+                if (!isAdded() || getView() == null) {
+                    return;
+                }
+                searchItem.expandActionView();
+                ((SearchView) searchItem.getActionView()).setQuery(query, false);
+            });
+        }
+    }
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        if (getView() != null && searchView != null && !searchView.isIconified()) {
+            outState.putString(STATE_SEARCH_QUERY, searchView.getQuery().toString());
+        } else if (pendingSearchQuery != null) {
+            outState.putString(STATE_SEARCH_QUERY, pendingSearchQuery);
+        }
     }
 
     @Override

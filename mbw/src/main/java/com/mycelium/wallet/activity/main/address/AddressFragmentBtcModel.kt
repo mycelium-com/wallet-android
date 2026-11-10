@@ -18,7 +18,8 @@ class AddressFragmentBtcModel(val app: Application) : AddressFragmentViewModel(a
 
     override fun init() {
         super.init()
-        currentType = model.type.value!!
+        // an archived account has no receiving address, so the type is never published
+        currentType = model.type.value ?: (model.account as AddressContainer).availableAddressTypes.first()
         setNextLabel()
     }
 

@@ -99,7 +99,8 @@ public class EnterAddressLabelUtil {
             // updating the existing entry with the same name. It is OK for the
             // name to be empty, in which case it will get deleted
             Optional<String> address = _storage.getAddressByLabel(newText);
-            return !address.isPresent() || address.get().equals(_address.toString());
+            return !address.isPresent() || MetadataStorage.normalizeAddressKey(address.get())
+                    .equals(MetadataStorage.normalizeAddressKey(_address.toString()));
         }
 
         @Override

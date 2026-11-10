@@ -94,25 +94,34 @@ public class DataExport {
     }
 
     private static String getTxLine(String accountLabel, String txLabel, String destAddresses, TransactionSummary transaction) {
-        TimeZone tz = TimeZone.getDefault();
+        // the 'Z' suffix means UTC: the time has to be formatted in UTC, not in the device time zone
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'", Locale.US);
-        df.setTimeZone(tz);
+        df.setTimeZone(TimeZone.getTimeZone("UTC"));
         String date = df.format(new Date(transaction.getTimestamp() * 1000L));
         String value = transaction.getTransferred().toPlainString();
         String name = transaction.getTransferred().type.getName();
         return
                 escape(accountLabel) + "," +
                         transaction.getIdHex() + "," +
-                        destAddresses + "," +
+                        escape(destAddresses) + "," +
                         date + "," +
                         value + "," +
-                        name + "," +
+                        escape(name) + "," +
                         escape(txLabel) + "\n";
     }
 
+    // text fields only: a numeric value like "-0.1" must not be touched
     private static String escape(String input) {
-        String output = input.replaceAll("\"", "\"\""); //replace all " with "" to escape them
-        if (output.contains("\"") || output.contains(",") || output.contains("\n")) {
+        if (input == null) {
+            return "";
+        }
+        String output = input;
+        // neutralize CSV (formula) injection: spreadsheets evaluate cells starting with = + - @ tab or CR
+        if (!output.isEmpty() && "=+-@\t\r".indexOf(output.charAt(0)) >= 0) {
+            output = "'" + output;
+        }
+        output = output.replaceAll("\"", "\"\""); //replace all " with "" to escape them
+        if (output.contains("\"") || output.contains(",") || output.contains("\n") || output.contains("\r")) {
             return "\"" + output + "\""; //enclose in double quotes, if double quotes or comma or newline is present
         } else {
             return output;

@@ -265,7 +265,7 @@ Du kan antingen lägga till miners avgift från ett konto med bitcoins varje gå
     <string name="vip_code_limits_description">Du kan byta vilka belopp som helst nu.</string>
     <string name="vip_code_limits_title">Inga gränser</string>
     <string name="vip_code_privacy_related_notice">Och en MYCKET VIKTIG integritetsrelaterad sak du redan bör vara medveten om.</string>
-    <string name="vip_code_who_can_get">Mycelium-tokeninnehavare\nDeltagare i SU7 Max giveaway\nLojala MyceIium-användare som fick en personlig\ninbjudan</string>
+    <string name="vip_code_who_can_get">Mycelium-tokeninnehavare\nDeltagare i SU7 Max giveaway\nLojala Mycelium-användare som fick en personlig\ninbjudan</string>
     <string name="vip_code_who_can_get_title">Vem är berättigad till VIP-status</string>
     <string name="vip_exchange_expired_title">Vip SWAP är inte tillgängligt</string>
     <string name="vip_exchange_status_expired_alert_message">Din VIP-status har upphört, så vanliga (icke-VIP) priser gäller nu.</string>

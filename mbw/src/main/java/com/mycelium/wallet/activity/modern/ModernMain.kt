@@ -3,6 +3,7 @@ package com.mycelium.wallet.activity.modern
 import android.Manifest.permission.POST_NOTIFICATIONS
 import android.content.Intent
 import android.os.Bundle
+import androidx.activity.OnBackPressedCallback
 import android.os.Handler
 import android.text.SpannableString
 import android.text.method.LinkMovementMethod
@@ -30,13 +31,11 @@ import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
 import com.mycelium.wallet.WalletApplication
+import com.mycelium.wallet.activity.deprecated.DeprecatedAccountsActivity
 import com.mycelium.wallet.activity.ActionActivity
 import com.mycelium.wallet.activity.MessageVerifyActivity
 import com.mycelium.wallet.activity.changelog.ChangeLog
-import com.mycelium.wallet.activity.fio.mapaccount.AccountMappingActivity
-import com.mycelium.wallet.activity.fio.requests.ApproveFioRequestActivity
 import com.mycelium.wallet.activity.main.BalanceMasterFragment
-import com.mycelium.wallet.activity.main.FioRequestsHistoryFragment
 import com.mycelium.wallet.activity.main.RecommendationsFragment
 import com.mycelium.wallet.activity.main.TransactionHistoryFragment
 import com.mycelium.wallet.activity.modern.adapter.TabsAdapter
@@ -86,13 +85,12 @@ import com.mycelium.wallet.external.changelly2.ExchangeFragment
 import com.mycelium.wallet.external.changelly2.HistoryFragment
 import com.mycelium.wallet.external.changelly2.remote.Api
 import com.mycelium.wallet.external.mediaflow.NewsConstants
-import com.mycelium.wallet.fio.FioRequestNotificator
 import com.mycelium.wallet.modularisation.ModularisationVersionHelper
+import com.mycelium.wapi.wallet.BroadcastResultType
 import com.mycelium.wapi.api.response.Feature
 import com.mycelium.wapi.wallet.AesKeyCipher
 import com.mycelium.wapi.wallet.SyncMode
 import com.mycelium.wapi.wallet.btc.bip44.BitcoinHDModule
-import com.mycelium.wapi.wallet.fio.FioModule
 import com.mycelium.wapi.wallet.manager.State
 import com.squareup.otto.Subscribe
 import info.guardianproject.netcipher.proxy.OrbotHelper
@@ -115,9 +113,13 @@ class ModernMain : AppCompatActivity(), BackHandler {
     private var mTransactionsTab: TabLayout.Tab? = null
     private var mVipTab: TabLayout.Tab? = null
     private var mRecommendationsTab: TabLayout.Tab? = null
-    private var mFioRequestsTab: TabLayout.Tab? = null
     private var refreshItem: MenuItem? = null
     private var _toaster: Toaster? = null
+
+    // Single source of truth for the selected tab. Kept as a stable tag (not a
+    // positional int) so it survives process-death restore and dynamic
+    // tab insertion (conditional tabs, ads) shifting positions.
+    private var pendingTabTag: String? = null
 
     @Volatile
     private var _lastSync: Long = 0
@@ -133,6 +135,17 @@ class ModernMain : AppCompatActivity(), BackHandler {
 
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        if (savedInstanceState == null && !isFinishing && !isTaskRoot && isExchangeDeepLink(intent)
+                && !intent.getBooleanExtra(EXTRA_DEEP_LINK_FORWARDED, false)) {
+            // an external deep link (mycelium://action.changelly, action.CHANGELLY) created a new ModernMain on
+            // top of the running wallet: hand it over to the existing instance instead of stacking ModernMains
+            finish()
+            startActivity(Intent(this, ModernMain::class.java)
+                    .setAction(MainActions.ACTION_EXCHANGE)
+                    .putExtra(EXTRA_DEEP_LINK_FORWARDED, true)
+                    .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP))
+            return
+        }
         mbwManager = MbwManager.getInstance(this)
         WalletApplication.applyLanguageChange(baseContext, mbwManager.language)
         setContentView(ModernMainBinding.inflate(layoutInflater).apply {
@@ -153,10 +166,16 @@ class ModernMain : AppCompatActivity(), BackHandler {
                 // This ensures that any cached encryption key is flushed when we swipe to
                 // another tab
                 mbwManager.clearCachedEncryptionParameters()
-                // redraw menu - not working yet
+                // Keep the tag-based source of truth in sync with what the
+                // pager actually shows (e.g. user swipes), so the menu and
+                // save-state never diverge from the visible page.
+                val tag = mTabsAdapter?.getPageTagOrNull(position)
+                if (tag != null) {
+                    pendingTabTag = tag
+                }
                 ActivityCompat.invalidateOptionsMenu(this@ModernMain)
                 MbwManager.getEventBus()
-                    .post(PageSelectedEvent(position, mTabsAdapter?.getPageTag(position)))
+                    .post(PageSelectedEvent(position, tag))
             }
         })
         TabLayoutMediator(binding.pagerTabs, binding.pager) { tab, position ->
@@ -187,8 +206,6 @@ class ModernMain : AppCompatActivity(), BackHandler {
                 RecommendationsFragment::class.java, null, TAB_RECOMMENDATIONS
             )
         }
-        mFioRequestsTab = binding.pagerTabs.newTab().setText(getString(R.string.tab_fio_requests))
-        mTabsAdapter!!.addTab(mFioRequestsTab!!, FioRequestsHistoryFragment::class.java, null, TAB_FIO_REQUESTS)
         val addressBookConfig = Bundle().apply {
             putBoolean(AddressBookFragment.OWN, false)
             putBoolean(AddressBookFragment.SELECT_ONLY, false)
@@ -198,7 +215,17 @@ class ModernMain : AppCompatActivity(), BackHandler {
                 addressBookConfig, TAB_ADDRESS_BOOK)
         addAdsTabs(binding.pagerTabs)
         binding.pager.offscreenPageLimit = (mTabsAdapter?.itemCount ?: 0) + 2
-        selectTab(intent.getStringExtra(TAB_KEY) ?: TAB_ACCOUNTS)
+        // On process-death restore, ViewPager2 separately restores its saved
+        // *positional* index after onCreate. Because conditional/ads tabs make
+        // positions unstable between sessions, that index can land on the wrong
+        // tab while the indicator and menu point elsewhere. Restore by stable
+        // tag instead and let selectTab() re-apply it after the pager settles.
+        val targetTab = if (savedInstanceState != null) {
+            savedInstanceState.getString(SELECTED_TAB_TAG) ?: TAB_ACCOUNTS
+        } else {
+            intent.getStringExtra(TAB_KEY) ?: TAB_ACCOUNTS
+        }
+        selectTab(targetTab)
         _toaster = Toaster(this)
         checkTorState()
         if (savedInstanceState != null) {
@@ -212,6 +239,9 @@ class ModernMain : AppCompatActivity(), BackHandler {
         }
         ModularisationVersionHelper.notifyWrongModuleVersion(this)
         handleIntent(intent)
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() = handleBack()
+        })
 
         setupSupportChatFab()
 
@@ -234,6 +264,8 @@ class ModernMain : AppCompatActivity(), BackHandler {
                 REQUEST_CODE_NOTIFICATION
             )
         })
+        // Bitcoin Vault and FIO were dropped; warn once per user who still had funds on them.
+        DeprecatedAccountsActivity.startIfNeeded(this)
     }
 
     private fun setupSupportChatFab() {
@@ -273,16 +305,34 @@ class ModernMain : AppCompatActivity(), BackHandler {
         }
     }
 
-    fun selectedTab(): String {
-        val index = binding.pager.currentItem
-        return mTabsAdapter!!.getPageTag(index)
-    }
+    /**
+     * The tab the user actually sees. The pager is the source of truth once it has pages;
+     * [pendingTabTag] only bridges the window between selectTab()/restore and the first layout
+     * (a stale pending tag used to make Back on Balance not exit — OBS-BACK-1).
+     */
+    fun selectedTab(): String =
+        mTabsAdapter?.let {
+            val i = binding.pager.currentItem
+            if (i in 0 until it.itemCount) it.getPageTagOrNull(i) else null
+        } ?: pendingTabTag ?: TAB_ACCOUNTS
 
     fun selectTab(tabTag: String) {
-        val selectTab = mTabsAdapter!!.indexOf(tabTag)
-        if(selectTab != -1) {
-            binding.pagerTabs.getTabAt(selectTab)?.select()
-            binding.pager.currentItem = selectTab
+        val index = mTabsAdapter?.indexOf(tabTag) ?: -1
+        if (index != -1) {
+            // Tag is authoritative immediately, so the menu/save-state are
+            // consistent even before the pager physically moves.
+            pendingTabTag = tabTag
+            // Defer the actual move: on restore this runnable runs *after*
+            // ViewPager2 has applied its own (possibly stale) positional
+            // state, so the tag-based selection wins. Drive only the pager —
+            // TabLayoutMediator syncs the indicator, avoiding the previous
+            // double-drive (getTabAt().select() + currentItem) race.
+            binding.pager.post {
+                if (binding.pager.currentItem != index) {
+                    binding.pager.setCurrentItem(index, false)
+                }
+                ActivityCompat.invalidateOptionsMenu(this@ModernMain)
+            }
         }
         intent.removeExtra(TAB_KEY)
     }
@@ -292,8 +342,18 @@ class ModernMain : AppCompatActivity(), BackHandler {
         handleIntent(intent)
     }
 
+    private fun isExchangeDeepLink(intent: Intent): Boolean =
+        intent.action == MainActions.ACTION_EXCHANGE || intent.action == MainActions.ACTION_EXCHANGE.lowercase() ||
+                (intent.action == Intent.ACTION_VIEW && intent.data?.scheme == MYCELIUM_SCHEME)
+
     private fun handleIntent(intent: Intent) {
-        when(intent.action) {
+        // the mycelium://action.changelly deep link (ACTION_VIEW) carries the action in the host
+        val action = if (intent.action == Intent.ACTION_VIEW && intent.data?.scheme == MYCELIUM_SCHEME) {
+            intent.data?.host
+        } else {
+            intent.action
+        }
+        when(action) {
             NewsUtils.MEDIA_FLOW_ACTION -> {
                 if(mediaFlowEnabled) {
                     selectTab(TAB_NEWS)
@@ -302,11 +362,6 @@ class ModernMain : AppCompatActivity(), BackHandler {
                                 .putExtras(getIntent().extras!!))
                     }
                 }
-            }
-            FioRequestNotificator.FIO_REQUEST_ACTION -> {
-                selectTab(TAB_FIO_REQUESTS)
-                startActivity(Intent(this, ApproveFioRequestActivity::class.java)
-                        .putExtras(getIntent().extras!!))
             }
             MainActions.ACTION_ACCOUNTS -> {
                 selectTab(TAB_ACCOUNTS)
@@ -380,6 +435,7 @@ class ModernMain : AppCompatActivity(), BackHandler {
         super.onSaveInstanceState(outState)
         outState.putLong(LAST_SYNC, _lastSync)
         outState.putBoolean(APP_START, _isAppStart)
+        outState.putString(SELECTED_TAB_TAG, selectedTab())
     }
 
     private fun checkTorState() {
@@ -448,7 +504,7 @@ class ModernMain : AppCompatActivity(), BackHandler {
         super.onStop()
     }
 
-    override fun onBackPressed() {
+    private fun handleBack() {
         backListeners.forEach {
             if(it.onBackPressed()) {
                return
@@ -459,7 +515,7 @@ class ModernMain : AppCompatActivity(), BackHandler {
             // requested.
             // commented out code above doesn't do the trick, neither.
             mbwManager.setStartUpPinUnlocked(false)
-            super.onBackPressed()
+            finish()
         } else {
             selectTab(TAB_BALANCE)
         }
@@ -489,7 +545,7 @@ class ModernMain : AppCompatActivity(), BackHandler {
             // or anything else in settings. this makes some of the listeners
             // obsolete
             val running = intent
-                    .putExtra(TAB_KEY, mTabsAdapter!!.getPageTag(binding.pager.currentItem))
+                    .putExtra(TAB_KEY, selectedTab())
             finish()
             startActivity(running)
         } else {
@@ -560,6 +616,8 @@ class ModernMain : AppCompatActivity(), BackHandler {
 
     @Subscribe
     fun transactionBroadcasted(event: TransactionBroadcasted?) {
+        // BroadcastDialog also reports rejected / not-sent / queued results through this event
+        if (event?.result?.resultType != BroadcastResultType.SUCCESS) return
         _toaster?.toast(R.string.transaction_sent, false)
     }
 
@@ -601,23 +659,17 @@ class ModernMain : AppCompatActivity(), BackHandler {
             addEnglishSetting(menu.findItem(R.id.miSettings))
             inflater.inflate(R.menu.refresh, menu)
             inflater.inflate(R.menu.verify_message, menu)
-            if (!(mbwManager.getWalletManager(false)
-                    .getModuleById(FioModule.ID) as FioModule?)!!.getAllRegisteredFioNames()
-                    .isEmpty()
-            ) {
-                inflater.inflate(R.menu.record_fio_options, menu)
-            }
             inflater.inflate(R.menu.giftbox, menu)
         }
 
         override fun onPrepareMenu(menu: Menu) {
             super.onPrepareMenu(menu)
-            val tabTag = mTabsAdapter!!.getPageTag(binding.pager.currentItem)
+            val tabTag = selectedTab()
             // at the moment, we allow to make backups multiple times
             menu.findItem(R.id.miBackup)?.isVisible = true
             refreshItem = Preconditions.checkNotNull(menu.findItem(R.id.miRefresh))
             refreshItem?.isVisible =
-                tabTag in arrayOf(TAB_BALANCE, TAB_HISTORY, TAB_FIO_REQUESTS, TAB_ACCOUNTS)
+                tabTag in arrayOf(TAB_BALANCE, TAB_HISTORY, TAB_ACCOUNTS)
             setRefreshAnimation()
             menu.findItem(R.id.miGiftBox)?.isVisible =
                 true // isContentEnabled(GiftboxConstants.PARTNER_ID)
@@ -649,10 +701,13 @@ class ModernMain : AppCompatActivity(), BackHandler {
                     if (counter == 4) {
                         syncMode = SyncMode.FULL_SYNC_CURRENT_ACCOUNT_FORCED
                         counter = 0
-                    } else if (TAB_ACCOUNTS == mTabsAdapter!!.getPageTag(binding.pager.currentItem)) {
-                        // if we are in the accounts tab, sync all accounts if the users forces a sync
-                        syncMode = SyncMode.NORMAL_ALL_ACCOUNTS_FORCED
+                    } else {
+                        // count every manual refresh (Balance/History/Accounts), not only Accounts
                         counter++
+                        if (TAB_ACCOUNTS == selectedTab()) {
+                            // if we are in the accounts tab, sync all accounts if the users forces a sync
+                            syncMode = SyncMode.NORMAL_ALL_ACCOUNTS_FORCED
+                        }
                     }
                     if (!startSynchronization(syncMode)) {
                         binding.pager.postDelayed(
@@ -678,16 +733,6 @@ class ModernMain : AppCompatActivity(), BackHandler {
                     true
                 }
 
-                R.id.miMyFIONames -> {
-                    startActivity(Intent(this@ModernMain, AccountMappingActivity::class.java))
-                    true
-                }
-
-                R.id.miFIORequests -> {
-                    selectTab(TAB_FIO_REQUESTS)
-                    true
-                }
-
                 R.id.miGiftBox -> {
                     GiftBoxRootActivity.start(this@ModernMain)
                     true
@@ -705,7 +750,6 @@ class ModernMain : AppCompatActivity(), BackHandler {
         const val TAB_EXCHANGE = "tab_exchange"
         private const val TAB_HISTORY = "tab_history"
         const val TAB_VIP = "tab_vip"
-        const val TAB_FIO_REQUESTS = "tab_fio_requests"
         private const val TAB_ADS = "tab_ads"
         private const val TAB_RECOMMENDATIONS = "tab_recommendations"
         private const val TAB_ADDRESS_BOOK = "tab_address_book"
@@ -715,5 +759,9 @@ class ModernMain : AppCompatActivity(), BackHandler {
         const val MIN_FULLSYNC_INTERVAL = (5 * Constants.MS_PR_HOUR).toInt()
         const val LAST_SYNC = "LAST_SYNC"
         private const val APP_START = "APP_START"
+        private const val SELECTED_TAB_TAG = "SELECTED_TAB_TAG"
+        private const val MYCELIUM_SCHEME = "mycelium"
+        /** set on an intent that already reuses the running ModernMain (CLEAR_TOP), see onCreate */
+        const val EXTRA_DEEP_LINK_FORWARDED = "deepLinkForwarded"
     }
 }

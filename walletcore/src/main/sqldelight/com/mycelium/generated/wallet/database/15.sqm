@@ -1,0 +1,37 @@
+CREATE TABLE IF NOT EXISTS TronContext(
+    uuid TEXT PRIMARY KEY NOT NULL,
+    enabledTokens TEXT,
+    accountIndex INTEGER NOT NULL,
+    address TEXT,
+    FOREIGN KEY (uuid)
+        REFERENCES AccountContext (uuid)
+        ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS Trc20Context(
+    uuid TEXT PRIMARY KEY NOT NULL,
+    contractAddress TEXT NOT NULL,
+    unitExponent INTEGER NOT NULL,
+    symbol TEXT NOT NULL,
+    tronAccountId TEXT NOT NULL,
+    FOREIGN KEY (uuid)
+        REFERENCES AccountContext (uuid)
+        ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS TronAccountBacking (
+    txid TEXT NOT NULL,
+    uuid TEXT NOT NULL,
+    fromAddress TEXT NOT NULL,
+    toAddress TEXT NOT NULL,
+    bandwidth TEXT DEFAULT 268 NOT NULL,
+    energy TEXT DEFAULT 0 NOT NULL,
+    feeLimit TEXT DEFAULT 0 NOT NULL,
+    success INTEGER NOT NULL DEFAULT 1,
+    hasTokenTransfers INTEGER NOT NULL DEFAULT 0,
+    tronTxType TEXT NOT NULL DEFAULT 'TRX_TRANSFER',
+    PRIMARY KEY (txid, uuid),
+    FOREIGN KEY (txid, uuid)
+            REFERENCES AccountBacking (txid, uuid)
+            ON DELETE CASCADE
+);

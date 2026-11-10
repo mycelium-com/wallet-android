@@ -10,8 +10,8 @@
     <string name="amount_hint">0.00</string>
     <string name="amount_hint_denomination">0.00 %1$s</string>
     <string name="enter_recipient_title">Отправить кому</string>
-    <string name="enter_recipient_hint">%1$s адрес или имя FIO</string>
-    <string name="enter_recipient_description">Введите %1$s адрес или имя FIO</string>
+    <string name="enter_recipient_hint">%1$s адрес</string>
+    <string name="enter_recipient_description">Введите %1$s адрес</string>
     <string name="recipient_title">Введите адрес получателя:</string>
     <string name="amount_label">Сумма:</string>
     <string name="amount_label_s">Сумма: %s</string>
@@ -23,7 +23,6 @@
     <string name="s_payment_request">%s запрос на оплату</string>
     <string name="share_address">Поделиться адресом</string>
     <string name="share_address_and_amount">Поделиться адресом и суммой</string>
-    <string name="s_fio_request">%s запрос FIO</string>
     <string name="qr_code">QR-код</string>
     <string name="my_addresses">Мои адреса</string>
     <string name="insufficient_funds">Недостаточно средств</string>
@@ -77,8 +76,12 @@
     <string name="transaction_rejected_malformed">Подписание транзакции не удалось.\nПожалуйста, сообщите об этом в техподдержку.\nСырые данные транзакции были скопированы в буфер обмена, если возможно, приложите их к вашему запросу.\n%s</string>
     <string name="transaction_rejected_invalid_tx_params">Сеть отклонила транзакцию. Пожалуйста, проверьте параметры транзакции и попробуйте снова. Ошибка: %1$s</string>
     <string name="enter_bitcoin_address">Введите Bitcoin-адрес</string>
-    <string name="recipient_invalid">Недопустимый адрес или имя FIO</string>
-    <string name="recipient_has_no_such_address">%1$s не имеет связанного адреса %2$s</string>
+    <string name="recipient_invalid">Недопустимый адрес</string>
+    <string name="recipient_invalid_wrong_network">Неверная сеть: это адрес сети %1$s, а %2$s отправляется в сети %3$s</string>
+    <string name="recipient_invalid_eth_format">Адрес Ethereum: 0x и 40 шестнадцатеричных символов (0-9, a-f)</string>
+    <string name="recipient_invalid_eth_checksum">Не совпадает контрольная сумма: регистр букв не соответствует адресу (EIP-55). Проверьте адрес на опечатки</string>
+    <string name="recipient_invalid_tron_format">Адрес TRON начинается с T и состоит из 34 символов</string>
+    <string name="recipient_invalid_checksum">Не совпадает контрольная сумма. Проверьте адрес на опечатки</string>
     <string name="recipient_valid">Получатель действителен</string>
     <string name="using_address_from_clipboard">Использование адреса из буфера обмена</string>
     <string name="foreign_addresses">Адресная книга</string>
@@ -107,7 +110,6 @@
     <string name="miner_fee_normal_desc">С обычным расписанием комиссий майнера вы можете ожидать, что ваши транзакции будут подтверждены в следующих нескольких блоках.</string>
     <string name="miner_fee_priority_desc">С расписанием приоритетной комиссии вы можете ожидать, что ваша транзакция будет подтверждена в одном или двух блоках.</string>
     <string name="new_bitcoin_address_created">Сгенерирован новый случайный приватный ключ с следующими Bitcoin-адресами:</string>
-    <string name="transaction_from_address_prefix">От: %s</string>
     <string name="transaction_to_address_prefix">К: %s</string>
     <string name="retrieving_pubkey_address">Получение следующего неиспользованного адреса…</string>
     <string name="tx_details_num_confirmations">Подтверждения</string>
@@ -258,6 +260,9 @@
     <string name="cancel_eth_tx_loading">Оценка комиссии за отмену…</string>
     <string name="cancel_eth_tx_new_fee">Комиссия за отмену</string>
     <string name="cancel_eth_tx_no_connection">Нет соединения с сервером. Попробуйте позже.</string>
+    <string name="cancel_eth_tx_queue_blocked">Более ранняя транзакция (nonce %1$s) оплачена ниже текущей комиссии сети и не может быть включена в блок. Транзакции подтверждаются по порядку, поэтому эта отмена будет ждать после неё. Сначала отмените более раннюю.</string>
+    <string name="cancel_eth_tx_cancel_blocking">Сначала отменить nonce %1$s</string>
+    <string name="send_eth_stuck_queue_warning">Ваша более ранняя транзакция (nonce %1$s) оплачена ниже текущей комиссии сети и застряла. Новая отправка будет ждать после неё. Сначала отмените её в истории транзакций.</string>
     <string name="cancel_eth_tx_old_fee">Исходная комиссия</string>
     <string name="cancel_eth_tx_recipient">Исходный получатель</string>
     <string name="cancel_eth_tx_success">Отмена отправлена.</string>

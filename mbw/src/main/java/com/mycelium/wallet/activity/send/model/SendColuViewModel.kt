@@ -57,7 +57,6 @@ class SendColuViewModel(context: Application) : SendBtcViewModel(context) {
                 .subscribeOn(Schedulers.io())
                 .doOnComplete {
                     model.account.broadcastTx(model.transaction!!)
-                    sendFioObtData()
                 }
                 .doOnError { Log.e(TAG, "", it )}
                 .subscribeOn(AndroidSchedulers.mainThread())

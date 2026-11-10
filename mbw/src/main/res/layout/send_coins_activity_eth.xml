@@ -7,6 +7,8 @@
 
         <import type="android.text.Html" />
 
+        <import type="android.view.View" />
+
         <import type="androidx.lifecycle.AndroidViewModel" />
 
         <variable
@@ -42,6 +44,18 @@
                 layout="@layout/send_coins_activity_warnings_heap"
                 bind:activity="@{activity}"
                 bind:viewModel="@{viewModel}" />
+
+            <!--An earlier pending tx priced under the base fee holds up the queue-->
+            <TextView
+                android:id="@+id/tvStuckQueueWarning"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="@dimen/horizontal_page_margin"
+                android:layout_marginTop="4dp"
+                android:text="@{viewModel.stuckQueueNonce != null ? @string/send_eth_stuck_queue_warning(viewModel.stuckQueueNonce) : null}"
+                android:textColor="@color/warning_yellow"
+                android:textSize="14sp"
+                android:visibility="@{viewModel.stuckQueueNonce != null ? View.VISIBLE : View.GONE}" />
 
 
             <LinearLayout
@@ -87,7 +101,7 @@
                 android:layout_marginStart="16dp"
                 android:layout_marginEnd="16dp"
                 android:layout_marginTop="11dp"
-                android:textColor="@color/fio_white_alpha_0_6"
+                android:textColor="@color/white_alpha_0_6"
                 android:textSize="14sp"
                 android:onClick="@{_ -> viewModel.minerFeeInfoClickListener()}"
                 tools:text="This is the max fee you may have to pay to send the transaction from ETH Account 1.  However, most likely miner fee will not exceed 0.0026 ETH ~5.00 USD. For details please see miner fee calculation." />
@@ -101,7 +115,7 @@
                 android:layout_marginEnd="16dp"
                 android:onClick="@{_ -> viewModel.minerFeeInfoClickListener()}"
                 android:text="@{Html.fromHtml(@string/erc20_this_is_updated_fee)}"
-                android:textColor="@color/fio_white_alpha_0_6"
+                android:textColor="@color/white_alpha_0_6"
                 android:textSize="14sp"
                 android:visibility="gone"
                 tools:text="This is the updated fee based on set Gas Limit. For details please see miner fee calculation."
@@ -122,7 +136,7 @@
                     android:id="@+id/tvPleaseTopUp"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textColor="@color/fio_red"
+                    android:textColor="@color/error_red"
                     android:textSize="14sp"
                     tools:text="@string/please_top_up_your_eth_account" />
 
@@ -138,7 +152,7 @@
                         android:id="@+id/tvParentEthAccountBalanceLabel"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:textColor="@color/fio_white_alpha_0_6"
+                        android:textColor="@color/white_alpha_0_6"
                         android:textSize="14sp"
                         tools:text="ETH Account 1:" />
 
@@ -146,25 +160,11 @@
                         android:id="@+id/tvParentEthAccountBalance"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:textColor="@color/fio_white_alpha_0_6"
+                        android:textColor="@color/white_alpha_0_6"
                         android:textSize="14sp"
                         tools:text=" 0 ETH" />
                 </LinearLayout>
             </LinearLayout>
-
-            <!-- Sender -->
-            <include
-                android:id="@+id/layoutSenderFio"
-                layout="@layout/send_coins_sender_fio"
-                bind:activity="@{activity}"
-                bind:viewModel="@{viewModel}" />
-
-            <!--FIO Memo-->
-            <include
-                android:id="@+id/layoutFioMemo"
-                layout="@layout/fio_memo_input"
-                bind:fioMemo="@{viewModel.fioMemo}"
-                bind:payeeFioName="@{viewModel.payeeFioName}" />
 
             <!--Update progress bar-->
             <include

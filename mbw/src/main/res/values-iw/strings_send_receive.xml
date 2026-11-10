@@ -30,6 +30,9 @@
     <string name="cancel_eth_tx_loading">אומד עמלת ביטול…</string>
     <string name="cancel_eth_tx_new_fee">עמלת ביטול</string>
     <string name="cancel_eth_tx_no_connection">אין חיבור לשרת. נסה שוב מאוחר יותר.</string>
+    <string name="cancel_eth_tx_queue_blocked">לעסקה קודמת (nonce %1$s) יש עמלה נמוכה מעמלת הרשת הנוכחית ולא ניתן לכרות אותה. עסקאות מאושרות לפי הסדר, ולכן ביטול זה ימתין מאחוריה. בטל קודם את העסקה הקודמת.</string>
+    <string name="cancel_eth_tx_cancel_blocking">בטל קודם את nonce %1$s</string>
+    <string name="send_eth_stuck_queue_warning">לעסקה הקודמת שלך (nonce %1$s) יש עמלה נמוכה מעמלת הרשת הנוכחית והיא תקועה. שליחה חדשה תמתין מאחוריה. בטל אותה קודם מהיסטוריית העסקאות.</string>
     <string name="cancel_eth_tx_old_fee">עמלה מקורית</string>
     <string name="cancel_eth_tx_recipient">נמען מקורי</string>
     <string name="cancel_eth_tx_success">שידור הביטול בוצע.</string>

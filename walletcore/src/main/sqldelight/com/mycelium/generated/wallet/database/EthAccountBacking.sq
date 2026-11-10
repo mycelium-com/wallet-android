@@ -18,6 +18,7 @@ CREATE TABLE IF NOT EXISTS EthAccountBacking (
     internalValue TEXT AS Value,
     hasTokenTransfers INTEGER AS Boolean NOT NULL DEFAULT 0,
     status TEXT NOT NULL DEFAULT 'PENDING',
+    failureReason TEXT,
     PRIMARY KEY (txid, uuid),
     FOREIGN KEY (txid, uuid)
             REFERENCES AccountBacking (txid, uuid)
@@ -34,7 +35,7 @@ CREATE TABLE IF NOT EXISTS EthAccountBacking (
 
 selectTransactionSummaries:
 SELECT eb.txid, b.currency, b.blockNumber, b.timestamp, b.value, b.fee, b.confirmations,
-    eb.fromAddress, eb.toAddress, eb.nonce, eb.gasLimit, eb.gasUsed, eb.gasPrice, eb.success, eb.internalValue, eb.hasTokenTransfers, eb.status
+    eb.fromAddress, eb.toAddress, eb.nonce, eb.gasLimit, eb.gasUsed, eb.gasPrice, eb.success, eb.internalValue, eb.hasTokenTransfers, eb.status, eb.failureReason
 FROM EthAccountBacking AS eb
     INNER JOIN AccountBacking AS b
     ON eb.uuid = b.uuid AND eb.txid = b.txid
@@ -50,7 +51,7 @@ FROM EthAccountBacking AS eb
 
 selectTransactionSummariesSince:
 SELECT eb.txid, b.currency, b.blockNumber, b.timestamp, b.value, b.fee, b.confirmations,
-    eb.fromAddress, eb.toAddress, eb.nonce, eb.gasLimit, eb.gasUsed, eb.gasPrice, eb.success, eb.internalValue, eb.hasTokenTransfers, eb.status
+    eb.fromAddress, eb.toAddress, eb.nonce, eb.gasLimit, eb.gasUsed, eb.gasPrice, eb.success, eb.internalValue, eb.hasTokenTransfers, eb.status, eb.failureReason
 FROM EthAccountBacking AS eb
     INNER JOIN AccountBacking AS b
     ON eb.uuid = b.uuid AND eb.txid = b.txid
@@ -62,7 +63,7 @@ FROM EthAccountBacking AS eb
 
 selectTransactionSummaryById:
 SELECT eb.txid, b.currency, b.blockNumber, b.timestamp, b.value, b.fee, b.confirmations,
-     eb.fromAddress, eb.toAddress, eb.nonce, eb.gasLimit, eb.gasUsed, eb.gasPrice, eb.success, eb.internalValue, eb.hasTokenTransfers, eb.status
+     eb.fromAddress, eb.toAddress, eb.nonce, eb.gasLimit, eb.gasUsed, eb.gasPrice, eb.success, eb.internalValue, eb.hasTokenTransfers, eb.status, eb.failureReason
 FROM EthAccountBacking AS eb
     INNER JOIN AccountBacking AS b
     ON eb.uuid = b.uuid AND eb.txid = b.txid
@@ -82,8 +83,8 @@ FROM EthAccountBacking AS eb
 
 insertTransaction:
 INSERT OR REPLACE INTO EthAccountBacking(txid, uuid, fromAddress, toAddress, nonce, gasLimit, gasPrice,
-                                         success, internalValue, hasTokenTransfers, status)
-VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+                                         success, internalValue, hasTokenTransfers, status, failureReason)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
 
 updateGasUsed:
 UPDATE EthAccountBacking
@@ -102,6 +103,14 @@ WHERE uuid = (?) AND txid = (?);
 
 selectStatus:
 SELECT status FROM EthAccountBacking WHERE uuid = (?) AND txid = (?);
+
+-- Txids of locally-stored confirmed txs (status = CONFIRMED). Used by
+-- incremental sync to know when blockbook's newest-first pagination has
+-- reached history we already have, so we can stop fetching older pages.
+-- Excludes pending and terminal-local states (REPLACED/CANCELED/DROPPED/
+-- FAILED) since those don't represent "we've already paginated past this".
+selectConfirmedTxids:
+SELECT txid FROM EthAccountBacking WHERE uuid = (?) AND status = 'CONFIRMED';
 
 deleteTransaction:
 DELETE FROM EthAccountBacking

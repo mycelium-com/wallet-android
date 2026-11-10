@@ -141,6 +141,28 @@ public abstract class GenericMetadataStorage implements IMetaDataStorage {
       _db.delete(TABLE_KEY_VALUE_STORE, "key = ?", new String[]{key});
    }
 
+   // Case-insensitive key variants: hex keys (e.g. ETH addresses) may be stored EIP-55 checksummed
+   // or lower case depending on where they came from; they denote the same entity.
+   void deleteAllByKeyIgnoreCase(final String key){
+      _db.delete(TABLE_KEY_VALUE_STORE, "key = ? COLLATE NOCASE", new String[]{key});
+   }
+
+   void deleteByKeyCategoryIgnoreCase(final MetadataKeyCategory keyCategory){
+      _db.delete(TABLE_KEY_VALUE_STORE, "key = ? COLLATE NOCASE and category = ?",
+            new String[]{keyCategory.key, keyCategory.category});
+   }
+
+   Optional<String> getKeyCategoryValueEntryIgnoreCase(final MetadataKeyCategory keyCategory){
+      try (Cursor cursor = _db.query(false, TABLE_KEY_VALUE_STORE, new String[]{"value"},
+            "key = ? COLLATE NOCASE and category = ?", new String[]{keyCategory.key, keyCategory.category},
+            null, null, null, "1")) {
+         if (cursor.moveToNext()) {
+            return Optional.of(cursor.getString(0));
+         }
+         return Optional.absent();
+      }
+   }
+
    Map<String, String> getKeysAndValuesByCategory(final MetadataCategory category){
       return getKeysAndValuesByCategory(category.category);
    }

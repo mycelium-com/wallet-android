@@ -27,12 +27,15 @@ import com.mycelium.modularizationtools.CommunicationManager.Companion.init
 import com.mycelium.modularizationtools.ModuleMessageReceiver
 import com.mycelium.wallet.UpdateConfigWorker.Companion.end
 import com.mycelium.wallet.UpdateConfigWorker.Companion.start
+import com.mycelium.wallet.activity.PinProtectedActivity
+import com.mycelium.wallet.activity.StartupActivity
+import com.mycelium.wallet.activity.export.ShamirSharingActivity
+import com.mycelium.wallet.activity.modern.ModernMain
 import com.mycelium.wallet.activity.modern.Toaster.Companion.onStop
 import com.mycelium.wallet.activity.settings.SettingsPreference.getLanguage
 import com.mycelium.wallet.activity.settings.SettingsPreference.mediaFlowEnabled
 import com.mycelium.wallet.external.mediaflow.NewsSyncUtils.startNewsUpdateRepeating
 import com.mycelium.wallet.external.mediaflow.database.NewsDatabase
-import com.mycelium.wallet.fio.FioRequestNotificator
 import org.bouncycastle.jce.provider.BouncyCastleProvider
 import java.security.Security
 import java.util.Locale
@@ -85,6 +88,9 @@ class WalletApplication : Application(), ModuleMessageReceiver {
         registerActivityLifecycleCallbacks(ApplicationLifecycleHandler())
         PackageRemovedReceiver.register(applicationContext)
         if (isMainProcess()) {
+            // Shamir share PDFs are left in the cache if the process dies while the share chooser is open
+            // (ShamirSharingActivity.onDestroy never runs then)
+            Thread { ShamirSharingActivity.deleteExportedPdfs(this) }.start()
             NewsDatabase.initialize(this)
             if (mediaFlowEnabled) {
                 startNewsUpdateRepeating(this)
@@ -92,7 +98,6 @@ class WalletApplication : Application(), ModuleMessageReceiver {
         }
         FirebaseApp.initializeApp(this)
         FirebaseMessaging.getInstance().subscribeToTopic("all")
-        FioRequestNotificator.initialize(this)
 
         start(this)
     }
@@ -163,7 +168,22 @@ class WalletApplication : Application(), ModuleMessageReceiver {
 
         override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {
             numOfCreated++
-            MbwManager.getInstance(applicationContext).activityCount = numOfCreated
+            val mbwManager = MbwManager.getInstance(applicationContext)
+            mbwManager.activityCount = numOfCreated
+            if (activity !is StartupActivity && activity !is PinProtectedActivity && mbwManager.isUnlockPinRequired) {
+                // The process was recreated (or the startup PIN was re-armed) while the system restores a deeper
+                // screen: route through StartupActivity so "Require PIN on start" is enforced.
+                val redirect = Intent(activity, StartupActivity::class.java)
+                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                val launchedPlain = activity is ModernMain &&
+                        (activity.intent.action == null || activity.intent.action == Intent.ACTION_MAIN)
+                if (!launchedPlain) {
+                    // deep link (gift box, exchange, POP…) or a restored screen: reopen it after the PIN
+                    redirect.putExtra(StartupActivity.EXTRA_REDIRECT_INTENT, Intent(activity.intent).setClass(activity, activity.javaClass))
+                }
+                activity.startActivity(redirect)
+                activity.finish()
+            }
         }
 
         override fun onActivityPostCreated(activity: Activity, savedInstanceState: Bundle?) {
@@ -202,7 +222,6 @@ class WalletApplication : Application(), ModuleMessageReceiver {
                         if (mbwManager.getWalletManager(false).isNetworkConnected != connected) {
                             mbwManager.getWalletManager(false).isNetworkConnected = connected
                             mbwManager.wapi.setNetworkConnected(connected)
-                            mbwManager.btcvWapi.setNetworkConnected(connected)
                         }
                         if (connected) {
                             checkNetworkTimer!!.cancel()
@@ -228,8 +247,8 @@ class WalletApplication : Application(), ModuleMessageReceiver {
                 }
                 isBackground = true
                 logger.log(Level.INFO, "Went to background")
+                onStop()
             }
-            onStop()
         }
 
         override fun onActivitySaveInstanceState(activity: Activity, outState: Bundle) {}

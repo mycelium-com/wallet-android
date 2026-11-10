@@ -37,6 +37,10 @@ abstract class AbstractAccountScanManager @JvmOverloads constructor(
 ) : AccountScanManager {
 
     private var scanAsyncTask: Job? = null
+
+    /** set by [stopBackgroundAccountScan]; blocking wait loops in subclasses must poll it */
+    @Volatile
+    protected var scanStopRequested = false
     private val foundAccounts = ArrayList<HdKeyNodeWrapper>()
 
     @Volatile
@@ -83,7 +87,8 @@ abstract class AbstractAccountScanManager @JvmOverloads constructor(
         } else {
             // start a background task which iterates over all accounts and calls the callback
             // to check if there was activity on it
-            scanAsyncTask = GlobalScope.launch(Dispatchers.Default) {
+            scanStopRequested = false
+            scanAsyncTask = GlobalScope.launch(Dispatchers.IO) {
                 progressUpdate(ScanStatus(Status.initializing, AccountStatus.unknown))
                 if (onBeforeScan()) {
                     progressUpdate(ScanStatus(Status.readyToScan, AccountStatus.scanning))
@@ -102,7 +107,6 @@ abstract class AbstractAccountScanManager @JvmOverloads constructor(
         var lastScannedPath: HdKeyPath? = null
         val lastAccountPubKeyNodes = mutableListOf<HdKeyNode>()
         var wasUsedOrAccountsLookahead = false
-        var lastUsedAccountIndex = 0
         while (isActive) {
             val accountPathsToScan =
                 getAccountPathsToScan(lastScannedPath, wasUsedOrAccountsLookahead, coinType)
@@ -128,7 +132,6 @@ abstract class AbstractAccountScanManager @JvmOverloads constructor(
                 val newAccount = checkTxs(acc)
                 lastScannedPath = accountPathsToScan.values.first()
                 wasUsedOrAccountsLookahead = if (newAccount != null) {
-                    lastUsedAccountIndex++
                     val hdKeyNode = HdKeyNodeWrapper(
                         accountPathsToScan.values,
                         accountPubKeyNodes,
@@ -137,9 +140,7 @@ abstract class AbstractAccountScanManager @JvmOverloads constructor(
                     progressUpdate(FoundAccountStatus(hdKeyNode))
                     true
                 } else {
-                    // for FIO accounts we want to perform accounts lookahead
-                    coinType == Utils.getFIOCoinType() &&
-                            accountPathsToScan.values.first().lastIndex < lastUsedAccountIndex + ACCOUNT_LOOKAHEAD
+                    false
                 }
             }
         }
@@ -156,6 +157,7 @@ abstract class AbstractAccountScanManager @JvmOverloads constructor(
     }
 
     override fun stopBackgroundAccountScan() {
+        scanStopRequested = true
         if (scanAsyncTask != null) {
             scanAsyncTask?.cancel()
             scanAsyncTask = null
@@ -238,7 +240,7 @@ abstract class AbstractAccountScanManager @JvmOverloads constructor(
                     BipDerivationType.BIP84 to BIP84COIN_TYPE.getAccount(0)
                 )
             } else {
-                mapOf(BipDerivationType.BIP44 to BIP44FIOCOIN_TYPE.getAccount(0))
+                emptyMap()
             }
         }
 
@@ -252,7 +254,7 @@ abstract class AbstractAccountScanManager @JvmOverloads constructor(
                     BipDerivationType.BIP84 to BIP84COIN_TYPE.getAccount(lastPath.lastIndex + 1)
                 )
             } else {
-                mapOf(BipDerivationType.BIP44 to BIP44FIOCOIN_TYPE.getAccount(lastPath.lastIndex + 1))
+                emptyMap()
             }
         } else {
             emptyMap()
@@ -261,8 +263,6 @@ abstract class AbstractAccountScanManager @JvmOverloads constructor(
     }
 
     companion object {
-        const val ACCOUNT_LOOKAHEAD = 20
-        val BIP44FIOCOIN_TYPE = HdKeyPath.BIP44.getHardenedChild(235)
         val BIP44COIN_TYPE = HdKeyPath.BIP44.getCoinTypeBitcoin(!Utils.isProdnet())
         val BIP49COIN_TYPE = HdKeyPath.BIP49.getCoinTypeBitcoin(!Utils.isProdnet())
         val BIP84COIN_TYPE = HdKeyPath.BIP84.getCoinTypeBitcoin(!Utils.isProdnet())

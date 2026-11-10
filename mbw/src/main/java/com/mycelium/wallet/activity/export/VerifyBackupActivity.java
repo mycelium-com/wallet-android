@@ -129,6 +129,15 @@ public class VerifyBackupActivity extends AppCompatActivity {
    }
 
    @Override
+   public void onWindowFocusChanged(boolean hasFocus) {
+      super.onWindowFocusChanged(hasFocus);
+      if (hasFocus) {
+         // Android 10+ only lets the focused app read the clipboard - onResume runs too early
+         findViewById(R.id.btClipboard).setEnabled(hasPrivateKeyOnClipboard());
+      }
+   }
+
+   @Override
    protected void onDestroy() {
       _mbwManager.clearCachedEncryptionParameters();
       super.onDestroy();
@@ -199,25 +208,26 @@ public class VerifyBackupActivity extends AppCompatActivity {
    private void verify(InMemoryPrivateKey pk) {
       UUID account = null;
       boolean success = false;
-      Collection<BitcoinAddress> allAddresses = null;
       WalletManager walletManager = _mbwManager.getWalletManager(false);
-      for (BitcoinAddress currentAddress : pk.getPublicKey().getAllSupportedAddresses(_mbwManager.getNetwork()).values()) {
-         // Figure out the account ID
-         account = SingleAddressAccount.calculateId(currentAddress);
+      for (UUID candidate : SingleAddressAccount.calculatePossibleIds(pk.getPublicKey(), _mbwManager.getNetwork())) {
+         account = candidate;
          // Check whether regular wallet contains that account
          success = walletManager.hasAccount(account);
          if (success) {
-            allAddresses = pk.getPublicKey().getAllSupportedAddresses(_mbwManager.getNetwork()).values();
             break;
          }
       }
+      // Only show addresses the wallet actually uses (no forced segwit addresses for
+      // uncompressed keys)
+      Collection<BitcoinAddress> allAddresses =
+            pk.getPublicKey().getAllSupportedAddresses(_mbwManager.getNetwork()).values();
 
 //      for (ColuMain coluAsset : ColuUtils.allColuCoins(BuildConfig.FLAVOR)) {
 //         UUID coluUUID = ColuUtils.getGuidForAsset(coluAsset, pk.getPublicKey().toAddress(_mbwManager.getNetwork(), AddressType.P2PKH).getAllAddressBytes());
 //         success |= _mbwManager.getWalletManager(false).hasAccount(coluUUID);
 //      }
 
-      if (success && allAddresses != null) {
+      if (success) {
          _mbwManager.getMetadataStorage().setOtherAccountBackupState(account, MetadataStorage.BackupState.VERIFIED);
 //         for (ColuMain coluAsset : ColuUtils.allColuCoins(BuildConfig.FLAVOR)) {
 //            UUID coluUUID = ColuUtils.getGuidForAsset(coluAsset, pk.getPublicKey().toAddress(_mbwManager.getNetwork(), AddressType.P2PKH).getAllAddressBytes());

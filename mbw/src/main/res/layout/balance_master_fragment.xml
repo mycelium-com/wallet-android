@@ -14,11 +14,6 @@
             android:orientation="vertical">
 
             <FrameLayout
-                android:id="@+id/phFragmentFioBanner"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
-
-            <FrameLayout
                 android:id="@+id/phFragmentNotice"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

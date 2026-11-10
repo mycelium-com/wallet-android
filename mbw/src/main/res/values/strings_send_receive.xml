@@ -10,8 +10,8 @@
     <string name="amount_hint">0.00</string>
     <string name="amount_hint_denomination">0.00 %1$s</string>
     <string name="enter_recipient_title">Send to</string>
-    <string name="enter_recipient_hint">%1$s Address or FIO Name</string>
-    <string name="enter_recipient_description">Enter %1$s Address or FIO Name</string>
+    <string name="enter_recipient_hint">%1$s Address</string>
+    <string name="enter_recipient_description">Enter %1$s Address</string>
     <string name="recipient_title">Enter recipient address:</string>
     <string name="amount_label">Amount:</string>
     <string name="amount_label_s">Amount: %s</string>
@@ -23,7 +23,6 @@
     <string name="s_payment_request">%s Payment Request</string>
     <string name="share_address">Share Address</string>
     <string name="share_address_and_amount">Share Address and Amount</string>
-    <string name="s_fio_request">%s FIO Request</string>
     <string name="qr_code">QR Code</string>
     <string name="my_addresses">My Addresses</string>
     <string name="insufficient_funds">Insufficient funds</string>
@@ -76,8 +75,15 @@
     <string name="transaction_rejected_malformed">Transaction signing failed.\n Please report this incident to tech support.\nRaw transaction was copied to clipboard, if possible please attach it to your request. \n %s</string>
     <string name="transaction_rejected_invalid_tx_params">Transaction was rejected by Network. Please verify that transaction parameters are correct and try again. Error: %1$s</string>
     <string name="enter_bitcoin_address">Enter Bitcoin Address</string>
-    <string name="recipient_invalid">Invalid address or FIO Name</string>
-    <string name="recipient_has_no_such_address">%1$s has no %2$s address connected</string>
+    <string name="recipient_invalid">Invalid address</string>
+    <string name="recipient_invalid_wrong_network">Wrong network: this address is from %1$s, but %2$s is sent on the %3$s network</string>
+    <string name="recipient_invalid_eth_format">An Ethereum address is 0x followed by 40 hex characters (0-9, a-f)</string>
+    <string name="recipient_invalid_eth_checksum">Checksum mismatch: the upper/lower case letters do not match this address (EIP-55). Check the address for typos</string>
+    <string name="recipient_invalid_tron_format">A TRON address starts with T and is 34 characters long</string>
+    <string name="recipient_invalid_checksum">Checksum mismatch. Check the address for typos</string>
+    <string name="network_name_bitcoin" translatable="false">Bitcoin</string>
+    <string name="network_name_ethereum" translatable="false">Ethereum</string>
+    <string name="network_name_tron" translatable="false">TRON</string>
     <string name="recipient_valid">Recipient Valid</string>
     <string name="using_address_from_clipboard">Using address from clipboard</string>
     <string name="foreign_addresses">Address Book</string>
@@ -96,6 +102,7 @@
     <string name="amount_changed">Send amount was updated from QR code</string>
     <string name="transaction_not_broadcasted_info">Unable to broadcast</string>
     <string name="tx_status_pending">Pending</string>
+    <string name="tx_status_confirmed">Success</string>
     <string name="tx_status_failed">Failed (reverted on-chain)</string>
     <string name="tx_status_replaced">Replaced</string>
     <string name="tx_status_canceled">Canceled</string>
@@ -111,13 +118,12 @@
     <string name="miner_fee_normal_desc">With the normal miner fee schedule you can expect your transactions to confirm within the next few blocks.</string>
     <string name="miner_fee_priority_desc">With the priority fee schedule you can expect your transaction to confirm within one or two blocks.</string>
     <string name="new_bitcoin_address_created">A new random private key has been generated with the following Bitcoin addresses:</string>
-    <string name="transaction_from_address_prefix">From: %s</string>
     <string name="transaction_to_address_prefix">To: %s</string>
     <string name="retrieving_pubkey_address">Retrieving next unused address…</string>
     <string name="tx_details_num_confirmations">Confirmations</string>
     <string name="remove_queued_transaction">Do you really want to remove this queued transaction and prevent it from broadcasting?</string>
     <string name="remove_queued_transaction_title">Queued Transaction</string>
-    <string name="remove_queued_transaction_hint">Your balance will be corrected after the next synchronisation with the network</string>
+    <string name="remove_queued_transaction_hint">The transaction was removed and your balance has been corrected</string>
     <string name="remove_queued_transaction_error">Unable to remove transaction</string>
 
     <string name="payment_request_unable_to_read_payment_request">Unable to read payment request</string>
@@ -167,6 +173,9 @@
     <string name="cancel_eth_tx_success">Cancellation broadcast.</string>
     <string name="cancel_eth_tx_failed">Cancellation failed: %1$s</string>
     <string name="cancel_eth_tx_no_connection">No server connection. Try again later.</string>
+    <string name="cancel_eth_tx_queue_blocked">An earlier transaction (nonce %1$s) is priced below the current network fee and cannot be mined. Transactions confirm in order, so this cancellation would wait behind it. Cancel the earlier one first.</string>
+    <string name="cancel_eth_tx_cancel_blocking">Cancel nonce %1$s first</string>
+    <string name="send_eth_stuck_queue_warning">Your earlier transaction (nonce %1$s) is priced below the current network fee and is stuck. A new send will wait behind it. Cancel it from the transaction history first.</string>
     <string name="menu_item_rebroadcast_transaction">Rebroadcast transaction</string>
     <string name="menu_item_delete_unconfirmed_transaction">Delete unconfirmed transaction</string>
     <string name="delete_unconfirmed_transaction_title">Delete unconfirmed transaction</string>
@@ -230,7 +239,6 @@
     <string name="transaction_input_data">Input Data:</string>
     <string name="tx_replace_info_title">Transaction to be replaced</string>
     <string name="tx_replacae_info_desc">Select an unconfirmed transaction you want to replace.\nMiner fee of the replacement transaction must be higher than the fee of the selected unconfirmed transaction.</string>
-    <string name="receive_title_fio">FIO Public key</string>
     <string name="bundled_transactions">Bundled transactions:</string>
     <string name="send_mail">Send mail…</string>
     <string name="provide_your_recovery_e_mail_address">Provide your recovery e-mail address below. We will send you a secure link and instructions on how to reset your password.</string>
@@ -239,7 +247,6 @@
     <string name="residential_address">Residential Address</string>
     <string name="proof_of_address">Proof of Address</string>
     <string name="please_fill_proof_of_address">Please fill in your personal information as it appears on the proof of address document.</string>
-    <string name="send_fio_request">Send FIO Request</string>
     <string name="total_amount">Total amount:</string>
     <string name="miner_fee">Miner Fees:</string>
     <string name="spendable">Spendable:</string>
@@ -251,6 +258,73 @@
     <string name="show_transaction_details_hide">Show transaction details (hide)</string>
     <string name="erc20_highest_possible_fee_info"><![CDATA[This is the max fee you may have to pay to send the transaction from <b>ETH %s</b>.  However, most likely miner fee will not exceed %s%s. For details please see <u>miner fee calculation</u>.]]></string>
     <string name="all_ethereum_network_transactions">All Ethereum network transactions require ETH to pay miner fee.</string>
+    <string name="tron_tx_type">Type</string>
+    <string name="tron_bandwidth">Bandwidth</string>
+    <string name="tron_energy">Energy</string>
+    <string name="tron_tx_result">Result</string>
+    <string name="tron_tx_type_trx_transfer">TRX transfer</string>
+    <string name="tron_tx_type_trc20_transfer">TRC-20 transfer</string>
+    <string name="tron_tx_type_contract_call">Smart contract call</string>
+    <string name="tron_tx_type_stake">Stake</string>
+    <string name="tron_tx_type_unstake">Unstake</string>
+    <string name="tron_tx_type_withdraw_unfrozen">Withdraw unstaked</string>
+    <string name="tron_tx_type_cancel_unstake">Cancel unstake</string>
+    <string name="tron_tx_type_delegate">Delegate resource</string>
+    <string name="tron_tx_type_undelegate">Reclaim resource</string>
+    <string name="tron_tx_type_vote">Vote</string>
+    <string name="tron_tx_type_claim_rewards">Claim rewards</string>
+    <string name="tron_tx_type_account_activation">Account activation</string>
+    <string name="tron_tx_type_permission_update">Permission update</string>
+    <string name="tron_tx_type_unknown">Other</string>
+    <string name="tron_fee_mode_trx">Pay fee in TRX</string>
+    <string name="eth_fee_mode_eth">Pay fee in ETH</string>
+    <string name="eth_token_fee_title">Paymaster</string>
+    <string name="eth_token_fee_hint">The network fee is paid in %1$s — no ETH needed. What is this?</string>
+    <string name="eth_token_fee_info_title">Pay Fees with %1$s</string>
+    <string name="eth_token_fee_info_message">Ethereum normally needs ETH to pay for gas. With this option the fee is taken in %1$s instead: a paymaster pays the gas in ETH and is reimbursed in %2$s within the same transaction.
+
+The fee shown is an estimate. Up to %3$s may be reserved for it, but only the actual cost is charged.
+
+To do this your address is upgraded to a smart account (EIP-7702) with your signature. It stays under the control of your key — you keep sending and receiving as usual.</string>
+    <string name="eth_token_fee_max">Reserved for the fee: up to %1$s</string>
+    <string name="eth_token_fee_processing_quote">Calculating the fee…</string>
+    <string name="eth_token_fee_processing_sending">Sending… this can take up to two minutes.</string>
+    <string name="eth_token_fee_unavailable">Paying the fee in %1$s is unavailable right now. Try again later or pay the fee in ETH.</string>
+    <string name="eth_token_fee_insufficient">Insufficient %1$s balance to cover amount and fee</string>
+    <string name="eth_token_fee_timeout">The transaction was submitted but is not confirmed yet. Do not send it again — check your transaction history first.</string>
+    <string name="eth_token_fee_error">Sending failed: %1$s</string>
+    <string name="eth_token_fee_pending_eth_tx">An earlier transaction of this account (fee paid in ETH) is still pending. Paying the fee in the token for the first time needs it confirmed first — wait for it or pay this fee in ETH.</string>
+    <string name="eth_token_fee_changed_title">Fee changed</string>
+    <string name="eth_token_fee_changed_message">Network gas price went up. The fee is now %1$s (up to %2$s). Send anyway?</string>
+    <string name="tron_fee_mode_token">Pay fee in %1$s</string>
+    <string name="tron_energy_service_title">Energy Service</string>
+    <string name="tron_energy_service_hint">The fee is paid in %1$s through the Energy Service — what is this?</string>
+    <string name="tron_energy_service_loading">Loading fee quote…</string>
+    <string name="tron_energy_estimated_time">Estimated time: %1$s</string>
+    <string name="tron_energy_service_error">Energy Service error: %1$s</string>
+    <string name="tron_energy_fee_badge">Energy fee</string>
+    <string name="energy_service_info_dialog_title">Pay Fees with %1$s</string>
+    <string name="energy_service_info_dialog_message">The Energy Service lets you pay TRON network fees in %1$s instead of TRX.\n\nWhen sending TRC20 tokens, the network normally requires TRX to cover energy and bandwidth costs. With the Energy Service, these costs are bundled into a small %2$s fee, so you don\'t need to hold TRX separately.\n\nPlease note that this process involves two transactions and sending may take up to several minutes.\n\nThis is especially useful if your TRX balance is low or you prefer to keep all your funds in %3$s.</string>
+    <string name="energy_service_fee_info_dialog_title">What Affects the Fee?</string>
+    <string name="energy_service_fee_info_dialog_message">The Energy Service fee depends on how much energy and bandwidth your transaction requires:\n\n• Recipient address activation — if the recipient has never held this token, extra energy is needed to create token storage, increasing the fee\n\n• Recipient token balance — transferring to an address with zero balance for this token uses more energy than one that already holds it\n\n• Sender bandwidth — each transaction uses bandwidth. If you have staked TRX for bandwidth, part of the cost is covered. Otherwise, bandwidth cost is included in the fee</string>
+    <string name="energy_processing_signing">Signing transactions…</string>
+    <string name="energy_processing_submitting">Submitting to energy service…</string>
+    <string name="energy_processing_energy_purchasing">Purchasing energy…</string>
+    <string name="energy_processing_broadcasting">Broadcasting transactions…</string>
+    <string name="energy_processing_waiting">Waiting for confirmation…</string>
+    <string name="error_energy_service_insufficient_balance">Insufficient %1$s balance to cover amount and service fee</string>
+    <string name="error_energy_service_unavailable">Energy Service is temporarily unavailable. Please try again later.</string>
+    <string name="error_energy_quote_expired">Energy Service quote expired. Please try again.</string>
+    <string name="error_energy_order_in_flight">A previous transfer is still processing. Wait for it to complete or check your transaction history.</string>
+    <string name="error_energy_order_still_processing">The transfer is still processing and may complete shortly. Do not send it again — check your transaction history first.</string>
+    <string name="tron_fee_info_title">Network fee (TRON)</string>
+    <string name="tron_fee_info">TRON transactions consume bandwidth. Every account gets a free daily bandwidth quota; when it is used up, 1 bandwidth costs 0.001 TRX and the fee is burned from your TRX balance.\n\nSending TRX to an address that has never been used additionally burns 1.1 TRX to activate it.\n\nThe displayed fee is an estimate; the actual fee may be equal or lower.</string>
+    <string name="tron_fee_trc20_info">TRC-20 transfers are smart contract calls: besides bandwidth they consume energy, which is paid in TRX (burned from the parent TRON account) unless you have staked TRX for energy.\n\nThe fee limit is the maximum TRX the network may charge for this transfer. Mycelium sets it with a safety margin so the transfer does not fail with OUT_OF_ENERGY; the actual fee is usually well below the limit.</string>
+    <string name="tron_fee_bandwidth">Bandwidth: %1$d %2$s</string>
+    <string name="tron_fee_energy">Energy: %1$d %2$s</string>
+    <string name="tron_fee_free">(free)</string>
+    <string name="tron_fee_limit">Fee limit: %s</string>
+    <string name="tron_fee_activation">+ recipient activation 1.1 TRX</string>
     <string name="miner_fee_erc20_info_title">Miner Fee (ERC-20)</string>
     <string name="miner_fee_erc20_info">All Ethereum network transactions require ETH to pay miner fee. Miner Fee = Gas Limit * Gas Price (Gwei/Gas)\n\nTo provide you the highest possible miner fee estimation Mycelium uses 90 000 units as default maximum Gas Limit due to the complexity of ERC-20 transactions processing.\n\nAverage amount of gas spent by miners on each transaction is ~ 55 500 units.\n\nActual fee may be less or equal depending on the amount of gas used to process the transaction.</string>
     <string name="gas_limit_erc20_info_title">Gas Limit (ERC-20)</string>
@@ -258,6 +332,7 @@
     <string name="gas_limit_helper">Min 21 000 units</string>
     <string name="gas_limit_warning">You have set gas limit below 90 000 units. It may be not enough for Ethereum network to process your transaction, while Gas still be used.</string>
     <string name="gas_limit_error">Minimal gas limit for Ethereum network transactions is 21 000 units.</string>
+    <string name="gas_limit_too_high">Maximal gas limit for an Ethereum network transaction is %s units.</string>
     <string name="next_fee_update_in_s">Next update in %ds</string>
     <string name="received">Received</string>
     <string name="link_to_track_transaction">Exchange status</string>

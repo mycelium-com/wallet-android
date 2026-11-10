@@ -9,6 +9,7 @@ import androidx.lifecycle.lifecycleScope
 import com.google.common.base.Preconditions
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
+import com.mycelium.wallet.activity.modern.Toaster
 import com.mycelium.wallet.extsig.keepkey.activity.KeepKeySignTransactionActivity
 import com.mycelium.wallet.extsig.ledger.activity.LedgerSignTransactionActivity
 import com.mycelium.wallet.extsig.trezor.activity.TrezorSignTransactionActivity
@@ -84,6 +85,12 @@ open class SignTransactionActivity : AppCompatActivity() {
                 if (_transaction!!.txBytes() != null) _transaction else null
             } catch (e: InvalidKeyCipher) {
                 throw RuntimeException("doInBackground" + e.message)
+            } catch (e: IllegalStateException) {
+                // The account refused to sign, e.g. a coin its transaction history contradicts
+                withContext(Dispatchers.Main) {
+                    Toaster(applicationContext).toast(getString(R.string.unable_to_build_tx, e.message ?: ""), false)
+                }
+                null
             }
             withContext(Dispatchers.Main) {
                 if (signedTransaction != null) {

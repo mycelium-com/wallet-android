@@ -15,6 +15,9 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.withContext
 import retrofit2.HttpException
 import java.math.BigDecimal
+import com.mycelium.wapi.wallet.Util
+import com.mycelium.wapi.wallet.coins.CryptoCurrency
+import com.mycelium.wapi.wallet.trc20.coins.TRC20Token
 
 object Changelly2Repository {
     private val userRepository by lazy { Api.statusRepository }
@@ -39,12 +42,14 @@ object Changelly2Repository {
         amount: BigDecimal,
         success: (ChangellyListResponse<FixRate>?) -> Unit,
         error: (Int, String) -> Unit,
-        finally: (() -> Unit)? = null
+        finally: (() -> Unit)? = null,
+        fromNetwork: String? = null,
+        toNetwork: String? = null,
     ) =
         doRequest(scope, {
             val isVip = userRepository.statusFlow.value.isVIP()
             val api = if (isVip) viperApi else changellyApi
-            api.getFixRateForAmount(exportSymbol(from), exportSymbol(to), amount)
+            api.getFixRateForAmount(exportSymbol(from), exportSymbol(to), amount, fromNetwork, toNetwork)
         }, success, error, finally)
 
     fun fixRate(
@@ -66,6 +71,7 @@ object Changelly2Repository {
         amount: String,
         addressTo: String,
         refundAddress: String,
+        fromAddresses: List<String>,
         changellyOnly: Boolean,
     ): ChangellyResponse<ChangellyTransactionOffer> {
         val isVip = userRepository.statusFlow.value.isVIP()
@@ -79,6 +85,7 @@ object Changelly2Repository {
                 addressTo,
                 rateId,
                 refundAddress,
+                fromAddresses,
             )
         }
         try {
@@ -145,9 +152,23 @@ fun ChangellyTransaction.fixedCurrencyFrom() =
 fun ChangellyTransaction.fixedCurrencyTo() =
     importSymbol(currencyTo)
 
+/** Wallet symbol for an exchange ticker (display / support-list matching). */
 fun importSymbol(currency: String) =
     if (currency.equals("USDT", true)) "USDT20"
     else currency
+
+/** Exchange ticker of a wallet coin (the plain symbol; the chain goes into [exchangeNetwork]). */
+fun changellyTicker(coin: CryptoCurrency): String = Util.trimTestnetSymbolDecoration(coin.symbol)
+
+/**
+ * Network of a multi-chain asset for the exchange backend (`fromNetwork`/`toNetwork`), as the
+ * KMP wallet sends it: the parent coin's symbol for token accounts ("trx" for TRC20), null for
+ * native coins. ERC20 keeps its legacy dedicated tickers (USDT20, …) and no network.
+ */
+fun exchangeNetwork(coin: CryptoCurrency): String? = when (coin) {
+    is TRC20Token -> "trx"
+    else -> null
+}
 
 private fun exportSymbol(currency: String) = currency
 //    if (currency.equals("USDT20", true) && isVip) "usdt"

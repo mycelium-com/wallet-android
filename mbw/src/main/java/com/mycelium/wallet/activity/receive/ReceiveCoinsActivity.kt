@@ -33,13 +33,11 @@ import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount
 import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount
 import com.mycelium.wapi.wallet.btc.AbstractBtcAccount
-import com.mycelium.wapi.wallet.btcvault.hd.BitcoinVaultHdAccount
 import java.io.IOException
 import java.util.*
 
 class ReceiveCoinsActivity : AppCompatActivity() {
     private val viewModel: ReceiveCoinsViewModel by viewModels { ReceiveCoinsFactory(account) }
-    private var bindingReceiveFioName: ReceiveCoinsActivityFioNameBinding? = null
     private var bindingReceiveBtcAddrType: ReceiveCoinsActivityBtcAddrTypeBinding? = null
     private var bindingReceiveQr: ReceiveCoinsActivityQrBinding? = null
     lateinit var account: WalletAccount<*>
@@ -71,19 +69,6 @@ class ReceiveCoinsActivity : AppCompatActivity() {
         if (viewModel is ReceiveBtcViewModel && (addressTypes?.size ?: 0) > 1) {
             createAddressDropdown(addressTypes!!)
         }
-        bindingReceiveFioName?.fioNameSpinner?.adapter = ArrayAdapter<String>(this,
-                R.layout.layout_receive_fio_names, R.id.text, viewModel.getFioNameList().value!!).apply {
-            setDropDownViewResource(R.layout.layout_receive_fio_names_dropdown)
-        }
-        bindingReceiveFioName?.fioNameSpinner?.onItemSelectedListener = object:AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                viewModel.onFioNameSelected(bindingReceiveFioName?.fioNameSpinner?.getItemAtPosition(position))
-            }
-
-            override fun onNothingSelected(p0: AdapterView<*>?) {
-                viewModel.onFioNameSelected(null)
-            }
-        }
         supportActionBar?.run {
             title = getString(R.string.receive_cointype, viewModel.getCurrencySymbol())
             setHomeAsUpIndicator(R.drawable.ic_back_arrow)
@@ -94,11 +79,13 @@ class ReceiveCoinsActivity : AppCompatActivity() {
             this, nfcReceiver,
             IntentFilter(NfcAdapter.ACTION_ADAPTER_STATE_CHANGED), ContextCompat.RECEIVER_EXPORTED
         )
+        // the payment URI carries both the address and the requested amount: re-render the QR
+        // when either changes, otherwise it keeps encoding the previous amount
         viewModel.getReceivingAddress().observe(this) {
             bindingReceiveQr?.ivQrCode?.qrCode = viewModel.getPaymentUri()
         }
-        bindingReceiveFioName?.btCreateFioRequest?.setOnClickListener {
-            viewModel.createFioRequest(this@ReceiveCoinsActivity)
+        viewModel.getRequestedAmount().observe(this) {
+            bindingReceiveQr?.ivQrCode?.qrCode = viewModel.getPaymentUri()
         }
         addMenuProvider(MenuImpl())
     }
@@ -110,8 +97,13 @@ class ReceiveCoinsActivity : AppCompatActivity() {
 
     private fun createAddressDropdown(addressTypes: List<AddressType>) {
         val btcViewModel = viewModel as ReceiveBtcViewModel
-        // setting initial text based on current address type
-        bindingReceiveBtcAddrType?.selectedAddressText?.text = getString(btcViewModel.getAccountDefaultAddressType()?.asStringRes() ?: 0)
+        // the label follows the type actually shown — after a configuration change the view model
+        // still holds the user's pick, which may differ from the account default
+        btcViewModel.addressType.observe(this) { type ->
+            (type ?: btcViewModel.getAccountDefaultAddressType())?.let {
+                bindingReceiveBtcAddrType?.selectedAddressText?.text = getString(it.asStringRes())
+            }
+        }
 
         bindingReceiveBtcAddrType?.addressDropdownImageView?.visibility = if (addressTypes.size > 1) {
             val addressTypesMenu = PopupMenu(this, bindingReceiveBtcAddrType?.addressDropdownImageView)
@@ -145,21 +137,6 @@ class ReceiveCoinsActivity : AppCompatActivity() {
                         // This is only actual if account contains multiple address types inside
                         if (account.availableAddressTypes.size > 1) {
                             ReceiveCoinsActivityBtcBinding.inflate(layoutInflater).apply {
-                                bindingReceiveFioName = this.layoutReceiveFioName
-                                bindingReceiveBtcAddrType = this.layoutReceiveBtcAddrType
-                                bindingReceiveQr = this.layoutReceiveQr
-                                viewModel = this@ReceiveCoinsActivity.viewModel as ReceiveBtcViewModel
-                                activity = this@ReceiveCoinsActivity
-                            }
-                        } else {
-                            getDefaultBinding()
-                        }
-                    }
-                    is BitcoinVaultHdAccount -> {
-                        // This is only actual if account contains multiple address types inside
-                        if (account.availableAddressTypes.size > 1) {
-                            ReceiveCoinsActivityBtcBinding.inflate(layoutInflater).apply {
-                                bindingReceiveFioName = this.layoutReceiveFioName
                                 bindingReceiveBtcAddrType = this.layoutReceiveBtcAddrType
                                 bindingReceiveQr = this.layoutReceiveQr
                                 viewModel = this@ReceiveCoinsActivity.viewModel as ReceiveBtcViewModel
@@ -179,7 +156,6 @@ class ReceiveCoinsActivity : AppCompatActivity() {
     private fun getDefaultBinding(): ReceiveCoinsActivityBinding =
             ReceiveCoinsActivityBinding.inflate(layoutInflater)
                     .also {
-                        bindingReceiveFioName = it.layoutReceiveFioName
                         bindingReceiveQr = it.layoutReceiveQr
                         it.viewModel = viewModel
                         it.activity = this
@@ -249,7 +225,6 @@ class ReceiveCoinsActivity : AppCompatActivity() {
         private const val SHOW_UTXO = "showIncomingUtxo"
         private const val IS_COLD_STORAGE = "isColdStorage"
         const val MANUAL_ENTRY_RESULT_CODE = 4
-        const val REQUEST_CODE_FIO_NAME_MAPPING = 5
 
         @JvmStatic
         @JvmOverloads

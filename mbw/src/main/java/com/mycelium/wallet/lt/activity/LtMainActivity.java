@@ -70,7 +70,6 @@ import com.mycelium.wallet.Constants;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
-import com.mycelium.wallet.activity.export.ExportAsQrActivity;
 import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wallet.lt.LocalTraderEventSubscriber;
 import com.mycelium.wallet.lt.LocalTraderManager;
@@ -313,7 +312,7 @@ public class LtMainActivity extends AppCompatActivity {
          }
       };
 
-      ExportAsQrActivity.callMe(this, exportableAccount.getExportData(AesKeyCipher.defaultKeyCipher()),
+      Utils.exportWithPinAgeCheck(this, exportableAccount.getExportData(AesKeyCipher.defaultKeyCipher()),
               account);
    }
 

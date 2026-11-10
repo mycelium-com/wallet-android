@@ -1,0 +1,43 @@
+import java.util.UUID;
+import kotlin.Int;
+
+-- TRC20 token account context storage
+
+CREATE TABLE IF NOT EXISTS Trc20Context(
+    uuid TEXT AS UUID PRIMARY KEY NOT NULL,
+    contractAddress TEXT NOT NULL,
+    unitExponent INTEGER AS Int NOT NULL,
+    symbol TEXT NOT NULL,
+    tronAccountId TEXT AS UUID NOT NULL,
+    FOREIGN KEY (uuid)
+        REFERENCES AccountContext (uuid)
+        ON DELETE CASCADE
+);
+
+selectAllTRC20Contexts:
+SELECT tc.uuid, c.currency, c.accountName, c.archived, c.balance, c.blockHeight, tc.contractAddress, tc.unitExponent, tc.symbol, tc.tronAccountId
+FROM Trc20Context AS tc
+  INNER JOIN AccountContext AS c
+  ON tc.uuid = c.uuid;
+
+selectTRC20ContextByUUID:
+SELECT tc.uuid, c.currency, c.accountName, c.archived, c.balance, c.blockHeight, tc.contractAddress, tc.unitExponent, tc.symbol, tc.tronAccountId
+FROM Trc20Context AS tc
+    INNER JOIN AccountContext AS c
+    ON tc.uuid = c.uuid
+        WHERE tc.uuid = (?);
+
+selectAllTRC20ContextByParent:
+SELECT tc.uuid, c.currency, c.accountName, c.archived, c.balance, c.blockHeight, tc.contractAddress, tc.unitExponent, tc.symbol, tc.tronAccountId
+FROM Trc20Context AS tc
+    INNER JOIN AccountContext AS c
+    ON tc.uuid = c.uuid
+        WHERE tc.tronAccountId = (?);
+
+insert:
+INSERT INTO Trc20Context(uuid, contractAddress, unitExponent, symbol, tronAccountId)
+VALUES (?, ?, ?, ?, ?);
+
+delete:
+DELETE FROM Trc20Context
+WHERE uuid = (?);

@@ -42,6 +42,7 @@ import com.mycelium.net.ServerEndpointType;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wapi.wallet.Address;
+import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount;
 import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount;
 
@@ -113,7 +114,15 @@ public class AddressLabel extends BlockExplorerLabel {
                     null, null));
          }
       } else {
-         setHandler(MbwManager.getInstance(getContext())._blockExplorerManager.getBEMByCurrency(address.getCoinType().getName()).getBlockExplorer());
+         // Addresses of a token account carry the token as their coin type, and a token has no
+         // explorer of its own — fall back to the chain the account is based on.
+         GlobalBlockExplorerManager explorers = MbwManager.getInstance(getContext())._blockExplorerManager;
+         BlockExplorerManager manager = explorers.getBEMByCurrency(address.getCoinType().getName());
+         WalletAccount account = MbwManager.getInstance(getContext()).getSelectedAccount();
+         if (manager == null && account != null) {
+            manager = explorers.getBEMByCurrency(account.getBasedOnCoinType().getName());
+         }
+         setHandler(manager == null ? null : manager.getBlockExplorer());
       }
    }
    public Address getAddress() {

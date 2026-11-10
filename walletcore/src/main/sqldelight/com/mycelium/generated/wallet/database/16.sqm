@@ -1,0 +1,6 @@
+CREATE TABLE IF NOT EXISTS EnergyServiceFeeLink (
+    feeTxId TEXT NOT NULL,
+    mainTxId TEXT NOT NULL,
+    uuid TEXT NOT NULL,
+    PRIMARY KEY (feeTxId, uuid)
+);

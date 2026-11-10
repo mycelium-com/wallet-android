@@ -159,9 +159,6 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="receiving_exchange">receiving</string>
     <string name="exchange_sending">SENDING\nADDRESS</string>
     <string name="exchange_receiving">RECEIVING\nADDRESS</string>
-    <string name="partner_fiopresale">FIO Address Presale</string>
-    <string name="partner_fiopresale_short">Your key to a better blockchain experience</string>
-    <string name="partner_fiopresale_info" />
     <string name="sepa_buy_sell_description">Buy/sell bitcoin using Single Euro Payments Area.</string>
     <string name="sepa_buy_sell_settings_description">Show SEPA buy/sell option</string>
     <string name="changelly_indicate_extra">Please don’t forget to indicate the %s before sending funds.</string>
@@ -261,6 +258,8 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="exchange_max_msg">The amount is more than the exchange maximum of %s %s</string>
     <string name="settings_exchange_quick_exchange_title">Exchange Confirmation</string>
     <string name="settings_exchange_quick_exchange_summary">Show confirmation dialog before exchange</string>
+    <string name="settings_exchange_wallet_identity_title">Send wallet ID</string>
+    <string name="settings_exchange_wallet_identity_summary">Identify this wallet to the exchange with a signed wallet address</string>
     <string name="exchange_accept_dialog_title">Exchange</string>
     <string name="exchange_accept_dialog_msg">You send: %s %s\nMiners fee: %s\n\nYou get: %s %s</string>
     <string name="changelly_receiving">Receiving</string>
@@ -271,7 +270,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="giftbox_expired_text"><![CDATA[The order expired. Please contact the support - <font color="#4583de">%s</font>]]></string>
     <string name="vip_code_hint">Enter your personal VIP code</string>
     <string name="vip_code_who_can_get_title">Who is eligible for VIP status</string>
-    <string name="vip_code_who_can_get">Mycelium token holders\nSU7 Max giveaway participants\nLoyal MyceIium users who received а personal\ninvitation</string>
+    <string name="vip_code_who_can_get">Mycelium token holders\nSU7 Max giveaway participants\nLoyal Mycelium users who received a personal\ninvitation</string>
     <string name="vip_code_granted_status">You have been granted Mycelium VIP status.</string>
     <string name="vip_code_discount_title">Discounts on crypto to crypto swaps</string>
     <string name="vip_code_discount_description">The exchange commission is reduced by 25%.</string>

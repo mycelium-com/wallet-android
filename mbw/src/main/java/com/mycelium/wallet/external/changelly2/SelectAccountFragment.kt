@@ -14,6 +14,7 @@ import com.mycelium.giftbox.GiftboxPreference
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.addaccount.ERC20EthAccountAdapter
+import com.mycelium.wallet.activity.modern.Toaster
 import com.mycelium.wallet.activity.addaccount.createERC20
 import com.mycelium.wallet.activity.addaccount.createETH
 import com.mycelium.wallet.activity.modern.ModernMain
@@ -33,6 +34,11 @@ import com.mycelium.wallet.external.changelly2.adapter.SelectAccountAdapter
 import com.mycelium.wallet.external.changelly2.viewmodel.ExchangeViewModel
 import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.erc20.coins.ERC20Token
+import com.mycelium.wapi.wallet.trc20.coins.TRC20Token
+import com.mycelium.wapi.wallet.tron.TronAccount
+import com.mycelium.wapi.wallet.tron.getActiveTronAccounts
+import com.mycelium.wallet.activity.addaccount.TRC20CreationAsyncTask
+import com.mycelium.wallet.activity.addaccount.TronCreationAsyncTask
 import com.mycelium.wapi.wallet.eth.EthAccount
 import com.mycelium.wapi.wallet.eth.getActiveEthAccounts
 import kotlinx.coroutines.Dispatchers
@@ -82,6 +88,8 @@ class SelectAccountFragment : DialogFragment() {
         adapter.addAccountListener = { addAccount ->
             if (addAccount is ERC20Token) {
                 showEthAccountsOptions(addAccount)
+            } else if (addAccount is TRC20Token) {
+                showTronAccountsOptions(addAccount)
             }
         }
         adapter.groupClickListener = {
@@ -165,10 +173,10 @@ class SelectAccountFragment : DialogFragment() {
                     .map {
                         it.coinType.symbol
                     }.toSet()
-            val addAccountList = viewModel.mbwManager.supportedERC20Tokens.filter {
-                viewModel.isSupported(it.value) && !alreadyHave.contains(it.value.symbol)
+            val addAccountList = (viewModel.mbwManager.supportedERC20Tokens.values + viewModel.mbwManager.supportedTRC20Tokens.values).filter {
+                viewModel.isSupported(it) && !alreadyHave.contains(it.symbol)
             }.map {
-                AddAccountModel(it.value)
+                AddAccountModel(it)
             }.sortedBy { it.coinType.symbol }
             if (addAccountList.isNotEmpty()) {
                 val groupTitle = "All supported coins"
@@ -205,7 +213,11 @@ class SelectAccountFragment : DialogFragment() {
                             loader(true)
                         }, {
                             loader(false)
-                            addToken(viewModel.mbwManager.getWalletManager(false).getAccount(it!!) as EthAccount, token)
+                            if (it == null) {
+                                Toaster(this@SelectAccountFragment).toast(R.string.use_eth_acc_first, false)
+                            } else {
+                                addToken(viewModel.mbwManager.getWalletManager(false).getAccount(it) as EthAccount, token)
+                            }
                         })
                     } else {
                         val ethAccountId = accounts[selected].id
@@ -214,6 +226,44 @@ class SelectAccountFragment : DialogFragment() {
                     }
                 }
                 .show()
+    }
+
+    private fun showTronAccountsOptions(token: TRC20Token) {
+        val arrayAdapter = ERC20EthAccountAdapter(requireContext(), R.layout.checked_item)
+        val accounts = viewModel.mbwManager.getWalletManager(false).getActiveTronAccounts()
+                .filter { it.canSpend() }
+                .sortedBy { (it as TronAccount).accountIndex }
+        arrayAdapter.addAll(getEthAccountsForView(accounts))
+        arrayAdapter.add(getString(R.string.create_new_tron_account))
+        AlertDialog.Builder(requireContext(), R.style.MyceliumModern_Dialog_BlueButtons)
+                .setCustomTitle(LayoutInflater.from(requireContext()).inflate(R.layout.layout_select_tron_account_to_trc20_title, null))
+                .setView(LayoutSelectEthAccountToErc20Binding.inflate(LayoutInflater.from(requireContext())).apply {
+                    subtitleText.setText(R.string.select_tron_account_to_trc20_subtext)
+                    list.adapter = arrayAdapter
+                }.root)
+                .setNegativeButton(R.string.cancel) { dialog, _ -> dialog.dismiss() }
+                .setPositiveButton(getString(R.string.ok)) { _: DialogInterface?, _: Int ->
+                    val selected = arrayAdapter.selected
+                    if (selected == arrayAdapter.count - 1) {
+                        loader(true)
+                        TronCreationAsyncTask(viewModel.mbwManager, {}, { id ->
+                            loader(false)
+                            addTrc20Token(viewModel.mbwManager.getWalletManager(false).getAccount(id!!) as TronAccount, token)
+                        }).executeOnExecutor(android.os.AsyncTask.THREAD_POOL_EXECUTOR)
+                    } else {
+                        addTrc20Token(accounts[selected] as TronAccount, token)
+                    }
+                }
+                .show()
+    }
+
+    private fun addTrc20Token(tronAccount: TronAccount, token: TRC20Token) {
+        TRC20CreationAsyncTask(viewModel.mbwManager, listOf(token), tronAccount, {
+            loader(true)
+        }, {
+            loader(false)
+            if (it.isNotEmpty()) setAccount(it.first())
+        }).executeOnExecutor(android.os.AsyncTask.THREAD_POOL_EXECUTOR)
     }
 
     private fun addToken(ethAccount: EthAccount, token: ERC20Token) {

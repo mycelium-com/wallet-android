@@ -10,6 +10,9 @@ import com.mycelium.wapi.wallet.Address
 import com.mycelium.wapi.wallet.BroadcastResult
 import com.mycelium.wapi.wallet.BroadcastResultType
 import com.mycelium.wapi.wallet.Fee
+import com.google.common.base.Optional
+import com.mrd.bitlib.crypto.BipDerivationType
+import com.mycelium.wapi.wallet.ExportableAccount
 import com.mycelium.wapi.wallet.KeyCipher
 import com.mycelium.wapi.wallet.SyncMode
 import com.mycelium.wapi.wallet.SyncPausable
@@ -21,6 +24,7 @@ import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.coins.Value.Companion.max
 import com.mycelium.wapi.wallet.coins.Value.Companion.valueOf
 import com.mycelium.wapi.wallet.exceptions.BuildTransactionException
+import com.mycelium.wapi.wallet.exceptions.InsufficientFundsForFeeException
 import com.mycelium.wapi.wallet.exceptions.InsufficientFundsException
 import com.mycelium.wapi.wallet.genericdb.EthAccountBacking
 import kotlinx.coroutines.Dispatchers
@@ -47,13 +51,22 @@ class EthAccount(private val chainId: Long,
                  private val accountListener: AccountListener?,
                  blockchainService: EthBlockchainService,
                  address: EthAddress? = null) : AbstractEthERC20Account(accountContext.currency, credentials,
-        backing, blockchainService, EthAccount::class.simpleName, address), SyncPausable {
+        backing, blockchainService, EthAccount::class.simpleName, address), SyncPausable, ExportableAccount {
 
     val enabledTokens: List<String>
         get() = accountContext.enabledTokens ?: listOf()
 
     val accountIndex: Int
         get() = accountContext.accountIndex
+
+    /**
+     * Whether this account has walked its whole address history at least once.
+     * ERC20 children no longer decide their own sweep from this — they track it
+     * per token — but they still borrow the parent's confirmed-txid stop set,
+     * which is only meaningful once the parent itself is fully swept.
+     */
+    val everFullySynced: Boolean
+        get() = accountContext.everFullySynced
 
     fun updateEnabledTokens() {
         accountContext.updateEnabledTokens()
@@ -65,10 +78,13 @@ class EthAccount(private val chainId: Long,
     override fun createTx(toAddress: Address, value: Value, fee: Fee, data: TransactionData?): Transaction {
         val ethTxData = data as? EthTransactionData
         val nonce = ethTxData?.nonce ?: accountContext.nonce
-        val gasLimit = ethTxData?.gasLimit ?: BigInteger.valueOf(typicalEstimatedTransactionSize.toLong())
         val inputData = ethTxData?.inputData ?: ""
+        val gasLimit = ethTxData?.gasLimit ?: defaultGasLimit(inputData)
         val gasPrice = ethTxData?.suggestedGasPrice?.let { Value.valueOf(coinType, it) } ?: (fee as FeePerKbFee).feePerKb
 
+        if (toAddress !is EthAddress) {
+            throw BuildTransactionException(Throwable("Not an Ethereum address"))
+        }
         if (gasPrice.value <= BigInteger.ZERO) {
             throw BuildTransactionException(Throwable("Gas price should be positive and non-zero"))
         }
@@ -78,19 +94,52 @@ class EthAccount(private val chainId: Long,
         if (gasLimit < Transfer.GAS_LIMIT) {
             throw BuildTransactionException(Throwable("Gas limit must be at least ${Transfer.GAS_LIMIT}"))
         }
+        if (gasLimit > MAX_TX_GAS_LIMIT) {
+            throw BuildTransactionException(Throwable("Gas limit must not exceed $MAX_TX_GAS_LIMIT"))
+        }
+        // max spendable is clamped at zero, so a zero-value tx would pass with a fee above the balance
+        if (gasPrice.value * gasLimit > accountBalance.spendable.value) {
+            throw InsufficientFundsForFeeException(Throwable("Insufficient funds to pay for fee"))
+        }
         if (value > calculateMaxSpendableAmount(gasPrice, null, ethTxData)) {
+            // the amount alone fits, only amount + fee does not
+            if (value <= accountBalance.spendable) {
+                throw InsufficientFundsForFeeException(Throwable("Insufficient funds to pay for fee"))
+            }
             throw InsufficientFundsException(Throwable("Insufficient funds to send " + Convert.fromWei(value.value.toBigDecimal(), Convert.Unit.ETHER) +
                     " ether with gas price " + Convert.fromWei(gasPrice.valueAsBigDecimal, Convert.Unit.GWEI) + " gwei"))
         }
-        return EthTransaction(coinType, toAddress.toString(), value, gasPrice.value, nonce, gasLimit, inputData)
+        if (ethTxData?.suggestedGasPrice != null) {
+            checkGasPriceAgainstBaseFee(coinType, gasPrice.value)
+        }
+        // EIP-1559: treat the chosen gas price as the maxFeePerGas cap and pair
+        // it with the matching tip (explicit, or recovered from the snapshot).
+        // If no tip is available, fall back to a legacy (type-0) tx.
+        val tip = eip1559Tip(coinType, gasPrice.value, ethTxData?.maxPriorityFeePerGas)
+        return if (tip != null) {
+            EthTransaction(coinType, toAddress.toString(), value, gasPrice.value, nonce, gasLimit, inputData,
+                    maxFeePerGas = gasPrice.value, maxPriorityFeePerGas = tip)
+        } else {
+            EthTransaction(coinType, toAddress.toString(), value, gasPrice.value, nonce, gasLimit, inputData)
+        }
     }
 
     override fun signTx(request: Transaction, keyCipher: KeyCipher) {
-        val rawTransaction = (request as EthTransaction).run {
-            RawTransaction.createTransaction(nonce, gasPrice, gasLimit, toAddress, ethValue.value,
-                    inputData)
+        request as EthTransaction
+        val rawTransaction = if (request.isEip1559) {
+            // type-2: chainId is embedded in the envelope, gasPrice is ignored.
+            RawTransaction.createTransaction(chainId, request.nonce, request.gasLimit, request.toAddress,
+                    request.ethValue.value, request.inputData,
+                    request.maxPriorityFeePerGas, request.maxFeePerGas)
+        } else {
+            RawTransaction.createTransaction(request.nonce, request.gasPrice, request.gasLimit,
+                    request.toAddress, request.ethValue.value, request.inputData)
         }
-        val signedMessage = TransactionEncoder.signMessage(rawTransaction, chainId, credentials)
+        val signedMessage = if (request.isEip1559) {
+            TransactionEncoder.signMessage(rawTransaction, credentials)
+        } else {
+            TransactionEncoder.signMessage(rawTransaction, chainId, credentials)
+        }
         val hexValue = Numeric.toHexString(signedMessage)
         request.apply {
             signedHex = hexValue
@@ -111,21 +160,44 @@ class EthAccount(private val chainId: Long,
     }
 
     override fun broadcastTx(tx: Transaction): BroadcastResult {
-        try {
-            val result = blockchainService.sendTransaction((tx as EthTransaction).signedHex!!)
-            if (!result.success) {
-                return BroadcastResult(result.message, BroadcastResultType.REJECT_INVALID_TX_PARAMS)
-            }
-            val newTxid = "0x" + HexUtils.toHex(tx.txHash)
-            backing.putTransaction(-1, System.currentTimeMillis() / 1000, newTxid,
-                    tx.signedHex!!, receivingAddress.addressString, tx.toAddress, tx.ethValue,
-                    valueOf(coinType, tx.gasPrice * tx.gasLimit), 0, tx.nonce, tx.gasPrice, gasLimit = tx.gasLimit)
+        tx as EthTransaction
+        val signedHex = tx.signedHex
+        val hash = tx.txHash
+        if (signedHex == null || hash == null) {
+            return BroadcastResult("Transaction is not signed", BroadcastResultType.REJECT_INVALID_TX_PARAMS)
+        }
+        val newTxid = "0x" + HexUtils.toHex(hash)
+        // A lost response is checked against the node and re-sent as the same bytes;
+        // UNKNOWN_OUTCOME means the tx may be on the network.
+        val result = sendSignedTx(signedHex, newTxid)
+        val accepted = result.resultType == BroadcastResultType.SUCCESS
+        if (!accepted && result.resultType != BroadcastResultType.UNKNOWN_OUTCOME) {
+            return result
+        }
+        // Stored as PENDING in both cases: an UNKNOWN_OUTCOME tx keeps its amount + gas reserved
+        // and shows in the history; reconcileLocalPending() marks it DROPPED after
+        // DROP_GRACE_SECONDS if no endpoint ever sees it, or REPLACED once another tx mines at its nonce.
+        // For type-2 txs the persisted/displayed price is the cap
+        // (maxFeePerGas); effectiveGasPrice resolves to gasPrice for legacy.
+        // Once the tx mines, sync overwrites this with the real on-chain
+        // effective price + gasUsed.
+        val price = tx.effectiveGasPrice
+        backing.putTransaction(-1, System.currentTimeMillis() / 1000, newTxid,
+                signedHex, receivingAddress.addressString, tx.toAddress, tx.ethValue,
+                valueOf(coinType, price * tx.gasLimit), 0, tx.nonce, price, gasLimit = tx.gasLimit)
+        if (accepted) {
             markPendingReplacedByNonce(tx.nonce, newTxid)
             bumpNonceAfterBroadcast(tx.nonce)
-        } catch (e: IOException) {
-            return BroadcastResult(BroadcastResultType.NO_SERVER_CONNECTION)
         }
-        return BroadcastResult(BroadcastResultType.SUCCESS)
+        // UNKNOWN_OUTCOME deliberately leaves the nonce alone: a retry then reuses this nonce,
+        // so it and the lost tx are mutually exclusive — at most one can ever mine (if the lost
+        // one is in the mempool the node refuses the retry as an underpriced replacement).
+        // The next sync's getNewNonce() moves past it once the node reports it pending.
+        // Reflect the outgoing amount immediately. Without this the screen
+        // keeps showing the pre-send balance as spendable until the next
+        // periodic sync, roughly a minute later.
+        updateBalanceCache()
+        return result
     }
 
     override fun ethFeeSpendable(): Value = accountBalance.spendable
@@ -147,24 +219,46 @@ class EthAccount(private val chainId: Long,
         // alternative (sending to a different address) carries permanent
         // foot-gun risk if a future code change lets a non-zero value slip
         // through.
-        val rawTransaction = RawTransaction.createTransaction(
-            estimate.nonce,
-            estimate.newGasPrice,
-            estimate.gasLimit,
-            receivingAddress.addressString,
-            BigInteger.ZERO,
-            "",
-        )
-        val signedBytes = TransactionEncoder.signMessage(rawTransaction, chainId, signingCredentials)
+        val rawTransaction = if (estimate.isEip1559) {
+            // type-2 replacement: bump both cap and tip (see estimateCancelTx).
+            // chainId is embedded in the envelope.
+            RawTransaction.createTransaction(
+                chainId,
+                estimate.nonce,
+                estimate.gasLimit,
+                receivingAddress.addressString,
+                BigInteger.ZERO,
+                "",
+                estimate.newMaxPriorityFeePerGas,
+                estimate.newMaxFeePerGas,
+            )
+        } else {
+            RawTransaction.createTransaction(
+                estimate.nonce,
+                estimate.newGasPrice,
+                estimate.gasLimit,
+                receivingAddress.addressString,
+                BigInteger.ZERO,
+                "",
+            )
+        }
+        val signedBytes = if (estimate.isEip1559) {
+            TransactionEncoder.signMessage(rawTransaction, signingCredentials)
+        } else {
+            TransactionEncoder.signMessage(rawTransaction, chainId, signingCredentials)
+        }
         val signedHex = Numeric.toHexString(signedBytes)
         val cancelTxHash = Hash.sha3(signedBytes)
 
+        val cancelTxid = "0x" + HexUtils.toHex(cancelTxHash)
         return try {
-            val result = withContext(Dispatchers.IO) { blockchainService.sendTransaction(signedHex) }
-            if (!result.success) {
-                return BroadcastResult(result.message, BroadcastResultType.REJECT_INVALID_TX_PARAMS)
+            // Same lost-response recovery as broadcastTx. An UNKNOWN_OUTCOME cancel is returned as
+            // is and nothing is recorded: it spends the original's nonce, so whatever happened at
+            // most one of the two mines and sync resolves which.
+            val result = withContext(Dispatchers.IO) { sendSignedTx(signedHex, cancelTxid) }
+            if (result.resultType != BroadcastResultType.SUCCESS) {
+                return result
             }
-            val cancelTxid = "0x" + HexUtils.toHex(cancelTxHash)
             backing.putTransaction(
                 -1,
                 System.currentTimeMillis() / 1000,
@@ -221,13 +315,15 @@ class EthAccount(private val chainId: Long,
             return false
         }
 
-        var pendingReceiving = BigInteger.ZERO
-        var pendingSending = BigInteger.ZERO
-        if (balResponse.unconfirmed <= BigInteger.ZERO) {
-            pendingSending = balResponse.unconfirmed.negate()
-        } else {
-            pendingReceiving = balResponse.unconfirmed
-        }
+        // Pending comes from our own PENDING rows, not from the server. Blockbook
+        // does not return an `unconfirmedBalance` field for Ethereum at all — the
+        // key is simply absent from address?details=basic, in the middle of a
+        // mempool window as much as outside one — so the old code deserialized it
+        // to a default zero every time and no ETH account could ever show a
+        // pending amount. An outgoing send therefore stayed fully spendable on
+        // screen until it mined, and the user could go spend the same coins again.
+        val pendingReceiving = pendingReceivingWei()
+        val pendingSending = pendingSendingWei()
 
         val newBalance = Balance(valueOf(coinType, balResponse.confirmed - pendingSending),
                 valueOf(coinType, pendingReceiving), valueOf(coinType, pendingSending), Value.zeroValue(coinType))
@@ -241,10 +337,60 @@ class EthAccount(private val chainId: Long,
 
     override fun canSign() = credentials != null
 
+    /** Address as public data; the raw 32-byte private key (0x-prefixed hex, MetaMask-importable) as private data. */
+    override fun getExportData(cipher: KeyCipher): ExportableAccount.Data =
+        ExportableAccount.Data(
+            Optional.fromNullable(credentials?.ecKeyPair?.privateKey?.let { Numeric.toHexStringWithPrefixZeroPadded(it, 64) }),
+            mapOf(BipDerivationType.BIP44 to receivingAddress.addressString))
+
+    /**
+     * ETH leaving the account in still-unconfirmed transactions: the amount plus
+     * the gas budgeted for it. Self-transfers move no value, so only their fee
+     * counts. Only live PENDING rows are included — REPLACED / CANCELED / DROPPED
+     * ones are unconfirmed too but will never settle.
+     */
+    private fun pendingSendingWei(): BigInteger {
+        val own = receivingAddress.addressString
+        return getLivePendingTransactions()
+            .filter { it.sender.addressString.equals(own, true) }
+            .fold(BigInteger.ZERO) { acc, tx ->
+                val movesValue = !tx.receiver.addressString.equals(own, true)
+                val fee = tx.fee?.value ?: BigInteger.ZERO
+                acc + fee + (if (movesValue) tx.value.value else BigInteger.ZERO)
+            }
+    }
+
+    /** ETH arriving in still-unconfirmed transactions. The sender pays their own gas. */
+    private fun pendingReceivingWei(): BigInteger {
+        val own = receivingAddress.addressString
+        return getLivePendingTransactions()
+            .filter {
+                !it.sender.addressString.equals(own, true)
+                        && it.receiver.addressString.equals(own, true)
+            }
+            .fold(BigInteger.ZERO) { acc, tx -> acc + tx.value.value }
+    }
+
     private suspend fun syncTransactions(): Boolean {
         try {
-            val remoteTransactions = withContext(Dispatchers.IO) { blockchainService.getTransactions(receivingAddress.addressString) }
+            // Incremental sync: once the account has finished at least one
+            // full sweep, blockbook's newest-first pagination can stop as
+            // soon as it hits a confirmed tx we already store. The first
+            // sweep (or any after archive→unarchive) does a full walk.
+            val fullSweep = !accountContext.everFullySynced
+            val knownConfirmed = if (fullSweep) emptySet() else backing.getConfirmedTxids()
+            val remoteTransactions = withContext(Dispatchers.IO) {
+                blockchainService.getTransactions(receivingAddress.addressString, knownConfirmedTxids = knownConfirmed)
+            }
+            cacheSyncTxs(remoteTransactions)
             backing.putTransactions(remoteTransactions, coinType, typicalEstimatedTransactionSize.toBigInteger())
+            if (fullSweep) {
+                // Mark only after the sweep + write succeed. An IOException
+                // mid-pagination throws out of getTransactions() before we
+                // reach this line, leaving the flag false so the next sync
+                // re-attempts the full sweep.
+                accountContext.everFullySynced = true
+            }
             val remoteTransactionsIds = remoteTransactions.map { it.txid }.toSet()
 
             // Blockbook's address?details=txs endpoint silently drops pending
@@ -284,6 +430,31 @@ class EthAccount(private val chainId: Long,
 
     companion object {
         private const val MAX_PENDING_SCAN = 20
+
+        /** EIP-7825 (Fusaka) per-transaction gas limit cap: nodes reject anything above it. */
+        @JvmField
+        val MAX_TX_GAS_LIMIT: BigInteger = BigInteger.valueOf(16_777_216)
+
+        /**
+         * Gas limit when the user did not set one. Calldata is charged per token (zero byte = 1, non-zero = 4):
+         * 4 gas per token of intrinsic cost, but since Pectra (EIP-7623) a tx must also cover the floor of
+         * 10 gas per token — the floor is what a data-only transfer pays, and a lower limit is rejected
+         * ("IntrinsicGas"). Execution cost of a contract call is not estimated; set the limit manually for that.
+         */
+        @JvmStatic
+        fun defaultGasLimit(inputData: String?): BigInteger {
+            val bytes = inputData?.takeIf { it.isNotBlank() }?.let {
+                try {
+                    Numeric.hexStringToByteArray(it)
+                } catch (e: Exception) {
+                    null
+                }
+            } ?: return Transfer.GAS_LIMIT
+            val tokens = bytes.sumOf { if (it.toInt() == 0) 1L else 4L }
+            return Transfer.GAS_LIMIT + BigInteger.valueOf(tokens * CALLDATA_FLOOR_GAS_PER_TOKEN)
+        }
+
+        private const val CALLDATA_FLOOR_GAS_PER_TOKEN = 10L
     }
 
     override fun archiveAccount() {
@@ -299,6 +470,10 @@ class EthAccount(private val chainId: Long,
     override fun dropCachedData() {
         clearBacking()
         accountContext.balance = Balance.getZeroBalance(coinType)
+        // Backing is now empty — force the next sync to do a full sweep
+        // before re-enabling incremental, otherwise we'd stop on page 1
+        // with no local history to compare against.
+        accountContext.everFullySynced = false
     }
 
     override fun isVisible() = true
@@ -314,7 +489,8 @@ class EthAccount(private val chainId: Long,
     override fun calculateMaxSpendableAmount(gasPrice: Value, ign: EthAddress?, txData: TransactionData?): Value {
         val gp =
             (txData as? EthTransactionData)?.suggestedGasPrice?.let { Value.valueOf(coinType, it) } ?: gasPrice
-        val gl = (txData as? EthTransactionData)?.gasLimit ?: typicalEstimatedTransactionSize.toBigInteger()
+        val gl = (txData as? EthTransactionData)?.let { it.gasLimit ?: defaultGasLimit(it.inputData) }
+            ?: typicalEstimatedTransactionSize.toBigInteger()
         val spendable = accountBalance.spendable - gp * gl
         return max(spendable, Value.zeroValue(coinType))
     }

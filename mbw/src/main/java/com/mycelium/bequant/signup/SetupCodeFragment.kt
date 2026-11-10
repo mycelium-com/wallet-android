@@ -51,7 +51,7 @@ class SetupCodeFragment : Fragment() {
             Toast.makeText(requireContext(), getString(R.string.s_copied_to_clipboard, "Name"), Toast.LENGTH_SHORT).show()
         }
         binding?.secretCodeCopy?.setOnClickListener {
-            Utils.setClipboardString(viewModel.secretCode.value, requireContext())
+            Utils.setSensitiveClipboardString(viewModel.secretCode.value, requireContext())
             Toast.makeText(requireContext(), getString(R.string.s_copied_to_clipboard, "Secret"), Toast.LENGTH_SHORT).show()
         }
         binding?.next?.setOnClickListener {

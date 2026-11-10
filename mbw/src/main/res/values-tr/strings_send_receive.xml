@@ -37,6 +37,9 @@
     <string name="cancel_eth_tx_loading">İptal ücreti tahmin ediliyor…</string>
     <string name="cancel_eth_tx_new_fee">İptal ücreti</string>
     <string name="cancel_eth_tx_no_connection">Sunucu bağlantısı yok. Daha sonra tekrar deneyin.</string>
+    <string name="cancel_eth_tx_queue_blocked">Önceki bir işlemin (nonce %1$s) ücreti mevcut ağ ücretinin altında ve madenciliği yapılamıyor. İşlemler sırayla onaylanır, bu nedenle bu iptal onun arkasında bekler. Önce önceki işlemi iptal edin.</string>
+    <string name="cancel_eth_tx_cancel_blocking">Önce nonce %1$s işlemini iptal et</string>
+    <string name="send_eth_stuck_queue_warning">Önceki işleminizin (nonce %1$s) ücreti mevcut ağ ücretinin altında ve takılı kaldı. Yeni bir gönderim onun arkasında bekler. Önce işlem geçmişinden onu iptal edin.</string>
     <string name="cancel_eth_tx_old_fee">Orijinal ücret</string>
     <string name="cancel_eth_tx_recipient">Orijinal alıcı</string>
     <string name="cancel_eth_tx_success">İptal yayınlandı.</string>

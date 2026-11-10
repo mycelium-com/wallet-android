@@ -131,6 +131,9 @@
     <string name="cancel_eth_tx_loading">Estimation des frais d\'annulation…</string>
     <string name="cancel_eth_tx_new_fee">Frais d\'annulation</string>
     <string name="cancel_eth_tx_no_connection">Aucune connexion au serveur. Réessayez plus tard.</string>
+    <string name="cancel_eth_tx_queue_blocked">Une transaction antérieure (nonce %1$s) a des frais inférieurs aux frais actuels du réseau et ne peut pas être minée. Les transactions sont confirmées dans l\'ordre, cette annulation attendrait donc derrière elle. Annulez d\'abord la transaction antérieure.</string>
+    <string name="cancel_eth_tx_cancel_blocking">Annuler d\'abord le nonce %1$s</string>
+    <string name="send_eth_stuck_queue_warning">Votre transaction antérieure (nonce %1$s) a des frais inférieurs aux frais actuels du réseau et est bloquée. Un nouvel envoi attendra derrière elle. Annulez-la d\'abord depuis l\'historique des transactions.</string>
     <string name="cancel_eth_tx_old_fee">Frais initiaux</string>
     <string name="cancel_eth_tx_recipient">Destinataire initial</string>
     <string name="cancel_eth_tx_success">Annulation diffusée.</string>

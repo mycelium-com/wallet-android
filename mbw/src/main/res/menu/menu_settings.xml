@@ -5,6 +5,6 @@
         android:id="@+id/action_search"
         android:title="Search"
         android:icon="@drawable/ic_search"
-        app:actionViewClass="androidx.appcompat.widget.SearchView"
+        app:actionViewClass="com.mycelium.wallet.activity.view.BackCollapsingSearchView"
         app:showAsAction="ifRoom|collapseActionView"/>
 </menu>

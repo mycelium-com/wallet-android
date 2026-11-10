@@ -12,6 +12,8 @@ import com.mycelium.wallet.activity.util.EthFeeFormatter
 import com.mycelium.wallet.databinding.TransactionDetailsEthBinding
 import com.mycelium.wapi.wallet.EthTransactionSummary
 import com.mycelium.wapi.wallet.TransactionSummary
+import com.mycelium.wapi.wallet.coins.Value
+import com.mycelium.wapi.wallet.eth.EthTxStatus
 import java.math.BigDecimal
 import java.math.RoundingMode
 
@@ -53,7 +55,11 @@ class EthDetailsFragment : DetailsFragment() {
                     text = getString(R.string.eth_internal_transfer, tx.internalValue)
                 })
             }
-            llFee.addView(getValue(tx.fee!!, null))
+            // A replaced / cancelled / dropped tx was never mined, so no fee was paid (TX-056);
+            // tx.fee there is only the gasLimit * gasPrice estimate stored while it was pending.
+            val neverMined = tx.status == EthTxStatus.REPLACED || tx.status == EthTxStatus.CANCELED ||
+                tx.status == EthTxStatus.DROPPED
+            llFee.addView(getValue(if (neverMined) Value.zeroValue(tx.fee!!.type) else tx.fee!!, null))
 
             tvGasLimit.text = tx.gasLimit.toString()
             val percent = BigDecimal(tx.gasUsed.toDouble() / tx.gasLimit.toDouble() * 100).setScale(

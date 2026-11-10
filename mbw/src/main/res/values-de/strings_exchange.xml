@@ -137,9 +137,6 @@
     <string name="receiving_exchange">Empfangen</string>
     <string name="exchange_sending">SENDEN\nADRESSE</string>
     <string name="exchange_receiving">EMPFANG\nADRESSE</string>
-    <string name="partner_fiopresale">FIO-Adressvorverkauf</string>
-    <string name="partner_fiopresale_short">Ihr Schlüssel für ein besseres Blockchain-Erlebnis</string>
-    <string name="partner_fiopresale_info" />
     <string name="sepa_buy_sell_description">Bitcoin kaufen/verkaufen mit Single Euro Payments Area.</string>
     <string name="sepa_buy_sell_settings_description">Option SEPA kaufen/verkaufen anzeigen</string>
     <string name="changelly_indicate_extra">Bitte vergessen Sie nicht, das %s anzugeben, bevor Sie Gelder senden.</string>

@@ -4,13 +4,11 @@ import com.mrd.bitlib.model.BitcoinAddress;
 import com.mycelium.wapi.wallet.btc.BtcAddress;
 import com.mycelium.wapi.wallet.btc.coins.BitcoinMain;
 import com.mycelium.wapi.wallet.btc.coins.BitcoinTest;
-import com.mycelium.wapi.wallet.btcvault.coins.BitcoinVaultMain;
-import com.mycelium.wapi.wallet.btcvault.coins.BitcoinVaultTest;
 import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 import com.mycelium.wapi.wallet.colu.coins.ColuMain;
-import com.mycelium.wapi.wallet.eth.EthAddress;
 import com.mycelium.wapi.wallet.eth.coins.EthCoin;
-import com.mycelium.wapi.wallet.fio.coins.FIOToken;
+import com.mycelium.wapi.wallet.trc20.coins.TRC20Token;
+import com.mycelium.wapi.wallet.tron.coins.TronCoin;
 
 public class AddressUtils {
 
@@ -18,8 +16,9 @@ public class AddressUtils {
         if (address.length() == 0) {
             return null;
         }
-        if (currencyType instanceof BitcoinMain || currencyType instanceof BitcoinTest || currencyType instanceof FIOToken ||
-                currencyType instanceof BitcoinVaultMain || currencyType instanceof BitcoinVaultTest) {
+        if (currencyType instanceof BitcoinMain || currencyType instanceof BitcoinTest ||
+                currencyType instanceof TronCoin || currencyType instanceof TRC20Token ||
+                currencyType instanceof EthCoin) {
             return currencyType.parseAddress(address);
         } else if (currencyType instanceof ColuMain) {
             BitcoinAddress addr = BitcoinAddress.fromString(address);
@@ -28,8 +27,6 @@ public class AddressUtils {
             } else {
                 return null;
             }
-        } else if (currencyType instanceof EthCoin) {
-            return new EthAddress(currencyType, address);
         } else {
             return null;
         }

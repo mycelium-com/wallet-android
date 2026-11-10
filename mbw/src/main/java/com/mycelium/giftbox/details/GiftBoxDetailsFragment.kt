@@ -62,20 +62,20 @@ class GiftBoxDetailsFragment : Fragment() {
             if(URLUtil.isValidUrl(viewModel.redeemCode.value)) {
                 openLink(viewModel.redeemCode.value)
             } else {
-                Utils.setClipboardString(viewModel.redeemCode.value, it.context)
+                Utils.setSensitiveClipboardString(viewModel.redeemCode.value, it.context)
                 toaster.toast(R.string.copied_to_clipboard, true)
             }
         }
         binding?.layoutCode?.redeemCodeCopy?.setOnClickListener {
-            Utils.setClipboardString(viewModel.redeemCode.value, it.context)
+            Utils.setSensitiveClipboardString(viewModel.redeemCode.value, it.context)
             toaster.toast(R.string.copied_to_clipboard, true)
         }
         binding?.layoutCode?.cardCode?.setOnClickListener {
-            Utils.setClipboardString(viewModel.cardCode.value, it.context)
+            Utils.setSensitiveClipboardString(viewModel.cardCode.value, it.context)
             toaster.toast(R.string.copied_to_clipboard, true)
         }
         binding?.layoutCode?.pinCode?.setOnClickListener {
-            Utils.setClipboardString(viewModel.cardPin.value, it.context)
+            Utils.setSensitiveClipboardString(viewModel.cardPin.value, it.context)
             toaster.toast(R.string.copied_to_clipboard, true)
         }
         viewModel.description.observe(viewLifecycleOwner) { desc ->

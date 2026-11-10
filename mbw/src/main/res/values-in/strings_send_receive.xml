@@ -83,6 +83,9 @@
     <string name="cancel_eth_tx_loading">Memperkirakan biaya pembatalan…</string>
     <string name="cancel_eth_tx_new_fee">Biaya pembatalan</string>
     <string name="cancel_eth_tx_no_connection">Tidak ada koneksi server. Coba lagi nanti.</string>
+    <string name="cancel_eth_tx_queue_blocked">Transaksi sebelumnya (nonce %1$s) memiliki biaya di bawah biaya jaringan saat ini dan tidak dapat ditambang. Transaksi dikonfirmasi secara berurutan, sehingga pembatalan ini akan menunggu di belakangnya. Batalkan transaksi sebelumnya terlebih dahulu.</string>
+    <string name="cancel_eth_tx_cancel_blocking">Batalkan nonce %1$s terlebih dahulu</string>
+    <string name="send_eth_stuck_queue_warning">Transaksi Anda sebelumnya (nonce %1$s) memiliki biaya di bawah biaya jaringan saat ini dan macet. Pengiriman baru akan menunggu di belakangnya. Batalkan terlebih dahulu dari riwayat transaksi.</string>
     <string name="cancel_eth_tx_old_fee">Biaya asli</string>
     <string name="cancel_eth_tx_recipient">Penerima asli</string>
     <string name="cancel_eth_tx_success">Pembatalan disiarkan.</string>

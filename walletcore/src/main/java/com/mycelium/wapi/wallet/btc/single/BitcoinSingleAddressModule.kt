@@ -108,8 +108,11 @@ class BitcoinSingleAddressModule(internal val backing: BtcWalletManagerBacking<S
             if (configLabel.isNotEmpty()) {
                 result.label = storeLabel(result.id, configLabel)
             } else {
-                result.label = createLabel(baseLabel)
-                storeLabel(result.id, result.label)
+                // the account id is derived from the key: a temporary (cold storage) or re-imported
+                // account shares the metadata row with an existing account - keep its label
+                val existingLabel = readLabel(result.id)
+                result.label = if (existingLabel.isNotEmpty()) existingLabel else
+                    createLabel(baseLabel).also { storeLabel(result.id, it) }
             }
         } else {
             throw IllegalStateException("Account can't be created")

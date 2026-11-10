@@ -29,7 +29,7 @@
             android:visibility="gone"
             app:errorAnimatedText="@{viewModel.feeWarning}"
             app:feeExtDialogOnClick="@{viewModel.isFeeExtended}"
-            android:textColor="@color/fio_red"
+            android:textColor="@color/error_red"
             android:textSize="14sp"
             tools:text="some text"
             tools:visibility="visible"/>

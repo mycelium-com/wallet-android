@@ -27,7 +27,7 @@
             android:layout_gravity="center"
             android:visibility="@{viewModel.showStaleWarning == true ? View.VISIBLE : View.GONE}"
             android:text="@string/stale_fee_warning"
-            android:textColor="@color/fio_red"
+            android:textColor="@color/error_red"
             android:textSize="14sp" />
 
         <TextView
@@ -37,7 +37,7 @@
             android:layout_marginHorizontal="@dimen/horizontal_page_margin"
             android:layout_gravity="center"
             android:layout_marginTop="4dp"
-            android:textColor="@color/fio_yellow"
+            android:textColor="@color/warning_yellow"
             android:textSize="14sp"
             android:text="@string/spending_unconfirmed_warning"
             android:visibility="@{viewModel.isSpendingUnconfirmed == true ? View.VISIBLE : View.GONE}"

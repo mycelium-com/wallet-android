@@ -65,7 +65,10 @@ public class BackupFragment extends PreferenceFragmentCompat {
         legacyBackupVerify = Preconditions.checkNotNull(findPreference("legacyBackupVerify"));
         legacyBackupVerify.setOnPreferenceClickListener(legacyBackupVerifyClickListener);
 
-        simulateClick(mOpenType);
+        // only on the first creation: a restored fragment (rotation) must not repeat the click
+        if (savedInstanceState == null) {
+            simulateClick(mOpenType);
+        }
 
         showOrHideLegacyBackup();
     }

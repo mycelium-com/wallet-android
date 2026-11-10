@@ -92,6 +92,9 @@
     <string name="cancel_eth_tx_loading">Annuleringskosten inschatten…</string>
     <string name="cancel_eth_tx_new_fee">Annuleringskosten</string>
     <string name="cancel_eth_tx_no_connection">Geen serververbinding. Probeer het later opnieuw.</string>
+    <string name="cancel_eth_tx_queue_blocked">Een eerdere transactie (nonce %1$s) heeft een fee onder de huidige netwerkfee en kan niet gemined worden. Transacties worden op volgorde bevestigd, dus deze annulering zou erachter wachten. Annuleer eerst de eerdere transactie.</string>
+    <string name="cancel_eth_tx_cancel_blocking">Annuleer eerst nonce %1$s</string>
+    <string name="send_eth_stuck_queue_warning">Uw eerdere transactie (nonce %1$s) heeft een fee onder de huidige netwerkfee en zit vast. Een nieuwe verzending wacht erachter. Annuleer deze eerst via de transactiegeschiedenis.</string>
     <string name="cancel_eth_tx_old_fee">Oorspronkelijke fee</string>
     <string name="cancel_eth_tx_recipient">Oorspronkelijke ontvanger</string>
     <string name="cancel_eth_tx_success">Annulering uitgezonden.</string>

@@ -161,7 +161,8 @@ class EthereumModule(
                     accountContextInDB.enabledTokens,
                     accountContextInDB.archived,
                     accountContextInDB.blockHeight,
-                    accountContextInDB.nonce)
+                    accountContextInDB.nonce,
+                    accountContextInDB.everFullySynced)
         } else {
             EthAccountContext(
                     uuid,

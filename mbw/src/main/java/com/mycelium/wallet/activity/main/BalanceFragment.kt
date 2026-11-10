@@ -1,5 +1,6 @@
 package com.mycelium.wallet.activity.main
 
+import com.mycelium.wallet.activity.util.displaySymbol
 import android.app.Activity
 import android.app.AlertDialog
 import android.content.Context
@@ -17,7 +18,9 @@ import com.mycelium.wallet.Constants
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
+import com.mycelium.wallet.activity.BipSsImportActivity
 import com.mycelium.wallet.activity.BipSsImportActivity.Companion.callMe
+import com.mrd.bitlib.crypto.InMemoryPrivateKey
 import com.mycelium.wallet.activity.HandleUrlActivity
 import com.mycelium.wallet.activity.ScanActivity
 import com.mycelium.wallet.activity.StringHandlerActivity
@@ -35,6 +38,7 @@ import com.mycelium.wallet.activity.util.getPopRequest
 import com.mycelium.wallet.activity.util.getPrivateKey
 import com.mycelium.wallet.activity.util.getShare
 import com.mycelium.wallet.activity.util.getUri
+import com.mycelium.wallet.activity.util.toStringFriendlyWithUnit
 import com.mycelium.wallet.activity.util.toStringWithUnit
 import com.mycelium.wallet.bitid.BitIDAuthenticationActivity
 import com.mycelium.wallet.content.HandleConfigFactory.genericScanRequest
@@ -87,12 +91,15 @@ class BalanceFragment : Fragment() {
         }
         updateExchangeSourceMenu()
         binding?.layoutActoins?.btSend?.setOnClickListener {
+            if (!debounceClick()) return@setOnClickListener
             onClickSend()
         }
         binding?.layoutActoins?.btReceive?.setOnClickListener {
+            if (!debounceClick()) return@setOnClickListener
             onClickReceive()
         }
         binding?.layoutActoins?.btScan?.setOnClickListener {
+            if (!debounceClick()) return@setOnClickListener
             onClickScan()
         }
     }
@@ -182,6 +189,16 @@ class BalanceFragment : Fragment() {
     override fun onStop() {
         MbwManager.getEventBus().unregister(this)
         super.onStop()
+    }
+
+    private var lastActionClickMs = 0L
+
+    /** A fast double tap on Send/Receive/Scan used to start two activities (singleTop cannot help before the first one is on top). */
+    private fun debounceClick(): Boolean {
+        val now = android.os.SystemClock.elapsedRealtime()
+        if (now - lastActionClickMs < 800) return false
+        lastActionClickMs = now
+        return true
     }
 
     fun onClickSend() {
@@ -275,7 +292,7 @@ class BalanceFragment : Fragment() {
             } else {
                 resources.getString(
                     R.string.balance_rate,
-                    account.coinType.symbol,
+                    account.coinType.displaySymbol,
                     _mbwManager!!.getFiatCurrency(account.coinType).symbol,
                     value.toFriendlyString()
                 )
@@ -289,7 +306,7 @@ class BalanceFragment : Fragment() {
 
     private fun updateUiKnownBalance(balance: Balance, coinType: AssetInfo) {
         val valueString: CharSequence =
-            balance.spendable.toStringWithUnit(_mbwManager!!.getDenomination(coinType))
+            balance.spendable.toStringFriendlyWithUnit(_mbwManager!!.getDenomination(coinType))
         binding?.tvBalance?.text = valueString
 
         // Show alternative values
@@ -355,6 +372,19 @@ class BalanceFragment : Fragment() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == StringHandlerActivity.IMPORT_SSS_CONTENT_CODE) {
+            if (resultCode == Activity.RESULT_OK) {
+                val key = InMemoryPrivateKey.fromBase58String(
+                    data?.getStringExtra(BipSsImportActivity.RESULT_SECRET), _mbwManager!!.network)
+                if (key != null) {
+                    val account = _mbwManager!!.createOnTheFlyAccount(key, Utils.getBtcCoinType())
+                    callMeWithResult(requireActivity(), account, true, StringHandlerActivity.SEND_INITIALIZATION_CODE)
+                } else {
+                    Toaster(this).toast(R.string.unrecognized_format, false)
+                }
+            }
+            return
+        }
         if (requestCode == GENERIC_SCAN_REQUEST) {
             if (resultCode != Activity.RESULT_OK) {
                 //report to user in case of error
@@ -366,42 +396,24 @@ class BalanceFragment : Fragment() {
                 when (type) {
                     ResultType.PRIVATE_KEY -> {
                         val key = data.getPrivateKey()
-                        // ask user what WIF privkey he/she scanned as there are options
-                        val selectedItem = IntArray(1)
-                        val choices = arrayOfNulls<CharSequence>(2)
-                        choices[0] = "BTC"
-                        choices[1] = "FIO"
-                        AlertDialog.Builder(requireActivity())
-                            .setTitle("Choose blockchain")
-                            .setSingleChoiceItems(
-                                choices, 0
-                            ) { dialogInterface: DialogInterface?, i: Int ->
-                                selectedItem[0] = i
-                            }
-                            .setPositiveButton(requireActivity().getString(R.string.ok)) { dialogInterface: DialogInterface?, i: Int ->
-                                val account = if (selectedItem[0] == 0) {
-                                    _mbwManager!!.createOnTheFlyAccount(
-                                        key,
-                                        Utils.getBtcCoinType()
-                                    )
-                                } else {
-                                    _mbwManager!!.createOnTheFlyAccount(
-                                        key,
-                                        Utils.getFIOCoinType()
-                                    )
-                                }
-                                //we dont know yet where at what to send
-                                callMeWithResult(
-                                    requireActivity(), account, true,
-                                    StringHandlerActivity.SEND_INITIALIZATION_CODE
-                                )
-                            }
-                            .setNegativeButton(this.getString(R.string.cancel), null)
-                            .show()
+                        val account = _mbwManager!!.createOnTheFlyAccount(key, Utils.getBtcCoinType())
+                        //we dont know yet where at what to send
+                        callMeWithResult(
+                            requireActivity(), account, true,
+                            StringHandlerActivity.SEND_INITIALIZATION_CODE
+                        )
                     }
 
                     ResultType.ADDRESS -> {
                         val address = data.getAddress()
+                        val selectedAccount = _mbwManager!!.selectedAccount
+                        if (address.coinType != selectedAccount.basedOnCoinType) {
+                            // address of another coin: reject up front instead of opening Send
+                            Toaster(this).toast(
+                                getString(R.string.address_invalid, selectedAccount.basedOnCoinType.name), false
+                            )
+                            return
+                        }
                         startActivity(
                             getIntent(
                                 activity!!,
@@ -415,6 +427,14 @@ class BalanceFragment : Fragment() {
 
                     ResultType.ASSET_URI -> {
                         val uri = data.getAssetUri()
+                        val selectedAccount = _mbwManager!!.selectedAccount
+                        val uriAddress = uri.address
+                        if (uriAddress != null && uriAddress.coinType != selectedAccount.basedOnCoinType) {
+                            Toaster(this).toast(
+                                getString(R.string.address_invalid, selectedAccount.basedOnCoinType.name), false
+                            )
+                            return
+                        }
                         startActivity(
                             getIntent(activity!!, _mbwManager!!.selectedAccount.id, uri, false)
                                 .addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT)
@@ -449,7 +469,12 @@ class BalanceFragment : Fragment() {
 
                     ResultType.SHARE -> {
                         val share = data.getShare()
-                        callMe(activity!!, share, StringHandlerActivity.IMPORT_SSS_CONTENT_CODE)
+                        // start for result from the fragment: BipSsImportActivity.callMe() would deliver
+                        // the combined secret to ModernMain.onActivityResult, where nobody handles it
+                        startActivityForResult(
+                            Intent(requireContext(), BipSsImportActivity::class.java).putExtra("share", share),
+                            StringHandlerActivity.IMPORT_SSS_CONTENT_CODE
+                        )
                     }
 
                     ResultType.URI -> {
@@ -470,6 +495,11 @@ class BalanceFragment : Fragment() {
                     ResultType.BIT_ID_REQUEST -> {
                         val request = data.getBitIdRequest()
                         BitIDAuthenticationActivity.callMe(activity, request)
+                    }
+
+                    ResultType.WORD_LIST -> {
+                        // a seed word list can't be used from Balance; say so instead of doing nothing
+                        Toaster(this).toast(R.string.scan_word_list_not_supported_here, false)
                     }
 
                     else -> {}

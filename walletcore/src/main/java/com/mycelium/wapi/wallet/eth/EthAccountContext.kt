@@ -17,10 +17,11 @@ class EthAccountContext(uuid: UUID,
                         enabledTokens: List<String>? = null,
                         archived: Boolean = false,
                         blockHeight: Int = 0,
-                        nonce: BigInteger = BigInteger.ZERO) :
+                        nonce: BigInteger = BigInteger.ZERO,
+                        everFullySynced: Boolean = false) :
         AccountContextImpl(uuid, currency, accountName, balance, archived, blockHeight) {
 
-    fun ethContext() = EthContext(uuid, nonce, enabledTokens, accountIndex)
+    fun ethContext() = EthContext(uuid, nonce, enabledTokens, accountIndex, everFullySynced)
 
     override fun onChange() {
         listener(this)
@@ -36,6 +37,11 @@ class EthAccountContext(uuid: UUID,
             onChange()
         }
     var enabledTokens = enabledTokens
+        set(value) {
+            field = value
+            onChange()
+        }
+    var everFullySynced = everFullySynced
         set(value) {
             field = value
             onChange()

@@ -6,7 +6,6 @@ import com.mycelium.wapi.wallet.coins.SYMBOL_COIN_MAP
 import com.mycelium.wapi.wallet.coins.Value
 import java.math.BigDecimal
 import java.math.BigInteger
-import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
@@ -29,12 +28,27 @@ object Util {
         "RCN", "FXC", "RPL", "LA", "BRD", "XAUT", "MT", "FTM", "SHIB", "PAXG", "WBTC", "LRC", "CRV",
         "HEX", "SAND", "FTT", "AAVE", "UNI", "AXS", "RLC", "YFI", "GRT", "CVC", "GALA", "ILV",
         "SUSHI", "1INCH", "POWR", "BNT", "COMP", "RNDR", "DYDX", "ANKR", "XYO",
-        "BTC", "BTCV", "ETH"
+        // TRON / TRC20
+        "TRX", "USD1", "USDD", "WIN", "SUN", "JST", "USDJ", "WTRX", "BTT",
+        "BTC", "ETH"
     )
     @JvmStatic
     fun trimTestnetSymbolDecoration(symbol: String): String =
         if (symbolList.contains(symbol.substring(1))) symbol.substring(1)
         else symbol
+
+    /**
+     * Symbol shown to the user. ERC20 USDT keeps its legacy "USDT20" internally — it is the
+     * exchange-rate key, the Changelly ticker and the logo name, and keeps it apart from TRC20
+     * USDT — but reads as plain USDT on screen.
+     */
+    @JvmStatic
+    fun displaySymbol(symbol: String): String =
+        when (symbol) {
+            "USDT20" -> "USDT"
+            "tUSDT20" -> "tUSDT"
+            else -> symbol
+        }
 
     @JvmStatic
     fun addTestnetSymbolDecoration(symbol: String, isTestnet: Boolean): String =
@@ -58,32 +72,4 @@ object Util {
 
     @JvmStatic
     fun valueToDouble(value: Value): Double = value.toPlainString().toDouble()
-
-    @JvmStatic
-    fun transformExpirationDate(dateStr: String): String {
-        val sdf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.US)
-        sdf.timeZone = TimeZone.getTimeZone("GMT")
-        val date = sdf.parse(dateStr)
-
-        // val requiredSdf = SimpleDateFormat("dd.MM.yyyy HH:mm:ss", Locale.US) - old format
-        // new format - September 20, 2021 at 6:23pm
-        val requiredSdf = SimpleDateFormat("LLLL dd, yyyy 'at' hh:mm a", Locale.US)
-        return requiredSdf.format(date)
-    }
-
-    @JvmStatic
-    fun convertToDate(fioDateStr: String): Date {
-        val sdf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.US)
-        sdf.timeZone = TimeZone.getTimeZone("GMT")
-        return sdf.parse(fioDateStr)
-    }
-
-    /**
-     * adds 365 to the given Date
-     */
-    @JvmStatic
-    fun getRenewTill(expirationDate: Date): Date = Calendar.getInstance().apply {
-        time = expirationDate
-        add(Calendar.DAY_OF_MONTH, 365)
-    }.time
 }

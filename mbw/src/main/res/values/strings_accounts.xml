@@ -12,7 +12,6 @@
     <string name="clipboard">Clipboard</string>
     <string name="enter_wordlist">Enter Word List</string>
     <string name="hd_account">Add Bitcoin HD Account</string>
-    <string name="btcvault_hd_account">Add Bitcoin Vault HD Account</string>
     <string name="private_key_deleted">Private key deleted.</string>
     <string name="account_deleted">Account deleted.</string>
     <string name="export">Export account keys</string>
@@ -78,7 +77,6 @@
     <string name="archiving_account_title">Archiving Account</string>
     <string name="hd_account_creation_started">Creating new HD Bitcoin Account…</string>
     <string name="eth_account_creation_started">Creating new ETH Account…</string>
-    <string name="btcv_account_creation_started">Creating new BTCV Account…</string>
     <string name="erc20_account_creation_started">Creating new ERC-20 Account…</string>
     <string name="importing_master_seed_from_wordlist">Calculating Master Seed…</string>
     <string name="start_word_list_verification">Start Verification</string>
@@ -93,7 +91,6 @@
     <string name="enter_account_label_title">Enter Account Label</string>
     <string name="edit_account_label_title">Edit Account Label</string>
     <string name="seed_already_configured">Cannot import: master seed is already configured</string>
-    <string name="master_seed_not_configured">Master seed is not configured</string>
     <string name="backup_words_title">Master Seed Backup</string>
     <string name="wordlist_backup_description">THIS IS IMPORTANT\n\nYou are about to back up your master seed.\n\nAfter making a backup you should set a PIN to prevent anyone that briefly holds your phone from making another backup and steal your current and future funds.\n\nYou will be shown a list of words, one after another. Write those words down using pen and paper, and store them in a safe place.</string>
     <string name="wordlist_verify_description">Please enter the words you just wrote down, one after another, to make sure that everything is backed up correctly.</string>
@@ -188,8 +185,6 @@
     <string name="bch_accounts_not_found"><![CDATA[We have not found any Bitcoin <font color="#f08c18">Cash</font> on your BTC accounts.<br>We are continuously monitoring your BTC accounts and will inform you if Bitcoin <font color="#f08c18">Cash</font> is found.]]></string>
     <string name="bch_accounts_found"><![CDATA[We have found %1$s Bitcoin <font color="#f08c18">Cash</font> on your BTC accounts.<br><br>%2$d corresponding Bitcoin <font color="#f08c18">Cash</font> account(s) created.\nBitcoin <font color="#f08c18">Cash</font>  balance can be checked on the Accounts tab.<br><br>Now you can go to the Balance tab of your Bitcoin <font color="#f08c18">Cash</font> account(s) and instantly exchange it to BTC.]]></string>
     <string name="hd_account_bch">Add Bitcoin Cash HD Account</string>
-    <string name="create_fio_legacy_presale_account">Create FIO Legacy Account</string>
-    <string name="new_fio_legacy_presale_account_desc">Create FIO Legacy Account ONLY if you have purchased FIO domain during FIO Presale.</string>
     <string name="no_spendable_accounts">No spendable accounts</string>
     <string name="import_xpub_should_xpriv">Only spendable accounts with Digital Assets are supported for account level 0. Please use xpriv instead of xpub</string>
     <string name="single_address_account">Single Address Account</string>
@@ -206,21 +201,17 @@
     <string name="hardware_account_create">Creating new hardware wallet account</string>
     <string name="account_gap">Account Gap</string>
     <string name="hd_eth_account">Add Ethereum Account</string>
-    <string name="hd_fio_account">Add FIO Account</string>
     <string name="single_eth_account">You can only have one Ethereum account.</string>
     <string name="payment_uri_wrong_account_erc20">Select %s account in order to read the payment uri</string>
     <string name="payment_uri_wrong_account_eth">Select Ethereum account in order to read the payment uri</string>
-    <string name="export_fio_public_key_title">Export FIO public key</string>
     <string name="add_erc20_account">Add ERC-20 Account</string>
     <string name="select_token_new_account">Add ERC-20 tokens to new ETH Account</string>
     <string name="select_eth_account_to_erc20">Select ETH Account to store your ERC-20 tokens</string>
     <string name="create_new_account">Add new ETH Account</string>
+    <string name="create_new_tron_account">Add new TRON Account</string>
     <string name="account_added_part">(Added)</string>
     <string name="select_eth_account_to_erc20_subtext">ERC-20 tokens exist on ETH Accounts and require ETH to make transactions.\nSingle ETH Account can store unlimited types of ERC-20 tokens - one of each type per ETH account.</string>
     <string name="list_added_tokens_new_account">ERC-20 tokens on new account</string>
-    <string name="select_name_to_associate_read_only_account">Accounts connected to this FIO Name. Only <b>one</b> account per each cryptocurrency can be connected with <b>one</b> FIO Name.</string>
-    <string name="connect_accounts">Save</string>
-    <string name="create_fio_account">Create FIO Account</string>
     <string name="password">Password</string>
     <string name="no_account_yet_register">No account yet? <font color="#F2E868">Register</font></string>
     <string name="set_up_2fa_to_secure_your_account">Set up 2FA to secure your account</string>
@@ -233,13 +224,22 @@
     <string name="secure_your_account">Secure your account</string>
     <string name="cant_disable_active_account">You can\'t disable active account</string>
     <string name="backup_not_generated">Backup Code was not generated</string>
-    <string name="base_label_fio_account_legacy">FIO Legacy Account</string>
     <string name="activate_trading_custodial_account">Activate Trading Account</string>
     <string name="select_account_to_pay_with">Select account to pay with:</string>
     <string name="accounts">Accounts</string>
     <string name="you_dont_have_btc_or_eth_accounts_with_funds">You don’t have any BTC or ETH accounts with funds.\nPlease top-up any of your BTC or ETH account and try again.</string>
     <string name="please_top_up_your_eth_account"><![CDATA[Please top up your <b><u>ETH %s</u></b> by %s%s to pay miner fee to send this transaction.]]></string>
     <string name="parent_eth_account">ETH %s:</string>
+    <string name="hd_tron_account">Add TRON Account</string>
+    <string name="add_trc20_account">Add TRC-20 Account</string>
+    <string name="tron_account_creation_started">Creating new TRON Account…</string>
+    <string name="trc20_account_creation_started">Creating new TRC-20 Account…</string>
+    <string name="select_trc20_token_new_account">Add TRC-20 tokens to new TRON Account</string>
+    <string name="select_tron_account_to_trc20">Select TRON Account to store your TRC-20 tokens</string>
+    <string name="select_tron_account_to_trc20_subtext">TRC-20 tokens exist on TRON Accounts and require TRX to pay network fees.\nA single TRON Account can store unlimited types of TRC-20 tokens - one of each type per TRON account.</string>
+    <string name="payment_uri_wrong_account_trx">Select TRON account in order to read the payment uri</string>
+    <string name="please_top_up_your_trx_account">Not enough TRX on the parent account to cover the network fee. Please top up your TRON account.</string>
+    <string name="parent_trx_account">TRX %s:</string>
     <string name="add_all_receiving_addresses_and_amounts">Add all receiving addresses and amounts</string>
     <string name="add_address">Add address</string>
     <string name="delete_private_key">Make Watch-only</string>

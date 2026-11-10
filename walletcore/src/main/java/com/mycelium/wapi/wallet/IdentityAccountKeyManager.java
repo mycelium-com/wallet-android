@@ -58,6 +58,20 @@ public class IdentityAccountKeyManager extends HDAccountKeyManager {
       return new IdentityAccountKeyManager(secureKeyValueStore);
    }
 
+   /**
+    * Opens the identity account if its root node was already derived and stored by
+    * {@link #createNew}, so callers can skip the expensive derivation from the master seed.
+    *
+    * @return the manager, or null if the account root has not been stored yet
+    */
+   public static IdentityAccountKeyManager openExisting(SecureKeyValueStore secureKeyValueStore) {
+      if (!secureKeyValueStore.hasCiphertextValue(getAccountNodeId())
+              || secureKeyValueStore.getPlaintextValue(getAccountNodeId()) == null) {
+         return null;
+      }
+      return new IdentityAccountKeyManager(secureKeyValueStore);
+   }
+
    public IdentityAccountKeyManager(SecureKeyValueStore secureKeyValueStore) {
       super(secureKeyValueStore, BipDerivationType.BIP44);
 

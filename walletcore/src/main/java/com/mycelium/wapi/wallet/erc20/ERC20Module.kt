@@ -31,7 +31,21 @@ class ERC20Module(
         private val networkParameters: NetworkParameters,
         metaDataStorage: IMetaDataStorage,
         private val accountListener: AccountListener?,
-        private val ethereumModule: EthereumModule) : WalletModule(metaDataStorage) {
+        private val ethereumModule: EthereumModule,
+        /**
+         * Decimals the token catalogue currently declares for a contract address,
+         * or null when the contract isn't in it. The stored context is repaired
+         * from this on load: an account keeps whatever exponent it was created
+         * with, so a token catalogued with the wrong number of decimals would
+         * otherwise misreport its balance for good, even after the catalogue is
+         * corrected.
+         */
+        private val catalogueUnitExponent: (String) -> Int? = { null },
+        /**
+         * (contract address, stored label) -> whether that label is a default name the app once gave
+         * the token (so it is relabelled to the current scheme) rather than one the user chose.
+         */
+        private val isDefaultLabel: (String, String) -> Boolean = { _, _ -> false }) : WalletModule(metaDataStorage) {
     private val accounts = mutableMapOf<UUID, ERC20Account>()
     override val id = ID
     private val ethCoinType = if (networkParameters.isProdnet) EthMain else EthTest
@@ -46,10 +60,10 @@ class ERC20Module(
                     Credentials.create(Keys.deserialize(secureStore.getDecryptedValue(
                         config.ethAccount.id.toString().toByteArray(), AesKeyCipher.defaultKeyCipher()))) else null
                 val token = config.token as ERC20Token
-                baseLabel = token.name
-
                 val uuid = UUID(BitUtils.uint64ToLong(HexUtils.toBytes(token.contractAddress.substring(2)), 0),
                         config.ethAccount.id.mostSignificantBits)
+                baseLabel = tokenLabel(defaultLabel(token), config.ethAccount.accountIndex,
+                        accounts.filterKeys { it != uuid }.values.map { it.label })
                 val accountContext = createAccountContext(uuid, config)
                 backing.createAccountContext(accountContext.uuid, accountContext)
                 val accountBacking = EthAccountBacking(walletDB, accountContext.uuid, ethCoinType, token)
@@ -59,7 +73,7 @@ class ERC20Module(
             else -> throw NotImplementedError("Unknown config")
         }
         accounts[result.id] = result
-        result.label = config.token.name
+        result.label = baseLabel
         storeLabel(result.id, baseLabel)
         return result
     }
@@ -81,23 +95,49 @@ class ERC20Module(
     override fun getAccountById(id: UUID) = accounts[id]
 
     override fun loadAccounts(): Map<UUID, WalletAccount<*>> = backing.loadAccountContexts()
-            .associateBy({ it.uuid }, { accountFromUUID(it.uuid) })
+            .mapNotNull { accountFromUUID(it.uuid) }
+            .associateBy { it.id }
+
+    private fun defaultLabel(token: ERC20Token) = "${Util.displaySymbol(token.symbol)}(ERC20)"
+
+    /** Accounts still carrying an old default label ("USDT", "Tether USD(ERC20)"…) move to the "USDT(ERC20)" scheme. */
+    override fun afterAccountsLoaded() {
+        accounts.values.forEach { account ->
+            val stored = readLabel(account.id).ifEmpty { account.label }
+            if (!isDefaultLabel(account.coinType.contractAddress, stored)) return@forEach
+            val others = accounts.values.filter { it !== account }.map { it.label }
+            val fresh = tokenLabel(defaultLabel(account.coinType), account.ethAcc.accountIndex, others)
+            account.label = fresh
+            storeLabel(account.id, fresh)
+        }
+    }
 
     private fun createAccountContext(uuid: UUID, config: ERC20Config? = null): ERC20AccountContext {
         val accountContextInDB = backing.loadAccountContext(uuid)
         return if (accountContextInDB != null) {
-            ERC20AccountContext(accountContextInDB.uuid,
+            val catalogued = catalogueUnitExponent(accountContextInDB.contractAddress)
+            val unitExponent = catalogued ?: accountContextInDB.unitExponent
+            val context = ERC20AccountContext(accountContextInDB.uuid,
                     accountContextInDB.currency,
                     accountContextInDB.accountName,
                     accountContextInDB.balance,
                 { backing.updateAccountContext(it.uuid, it) },
                     accountContextInDB.contractAddress,
                     accountContextInDB.symbol,
-                    accountContextInDB.unitExponent,
+                    unitExponent,
                     accountContextInDB.ethAccountId,
                     accountContextInDB.archived,
                     accountContextInDB.blockHeight,
-                    accountContextInDB.nonce)
+                    accountContextInDB.nonce,
+                    accountContextInDB.everFullySynced)
+            if (unitExponent != accountContextInDB.unitExponent) {
+                // Persist the correction so the stored row stops disagreeing with
+                // the contract, and re-sweep: the balance was scaled by the wrong
+                // exponent everywhere it was shown.
+                context.everFullySynced = false
+                backing.updateAccountContext(context.uuid, context)
+            }
+            context
         } else {
             val token = config!!.token
             ERC20AccountContext(
@@ -113,12 +153,13 @@ class ERC20Module(
         }
     }
 
-    private fun accountFromUUID(uuid: UUID): ERC20Account {
+    private fun accountFromUUID(uuid: UUID): ERC20Account? {
         val accountContext = createAccountContext(uuid)
         val token = ERC20Token(accountContext.accountName + if (networkParameters.isProdnet) "" else " test",
                 accountContext.symbol, accountContext.unitExponent, accountContext.contractAddress)
         val accountBacking = EthAccountBacking(walletDB, accountContext.uuid, ethCoinType, token)
-        val ethAccount = ethereumModule.getAccountById(accountContext.ethAccountId) as EthAccount
+        // an orphaned token (its ETH account was deleted) must not take the whole wallet down
+        val ethAccount = ethereumModule.getAccountById(accountContext.ethAccountId) as? EthAccount ?: return null
         val decryptedKey = secureStore.getDecryptedValue(
             accountContext.ethAccountId.toString().toByteArray(),
             AesKeyCipher.defaultKeyCipher()

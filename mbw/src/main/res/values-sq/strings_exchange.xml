@@ -265,7 +265,7 @@ Mund të shtoni tarifën e minatorit nga çdo llogari me bitcoin sa herë që b�
     <string name="vip_code_limits_description">Tani mund të bëni swap çfarëdo sasie.</string>
     <string name="vip_code_limits_title">Pa kufij</string>
     <string name="vip_code_privacy_related_notice">Dhe një gjë SHUMË E RËNDËSISHME e lidhur me privatësinë që duhet të jeni tashmë në dijeni.</string>
-    <string name="vip_code_who_can_get">Mbajtësit e tokenave Mycelium\nPjesëmarrësit e SU7 Max giveaway\nPërdoruesit besnikë të MyceIium që morën një ftesë\npersonale</string>
+    <string name="vip_code_who_can_get">Mbajtësit e tokenave Mycelium\nPjesëmarrësit e SU7 Max giveaway\nPërdoruesit besnikë të Mycelium që morën një ftesë\npersonale</string>
     <string name="vip_code_who_can_get_title">Kush është i pranueshëm për statusin VIP</string>
     <string name="vip_exchange_expired_title">Vip SWAP nuk është i disponueshëm</string>
     <string name="vip_exchange_status_expired_alert_message">Statusi juaj VIP ka skaduar, kështu që tani aplikohen tarifat e rregullta (jo-VIP).</string>

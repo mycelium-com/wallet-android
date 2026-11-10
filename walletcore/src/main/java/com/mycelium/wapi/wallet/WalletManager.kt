@@ -6,6 +6,7 @@ import com.mycelium.wapi.wallet.coins.AssetInfo
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.colu.coins.ColuMain
 import com.mycelium.wapi.wallet.erc20.coins.ERC20Token
+import com.mycelium.wapi.wallet.trc20.coins.TRC20Token
 import com.mycelium.wapi.wallet.manager.Config
 import com.mycelium.wapi.wallet.manager.FeeEstimations
 import com.mycelium.wapi.wallet.manager.State
@@ -230,7 +231,7 @@ constructor(val network: NetworkParameters,
             .map { it.symbol }
 
     fun getCryptocurrenciesNames(): List<String> = getAssetTypes()
-            .filterNot { it is ColuMain || it is ERC20Token }
+            .filterNot { it is ColuMain || it is ERC20Token || it is TRC20Token }
             .map { it.name }
 
     fun getMasterSeedDerivedAccounts(): Map<CryptoCurrency, List<WalletAccount<*>>> =

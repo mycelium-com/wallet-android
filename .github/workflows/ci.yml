@@ -26,7 +26,7 @@ jobs:
         java-version: '21'
 
     - name: Setup Android SDK
-      uses: android-actions/setup-android@v3
+      uses: android-actions/setup-android@v4
 
     - name: Setup Gradle
       uses: gradle/actions/setup-gradle@v4
@@ -54,11 +54,7 @@ jobs:
         git reset --hard HEAD
         git clean -dfx
 
-        cd fiosdk_kotlin
-        git reset --hard HEAD
-        git clean -dfx
-
-        cd ../wallet-android-modularization-tools
+        cd wallet-android-modularization-tools
         git reset --hard HEAD
         git clean -dfx
 

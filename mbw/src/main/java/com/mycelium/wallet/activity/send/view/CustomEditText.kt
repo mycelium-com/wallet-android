@@ -29,7 +29,9 @@ class CustomEditText : androidx.appcompat.widget.AppCompatEditText {
                 .getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
             imm.hideSoftInputFromWindow(this.windowToken, 0)
             this.clearFocus()
+            return true
         }
-        return true
+        // consuming every key here swallowed all hardware keyboard input
+        return super.onKeyPreIme(keyCode, event)
     }
 }

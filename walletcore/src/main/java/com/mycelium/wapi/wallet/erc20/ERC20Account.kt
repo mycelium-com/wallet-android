@@ -26,6 +26,7 @@ import com.mycelium.wapi.wallet.eth.EthBlockchainService
 import com.mycelium.wapi.wallet.eth.EthTransaction
 import com.mycelium.wapi.wallet.eth.EthTransactionData
 import com.mycelium.wapi.wallet.eth.EthTxStatus
+import com.mycelium.wapi.wallet.eth.Tx
 import com.mycelium.wapi.wallet.exceptions.BuildTransactionException
 import com.mycelium.wapi.wallet.exceptions.InsufficientFundsException
 import com.mycelium.wapi.wallet.exceptions.InsufficientFundsForFeeException
@@ -46,7 +47,7 @@ import java.util.UUID
 import java.util.logging.Level
 
 
-class ERC20Account(private val chainId: Long,
+class ERC20Account(val chainId: Long,
                    private val accountContext: ERC20AccountContext,
                    private val token: ERC20Token,
                    val ethAcc: EthAccount,
@@ -58,6 +59,9 @@ class ERC20Account(private val chainId: Long,
         backing, blockchainService, ERC20Account::class.simpleName, address), SyncPausable {
 
     override fun createTx(address: Address, amount: Value, fee: Fee, data: TransactionData?): Transaction {
+        if (address !is EthAddress) {
+            throw BuildTransactionException(Throwable("Not an Ethereum address"))
+        }
         val ethTxData = (data as? EthTransactionData)
         val nonce = ethTxData?.nonce ?: accountContext.nonce
         val gasLimit = ethTxData?.gasLimit ?: BigInteger.valueOf(TOKEN_TRANSFER_GAS_LIMIT)
@@ -67,18 +71,35 @@ class ERC20Account(private val chainId: Long,
         val inputData = getInputData(address.toString(), amount.value)
         val estimatedGasUsed = ethTxData?.gasLimit?.toInt() ?: ((Transfer.GAS_LIMIT.toInt() + TOKEN_TRANSFER_GAS_LIMIT) / 2).toInt()
 
-        if (calculateMaxSpendableAmount(gasPrice, null, null) < amount) {
+        if (calculateMaxSpendableAmount(gasPrice, null, ethTxData) < amount) {
             throw InsufficientFundsException(Throwable("Insufficient funds"))
         }
         if (gasLimit < Transfer.GAS_LIMIT) {
             throw BuildTransactionException(Throwable("Gas limit must be at least ${Transfer.GAS_LIMIT}"))
         }
-        if (ethAcc.accountBalance.spendable.value < gasPrice.value * gasLimit) {
+        if (gasLimit > EthAccount.MAX_TX_GAS_LIMIT) {
+            throw BuildTransactionException(Throwable("Gas limit must not exceed ${EthAccount.MAX_TX_GAS_LIMIT}"))
+        }
+        // gas paid in the token (paymaster): the ETH account is not touched
+        if (ethTxData?.tokenFee == null && ethAcc.accountBalance.spendable.value < gasPrice.value * gasLimit) {
             throw InsufficientFundsForFeeException(Throwable("Insufficient funds on eth account to pay for fee"))
         }
 
-        return EthTransaction(basedOnCoinType, address.toString(), Value.zeroValue(basedOnCoinType),
-            gasPrice.value, nonce, gasLimit, inputData, estimatedGasUsed,  amount)
+        // Gas is paid in ETH, so the rollout flag lives on the ETH coin
+        // (basedOnCoinType). When 1559-enabled with a recoverable tip, send the
+        // token transfer as a type-2 tx; otherwise legacy.
+        if (ethTxData?.suggestedGasPrice != null) {
+            checkGasPriceAgainstBaseFee(basedOnCoinType, gasPrice.value)
+        }
+        val tip = eip1559Tip(basedOnCoinType, gasPrice.value, ethTxData?.maxPriorityFeePerGas)
+        return if (tip != null) {
+            EthTransaction(basedOnCoinType, address.toString(), Value.zeroValue(basedOnCoinType),
+                gasPrice.value, nonce, gasLimit, inputData, estimatedGasUsed, amount,
+                maxFeePerGas = gasPrice.value, maxPriorityFeePerGas = tip)
+        } else {
+            EthTransaction(basedOnCoinType, address.toString(), Value.zeroValue(basedOnCoinType),
+                gasPrice.value, nonce, gasLimit, inputData, estimatedGasUsed, amount)
+        }
     }
 
     private fun getInputData(address: String, value: BigInteger): String {
@@ -91,9 +112,21 @@ class ERC20Account(private val chainId: Long,
 
     override fun signTx(request: Transaction, keyCipher: KeyCipher) {
         val ethTx = request as EthTransaction
-        val rawTransaction = RawTransaction.createTransaction(ethTx.nonce, ethTx.gasPrice, ethTx.gasLimit,
-                token.contractAddress, ethTx.ethValue.value, ethTx.inputData)
-        val signedMessage = TransactionEncoder.signMessage(rawTransaction, chainId, credentials)
+        val rawTransaction = if (ethTx.isEip1559) {
+            // type-2: chainId is embedded in the envelope, gasPrice is ignored.
+            // `to` is the token contract; inputData carries the transfer() call.
+            RawTransaction.createTransaction(chainId, ethTx.nonce, ethTx.gasLimit, token.contractAddress,
+                    ethTx.ethValue.value, ethTx.inputData,
+                    ethTx.maxPriorityFeePerGas, ethTx.maxFeePerGas)
+        } else {
+            RawTransaction.createTransaction(ethTx.nonce, ethTx.gasPrice, ethTx.gasLimit,
+                    token.contractAddress, ethTx.ethValue.value, ethTx.inputData)
+        }
+        val signedMessage = if (ethTx.isEip1559) {
+            TransactionEncoder.signMessage(rawTransaction, credentials)
+        } else {
+            TransactionEncoder.signMessage(rawTransaction, chainId, credentials)
+        }
         val hexValue = Numeric.toHexString(signedMessage)
         request.apply {
             signedHex = hexValue
@@ -105,33 +138,65 @@ class ERC20Account(private val chainId: Long,
 
     override fun broadcastTx(tx: Transaction): BroadcastResult {
         try {
-            val result = blockchainService.sendTransaction((tx as EthTransaction).signedHex!!)
-            if (!result.success) {
-                return BroadcastResult(result.message, BroadcastResultType.REJECT_INVALID_TX_PARAMS)
+            tx as EthTransaction
+            val signedHex = tx.signedHex
+            val hash = tx.txHash
+            if (signedHex == null || hash == null) {
+                return BroadcastResult("Transaction is not signed", BroadcastResultType.REJECT_INVALID_TX_PARAMS)
             }
-            val newTxid = "0x" + HexUtils.toHex(tx.txHash)
+            val newTxid = "0x" + HexUtils.toHex(hash)
+            // A lost response is checked against the node and re-sent as the same bytes;
+            // UNKNOWN_OUTCOME means the tx may be on the network (see EthAccount.broadcastTx).
+            val result = sendSignedTx(signedHex, newTxid)
+            val accepted = result.resultType == BroadcastResultType.SUCCESS
+            if (!accepted && result.resultType != BroadcastResultType.UNKNOWN_OUTCOME) {
+                return result
+            }
+            // PENDING in both cases, so an UNKNOWN_OUTCOME transfer keeps the tokens reserved and
+            // shows in the history until sync confirms, replaces or drops it.
+            // type-2 → store the cap (maxFeePerGas); legacy → the gas price.
+            val price = tx.effectiveGasPrice
             backing.putTransaction(-1, System.currentTimeMillis() / 1000, newTxid,
-                    tx.signedHex!!, receivingAddress.addressString, tx.toAddress,
-                    Value.valueOf(basedOnCoinType, tx.tokenValue!!.value), Value.valueOf(basedOnCoinType, tx.gasPrice * tx.gasLimit), 0,
-                    tx.nonce, tx.gasPrice, true, null, true, tx.gasLimit, tx.estimatedGasUsed.toBigInteger())
-            markPendingReplacedByNonce(tx.nonce, newTxid)
-            bumpNonceAfterBroadcast(tx.nonce)
-            // ERC20 shares an on-chain address with its parent EthAccount, so
-            // bump there too to prevent the next ETH or token send from reusing
-            // this nonce before the next sync, and mirror the REPLACED marking
-            // since the nonce is shared across both accounts' backings.
-            ethAcc.markPendingReplacedByNonce(tx.nonce, newTxid)
-            ethAcc.bumpNonceAfterBroadcast(tx.nonce)
-            return BroadcastResult(BroadcastResultType.SUCCESS)
-        } catch (e: Exception) {
-            return when (e) {
-                is IOException -> BroadcastResult(BroadcastResultType.NO_SERVER_CONNECTION)
-                else -> {
-                    logger.log(Level.SEVERE, "Error sending ERC-20 transaction: ${e.localizedMessage}")
-                    BroadcastResult(e.localizedMessage, BroadcastResultType.REJECT_INVALID_TX_PARAMS)
-                }
+                    signedHex, receivingAddress.addressString, tx.toAddress,
+                    Value.valueOf(basedOnCoinType, tx.tokenValue!!.value), Value.valueOf(basedOnCoinType, price * tx.gasLimit), 0,
+                    tx.nonce, price, true, null, true, tx.gasLimit, tx.estimatedGasUsed.toBigInteger())
+            if (accepted) {
+                markPendingReplacedByNonce(tx.nonce, newTxid)
+                bumpNonceAfterBroadcast(tx.nonce)
+                // ERC20 shares an on-chain address with its parent EthAccount, so
+                // bump there too to prevent the next ETH or token send from reusing
+                // this nonce before the next sync, and mirror the REPLACED marking
+                // since the nonce is shared across both accounts' backings.
+                ethAcc.markPendingReplacedByNonce(tx.nonce, newTxid)
+                ethAcc.bumpNonceAfterBroadcast(tx.nonce)
             }
+            // UNKNOWN_OUTCOME keeps the nonce (here and on the parent): a retry reuses it and
+            // cannot mine alongside the lost transfer.
+            // Show the outgoing tokens as pending right away instead of after the
+            // next periodic sync, and refresh the parent too — the gas for this
+            // transfer is now committed ETH.
+            updateBalanceCache()
+            ethAcc.updateBalanceCache()
+            return result
+        } catch (e: Exception) {
+            logger.log(Level.SEVERE, "Error sending ERC-20 transaction: ${e.localizedMessage}")
+            return BroadcastResult(e.localizedMessage, BroadcastResultType.REJECT_INVALID_TX_PARAMS)
         }
+    }
+
+    /**
+     * Writes a transfer that was sent as a UserOperation (gas paid in the token) and has already
+     * mined. Without it the balance stays at the pre-send value until blockbook indexes the
+     * bundle, and a second send right after — "Max" above all — is priced against tokens that
+     * are gone. [debited] is what left the account in this token: the amount plus the fee.
+     * The next sync overwrites the row with blockbook's view of the same tx (same net value).
+     */
+    fun recordTokenPaidTransfer(txid: String, blockNumber: Long, recipient: String, debited: BigInteger) {
+        backing.putTransaction(blockNumber.toInt(), System.currentTimeMillis() / 1000, txid, "",
+                receivingAddress.addressString, recipient, Value.valueOf(basedOnCoinType, debited),
+                // the gas was paid in ETH by the bundler, not by this account
+                Value.zeroValue(basedOnCoinType), 1, BigInteger.ZERO, BigInteger.ZERO, true, null, true)
+        updateBalanceCache()
     }
 
     override fun ethFeeSpendable(): Value = ethAcc.accountBalance.spendable
@@ -206,6 +271,9 @@ class ERC20Account(private val chainId: Long,
     override fun dropCachedData() {
         clearBacking()
         saveBalance(Balance.getZeroBalance(coinType))
+        // Backing is empty again, so the next sync has to walk the whole
+        // address history before incremental mode can be trusted.
+        accountContext.everFullySynced = false
     }
 
     override fun isVisible() = true
@@ -217,8 +285,11 @@ class ERC20Account(private val chainId: Long,
 
     override fun broadcastOutgoingTransactions() = true
 
-    override fun calculateMaxSpendableAmount(minerFeePerKilobyte: Value, destinationAddress: EthAddress?, txData: TransactionData?): Value =
-            accountBalance.spendable
+    /** The whole token balance, less the fee when the fee is paid in the token too. */
+    override fun calculateMaxSpendableAmount(minerFeePerKilobyte: Value, destinationAddress: EthAddress?, txData: TransactionData?): Value {
+        val tokenFee = (txData as? EthTransactionData)?.tokenFee ?: return accountBalance.spendable
+        return Value.valueOf(coinType, (accountBalance.spendable.value - tokenFee).max(BigInteger.ZERO))
+    }
 
     override val syncTotalRetrievedTransactions = 0 // TODO implement after full transaction history implementation
 
@@ -271,9 +342,66 @@ class ERC20Account(private val chainId: Long,
             .map { it.value.value }
             .fold(BigInteger.ZERO, BigInteger::add)
 
+    /**
+     * Settle local PENDING rows whose transaction has actually mined but carries
+     * no token transfer for us — the shape a reverted `transfer()` takes, since a
+     * failed call emits no Transfer event and blockbook then returns an empty
+     * `tokenTransfers` array.
+     *
+     * Such a row can never leave PENDING on its own: the token-filtered sync loop
+     * skips it, and reconcileLocalPending() refuses to drop it because the tx is
+     * demonstrably alive on-chain. It would sit in [getPendingSending] forever,
+     * permanently deducting its amount from the displayed balance. Write the row
+     * through with the real confirmations and on-chain status; the amount stops
+     * counting because a failed token tx transfers nothing.
+     */
+    private fun settleRevertedTransfers(allRemoteTransactions: List<Tx>) {
+        val livePending = getLivePendingTransactions()
+        if (livePending.isEmpty()) return
+        val minedByTxid = allRemoteTransactions
+            .filter { it.confirmations.signum() > 0 }
+            .associateBy { it.txid }
+        livePending.forEach { local ->
+            val txid = "0x" + HexUtils.toHex(local.id)
+            val mined = minedByTxid[txid] ?: return@forEach
+            if (mined.getTokenTransfer(token.contractAddress, receivingAddress.addressString) != null) return@forEach
+            val gasForFee = mined.gasUsed?.takeIf { it.signum() > 0 } ?: mined.gasLimit
+            backing.putTransaction(mined.blockHeight.toInt(), mined.blockTime, mined.txid, "",
+                    local.sender.addressString, local.receiver.addressString, local.value,
+                    Value.valueOf(basedOnCoinType, mined.gasPrice * gasForFee),
+                    mined.confirmations.toInt(), mined.nonce, mined.gasPrice, true, null,
+                    mined.success, mined.gasLimit, mined.gasUsed)
+        }
+    }
+
     private suspend fun syncTransactions():Boolean {
         try {
-            val remoteTransactions = withContext(Dispatchers.IO) { blockchainService.getTransactions(receivingAddress.addressString, token.contractAddress) }
+            // Fetch the full unfiltered address history once, cache it for
+            // the parent getNewNonce() to reuse (avoids paginating twice),
+            // then filter to this token's transfers for our local backing.
+            //
+            // Whether to sweep is OUR OWN decision — the parent's flag says
+            // nothing about whether this token's transfers have been fetched.
+            // Keying off the parent left a token account added to an
+            // already-synced ETH account (or archived and re-activated) in
+            // incremental mode from the very first sync: pagination stopped on
+            // page 1 and the token's transfers, which sit further back in the
+            // address history, were never fetched — a permanent zero balance.
+            //
+            // The stop set still comes from the parent, and that is deliberate:
+            // the request paginates the ENTIRE address history, which the parent
+            // stores in full while we keep only this token's subset. Matching
+            // against our own sparse txids would almost never hit, so we could
+            // never stop early. Once our own sweep has completed we hold every
+            // transfer of ours that is older than the newest page, which is what
+            // makes the parent's stop set safe to trust.
+            val fullSweep = !accountContext.everFullySynced
+            val knownConfirmed = if (fullSweep) emptySet() else ethAcc.confirmedTxidsSnapshot()
+            val allRemoteTransactions = withContext(Dispatchers.IO) {
+                blockchainService.getTransactions(receivingAddress.addressString, knownConfirmedTxids = knownConfirmed)
+            }
+            cacheSyncTxs(allRemoteTransactions)
+            val remoteTransactions = allRemoteTransactions.filter { it.getTokenTransfer(token.contractAddress, receivingAddress.addressString) != null }
             //TODO convert backing.putTransaction to backing.putTransactions
             remoteTransactions.forEach { tx ->
                 tx.getTokenTransfer(token.contractAddress, receivingAddress.addressString)?.also { tokenTransfer ->
@@ -284,6 +412,13 @@ class ERC20Account(private val chainId: Long,
                             tx.confirmations.toInt(), tx.nonce, tx.gasPrice, true, null, tx.success, tx.gasLimit, tx.gasUsed)
                 }
             }
+            if (fullSweep) {
+                // Only after the sweep and the writes above succeeded. An
+                // IOException mid-pagination throws out of getTransactions()
+                // before we get here, so the next sync retries the full sweep.
+                accountContext.everFullySynced = true
+            }
+            settleRevertedTransfers(allRemoteTransactions)
             val remoteTransactionsIds = remoteTransactions.map { it.txid }.toSet()
 
             // Blockbook's contract-filtered response excludes pending contract

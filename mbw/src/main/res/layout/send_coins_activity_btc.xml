@@ -48,7 +48,7 @@
                 android:visibility="@{viewModel.isBatch() ? View.VISIBLE : View.GONE}"/>
 
             <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/batch"
+                android:id="@+id/batchList"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
@@ -109,7 +109,6 @@
                     layout="@layout/send_coins_insufficient"
                     bind:viewModel="@{viewModel}" />
 
-                <!-- Recipient Fio Config -->
 
             </LinearLayout>
 
@@ -118,20 +117,6 @@
                 android:id="@+id/layoutFeeBlock"
                 layout="@layout/send_coins_fee_block_btc"
                 bind:viewModel="@{viewModel}" />
-
-            <!-- Sender -->
-            <include
-                android:id="@+id/layoutSenderFio"
-                layout="@layout/send_coins_sender_fio"
-                bind:activity="@{activity}"
-                bind:viewModel="@{viewModel}" />
-
-            <!--FIO Memo-->
-            <include
-                android:id="@+id/layoutFioMemo"
-                layout="@layout/fio_memo_input"
-                bind:fioMemo="@{viewModel.fioMemo}"
-                bind:payeeFioName="@{viewModel.payeeFioName}" />
 
             <!--Update progress bar-->
             <include

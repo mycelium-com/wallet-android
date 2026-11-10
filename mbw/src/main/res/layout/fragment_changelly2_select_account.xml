@@ -10,7 +10,7 @@
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:theme="@style/MyceliumFIOMapping.ActionBar"
+        android:theme="@style/MyceliumDark.ActionBar"
         app:navigationIcon="@drawable/ic_back_arrow"
         app:title="Select account"/>
 
@@ -22,7 +22,7 @@
         android:layout_marginTop="16dp"
         android:layout_marginEnd="@dimen/activity_horizontal_margin"
         android:text="@string/select_account_to_pay_with"
-        android:textColor="@color/fio_white_alpha_0_6"
+        android:textColor="@color/white_alpha_0_6"
         android:textSize="14sp" />
 
     <androidx.recyclerview.widget.RecyclerView
@@ -61,7 +61,7 @@
             android:layout_marginTop="8dp"
             android:layout_marginEnd="@dimen/activity_horizontal_margin"
             android:gravity="center"
-            android:text="@string/you_dont_have_btc_or_eth_accounts_with_funds"
+            android:text="@string/exchange_no_accounts_with_funds"
             android:textSize="14dp" />
 
         <Button

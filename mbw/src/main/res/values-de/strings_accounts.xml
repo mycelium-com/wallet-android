@@ -12,7 +12,6 @@
     <string name="clipboard">Zwischenablage</string>
     <string name="enter_wordlist">Wortliste eingeben</string>
     <string name="hd_account">Bitcoin HD-Konto hinzufügen</string>
-    <string name="btcvault_hd_account">Bitcoin Vault HD-Konto hinzufügen</string>
     <string name="private_key_deleted">Privater Schlüssel gelöscht.</string>
     <string name="account_deleted">Konto gelöscht.</string>
     <string name="export">Kontoschlüssel exportieren</string>
@@ -80,7 +79,6 @@
     <string name="archiving_account_title">Konto wird archiviert</string>
     <string name="hd_account_creation_started">Neues HD-Bitcoin-Konto wird erstellt…</string>
     <string name="eth_account_creation_started">Neues ETH-Konto wird erstellt…</string>
-    <string name="btcv_account_creation_started">Neues BTCV-Konto wird erstellt…</string>
     <string name="erc20_account_creation_started">Neues ERC-20-Konto wird erstellt…</string>
     <string name="importing_master_seed_from_wordlist">Master Seed wird berechnet…</string>
     <string name="start_word_list_verification">Überprüfung starten</string>
@@ -186,8 +184,6 @@
     <string name="bch_accounts_not_found"><![CDATA[Wir haben keine Bitcoin <font color="#f08c18">Cash</font> auf Ihren BTC-Konten gefunden.<br>Wir überwachen Ihre BTC-Konten kontinuierlich und informieren Sie, wenn Bitcoin <font color="#f08c18">Cash</font> gefunden wird.]]></string>
     <string name="bch_accounts_found"><![CDATA[Wir haben %1$s Bitcoin <font color="#f08c18">Cash</font> auf Ihren BTC-Konten gefunden.<br><br>%2$d entsprechendes Bitcoin <font color="#f08c18">Cash</font>-Konto wurde erstellt.\nDas Bitcoin <font color="#f08c18">Cash</font>-Guthaben kann auf der Registerkarte "Konten" überprüft werden.<br><br>Jetzt können Sie zur Registerkarte "Balance" Ihrer Bitcoin <font color="#f08c18">Cash</font>-Konten gehen und es sofort in BTC umwandeln.]]></string>
     <string name="hd_account_bch">Bitcoin Cash HD-Konto hinzufügen</string>
-    <string name="create_fio_legacy_presale_account">FIO-Legacy-Konto erstellen</string>
-    <string name="new_fio_legacy_presale_account_desc">Erstellen Sie ein FIO-Legacy-Konto NUR, wenn Sie während des FIO-Vorverkaufs eine FIO-Domain gekauft haben.</string>
     <string name="no_spendable_accounts">Keine ausgabefähigen Konten</string>
     <string name="import_xpub_should_xpriv">Nur ausgabefähige Konten mit digitalen Vermögenswerten werden für Kontenebene 0 unterstützt. Bitte verwenden Sie xpriv anstelle von xpub</string>
     <string name="single_address_account">Einzeladressenkonto</string>
@@ -206,11 +202,9 @@
     <string name="hardware_account_create">Neues Hardware-Wallet-Konto wird erstellt</string>
     <string name="account_gap">Konto-Lücke</string>
     <string name="hd_eth_account">Ethereum-Konto hinzufügen</string>
-    <string name="hd_fio_account">FIO-Konto hinzufügen</string>
     <string name="single_eth_account">Sie können nur ein Ethereum-Konto haben.</string>
     <string name="payment_uri_wrong_account_erc20">Wählen Sie das %s-Konto aus, um die Zahlungs-URI zu lesen</string>
     <string name="payment_uri_wrong_account_eth">Wählen Sie ein Ethereum-Konto aus, um die Zahlungs-URI zu lesen</string>
-    <string name="export_fio_public_key_title">FIO-öffentlichen Schlüssel exportieren</string>
     <string name="select_account_to_pay_with">Wählen Sie ein Konto zur Bezahlung aus:</string>
     <string name="accounts">Konten</string>
     <string name="you_dont_have_btc_or_eth_accounts_with_funds">Sie haben keine BTC- oder ETH-Konten mit Guthaben.\nBitte füllen Sie ein beliebiges BTC- oder ETH-Konto auf und versuchen Sie es erneut.</string>

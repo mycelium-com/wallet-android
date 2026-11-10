@@ -64,7 +64,7 @@ open class ExportAsQrViewModel(val context: Application) : AndroidViewModel(cont
             val builder = AlertDialog.Builder(activity)
             builder.setMessage(R.string.export_to_clipboard_warning).setCancelable(false)
                     .setPositiveButton(R.string.yes) { dialog, id ->
-                        Utils.setClipboardString(accountDataString, context)
+                        Utils.setSensitiveClipboardString(accountDataString, context)
                         Toaster(context).toast(R.string.copied_to_clipboard, true)
                         dialog.dismiss()
                     }.setNegativeButton(R.string.no) { dialog, id -> }

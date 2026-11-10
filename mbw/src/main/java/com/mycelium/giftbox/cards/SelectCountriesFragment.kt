@@ -50,7 +50,10 @@ class SelectCountriesFragment : Fragment() {
         adapter.submitList(countryList)
         binding?.search?.doAfterTextChanged { search ->
             adapter.submitList(countryList
-                    .filter { it.name.contains(search.toString(), true) || it.acronym3.contains(search.toString(), true) })
+                    .filter { it.name.contains(search.toString(), true) || it.acronym3.contains(search.toString(), true) }) {
+                // keep the (restored) list at the top instead of at the previously first visible item
+                binding?.list?.scrollToPosition(0)
+            }
         }
         binding?.clear?.setOnClickListener {
             binding?.search?.text = null

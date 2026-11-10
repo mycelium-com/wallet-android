@@ -1,5 +1,6 @@
 package com.mycelium.wallet.activity.send.model
 
+import com.mycelium.wallet.activity.util.displaySymbol
 import android.app.Activity
 import android.app.Application
 import android.app.ProgressDialog
@@ -23,6 +24,7 @@ import com.mycelium.wallet.activity.modern.AddressBookFragment
 import com.mycelium.wallet.activity.pop.PopActivity
 import com.mycelium.wallet.activity.send.BroadcastDialog
 import com.mycelium.wallet.activity.send.ManualAddressEntry
+import com.mycelium.wallet.activity.send.helper.RecipientAddressError
 import com.mycelium.wallet.activity.send.SendCoinsActivity
 import com.mycelium.wallet.activity.send.VerifyPaymentRequestActivity
 import com.mycelium.wallet.activity.send.adapter.BatchItem
@@ -34,12 +36,11 @@ import com.mycelium.wallet.paymentrequest.PaymentRequestHandler
 import com.mycelium.wapi.content.AssetUri
 import com.mycelium.wapi.content.AssetUriParser
 import com.mycelium.wapi.content.btc.BitcoinUri
-import com.mycelium.wapi.content.btcv.BitcoinVaultUri
 import com.mycelium.wapi.content.colu.mss.MSSUri
 import com.mycelium.wapi.content.colu.mt.MTUri
 import com.mycelium.wapi.content.colu.rmc.RMCUri
 import com.mycelium.wapi.content.eth.EthUri
-import com.mycelium.wapi.content.fio.FIOUri
+import com.mycelium.wapi.content.tron.TronUri
 import com.mycelium.wapi.wallet.Address
 import com.mycelium.wapi.wallet.Transaction
 import com.mycelium.wapi.wallet.WalletAccount
@@ -49,8 +50,9 @@ import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.erc20.ERC20Account
 import com.mycelium.wapi.wallet.erc20.coins.ERC20Token
 import com.mycelium.wapi.wallet.eth.coins.EthCoin
-import com.mycelium.wapi.wallet.fio.RecordObtData
-import com.mycelium.wapi.wallet.fio.getActiveFioAccount
+import com.mycelium.wapi.wallet.trc20.TRC20Account
+import com.mycelium.wapi.wallet.trc20.coins.TRC20Token
+import com.mycelium.wapi.wallet.tron.coins.TronCoin
 import com.squareup.otto.Subscribe
 import org.bitcoin.protocols.payments.PaymentACK
 import java.util.*
@@ -114,47 +116,14 @@ abstract class SendCoinsViewModel(application: Application) : AndroidViewModel(a
         }
     }
 
-    init {
-        mbwManager.obtDataRecordCache = null
-    }
-
     open fun init(account: WalletAccount<*>, intent: Intent) {
         amountHint = context.getString(R.string.amount_hint_denomination,
-                mbwManager.getDenomination(account.coinType).getUnicodeString(account.coinType.symbol))
+                mbwManager.getDenomination(account.coinType).getUnicodeString(account.coinType.displaySymbol))
 
         MbwManager.getEventBus().register(eventListener)
     }
 
     abstract fun sendTransaction(activity: Activity)
-
-    protected fun sendFioObtData() {
-        // TODO: 10/7/20 redesign the whole process to have the viewModel around until after the
-        //       transaction was sent.
-        // We can't send it yet as the transaction is not finalized yet and as that will happen
-        // after this ViewModel is disposed, we need to put that data somewhere so we can broadcast
-        // that fio obt record after broadcasting the transaction.
-        mbwManager
-                .getWalletManager(false)
-                .getActiveFioAccount(payerFioName.value ?: return)
-                // If there is no FioAccount, we are done here.
-                ?: return
-        val tokenCode = getAccount().coinType.symbol.uppercase()
-        val chainCode = if (getAccount() is ERC20Account) "ETH" else tokenCode
-
-        if (payeeFioName.value != null) {
-            mbwManager.obtDataRecordCache = RecordObtData(
-                    payerFioName.value!!,
-                    payeeFioName.value!!,
-                    "", // TODO: fix
-                    getReceivingAddress().value?.toString() ?: "no address provided",
-                    getAmount().value?.toString(Denomination.UNIT)!!.toDouble(),
-                    chainCode,
-                    tokenCode,
-                    "will be filled in after signing",
-                    fioMemo.value ?: ""
-            )
-        }
-    }
 
     abstract fun getFeeFormatter(): FeeFormatter
 
@@ -186,19 +155,13 @@ abstract class SendCoinsViewModel(application: Application) : AndroidViewModel(a
 
     fun getReceivingAddress() = model.receivingAddress
 
-    val payerFioName get() = model.payerFioName
-
-    val payeeFioName get() = model.payeeFioName
-
-    val fioMemo get() = model.fioMemo
-
     val isBatch get() = model.isBatch
     val outputList get() = model.outputList
 
     fun getRecipientRepresentation() = model.recipientRepresentation
 
     enum class RecipientRepresentation {
-        ASK, COIN, FIO
+        ASK, COIN
     }
 
     fun getReceivingAddressText() = model.receivingAddressText
@@ -306,7 +269,6 @@ abstract class SendCoinsViewModel(application: Application) : AndroidViewModel(a
     private fun isUriMatchAccountCoinType(uri: AssetUri, coinType: CryptoCurrency): Boolean {
         return when (uri) {
             is BitcoinUri -> coinType == Utils.getBtcCoinType()
-            is BitcoinVaultUri -> coinType == Utils.getBtcvCoinType()
             is MTUri -> coinType == Utils.getMtCoinType()
             is MSSUri -> coinType == Utils.getMassCoinType()
             is RMCUri -> coinType == Utils.getRmcCoinType()
@@ -317,7 +279,13 @@ abstract class SendCoinsViewModel(application: Application) : AndroidViewModel(a
                     coinType is ERC20Token && uri.asset.equals(coinType.contractAddress, true)
                 }
             }
-            is FIOUri -> coinType == Utils.getFIOCoinType()
+            is TronUri -> {
+                if (uri.asset == null) {
+                    coinType is TronCoin
+                } else {
+                    coinType is TRC20Token && uri.asset.equals(coinType.contractAddress, true)
+                }
+            }
             else -> false
         }
     }
@@ -352,6 +320,8 @@ abstract class SendCoinsViewModel(application: Application) : AndroidViewModel(a
                     val item = model.outputList.value?.get(batchIndex - 1)!!
                     updateItem(item.copy(crypto = value))
                 } else {
+                    // Before the amount itself: setting it is what makes the model act on it.
+                    model.onAmountEntered(data?.getBooleanExtra(GetAmountActivity.AMOUNT_IS_MAX, false) == true)
                     model.amount.value = enteredAmount ?: Value.zeroValue(model.account.coinType)
                 }
             }
@@ -367,7 +337,6 @@ abstract class SendCoinsViewModel(application: Application) : AndroidViewModel(a
                 MANUAL_ENTRY_RESULT_CODE && resultCode == Activity.RESULT_OK) {
             model.receivingAddress.value =
                     data!!.getSerializableExtra(ManualAddressEntry.ADDRESS_RESULT_NAME) as Address
-            model.payeeFioName.value = data.getStringExtra(ManualAddressEntry.ADDRESS_RESULT_FIO)
         } else if (requestCode == SendCoinsActivity.SIGN_TRANSACTION_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
             model.signedTransaction =
                     (data!!.getSerializableExtra(SendCoinsActivity.SIGNED_TRANSACTION)) as Transaction
@@ -395,7 +364,8 @@ abstract class SendCoinsViewModel(application: Application) : AndroidViewModel(a
         } else {
             when (data?.getSerializableExtra(StringHandlerActivity.RESULT_TYPE_KEY) as ResultType) {
                 ResultType.PRIVATE_KEY -> {
-                    throw NotImplementedError("Private key must be implemented per currency")
+                    // only BTC (SendBtcViewModel) can spend from a scanned private key
+                    makeText(activity, context.getString(R.string.not_correct_address_type), LENGTH_LONG).show()
                 }
                 ResultType.ADDRESS -> {
                     if (item != null) {
@@ -404,11 +374,7 @@ abstract class SendCoinsViewModel(application: Application) : AndroidViewModel(a
                         if (data.getAddress().coinType == getAccount().basedOnCoinType) {
                             model.receivingAddress.value = data.getAddress()
                         } else {
-                            makeText(
-                                activity,
-                                context.getString(R.string.not_correct_address_type),
-                                LENGTH_LONG
-                            ).show()
+                            makeText(activity, wrongAddressMessage(data.getAddress().toString()), LENGTH_LONG).show()
                         }
                     }
                 }
@@ -426,11 +392,7 @@ abstract class SendCoinsViewModel(application: Application) : AndroidViewModel(a
                         if (uri.address?.coinType == getAccount().basedOnCoinType) {
                             processAssetUri(uri)
                         } else {
-                            makeText(
-                                activity,
-                                context.getString(R.string.not_correct_address_type),
-                                LENGTH_LONG
-                            ).show()
+                            makeText(activity, wrongAddressMessage(uri.address?.toString()), LENGTH_LONG).show()
                         }
                     }
                 }
@@ -444,8 +406,7 @@ abstract class SendCoinsViewModel(application: Application) : AndroidViewModel(a
                             .addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT))
                 }
                 else -> {
-                    throw IllegalStateException("Unexpected result type from scan: " +
-                            data.getSerializableExtra(StringHandlerActivity.RESULT_TYPE_KEY).toString())
+                    makeText(activity, context.getString(R.string.unrecognized_format), LENGTH_LONG).show()
                 }
             }
         }
@@ -464,6 +425,11 @@ abstract class SendCoinsViewModel(application: Application) : AndroidViewModel(a
             model.amount.value = uri.value
         }
     }
+
+    /** "This is a TRON address. USDT is sent on the Ethereum network…" rather than a bare type error. */
+    private fun wrongAddressMessage(scanned: String?): String =
+        scanned?.let { RecipientAddressError.describe(context, getAccount().coinType, it) }
+            ?: context.getString(R.string.not_correct_address_type)
 
     private fun handleAddressBookResults(data: Intent?, item: BatchItem? = null) {
         // Get result from address chooser

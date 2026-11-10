@@ -38,9 +38,10 @@ class EthAccountBacking(val walletDB: WalletDB, private val uuid: UUID, private 
                                                                                   success: Boolean,
                                                                                   internalValue: Value?,
                                                                                   hasTokenTransfers: Boolean,
-                                                                                  status: String ->
+                                                                                  status: String,
+                                                                                  failureReason: String? ->
                 createTransactionSummary(ownerAddress, txid, currency, blockNumber, timestamp,
-                        value, fee, confirmations, from, to, nonce, gasLimit, gasUsed, gasPrice, hasTokenTransfers, internalValue, success, EthTxStatus.parse(status))
+                        value, fee, confirmations, from, to, nonce, gasLimit, gasUsed, gasPrice, hasTokenTransfers, internalValue, success, EthTxStatus.parse(status), failureReason)
             }).executeAsList()
 
     /**
@@ -63,9 +64,10 @@ class EthAccountBacking(val walletDB: WalletDB, private val uuid: UUID, private 
                                                                                             success: Boolean,
                                                                                             internalValue: Value?,
                                                                                             hasTokenTransfers: Boolean,
-                                                                                            status: String ->
+                                                                                            status: String,
+                                                                                            failureReason: String? ->
                 createTransactionSummary(ownerAddress, txid, currency, blockNumber, timestamp,
-                        value, fee, confirmations, from, to, nonce, gasLimit, gasUsed, gasPrice, hasTokenTransfers, internalValue, success, EthTxStatus.parse(status))
+                        value, fee, confirmations, from, to, nonce, gasLimit, gasUsed, gasPrice, hasTokenTransfers, internalValue, success, EthTxStatus.parse(status), failureReason)
             }).executeAsList()
 
     fun getTransactionSummary(txidParameter: String, ownerAddress: String): TransactionSummary? =
@@ -85,9 +87,10 @@ class EthAccountBacking(val walletDB: WalletDB, private val uuid: UUID, private 
                                                                                     success: Boolean,
                                                                                     internalValue: Value?,
                                                                                     hasTokenTransfers: Boolean,
-                                                                                    status: String ->
+                                                                                    status: String,
+                                                                                    failureReason: String? ->
                 createTransactionSummary(ownerAddress, txid, currency, blockNumber, timestamp,
-                        value, fee, confirmations, from, to, nonce, gasLimit, gasUsed, gasPrice, hasTokenTransfers, internalValue, success, EthTxStatus.parse(status))
+                        value, fee, confirmations, from, to, nonce, gasLimit, gasUsed, gasPrice, hasTokenTransfers, internalValue, success, EthTxStatus.parse(status), failureReason)
             }).executeAsOneOrNull()
 
     /**
@@ -121,12 +124,15 @@ class EthAccountBacking(val walletDB: WalletDB, private val uuid: UUID, private 
                        fee: Value, confirmations: Int, nonce: BigInteger, gasPrice: BigInteger, hasTokenTransfers: Boolean = false,
                        internalValue: Value? = null, success: Boolean = true,
                        gasLimit: BigInteger = Transfer.GAS_LIMIT, gasUsed: BigInteger? = null,
-                       status: EthTxStatus? = null) {
+                       status: EthTxStatus? = null, failureReason: String? = null) {
         // Default status derives from on-chain facts. If the caller didn't
         // pass an explicit status, preserve any sticky terminal status that's
         // already in the row (CANCELED / REPLACED / DROPPED) — these are
         // local-truth markers and the next sync's INSERT OR REPLACE must not
-        // resurrect a tx that the user has already finalized.
+        // resurrect a tx that the user has already finalized. Stickiness only
+        // holds while the tx is unconfirmed: once the network reports actual
+        // confirmations the tx demonstrably mined, so any earlier
+        // REPLACED/CANCELED/DROPPED verdict was wrong and on-chain truth wins.
         val derivedStatus = when {
             confirmations > 0 && success -> EthTxStatus.CONFIRMED
             confirmations > 0 && !success -> EthTxStatus.FAILED
@@ -135,11 +141,12 @@ class EthAccountBacking(val walletDB: WalletDB, private val uuid: UUID, private 
         val existingStatus = ethQueries.selectStatus(uuid, txid).executeAsOneOrNull()
             ?.let { EthTxStatus.parse(it) }
         val effectiveStatus = status
-            ?: existingStatus?.takeIf { it in STICKY_STATUSES }
+            ?: existingStatus?.takeIf { it in STICKY_STATUSES && confirmations == 0 }
             ?: derivedStatus
         queries.insertTransaction(txid, uuid, currency, if (blockNumber == -1) Int.MAX_VALUE else blockNumber, timestamp, raw, value, fee, confirmations)
         ethQueries.insertTransaction(txid, uuid, from, to ?: contractCreationAddress.addressString,
-            nonce, gasLimit, gasPrice, success, internalValue, hasTokenTransfers, effectiveStatus.name)
+            nonce, gasLimit, gasPrice, success, internalValue, hasTokenTransfers, effectiveStatus.name,
+            failureReason)
         if (gasUsed != null) {
             updateGasUsed(txid, gasUsed, fee)
         }
@@ -164,10 +171,19 @@ class EthAccountBacking(val walletDB: WalletDB, private val uuid: UUID, private 
                         Value.valueOf(coinType, tx.gasPrice * gasForFee),
                         tx.confirmations.toInt(), tx.nonce, tx.gasPrice, tx.tokenTransfers.isNotEmpty(),
                         Value.valueOf(coinType, tx.internalValue ?: BigInteger.ZERO),
-                        tx.success, tx.gasLimit, tx.gasUsed)
+                        tx.success, tx.gasLimit, tx.gasUsed, failureReason = tx.failureReason)
             }
         }
     }
+
+    /**
+     * Returns the set of confirmed (status = CONFIRMED) txids stored for this
+     * account. Caller uses this as the "stop set" for incremental sync —
+     * once blockbook's newest-first pagination shows a confirmed tx from this
+     * set, everything older is already in backing and we can stop fetching.
+     */
+    fun getConfirmedTxids(): Set<String> =
+            ethQueries.selectConfirmedTxids(uuid).executeAsList().toSet()
 
     fun deleteAllAccountTransactions() {
         queries.deleteAllAccountTransactions(uuid)
@@ -222,7 +238,8 @@ class EthAccountBacking(val walletDB: WalletDB, private val uuid: UUID, private 
                                          hasTokenTransfers: Boolean,
                                          internalValue: Value? = null,
                                          success: Boolean = true,
-                                         status: EthTxStatus = EthTxStatus.PENDING): EthTransactionSummary {
+                                         status: EthTxStatus = EthTxStatus.PENDING,
+                                         failureReason: String? = null): EthTransactionSummary {
         val convertedValue = if (token != null) transformValueFromDb(token, value) else value
         val inputs = listOf(InputViewModel(EthAddress(currency, from), value, false))
         // "to" address may be empty if we have a contract funding transaction
@@ -237,12 +254,15 @@ class EthAccountBacking(val walletDB: WalletDB, private val uuid: UUID, private 
         // value/fee of the *replacement* tx will be reflected by its own row.
         val effectiveSuccess = success && status != EthTxStatus.REPLACED && status != EthTxStatus.CANCELED && status != EthTxStatus.DROPPED
         val transferred = if (token != null) {
-            if (status == EthTxStatus.REPLACED || status == EthTxStatus.CANCELED || status == EthTxStatus.DROPPED)
-                Value.zeroValue(token)
+            // A token transfer that reverted on-chain emits no Transfer event, so
+            // no tokens moved and it must not count toward the balance — the gas
+            // was burned in ETH, not in the token. Same for rows we resolved
+            // locally as REPLACED / CANCELED / DROPPED.
+            if (!effectiveSuccess) Value.zeroValue(token)
             else getTokenTransferred(ownerAddress, from, to, convertedValue)
         } else getEthTransferred(ownerAddress, from, to, convertedValue, fee, effectiveSuccess, internalValue, hasTokenTransfers, status)
         return EthTransactionSummary(EthAddress(currency, from), EthAddress(currency, to), nonce,
-                convertedValue, internalValue, gasLimit, gasUsed, gasPrice ?: (fee.value / gasUsed), hasTokenTransfers, status, currency, HexUtils.toBytes(txid.substring(2)),
+                convertedValue, internalValue, gasLimit, gasUsed, gasPrice ?: (fee.value / gasUsed), hasTokenTransfers, status, failureReason, currency, HexUtils.toBytes(txid.substring(2)),
                 HexUtils.toBytes(txid.substring(2)), transferred, timestamp, if (blockNumber == Int.MAX_VALUE) -1 else blockNumber,
                 confirmations, false, inputs, outputs,
                 destAddresses, null, Transfer.GAS_LIMIT.toInt(), fee)

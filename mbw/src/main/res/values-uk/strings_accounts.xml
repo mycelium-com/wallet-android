@@ -13,7 +13,6 @@
 
     <string name="enter_wordlist">Введіть список слів</string>
     <string name="hd_account">Додати HD Bitcoin акаунт</string>
-    <string name="btcvault_hd_account">Додати HD Bitcoin Vault акаунт</string>
     <string name="private_key_deleted">Приватний ключ видалено.</string>
     <string name="account_deleted">Акаунт видалено.</string>
     <string name="export">Експортувати ключі акаунту</string>
@@ -103,8 +102,6 @@
     <string name="bch_accounts_not_found"><![CDATA[Ми не знайшли жодного Bitcoin <font color="#f08c18">Cash</font> на ваших BTC акаунтах.<br>Ми продовжуємо моніторити ваші BTC акаунти та повідомимо вас, якщо буде знайдено Bitcoin <font color="#f08c18">Cash</font>.]]></string>
     <string name="bch_accounts_found"><![CDATA[Ми знайшли %1$s Bitcoin <font color="#f08c18">Cash</font> на ваших BTC акаунтах.<br><br>%2$d відповідних акаунтів Bitcoin <font color="#f08c18">Cash</font> створено.\nБаланс Bitcoin <font color="#f08c18">Cash</font> можна перевірити на вкладці Акаунти.<br><br>Тепер ви можете перейти на вкладку "Баланс" ваших акаунтів Bitcoin <font color="#f08c18">Cash</font> і миттєво обміняти їх на BTC.]]></string>
     <string name="hd_account_bch">Додати HD акаунт Bitcoin Cash</string>
-    <string name="create_fio_legacy_presale_account">Створити спадковий акаунт FIO</string>
-    <string name="new_fio_legacy_presale_account_desc">Створіть спадковий акаунт FIO ТІЛЬКИ, якщо ви придбали домен FIO під час попереднього продажу.</string>
     <string name="no_spendable_accounts">Немає акаунтів для витрат</string>
     <string name="import_xpub_should_xpriv">Підтримуються лише витратні акаунти з цифровими активами для рівня акаунтів 0. Будь ласка, використовуйте xpriv замість xpub.</string>
     <string name="single_address_account">Акаунт з однією адресою</string>
@@ -121,11 +118,9 @@
     <string name="hardware_account_create">Створення нового акаунту апаратного гаманця</string>
     <string name="account_gap">Розрив акаунтів</string>
     <string name="hd_eth_account">Додати акаунт Ethereum</string>
-    <string name="hd_fio_account">Додати акаунт FIO</string>
     <string name="single_eth_account">Ви можете мати лише один акаунт Ethereum.</string>
     <string name="payment_uri_wrong_account_erc20">Виберіть акаунт %s, щоб прочитати URI платежу</string>
     <string name="payment_uri_wrong_account_eth">Виберіть акаунт Ethereum, щоб прочитати URI платежу</string>
-    <string name="export_fio_public_key_title">Експортувати публічний ключ FIO</string>
     <string name="add_erc20_account">Додати акаунт ERC-20</string>
     <string name="select_token_new_account">Додати токени ERC-20 до нового акаунту ETH</string>
     <string name="select_eth_account_to_erc20">Виберіть акаунт ETH для зберігання ваших токенів ERC-20</string>
@@ -133,9 +128,6 @@
     <string name="account_added_part">(Додано)</string>
     <string name="select_eth_account_to_erc20_subtext">Токени ERC-20 існують на акаунтах ETH і вимагають ETH для здійснення транзакцій.\nОдин акаунт ETH може зберігати необмежену кількість токенів ERC-20 — по одному кожного типу на акаунт ETH.</string>
     <string name="list_added_tokens_new_account">Токени ERC-20 на новому акаунті</string>
-    <string name="select_name_to_associate_read_only_account">Акаунти, підключені до цього імені FIO. Лише <b>один</b> акаунт кожної криптовалюти може бути підключений до <b>одного</b> імені FIO.</string>
-    <string name="connect_accounts">Зберегти</string>
-    <string name="create_fio_account">Створити акаунт FIO</string>
     <string name="password">Пароль</string>
     <string name="no_account_yet_register">Ще немає акаунту? <font color="#F2E868">Зареєструватися</font></string>
     <string name="set_up_2fa_to_secure_your_account">Налаштуйте двофакторну автентифікацію, щоб захистити свій акаунт</string>
@@ -148,7 +140,6 @@
     <string name="secure_your_account">Захистіть ваш акаунт</string>
     <string name="cant_disable_active_account">Ви не можете вимкнути активний акаунт</string>
     <string name="backup_not_generated">Резервний код не було створено</string>
-    <string name="base_label_fio_account_legacy">Спадковий акаунт FIO</string>
     <string name="activate_trading_custodial_account">Активувати торговий акаунт</string>
     <string name="select_account_to_pay_with">Виберіть акаунт для оплати:</string>
     <string name="accounts">Акаунти</string>

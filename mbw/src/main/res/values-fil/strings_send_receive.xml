@@ -37,6 +37,9 @@
     <string name="cancel_eth_tx_loading">Tinatantya ang cancellation fee…</string>
     <string name="cancel_eth_tx_new_fee">Cancellation fee</string>
     <string name="cancel_eth_tx_no_connection">Walang connection sa server. Subukan ulit mamaya.</string>
+    <string name="cancel_eth_tx_queue_blocked">Ang isang naunang transaksyon (nonce %1$s) ay may fee na mas mababa sa kasalukuyang network fee at hindi ito maimi-mine. Nagko-confirm ang mga transaksyon nang sunud-sunod, kaya maghihintay ang pagkanselang ito sa likod nito. Kanselahin muna ang nauna.</string>
+    <string name="cancel_eth_tx_cancel_blocking">Kanselahin muna ang nonce %1$s</string>
+    <string name="send_eth_stuck_queue_warning">Ang iyong naunang transaksyon (nonce %1$s) ay may fee na mas mababa sa kasalukuyang network fee at ito ay naipit. Maghihintay sa likod nito ang bagong pagpapadala. Kanselahin muna ito mula sa history ng transaksyon.</string>
     <string name="cancel_eth_tx_old_fee">Orihinal na bayad</string>
     <string name="cancel_eth_tx_recipient">Orihinal na tagatanggap</string>
     <string name="cancel_eth_tx_success">Na-broadcast ang pagkansela.</string>

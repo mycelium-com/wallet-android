@@ -50,8 +50,8 @@ import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.colu.coins.*
 import com.mycelium.wapi.wallet.eth.coins.EthMain
 import com.mycelium.wapi.wallet.eth.coins.EthTest
-import com.mycelium.wapi.wallet.fio.coins.FIOMain
-import com.mycelium.wapi.wallet.fio.coins.FIOTest
+import com.mycelium.wapi.wallet.tron.coins.TronMain
+import com.mycelium.wapi.wallet.tron.coins.TronTest
 import com.mycelium.wapi.wallet.metadata.MetadataCategory
 import com.mycelium.wapi.wallet.metadata.MetadataKeyCategory
 
@@ -242,20 +242,44 @@ object MetadataStorage : GenericMetadataStorage(WalletApplication.getInstance())
             "RMC Test" -> RMCCoinTest
             "Ethereum" -> EthMain
             "Ethereum test" -> EthTest
-            "FIO" -> FIOMain
-            "FIO test" -> FIOTest
+            "Tron" -> TronMain
+            "Tron test" -> TronTest
             else -> null
         }
     }
 
     fun getLabelByAddress(address: Address): String {
-        return getKeyCategoryValueEntry(ADDRESSLABEL_CATEGORY.of(address.toString()), "")
+        val key = normalizeAddressKey(address.toString())
+        return if (isHexAddressKey(key)) {
+            // legacy entries may be stored EIP-55 checksummed, the address may arrive lower case
+            getKeyCategoryValueEntryIgnoreCase(ADDRESSLABEL_CATEGORY.of(key)).or("")
+        } else {
+            getKeyCategoryValueEntry(ADDRESSLABEL_CATEGORY.of(key), "")
+        }
     }
 
     fun deleteAddressMetadata(address: Address) {
         // delete everything related to this address from metadata
-        deleteAllByKey(address.toString())
+        val key = address.toString()
+        if (isHexAddressKey(key)) {
+            // ETH: entries stored under any letter case of the address (EIP-55 vs lower case)
+            deleteAllByKeyIgnoreCase(key)
+        } else {
+            deleteAllByKey(key)
+        }
     }
+
+    /**
+     * ETH addresses are case-insensitive (the case only carries the EIP-55 checksum), so they are
+     * stored lower case; anything else (base58, bech32, Tron) is kept as is.
+     */
+    @JvmStatic
+    fun normalizeAddressKey(address: String): String =
+            if (isHexAddressKey(address)) address.lowercase(Locale.ROOT) else address
+
+    private fun isHexAddressKey(key: String) = HEX_ADDRESS_KEY.matches(key)
+
+    private val HEX_ADDRESS_KEY = Regex("^0[xX][0-9a-fA-F]{40}$")
 
     fun getAddressByLabel(label: String): Optional<String> {
         val address = getFirstKeyForCategoryValue(ADDRESSLABEL_CATEGORY, label)
@@ -269,13 +293,22 @@ object MetadataStorage : GenericMetadataStorage(WalletApplication.getInstance())
 
     fun storeAddressLabel(address: String, label: String) {
         if (!Strings.isNullOrEmpty(label)) {
-            storeKeyCategoryValueEntry(ADDRESSLABEL_CATEGORY.of(address), label)
+            val key = normalizeAddressKey(address)
+            if (isHexAddressKey(key)) {
+                // drop a differently-cased (EIP-55) duplicate so there's exactly one entry
+                deleteByKeyCategoryIgnoreCase(ADDRESSLABEL_CATEGORY.of(key))
+            }
+            storeKeyCategoryValueEntry(ADDRESSLABEL_CATEGORY.of(key), label)
         }
     }
 
     fun storeAddressCoinType(address: String, coinType: String) {
         if (coinTypeFromString(coinType) != null) {
-            storeKeyCategoryValueEntry(ADDRESSCOINTYPE_CATEGORY.of(address), coinType)
+            val key = normalizeAddressKey(address)
+            if (isHexAddressKey(key)) {
+                deleteByKeyCategoryIgnoreCase(ADDRESSCOINTYPE_CATEGORY.of(key))
+            }
+            storeKeyCategoryValueEntry(ADDRESSCOINTYPE_CATEGORY.of(key), coinType)
         }
     }
 

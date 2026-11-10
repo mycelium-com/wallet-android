@@ -104,6 +104,9 @@
     <string name="cancel_eth_tx_loading">キャンセル手数料を見積もり中…</string>
     <string name="cancel_eth_tx_new_fee">キャンセル手数料</string>
     <string name="cancel_eth_tx_no_connection">サーバーへの接続がありません。後でもう一度お試しください。</string>
+    <string name="cancel_eth_tx_queue_blocked">以前の取引（nonce %1$s）の手数料が現在のネットワーク手数料を下回っているため、承認されません。取引は順番に確認されるため、このキャンセルはその取引の後で待機することになります。先に以前の取引をキャンセルしてください。</string>
+    <string name="cancel_eth_tx_cancel_blocking">先にnonce %1$sをキャンセル</string>
+    <string name="send_eth_stuck_queue_warning">以前の取引（nonce %1$s）の手数料が現在のネットワーク手数料を下回っており、停止しています。新しい送金はその取引の後で待機することになります。先に取引履歴からキャンセルしてください。</string>
     <string name="cancel_eth_tx_old_fee">元の手数料</string>
     <string name="cancel_eth_tx_recipient">元の受信者</string>
     <string name="cancel_eth_tx_success">キャンセルがブロードキャストされました。</string>

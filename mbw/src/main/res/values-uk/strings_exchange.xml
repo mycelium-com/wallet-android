@@ -134,9 +134,6 @@
     <string name="receiving_exchange">отримання</string>
     <string name="exchange_sending">ВІДПРАВЛЯЮЧА\nАДРЕСА</string>
     <string name="exchange_receiving">АДРЕСА\nОТРИМАННЯ</string>
-    <string name="partner_fiopresale">Попередній продаж адрес FIO</string>
-    <string name="partner_fiopresale_short">Ваш ключ до кращого досвіду роботи з блокчейном</string>
-    <string name="partner_fiopresale_info" />
     <string name="sepa_buy_sell_description">Купівля/продаж Bitcoin за допомогою Single Euro Payments Area.</string>
     <string name="sepa_buy_sell_settings_description">Показувати опцію купівлі/продажу SEPA</string>
     <string name="changelly_indicate_extra">Будь ласка, не забудьте вказати %s перед надсиланням коштів.</string>
@@ -237,6 +234,8 @@
     <string name="exchange_max_msg">Сума перевищує максимум обміну в %s %s</string>
     <string name="settings_exchange_quick_exchange_title">Підтвердження обміну</string>
     <string name="settings_exchange_quick_exchange_summary">Показувати діалог підтвердження перед обміном</string>
+    <string name="settings_exchange_wallet_identity_title">Надсилати ID гаманця</string>
+    <string name="settings_exchange_wallet_identity_summary">Ідентифікувати гаманець в обміннику підписаною адресою гаманця</string>
     <string name="exchange_accept_dialog_title">Обмін</string>
     <string name="exchange_accept_dialog_msg">Ви надсилаєте: %s %s\nКомісія майнера: %s\n\nВи отримуєте: %s %s</string>
     <string name="changelly_receiving">Отримання</string>

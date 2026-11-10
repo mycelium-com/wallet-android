@@ -1,11 +1,5 @@
 {
   "partner-info": {
-    "fio-presale": {
-      "id": "fio-presale",
-      "start-date": "2019-09-25T00:00:00+0100",
-      "end-date": "2020-02-28T23:59:59+0100",
-      "isEnabled": false
-    },
     "currencycom": {
       "id": "currencycom",
       "start-date": "2020-06-26T00:00:00+0100",
@@ -2455,7 +2449,7 @@
     "blockbook-servers": {
       "primary": [
         {
-          "url": "https://bb-eth.mycelium.com:19126"
+          "url": "https://blockbook2.mycelium.com:19186"
         }
       ]
     }
@@ -2474,106 +2468,81 @@
     "blockbook-servers": {
       "primary": [
         {
-          "url": "https://bb-eth.mycelium.com:9136"
+          "url": "https://blockbook2.mycelium.com:9116"
         }
       ]
     }
   },
-    "FIO-mainnet": {
-        "api-servers": {
-            "primary": [
-                {
-                    "url": "https://fio.eu.eosamsterdam.net/v1/"
-                },
-                {
-                    "url": "https://fio.eosdac.io/v1/"
-                },
-                {
-                    "url": "https://fio.eosphere.io/v1/"
-                },
-                {
-                    "url": "https://fio.eosrio.io/v1/"
-                },
-                {
-                    "url": "https://fio.acherontrading.com/v1/"
-                },
-                {
-                    "url": "https://fio.eos.barcelona/v1/"
-                },
-                {
-                    "url": "https://api.fio.alohaeos.com/v1/"
-                },
-                {
-                    "url": "https://fio.greymass.com/v1/"
-                },
-                {
-                    "url": "https://fio.genereos.io/v1/"
-                },
-                {
-                    "url": "https://fio.eosargentina.io/v1/"
-                },
-                {
-                    "url": "https://fio.cryptolions.io/v1/"
-                },
-                {
-                    "url": "https://fio-mainnet.eosblocksmith.io/v1/"
-                },
-                {
-                    "url": "https://api.fio.currencyhub.io/v1/"
-                },
-                {
-                    "url": "https://fio.eosdublin.io/v1/"
-                },
-                {
-                    "url": "https://api.fiosweden.org/v1/"
-                },
-                {
-                    "url": "https://api.fio.greeneosio.com/v1/"
-                },
-                {
-                    "url": "https://api.fio.services/v1/"
-                },
-                {
-                    "url": "https://fio.eostribe.io/v1/"
-                }
-            ]
-        },
-        "history-servers": {
-            "primary": [
-                {
-                    "url": "https://fio.greymass.com/v1/"
-                },
-                {
-                    "url": "https://fio.greymass.com/v1/"
-                },
-                {
-                    "url": "https://fio.eosphere.io/v1/"
-                },
-                {
-                    "url": "https://api.fiosweden.org/v1/"
-                },
-                {
-                    "url": "https://fio.eosphere.io/v1/"
-                }
-            ]
-        },
-        "tpid": "1@proxx"
-    },
-    "FIO-testnet": {
-        "api-servers": {
-            "primary": [
-                {
-                    "url": "https://fiotestnet.greymass.com/v1/"
-                }
-            ]
-        },
-        "history-servers": {
-            "primary": [
-                {
-                    "url": "https://fiotestnet.greymass.com/v1/"
-                }
-            ]
-        },
-        "tpid": "pay@mycelium"
-    }
+  "TRX-testnet": {
+    "endpoints": [
+      {
+        "url": "grpc.nile.trongrid.io:50051",
+        "type": "GRPC",
+        "priority": 0
+      },
+      {
+        "url": "https://nile.trongrid.io/",
+        "type": "REST",
+        "priority": 4
+      },
+      {
+        "url": "https://nile.trongrid.io/",
+        "type": "DEFAULT",
+        "priority": 5
+      }
+    ]
+  },
+  "TRX-mainnet": {
+    "endpoints": [
+      {
+        "url": "https://uyghur-parrot-aqua.catblockchain.com",
+        "type": "GRPC",
+        "header-key": "X-CATFEE-TOKEN",
+        "header-value": "enc1_eeae1840632990eb66edd7e7becc25b901175c8690ed8832285b7f60e1ceff516bf4ae4f",
+        "priority": 0
+      },
+      {
+        "url": "grpc.trongrid.io:50051",
+        "type": "GRPC",
+        "header-key": "TRON-PRO-API-KEY",
+        "header-value": "enc2_9eb1e5bd16543bb79ebed62e65ff94f9d16dca9f8c3d8837780ff13b6e292d7f0301d06ba9016089e558a37164ffceaa8c9d312a",
+        "priority": 1,
+        "rps": 15
+      },
+      {
+        "url": "grpc.trongrid.io:50051",
+        "type": "GRPC",
+        "priority": 2,
+        "rps": 1
+      },
+      {
+        "url": "https://api.trongrid.io/",
+        "type": "REST",
+        "header-key": "TRON-PRO-API-KEY",
+        "header-value": "enc2_9eb1e5bd16543bb79ebed62e65ff94f9d16dca9f8c3d8837780ff13b6e292d7f0301d06ba9016089e558a37164ffceaa8c9d312a",
+        "priority": 4,
+        "rps": 15
+      },
+      {
+        "url": "https://api.trongrid.io/",
+        "type": "REST",
+        "priority": 5,
+        "rps": 1
+      },
+      {
+        "url": "https://api.trongrid.io/",
+        "type": "DEFAULT",
+        "header-key": "TRON-PRO-API-KEY",
+        "header-value": "enc2_9eb1e5bd16543bb79ebed62e65ff94f9d16dca9f8c3d8837780ff13b6e292d7f0301d06ba9016089e558a37164ffceaa8c9d312a",
+        "priority": 6,
+        "rps": 15
+      },
+      {
+        "url": "https://api.trongrid.io/",
+        "type": "DEFAULT",
+        "priority": 7,
+        "rps": 1
+      }
+    ]
+  }
 }

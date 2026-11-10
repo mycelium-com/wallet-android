@@ -69,7 +69,7 @@
         <androidx.appcompat.widget.AppCompatButton
             android:layout_width="220dp"
             android:layout_height="wrap_content"
-            style="@style/MyceliumButton.FIO"
+            style="@style/MyceliumButton.Primary"
             android:layout_marginTop="16dp"
             android:layout_marginStart="0dp"
             android:onClick="@{() -> viewModel.shareRequest()}"

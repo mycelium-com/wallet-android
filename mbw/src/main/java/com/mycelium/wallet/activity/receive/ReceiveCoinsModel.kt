@@ -1,11 +1,13 @@
 package com.mycelium.wallet.activity.receive
 
 import android.app.Application
+import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
 import android.media.AudioManager
 import android.media.RingtoneManager
 import android.nfc.NfcAdapter
+import android.os.Build
 import android.os.Bundle
 import androidx.core.app.NotificationCompat
 import androidx.lifecycle.MutableLiveData
@@ -13,6 +15,7 @@ import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.modern.Toaster
 import com.mycelium.wallet.activity.util.AccountDisplayType
+import com.mycelium.wallet.activity.util.toStringWithUnit
 import com.mycelium.wallet.event.SyncFailed
 import com.mycelium.wallet.event.SyncStopped
 import com.mycelium.wapi.wallet.Address
@@ -21,7 +24,7 @@ import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.erc20.ERC20Account
 import com.mycelium.wapi.wallet.eth.AbstractEthERC20Account
-import com.mycelium.wapi.wallet.fio.FioModule
+import com.mycelium.wapi.wallet.trc20.TRC20Account
 import com.squareup.otto.Subscribe
 
 class ReceiveCoinsModel(
@@ -36,8 +39,6 @@ class ReceiveCoinsModel(
     val receivingAmount: MutableLiveData<Value?> = MutableLiveData()
     val receivingAmountWrong: MutableLiveData<Boolean> = MutableLiveData()
     val receivingAddress: MutableLiveData<Address> = MutableLiveData()
-    val receivingFioName = MutableLiveData<String>()
-    val fioNameList = MutableLiveData<List<String>>()
     val alternativeAmountWarning: MutableLiveData<Boolean> = MutableLiveData()
 
     private var syncErrors = 0
@@ -50,10 +51,6 @@ class ReceiveCoinsModel(
         MbwManager.getEventBus().register(this)
         receivingAmountWrong.value = false
         receivingAddress.value = account.receiveAddress
-
-        val walletManager = mbwManager.getWalletManager(false)
-        val module = walletManager.getModuleById(FioModule.ID) as FioModule
-        fioNameList.value = module.getFIONames(account).map { it.name }
 
         if (showIncomingUtxo) {
             updateObservingAddress()
@@ -102,15 +99,25 @@ class ReceiveCoinsModel(
                 val value = mbwManager.exchangeRateManager.get(amount.value, account.coinType) ?: amount.value
 
                 if (value != null) {
-                    uri.append(if (account is AbstractEthERC20Account) "?value=" else "?amount=")
-                    uri.append(value.valueAsBigDecimal.stripTrailingZeros().toPlainString())
+                    if (account is AbstractEthERC20Account) {
+                        // EIP-681: value in wei / token base units
+                        uri.append("?value=").append(value.value.toString())
+                    } else {
+                        uri.append("?amount=").append(value.valueAsBigDecimal.stripTrailingZeros().toPlainString())
+                    }
                 } else {
                     Toaster(context).toast(R.string.value_conversion_error, false);
                 }
-                if (account is ERC20Account) {
-                    uri.append("&req-asset=${account.coinType.contractAddress}")
-                }
             }
+        }
+        // without req-asset a token request reads as a request for the native coin (ETH/TRX)
+        val tokenContract = when (account) {
+            is ERC20Account -> account.coinType.contractAddress
+            is TRC20Account -> account.coinType.contractAddress
+            else -> null
+        }
+        if (tokenContract != null) {
+            uri.append(if (uri.contains('?')) '&' else '?').append("req-asset=").append(tokenContract)
         }
         return uri.toString()
     }
@@ -164,10 +171,17 @@ class ReceiveCoinsModel(
     private fun makeNotification(sum: Value?) {
         val soundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
         val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager?
-        val mBuilder = NotificationCompat.Builder(context, "coins received channel")
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            // notifications posted to a channel that was never created are dropped by the system
+            notificationManager?.createNotificationChannel(NotificationChannel(COINS_RECEIVED_CHANNEL,
+                    context.getString(R.string.coins_received_channel_name), NotificationManager.IMPORTANCE_DEFAULT))
+        }
+        val mBuilder = NotificationCompat.Builder(context, COINS_RECEIVED_CHANNEL)
                 .setSmallIcon(R.drawable.ic_notification_icon)
+                .setContentTitle(context.getString(R.string.coins_received_channel_name))
+                .setContentText(sum?.toStringWithUnit(mbwManager.getDenomination(account.coinType)))
                 .setSound(soundUri, AudioManager.STREAM_NOTIFICATION) //This sets the sound to play
-        notificationManager!!.notify(0, mBuilder.build())
+        notificationManager?.notify(0, mBuilder.build())
         lastAddressBalance = sum
     }
 
@@ -176,6 +190,7 @@ class ReceiveCoinsModel(
 
     companion object {
         private const val MAX_SYNC_ERRORS = 8
+        private const val COINS_RECEIVED_CHANNEL = "coins received channel"
         private const val LAST_ADDRESS_BALANCE = "lastAddressBalance"
         private const val RECEIVING_SINCE = "receivingSince"
         private const val SYNC_ERRORS = "syncErrors"

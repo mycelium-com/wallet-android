@@ -108,8 +108,10 @@ class OrdersFragment : Fragment() {
             adapter.submitList(generateList(viewModel.orders.value ?: emptyList()))
             MbwManager.getEventBus().post(OrdersUpdate())
         }, error = { code, msg ->
-            adapter.submitList(listOf())
-            viewModel.state.value = ListState.ERROR
+            val orders = viewModel.orders.value.orEmpty()
+            adapter.submitList(generateList(orders))
+            // without any known order show the "no purchases" placeholder instead of a blank screen
+            viewModel.state.value = if (orders.isEmpty()) ListState.NOT_FOUND else ListState.ERROR
             if(code != 400) {
                 Toaster(this).toast(msg, true)
             }

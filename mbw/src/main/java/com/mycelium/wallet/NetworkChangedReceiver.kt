@@ -24,7 +24,6 @@ class NetworkChangedReceiver : BroadcastReceiver() {
             logger.log(Level.INFO, "Connectivity status has been changed. Connected: $connected")
             mbwManager.getWalletManager(false).isNetworkConnected = connected
             mbwManager.wapi.setNetworkConnected(connected)
-            mbwManager.btcvWapi.setNetworkConnected(connected)
             MbwManager.getEventBus().post(NetworkConnectionStateChanged(connected))
         }
     }

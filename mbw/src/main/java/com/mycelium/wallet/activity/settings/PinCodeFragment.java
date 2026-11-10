@@ -78,7 +78,10 @@ public class PinCodeFragment extends PreferenceFragmentCompat {
         }
         update();
 
-        simulateClick(mOpenType);
+        // only on the first creation: a restored fragment (rotation) must not repeat the click
+        if (savedInstanceState == null) {
+            simulateClick(mOpenType);
+        }
     }
 
     @Override

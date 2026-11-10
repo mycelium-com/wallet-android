@@ -110,6 +110,9 @@ open class ToggleableCurrencyDisplay : LinearLayout {
         binding = ToggleableCurrencyDisplayBinding.inflate(mInflater, this, true)
     }
 
+    /** Amounts with a space thousands separator get reordered by the bidi algorithm in RTL locales - isolate them as LTR. */
+    private fun ltr(text: String?): CharSequence? = text?.let { android.text.BidiFormatter.getInstance().unicodeWrap(it, android.text.TextDirectionHeuristics.LTR) }
+
     private fun setTextSize(size: Int) {
         binding.tvCurrency.setTextSize(TypedValue.COMPLEX_UNIT_PX, size.toFloat())
         binding.tvDisplayValue.setTextSize(TypedValue.COMPLEX_UNIT_PX, size.toFloat())
@@ -134,24 +137,17 @@ open class ToggleableCurrencyDisplay : LinearLayout {
             }
 
             visibility = View.VISIBLE
-            val displayValue = currentValue?.toString(currencySwitcher.getDenomination(coinType!!)!!)
-            binding.tvDisplayValue.text = if (currentValue?.type is EthCoin)
-                makeNDigitsAfterComma(displayValue, 4)
+            val denomination = currencySwitcher.getDenomination(coinType!!)!!
+            // ETH carries 18 decimals; a group total printed in full is
+            // unreadable, so cap it. Cap by rounding the number — the old
+            // string-level trim just cut the tail off, so 0.402694… showed as
+            // 0.4026 instead of 0.4027.
+            binding.tvDisplayValue.text = ltr(if (currentValue?.type is EthCoin)
+                currentValue?.toString(denomination, ETH_DISPLAY_DIGITS)
             else
-                displayValue
+                currentValue?.toString(denomination))
             val currentCurrency = currencySwitcher.getCurrentCurrencyIncludingDenomination(coinType!!)
             binding.tvCurrency.text = currentCurrency
-        }
-    }
-
-    private fun makeNDigitsAfterComma(displayValue: String?, n: Int): CharSequence? {
-        displayValue ?: return null
-        val commaPos = displayValue.indexOf(".")
-        val digitsAfterComma = displayValue.length - (displayValue.indexOf(".") + 1)
-        return if (commaPos == -1 || digitsAfterComma < (n + 1)) {
-            displayValue
-        } else {
-            displayValue.substring(0, displayValue.length - (digitsAfterComma - n))
         }
     }
 
@@ -163,10 +159,10 @@ open class ToggleableCurrencyDisplay : LinearLayout {
             val value = currencySwitcher.getAsFiatValue(currentValue)
             if (coinType == null) { // then it's a total TCB
                 binding.tvCurrency.text = currencySwitcher.currentTotalCurrency!!.symbol
-                binding.tvDisplayValue.text = value?.toPlainString()
+                binding.tvDisplayValue.text = ltr(value?.toPlainString())
             } else {
                 binding.tvCurrency.text = currencySwitcher.currentFiatCurrencyMap[coinType!!]!!.symbol
-                binding.tvDisplayValue.text = value?.toString(currencySwitcher.getDenomination(coinType!!)!!)
+                binding.tvDisplayValue.text = ltr(value?.toString(currencySwitcher.getDenomination(coinType!!)!!))
             }
             View.VISIBLE
         }
@@ -209,4 +205,9 @@ open class ToggleableCurrencyDisplay : LinearLayout {
 
     @Subscribe
     open fun onSelectedCurrencyChange(event: SelectedCurrencyChanged) = updateUi()
+
+    companion object {
+        /** Fraction digits an ETH-denominated total is condensed to for display. */
+        private const val ETH_DISPLAY_DIGITS = 4
+    }
 }

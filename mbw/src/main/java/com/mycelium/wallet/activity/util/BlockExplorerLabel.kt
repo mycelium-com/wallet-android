@@ -55,9 +55,13 @@ abstract class BlockExplorerLabel : AppCompatTextView {
                 Toaster(context).toast(R.string.copied_to_clipboard, true)
                 true
             }
-            setOnClickListener {
-                Toaster(context).toast(R.string.redirecting_to_block_explorer, true)
-                context.openLink(getLinkURL(blockExplorer))
+            // Copying the id stays available even when no explorer covers this currency;
+            // only the link does not.
+            if (blockExplorer != null) {
+                setOnClickListener {
+                    Toaster(context).toast(R.string.redirecting_to_block_explorer, true)
+                    context.openLink(getLinkURL(blockExplorer))
+                }
             }
         }
     }

@@ -2,6 +2,7 @@ import com.mycelium.wapi.wallet.coins.Balance;
 import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 import java.math.BigInteger;
 import java.util.UUID;
+import kotlin.Boolean;
 import kotlin.Int;
 import kotlin.String;
 import kotlin.collections.List;
@@ -13,19 +14,20 @@ CREATE TABLE IF NOT EXISTS EthContext(
     nonce TEXT AS BigInteger NOT NULL,
     enabledTokens TEXT AS List<String>,
     accountIndex INTEGER AS Int NOT NULL,
+    everFullySynced INTEGER AS Boolean NOT NULL DEFAULT 0,
     FOREIGN KEY (uuid)
         REFERENCES AccountContext (uuid)
         ON DELETE CASCADE
 );
 
 selectAll:
-SELECT ec.uuid, c.currency, c.accountName, c.archived, c.balance, c.blockHeight, ec.nonce, ec.enabledTokens, ec.accountIndex
+SELECT ec.uuid, c.currency, c.accountName, c.archived, c.balance, c.blockHeight, ec.nonce, ec.enabledTokens, ec.accountIndex, ec.everFullySynced
 FROM EthContext AS ec
   INNER JOIN AccountContext AS c
   ON ec.uuid = c.uuid;
 
 selectByUUID:
-SELECT ec.uuid, c.currency, c.accountName, c.archived, c.balance, c.blockHeight, ec.nonce, ec.enabledTokens, ec.accountIndex
+SELECT ec.uuid, c.currency, c.accountName, c.archived, c.balance, c.blockHeight, ec.nonce, ec.enabledTokens, ec.accountIndex, ec.everFullySynced
 FROM EthContext AS ec
     INNER JOIN AccountContext AS c
     ON ec.uuid = c.uuid
@@ -41,7 +43,7 @@ VALUES ?;
 
 update:
 UPDATE EthContext
-SET nonce = (?), enabledTokens = (?)
+SET nonce = (?), enabledTokens = (?), everFullySynced = (?)
 WHERE uuid = (?);
 
 delete:

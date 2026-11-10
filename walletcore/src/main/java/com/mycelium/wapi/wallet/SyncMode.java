@@ -44,13 +44,21 @@ public class SyncMode {
    // (per account)
    public final boolean ignoreSyncInterval;
 
+   // look ahead of the external chain, defaults to mode.lookAhead (see boosted(int) for a custom one)
+   public final int lookAhead;
+
    SyncMode(Mode mode, boolean ignoreTransactionHistory, boolean onlyActiveAccount, boolean ignoreMinerFeeFetch, boolean ignoreSyncInterval) {
+      this(mode, ignoreTransactionHistory, onlyActiveAccount, ignoreMinerFeeFetch, ignoreSyncInterval, mode.lookAhead);
+   }
+
+   private SyncMode(Mode mode, boolean ignoreTransactionHistory, boolean onlyActiveAccount, boolean ignoreMinerFeeFetch, boolean ignoreSyncInterval, int lookAhead) {
       this.mode = mode;
       this.ignoreTransactionHistory = ignoreTransactionHistory;
       this.onlyActiveAccount = onlyActiveAccount;
       this.ignoreMinerFeeFetch = ignoreMinerFeeFetch;
       this.ignoreSyncInterval = ignoreSyncInterval;
       this.addressToSync = null;
+      this.lookAhead = lookAhead;
    }
 
    public SyncMode(Address onlyAddress) {
@@ -60,6 +68,15 @@ public class SyncMode {
       this.ignoreMinerFeeFetch = true;
       this.ignoreSyncInterval = false;
       this.addressToSync = onlyAddress;
+      this.lookAhead = Mode.ONE_ADDRESS.lookAhead;
+   }
+
+   /**
+    * Same as {@link #BOOSTED} but with a custom look ahead. Does not modify the shared BOOSTED instance.
+    */
+   public static SyncMode boosted(int lookAhead) {
+      return new SyncMode(BOOSTED.mode, BOOSTED.ignoreTransactionHistory, BOOSTED.onlyActiveAccount,
+            BOOSTED.ignoreMinerFeeFetch, BOOSTED.ignoreSyncInterval, lookAhead);
    }
 
    public enum Mode {
@@ -80,7 +97,7 @@ public class SyncMode {
       // Synchronizes only the current address (external) - only short lookahead
       ONE_ADDRESS(0, 0);
 
-      public int lookAhead;
+      public final int lookAhead;
       public final int lookBack;
 
       Mode(int lookBack, int lookAhead) {
@@ -98,6 +115,7 @@ public class SyncMode {
                         onlyActiveAccount ? "onlyActiveAccount" : null,
                         ignoreMinerFeeFetch ? "ignoreMinerFeeFetch" : null,
                         ignoreSyncInterval ? "ignoreSyncInterval" : null,
+                        mode == Mode.BOOSTED ? "lookAhead=" + lookAhead : null,
                         addressToSync
                   )
             ));

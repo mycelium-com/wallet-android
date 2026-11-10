@@ -1,6 +1,8 @@
 package com.mycelium.wallet.external.changelly2.viewmodel
 
 import android.app.Application
+import androidx.core.text.BidiFormatter
+import androidx.core.text.TextDirectionHeuristicsCompat
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
@@ -12,18 +14,31 @@ import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
 import com.mycelium.wallet.WalletApplication
+import com.mycelium.wallet.activity.util.displaySymbol
 import com.mycelium.wallet.activity.util.toFriendlyString
 import com.mycelium.wallet.activity.util.toStringFriendlyWithUnit
 import com.mycelium.wallet.activity.util.toStringWithUnit
 import com.mycelium.wallet.external.changelly.model.FixRate
 import com.mycelium.wapi.wallet.Address
 import com.mycelium.wapi.wallet.Transaction
+import com.mycelium.wapi.wallet.TransactionData
 import com.mycelium.wapi.wallet.Util
 import com.mycelium.wapi.wallet.WalletAccount
+import com.mycelium.wapi.wallet.btc.AbstractBtcAccount
+import com.mycelium.wapi.wallet.btc.BtcTransaction
 import com.mycelium.wapi.wallet.btc.FeePerKbFee
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.erc20.ERC20Account
+import com.mycelium.wallet.external.changelly2.remote.changellyTicker
+import com.mycelium.wallet.external.changelly2.remote.importSymbol
+import com.mycelium.wapi.wallet.trc20.TRC20Account
+import com.mycelium.wapi.wallet.tron.energy.EnergyFeeQuote
+import com.mycelium.wapi.wallet.tron.energy.EnergyServiceException
+import com.mycelium.wapi.wallet.eth.EthAccount
+import com.mycelium.wapi.wallet.eth.coins.EthCoin
+import com.mycelium.wapi.wallet.tron.TronAccount
+import com.mycelium.wapi.wallet.tron.TronFeeEstimation
 import com.mycelium.wapi.wallet.exceptions.BuildTransactionException
 import com.mycelium.wapi.wallet.exceptions.InsufficientFundsException
 import com.mycelium.wapi.wallet.exceptions.InsufficientFundsForFeeException
@@ -103,11 +118,15 @@ class ExchangeViewModel(application: Application) : AndroidViewModel(application
             errorKeyboard.value = ""
             errorTransaction.value = ""
             errorRemote.value = ""
+            lastMinFrom = null
+            lastMaxFrom = null
         }
         addSource(toAccount) {
             errorKeyboard.value = ""
             errorTransaction.value = ""
             errorRemote.value = ""
+            lastMinFrom = null
+            lastMaxFrom = null
         }
     }
 
@@ -158,22 +177,47 @@ class ExchangeViewModel(application: Application) : AndroidViewModel(application
 //    }
 
     val exchangeRateFrom = exchangeInfo.map {
-        (it?.from?.uppercase() ?: fromCurrency.value?.symbol)?.let { "1 $it" }
+        fromDisplaySymbol()?.let { "1 $it" }
     }
+
+    /**
+     * Symbol shown for the sold asset: the wallet's own (e.g. "USDT" for TRC20 USDT) rather than
+     * the backend's network-suffixed ticker ("USDTTRX") echoed in [exchangeInfo].
+     */
+    fun fromDisplaySymbol(): String? = fromCurrency.value?.displaySymbol ?: exchangeInfo.value?.from?.uppercase()
 
     val exchangeRateToValue = exchangeInfo.map {
         if (it?.result != null && it.result != BigDecimal.ZERO)
             " = " + it.result.stripTrailingZeros().toPlainString()
         else
-            " ~ " + mbwManager.exchangeRateManager.get(
+            " ~ " + (mbwManager.exchangeRateManager.get(
                 fromCurrency.value?.value("1"),
                 toCurrency.value
             )?.toFriendlyString(Denomination.UNIT)
-                ?: N_A
+                ?: N_A)
     }
 
     val exchangeRateToCurrency = exchangeInfo.map {
-        it?.to?.uppercase() ?: toCurrency.value?.symbol
+        toCurrency.value?.displaySymbol ?: it?.to?.uppercase()
+    }
+
+    /**
+     * The whole rate chip ("1 BTC = 69420 USDT" / "1 tBTC ~ N/A tTRX") as one string, wrapped in an LTR
+     * isolate: as three separate views (or unwrapped text) it got bidi-scrambled in RTL locales
+     * ("tTRX ~ N/A1 tBTC" in Hebrew).
+     */
+    val exchangeRateText = exchangeInfo.map { info ->
+        val from = fromDisplaySymbol() ?: return@map null
+        val to = toCurrency.value?.displaySymbol ?: info?.to?.uppercase() ?: ""
+        val value = if (info?.result != null && info.result != BigDecimal.ZERO)
+            "= " + info.result.stripTrailingZeros().toPlainString()
+        else
+            "~ " + (mbwManager.exchangeRateManager.get(
+                fromCurrency.value?.value("1"),
+                toCurrency.value
+            )?.toFriendlyString(Denomination.UNIT)
+                ?: N_A)
+        BidiFormatter.getInstance().unicodeWrap("1 $from $value $to".trim(), TextDirectionHeuristicsCompat.LTR)
     }
 
     val fiatSellValue = sellValue.map {
@@ -205,8 +249,31 @@ class ExchangeViewModel(application: Application) : AndroidViewModel(application
 
     val minerFee = MutableLiveData("")
 
+    // ---- TRON energy service: pay a TRC20 send's fee in the token when the parent has no TRX
+    /** Quote for the current from-account/amount, null when not fetched or not applicable. */
+    val energyQuote = MutableLiveData<EnergyFeeQuote?>(null)
+    val energyQuoteLoading = MutableLiveData(false)
+    @Volatile
+    private var energyQuoteKey: String? = null
+    private var energyQuoteJob: kotlinx.coroutines.Job? = null
+
+    // ---- TRC20 network fee: bandwidth + energy from TronFeeEstimator, as on the Send screen.
+    // The generic TRON fee provider only knows the 0.268 TRX bandwidth cost of a plain TRX
+    // transfer, so building a TRC20 tx from it under-reports the fee (energy burn is missing).
+    /** "accountId|amount" → estimation for that key (recipient = the account itself). */
+    val trc20FeeEstimation = MutableLiveData<Pair<String, TronFeeEstimation>?>(null)
+    @Volatile
+    private var trc20FeeRequestKey: String? = null
+    private var trc20FeeJob: kotlinx.coroutines.Job? = null
+
     val validateData = MediatorLiveData<Boolean>().apply {
         value = isValid()
+        addSource(energyQuote) {
+            value = isValid()
+        }
+        addSource(trc20FeeEstimation) {
+            value = isValid()
+        }
         addSource(toAddress) {
             value = isValid()
         }
@@ -224,28 +291,53 @@ class ExchangeViewModel(application: Application) : AndroidViewModel(application
         }
     }
 
+    /**
+     * Limits of the last successful quote for the current pair. A quote for the user's own amount
+     * fails (HTTP 400) when it is below the minimum / above the maximum, so [exchangeInfo] becomes
+     * null and the limits would be lost - keep them to explain why the button is disabled.
+     */
+    private var lastMinFrom: BigDecimal? = null
+    private var lastMaxFrom: BigDecimal? = null
+
     fun isValid(): Boolean =
             try {
                 errorTransaction.value = ""
                 minerFee.value = ""
                 val res = getApplication<WalletApplication>().resources
                 val amount = sellValue.value?.toBigDecimal()
+                exchangeInfo.value?.let {
+                    it.minFrom?.let { min -> lastMinFrom = min }
+                    it.maxFrom?.let { max -> lastMaxFrom = max }
+                }
                 when {
                     toAddress.value == null -> false
                     fromAddress.value == null -> false
                     rateLoading.value == true -> false
                     amount == null -> false
                     amount == BigDecimal.ZERO -> false
+                    // no fix-rate quote (backend error, pair below minimum, …): nothing to exchange against
+                    exchangeInfo.value?.result == null -> {
+                        val min = lastMinFrom
+                        val max = lastMaxFrom
+                        if (min != null && amount < min) {
+                            errorTransaction.value = res.getString(R.string.exchange_min_msg,
+                                    min.stripTrailingZeros().toPlainString(), fromDisplaySymbol())
+                        } else if (max != null && amount > max) {
+                            errorTransaction.value = res.getString(R.string.exchange_max_msg,
+                                    max.stripTrailingZeros().toPlainString(), fromDisplaySymbol())
+                        }
+                        false
+                    }
                     exchangeInfo.value?.minFrom != null && amount < exchangeInfo.value?.minFrom  -> {
                         errorTransaction.value = res.getString(R.string.exchange_min_msg,
                                 exchangeInfo.value?.minFrom?.stripTrailingZeros()?.toPlainString(),
-                                exchangeInfo.value?.from?.uppercase())
+                                fromDisplaySymbol())
                         false
                     }
                     exchangeInfo.value?.maxFrom != null && amount > exchangeInfo.value?.maxFrom -> {
                         errorTransaction.value = res.getString(R.string.exchange_max_msg,
                                 exchangeInfo.value?.maxFrom?.stripTrailingZeros()?.toPlainString(),
-                                exchangeInfo.value?.from?.uppercase())
+                                fromDisplaySymbol())
                         false
                     }
                     else -> checkValidTransaction() != null
@@ -262,15 +354,21 @@ class ExchangeViewModel(application: Application) : AndroidViewModel(application
             return null
         }
         val feeEstimation = mbwManager.getFeeProvider(account.basedOnCoinType).estimation
+        val txData: TransactionData? = if (account is TRC20Account) {
+            trc20TxData(account, value) ?: run {
+                minerFee.value = res.getString(R.string.eth_token_fee_processing_quote)
+                return null // re-validated when the estimation arrives
+            }
+        } else null
         try {
-            return prepateTx(account.dummyAddress, sellValue.value!!)
+            return prepateTx(account.dummyAddress, sellValue.value!!, txData)
                     ?.apply {
                         minerFee.value =
                                 res.getString(R.string.miner_fee) + " " +
                                         this.totalFee().toStringFriendlyWithUnit() + " " +
-                                        mbwManager.exchangeRateManager
+                                        (mbwManager.exchangeRateManager
                                                 .get(this.totalFee(), mbwManager.getFiatCurrency(this.type))
-                                                ?.toStringFriendlyWithUnit()?.let { "≈$it" }
+                                                ?.toStringFriendlyWithUnit()?.let { "≈$it" } ?: "")
                     }
         } catch (e: OutputTooSmallException) {
             errorTransaction.value = res.getString(R.string.amount_too_small_short,
@@ -280,6 +378,8 @@ class ExchangeViewModel(application: Application) : AndroidViewModel(application
                 val fee = feeEstimation.normal.times(account.typicalEstimatedTransactionSize.toBigInteger())
                 errorTransaction.value = res.getString(R.string.please_top_up_your_eth_account,
                         account.ethAcc.label, fee.toStringFriendlyWithUnit(), convert(fee)) + TAG_ETH_TOP_UP
+            } else if (account is TRC20Account && mbwManager.energyServiceManager != null) {
+                return energyServiceTx(account, value)
             } else {
                 errorTransaction.value = res.getString(R.string.insufficient_funds_for_fee)
             }
@@ -294,7 +394,131 @@ class ExchangeViewModel(application: Application) : AndroidViewModel(application
         return null
     }
 
-    fun prepateTx(address: Address, amount: String): Transaction? {
+    private fun trc20FeeKey(account: TRC20Account, value: Value) = "${account.id}|${value.value}"
+
+    /** Cached TRC20 fee data for this account/amount; null (and an async estimation) when missing. */
+    private fun trc20TxData(account: TRC20Account, value: Value): TransactionData? {
+        val key = trc20FeeKey(account, value)
+        trc20FeeEstimation.value?.let { (k, estimation) -> if (k == key) return estimation.toTransactionData() }
+        if (trc20FeeRequestKey == key && trc20FeeJob?.isActive == true) return null
+        trc20FeeRequestKey = key
+        trc20FeeJob?.cancel()
+        trc20FeeJob = viewModelScope.launch(Dispatchers.IO) {
+            val estimation = estimateTrc20Fee(account, value, account.receivingAddress.addressString)
+            if (trc20FeeRequestKey == key) trc20FeeEstimation.postValue(key to estimation)
+        }
+        return null
+    }
+
+    /** Same estimation as SendTronModel: blocking network call, run off the main thread. */
+    private fun estimateTrc20Fee(account: TRC20Account, value: Value, toAddress: String): TronFeeEstimation {
+        // simulate with an amount the sender can cover; with no tokens the estimator assumes a typical figure
+        val balance = account.accountBalance.spendable.value
+        val simulated = when {
+            balance.signum() <= 0 -> null
+            value.value > balance -> balance
+            else -> value.value
+        }
+        return mbwManager.tronFeeEstimator.estimateTrc20TransferFee(account.receivingAddress.addressString,
+                account.contractAddress, toAddress, simulated, account.basedOnCoinType)
+    }
+
+    /**
+     * Fresh TRC20 fee data for the real exchange send to [toAddress] (the Changelly payin address);
+     * null for other accounts. Suspends on the IO dispatcher.
+     */
+    suspend fun trc20TxDataForSend(toAddress: String, amount: String): TransactionData? {
+        val account = fromAccount.value as? TRC20Account ?: return null
+        return kotlinx.coroutines.withContext(Dispatchers.IO) {
+            estimateTrc20Fee(account, account.coinType.value(amount), toAddress).toTransactionData()
+        }
+    }
+
+    /**
+     * The parent TRON account cannot pay the fee in TRX: fall back to the energy service (fee in
+     * the token). Returns a placeholder tx once a valid quote covers `amount + fee`, otherwise
+     * fetches the quote and reports "not yet valid" — the quote arrival re-validates.
+     */
+    private fun energyServiceTx(account: TRC20Account, value: Value): Transaction? {
+        val res = getApplication<WalletApplication>().resources
+        val manager = mbwManager.energyServiceManager ?: return null
+        val payin = fromAccount.value?.receiveAddress ?: return null // real recipient unknown until Changelly answers
+        val key = "${account.id}|${value.value}"
+        val quote = energyQuote.value
+        if (quote == null || quote.isExpired() || energyQuoteKey != key) {
+            requestEnergyQuote(account, value, key)
+            minerFee.value = res.getString(R.string.tron_energy_service_loading)
+            return null
+        }
+        val fee = manager.feeInAccountUnits(account, quote)
+        if (value + fee > account.accountBalance.spendable) {
+            errorTransaction.value = res.getString(R.string.error_energy_service_insufficient_balance, account.coinType.symbol)
+            return null
+        }
+        minerFee.value = res.getString(R.string.miner_fee) + " " + fee.toStringFriendlyWithUnit() +
+                " " + (mbwManager.exchangeRateManager.get(fee, mbwManager.getFiatCurrency(fee.type))?.toStringFriendlyWithUnit()?.let { "≈$it" } ?: "") +
+                " (" + res.getString(R.string.tron_energy_service_title) + ")"
+        return account.createEnergyServiceTransferTx(payin as com.mycelium.wapi.wallet.tron.TronAddress, value,
+                java.math.BigInteger.valueOf(com.mycelium.wapi.wallet.tron.TronFeeEstimator.MIN_TRC20_FEE_LIMIT),
+                com.mycelium.wapi.wallet.tron.energy.EnergyServiceManager.ENERGY_TX_EXPIRATION_MS)
+    }
+
+    private fun requestEnergyQuote(account: TRC20Account, value: Value, key: String) {
+        val manager = mbwManager.energyServiceManager ?: return
+        if (energyQuoteLoading.value == true && energyQuoteKey == key) return
+        energyQuoteKey = key
+        energyQuoteJob?.cancel()
+        energyQuoteLoading.value = true
+        energyQuoteJob = viewModelScope.launch(Dispatchers.IO) {
+            val quote = try {
+                if (!manager.isAvailableFor(account)) null
+                else manager.getFeeQuote(account, account.receivingAddress, value)
+            } catch (e: EnergyServiceException) {
+                errorTransaction.postValue(if (e.isInsufficientBalance)
+                    getApplication<WalletApplication>().getString(R.string.error_energy_service_insufficient_balance, account.coinType.symbol)
+                else e.message)
+                null
+            } catch (e: Exception) {
+                errorTransaction.postValue(getApplication<WalletApplication>().getString(R.string.error_energy_service_unavailable))
+                null
+            }
+            energyQuoteLoading.postValue(false)
+            if (quote == null && energyQuoteKey == key) {
+                energyQuoteKey = null
+                if (errorTransaction.value.isNullOrEmpty()) {
+                    errorTransaction.postValue(getApplication<WalletApplication>().getString(R.string.insufficient_funds_for_fee))
+                }
+            }
+            energyQuote.postValue(quote)
+        }
+    }
+
+    /** True when the current from-account send will be settled through the energy service. */
+    fun usesEnergyService(): Boolean {
+        val account = fromAccount.value as? TRC20Account ?: return false
+        val quote = energyQuote.value ?: return false
+        if (quote.isExpired()) return false
+        val amount = try { account.coinType.value(sellValue.value ?: return false) } catch (e: Exception) { return false }
+        return energyQuoteKey == "${account.id}|${amount.value}"
+    }
+
+    /**
+     * Refresh the from-account's fee estimation for ETH/ERC-20 before building
+     * the actual exchange tx. The exchange flow otherwise only reads the cached
+     * estimation, so with EIP-1559 the fee snapshot may be empty/stale and the
+     * send would silently fall back to legacy signing. Gated to ETH-based
+     * accounts so other coins don't pay an extra network round-trip; safe to
+     * call from a coroutine (updateFeeEstimationsAsync swallows failures and
+     * keeps the previous estimate).
+     */
+    suspend fun refreshEthFeesForSend() {
+        val account = fromAccount.value ?: return
+        if (account.basedOnCoinType is EthCoin) {
+            mbwManager.getFeeProvider(account.basedOnCoinType).updateFeeEstimationsAsync()
+        }
+    }
+
+    fun prepateTx(address: Address, amount: String, txData: TransactionData? = null): Transaction? {
         val res = getApplication<WalletApplication>().resources
         val account = fromAccount.value!!
         val value = account.coinType.value(amount)
@@ -307,7 +531,7 @@ class ExchangeViewModel(application: Application) : AndroidViewModel(application
                     address,
                     value,
                     FeePerKbFee(feeEstimation.normal),
-                    null
+                    txData
             )
         } catch (e: OutputTooSmallException) {
             errorTransaction.postValue(res.getString(R.string.amount_too_small_short,
@@ -332,6 +556,28 @@ class ExchangeViewModel(application: Application) : AndroidViewModel(application
         return null
     }
 
+    /**
+     * Sender addresses reported with the exchange order, as the KMP wallet does: the addresses of
+     * the UTXOs a BTC send of the current amount would spend, the account address otherwise.
+     */
+    fun fromAddresses(): List<String> {
+        val account = fromAccount.value ?: return emptyList()
+        return when (account) {
+            is AbstractBtcAccount -> try {
+                val fee = FeePerKbFee(mbwManager.getFeeProvider(account.basedOnCoinType).estimation.normal)
+                val tx = account.createTx(account.dummyAddress, account.coinType.value(sellValue.value!!), fee, null)
+                (tx as BtcTransaction).unsignedTx!!.fundingOutputs
+                        .map { it.script.getAddress(mbwManager.network).toString() }
+                        .distinct()
+            } catch (e: Exception) {
+                emptyList()
+            }
+            is EthAccount, is ERC20Account, is TronAccount, is TRC20Account ->
+                listOfNotNull(account.receiveAddress?.toString())
+            else -> emptyList()
+        }
+    }
+
     fun convert(value: Value) =
             " ~${mbwManager.exchangeRateManager.get(value, mbwManager.getFiatCurrency(value.type))?.toStringFriendlyWithUnit() ?: ""}"
 
@@ -343,8 +589,12 @@ class ExchangeViewModel(application: Application) : AndroidViewModel(application
                         && isSupported(it.coinType)
             }
 
-    fun isSupported(coinType: CryptoCurrency) =
-            currencies.map { it.lowercase() }.contains(Util.trimTestnetSymbolDecoration(coinType.symbol).lowercase())
+    fun isSupported(coinType: CryptoCurrency): Boolean {
+        val ticker = changellyTicker(coinType)
+        // TRC20 tokens travel under the plain ticker + network; the backend's currency list only
+        // carries tickers, so a listed ticker is taken as supported (as the KMP wallet does).
+        return currencies.any { it.equals(ticker, true) || it.equals(importSymbol(ticker), true) }
+    }
 
     companion object {
         const val TAG_ETH_TOP_UP = "<hiden type=\"TAG_ETH_TOP_UP\"/>"
@@ -357,7 +607,21 @@ class ExchangeViewModel(application: Application) : AndroidViewModel(application
         errorTransaction.value = ""
         errorRemote.value = ""
         errorKeyboard.value = ""
+        refreshAccounts()
+    }
+
+    /**
+     * Re-emits the selected accounts so the balances/fiat values are recomputed, replacing any
+     * account that was archived or deleted meanwhile: reading the balance of an archived account
+     * throws ("Using archived account"), which crashed the app on the next rates refresh.
+     */
+    fun refreshAccounts() {
+        val walletManager = mbwManager.getWalletManager(false)
         fromAccount.value = fromAccount.value
+            ?.takeIf { walletManager.getAccount(it.id)?.isActive == true }
+            ?: walletManager.getAllActiveAccounts().firstOrNull { it.canSpend() && isSupported(it.coinType) }
         toAccount.value = toAccount.value
+            ?.takeIf { walletManager.getAccount(it.id)?.isActive == true }
+            ?: getToAccountForInit()
     }
 }

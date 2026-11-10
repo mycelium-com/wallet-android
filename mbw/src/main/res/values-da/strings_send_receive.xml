@@ -87,6 +87,9 @@
     <string name="cancel_eth_tx_loading">Estimerer annulleringsgebyr…</string>
     <string name="cancel_eth_tx_new_fee">Annulleringsgebyr</string>
     <string name="cancel_eth_tx_no_connection">Ingen serverforbindelse. Prøv igen senere.</string>
+    <string name="cancel_eth_tx_queue_blocked">En tidligere transaktion (nonce %1$s) har et gebyr under det aktuelle netværksgebyr og kan ikke bekræftes. Transaktioner bekræftes i rækkefølge, så denne annullering ville vente bag den. Annullér den tidligere først.</string>
+    <string name="cancel_eth_tx_cancel_blocking">Annullér nonce %1$s først</string>
+    <string name="send_eth_stuck_queue_warning">Din tidligere transaktion (nonce %1$s) har et gebyr under det aktuelle netværksgebyr og sidder fast. En ny afsendelse vil vente bag den. Annullér den først i transaktionshistorikken.</string>
     <string name="cancel_eth_tx_old_fee">Oprindeligt gebyr</string>
     <string name="cancel_eth_tx_recipient">Oprindelig modtager</string>
     <string name="cancel_eth_tx_success">Annullering udsendt.</string>

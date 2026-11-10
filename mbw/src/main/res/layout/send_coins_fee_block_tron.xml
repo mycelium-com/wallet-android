@@ -1,0 +1,270 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:bind="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:showIn="@layout/send_coins_activity_tron">
+
+    <data>
+
+        <import type="android.view.View" />
+
+        <import type="com.mycelium.wallet.activity.send.model.TronFeeMode" />
+
+        <variable
+            name="viewModel"
+            type="com.mycelium.wallet.activity.send.model.SendTronViewModel" />
+    </data>
+
+    <LinearLayout
+        android:id="@+id/llFee"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <include
+            layout="@layout/send_coins_fee_heap"
+            bind:viewModel="@{viewModel}" />
+
+        <!-- Fee payment mode: burn TRX vs pay in the token via the energy service -->
+        <LinearLayout
+            android:id="@+id/llFeeMode"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/horizontal_page_margin"
+            android:layout_marginBottom="6dp"
+            android:orientation="horizontal"
+            android:visibility="@{viewModel.trc20 &amp;&amp; viewModel.energyServiceAvailable &amp;&amp; viewModel.hasTrxForFee ? View.VISIBLE : View.GONE}"
+            tools:visibility="visible">
+
+            <TextView
+                android:id="@+id/btFeeModeTrx"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@{viewModel.feeMode == TronFeeMode.TRX ? @drawable/bg_fee_mode_selected : @drawable/bg_fee_mode}"
+                android:gravity="center"
+                android:onClick="@{() -> viewModel.selectTrxFee()}"
+                android:paddingVertical="8dp"
+                android:text="@string/tron_fee_mode_trx"
+                android:textColor="@{viewModel.feeMode == TronFeeMode.TRX ? @color/white : @color/white_alpha_0_6}"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/btFeeModeEnergy"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="8dp"
+                android:background="@{viewModel.feeMode == TronFeeMode.ENERGY_SERVICE ? @drawable/bg_fee_mode_selected : @drawable/bg_fee_mode}"
+                android:gravity="center"
+                android:onClick="@{() -> viewModel.selectEnergyFee()}"
+                android:paddingVertical="8dp"
+                android:text="@{@string/tron_fee_mode_token(viewModel.tokenSymbol())}"
+                android:textColor="@{viewModel.feeMode == TronFeeMode.ENERGY_SERVICE ? @color/white : @color/white_alpha_0_6}"
+                android:textSize="14sp"
+                tools:text="Pay with USDT" />
+        </LinearLayout>
+
+        <!-- Energy service: fee quoted in the token -->
+        <LinearLayout
+            android:id="@+id/llEnergyFee"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/horizontal_page_margin"
+            android:orientation="vertical"
+            android:visibility="@{viewModel.trc20 &amp;&amp; viewModel.feeMode == TronFeeMode.ENERGY_SERVICE ? View.VISIBLE : View.GONE}"
+            tools:visibility="visible">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/tvEnergyFee"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:layout_marginBottom="5dp"
+                    android:fontFamily="@font/roboto_mono_regular"
+                    android:text="@{viewModel.energyLoading ? @string/tron_energy_service_loading : viewModel.energyFeeText}"
+                    android:textColor="@color/horizontalpicker_text_color"
+                    android:textSize="14sp"
+                    tools:text="0.29 USDT" />
+
+                <TextView
+                    android:id="@+id/tvEnergyFeeFiat"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="4dp"
+                    android:layout_weight="1"
+                    android:ellipsize="middle"
+                    android:fontFamily="@font/roboto_mono_regular"
+                    android:text="@{viewModel.energyLoading ? `` : viewModel.energyFeeFiat()}"
+                    android:textColor="@color/horizontalpicker_text_color"
+                    android:textSize="14sp"
+                    tools:text="~0.29 USD" />
+
+                <ProgressBar
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:layout_marginStart="8dp"
+                    android:visibility="@{viewModel.energyLoading ? View.VISIBLE : View.GONE}" />
+
+                <ImageView
+                    android:id="@+id/icInfoEnergyFee"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:onClick="@{() -> viewModel.energyFeeInfoClickListener()}"
+                    android:src="@drawable/ic_info" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/tvEnergyEstimatedTime"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="4dp"
+                android:text="@{viewModel.energyEstimatedTime}"
+                android:textColor="@color/white_alpha_0_6"
+                android:textSize="12sp"
+                android:visibility="@{viewModel.energyEstimatedTime.empty ? View.GONE : View.VISIBLE}"
+                tools:text="Estimated time: ~1 min" />
+
+            <TextView
+                android:id="@+id/tvEnergyServiceHint"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="4dp"
+                android:onClick="@{() -> viewModel.energyServiceInfoClickListener()}"
+                android:text="@{@string/tron_energy_service_hint(viewModel.tokenSymbol())}"
+                android:textColor="@color/white_alpha_0_6"
+                android:textSize="12sp"
+                tools:text="Fee is paid in USDT via the energy service — what is this?" />
+
+            <TextView
+                android:id="@+id/tvEnergyError"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="6dp"
+                android:text="@{viewModel.energyError}"
+                android:textColor="@color/error_red"
+                android:textSize="13sp"
+                android:visibility="@{viewModel.energyError.empty ? View.GONE : View.VISIBLE}"
+                tools:text="Energy Service unavailable" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/llTrxFee"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/horizontal_page_margin"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:visibility="@{viewModel.trc20 &amp;&amp; viewModel.feeMode == TronFeeMode.ENERGY_SERVICE ? View.GONE : View.VISIBLE}">
+
+            <TextView
+                android:id="@+id/tronFee"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:layout_marginBottom="5dp"
+                android:ellipsize="end"
+                android:fontFamily="@font/roboto_mono_regular"
+                android:maxLines="1"
+                android:text="@{viewModel.fee(viewModel.selectedFee)}"
+                android:textColor="@color/horizontalpicker_text_color"
+                android:textSize="14sp"
+                tools:text="0.268 TRX" />
+
+            <TextView
+                android:id="@+id/tronFeeFiat"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4dp"
+                android:layout_marginTop="4dp"
+                android:layout_marginBottom="5dp"
+                android:ellipsize="middle"
+                android:fontFamily="@font/roboto_mono_regular"
+                android:text="@{viewModel.feeFiat(viewModel.selectedFee)}"
+                android:textColor="@color/horizontalpicker_text_color"
+                android:textSize="14sp"
+                tools:text="~0.05 USD" />
+
+            <ProgressBar
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:layout_marginStart="8dp"
+                android:visibility="@{viewModel.estimating ? View.VISIBLE : View.GONE}" />
+
+            <ImageView
+                android:id="@+id/icInfoTronFee"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:onClick="@{() -> viewModel.feeInfoClickListener()}"
+                android:src="@drawable/ic_info" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/tvTronFeeDetails"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/horizontal_page_margin"
+            android:layout_marginBottom="5dp"
+            android:text="@{viewModel.feeDetails}"
+            android:textColor="@color/white_alpha_0_6"
+            android:textSize="12sp"
+            android:visibility="@{viewModel.feeDetails.empty || (viewModel.trc20 &amp;&amp; viewModel.feeMode == TronFeeMode.ENERGY_SERVICE) ? View.GONE : View.VISIBLE}"
+            tools:text="Bandwidth: 345 · Energy: 65,000 · Fee limit: 15 TRX" />
+
+        <LinearLayout
+            android:id="@+id/llNotEnoughTrx"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/horizontal_page_margin"
+            android:layout_marginTop="6dp"
+            android:orientation="vertical"
+            android:visibility="@{viewModel.notEnoughTrx ? View.VISIBLE : View.GONE}"
+            tools:visibility="visible">
+
+            <TextView
+                android:id="@+id/tvPleaseTopUpTrx"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/please_top_up_your_trx_account"
+                android:textColor="@color/error_red"
+                android:textSize="14sp" />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/tvParentTronAccountBalanceLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@{@string/parent_trx_account(viewModel.parentAccount.label)}"
+                    android:textColor="@color/white_alpha_0_6"
+                    android:textSize="14sp"
+                    tools:text="Tron 1:" />
+
+                <TextView
+                    android:id="@+id/tvParentTronAccountBalance"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="4dp"
+                    android:text="@{viewModel.parentBalance()}"
+                    android:textColor="@color/white_alpha_0_6"
+                    android:textSize="14sp"
+                    tools:text="0 TRX" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <include layout="@layout/send_coins_fee_description" />
+    </LinearLayout>
+</layout>

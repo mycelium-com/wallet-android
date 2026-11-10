@@ -241,7 +241,7 @@ public class ExportDistiller {
         // Creation Date, use US locale to make the date appear readable
         // regardless of what locale is configured
         writer.addText(1F, fromTop, 10, "Creation Date:");
-        Locale usLocale = new Locale("en_US");
+        Locale usLocale = Locale.US;
         writer.addText(4.2F, fromTop, 10,
                 DateFormat.getDateInstance(DateFormat.LONG, usLocale).format(new Date(params.time)));
         // writer.addText(4.2F, fromTop, 10, new Date(time).toLocaleString());

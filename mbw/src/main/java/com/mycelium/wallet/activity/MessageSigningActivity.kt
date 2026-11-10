@@ -17,9 +17,9 @@ import com.mycelium.wapi.wallet.KeyCipher.InvalidKeyCipher
 import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.btc.AbstractBtcAccount
 import com.mycelium.wapi.wallet.btc.bip44.AddressesListProvider
-import com.mycelium.wapi.wallet.btcvault.AbstractBtcvAccount
 import com.mycelium.wapi.wallet.colu.ColuAccount
 import com.mycelium.wapi.wallet.eth.EthAccount
+import com.mycelium.wapi.wallet.tron.TronAccount
 import java.util.*
 import kotlin.concurrent.thread
 
@@ -63,7 +63,8 @@ class MessageSigningActivity : AppCompatActivity() {
             }
         }
         binding.btCopyToClipboard.setOnClickListener {
-            Utils.setClipboardString(signature, this@MessageSigningActivity)
+            // the whole signed-message block (message, address, signature): that is what Verify Message expects
+            Utils.setClipboardString(getBody(), this@MessageSigningActivity)
             Toaster(this@MessageSigningActivity).toast(R.string.sig_copied, false)
         }
         binding.btShare.setOnClickListener {
@@ -132,7 +133,7 @@ Address: %s
 
     private fun getBody() =
         when (account) {
-            is EthAccount -> String.format(
+            is EthAccount, is TronAccount -> String.format(
                 ETH_TEMPLATE,
                 address,
                 messageText,
@@ -148,13 +149,13 @@ Address: %s
 
     private fun getChooserTitle() =
         when (account) {
-            is AbstractBtcAccount, is AbstractBtcvAccount, is ColuAccount -> getString(R.string.signed_message_share_btc)
+            is AbstractBtcAccount, is ColuAccount -> getString(R.string.signed_message_share_btc)
             else -> getString(R.string.signed_message_share, account!!.coinType.symbol)
         }
 
     private fun getSubject() =
         when (account) {
-            is AbstractBtcAccount, is AbstractBtcvAccount, is ColuAccount -> getString(R.string.signed_message_subject_btc)
+            is AbstractBtcAccount, is ColuAccount -> getString(R.string.signed_message_subject_btc)
             else -> getString(R.string.signed_message_subject, account!!.coinType.symbol)
         }
 }

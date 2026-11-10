@@ -66,7 +66,9 @@ import com.mycelium.wallet.activity.AccountCreatorHelper.AccountCreationObserver
 import com.mycelium.wallet.activity.AccountCreatorHelper.CreateAccountAsyncTask
 import com.mycelium.wallet.activity.export.DecryptBip38PrivateKeyActivity
 import com.mycelium.wallet.activity.modern.ModernMain
+import com.mycelium.giftbox.GiftBoxRootActivity
 import com.mycelium.wallet.activity.modern.Toaster
+import com.mycelium.wallet.activity.modern.helper.MainActions
 import com.mycelium.wallet.activity.news.NewsUtils
 import com.mycelium.wallet.activity.pop.PopActivity
 import com.mycelium.wallet.activity.send.GetSpendingRecordActivity
@@ -74,14 +76,12 @@ import com.mycelium.wallet.activity.send.SendInitializationActivity.Companion.ca
 import com.mycelium.wallet.activity.send.SendInitializationActivity.Companion.callMeWithResult
 import com.mycelium.wallet.bitid.BitIDAuthenticationActivity
 import com.mycelium.wallet.bitid.BitIDSignRequest
-import com.mycelium.wallet.content.actions.HdNodeAction.Companion.isKeyNode
 import com.mycelium.wallet.content.actions.PrivateKeyAction.Companion.getPrivateKey
 import com.mycelium.wallet.databinding.StartupActivityBinding
 import com.mycelium.wallet.event.AccountChanged
 import com.mycelium.wallet.event.AccountCreated
 import com.mycelium.wallet.event.MigrationPercentChanged
 import com.mycelium.wallet.event.MigrationStatusChanged
-import com.mycelium.wallet.fio.FioRequestNotificator
 import com.mycelium.wallet.pop.PopRequest
 import com.mycelium.wapi.content.PrivateKeyUri
 import com.mycelium.wapi.content.WithCallback
@@ -89,6 +89,7 @@ import com.mycelium.wapi.wallet.AesKeyCipher
 import com.mycelium.wapi.wallet.KeyCipher.InvalidKeyCipher
 import com.mycelium.wapi.wallet.btc.bip44.AdditionalHDAccountConfig
 import com.mycelium.wapi.wallet.eth.EthereumMasterseedConfig
+import com.mycelium.wapi.wallet.tron.TronMasterseedConfig
 import com.squareup.otto.Bus
 import com.squareup.otto.Subscribe
 import java.io.FileNotFoundException
@@ -321,10 +322,12 @@ class StartupActivity : AppCompatActivity(), AccountCreationObserver {
             val hasClipboardExportedPrivateKeys = hasPrivateKeyOnClipboard(_mbwManager!!.network)
             val hasClipboardExportedPublicKeys = hasPublicKeyOnClipboard(_mbwManager!!.network)
 
-            if (hasClipboardExportedPublicKeys) {
-                warnUserOnClipboardKeys(false)
-            } else if (hasClipboardExportedPrivateKeys) {
+            // Check private keys first: xprv/tprv also parse as HD key nodes and must not be
+            // reported as "Public Key Found on Clipboard".
+            if (hasClipboardExportedPrivateKeys) {
                 warnUserOnClipboardKeys(true)
+            } else if (hasClipboardExportedPublicKeys) {
+                warnUserOnClipboardKeys(false)
             } else {
                 normalStartup()
             }
@@ -333,25 +336,21 @@ class StartupActivity : AppCompatActivity(), AccountCreationObserver {
         private fun hasPrivateKeyOnClipboard(network: NetworkParameters): Boolean {
             // do we have a private key on the clipboard?
             try {
-                val key = getPrivateKey(network, Utils.getClipboardString(this@StartupActivity))
+                val content = Utils.getClipboardString(this@StartupActivity)
+                val key = getPrivateKey(network, content)
                 if (key != null) {
                     return true
                 }
-                HdKeyNode.parse(Utils.getClipboardString(this@StartupActivity), network)
-                return true
+                return HdKeyNode.parse(content, network).isPrivateHdKeyNode
             } catch (ex: KeyGenerationException) {
                 return false
             }
         }
 
         private fun hasPublicKeyOnClipboard(network: NetworkParameters): Boolean {
-            // do we have a public key on the clipboard?
+            // do we have a public key (xpub/tpub) on the clipboard? Private HD nodes are excluded.
             try {
-                if (isKeyNode(network, Utils.getClipboardString(this@StartupActivity))) {
-                    return true
-                }
-                HdKeyNode.parse(Utils.getClipboardString(this@StartupActivity), network)
-                return true
+                return !HdKeyNode.parse(Utils.getClipboardString(this@StartupActivity), network).isPrivateHdKeyNode
             } catch (ex: KeyGenerationException) {
                 return false
             }
@@ -396,15 +395,26 @@ class StartupActivity : AppCompatActivity(), AccountCreationObserver {
         if (getIntent().action == NewsUtils.MEDIA_FLOW_ACTION) {
             intent.action = NewsUtils.MEDIA_FLOW_ACTION
             getIntent().extras?.let { intent.putExtras(it) }
-        } else if (getIntent().action == FioRequestNotificator.FIO_REQUEST_ACTION) {
-            intent.action = FioRequestNotificator.FIO_REQUEST_ACTION
-            if (getIntent().extras != null) {
-                intent.putExtras(getIntent().extras!!)
-            }
         } else if (getIntent().hasExtra("action")) {
             getIntent().extras?.let { intent.putExtras(it) }
         }
-        startActivity(intent)
+        @Suppress("DEPRECATION")
+        val redirect = getIntent().getParcelableExtra<Intent>(EXTRA_REDIRECT_INTENT)
+        if (redirect?.component?.packageName == packageName) {
+            // the startup-PIN gate intercepted a deeper screen (deep link / restored activity):
+            // put the wallet underneath and reopen that screen on top
+            redirect.removeExtra(EXTRA_REDIRECT_INTENT)
+            // a deep link arrives with NEW_TASK/CLEAR_TOP: drop them, the screen must sit on top of ModernMain
+            redirect.flags = 0
+            if (redirect.component?.className == ModernMain::class.java.name) {
+                // a deep link into the wallet itself (e.g. mycelium://action.changelly): one ModernMain is enough
+                startActivity(redirect)
+            } else {
+                startActivities(arrayOf(intent, redirect))
+            }
+        } else {
+            startActivity(intent)
+        }
         finish()
     }
 
@@ -461,13 +471,43 @@ class StartupActivity : AppCompatActivity(), AccountCreationObserver {
         }
     }
 
-    private fun handleMyceliumUri(intentUri: Uri) {
-        val host = intentUri.getHost()
-        // If we dont understand the url, just call the balance screen
-        val balanceIntent = Intent(this, ModernMain::class.java)
-        startActivity(balanceIntent)
-        // close the startup activity to not pollute the backstack
+    /**
+     * After an unusable deep link: open the wallet if this StartupActivity is the only thing in the task,
+     * otherwise just go back to whatever screen the user was on (no second ModernMain on top of Send).
+     */
+    private fun openWalletOrReturn() {
+        if (isTaskRoot) {
+            startActivity(Intent(this, ModernMain::class.java))
+        }
         finish()
+    }
+
+    private fun handleMyceliumUri(intentUri: Uri) {
+        if (intentUri.host.equals(MainActions.ACTION_EXCHANGE, ignoreCase = true)) {
+            // reuse a running ModernMain (no second one on top of the stack) and switch it to the Exchange tab
+            startActivity(Intent(this, ModernMain::class.java)
+                .setAction(MainActions.ACTION_EXCHANGE)
+                .putExtra(ModernMain.EXTRA_DEEP_LINK_FORWARDED, true)
+                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP))
+            // close the startup activity to not pollute the backstack
+            finish()
+            return
+        }
+        if (intentUri.host.equals(ACTION_GIFTBOX_HOST, ignoreCase = true)) {
+            // StartupActivity is the only handler of mycelium:// (GiftBoxRootActivity no longer declares its own
+            // VIEW filter, which made Android show an "Open with" chooser listing the wallet twice)
+            val giftBox = Intent(this, GiftBoxRootActivity::class.java)
+            if (isTaskRoot) {
+                // cold start: put the wallet underneath so Back from the gift box lands on ModernMain
+                startActivities(arrayOf(Intent(this, ModernMain::class.java), giftBox))
+            } else {
+                startActivity(giftBox)
+            }
+            finish()
+            return
+        }
+        // If we dont understand the url, just open the wallet (or return to the screen the user was on)
+        openWalletOrReturn()
     }
 
     private fun handleBitIdUri(intentUri: Uri) {
@@ -476,7 +516,7 @@ class StartupActivity : AppCompatActivity(), AccountCreationObserver {
         if (!bitid.isPresent()) {
             //Invalid bitid URI
             Toaster(this).toast(R.string.invalid_bitid_uri, false)
-            finish()
+            openWalletOrReturn()
             return
         }
         val bitIdIntent = Intent(this, BitIDAuthenticationActivity::class.java)
@@ -488,7 +528,13 @@ class StartupActivity : AppCompatActivity(), AccountCreationObserver {
 
     private fun handlePopUri(intentUri: Uri) {
         // a proof of payment request
-        val popRequest = PopRequest(intentUri.toString())
+        val popRequest = try {
+            PopRequest(intentUri.toString())
+        } catch (e: Exception) {
+            Toaster(this).toast(R.string.pop_invalid_pop_uri, false)
+            openWalletOrReturn()
+            return
+        }
         val popIntent = Intent(this, PopActivity::class.java)
             .putExtra("popRequest", popRequest)
         startActivity(popIntent)
@@ -502,7 +548,7 @@ class StartupActivity : AppCompatActivity(), AccountCreationObserver {
         if (uri == null) {
             // Invalid Bitcoin URI
             Toaster(this).toast(R.string.invalid_bitcoin_uri, false)
-            finish()
+            openWalletOrReturn()
             return
         }
 
@@ -518,7 +564,7 @@ class StartupActivity : AppCompatActivity(), AccountCreationObserver {
             if (uri.address == null && uri is WithCallback && Strings.isNullOrEmpty((uri as WithCallback).callbackURL)) {
                 // Invalid Bitcoin URI
                 Toaster(this).toast(R.string.invalid_bitcoin_uri, false)
-                finish()
+                openWalletOrReturn()
                 return
             }
 
@@ -547,8 +593,11 @@ class StartupActivity : AppCompatActivity(), AccountCreationObserver {
                     initMasterSeed()
                     return
                 }
-                //finish initialization
-                delayedFinish.run()
+                //finish initialization; after a process death delayedInitialization is still running
+                // and posts delayedFinish itself once MbwManager is ready
+                if (_mbwManager != null) {
+                    delayedFinish.run()
+                }
                 return
             }
 
@@ -601,6 +650,9 @@ class StartupActivity : AppCompatActivity(), AccountCreationObserver {
     }
 
     companion object {
+        /** Intent of the screen the startup-PIN gate intercepted; replayed after the PIN (see WalletApplication). */
+        const val EXTRA_REDIRECT_INTENT = "redirectIntent"
+        private const val ACTION_GIFTBOX_HOST = "action.giftbox"
         private const val MINIMUM_SPLASH_TIME = 100
         private const val REQUEST_FROM_URI = 2
         private const val IMPORT_WORDLIST = 0
@@ -608,7 +660,8 @@ class StartupActivity : AppCompatActivity(), AccountCreationObserver {
         @JvmField
         val mainAccounts = listOf(
             AdditionalHDAccountConfig(),
-            EthereumMasterseedConfig()
+            EthereumMasterseedConfig(),
+            TronMasterseedConfig()
         )
 
         private const val LAST_STARTUP_TIME = "startupTme"

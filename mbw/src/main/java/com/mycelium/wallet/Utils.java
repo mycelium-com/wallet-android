@@ -38,6 +38,7 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.ClipData;
+import android.content.ClipDescription;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -52,6 +53,8 @@ import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
+import android.os.Build;
+import android.os.PersistableBundle;
 import android.text.format.DateFormat;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -99,6 +102,7 @@ import com.mycelium.wapi.wallet.Address;
 import com.mycelium.wapi.wallet.AddressUtils;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.ExportableAccount;
+import com.mycelium.wapi.wallet.Util;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount;
@@ -112,9 +116,6 @@ import com.mycelium.wapi.wallet.btc.bip44.HDPubOnlyAccount;
 import com.mycelium.wapi.wallet.btc.coins.BitcoinMain;
 import com.mycelium.wapi.wallet.btc.coins.BitcoinTest;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
-import com.mycelium.wapi.wallet.btcvault.coins.BitcoinVaultMain;
-import com.mycelium.wapi.wallet.btcvault.coins.BitcoinVaultTest;
-import com.mycelium.wapi.wallet.btcvault.hd.BitcoinVaultHdAccount;
 import com.mycelium.wapi.wallet.coins.AssetInfo;
 import com.mycelium.wapi.wallet.coins.CoinsKt;
 import com.mycelium.wapi.wallet.coins.CryptoCurrency;
@@ -129,13 +130,15 @@ import com.mycelium.wapi.wallet.erc20.ERC20Account;
 import com.mycelium.wapi.wallet.erc20.ERC20ModuleKt;
 import com.mycelium.wapi.wallet.eth.AbstractEthERC20Account;
 import com.mycelium.wapi.wallet.eth.EthAccount;
+import com.mycelium.wapi.wallet.trc20.TRC20Account;
+import com.mycelium.wapi.wallet.trc20.TRC20ModuleKt;
+import com.mycelium.wapi.wallet.tron.AbstractTronAccount;
+import com.mycelium.wapi.wallet.tron.TronAccount;
+import com.mycelium.wapi.wallet.tron.coins.TronMain;
+import com.mycelium.wapi.wallet.tron.coins.TronTest;
 import com.mycelium.wapi.wallet.eth.coins.EthMain;
 import com.mycelium.wapi.wallet.eth.coins.EthTest;
 import com.mycelium.wapi.wallet.fiat.coins.FiatType;
-import com.mycelium.wapi.wallet.fio.FioAccount;
-import com.mycelium.wapi.wallet.fio.coins.FIOMain;
-import com.mycelium.wapi.wallet.fio.coins.FIOTest;
-import com.mycelium.wapi.wallet.fio.coins.FIOToken;
 
 import org.ocpsoft.prettytime.Duration;
 import org.ocpsoft.prettytime.PrettyTime;
@@ -522,6 +525,28 @@ public class Utils {
       }
    }
 
+   /**
+    * For secrets (private keys, key shares, redeem codes): marks the clip as sensitive so Android 13+
+    * does not show it in the clipboard preview overlay, which is visible even over FLAG_SECURE screens.
+    */
+   public static void setSensitiveClipboardString(String string, Context context) {
+      try {
+         ClipboardManager clipboard = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
+         ClipData clip = ClipData.newPlainText("Mycelium", string);
+         PersistableBundle extras = new PersistableBundle();
+         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            extras.putBoolean(ClipDescription.EXTRA_IS_SENSITIVE, true);
+         } else {
+            extras.putBoolean("android.content.extra.IS_SENSITIVE", true);
+         }
+         clip.getDescription().setExtras(extras);
+         clipboard.setPrimaryClip(clip);
+      } catch (NullPointerException ex) {
+         MbwManager.getInstance(context).reportIgnoredException(new RuntimeException(ex.getMessage()));
+         new Toaster(context).toast(R.string.unable_to_set_clipboard, false);
+      }
+   }
+
    public static String getClipboardString(Context context) {
       try {
          ClipboardManager clipboard = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
@@ -799,12 +824,34 @@ public class Utils {
             .setPositiveButton(R.string.yes, (dialog, id) -> {
                dialog.dismiss();
                account.interruptSync();
-               ExportAsQrActivity.callMe(parent, ((ExportableAccount) account).getExportData(AesKeyCipher.defaultKeyCipher()),
+               exportWithPinAgeCheck(parent, ((ExportableAccount) account).getExportData(AesKeyCipher.defaultKeyCipher()),
                        account);
-
             }).setNegativeButton(R.string.no, null);
       AlertDialog alertDialog = builder.create();
       alertDialog.show();
+   }
+
+   /**
+    * Opens the export screen. If the PIN was set too recently, private data is withheld (same
+    * lockdown as for the additional wordlist backup) so a freshly set PIN doesn't give immediate
+    * access to private keys - only public data is shown.
+    */
+   public static void exportWithPinAgeCheck(final Activity parent, ExportableAccount.Data data, final WalletAccount<?> account) {
+      MbwManager mbwManager = MbwManager.getInstance(parent);
+      if (data.getPrivateData().isPresent() && mbwManager.isPinProtected() && !mbwManager.isPinOldEnough()) {
+         final ExportableAccount.Data publicOnly =
+                 new ExportableAccount.Data(Optional.<String>absent(), data.getPublicDataMap());
+         int remainingBlocks = mbwManager.getRemainingPinLockdownDuration()
+                 .or(Constants.MIN_PIN_BLOCKHEIGHT_AGE_ADDITIONAL_BACKUP);
+         new AlertDialog.Builder(parent)
+                 .setMessage(parent.getString(R.string.export_private_not_possible_pin_too_new, remainingBlocks,
+                         formatBlockcountAsApproxDuration(mbwManager, remainingBlocks, Constants.BTC_BLOCK_TIME_IN_SECONDS)))
+                 .setPositiveButton(R.string.ok, (d, w) -> ExportAsQrActivity.callMe(parent, publicOnly, account))
+                 .setNegativeButton(R.string.cancel, null)
+                 .show();
+      } else {
+         ExportAsQrActivity.callMe(parent, data, account);
+      }
    }
 
    /**
@@ -812,6 +859,26 @@ public class Utils {
     */
    public static void preventScreenshots(Activity activity) {
       activity.getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE);
+      // FLAG_SECURE does not hide the content from the accessibility tree. Screens that use it show
+      // secrets (seed words, Shamir shares, private keys), so keep them away from accessibility
+      // services that are not real accessibility tools (TalkBack & co. still read them).
+      // Only touch an already installed decor: installing it here would break activities that
+      // call this before setContentView - those mark their root view themselves.
+      View decor = activity.getWindow().peekDecorView();
+      if (decor != null) {
+         markAccessibilityDataSensitive(decor);
+      }
+   }
+
+   /**
+    * Marks the view (and, by inheritance, all its descendants) as accessibility-data-sensitive
+    * (API 34+): only services with isAccessibilityTool=true (TalkBack, Switch Access, ...) may
+    * read it. No-op on older Android versions.
+    */
+   public static void markAccessibilityDataSensitive(View view) {
+      if (view != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+         view.setAccessibilityDataSensitive(View.ACCESSIBILITY_DATA_SENSITIVE_YES);
+      }
    }
 
    public static boolean checkIsLinked(WalletAccount account, final Collection<? extends WalletAccount> accounts) {
@@ -831,6 +898,27 @@ public class Utils {
       for (WalletAccount walletAccount : accounts) {
          if (!walletAccount.getId().equals(account.getId()) && account.isMineAddress(walletAccount.getReceiveAddress())) {
             return walletAccount;
+         }
+      }
+      return null;
+   }
+
+   public static boolean isTRC20Token(WalletManager walletManager, String symbol) {
+      for (WalletAccount account : TRC20ModuleKt.getTRC20Accounts(walletManager)) {
+         if (account.getCoinType().getSymbol().equals(symbol)) {
+            return true;
+         }
+      }
+      return false;
+   }
+
+   public static TronAccount getLinkedTronAccount(WalletAccount account, final Collection<? extends WalletAccount> accounts) {
+      if (account instanceof TRC20Account) {
+         return ((TRC20Account) account).getTronAcc();
+      }
+      for (WalletAccount walletAccount : accounts) {
+         if (walletAccount instanceof TronAccount && !walletAccount.getId().equals(account.getId()) && account.isMineAddress(walletAccount.getReceiveAddress())) {
+            return (TronAccount) walletAccount;
          }
       }
       return null;
@@ -917,6 +1005,7 @@ public class Utils {
                return Integer.compare(((EthAccount) w1).getAccountIndex(), ((EthAccount) w2).getAccountIndex());
             } else if (w1 instanceof EthAccount && w2 instanceof ERC20Account) {
                EthAccount linkedEthAccount = getLinkedEthAccount(w2, accounts);
+               if (linkedEthAccount == null) return 0;
                if (linkedEthAccount.equals(w1)) {
                   return -1;
                } else {
@@ -924,6 +1013,7 @@ public class Utils {
                }
             } else if (w1 instanceof ERC20Account && w2 instanceof EthAccount) {
                EthAccount linkedEthAccount = getLinkedEthAccount(w1, accounts);
+               if (linkedEthAccount == null) return 0;
                if (linkedEthAccount.equals(w2)) {
                   return 1;
                } else {
@@ -931,8 +1021,20 @@ public class Utils {
                }
             } else if (w1 instanceof ERC20Account && w2 instanceof ERC20Account) {
                EthAccount linkedEthAccount1 = getLinkedEthAccount(w1, accounts);
+               if (linkedEthAccount1 == null) return 0;
                EthAccount linkedEthAccount2 = getLinkedEthAccount(w2, accounts);
+               if (linkedEthAccount2 == null) return 0;
                return Integer.compare(linkedEthAccount1.getAccountIndex(), linkedEthAccount2.getAccountIndex());
+            } else if (w1 instanceof TronAccount && w2 instanceof TronAccount) {
+               return Integer.compare(((TronAccount) w1).getAccountIndex(), ((TronAccount) w2).getAccountIndex());
+            } else if (w1 instanceof TronAccount && w2 instanceof TRC20Account) {
+               TronAccount linked = ((TRC20Account) w2).getTronAcc();
+               return linked.equals(w1) ? -1 : Integer.compare(((TronAccount) w1).getAccountIndex(), linked.getAccountIndex());
+            } else if (w1 instanceof TRC20Account && w2 instanceof TronAccount) {
+               TronAccount linked = ((TRC20Account) w1).getTronAcc();
+               return linked.equals(w2) ? 1 : Integer.compare(linked.getAccountIndex(), ((TronAccount) w2).getAccountIndex());
+            } else if (w1 instanceof TRC20Account && w2 instanceof TRC20Account) {
+               return Integer.compare(((TRC20Account) w1).getTronAcc().getAccountIndex(), ((TRC20Account) w2).getTronAcc().getAccountIndex());
             }
             return 0;
          }
@@ -992,9 +1094,10 @@ public class Utils {
          }
       }
 
-      if (ERC20Account.class.isAssignableFrom(accountType)) {
+      if (ERC20Account.class.isAssignableFrom(accountType) || TRC20Account.class.isAssignableFrom(accountType)) {
          Drawable drawable = null;
-         String symbol = accountView.getCoinType().getSymbol();
+         // testnet tokens carry a "t" prefix (tUSDT) but share the mainnet logo
+         String symbol = Util.trimTestnetSymbolDecoration(accountView.getCoinType().getSymbol());
          try {
             // get input stream
             InputStream ims = resources.getAssets().open("token-logos/" + symbol.toLowerCase() + "_logo.png");
@@ -1041,8 +1144,7 @@ public class Utils {
               || account instanceof SingleAddressBCHAccount
               || account instanceof ColuAccount
               || account instanceof AbstractEthERC20Account
-              || account instanceof FioAccount
-              || account instanceof BitcoinVaultHdAccount) {
+              || account instanceof AbstractTronAccount) {
          return false; //we do not support these account types in LT
       }
       if (!((WalletBtcAccount)(account)).getReceivingAddress().isPresent()) {
@@ -1076,12 +1178,12 @@ public class Utils {
       return isProdnet() ? BitcoinMain.get() : BitcoinTest.get();
    }
 
-   public static CryptoCurrency getBtcvCoinType() {
-      return isProdnet() ? BitcoinVaultMain.INSTANCE : BitcoinVaultTest.INSTANCE;
-   }
-
    public static CryptoCurrency getEthCoinType() {
       return isProdnet() ? EthMain.INSTANCE : EthTest.INSTANCE;
+   }
+
+   public static CryptoCurrency getTronCoinType() {
+      return isProdnet() ? TronMain.INSTANCE : TronTest.INSTANCE;
    }
 
    public static CryptoCurrency getMtCoinType() {
@@ -1094,10 +1196,6 @@ public class Utils {
 
    public static CryptoCurrency getRmcCoinType() {
       return isProdnet() ? RMCCoin.INSTANCE : RMCCoinTest.INSTANCE;
-   }
-
-   public static FIOToken getFIOCoinType() {
-      return isProdnet() ? FIOMain.INSTANCE : FIOTest.INSTANCE;
    }
 
    public static boolean isProdnet() {

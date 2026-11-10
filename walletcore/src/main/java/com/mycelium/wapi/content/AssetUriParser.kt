@@ -3,25 +3,22 @@ package com.mycelium.wapi.content
 import com.mrd.bitlib.crypto.Bip38
 import com.mrd.bitlib.model.NetworkParameters
 import com.mycelium.wapi.content.btc.BitcoinUri
-import com.mycelium.wapi.content.btcv.BitcoinVaultUri
 import com.mycelium.wapi.content.colu.mss.MSSUri
 import com.mycelium.wapi.content.colu.mt.MTUri
 import com.mycelium.wapi.content.colu.rmc.RMCUri
 import com.mycelium.wapi.content.eth.EthUri
-import com.mycelium.wapi.content.fio.FIOUri
+import com.mycelium.wapi.content.tron.TronUri
 import com.mycelium.wapi.wallet.Address
 import com.mycelium.wapi.wallet.AddressUtils
 import com.mycelium.wapi.wallet.btc.coins.BitcoinMain
 import com.mycelium.wapi.wallet.btc.coins.BitcoinTest
-import com.mycelium.wapi.wallet.btcvault.coins.BitcoinVaultMain
-import com.mycelium.wapi.wallet.btcvault.coins.BitcoinVaultTest
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.colu.coins.*
 import com.mycelium.wapi.wallet.eth.coins.EthMain
 import com.mycelium.wapi.wallet.eth.coins.EthTest
-import com.mycelium.wapi.wallet.fio.coins.FIOMain
-import com.mycelium.wapi.wallet.fio.coins.FIOTest
+import com.mycelium.wapi.wallet.tron.coins.TronMain
+import com.mycelium.wapi.wallet.tron.coins.TronTest
 import java.math.BigDecimal
 import java.net.URI
 import java.net.URLDecoder
@@ -37,9 +34,14 @@ abstract class AssetUriParser(open val network: NetworkParameters) : UriParser {
         }
 
         val params = splitQuery(uri.rawQuery)
+        // BIP21: "req-" parameters are required to be understood, none is supported here, so such a URI
+        // is invalid (ETH/TRON parsers handle their own "req-asset" and don't use this function)
+        require(params.keys.none { it.startsWith("req-") }) { "unsupported required parameter in URI" }
 
         val amount: Value? = params["amount"]?.let {
-            Value.valueOf(coinType, BigDecimal(it).multiply(BigDecimal.TEN.pow(coinType.unitExponent)).toBigIntegerExact())
+            val decimal = BigDecimal(it)
+            require(decimal.signum() >= 0) { "negative amount in URI" }
+            Value.valueOf(coinType, decimal.multiply(BigDecimal.TEN.pow(coinType.unitExponent)).toBigIntegerExact())
         }
 
         // Label
@@ -83,12 +85,11 @@ abstract class AssetUriParser(open val network: NetworkParameters) : UriParser {
                                 paymentUri: String?): AssetUri? {
             return when (coinType) {
                 is BitcoinMain, is BitcoinTest -> BitcoinUri(address, amount, label, paymentUri)
-                is BitcoinVaultMain, is BitcoinVaultTest -> BitcoinVaultUri(address, amount, label, paymentUri)
                 is RMCCoin, is RMCCoinTest -> RMCUri(address, amount, label, paymentUri)
                 is MTCoin, is MTCoinTest -> MTUri(address, amount, label, paymentUri)
                 is MASSCoin, is MASSCoinTest -> MSSUri(address, amount, label, paymentUri)
                 is EthMain, is EthTest -> EthUri(address, amount, label, paymentUri)
-                is FIOMain, is FIOTest -> FIOUri(address, amount, label, paymentUri)
+                is TronMain, is TronTest -> TronUri(address, amount, label, paymentUri)
                 else -> FallbackUri(address)
             }
         }

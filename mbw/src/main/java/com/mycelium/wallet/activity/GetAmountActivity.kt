@@ -1,11 +1,13 @@
 package com.mycelium.wallet.activity
 
+import com.mycelium.wallet.activity.util.displaySymbol
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
 import android.text.Html
+import android.text.TextUtils
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
@@ -43,6 +45,8 @@ import com.mycelium.wapi.wallet.erc20.ERC20Account
 import com.mycelium.wapi.wallet.erc20.ERC20Account.Companion.TOKEN_TRANSFER_GAS_LIMIT
 import com.mycelium.wapi.wallet.eth.AbstractEthERC20Account
 import com.mycelium.wapi.wallet.eth.EthTransactionData
+import com.mycelium.wapi.wallet.trc20.TRC20Account
+import com.mycelium.wapi.wallet.tron.TronTransactionData
 import com.mycelium.wapi.wallet.exceptions.BuildTransactionException
 import com.mycelium.wapi.wallet.exceptions.InsufficientFundsException
 import com.mycelium.wapi.wallet.exceptions.OutputTooSmallException
@@ -65,6 +69,8 @@ class GetAmountActivity : AppCompatActivity(), NumberEntryListener {
     private var destinationAddress: Address? = null
     private var _kbMinerFee: Value? = null
     private var txData: TransactionData? = null
+    /** True while the shown amount is the one the Max button put there, untouched since. */
+    private var amountIsMax = false
     private lateinit var mainCurrencyType: AssetInfo
 
     @SuppressLint("ShowToast")
@@ -93,6 +99,7 @@ class GetAmountActivity : AppCompatActivity(), NumberEntryListener {
         updateUI()
         if (isSendMode) {
             updateERC20RelatedUI()
+            updateTRC20RelatedUI()
         }
         checkEntry()
         setupActionBar()
@@ -178,7 +185,8 @@ class GetAmountActivity : AppCompatActivity(), NumberEntryListener {
         }
 
         // Return the entered value and set a positive result code
-        setResult(RESULT_OK, Intent().putExtra(AMOUNT, viewModel.amount.value))
+        setResult(RESULT_OK, Intent().putExtra(AMOUNT, viewModel.amount.value)
+                .putExtra(AMOUNT_IS_MAX, amountIsMax))
         finish()
     }
 
@@ -188,6 +196,7 @@ class GetAmountActivity : AppCompatActivity(), NumberEntryListener {
         } else {
             viewModel.amount.value = viewModel.convert(viewModel.maxSpendableAmount.value!!, viewModel.currentCurrency.value!!)
                     ?: viewModel.maxSpendableAmount.value!!
+            amountIsMax = true
             // set the current shown currency to the amount's currency
             viewModel.currentCurrency.value = viewModel.amount.value!!.type
             updateUI()
@@ -201,11 +210,11 @@ class GetAmountActivity : AppCompatActivity(), NumberEntryListener {
             val currencyListMenu = PopupMenu(this, view)
             val cryptocurrencies = _mbwManager!!.getWalletManager(false).getCryptocurrenciesSymbols()
             currencyList.forEach { asset ->
-                var itemTitle = asset.symbol
+                var itemTitle = asset.displaySymbol
                 // we want to display cryptocurrency items as "Symbol (denomination if it differs from UNIT)", e.g. "BTC (bits)"
                 val denomination = _mbwManager!!.getDenomination(viewModel.account!!.coinType)
                 if (cryptocurrencies.contains(asset.symbol) && denomination !== Denomination.UNIT) {
-                    itemTitle += " (" + denomination.getUnicodeString(asset.symbol) + ")"
+                    itemTitle += " (" + denomination.getUnicodeString(asset.displaySymbol) + ")"
                 }
                 currencyListMenu.menu.add(Menu.NONE, asset.hashCode(), Menu.NONE, itemTitle)
             }
@@ -235,6 +244,7 @@ class GetAmountActivity : AppCompatActivity(), NumberEntryListener {
 
     fun onPasteButtonClick() {
         amountFromClipboard()?.let {
+            amountIsMax = false
             setEnteredAmount(it)
             _numberEntry!!.setEntry(viewModel.amount.value!!.valueAsBigDecimal,
                     getMaxDecimal(viewModel.currentCurrency.value))
@@ -284,6 +294,10 @@ class GetAmountActivity : AppCompatActivity(), NumberEntryListener {
     }
 
     private fun updateERC20RelatedUI() {
+        // Gas paid in the token through the paymaster: the parent ETH balance plays no part.
+        if ((txData as? EthTransactionData)?.tokenFee != null) {
+            return
+        }
         (viewModel.account as? ERC20Account)?.ethAcc?.let { parentEthAccount ->
             val gasLimit = (txData as? EthTransactionData)?.gasLimit
                 ?: BigInteger.valueOf(TOKEN_TRANSFER_GAS_LIMIT)
@@ -292,14 +306,17 @@ class GetAmountActivity : AppCompatActivity(), NumberEntryListener {
 
             if (isNotEnoughEth) {
                 val denomination = _mbwManager!!.getDenomination(parentEthAccount.coinType)
+                // ask only for what is missing, not the whole fee (the parent may hold part of it)
+                val missing = Value.valueOf(fee.type,
+                    (fee.value - parentEthAccount.accountBalance.spendable.value).max(BigInteger.ZERO))
                 val convertedFee = " ~${
-                    _mbwManager!!.exchangeRateManager.get(fee, _mbwManager!!.getFiatCurrency(viewModel.account!!.coinType))
+                    _mbwManager!!.exchangeRateManager.get(missing, _mbwManager!!.getFiatCurrency(viewModel.account!!.coinType))
                         ?.toStringFriendlyWithUnit() ?: ""
                 }"
 
                 binding.tvPleaseTopUp.apply {
                     text =
-                        Html.fromHtml(getString(R.string.please_top_up_your_eth_account, parentEthAccount.label, fee.toStringFriendlyWithUnit(denomination), convertedFee))
+                        Html.fromHtml(getString(R.string.please_top_up_your_eth_account, TextUtils.htmlEncode(parentEthAccount.label), missing.toStringFriendlyWithUnit(denomination), convertedFee))
                     setOnClickListener {
                         _mbwManager!!.setSelectedAccount(parentEthAccount.id)
                         setResult(RESULT_OK, Intent().putExtra(EXIT_TO_MAIN_SCREEN, true))
@@ -311,7 +328,37 @@ class GetAmountActivity : AppCompatActivity(), NumberEntryListener {
                 binding.tvParentEthAccountBalance.text = " ${parentEthAccount.accountBalance.spendable.toStringFriendlyWithUnit(denomination)}"
                 binding.llParentEthAccountBalance.visibility = View.VISIBLE
                 binding.tvEthRequiredInfo.visibility = View.VISIBLE
-                binding.divider.setBackgroundColor(resources.getColor(R.color.fio_red))
+                binding.divider.setBackgroundColor(resources.getColor(R.color.error_red))
+            }
+        }
+    }
+
+    private fun updateTRC20RelatedUI() {
+        val tronData = txData as? TronTransactionData
+        // With the energy service the fee is paid in the token and no TRX is burned by the parent
+        // account, so its balance says nothing about whether the transfer can go through — that is
+        // exactly what checkFeeBalance marks.
+        if (tronData?.checkFeeBalance == false) {
+            return
+        }
+        (viewModel.account as? TRC20Account)?.tronAcc?.let { parentAccount ->
+            val required = tronData?.feeLimit ?: tronData?.estimatedFee ?: _kbMinerFee!!.value
+            val fee = Value.valueOf(parentAccount.coinType, required)
+            if (parentAccount.accountBalance.spendable.lessThan(fee)) {
+                val denomination = _mbwManager!!.getDenomination(parentAccount.coinType)
+                binding.tvPleaseTopUp.apply {
+                    text = getString(R.string.please_top_up_your_trx_account)
+                    setOnClickListener {
+                        _mbwManager!!.setSelectedAccount(parentAccount.id)
+                        setResult(RESULT_OK, Intent().putExtra(EXIT_TO_MAIN_SCREEN, true))
+                        finish()
+                    }
+                    visibility = View.VISIBLE
+                }
+                binding.tvParentEthAccountBalanceLabel.text = getString(R.string.parent_trx_account, parentAccount.label)
+                binding.tvParentEthAccountBalance.text = " ${parentAccount.accountBalance.spendable.toStringFriendlyWithUnit(denomination)}"
+                binding.llParentEthAccountBalance.visibility = View.VISIBLE
+                binding.divider.setBackgroundColor(resources.getColor(R.color.error_red))
             }
         }
     }
@@ -350,6 +397,7 @@ class GetAmountActivity : AppCompatActivity(), NumberEntryListener {
     override fun onEntryChanged(entry: String, wasSet: Boolean) {
         if (!wasSet) {
             // if it was change by the user pressing buttons (show it unformatted)
+            amountIsMax = false
             setEnteredAmount(entry)
         }
         updateAmountsDisplay(entry)
@@ -427,6 +475,9 @@ class GetAmountActivity : AppCompatActivity(), NumberEntryListener {
         }
     }
 
+    /** Reason of the last BuildTransactionException from [validateAmount], shown as a toast. */
+    private var lastBuildError: String? = null
+
     private fun validateAmount(value: Value?): AmountValidation {
         if (value == null) {
             return AmountValidation.ExchangeRateNotAvailable
@@ -443,6 +494,7 @@ class GetAmountActivity : AppCompatActivity(), NumberEntryListener {
             // under certain conditions the max-miner-fee check fails - report it back to the server, so we can better
             // debug it
             _mbwManager!!.reportIgnoredException("MinerFeeException", e)
+            lastBuildError = e.cause?.message ?: e.message
             return AmountValidation.Invalid
         } catch (e: Exception) {
             Log.e("GetAmountActivity", "validateAmount", e)
@@ -475,6 +527,9 @@ class GetAmountActivity : AppCompatActivity(), NumberEntryListener {
                     }
                 } else if (result == AmountValidation.ExchangeRateNotAvailable) {
                     Toaster(this@GetAmountActivity).toast(com.mycelium.wallet.R.string.exchange_rate_unavailable, true)
+                } else if (result == AmountValidation.Invalid && !lastBuildError.isNullOrBlank()) {
+                    // e.g. a custom gas price below the network base fee - say why instead of a silent red amount
+                    Toaster(this@GetAmountActivity).toast(lastBuildError!!, true)
                 }
                 // else {
                 // The amount we want to send is not large enough for the network to
@@ -535,6 +590,8 @@ class GetAmountActivity : AppCompatActivity(), NumberEntryListener {
         const val SEND_MODE = "sendmode"
         const val TX_DATA = "txData"
         const val EXIT_TO_MAIN_SCREEN = "exitToMain"
+        /** Result flag: the returned amount is the one the Max button computed. */
+        const val AMOUNT_IS_MAX = "amountIsMax"
 
         /**
          * Get Amount for spending

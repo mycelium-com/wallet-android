@@ -124,6 +124,7 @@ public class BackupWordListActivity extends AppCompatActivity {
       } else {
          final TextView pass = new TextView(this);
          pass.setText(passphrase);
+         Utils.markAccessibilityDataSensitive(pass);
          AlertDialog.Builder builder = new AlertDialog.Builder(this);
          builder.setTitle(R.string.note_down_password_title);
          builder.setView(pass)

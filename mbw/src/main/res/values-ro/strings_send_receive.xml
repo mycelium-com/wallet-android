@@ -76,6 +76,9 @@
     <string name="cancel_eth_tx_loading">Se estimează taxa de anulare…</string>
     <string name="cancel_eth_tx_new_fee">Taxă de anulare</string>
     <string name="cancel_eth_tx_no_connection">Nu există conexiune la server. Încercați din nou mai târziu.</string>
+    <string name="cancel_eth_tx_queue_blocked">O tranzacție anterioară (nonce %1$s) are o taxă sub taxa actuală a rețelei și nu poate fi minată. Tranzacțiile se confirmă în ordine, așa că această anulare ar aștepta după ea. Anulați mai întâi tranzacția anterioară.</string>
+    <string name="cancel_eth_tx_cancel_blocking">Anulați mai întâi nonce %1$s</string>
+    <string name="send_eth_stuck_queue_warning">Tranzacția dvs. anterioară (nonce %1$s) are o taxă sub taxa actuală a rețelei și este blocată. O nouă trimitere va aștepta după ea. Anulați-o mai întâi din istoricul tranzacțiilor.</string>
     <string name="cancel_eth_tx_old_fee">Taxă inițială</string>
     <string name="cancel_eth_tx_recipient">Destinatar inițial</string>
     <string name="cancel_eth_tx_success">Anulare difuzată.</string>

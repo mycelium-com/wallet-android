@@ -21,12 +21,13 @@ open class EthBacking(walletDB: WalletDB, private val generalBacking: Backing<Ac
                           blockHeight: Int,
                           nonce: BigInteger,
                           enabledTokens: List<String>?,
-                          accountIndex: Int ->
+                          accountIndex: Int,
+                          everFullySynced: Boolean ->
         val tokens = erc20Queries.selectAllERC20ContextByParent(uuid).executeAsList()
         EthAccountContext(uuid, currency, accountName, balance,
             { updateAccountContext(it.uuid, it) },
                 this::loadAccountContext,
-                accountIndex, tokens.map { it.contractAddress }, archived, blockHeight, nonce)
+                accountIndex, tokens.map { it.contractAddress }, archived, blockHeight, nonce, everFullySynced)
     }
 
     override fun loadAccountContexts():List<EthAccountContext> = ethQueries.selectAll(accountMapper)
@@ -42,7 +43,7 @@ open class EthBacking(walletDB: WalletDB, private val generalBacking: Backing<Ac
 
     override fun updateAccountContext(accountId: UUID, context: EthAccountContext) {
         generalBacking.updateAccountContext(accountId, context.accountContext())
-        ethQueries.update(context.nonce, context.enabledTokens, context.uuid)
+        ethQueries.update(context.nonce, context.enabledTokens, context.everFullySynced, context.uuid)
     }
 
     override fun deleteAccountContext(uuid: UUID) {

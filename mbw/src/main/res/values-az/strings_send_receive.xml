@@ -37,6 +37,9 @@
     <string name="cancel_eth_tx_loading">Ləğv komissiyası təxmin edilir…</string>
     <string name="cancel_eth_tx_new_fee">Ləğv komissiyası</string>
     <string name="cancel_eth_tx_no_connection">Server bağlantısı yoxdur. Sonra yenidən cəhd edin.</string>
+    <string name="cancel_eth_tx_queue_blocked">Əvvəlki tranzaksiyanın (nonce %1$s) komissiyası cari şəbəkə komissiyasından aşağıdır və təsdiqlənə bilməz. Tranzaksiyalar ardıcıllıqla təsdiqlənir, buna görə bu ləğv onun arxasında gözləyəcək. Əvvəlcə əvvəlki tranzaksiyanı ləğv edin.</string>
+    <string name="cancel_eth_tx_cancel_blocking">Əvvəlcə nonce %1$s tranzaksiyasını ləğv edin</string>
+    <string name="send_eth_stuck_queue_warning">Əvvəlki tranzaksiyanızın (nonce %1$s) komissiyası cari şəbəkə komissiyasından aşağıdır və o ilişib qalıb. Yeni göndəriş onun arxasında gözləyəcək. Əvvəlcə onu tranzaksiya tarixçəsindən ləğv edin.</string>
     <string name="cancel_eth_tx_old_fee">Orijinal komissiya</string>
     <string name="cancel_eth_tx_recipient">Orijinal qəbuledici</string>
     <string name="cancel_eth_tx_success">Ləğv yayımlandı.</string>

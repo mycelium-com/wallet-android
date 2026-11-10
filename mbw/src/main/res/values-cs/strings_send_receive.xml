@@ -136,6 +136,9 @@
     <string name="cancel_eth_tx_loading">Odhadování poplatku za zrušení…</string>
     <string name="cancel_eth_tx_new_fee">Poplatek za zrušení</string>
     <string name="cancel_eth_tx_no_connection">Žádné připojení k serveru. Zkuste to později.</string>
+    <string name="cancel_eth_tx_queue_blocked">Dřívější transakce (nonce %1$s) má poplatek nižší než aktuální síťový poplatek a nemůže být potvrzena. Transakce se potvrzují v pořadí, takže toto zrušení by čekalo za ní. Nejprve zrušte tu dřívější.</string>
+    <string name="cancel_eth_tx_cancel_blocking">Nejprve zrušte nonce %1$s</string>
+    <string name="send_eth_stuck_queue_warning">Vaše dřívější transakce (nonce %1$s) má poplatek nižší než aktuální síťový poplatek a uvízla. Nové odeslání bude čekat za ní. Nejprve ji zrušte v historii transakcí.</string>
     <string name="cancel_eth_tx_old_fee">Původní poplatek</string>
     <string name="cancel_eth_tx_recipient">Původní příjemce</string>
     <string name="cancel_eth_tx_success">Zrušení vysíláno.</string>

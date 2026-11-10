@@ -225,6 +225,9 @@
     <string name="cancel_eth_tx_loading">Estimando taxa de cancelamento…</string>
     <string name="cancel_eth_tx_new_fee">Taxa de cancelamento</string>
     <string name="cancel_eth_tx_no_connection">Sem conexão com o servidor. Tente novamente mais tarde.</string>
+    <string name="cancel_eth_tx_queue_blocked">Uma transação anterior (nonce %1$s) tem taxa abaixo da taxa atual da rede e não pode ser minerada. As transações são confirmadas em ordem, então este cancelamento ficaria esperando atrás dela. Cancele a anterior primeiro.</string>
+    <string name="cancel_eth_tx_cancel_blocking">Cancelar nonce %1$s primeiro</string>
+    <string name="send_eth_stuck_queue_warning">Sua transação anterior (nonce %1$s) tem taxa abaixo da taxa atual da rede e está travada. Um novo envio ficará esperando atrás dela. Cancele-a primeiro no histórico de transações.</string>
     <string name="cancel_eth_tx_old_fee">Taxa original</string>
     <string name="cancel_eth_tx_recipient">Destinatário original</string>
     <string name="cancel_eth_tx_success">Cancelamento transmitido.</string>

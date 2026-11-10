@@ -1,0 +1,43 @@
+import java.util.UUID;
+import kotlin.Int;
+import kotlin.String;
+import kotlin.collections.List;
+
+-- TRON account context storage
+
+CREATE TABLE IF NOT EXISTS TronContext(
+    uuid TEXT AS UUID PRIMARY KEY NOT NULL,
+    enabledTokens TEXT AS List<String>,
+    accountIndex INTEGER AS Int NOT NULL,
+    -- Base58 (T...) address for watch-only accounts; NULL for masterseed-derived accounts
+    address TEXT,
+    FOREIGN KEY (uuid)
+        REFERENCES AccountContext (uuid)
+        ON DELETE CASCADE
+);
+
+selectAll:
+SELECT tc.uuid, c.currency, c.accountName, c.archived, c.balance, c.blockHeight, tc.enabledTokens, tc.accountIndex, tc.address
+FROM TronContext AS tc
+  INNER JOIN AccountContext AS c
+  ON tc.uuid = c.uuid;
+
+selectByUUID:
+SELECT tc.uuid, c.currency, c.accountName, c.archived, c.balance, c.blockHeight, tc.enabledTokens, tc.accountIndex, tc.address
+FROM TronContext AS tc
+    INNER JOIN AccountContext AS c
+    ON tc.uuid = c.uuid
+        WHERE tc.uuid = (?);
+
+insert:
+INSERT INTO TronContext(uuid, enabledTokens, accountIndex, address)
+VALUES (?, ?, ?, ?);
+
+update:
+UPDATE TronContext
+SET enabledTokens = (?)
+WHERE uuid = (?);
+
+delete:
+DELETE FROM TronContext
+WHERE uuid = (?);

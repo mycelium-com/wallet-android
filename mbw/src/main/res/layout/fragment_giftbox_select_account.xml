@@ -14,7 +14,7 @@
         android:layout_marginTop="16dp"
         android:layout_marginEnd="@dimen/activity_horizontal_margin"
         android:text="@string/select_account_to_pay_with"
-        android:textColor="@color/fio_white_alpha_0_6"
+        android:textColor="@color/white_alpha_0_6"
         android:textSize="14sp" />
 
     <androidx.recyclerview.widget.RecyclerView

@@ -1,5 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog>
+    <release version="3.23.0.2" versioncode="3230002">
+        <change>Hello, Tron! — Hold, send and receive TRX and TRC-20 tokens like USDT right next to your Bitcoin and Ethereum, all from the same seed</change>
+        <change>No TRX? No Problem — Pay TRC-20 network fees with the token you are sending. No need to top up TRX just to move your USDT</change>
+        <change>Gas-Free ERC-20 Transfers — Send USDT and other ERC-20 tokens even with an empty ETH balance: the network fee is paid in the token itself</change>
+        <change>Smarter Ethereum Fees — Full EIP-1559 support on mainnet means fairer, more predictable fees and faster confirmations</change>
+        <change>Rescue Stuck Transfers — The wallet now finds ERC-20 transactions stuck in the network and helps you get them moving again</change>
+        <change>Exchange Goes Tron — Swap to and from TRX and TRC-20 tokens in the built-in exchange, with clear coin names instead of cryptic tickers</change>
+        <change>A Leaner Wallet — Bitcoin Vault and FIO support has been retired to keep Mycelium fast, focused and secure</change>
+        <change>Stability improvements and bug fixes</change>
+    </release>
     <release version="3.22.0.2" versioncode="3220002">
         <change>In-App Support Chat — Talk to the Mycelium team without ever leaving the wallet, now with image attachments so you can share screenshots in a tap</change>
         <change>Live Ethereum Transaction Status — Track your ETH and ERC-20 transfers in real time, right from your transaction list</change>

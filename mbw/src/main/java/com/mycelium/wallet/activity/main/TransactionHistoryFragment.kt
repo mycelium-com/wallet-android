@@ -58,9 +58,8 @@ import com.mycelium.wapi.wallet.coins.Value.Companion.isNullOrZero
 import com.mycelium.wapi.wallet.coins.Value.Companion.valueOf
 import com.mycelium.wapi.wallet.colu.ColuAccount
 import com.mycelium.wapi.wallet.eth.AbstractEthERC20Account
+import com.mycelium.wapi.wallet.tron.AbstractTronAccount
 import com.mycelium.wapi.wallet.eth.EthTxStatus
-import com.mycelium.wapi.wallet.fio.FIOOBTransaction
-import com.mycelium.wapi.wallet.fio.FioAccount
 import com.squareup.otto.Subscribe
 import kotlinx.coroutines.*
 import java.io.IOException
@@ -105,7 +104,7 @@ class TransactionHistoryFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         if (adapter == null) {
-            adapter = TransactionHistoryAdapter(activity, history, model.fioMetadataMap)
+            adapter = TransactionHistoryAdapter(activity, history)
             updateWrapper(adapter)
             model.transactionHistory.observe(viewLifecycleOwner, Observer { transaction ->
                 history.clear()
@@ -253,7 +252,7 @@ class TransactionHistoryFragment : Fragment() {
                     var toAddEmpty: Boolean
                     synchronized(toAdd) { toAddEmpty = toAdd.isEmpty() }
                     if (toAddEmpty && isLoadingPossible.compareAndSet(true, false)) {
-                        Preloader(toAdd, model.fioMetadataMap, model.account.value!!, model.mbwManager, totalItemCount,
+                        Preloader(toAdd, model.account.value!!, totalItemCount,
                                 OFFSET, isLoadingPossible).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
                     }
                     if (firstVisibleItem + visibleItemCount == totalItemCount && !toAddEmpty) {
@@ -279,8 +278,7 @@ class TransactionHistoryFragment : Fragment() {
     }
 
     private inner class TransactionHistoryAdapter(context: Context?,
-                                                  transactions: List<TransactionSummary?>?,
-                                                  private val fioMetadataMap: Map<String, FIOOBTransaction>)
+                                                  transactions: List<TransactionSummary?>?)
         : TransactionArrayAdapter(context, transactions, this@TransactionHistoryFragment, model.addressBook, false) {
         override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
             val rowView = super.getView(position, convertView, parent)
@@ -292,28 +290,6 @@ class TransactionHistoryFragment : Fragment() {
                 return rowView
             }
             val record = Preconditions.checkNotNull(getItem(position))
-            val otherFioName = rowView.findViewById<TextView>(R.id.otherFioName)
-            val fioIcon = rowView.findViewById<View>(R.id.fioIcon)
-            val tvFioMemo = rowView.findViewById<TextView>(R.id.tvFioMemo)
-            fioMetadataMap[record!!.idHex]?.let { fioObTransaction ->
-                if (record.isIncoming) {
-                    otherFioName.text = getString(R.string.transaction_from_address_prefix, fioObTransaction.fromFioName)
-                } else {
-                    otherFioName.text = getString(R.string.transaction_to_address_prefix, fioObTransaction.toFioName)
-                }
-                if (fioObTransaction.memo.isEmpty()) {
-                    tvFioMemo.visibility = View.GONE
-                } else {
-                    tvFioMemo.visibility = View.VISIBLE
-                    tvFioMemo.text = fioObTransaction.memo
-                }
-                otherFioName.visibility = View.VISIBLE
-                fioIcon.visibility = View.VISIBLE
-            } ?: run {
-                tvFioMemo.visibility = View.GONE
-                otherFioName.visibility = View.GONE
-                fioIcon.visibility = View.GONE
-            }
             rowView.setOnClickListener {
                 currentActionMode = (activity as AppCompatActivity?)?.startSupportActionMode(object : ActionMode.Callback {
                     override fun onCreateActionMode(actionMode: ActionMode, menu: Menu): Boolean {
@@ -344,7 +320,7 @@ class TransactionHistoryFragment : Fragment() {
                                 && record.confirmations == 0
                                 && model.account.value?.canSpend() == true
                         if (model.account.value is Bip44BCHAccount || model.account.value is SingleAddressBCHAccount
-                                || model.account.value is AbstractEthERC20Account || model.account.value is FioAccount) {
+                                || model.account.value is AbstractEthERC20Account || model.account.value is AbstractTronAccount) {
                             Preconditions.checkNotNull(menu.findItem(R.id.miCancelTransaction)).isVisible = false
                             Preconditions.checkNotNull(menu.findItem(R.id.miRebroadcastTransaction)).isVisible = false
                             Preconditions.checkNotNull(menu.findItem(R.id.miBumpFee)).isVisible = false
@@ -357,7 +333,7 @@ class TransactionHistoryFragment : Fragment() {
                             Preconditions.checkNotNull(menu.findItem(R.id.miDeleteUnconfirmedTransaction)).isVisible = record.confirmations == 0
                             Preconditions.checkNotNull(menu.findItem(R.id.miShare)).isVisible = true
                         }
-                        if (model.account.value is AbstractEthERC20Account) {
+                        if (model.account.value is AbstractEthERC20Account || model.account.value is AbstractTronAccount) {
                             Preconditions.checkNotNull(menu.findItem(R.id.miDeleteUnconfirmedTransaction)).isVisible = record.confirmations == 0
                         }
                         replaceItem.isVisible = isLiveEthPendingOutgoing
@@ -438,6 +414,10 @@ class TransactionHistoryFragment : Fragment() {
                                             finishActionMode()
                                         } else if (model.account.value is AbstractEthERC20Account) {
                                             (model.account.value as AbstractEthERC20Account).deleteTransaction("0x" + HexUtils.toHex(record.id))
+                                            dialog.dismiss()
+                                            finishActionMode()
+                                        } else if (model.account.value is AbstractTronAccount) {
+                                            (model.account.value as AbstractTronAccount).deleteTransaction(HexUtils.toHex(record.id))
                                             dialog.dismiss()
                                             finishActionMode()
                                         }
@@ -564,15 +544,18 @@ class TransactionHistoryFragment : Fragment() {
      * TODO: consider parallel attempts to PFP
      */
     private fun tryCreateBumpTransaction(txid: Sha256Hash, feePerKB: Long): UnsignedTransaction? {
-        val transaction = model.account.value!!.getTxSummary(txid.bytes) // TODO refactor: return if getTxSummary() returns null
-        val txFee = transaction!!.inputs.map { it.value.valueAsLong }.sum() -
-                transaction.outputs.map { it.value.valueAsLong }.sum()
-        if (txFee * 1000 / transaction.rawSize >= feePerKB) {
+        val account = model.account.value as AbstractBtcAccount
+        // Fee and size as the transaction and its parents vouch for them, not as the server reports
+        val (txFee, txSize) = account.getCpfpParentFeeAndVsize(txid) ?: run {
+            Toaster(requireActivity()).toast(resources.getString(R.string.unable_to_build_tx, ""), false)
+            return null
+        }
+        if (txFee * 1000 / txSize >= feePerKB) {
             Toaster(requireActivity()).toast(resources.getString(R.string.bumping_not_necessary), false)
             return null
         }
         try {
-            return (model.account.value as AbstractBtcAccount).createUnsignedCPFPTransaction(txid, feePerKB, txFee)
+            return account.createUnsignedCPFPTransaction(txid, feePerKB)
         } catch (e: InsufficientBtcException) {
             Toaster(requireActivity()).toast(R.string.insufficient_funds, false)
         } catch (e: UnableToBuildTransactionException) {

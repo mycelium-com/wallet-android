@@ -27,7 +27,7 @@ class ShamirBuilder {
         fromTop += 20
 
         val now = Date()
-        val usLocale = Locale("en_US")
+        val usLocale = Locale.US
         writer.addText(
             MARGIN_START, fromTop, 14,
             "Creation date: ${DateFormat.getDateInstance(DateFormat.LONG, usLocale).format(now)}"

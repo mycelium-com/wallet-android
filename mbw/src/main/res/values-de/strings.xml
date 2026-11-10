@@ -402,8 +402,6 @@
     <string name="gaps_button_ok">OK</string>
     <string name="gaps_button_ignore">Ignorieren</string>
     <string name="connection_logs">Protokolle</string>
-    <string name="no_logs">Keine Protokolle</string>
-    <string name="confirm_fio_link">Möchten Sie einen FIO-Namen für Ihr HD-Bitcoin-Konto %1$s registrieren?</string>
     <string name="media_flow_notification_title">"Mycelium Wallet / Medienflow"</string>
     <string name="there_are_no_bookmarks_yet">Es gibt noch keine Lesezeichen.</string>
     <string name="loading_media_flow_feed_please_wait">Medienflow-Feed wird geladen, bitte warten %s</string>
@@ -458,8 +456,6 @@
     <string name="max_available_cards_d">Maximal verfügbare Karten: %d Karten</string>
     <string name="exceed_card_value">Kartenwert überschritten</string>
     <string name="from_s_to_s">Von %s bis %s</string>
-    <string name="delete_received_fio_request">Erhaltene FIO-Anfrage löschen</string>
-    <string name="delete_received_fio_request_msg">Möchten Sie diese FIO-Anfrage wirklich löschen?</string>
     <string name="erc20_this_is_updated_fee"><![CDATA[Dies ist die aktualisierte Gebühr basierend auf dem eingestellten Gas Limit. Weitere Informationen finden Sie unter <u>Miner-Gebühren-Berechnung</u>.]]></string>
     <string name="input_data_helper">Hexadezimalformat (0–9, A-F)</string>
     <string name="connection_issues"><b>Verbindungsprobleme.</b> Bitte stellen Sie sicher, dass Sie online sind.</string>

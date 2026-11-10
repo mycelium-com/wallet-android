@@ -33,11 +33,11 @@ import com.mycelium.wallet.activity.AddAccountActivity
 import com.mycelium.wallet.activity.AddAdvancedAccountActivity
 import com.mycelium.wallet.activity.MessageSigningActivity
 import com.mycelium.wallet.activity.export.VerifyBackupActivity
-import com.mycelium.wallet.activity.fio.AboutFIOProtocolDialog
 import com.mycelium.wallet.activity.modern.adapter.AccountListAdapter
 import com.mycelium.wallet.activity.modern.helper.AccountsActionModeCallback
 import com.mycelium.wallet.activity.settings.boostGapLimitDialog
 import com.mycelium.wallet.activity.util.EnterAddressLabelUtil
+import com.mycelium.wallet.activity.util.toStringFriendlyWithUnit
 import com.mycelium.wallet.activity.util.toStringWithUnit
 import com.mycelium.wallet.activity.view.DividerItemDecoration
 import com.mycelium.wallet.databinding.FragmentAccountsBinding
@@ -87,9 +87,11 @@ import com.mycelium.wapi.wallet.erc20.getERC20Accounts
 import com.mycelium.wapi.wallet.eth.AbstractEthERC20Account
 import com.mycelium.wapi.wallet.eth.EthAccount
 import com.mycelium.wapi.wallet.eth.getEthAccounts
-import com.mycelium.wapi.wallet.fio.FioAccount
-import com.mycelium.wapi.wallet.fio.FioModule
-import com.mycelium.wapi.wallet.fio.getActiveSpendableFioAccounts
+import com.mycelium.wapi.wallet.trc20.TRC20Account
+import com.mycelium.wapi.wallet.trc20.getActiveTRC20Accounts
+import com.mycelium.wapi.wallet.trc20.getTRC20Accounts
+import com.mycelium.wapi.wallet.tron.AbstractTronAccount
+import com.mycelium.wapi.wallet.tron.TronAccount
 import com.mycelium.wapi.wallet.manager.Config
 import com.squareup.otto.Bus
 import com.squareup.otto.Subscribe
@@ -199,7 +201,7 @@ class AccountsFragment : Fragment() {
                 }
                 accountListAdapter!!.setFocusedAccountId(account.id)
                 updateIncludingMenus()
-                if (account !is ColuAccount && account !is ERC20Account &&
+                if (account !is ColuAccount && account !is ERC20Account && account !is TRC20Account &&
                     !data.getBooleanExtra(AddAccountActivity.IS_UPGRADE, false)
                 ) {
                     setLabelOnAccount(account, account.label, false)
@@ -398,6 +400,9 @@ class AccountsFragment : Fragment() {
                                     }
                                     walletManager!!.deleteAccount(accountToDelete.id)
                                     _storage!!.deleteAccountMetadata(accountToDelete.id)
+                                    // ETH/TRON accounts carry their tokens: delete them too, otherwise the
+                                    // orphaned ERC-20/TRC-20 contexts crash the wallet on the next start
+                                    deleteLinkedTokenAccounts(accountToDelete)
                                     _mbwManager!!.setSelectedAccount(
                                         _mbwManager!!.getWalletManager(false).getActiveSpendingAccounts().get(0).id
                                     )
@@ -422,6 +427,13 @@ class AccountsFragment : Fragment() {
                     } else if (accountToDelete is ERC20Account) {
                         val ethAccount = getLinkedEthAccount(accountToDelete)
                         ethAccount.updateEnabledTokens()
+                    } else if (accountToDelete is TronAccount) {
+                        for (walletAccount in getLinkedTRC20Accounts(accountToDelete)) {
+                            walletManager!!.deleteAccount(walletAccount.id)
+                            _storage!!.deleteAccountMetadata(walletAccount.id)
+                        }
+                    } else if (accountToDelete is TRC20Account) {
+                        accountToDelete.tronAcc.updateEnabledTokens()
                     } else {
                         //Check if this SingleAddress account is related with ColuAccount
                         val linkedColuAccount = Utils.getLinkedAccount(accountToDelete, walletManager!!.getAccounts())
@@ -467,12 +479,13 @@ class AccountsFragment : Fragment() {
                 keepAddrCheckbox.text = getString(R.string.delete_private_key_checkbox)
                 keepAddrCheckbox.isChecked = false
 
-                val balance = Preconditions.checkNotNull<Balance>(accountToDelete!!.accountBalance)
-                val valueString = getBalanceString(accountToDelete.coinType, balance)
+                // an archived account throws on balance access
+                val valueString = if (accountToDelete!!.isArchived) "?"
+                    else getBalanceString(accountToDelete.coinType, accountToDelete.accountBalance)
                 val deleteDialog2 = AlertDialog.Builder(requireActivity())
                     .setMessage(
                         Html.fromHtml(
-                            (getString(R.string.delete_pk_message, accountToDelete.label, valueString)
+                            (getString(R.string.delete_pk_message, TextUtils.htmlEncode(accountToDelete.label), valueString)
                                     + "<br/><br/>" +
                                     getString(R.string.confirm_delete_private_key_message))
                         )
@@ -616,12 +629,29 @@ class AccountsFragment : Fragment() {
         deleteDialog.setNegativeButton(R.string.button_cancel, null).show()
     }
 
+    /** Removes the ERC-20 / TRC-20 accounts that belong to an ETH / TRON account being deleted. */
+    private fun deleteLinkedTokenAccounts(accountToDelete: WalletAccount<*>) {
+        val tokens: List<WalletAccount<*>> = when (accountToDelete) {
+            is EthAccount -> getLinkedERC20Accounts(accountToDelete)
+            is TronAccount -> getLinkedTRC20Accounts(accountToDelete)
+            else -> emptyList()
+        }
+        for (token in tokens) {
+            walletManager!!.deleteAccount(token.id)
+            _storage!!.deleteAccountMetadata(token.id)
+        }
+    }
+
     private fun getLinkedAccounts(accountToDelete: WalletAccount<*>?): MutableList<WalletAccount<*>> {
         val linkedAccounts: MutableList<WalletAccount<*>> = ArrayList<WalletAccount<*>>()
         if (accountToDelete is EthAccount) {
             linkedAccounts.addAll(getLinkedERC20Accounts(accountToDelete))
         } else if (accountToDelete is ERC20Account) {
             linkedAccounts.add(getLinkedEthAccount(accountToDelete))
+        } else if (accountToDelete is TronAccount) {
+            linkedAccounts.addAll(getLinkedTRC20Accounts(accountToDelete))
+        } else if (accountToDelete is TRC20Account) {
+            linkedAccounts.add(accountToDelete.tronAcc)
         } else {
             if (getLinkedAccount(accountToDelete) != null) {
                 linkedAccounts.add(getLinkedAccount(accountToDelete)!!)
@@ -642,11 +672,20 @@ class AccountsFragment : Fragment() {
         return Utils.getLinkedAccounts(account, walletManager!!.getActiveERC20Accounts())
     }
 
+    private fun getLinkedTRC20Accounts(account: WalletAccount<*>?): MutableList<WalletAccount<*>> {
+        return Utils.getLinkedAccounts(account, walletManager!!.getTRC20Accounts())
+    }
+
+    private fun getActiveLinkedTRC20Accounts(account: WalletAccount<*>?): MutableList<WalletAccount<*>> {
+        return Utils.getLinkedAccounts(account, walletManager!!.getActiveTRC20Accounts())
+    }
+
     private fun createDeleteDialogText(
         accountToDelete: WalletAccount<*>,
         linkedAccounts: MutableList<WalletAccount<*>>
     ): String {
-        val accountName = _mbwManager!!.metadataStorage.getLabelByAccount(accountToDelete.id)
+        // the dialog text is rendered as HTML, the label is user input
+        val accountName = TextUtils.htmlEncode(_mbwManager!!.metadataStorage.getLabelByAccount(accountToDelete.id))
         val dialogText: String
 
         if (accountToDelete.isActive) {
@@ -665,7 +704,7 @@ class AccountsFragment : Fragment() {
         if (linkedAccounts.size > 1) {
             dialogText = getString(R.string.delete_archived_account_message_s, accountName)
         } else if (!linkedAccounts.isEmpty() && linkedAccounts.get(0).isVisible()) {
-            val linkedAccountName = _mbwManager!!.metadataStorage.getLabelByAccount(linkedAccounts.get(0).id)
+            val linkedAccountName = TextUtils.htmlEncode(_mbwManager!!.metadataStorage.getLabelByAccount(linkedAccounts.get(0).id))
             dialogText = getString(R.string.delete_archived_account_message, accountName, linkedAccountName)
         } else {
             dialogText = getString(R.string.delete_archived_account_message_s, accountName)
@@ -683,11 +722,11 @@ class AccountsFragment : Fragment() {
         val valueString = getBalanceString(accountToDelete.coinType, balance)
 
         // TODO sort linkedAccounts for visible only
-        if (linkedAccounts.size > 1 || accountToDelete is EthAccount && linkedAccounts.size > 0) {
+        if (linkedAccounts.size > 1 || (accountToDelete is EthAccount || accountToDelete is TronAccount) && linkedAccounts.size > 0) {
             val linkedAccountStrings: MutableList<String?> = ArrayList<String?>()
             for (linkedAccount in linkedAccounts) {
                 val linkedBalance = linkedAccount.accountBalance
-                val linkedAccountName = _mbwManager!!.metadataStorage.getLabelByAccount(linkedAccount.id)
+                val linkedAccountName = TextUtils.htmlEncode(_mbwManager!!.metadataStorage.getLabelByAccount(linkedAccount.id))
                 val linkedValueString = getBalanceString(linkedAccount.coinType, linkedBalance)
                 linkedAccountStrings.add("<b>" + linkedAccountName + "</b> holding <b>" + linkedValueString + "</b>")
             }
@@ -697,11 +736,11 @@ class AccountsFragment : Fragment() {
                 linkedAccountsString
             ) + "\n" + getString(R.string.both_eth_and_tokens_will_deleted, accountName)
         } else if (!linkedAccounts.isEmpty() && linkedAccounts.get(0)
-                .isVisible() && (accountToDelete !is ERC20Account)
+                .isVisible() && (accountToDelete !is ERC20Account) && (accountToDelete !is TRC20Account)
         ) {
             val linkedBalance = linkedAccounts.get(0).accountBalance
             val linkedValueString = getBalanceString(linkedAccounts.get(0).coinType, linkedBalance)
-            val linkedAccountName = _mbwManager!!.metadataStorage.getLabelByAccount(linkedAccounts.get(0).id)
+            val linkedAccountName = TextUtils.htmlEncode(_mbwManager!!.metadataStorage.getLabelByAccount(linkedAccounts.get(0).id))
             dialogText = getString(
                 R.string.delete_account_message, accountName, valueString,
                 linkedAccountName, linkedValueString
@@ -714,7 +753,7 @@ class AccountsFragment : Fragment() {
     }
 
     private fun getBalanceString(coinType: AssetInfo?, balance: Balance): String {
-        return balance.spendable.toStringWithUnit(_mbwManager!!.getDenomination(coinType))
+        return balance.spendable.toStringFriendlyWithUnit(_mbwManager!!.getDenomination(coinType))
     }
 
     /**
@@ -749,6 +788,10 @@ class AccountsFragment : Fragment() {
 
     private var currentActionMode: ActionMode? = null
 
+    // The account the current action mode was opened for. Menu actions must act on it even when the
+    // adapter's focus points elsewhere (e.g. at an account that was just deleted).
+    private var actionModeAccount: WalletAccount<out Address>? = null
+
     private val recordAddressClickListener: AccountListAdapter.ItemClickListener =
         object : AccountListAdapter.ItemClickListener {
             override fun onItemClick(account: WalletAccount<*>) {
@@ -762,7 +805,8 @@ class AccountsFragment : Fragment() {
         }
 
     private fun updateIncludingMenus() {
-        val account = requireFocusedAccount()
+        // the newly focused item, not the account of a still-open action mode
+        val account = accountListAdapter!!.focusedAccount ?: return
         val isBch = account is SingleAddressBCHAccount
                 || account is Bip44BCHAccount
 
@@ -771,23 +815,7 @@ class AccountsFragment : Fragment() {
             menus.add(R.menu.record_options_menu)
         }
 
-        val fioNames = (walletManager!!.getModuleById(FioModule.ID) as FioModule).getAllRegisteredFioNames()
-        if (account is FioAccount) {
-            if (account.canSpend()) {
-                menus.add(R.menu.record_options_menu_add_fio_name)
-            }
-            if (fioNames.isEmpty()) {
-                menus.add(R.menu.record_options_menu_about_fio_protocol)
-            } else {
-                menus.add(R.menu.record_options_menu_my_fio_names)
-                menus.add(R.menu.record_options_menu_about_fio_protocol)
-                menus.add(R.menu.record_options_menu_fio_requests)
-            }
-        }
-
-        if (account is SingleAddressAccount ||
-            (account.isDerivedFromInternalMasterseed() && account !is FioAccount)
-        ) {
+        if (account is SingleAddressAccount || account.isDerivedFromInternalMasterseed()) {
             menus.add(R.menu.record_options_menu_backup)
         }
 
@@ -813,7 +841,7 @@ class AccountsFragment : Fragment() {
             menus.add(R.menu.record_options_menu_active)
         }
 
-        if (account.isActive && !isBch && (account !is AbstractEthERC20Account) && (account !is FioAccount)) {
+        if (account.isActive && !isBch && (account !is AbstractEthERC20Account) && (account !is AbstractTronAccount)) {
             menus.add(R.menu.record_options_menu_outputs)
         }
 
@@ -827,17 +855,6 @@ class AccountsFragment : Fragment() {
 
         if (account is SingleAddressAccount && account.canSpend()) {
             menus.add(R.menu.record_options_menu_shamir)
-        }
-
-        val fioAccounts =
-            _mbwManager!!.getWalletManager(false).getActiveSpendableFioAccounts()
-        if ((account !is FioAccount) && !fioAccounts.isEmpty() && fioNames.isEmpty()) {
-            menus.add(R.menu.record_options_menu_add_fio_name)
-        }
-
-        if (account !is FioAccount && !fioNames.isEmpty()) {
-            menus.add(R.menu.record_options_menu_my_fio_names)
-            menus.add(R.menu.record_options_menu_fio_requests)
         }
 
         if (account.isActive && account is HDAccount && (account !is HDPubOnlyAccount) && walletManager!!.getActiveMasterseedHDAccounts().size > 1 && !isBch) {
@@ -858,6 +875,7 @@ class AccountsFragment : Fragment() {
 
         val parent = requireActivity() as AppCompatActivity
 
+        actionModeAccount = account
         currentActionMode = parent.startSupportActionMode(
             AccountsActionModeCallback(
                 requireContext(),
@@ -870,7 +888,6 @@ class AccountsFragment : Fragment() {
                 },
                 label@{ itemId: Int? ->
                     when (itemId) {
-                        R.id.miAboutFIOProtocol -> AboutFIOProtocolDialog().show(getParentFragmentManager(), "modal")
                         R.id.miActivate -> {
                             activateSelected()
                             return@label true
@@ -935,9 +952,9 @@ class AccountsFragment : Fragment() {
                 },
                 {
                     currentActionMode = null
-                    if (accountListAdapter!!.focusedAccount != null) {
-                        accountListAdapter!!.setFocusedAccountId(null)
-                    }
+                    actionModeAccount = null
+                    // also clear a focus that points at a deleted account, otherwise it stays stale
+                    accountListAdapter!!.setFocusedAccountId(null)
                     Unit
                 })
         )
@@ -1109,7 +1126,9 @@ class AccountsFragment : Fragment() {
         if (!isAdded) {
             return
         }
-        runPinProtected(Runnable { activate(requireFocusedAccount()) })
+        // resolve before the PIN dialog: the action mode (and its account) may be gone afterwards
+        val account = requireFocusedAccount()
+        runPinProtected(Runnable { activate(account) })
     }
 
     private fun activate(account: WalletAccount<*>) {
@@ -1123,6 +1142,14 @@ class AccountsFragment : Fragment() {
             val ethAccount = getLinkedEthAccount(account)
             if (ethAccount.isArchived) {
                 accountsToActivateAndSync.add(ethAccount)
+            }
+        } else if (account is TronAccount) {
+            for (walletAccount in getLinkedTRC20Accounts(account)) {
+                accountsToActivateAndSync.add(walletAccount)
+            }
+        } else if (account is TRC20Account) {
+            if (account.tronAcc.isArchived) {
+                accountsToActivateAndSync.add(account.tronAcc)
             }
         } else {
             val linkedAccount = Utils.getLinkedAccount(account, walletManager!!.getAccounts())
@@ -1168,7 +1195,7 @@ class AccountsFragment : Fragment() {
      */
     private fun accountProtected(toRemove: WalletAccount<*>): Boolean {
         // accounts not derived from master seed and ethereum account are not protected
-        if (!(toRemove.isDerivedFromInternalMasterseed() && toRemove is HDAccount) || toRemove is EthAccount) {
+        if (!(toRemove.isDerivedFromInternalMasterseed() && toRemove is HDAccount) || toRemove is EthAccount || toRemove is TronAccount) {
             return false
         }
         val accountsList = _mbwManager!!.getWalletManager(false).getActiveMasterseedAccounts()
@@ -1221,7 +1248,11 @@ class AccountsFragment : Fragment() {
             if (!getActiveLinkedERC20Accounts(account).isEmpty()) {
                 linkedAccounts.addAll(getActiveLinkedERC20Accounts(account))
             }
-        } else if (account !is ERC20Account) {
+        } else if (account is TronAccount) {
+            if (!getActiveLinkedTRC20Accounts(account).isEmpty()) {
+                linkedAccounts.addAll(getActiveLinkedTRC20Accounts(account))
+            }
+        } else if (account !is ERC20Account && account !is TRC20Account) {
             if (getLinkedAccount(account) != null) {
                 linkedAccounts.add(getLinkedAccount(account)!!)
             }
@@ -1241,7 +1272,11 @@ class AccountsFragment : Fragment() {
                     for (walletAccount in getLinkedERC20Accounts(account)) {
                         walletAccount.archiveAccount()
                     }
-                } else if (account !is ERC20Account) {
+                } else if (account is TronAccount) {
+                    for (walletAccount in getLinkedTRC20Accounts(account)) {
+                        walletAccount.archiveAccount()
+                    }
+                } else if (account !is ERC20Account && account !is TRC20Account) {
                     val linkedAccount = Utils.getLinkedAccount(account, walletManager!!.getAccounts())
                     linkedAccount?.archiveAccount()
                 }
@@ -1265,7 +1300,8 @@ class AccountsFragment : Fragment() {
         account: WalletAccount<*>,
         linkedAccounts: MutableList<WalletAccount<*>>
     ): String {
-        val accountName = _mbwManager!!.metadataStorage.getLabelByAccount(account.id)
+        // the dialog text is rendered as HTML, the label is user input
+        val accountName = TextUtils.htmlEncode(_mbwManager!!.metadataStorage.getLabelByAccount(account.id))
         return getAccountArchiveText(account, linkedAccounts, accountName)
     }
 
@@ -1279,11 +1315,11 @@ class AccountsFragment : Fragment() {
         val valueString = getBalanceString(account.coinType, balance)
 
         // TODO sort linkedAccounts for visible only
-        if (linkedAccounts.size > 1 || ((account is EthAccount) && linkedAccounts.size > 0)) {
+        if (linkedAccounts.size > 1 || ((account is EthAccount || account is TronAccount) && linkedAccounts.size > 0)) {
             val linkedAccountStrings: MutableList<String?> = ArrayList<String?>()
             for (linkedAccount in linkedAccounts) {
                 val linkedBalance = linkedAccount.accountBalance
-                val linkedAccountName = _mbwManager!!.metadataStorage.getLabelByAccount(linkedAccount.id)
+                val linkedAccountName = TextUtils.htmlEncode(_mbwManager!!.metadataStorage.getLabelByAccount(linkedAccount.id))
                 val linkedValueString = getBalanceString(linkedAccount.coinType, linkedBalance)
                 linkedAccountStrings.add("<b>" + linkedAccountName + "</b> holding <b>" + linkedValueString + "</b>")
             }
@@ -1293,7 +1329,7 @@ class AccountsFragment : Fragment() {
         } else if (!linkedAccounts.isEmpty() && linkedAccounts.get(0).isVisible()) {
             val linkedBalance = linkedAccounts.get(0).accountBalance
             val linkedValueString = getBalanceString(linkedAccounts.get(0).coinType, linkedBalance)
-            val linkedAccountName = _mbwManager!!.metadataStorage.getLabelByAccount(linkedAccounts.get(0).id)
+            val linkedAccountName = TextUtils.htmlEncode(_mbwManager!!.metadataStorage.getLabelByAccount(linkedAccounts.get(0).id))
             dialogText = getString(
                 R.string.question_archive_account_s, accountName, valueString,
                 linkedAccountName, linkedValueString
@@ -1334,7 +1370,8 @@ class AccountsFragment : Fragment() {
     }
 
     private fun requireFocusedAccount(): WalletAccount<out Address> =
-        accountListAdapter!!.focusedAccount!!
+        actionModeAccount?.takeIf { walletManager!!.getAccount(it.id) != null }
+            ?: accountListAdapter!!.focusedAccount!!
 
     @Subscribe
     fun addressChanged(event: ReceivingAddressChanged?) {

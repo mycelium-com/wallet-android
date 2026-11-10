@@ -9,6 +9,7 @@ import org.junit.Test
 
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
+import org.junit.Assert.assertNull
 
 class BitcoinUriTest {
     @Test
@@ -63,6 +64,16 @@ class BitcoinUriTest {
         testParse("bitcoin://mq7se9wy2egettFxPbmn99cK8v5AFq55Lx", TN,
                 BitcoinUri.from(AddressUtils.from(BitcoinTest, "mq7se9wy2egettFxPbmn99cK8v5AFq55Lx"),
                         null, null, null))
+    }
+
+    @Test
+    fun testUnknownRequiredParameterIsRejected() {
+        // BIP21: a URI with an unknown "req-" parameter must be considered invalid
+        assertNull(BitcoinUriParser(TN).parse("bitcoin:mq7se9wy2egettFxPbmn99cK8v5AFq55Lx?amount=0.11&req-foo=1"))
+        // unknown optional parameters are still ignored
+        testParse("bitcoin:mq7se9wy2egettFxPbmn99cK8v5AFq55Lx?amount=0.11&foo=1", TN,
+                BitcoinUri.from(AddressUtils.from(BitcoinTest, "mq7se9wy2egettFxPbmn99cK8v5AFq55Lx"),
+                        Value.valueOf(BitcoinMain, 11000000), null, null))
     }
 
     private fun testParse(url: String, np: NetworkParameters, expected: BitcoinUri) {

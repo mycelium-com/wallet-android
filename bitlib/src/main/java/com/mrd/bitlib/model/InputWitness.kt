@@ -16,6 +16,10 @@ class InputWitness(val pushCount: Int) : Serializable {
         stack[i] = value
     }
 
+    val stackSize: Int get() = stack.size
+
+    fun getStack(i: Int): ByteArray = stack[i]
+
     fun toByteWriter(writer: ByteWriter) {
         writer.putCompactInt(stack.size.toLong())
         stack.forEach { element ->

@@ -28,10 +28,12 @@ open class ERC20Backing(walletDB: WalletDB, private val generalBacking: Backing<
                           contractAddress: String,
                           unitExponent: Int,
                           symbol: String,
-                          ethAccountId: UUID ->
+                          ethAccountId: UUID,
+                          everFullySynced: Boolean ->
         ERC20AccountContext(uuid, currency, accountName, balance,
             { updateAccountContext(it.uuid, it) },
-                contractAddress, migrateSymbols(symbol), unitExponent, ethAccountId, archived, blockHeight, nonce)
+                contractAddress, migrateSymbols(symbol), unitExponent, ethAccountId, archived, blockHeight, nonce,
+                everFullySynced)
     }
 
     override fun loadAccountContexts() =
@@ -49,7 +51,7 @@ open class ERC20Backing(walletDB: WalletDB, private val generalBacking: Backing<
 
     override fun updateAccountContext(accountId: UUID, context: ERC20AccountContext) {
         generalBacking.updateAccountContext(accountId, context.accountContext())
-        erc20Queries.update(context.nonce, context.uuid)
+        erc20Queries.update(context.nonce, context.unitExponent, context.everFullySynced, context.uuid)
     }
 
     override fun deleteAccountContext(uuid: UUID) {

@@ -251,27 +251,10 @@ abstract class HdAccountSelectorActivity<AccountScanManager : AbstractAccountSca
         const val PASSPHRASE_FRAGMENT_TAG = "passphrase"
         const val COIN_TYPE: String = "coinType"
 
+        // Bitcoin is the only masterseed-derived chain that can be imported this way, so there is
+        // nothing left to choose between.
         fun Context.selectCoin(call: (CryptoCurrency) -> Unit) {
-            var selectedItem = 0
-            AlertDialog.Builder(this)
-                .setTitle(getString(R.string.choose_blockchain))
-                .setSingleChoiceItems(arrayOf("BTC", "FIO"), 0) { _: DialogInterface?, i: Int ->
-                    selectedItem = i
-                }
-                .setPositiveButton(this.getString(R.string.ok)) { _: DialogInterface?, _: Int ->
-                    call(
-                        if (selectedItem == 0) {
-                            Utils.getBtcCoinType()
-                        } else {
-                            Utils.getFIOCoinType()
-                        }
-                    )
-                }
-                .setNegativeButton(this.getString(R.string.cancel)) { dialog: DialogInterface?, _: Int ->
-                    dialog?.dismiss()
-                }
-                .setCancelable(false)
-                .show()
+            call(Utils.getBtcCoinType())
         }
     }
 }

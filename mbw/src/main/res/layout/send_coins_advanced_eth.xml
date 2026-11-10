@@ -33,7 +33,7 @@
             android:layout_marginEnd="32dp"
             android:singleLine="true"
             android:text="@string/replace_transaction"
-            android:textColor="@color/fio_white_alpha_0_6"
+            android:textColor="@color/white_alpha_0_6"
             android:textSize="14sp"
             android:visibility="@{viewModel.txItems.size() > 1 &amp;&amp; !(viewModel.account instanceof ERC20Account) ? View.VISIBLE : View.GONE}"
             app:layout_constraintLeft_toLeftOf="parent"
@@ -55,6 +55,7 @@
         <androidx.appcompat.widget.AppCompatSpinner
             android:id="@+id/spinner"
             selectedItem="@={viewModel.selectedTxItem}"
+            selectedTxPosition="@{viewModel.presetTxPosition}"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:textSize="14sp"
@@ -80,13 +81,14 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:text="@string/nonce"
-            android:textColor="@color/fio_white_alpha_0_6"
+            android:textColor="@color/white_alpha_0_6"
             android:textSize="14sp"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintTop_toBottomOf="@id/spinner" />
 
         <com.mycelium.wallet.activity.send.view.CustomEditText
             android:id="@+id/etNonce"
+            android:afterTextChanged="@{viewModel::onNonceTextChanged}"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
@@ -104,7 +106,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:text="@string/transaction_gas_limit"
-            android:textColor="@color/fio_white_alpha_0_6"
+            android:textColor="@color/white_alpha_0_6"
             android:textSize="14sp"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintTop_toBottomOf="@id/etNonce" />
@@ -125,6 +127,8 @@
 
         <com.mycelium.wallet.activity.send.view.CustomEditText
             android:id="@+id/etGasLimit"
+            android:afterTextChanged="@{viewModel::onGasLimitTextChanged}"
+            presetText="@{viewModel.autoGasLimitText}"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:inputType="number"
@@ -158,7 +162,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/gas_limit_warning"
-                android:textColor="@color/fio_yellow"
+                android:textColor="@color/warning_yellow"
                 android:textSize="14sp"
                 android:visibility="gone"
                 tools:visibility="visible" />
@@ -168,7 +172,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/gas_limit_error"
-                android:textColor="@color/fio_red"
+                android:textColor="@color/error_red"
                 android:textSize="14sp"
                 android:visibility="gone"
                 tools:visibility="visible" />
@@ -181,13 +185,15 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:text="Gas price (Gwei):"
-            android:textColor="@color/fio_white_alpha_0_6"
+            android:textColor="@color/white_alpha_0_6"
             android:textSize="14sp"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintTop_toBottomOf="@id/llGasLimitStatus" />
 
         <com.mycelium.wallet.activity.send.view.CustomEditText
             android:id="@+id/gasPrice"
+            android:afterTextChanged="@{viewModel::onGasPriceTextChanged}"
+            presetText="@{viewModel.presetGasPriceText}"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:inputType="numberDecimal"
@@ -204,7 +210,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:text="@string/transaction_input_data"
-            android:textColor="@color/fio_white_alpha_0_6"
+            android:textColor="@color/white_alpha_0_6"
             android:textSize="14sp"
             android:visibility="@{!(viewModel.account instanceof ERC20Account) ? View.VISIBLE : View.GONE}"
             app:layout_constraintLeft_toLeftOf="parent"
@@ -231,6 +237,8 @@
             android:minWidth="220dp"
             android:inputType="text"
             android:text="@={viewModel.inputData}"
+            android:afterTextChanged="@{viewModel::onInputDataTextChanged}"
+            android:error="@{viewModel.inputDataError}"
             android:textSize="14sp"
             android:imeOptions="actionDone"
             android:theme="@style/EditText.Theme"

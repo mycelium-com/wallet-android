@@ -64,6 +64,9 @@ class TabsAdapter(val activity: AppCompatActivity, val mbwManager: MbwManager) :
     fun getPageTag(position: Int): String =
         mTabs[position].tag
 
+    fun getPageTagOrNull(position: Int): String? =
+        mTabs.getOrNull(position)?.tag
+
     fun indexOf(tabTag: String): Int =
         mTabs.indexOfFirst { it.tag == tabTag }
 

@@ -101,6 +101,9 @@
     <string name="cancel_eth_tx_loading">Uppskattar avbrytningsavgift…</string>
     <string name="cancel_eth_tx_new_fee">Avbrytningsavgift</string>
     <string name="cancel_eth_tx_no_connection">Ingen serveranslutning. Försök igen senare.</string>
+    <string name="cancel_eth_tx_queue_blocked">En tidigare transaktion (nonce %1$s) har lägre avgift än den aktuella nätverksavgiften och kan inte minas. Transaktioner bekräftas i ordning, så denna avbrytning skulle vänta bakom den. Avbryt den tidigare först.</string>
+    <string name="cancel_eth_tx_cancel_blocking">Avbryt nonce %1$s först</string>
+    <string name="send_eth_stuck_queue_warning">Din tidigare transaktion (nonce %1$s) har lägre avgift än den aktuella nätverksavgiften och har fastnat. En ny sändning kommer att vänta bakom den. Avbryt den först i transaktionshistoriken.</string>
     <string name="cancel_eth_tx_old_fee">Ursprunglig avgift</string>
     <string name="cancel_eth_tx_recipient">Ursprunglig mottagare</string>
     <string name="cancel_eth_tx_success">Avbrytning sänd.</string>

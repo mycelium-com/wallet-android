@@ -30,6 +30,9 @@
     <string name="cancel_eth_tx_loading">Odhad poplatku za zrušenie…</string>
     <string name="cancel_eth_tx_new_fee">Poplatok za zrušenie</string>
     <string name="cancel_eth_tx_no_connection">Žiadne pripojenie k serveru. Skúste to neskôr.</string>
+    <string name="cancel_eth_tx_queue_blocked">Skoršia transakcia (nonce %1$s) má poplatok nižší ako aktuálny sieťový poplatok a nemôže byť vyťažená. Transakcie sa potvrdzujú v poradí, takže toto zrušenie by čakalo za ňou. Najprv zrušte skoršiu.</string>
+    <string name="cancel_eth_tx_cancel_blocking">Najprv zrušiť nonce %1$s</string>
+    <string name="send_eth_stuck_queue_warning">Vaša skoršia transakcia (nonce %1$s) má poplatok nižší ako aktuálny sieťový poplatok a uviazla. Nové odoslanie bude čakať za ňou. Najprv ju zrušte v histórii transakcií.</string>
     <string name="cancel_eth_tx_old_fee">Pôvodný poplatok</string>
     <string name="cancel_eth_tx_recipient">Pôvodný príjemca</string>
     <string name="cancel_eth_tx_success">Zrušenie odoslané.</string>

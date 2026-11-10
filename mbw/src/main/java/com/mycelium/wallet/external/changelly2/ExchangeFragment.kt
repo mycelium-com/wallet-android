@@ -42,6 +42,7 @@ import com.mycelium.wallet.databinding.FragmentChangelly2ExchangeBinding
 import com.mycelium.wallet.event.ExchangeRatesRefreshed
 import com.mycelium.wallet.event.ExchangeSourceChanged
 import com.mycelium.wallet.event.PageSelectedEvent
+import com.mycelium.wallet.event.AccountChanged
 import com.mycelium.wallet.event.SelectedAccountChanged
 import com.mycelium.wallet.event.SelectedCurrencyChanged
 import com.mycelium.wallet.event.TransactionBroadcasted
@@ -51,10 +52,17 @@ import com.mycelium.wallet.external.changelly2.remote.Changelly2Repository
 import com.mycelium.wallet.external.changelly2.remote.ViperStatusException
 import com.mycelium.wallet.external.changelly2.remote.ViperUnexpectedException
 import com.mycelium.wallet.external.changelly2.remote.importSymbol
+import com.mycelium.wallet.external.changelly2.remote.changellyTicker
+import com.mycelium.wallet.external.changelly2.remote.exchangeNetwork
+import com.mycelium.wapi.wallet.AesKeyCipher
+import com.mycelium.wapi.wallet.tron.TronFeeEstimator
+import com.mycelium.wapi.wallet.tron.TronTransaction
+import com.mycelium.wapi.wallet.tron.energy.EnergyServiceManager
+import com.mycelium.wapi.wallet.tron.energy.EnergyTransferResult
+import java.math.BigInteger
 import com.mycelium.wallet.external.changelly2.viewmodel.ExchangeViewModel
 import com.mycelium.wallet.external.partner.openLink
 import com.mycelium.wallet.startCoroutineTimer
-import com.mycelium.wapi.wallet.AesKeyCipher
 import com.mycelium.wapi.wallet.BroadcastResultType
 import com.mycelium.wapi.wallet.Transaction
 import com.mycelium.wapi.wallet.Util
@@ -64,6 +72,9 @@ import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.erc20.ERC20Account
 import com.mycelium.wapi.wallet.eth.EthAccount
 import com.mycelium.wapi.wallet.eth.EthAddress
+import com.mycelium.wapi.wallet.trc20.TRC20Account
+import com.mycelium.wapi.wallet.tron.TronAccount
+import com.mycelium.wapi.wallet.tron.TronAddress
 import com.mycelium.wapi.wallet.fiat.coins.FiatType
 import com.squareup.otto.Subscribe
 import kotlinx.coroutines.Dispatchers
@@ -73,6 +84,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import retrofit2.HttpException
 import java.math.BigDecimal
+import org.json.JSONObject
 import java.math.RoundingMode
 import java.util.concurrent.TimeUnit
 
@@ -242,15 +254,16 @@ class ExchangeFragment : Fragment(), BackListener {
             }
             errorListener = object : ValueKeyboard.ErrorListener {
                 override fun maxError(maxValue: BigDecimal) {
+                    // before the first quote exchangeInfo is null: use the keyboard's own limit, not "null"
                     viewModel.errorKeyboard.value = resources.getString(R.string.exchange_max_msg,
-                            viewModel.exchangeInfo.value?.maxFrom?.stripTrailingZeros()?.toPlainString(),
-                            viewModel.exchangeInfo.value?.from?.uppercase())
+                            (viewModel.exchangeInfo.value?.maxFrom ?: maxValue).stripTrailingZeros().toPlainString(),
+                            viewModel.fromDisplaySymbol())
                 }
 
                 override fun minError(minValue: BigDecimal) {
                     viewModel.errorKeyboard.value = resources.getString(R.string.exchange_min_msg,
-                            viewModel.exchangeInfo.value?.minFrom?.stripTrailingZeros()?.toPlainString(),
-                            viewModel.exchangeInfo.value?.from?.uppercase())
+                            (viewModel.exchangeInfo.value?.minFrom ?: minValue).stripTrailingZeros().toPlainString(),
+                            viewModel.fromDisplaySymbol())
                 }
 
                 override fun formatError() {
@@ -334,13 +347,15 @@ class ExchangeFragment : Fragment(), BackListener {
                 withContext(Dispatchers.Main) { loader(true) }
             }
             try {
+                val fromAddresses = withContext(Dispatchers.Default) { viewModel.fromAddresses() }
                 val response = Changelly2Repository.createFixTransaction(
                     viewModel.exchangeInfo.value?.id!!,
-                    Util.trimTestnetSymbolDecoration(viewModel.fromCurrency.value?.symbol!!),
-                    Util.trimTestnetSymbolDecoration(viewModel.toCurrency.value?.symbol!!),
+                    changellyTicker(viewModel.fromCurrency.value!!),
+                    changellyTicker(viewModel.toCurrency.value!!),
                     viewModel.sellValue.value!!,
                     viewModel.toAddress.value!!,
                     viewModel.fromAddress.value!!,
+                    fromAddresses,
                     changellyOnly,
                 )
                 val result = response.result
@@ -350,7 +365,14 @@ class ExchangeFragment : Fragment(), BackListener {
                             if (!Utils.isProdnet()) viewModel.fromAddress.value!!
                             else result.payinAddress!!
                         val amount = result.amountExpectedFrom.toPlainString()
-                        val unsignedTx = prepareTx(addressTo, amount)
+                        // Populate a fresh fee snapshot before building the
+                        // actual send, so an ETH/ERC-20 exchange signs type-2
+                        // instead of falling back to legacy on a stale cache.
+                        viewModel.refreshEthFeesForSend()
+                        // TRC20: bandwidth + energy for the real payin address, as on the Send screen
+                        val txData = if (viewModel.usesEnergyService()) null
+                                     else viewModel.trc20TxDataForSend(addressTo, amount)
+                        val unsignedTx = prepareTx(addressTo, amount, txData)
                         withContext(Dispatchers.Main) {
                             if (unsignedTx != null) {
                                 acceptDialog(unsignedTx, response) {
@@ -441,7 +463,7 @@ class ExchangeFragment : Fragment(), BackListener {
                     .setMessage(getString(R.string.exchange_accept_dialog_msg,
                             result.result?.amountExpectedFrom?.stripTrailingZeros()?.toPlainString(),
                             result.result?.currencyFrom?.uppercase(),
-                            unsignedTx?.totalFee()?.toStringWithUnit(),
+                            energyFeeOrTotalFee(unsignedTx),
                             result.result?.amountExpectedTo?.stripTrailingZeros()?.toPlainString(),
                             result.result?.currencyTo?.uppercase()))
                     .setPositiveButton(R.string.button_ok) { _, _ ->
@@ -455,21 +477,50 @@ class ExchangeFragment : Fragment(), BackListener {
         }
     }
 
-    private fun prepareTx(addressTo: String, amount: String): Transaction? =
+    private fun prepareTx(addressTo: String, amount: String,
+                          txData: com.mycelium.wapi.wallet.TransactionData? = null): Transaction? =
             viewModel.fromAccount.value?.let { account ->
+                if (account is TRC20Account && viewModel.usesEnergyService()) {
+                    // Fee is paid in the token through the energy service; the partner broadcasts.
+                    return@let account.createEnergyServiceTransferTx(TronAddress(Utils.getTronCoinType(), addressTo),
+                            account.coinType.value(amount),
+                            BigInteger.valueOf(TronFeeEstimator.MIN_TRC20_FEE_LIMIT),
+                            EnergyServiceManager.ENERGY_TX_EXPIRATION_MS)
+                }
                 val address = when (account) {
                     is EthAccount, is ERC20Account -> {
                         EthAddress(Utils.getEthCoinType(), addressTo)
+                    }
+                    is TronAccount, is TRC20Account -> {
+                        TronAddress(Utils.getTronCoinType(), addressTo)
                     }
                     is AbstractBtcAccount -> {
                         BtcAddress(Utils.getBtcCoinType(), BitcoinAddress.fromString(addressTo))
                     }
                     else -> TODO("Account not supported yet")
                 }
-                viewModel.prepateTx(address, amount)
+                viewModel.prepateTx(address, amount, txData)
             }
 
+    /** Fee shown in the confirmation: the token fee of the energy service, or the chain fee. */
+    private fun energyFeeOrTotalFee(unsignedTx: Transaction?): String? {
+        val account = viewModel.fromAccount.value
+        if (account is TRC20Account && viewModel.usesEnergyService()) {
+            val quote = viewModel.energyQuote.value
+            val manager = viewModel.mbwManager.energyServiceManager
+            if (quote != null && manager != null) {
+                return manager.feeInAccountUnits(account, quote).toStringWithUnit() + " (" + getString(R.string.tron_energy_service_title) + ")"
+            }
+        }
+        return unsignedTx?.totalFee()?.toStringWithUnit()
+    }
+
     private fun sendTx(txId: String, createTx: Transaction) {
+        val fromAccount = viewModel.fromAccount.value
+        if (fromAccount is TRC20Account && viewModel.usesEnergyService()) {
+            sendViaEnergyService(txId, fromAccount, createTx as TronTransaction)
+            return
+        }
         viewLifecycleOwner.lifecycleScope.launch(Dispatchers.Default) {
             val loaderJob = launch {
                 delay(1000)
@@ -488,25 +539,100 @@ class ExchangeFragment : Fragment(), BackListener {
         }
     }
 
+    /**
+     * Energy service settlement of the exchange deposit: fee (token) → partner, amount → Changelly
+     * payin address, both signed here and broadcast by the partner. Reports success through the
+     * same [TransactionBroadcasted] event the standard broadcast dialog posts.
+     */
+    private fun sendViaEnergyService(txId: String, account: TRC20Account, tx: TronTransaction) {
+        val manager = viewModel.mbwManager.energyServiceManager ?: return
+        val quote = viewModel.energyQuote.value ?: return
+        val recipient = TronAddress(Utils.getTronCoinType(), tx.toAddress)
+        val amount = tx.tokenValue ?: return
+        val progress = android.app.ProgressDialog(requireContext()).apply {
+            setCancelable(false)
+            setMessage(getString(R.string.energy_processing_signing))
+            show()
+        }
+        viewLifecycleOwner.lifecycleScope.launch {
+            val result = withContext(Dispatchers.IO) {
+                manager.execute(account, quote, recipient, amount, tx.feeLimit, AesKeyCipher.defaultKeyCipher()) { status ->
+                    activity?.runOnUiThread {
+                        progress.setMessage(when (status) {
+                            "submitting" -> getString(R.string.energy_processing_submitting)
+                            "energy_purchasing", "energy_purchased" -> getString(R.string.energy_processing_energy_purchasing)
+                            "broadcasting", "broadcast" -> getString(R.string.energy_processing_broadcasting)
+                            else -> getString(R.string.energy_processing_waiting)
+                        })
+                    }
+                }
+            }
+            progress.dismiss()
+            viewModel.mbwManager.tronFeeEstimator.invalidateCache(account.receivingAddress.addressString)
+            when (result) {
+                is EnergyTransferResult.Success -> {
+                    viewModel.changellyTx = txId
+                    MbwManager.getEventBus().post(TransactionBroadcasted(result.txHash))
+                }
+                is EnergyTransferResult.Pending -> showErrorNotificationDialog(getString(R.string.error_energy_order_still_processing))
+                is EnergyTransferResult.QuoteExpired -> showErrorNotificationDialog(getString(R.string.error_energy_quote_expired))
+                is EnergyTransferResult.InsufficientBalance -> showErrorNotificationDialog(getString(R.string.error_energy_service_insufficient_balance, account.coinType.symbol))
+                is EnergyTransferResult.Error -> showErrorNotificationDialog(getString(R.string.tron_energy_service_error, result.message))
+            }
+        }
+    }
+
     private var rateJob: Job? = null
 
-    private fun updateExchangeRate() {
+    /** Backend errors arrive as raw JSON bodies ({"error": "…"}, {"error": {"message": "…"}}, {"detail": "…"}); show only the text. */
+    private fun humanizeError(msg: String?): String {
+        if (msg.isNullOrBlank()) return ""
+        return humanizeErrorText(msg)
+                // the backend sometimes has no limit for a pair and prints "…minimum of null TRX"
+                .replace(Regex("\\s+of\\s+null(\\s+\\S+)?"), "")
+    }
+
+    private fun humanizeErrorText(msg: String): String {
+        return try {
+            val json = JSONObject(msg)
+            val err = json.opt("error")
+            when {
+                err is JSONObject -> err.optString("message", msg)
+                err is String && err.isNotBlank() -> err
+                json.has("detail") -> json.optString("detail", msg)
+                json.has("message") -> json.optString("message", msg)
+                else -> msg
+            }
+        } catch (_: Exception) {
+            msg
+        }
+    }
+
+    private fun isBelowMinimumError(msg: String?) = msg?.contains("minimum", ignoreCase = true) == true
+
+    private fun updateExchangeRate(attempt: Int = 0, amountOverride: BigDecimal? = null) {
         if (viewModel.fromCurrency.value?.symbol != null && viewModel.toCurrency.value?.symbol != null) {
             rateJob?.cancel()
             viewModel.rateLoading.value = true
-            val fromAmount = try {
-                viewModel.sellValue.value?.toBigDecimal()!!
+            val fromAmount = amountOverride ?: try {
+                // a zero amount would only get "below minimum" back: show the display rate as for an empty field
+                viewModel.sellValue.value?.toBigDecimal()?.takeIf { it.signum() > 0 }!!
             } catch (_: Exception) {
+                // nothing to validate without an amount: drop the error of the previous one, it would
+                // otherwise stay on screen for the seconds the display rate takes to arrive
+                if (amountOverride == null) viewModel.errorRemote.value = ""
                 viewModel.mbwManager.exchangeRateManager.get(
                     FiatType("USD").value("100"),
                     viewModel.fromCurrency.value
                 )?.valueAsBigDecimal ?: BigDecimal.ONE
             }
             rateJob = Changelly2Repository.getFixRateForAmount(lifecycleScope,
-                    Util.trimTestnetSymbolDecoration(viewModel.fromCurrency.value?.symbol!!),
-                    Util.trimTestnetSymbolDecoration(viewModel.toCurrency.value?.symbol!!),
-                fromAmount,
-                    { result ->
+                    changellyTicker(viewModel.fromCurrency.value!!),
+                    changellyTicker(viewModel.toCurrency.value!!),
+                    fromAmount,
+                    fromNetwork = exchangeNetwork(viewModel.fromCurrency.value!!),
+                    toNetwork = exchangeNetwork(viewModel.toCurrency.value!!),
+                    success = { result ->
                         val data = result?.result?.firstOrNull()
                         if (data != null) {
                             val info = viewModel.exchangeInfo.value
@@ -517,17 +643,24 @@ class ExchangeFragment : Fragment(), BackListener {
                             )
                             viewModel.errorRemote.value = ""
                         } else {
+                            val message = humanizeError(result?.error?.message)
+                            if (amountOverride == null || attempt < 3) {
+                                if (retryDisplayRate(attempt, fromAmount, message)) return@getFixRateForAmount
+                            }
                             viewModel.exchangeInfo.postValue(null)
-                            viewModel.errorRemote.value = result?.error?.message ?: ""
+                            viewModel.errorRemote.value = message
                         }
                     },
-                    { code, msg ->
+                    error = { code, msg ->
                         if (viewModel.mbwManager.getWalletManager(false).isNetworkConnected) {
-                            viewModel.exchangeInfo.postValue(null)
-                            viewModel.errorRemote.value = msg
+                            val message = humanizeError(msg)
+                            if (!retryDisplayRate(attempt, fromAmount, message)) {
+                                viewModel.exchangeInfo.postValue(null)
+                                viewModel.errorRemote.value = message
+                            }
                         }
                     },
-                    {
+                    finally = {
                         viewModel.rateLoading.value = false
                         refreshRateCounter()
                     })
@@ -558,25 +691,27 @@ class ExchangeFragment : Fragment(), BackListener {
                         viewModel.rateLoading.value = true
                         amountJob = Changelly2Repository.getFixRateForAmount(
                             lifecycleScope,
-                            Util.trimTestnetSymbolDecoration(viewModel.fromCurrency.value?.symbol!!),
-                            Util.trimTestnetSymbolDecoration(viewModel.toCurrency.value?.symbol!!),
+                            changellyTicker(viewModel.fromCurrency.value!!),
+                            changellyTicker(viewModel.toCurrency.value!!),
                             fromAmount,
-                            { result ->
+                            fromNetwork = exchangeNetwork(viewModel.fromCurrency.value!!),
+                            toNetwork = exchangeNetwork(viewModel.toCurrency.value!!),
+                            success = { result ->
                                 result?.result?.firstOrNull()?.let {
                                     viewModel.exchangeInfo.value = it
                                     viewModel.errorRemote.value = ""
                                 } ?: run {
                                     viewModel.exchangeInfo.postValue(null)
-                                    viewModel.errorRemote.value = result?.error?.message ?: ""
+                                    viewModel.errorRemote.value = humanizeError(result?.error?.message)
                                 }
                             },
-                            { code, msg ->
+                            error = { code, msg ->
                                 if (viewModel.mbwManager.getWalletManager(false).isNetworkConnected) {
                                     viewModel.exchangeInfo.postValue(null)
-                                    viewModel.errorRemote.value = msg
+                                    viewModel.errorRemote.value = humanizeError(msg)
                                 }
                             },
-                            {
+                            finally = {
                                 viewModel.rateLoading.value = false
                                 refreshRateCounter()
                             })
@@ -594,6 +729,20 @@ class ExchangeFragment : Fragment(), BackListener {
     }
 
     private var counterJob: Job? = null
+
+    /**
+     * The display rate is requested for a nominal amount (≈100 USD, or 1 unit when no fiat rate is
+     * known). For some coins that is below Changelly's minimum and the backend answers 400 — retry
+     * with a larger amount instead of showing "~ null" / a raw error. The user's own amount is
+     * still validated against minFrom of the successful quote.
+     */
+    private fun retryDisplayRate(attempt: Int, fromAmount: BigDecimal, message: String): Boolean {
+        // a zero amount is not an amount the user wants quoted: treat it like an empty field
+        val userTyped = try { viewModel.sellValue.value?.toBigDecimal()?.takeIf { it.signum() > 0 } != null } catch (_: Exception) { false }
+        if (userTyped || attempt >= 3 || !isBelowMinimumError(message)) return false
+        updateExchangeRate(attempt + 1, fromAmount.multiply(BigDecimal(100)))
+        return true
+    }
 
     private fun refreshRateCounter() {
         counterJob?.cancel()
@@ -638,11 +787,19 @@ class ExchangeFragment : Fragment(), BackListener {
 
     @Subscribe
     fun broadcastResult(result: TransactionBroadcasted) {
-        if (result.result.resultType == BroadcastResultType.SUCCESS && result.txid != null) {
+        // The bus carries every broadcast in the app (Send, rebroadcast from history, …):
+        // only the one started by this exchange has a pending changelly order id.
+        val txId = viewModel.changellyTx ?: return
+        viewModel.changellyTx = null
+        // UNKNOWN_OUTCOME: the deposit may well be on its way (BroadcastDialog already told the
+        // user to check the history). Book the order exactly like a sent one, so its status stays
+        // trackable and the form is reset — never invite the same exchange again as if nothing left.
+        val maybeSent = result.result.resultType == BroadcastResultType.SUCCESS
+                || result.result.resultType == BroadcastResultType.UNKNOWN_OUTCOME
+        if (maybeSent && result.txid != null) {
             val fromAccountId = viewModel.fromAccount.value?.id
             val toAccountId = viewModel.toAccount.value?.id
             val history = pref.getStringSet(KEY_HISTORY, null) ?: setOf()
-            val txId = viewModel.changellyTx
             val createTx = result.txid
             pref.edit {
                 putStringSet(KEY_HISTORY, history + txId)
@@ -674,21 +831,24 @@ class ExchangeFragment : Fragment(), BackListener {
     }
 
     @Subscribe
+    fun accountChanged(event: AccountChanged) {
+        // an account can be archived/deleted while it is selected here
+        viewModel.refreshAccounts()
+    }
+
+    @Subscribe
     fun exchangeRatesRefreshed(event: ExchangeRatesRefreshed) {
-        viewModel.fromAccount.value = viewModel.fromAccount.value
-        viewModel.toAccount.value = viewModel.toAccount.value
+        viewModel.refreshAccounts()
     }
 
     @Subscribe
     fun exchangeSourceChanged(event: ExchangeSourceChanged) {
-        viewModel.fromAccount.value = viewModel.fromAccount.value
-        viewModel.toAccount.value = viewModel.toAccount.value
+        viewModel.refreshAccounts()
     }
 
     @Subscribe
     fun onSelectedCurrencyChange(event: SelectedCurrencyChanged) {
-        viewModel.fromAccount.value = viewModel.fromAccount.value
-        viewModel.toAccount.value = viewModel.toAccount.value
+        viewModel.refreshAccounts()
     }
 
     @Subscribe

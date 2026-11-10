@@ -110,7 +110,15 @@ public class TransactionDetailsLabel extends BlockExplorerLabel {
                     null, null));
          }
       } else {
-         setHandler(MbwManager.getInstance(getContext())._blockExplorerManager.getBEMByCurrency(transaction.getType().getName()).getBlockExplorer());
+         // Token transactions (TRC20, and any other coin whose type is a runtime token object)
+         // carry the token as their type, and a token has no explorer of its own — its
+         // transactions live on the explorer of the chain the account is based on.
+         GlobalBlockExplorerManager explorers = MbwManager.getInstance(getContext())._blockExplorerManager;
+         BlockExplorerManager manager = explorers.getBEMByCurrency(transaction.getType().getName());
+         if (manager == null && account != null) {
+            manager = explorers.getBEMByCurrency(account.getBasedOnCoinType().getName());
+         }
+         setHandler(manager == null ? null : manager.getBlockExplorer());
       }
    }
 

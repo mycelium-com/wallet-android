@@ -1,5 +1,6 @@
 package com.mycelium.wallet.activity.send
 
+import com.mycelium.wallet.activity.util.displaySymbol
 import android.app.AlertDialog
 import android.app.Dialog
 import android.os.AsyncTask
@@ -19,6 +20,7 @@ import com.mycelium.wallet.event.TransactionBroadcasted
 import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.erc20.ERC20Account
 import com.mycelium.wapi.wallet.eth.EthAccount
+import com.mycelium.wapi.wallet.tron.AbstractTronAccount
 import com.mycelium.wapi.wallet.exceptions.TransactionBroadcastException
 import com.squareup.otto.Bus
 import java.util.*
@@ -108,7 +110,7 @@ class BroadcastDialog : DialogFragment() {
     }
 
     private fun returnResult(it: BroadcastResult) {
-        bus.post(TransactionBroadcasted(HexUtils.toHex(transaction.id)))
+        bus.post(TransactionBroadcasted(HexUtils.toHex(transaction.id), it))
         if (targetFragment is BroadcastResultListener) {
             (targetFragment as BroadcastResultListener).broadcastResult(it)
         } else if (activity is BroadcastResultListener) {
@@ -146,7 +148,7 @@ class BroadcastDialog : DialogFragment() {
                 Utils.showSimpleMessageDialog(activity, R.string.transaction_rejected_message) {
                     returnResult(broadcastResult)
                 }
-            BroadcastResultType.NO_SERVER_CONNECTION -> if (isCold || account is EthAccount || account is ERC20Account) {
+            BroadcastResultType.NO_SERVER_CONNECTION -> if (isCold || account is EthAccount || account is ERC20Account || account is AbstractTronAccount) {
                 // When doing cold storage spending we do not offer to queue the transaction
                 // We also do not offer to queue the transaction for eth accounts just yet
                 Utils.showSimpleMessageDialog(activity, R.string.transaction_not_sent) {
@@ -155,7 +157,7 @@ class BroadcastDialog : DialogFragment() {
             } else {
                 // Offer the user to queue the transaction
                 AlertDialog.Builder(activity)
-                        .setTitle(activity!!.getString(R.string.no_server_connection, ""))
+                        .setTitle(activity!!.getString(R.string.no_server_connection, account.coinType.displaySymbol))
                         .setMessage(R.string.queue_transaction_message)
                         .setPositiveButton(R.string.yes) { textId, listener ->
                             account.queueTransaction(transaction)
@@ -187,6 +189,10 @@ class BroadcastDialog : DialogFragment() {
                 }
             BroadcastResultType.REJECT_INVALID_TX_PARAMS -> // Transaction rejected, display message and exit
                 Utils.showSimpleMessageDialog(activity, getString(R.string.transaction_rejected_invalid_tx_params, broadcastResult.errorMessage)) {
+                    returnResult(broadcastResult)
+                }
+            BroadcastResultType.UNKNOWN_OUTCOME -> // Connection lost after sending: never claim it failed (double-send risk)
+                Utils.showSimpleMessageDialog(activity, R.string.transaction_broadcast_outcome_unknown) {
                     returnResult(broadcastResult)
                 }
             BroadcastResultType.SUCCESS -> {

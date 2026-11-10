@@ -35,6 +35,19 @@
 
     <queries>
         <package android:name="org.torproject.android" />
+        <!-- HandleUrlActivity / partner links use resolveActivity(); without these entries every browser is invisible on API 30+ -->
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="https" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="http" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.SENDTO" />
+            <data android:scheme="mailto" />
+        </intent>
     </queries>
 
     <application
@@ -44,11 +57,18 @@
         android:label="@string/app_name"
         android:networkSecurityConfig="@xml/network_security_config"
         android:supportsRtl="true"
+        android:enableOnBackInvokedCallback="false"
         android:theme="@style/MyceliumModern">
 
         <meta-data
             android:name="firebase_analytics_collection_deactivated"
-            android:value="true" /> <!-- file provider to enable secure intent sharing for encrypted backups -->
+            android:value="true" />
+        <!-- modularization-lib's exported MessageReceiver calls startForeground() without a
+             foregroundServiceType, so on targetSdk 34+ any app that starts it crashes our process.
+             MbwMessageReceiver ignores every message, so drop the service from the merged manifest. -->
+        <service
+            android:name="com.mycelium.modularizationtools.MessageReceiver"
+            tools:node="remove" /> <!-- file provider to enable secure intent sharing for encrypted backups -->
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.files"
@@ -58,8 +78,10 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/my_paths" />
         </provider> <!-- Service for Cloud Messaging -->
+        <!-- not exported (as in the Firebase docs): FCM delivers through its own exported receiver, and an
+             exported service let any app startForegroundService() it and crash our process -->
         <service android:name=".lt.notification.FcmListenerService"
-            android:exported="true">
+            android:exported="false">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
@@ -68,7 +90,10 @@
         <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" /> <!-- Startup -->
-        <activity
+        <!-- android:configChanges="uiMode" on every activity: the app has no night resources / DayNight theme,
+             so a system dark-mode switch only recreated the activity and silently dropped an open PIN dialog
+             together with its pending action (DEF-R5-P62-03; rotation is handled by PinDialog's orientation lock) -->
+        <activity android:configChanges="uiMode"
             android:name=".activity.StartupActivity"
             android:label="@string/app_short_name"
             android:exported="true"
@@ -149,7 +174,7 @@
                     android:scheme="http" />
             </intent-filter>
         </activity>
-        <activity
+        <activity android:configChanges="uiMode"
             android:name=".activity.modern.ModernMain"
             android:exported="true"
             android:windowSoftInputMode="adjustNothing"
@@ -159,120 +184,114 @@
                 <action android:name="action.changelly" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
-            <intent-filter android:label="Exchange">
-                <action android:name="android.intent.action.VIEW" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-
-                <data
-                    android:host="action.changelly"
-                    android:scheme="mycelium" />
-            </intent-filter>
+            <!-- mycelium://action.changelly is handled by StartupActivity's mycelium filter (PIN gate, then
+                 forwarded to ModernMain): a second VIEW filter here made Android show a chooser listing the app twice -->
         </activity>
-        <activity android:name=".activity.AboutActivity" />
-        <activity android:name=".activity.modern.GetFromAddressBookActivity" />
-        <activity
+        <activity android:configChanges="uiMode" android:name=".activity.AboutActivity" />
+        <activity android:configChanges="uiMode" android:name=".activity.modern.GetFromAddressBookActivity" />
+        <activity android:configChanges="uiMode"
             android:name=".activity.AddAccountActivity"
-            android:theme="@style/MyceliumFIO" />
-        <activity android:name=".activity.AddAdvancedAccountActivity" />
-        <activity android:name=".activity.ScanActivity" />
-        <activity
+            android:theme="@style/MyceliumDarkNoActionBar" />
+        <activity android:configChanges="uiMode" android:name=".activity.AddAdvancedAccountActivity" />
+        <activity android:configChanges="uiMode" android:name=".activity.ScanActivity" />
+        <activity android:configChanges="uiMode"
             android:name=".activity.CustomCaptureActivity"
             android:stateNotNeeded="true"
             android:theme="@style/Theme.AppCompat.NoActionBar"
             android:windowSoftInputMode="stateAlwaysHidden" />
-        <activity
+        <activity android:configChanges="uiMode"
             android:name=".activity.txdetails.TransactionDetailsActivity"
             android:theme="@style/MyceliumNoActionBarFullScreen" />
-        <activity
+        <activity android:configChanges="uiMode"
             android:name=".activity.settings.SettingsActivity"
             android:label="@string/settings"
             android:theme="@style/MyceliumSettings" />
-        <activity
+        <activity android:configChanges="uiMode"
             android:name=".activity.settings.SetLocalCurrencyActivity"
             android:theme="@style/MyceliumSettings" />
-        <activity
+        <activity android:configChanges="uiMode"
             android:name=".activity.export.ExportAsQrActivity"
             android:theme="@style/MyceliumNoActionBarFullScreen" />
-        <activity android:name=".activity.export.BackupToPdfActivity" />
-        <activity android:name=".activity.export.MrdDecryptDataActivity" />
-        <activity android:name=".activity.export.VerifyBackupActivity" />
-        <activity android:name=".activity.export.DecryptBip38PrivateKeyActivity" />
-        <activity android:name=".activity.send.GetSpendingRecordActivity" />
-        <activity android:name=".activity.modern.UnspentOutputsActivity" />
-        <activity android:name=".activity.send.InstantWalletActivity" />
-        <activity android:name=".activity.send.SendInitializationActivity" />
-        <activity android:name=".activity.send.ColdStorageSummaryActivity" />
-        <activity
+        <activity android:configChanges="uiMode" android:name=".activity.export.BackupToPdfActivity" />
+        <activity android:configChanges="uiMode" android:name=".activity.export.MrdDecryptDataActivity" />
+        <activity android:configChanges="uiMode" android:name=".activity.export.VerifyBackupActivity" />
+        <activity android:configChanges="uiMode" android:name=".activity.export.DecryptBip38PrivateKeyActivity" />
+        <activity android:configChanges="uiMode" android:name=".activity.send.GetSpendingRecordActivity" />
+        <activity android:configChanges="uiMode" android:name=".activity.modern.UnspentOutputsActivity" />
+        <activity android:configChanges="uiMode" android:name=".activity.send.InstantWalletActivity" />
+        <activity android:configChanges="uiMode" android:name=".activity.send.SendInitializationActivity" />
+        <activity android:configChanges="uiMode" android:name=".activity.send.ColdStorageSummaryActivity" />
+        <activity android:configChanges="uiMode"
             android:name=".activity.send.SendCoinsActivity"
-            android:theme="@style/MyceliumFIOMapping" />
-        <activity
+            android:launchMode="singleTop"
+            android:theme="@style/MyceliumDark" />
+        <activity android:configChanges="uiMode"
             android:name=".activity.send.ManualAddressEntry"
-            android:theme="@style/MyceliumFIOMapping" />
-        <activity android:name=".activity.send.SignTransactionActivity" />
-        <activity
+            android:theme="@style/MyceliumDark" />
+        <activity android:configChanges="uiMode" android:name=".activity.send.SignTransactionActivity" />
+        <activity android:configChanges="uiMode"
             android:name=".activity.receive.ReceiveCoinsActivity"
-            android:theme="@style/MyceliumFIOMapping" />
-        <activity android:name=".simplex.SimplexMainActivity" />
-        <activity
+            android:launchMode="singleTop"
+            android:theme="@style/MyceliumDark" />
+        <activity android:configChanges="uiMode" android:name=".simplex.SimplexMainActivity" />
+        <activity android:configChanges="uiMode"
             android:name=".lt.activity.LtMainActivity"
             android:launchMode="singleInstance" />
-        <activity android:name=".lt.activity.CreateTrader1Activity" />
-        <activity android:name=".lt.activity.CreateTrader2Activity" />
-        <activity android:name=".lt.activity.CreateTrader3Activity" />
-        <activity android:name=".lt.activity.SolveCaptchaActivity" />
-        <activity
+        <activity android:configChanges="uiMode" android:name=".lt.activity.CreateTrader1Activity" />
+        <activity android:configChanges="uiMode" android:name=".lt.activity.CreateTrader2Activity" />
+        <activity android:configChanges="uiMode" android:name=".lt.activity.CreateTrader3Activity" />
+        <activity android:configChanges="uiMode" android:name=".lt.activity.SolveCaptchaActivity" />
+        <activity android:configChanges="uiMode"
             android:name=".lt.activity.TradeActivity"
             android:windowSoftInputMode="stateHidden|adjustPan"
             android:launchMode="singleInstance" />
-        <activity android:name=".lt.activity.ChangeLocationActivity" />
-        <activity
+        <activity android:configChanges="uiMode" android:name=".lt.activity.ChangeLocationActivity" />
+        <activity android:configChanges="uiMode"
             android:name=".lt.activity.EnterLocationActivity"
             android:windowSoftInputMode="stateVisible" />
-        <activity android:name=".lt.activity.ChangePriceActivity" />
-        <activity android:name=".lt.activity.RefreshPriceActivity" />
-        <activity android:name=".lt.activity.EnterFiatAmountActivity" />
-        <activity android:name=".lt.activity.ViewTraderInfoActivity" />
-        <activity android:name=".lt.activity.buy.CreateTradeActivity" />
-        <activity android:name=".lt.activity.buy.SetTradeAddress" />
-        <activity android:name=".lt.activity.sell.CreateOrEditAdActivity" />
-        <activity android:name=".lt.activity.SendRequestActivity" />
-        <activity android:name=".activity.UpdateNotificationActivity" />
-        <activity
+        <activity android:configChanges="uiMode" android:name=".lt.activity.ChangePriceActivity" />
+        <activity android:configChanges="uiMode" android:name=".lt.activity.RefreshPriceActivity" />
+        <activity android:configChanges="uiMode" android:name=".lt.activity.EnterFiatAmountActivity" />
+        <activity android:configChanges="uiMode" android:name=".lt.activity.ViewTraderInfoActivity" />
+        <activity android:configChanges="uiMode" android:name=".lt.activity.buy.CreateTradeActivity" />
+        <activity android:configChanges="uiMode" android:name=".lt.activity.buy.SetTradeAddress" />
+        <activity android:configChanges="uiMode" android:name=".lt.activity.sell.CreateOrEditAdActivity" />
+        <activity android:configChanges="uiMode" android:name=".lt.activity.SendRequestActivity" />
+        <activity android:configChanges="uiMode" android:name=".activity.UpdateNotificationActivity" />
+        <activity android:configChanges="uiMode"
             android:name=".activity.RestartPopupActivity"
             android:theme="@style/MyceliumModern.Dialog.Transparent" />
-        <activity android:name=".activity.PinProtectedActivity" />
-        <activity android:name=".activity.MessageSigningActivity" />
-        <activity android:name=".activity.EnterWordListActivity" />
-        <activity android:name=".activity.BackupWordListActivity" />
-        <activity android:name=".activity.VerifyWordListActivity" />
-        <activity android:name=".activity.AdditionalBackupWarningActivity" />
-        <activity android:name=".activity.modern.HDSigningActivity" />
-        <activity android:name=".activity.BipSsImportActivity" />
-        <activity android:name=".activity.CreateKeyActivity" />
-        <activity android:name=".activity.HandleUrlActivity" />
-        <activity android:name=".extsig.trezor.activity.InstantTrezorActivity" />
-        <activity android:name=".extsig.trezor.activity.TrezorAccountImportActivity" />
-        <activity android:name=".extsig.trezor.activity.TrezorSignTransactionActivity" />
-        <activity android:name=".extsig.keepkey.activity.InstantKeepKeyActivity" />
-        <activity android:name=".extsig.keepkey.activity.KeepKeyAccountImportActivity" />
-        <activity android:name=".extsig.keepkey.activity.KeepKeySignTransactionActivity" />
-        <activity android:name=".extsig.ledger.activity.LedgerAccountImportActivity" />
-        <activity android:name=".extsig.ledger.activity.LedgerSignTransactionActivity" />
-        <activity android:name=".activity.InstantMasterseedActivity" />
-        <activity android:name=".activity.ConnectionLogsActivity" />
-        <activity
+        <activity android:configChanges="uiMode" android:name=".activity.PinProtectedActivity" />
+        <activity android:configChanges="uiMode" android:name=".activity.MessageSigningActivity" />
+        <activity android:configChanges="uiMode" android:name=".activity.EnterWordListActivity" />
+        <activity android:configChanges="uiMode" android:name=".activity.BackupWordListActivity" />
+        <activity android:configChanges="uiMode" android:name=".activity.VerifyWordListActivity" />
+        <activity android:configChanges="uiMode" android:name=".activity.AdditionalBackupWarningActivity" />
+        <activity android:configChanges="uiMode" android:name=".activity.modern.HDSigningActivity" />
+        <activity android:configChanges="uiMode" android:name=".activity.BipSsImportActivity" />
+        <activity android:configChanges="uiMode" android:name=".activity.CreateKeyActivity" />
+        <activity android:configChanges="uiMode" android:name=".activity.HandleUrlActivity" />
+        <activity android:configChanges="uiMode" android:name=".extsig.trezor.activity.InstantTrezorActivity" />
+        <activity android:configChanges="uiMode" android:name=".extsig.trezor.activity.TrezorAccountImportActivity" />
+        <activity android:configChanges="uiMode" android:name=".extsig.trezor.activity.TrezorSignTransactionActivity" />
+        <activity android:configChanges="uiMode" android:name=".extsig.keepkey.activity.InstantKeepKeyActivity" />
+        <activity android:configChanges="uiMode" android:name=".extsig.keepkey.activity.KeepKeyAccountImportActivity" />
+        <activity android:configChanges="uiMode" android:name=".extsig.keepkey.activity.KeepKeySignTransactionActivity" />
+        <activity android:configChanges="uiMode" android:name=".extsig.ledger.activity.LedgerAccountImportActivity" />
+        <activity android:configChanges="uiMode" android:name=".extsig.ledger.activity.LedgerSignTransactionActivity" />
+        <activity android:configChanges="uiMode" android:name=".activity.InstantMasterseedActivity" />
+        <activity android:configChanges="uiMode" android:name=".activity.ConnectionLogsActivity" />
+        <activity android:configChanges="uiMode"
             android:name=".activity.GetAmountActivity"
-            android:theme="@style/MyceliumFIOMapping" />
-        <activity android:name=".activity.StringHandlerActivity" />
-        <activity android:name=".activity.send.VerifyPaymentRequestActivity" />
-        <activity
+            android:theme="@style/MyceliumDark" />
+        <activity android:configChanges="uiMode" android:name=".activity.StringHandlerActivity" />
+        <activity android:configChanges="uiMode" android:name=".activity.send.VerifyPaymentRequestActivity" />
+        <activity android:configChanges="uiMode"
             android:name=".bitid.BitIDAuthenticationActivity"
             android:label="@string/title_activity_bit_idauthentication" />
-        <activity android:name=".activity.pop.PopActivity" />
-        <activity android:name=".activity.pop.PopSelectTransactionActivity" />
-        <activity
+        <activity android:configChanges="uiMode" android:name=".activity.pop.PopActivity" />
+        <activity android:configChanges="uiMode" android:name=".activity.pop.PopSelectTransactionActivity" />
+        <activity android:configChanges="uiMode"
             android:name=".external.BuySellSelectActivity"
             android:exported="false">
             <intent-filter android:label="Market">
@@ -280,130 +299,61 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-        <activity android:name=".external.BuySellSelectCountryActivity"/>
-        <activity android:name=".external.BuySellBankCardActivity"/>
-        <activity android:name=".activity.MessageVerifyActivity" />
-        <activity
+        <activity android:configChanges="uiMode" android:name=".external.BuySellSelectCountryActivity"/>
+        <activity android:configChanges="uiMode" android:name=".external.BuySellBankCardActivity"/>
+        <activity android:configChanges="uiMode" android:name=".activity.MessageVerifyActivity" />
+        <activity android:configChanges="uiMode"
             android:name=".activity.settings.SetSegwitChangeActivity"
             android:theme="@style/MyceliumSettings" />
-        <activity
+        <activity android:configChanges="uiMode"
             android:name=".activity.news.NewsActivity"
             android:theme="@style/MyceliumNews">
             <meta-data
                 android:name="android.app.default_searchable"
                 android:value=".activity.news.NewsSearchableActivity" />
         </activity>
-        <activity android:name=".activity.news.NewsImageActivity" />
-        <activity android:name=".activity.export.ExportFioKeyActivity" />
-        <activity
-            android:name=".activity.fio.registername.RegisterFioNameActivity"
-            android:theme="@style/MyceliumFIOMapping"
-            android:windowSoftInputMode="adjustResize" />
-        <activity
-            android:name=".activity.fio.registerdomain.RegisterFIODomainActivity"
-            android:theme="@style/MyceliumFIOMapping"
-            android:windowSoftInputMode="adjustResize" />
-        <activity
-            android:name=".activity.fio.mapaccount.AccountMappingActivity"
-            android:theme="@style/MyceliumFIOMapping" />
-        <activity
-            android:name=".activity.fio.requests.FioRequestCreateActivity"
-            android:theme="@style/MyceliumFIOMapping"
-            android:windowSoftInputMode="adjustResize" />
-        <activity
-            android:name=".activity.fio.requests.ApproveFioRequestActivity"
-            android:theme="@style/MyceliumFIOMapping" />
-        <activity
-            android:name=".activity.fio.requests.ApproveFioRequestSuccessActivity"
-            android:theme="@style/MyceliumFIOMapping" />
-        <activity
-            android:name=".activity.fio.requests.SentFioRequestStatusActivity"
-            android:theme="@style/MyceliumFIOMapping" />
-
-        <service android:name=".fio.FioRequestService" />
-
-        <activity android:name="com.mycelium.bequant.intro.BequantIntroActivity" />
-        <activity
+        <activity android:configChanges="uiMode" android:name=".activity.news.NewsImageActivity" />
+        <activity android:configChanges="uiMode"
+            android:name=".activity.deprecated.DeprecatedAccountsActivity"
+            android:theme="@style/MyceliumDark" />
+        <activity android:configChanges="uiMode" android:name="com.mycelium.bequant.intro.BequantIntroActivity" />
+        <activity android:configChanges="uiMode"
             android:name="com.mycelium.bequant.market.BequantMarketActivity"
             android:theme="@style/Bequant"
             android:windowSoftInputMode="stateHidden|adjustResize" />
-        <activity
+        <activity android:configChanges="uiMode"
             android:name="com.mycelium.bequant.kyc.BequantKycActivity"
             android:theme="@style/Bequant" />
-        <activity
+        <activity android:configChanges="uiMode"
             android:name="com.mycelium.bequant.exchange.SelectCoinActivity"
             android:theme="@style/BequantSign"
             android:windowSoftInputMode="stateHidden" />
-        <activity android:name=".activity.export.ShamirSharingActivity"
+        <activity android:configChanges="uiMode" android:name=".activity.export.ShamirSharingActivity"
             android:label="@string/shamir_secret_sharing"/>
-        <activity
+        <!-- Bequant is disabled: no reg.bequant.io deep links, not reachable from outside -->
+        <activity android:configChanges="uiMode"
             android:name="com.mycelium.bequant.sign.SignActivity"
             android:launchMode="singleInstance"
-            android:exported="true"
+            android:exported="false"
             android:theme="@style/BequantSign">
-            <intent-filter
-                android:autoVerify="true"
-                android:label="Email confirmation">
-                <action android:name="android.intent.action.VIEW" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-
-                <data
-                    android:host="reg.bequant.io"
-                    android:pathPrefix="/account/email/confirm"
-                    android:scheme="https" />
-            </intent-filter>
-            <intent-filter
-                android:autoVerify="true"
-                android:label="Password reset confirmation">
-                <action android:name="android.intent.action.VIEW" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-
-                <data
-                    android:host="reg.bequant.io"
-                    android:pathPrefix="/account/password/set"
-                    android:scheme="https" />
-            </intent-filter>
         </activity>
-        <activity
+        <!-- Bequant is disabled: no reg.bequant.io deep links, not reachable from outside -->
+        <activity android:configChanges="uiMode"
             android:name="com.mycelium.bequant.signup.TwoFactorActivity"
             android:launchMode="singleInstance"
-            android:exported="true"
+            android:exported="false"
             android:theme="@style/BequantSign">
-            <intent-filter android:label="deeplink_to_totp_confirm">
-                <action android:name="android.intent.action.VIEW" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-
-                <data
-                    android:host="reg.bequant.io"
-                    android:pathPrefix="/account/totp/confirm"
-                    android:scheme="https" />
-            </intent-filter>
         </activity>
-        <activity android:name="com.mycelium.giftbox.GiftBoxRootActivity"
+        <activity android:configChanges="uiMode" android:name="com.mycelium.giftbox.GiftBoxRootActivity"
             android:exported="true">
             <intent-filter android:label="GiftBox">
                 <action android:name="action.GIFTBOX" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
-            <intent-filter android:label="GiftBox">
-                <action android:name="android.intent.action.VIEW" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-
-                <data
-                    android:host="action.giftbox"
-                    android:scheme="mycelium" />
-            </intent-filter>
+            <!-- mycelium://action.giftbox is handled by StartupActivity (single handler, no chooser) -->
         </activity>
-        <activity android:name=".activity.ActionActivity" />
-        <activity
+        <activity android:configChanges="uiMode" android:name=".activity.ActionActivity" />
+        <activity android:configChanges="uiMode"
             android:name=".activity.supportchat.SupportChatActivity"
             android:theme="@style/MyceliumModern.NoActionBar"
             android:windowSoftInputMode="adjustResize" />

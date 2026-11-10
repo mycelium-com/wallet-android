@@ -69,6 +69,7 @@ import java.util.logging.Logger
 import kotlin.IllegalStateException
 import kotlin.math.abs
 import kotlin.math.max
+import kotlin.math.min
 
 abstract class AbstractBtcAccount protected constructor(backing: BtcAccountBacking, protected val _network: NetworkParameters, wapi: Wapi) :
     SynchronizeAbleWalletBtcAccount(), AddressContainer, PrivateKeyProvider {
@@ -93,6 +94,9 @@ abstract class AbstractBtcAccount protected constructor(backing: BtcAccountBacki
 
     @Throws(BuildTransactionException::class, InsufficientFundsException::class, OutputTooSmallException::class)
     override fun createTx(address: Address, amount: Value, fee: Fee, data: TransactionData?): Transaction {
+        if (address !is BtcAddress) {
+            throw BuildTransactionException(Throwable("Not a Bitcoin address"))
+        }
         return try {
             val btcFee = fee as FeePerKbFee
             val btcTransaction =
@@ -116,6 +120,9 @@ abstract class AbstractBtcAccount protected constructor(backing: BtcAccountBacki
         fee: Fee,
         data: TransactionData?
     ): Transaction {
+        if (outputs.any { it.first !is BtcAddress }) {
+            throw BuildTransactionException(Throwable("Not a Bitcoin address"))
+        }
         return try {
             val btcFee = fee as FeePerKbFee
             val btcTransaction = BtcTransaction(coinType, outputs.map { it.first as BtcAddress to it.second }, btcFee.feePerKb)
@@ -386,10 +393,14 @@ abstract class AbstractBtcAccount protected constructor(backing: BtcAccountBacki
                 for (output in unspentOutputsToAddOrUpdate) {
                     // check if the output really belongs to one of our addresses
                     // prevent getting out local cache into a undefined state, if the server screws up
-                    if (isMine(output)) {
-                        accountBacking.putUnspentOutput(output)
-                    } else {
+                    if (!isMine(output)) {
                         _logger.log(Level.SEVERE, "We got an UTXO that does not belong to us: $output")
+                    } else if (storedTransactionVouchesFor(output.outPoint, output.value, output.script) != true) {
+                        // Its transaction was dropped as forged, or says another value: a coin
+                        // that is not on chain, or one whose fee we would misjudge
+                        _logger.log(Level.WARNING, "UTXO ${output.outPoint} is not backed by its transaction, dropped")
+                    } else {
+                        accountBacking.putUnspentOutput(output)
                     }
                 }
                 accountBacking.setTransactionSuccessful()
@@ -435,28 +446,58 @@ abstract class AbstractBtcAccount protected constructor(backing: BtcAccountBacki
     @Throws(WapiException::class)
     private suspend fun handleNewExternalTransactionsInt(transactions: Collection<TransactionEx>, allKnown: Boolean) {
         // Transform and put into two arrays with matching indexes
-        val txArray: MutableList<BitcoinTransaction> = ArrayList(transactions.size)
-        for (tex in transactions) {
-            try {
-                txArray.add(BitcoinTransaction.fromByteReader(ByteReader(tex.binary)))
+        val parsed = transactions.mapNotNull { tex ->
+            val t = try {
+                BitcoinTransaction.fromByteReader(ByteReader(tex.binary))
             } catch (e: TransactionParsingException) {
                 // We hit a transaction that we cannot parse. Log but otherwise ignore it
                 _logger.log(Level.SEVERE, "Received transaction that we cannot parse: " + tex.txid.toString())
+                return@mapNotNull null
             }
+            // The server names the txid; the bytes must hash to it, or they are some other transaction
+            if (t.id != tex.txid) {
+                _logger.log(Level.WARNING, "Server sent transaction ${t.id} as ${tex.txid}, dropped")
+                return@mapNotNull null
+            }
+            tex to t
         }
 
         // Grab and handle parent transactions
-        fetchStoreAndValidateParentOutputs(txArray, this is SingleAddressAccount)
+        fetchStoreAndValidateParentOutputs(parsed.map { it.second }, this is SingleAddressAccount)
+
+        // Nothing on chain vouches for an unconfirmed transaction: one spending our coins is ours
+        // only if our keys signed it. A server-invented one would show as our pending send.
+        val accepted = parsed.filter { (tex, t) ->
+            (tex.height > 0 || hasValidSignaturesOnOurInputs(t)).also {
+                if (!it) _logger.log(Level.WARNING, "Unconfirmed transaction ${t.id} spends our coins without our signature, dropped")
+            }
+        }
 
         // Store transaction locally
         if (!allKnown) {
-            accountBacking.putTransactions(transactions)
+            accountBacking.putTransactions(accepted.map { it.first })
             syncTotalRetrievedTransactions += transactions.size
         }
-        for (t in txArray) {
+        for ((_, t) in accepted) {
             onNewTransaction(t)
         }
     }
+
+    private fun hasValidSignaturesOnOurInputs(t: BitcoinTransaction): Boolean {
+        val spent = { outPoint: OutPoint ->
+            accountBacking.getParentTransactionOutput(outPoint)?.let {
+                UnspentTransactionOutput(it.outPoint, it.height, it.value, ScriptOutput.fromScriptBytes(it.script))
+            }
+        }
+        return t.inputs.indices.all { i ->
+            val funding = spent(t.inputs[i].outPoint)
+            funding == null || !isMine(funding.script) || TransactionSignatureVerifier.verifyInput(t, i, spent)
+        }
+    }
+
+    /** The bytes hash to the txid the server filed them under. */
+    private fun TransactionEx.hasMatchingId(): Boolean =
+        TransactionEx.toTransaction(this)?.id == txid
 
     @Throws(WapiException::class)
     suspend fun fetchStoreAndValidateParentOutputs(transactions: List<BitcoinTransaction>, doRemoteFetching: Boolean) {
@@ -509,14 +550,12 @@ abstract class AbstractBtcAccount protected constructor(backing: BtcAccountBacki
                 // doesn't match.
                 // This is the end users protection against a rogue server that lies
                 // about the value of an output and makes you pay a large fee.
-                val hash = HashUtils.doubleSha256(tx.binary).reverse()
-                if (hash == tx.hash) {
+                // The server's own "hash" field proves nothing, and for SegWit it is the wtxid:
+                // the txid we asked for has to come out of the bytes.
+                if (tx.txid in toFetch && tx.hasMatchingId()) {
                     parentTransactions[tx.txid] = tx
                 } else {
-                    //TODO: Document what's happening here.
-                    //Question: Crash and burn? Really? How about user feedback? Here, wapi returned a transaction that doesn't hash to the txid it is supposed to txhash to, right?
-                    throw RuntimeException("Failed to validate transaction hash from server. Expected: " + tx.txid
-                                                   + " Calculated: " + hash)
+                    _logger.log(Level.WARNING, "Server sent parent transaction that does not hash to ${tx.txid}, dropped")
                 }
             }
         }
@@ -692,7 +731,8 @@ abstract class AbstractBtcAccount protected constructor(backing: BtcAccountBacki
         return true
     }
 
-    override fun getTransaction(txid: Sha256Hash): TransactionEx =
+    // null when the transaction is not stored for this account (e.g. the parent of a received payment)
+    override fun getTransaction(txid: Sha256Hash): TransactionEx? =
         accountBacking.getTransaction(txid)
 
     @Synchronized
@@ -767,12 +807,37 @@ abstract class AbstractBtcAccount protected constructor(backing: BtcAccountBacki
 
     abstract override fun getBlockChainHeight(): Int
     protected abstract fun setBlockChainHeight(blockHeight: Int)
+
+    /**
+     * Whether our stored copy of [outPoint]'s transaction carries [value] and [script] there; null
+     * when we have no copy. Only the txid vouches for a server's numbers, and the value matters
+     * beyond the balance: a legacy signature does not cover it, so a lie becomes fee we pay.
+     */
+    private fun storedTransactionVouchesFor(outPoint: OutPoint, value: Long, script: ByteArray): Boolean? {
+        val tex = accountBacking.getTransaction(outPoint.txid) ?: return null
+        val output = TransactionEx.toTransaction(tex)?.takeIf { it.id == tex.txid }?.outputs?.getOrNull(outPoint.index)
+        return output != null && output.value == value && output.script.scriptBytes.contentEquals(script)
+    }
+
+    /**
+     * Refuses to sign spending coins whose value or script our transaction history contradicts:
+     * UTXOs stored before sync checked them against their transaction.
+     */
+    protected fun requireFundingBackedByHistory(fundingOutputs: Array<UnspentTransactionOutput>) {
+        fundingOutputs.forEach {
+            check(storedTransactionVouchesFor(it.outPoint, it.value, it.script.scriptBytes) != false) {
+                "Coin ${it.outPoint} does not match its transaction"
+            }
+        }
+    }
+
     @Throws(InvalidKeyCipher::class)
     override fun signTransaction(unsigned: UnsignedTransaction, cipher: KeyCipher): BitcoinTransaction {
         checkNotArchived()
         if (!isValidEncryptionKey(cipher)) {
             throw InvalidKeyCipher()
         }
+        requireFundingBackedByHistory(unsigned.fundingOutputs)
         // Make all signatures, this is the CPU intensive part
         val signatures = StandardTransactionBuilder.generateSignatures(
             unsigned.signingRequests.filterNotNull().toTypedArray(),
@@ -794,26 +859,60 @@ abstract class AbstractBtcAccount protected constructor(backing: BtcAccountBacki
 
     @Synchronized
     override fun deleteTransaction(transactionId: Sha256Hash): Boolean {
-        val tex = accountBacking.getTransaction(transactionId) ?: return false
-        val tx = TransactionEx.toTransaction(tex)
+        if (accountBacking.getTransaction(transactionId) == null) return false
         accountBacking.beginTransaction()
         try {
-            // See if any of the outputs are stored locally and remove them
-            for (i in tx.outputs.indices) {
-                val outPoint = OutPoint(tx.id, i)
-                val utxo = accountBacking.getUnspentOutput(outPoint)
-                if (utxo != null) {
-                    accountBacking.deleteUnspentOutput(outPoint)
-                }
-            }
-            // remove it from the accountBacking
-            accountBacking.deleteTransaction(transactionId)
+            deleteTransactionWithDescendants(transactionId, HashSet())
             accountBacking.setTransactionSuccessful()
         } finally {
             accountBacking.endTransaction()
         }
         updateLocalBalance() //will still need a new sync besides re-calculating
         return true
+    }
+
+    /**
+     * Drops [transactionId] locally together with every unconfirmed tx of ours that spends its
+     * outputs (CPFP children etc.): leaving a child behind while the parent's inputs are restored
+     * counted the same coins twice (parent's input + child's change) until a full reload.
+     * Children go first so the parent's outputs they spent are restored and then removed with it.
+     * Must run inside an accountBacking transaction.
+     */
+    private fun deleteTransactionWithDescendants(transactionId: Sha256Hash, visited: MutableSet<Sha256Hash>) {
+        if (!visited.add(transactionId)) return
+        val tex = accountBacking.getTransaction(transactionId) ?: return
+        val tx = TransactionEx.toTransaction(tex)
+        accountBacking.unconfirmedTransactions
+            .filter { child -> child.txid != transactionId && spendsOutputOf(child, transactionId) }
+            .forEach { child -> deleteTransactionWithDescendants(child.txid, visited) }
+        // See if any of the outputs are stored locally and remove them
+        for (i in tx.outputs.indices) {
+            val outPoint = OutPoint(tx.id, i)
+            val utxo = accountBacking.getUnspentOutput(outPoint)
+            if (utxo != null) {
+                accountBacking.deleteUnspentOutput(outPoint)
+            }
+        }
+        restoreSpentOutputs(tx)
+        // remove it from the accountBacking
+        accountBacking.deleteTransaction(transactionId)
+    }
+
+    private fun spendsOutputOf(tex: TransactionEx, parentId: Sha256Hash): Boolean =
+        TransactionEx.toTransaction(tex)?.inputs?.any { it.outPoint.txid == parentId } == true
+
+    /**
+     * Gives back our outputs a locally dropped transaction was spending (e.g. the change of its
+     * parent): sync does not restore them, so they vanished from the balance until a full reload.
+     */
+    private fun restoreSpentOutputs(tx: BitcoinTransaction) {
+        for (input in tx.inputs) {
+            val parentOutput = accountBacking.getParentTransactionOutput(input.outPoint) ?: continue
+            if (accountBacking.getTransaction(input.outPoint.txid) != null && isMine(parentOutput)
+                    && accountBacking.getUnspentOutput(input.outPoint) == null) {
+                accountBacking.putUnspentOutput(parentOutput)
+            }
+        }
     }
 
     override fun removeAllQueuedTransactions() {
@@ -845,6 +944,8 @@ abstract class AbstractBtcAccount protected constructor(backing: BtcAccountBacki
                 }
             }
 
+            restoreSpentOutputs(tx)
+
             // Remove a queued transaction from our outgoing buffer
             accountBacking.removeOutgoingTransaction(transaction)
 
@@ -856,8 +957,6 @@ abstract class AbstractBtcAccount protected constructor(backing: BtcAccountBacki
         }
 
         // calc the new balance to remove the outgoing amount
-        // the total balance will still be wrong, as we already deleted some UTXOs to build the queued transaction
-        // these will get restored after the next sync
         updateLocalBalance()
 
         //markTransactionAsSpent(transaction);
@@ -1114,18 +1213,45 @@ abstract class AbstractBtcAccount protected constructor(backing: BtcAccountBacki
     }
 
     /**
+     * Fee and virtual size of [txid] as a CPFP parent, from its own bytes and the outputs it
+     * spends; null when we cannot vouch for them. A server lying about either would have the child
+     * pay for a fee the parent never lacked.
+     */
+    fun getCpfpParentFeeAndVsize(txid: Sha256Hash): Pair<Long, Int>? {
+        val tex = accountBacking.getTransaction(txid) ?: return null
+        val tx = TransactionEx.toTransaction(tex)?.takeIf { it.id == txid } ?: return null
+        // An unconfirmed spend of our coins our keys did not sign never reaches a miner
+        if (tex.height <= 0 && !hasValidSignaturesOnOurInputs(tx)) return null
+        var inputSum = 0L
+        for (input in tx.inputs) {
+            val parent = accountBacking.getParentTransactionOutput(input.outPoint) ?: return null
+            if (storedTransactionVouchesFor(input.outPoint, parent.value, parent.script) == false) return null
+            inputSum += parent.value
+        }
+        val fee = inputSum - tx.outputs.sumOf { it.value }
+        return if (fee < 0) null else fee to vsizeWithCappedWitness(tx)
+    }
+
+    /** The txid does not cover the witness: a server could pad it and have the child pay for bytes no miner sees. */
+    private fun vsizeWithCappedWitness(tx: BitcoinTransaction): Int {
+        val stripped = tx.toBytes(false)!!.size
+        val witness = tx.toBytes(true)!!.size - stripped
+        return stripped + (min(witness, tx.inputs.size * MAX_WITNESS_BYTES_PER_INPUT) + 3) / 4
+    }
+
+    /**
      * Create a new, unsigned transaction that spends from a UTXO of the provided transaction.
      * @see WalletBtcAccount.createUnsignedTransaction
      * @param txid transaction to spend from
      * @param minerFeeToUse fee to use to pay up for txid and the new transaction
-     * @param satoshisPaid amount already paid by parent transaction
      */
     @Throws(InsufficientBtcException::class, UnableToBuildTransactionException::class)
-    fun createUnsignedCPFPTransaction(txid: Sha256Hash, minerFeeToUse: Long, satoshisPaid: Long): UnsignedTransaction {
+    fun createUnsignedCPFPTransaction(txid: Sha256Hash, minerFeeToUse: Long): UnsignedTransaction {
         checkNotArchived()
         val utxos: MutableList<UnspentTransactionOutput> =
             ArrayList(transform(getSpendableOutputs(minerFeeToUse, true)))
-        val parent = getTransactionDetails(txid)
+        val (satoshisPaid, parentSize) = getCpfpParentFeeAndVsize(txid)
+            ?: throw UnableToBuildTransactionException("Cannot verify the fee of $txid")
         var totalSpendableSatoshis: Long = 0
         var haveOutputToBump = false
         val utxosToSpend: MutableList<UnspentTransactionOutput> = ArrayList()
@@ -1146,7 +1272,7 @@ abstract class AbstractBtcAccount protected constructor(backing: BtcAccountBacki
         var builder = FeeEstimatorBuilder().setArrayOfInputs(utxosToSpend)
         addOutputToEstimation(changeAddress, builder)
         var childSize = builder.createFeeEstimator().estimateTransactionSize().toLong()
-        var parentChildSize = parent.rawSize + childSize
+        var parentChildSize = parentSize + childSize
         parentChildFeeSat = parentChildSize * minerFeeToUse / 1000 - satoshisPaid
         if (parentChildFeeSat < childSize * minerFeeToUse / 1000) {
             // if child doesn't get itself to target priority, it's not needed to boost a parent to it.
@@ -1159,7 +1285,7 @@ abstract class AbstractBtcAccount protected constructor(backing: BtcAccountBacki
             builder = FeeEstimatorBuilder().setArrayOfInputs(utxosToSpend)
             addOutputToEstimation(changeAddress, builder)
             childSize = builder.createFeeEstimator().estimateTransactionSize().toLong()
-            parentChildSize = parent.rawSize + childSize
+            parentChildSize = parentSize + childSize
             parentChildFeeSat = parentChildSize * minerFeeToUse / 1000 - satoshisPaid
             val value = totalSpendableSatoshis - parentChildFeeSat
             if (value >= TransactionUtils.MINIMUM_OUTPUT_VALUE) {
@@ -1683,6 +1809,8 @@ abstract class AbstractBtcAccount protected constructor(backing: BtcAccountBacki
     companion object {
         private const val COINBASE_MIN_CONFIRMATIONS = 100
         private const val MAX_TRANSACTIONS_TO_HANDLE_SIMULTANEOUSLY = 199
+        // A P2WPKH witness takes 108 bytes, a Taproot key path one 66
+        private const val MAX_WITNESS_BYTES_PER_INPUT = 110
         fun addressToUUID(address: BitcoinAddress): UUID {
             return UUID(BitUtils.uint64ToLong(address.allAddressBytes, 0), BitUtils.uint64ToLong(
                 address.allAddressBytes, 8))

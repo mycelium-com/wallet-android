@@ -1,0 +1,4 @@
+-- Blockbook reports why a transaction reverted ("Out of gas.", "Reverted", …) in
+-- ethereumSpecific.error, but the field was never parsed or stored, so the details
+-- screen could only say "Failed" without being able to say why.
+ALTER TABLE EthAccountBacking ADD COLUMN failureReason TEXT;

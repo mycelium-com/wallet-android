@@ -65,21 +65,6 @@
             <include
                 layout="@layout/receive_coins_activity_addr"
                 bind:viewModel="@{viewModel}"/>
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_marginHorizontal="@dimen/horizontal_page_margin"
-                android:layout_marginVertical="24dp"
-                android:visibility="@{viewModel.fioNameList.isEmpty() ? View.GONE : View.VISIBLE}"
-                android:background="#33FFFFFF" />
-
-            <!-- Fio Name -->
-
-            <include
-                android:id="@+id/layoutReceiveFioName"
-                layout="@layout/receive_coins_activity_fio_name"
-                bind:viewModel="@{viewModel}"/>
         </LinearLayout>
     </ScrollView>
 </layout>
