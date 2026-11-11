@@ -188,7 +188,6 @@
     <!-- Simplex end -->
     <string name="label_single_key_icon">una singola chiave</string>
     <string name="your_privacy_out_priority">La tua privacy è la nostra priorità</string>
-    <string name="about_fio_protocol_title">Informazioni sul protocollo FIO</string>
     <string name="access_from_any_device">Accedi da qualsiasi dispositivo</string>
     <string name="activate_by">Attiva entro</string>
     <string name="all_countries">Tutti i paesi</string>
@@ -253,13 +252,11 @@
     <string name="changelog_version_placeholder">Versione %s</string>
     <string name="check_gap_bug_spannable_string">Controllo bug del gap...</string>
     <string name="check_internet_and_try_again">Controlla la tua connessione Internet e riprova</string>
-    <string name="choose_blockchain">Scegli blockchain</string>
     <string name="colorize">Colora</string>
     <string name="colu">Colored Coins</string>
     <string name="configuration_change_restart_warning">La modifica della configurazione richiede il riavvio dell\'app</string>
     <string name="confirm">Conferma</string>
     <string name="confirm_change_on_device"><![CDATA[Conferma l\'output di <b>resto</b> sul tuo %3$s.<br><br><b>Valore:</b><br>%1$s<br><b>Indirizzo di resto:</b><br>%2$s]]></string>
-    <string name="confirm_fio_link">Vuoi registrare un FIO Name per il tuo account HD Bitcoin %1$s?</string>
     <string name="confirm_output_on_device"><![CDATA[Conferma l\'output sul tuo %3$s.<br><br><b>Valore:</b><br>%1$s<br><b>Indirizzo di destinazione:</b><br>%2$s<br>]]></string>
     <string name="confirmation">Conferma</string>
     <string name="connection_issues"><b>Problemi di connessione.</b> Assicurati di essere online.</string>
@@ -272,7 +269,6 @@
     <string name="country">Paese</string>
     <string name="course_outdated">Tasso di cambio obsoleto</string>
     <string name="create_backup">Crea backup</string>
-    <string name="create_fio_domain">Crea FIO Domain</string>
     <string name="currencies">Valute</string>
     <string name="currency">Valuta</string>
     <string name="current_version_s">Versione attuale: %s</string>
@@ -285,8 +281,6 @@
     <string name="decryption_password_hint">Inserisci la password per decrittare il backup</string>
     <string name="delete_document">Elimina documento</string>
     <string name="delete_pk_message"><![CDATA[Vuoi eliminare la chiave privata dell\'account <b>\"%1$s\"</b> contenente <b>%2$s</b>?]]></string>
-    <string name="delete_received_fio_request">Elimina richiesta FIO</string>
-    <string name="delete_received_fio_request_msg">Vuoi eliminare questa richiesta FIO?</string>
     <string name="deposits_without_destination_tag_will_be_lost">I depositi senza tag di destinazione andranno persi</string>
     <string name="description">Descrizione</string>
     <string name="description_bump_fee">Invia una transazione che aumenta la commissione per questa transazione non confermata.\n\nVuoi spendere %2$s per portare la commissione a %1$dsat/B?</string>
@@ -297,7 +291,6 @@
     <string name="discover">Scopri</string>
     <string name="do_you_want_resubmit">Vuoi inviare di nuovo?</string>
     <string name="doc_selfie"><![CDATA[Documenti & Selfie]]></string>
-    <string name="domain_details">Dettagli del dominio</string>
     <string name="download">Scarica</string>
     <string name="due_to_high_cryptocurrencies_volatility">A causa dell\'elevata volatilità delle criptovalute, l\'importo finale potrebbe variare.</string>
     <string name="edit_gas_limit_advanced_users"><![CDATA[Modifica limite gas <i>(per utenti esperti)</i>]]></string>
@@ -312,7 +305,6 @@
     <string name="excange_title">Scambia</string>
     <string name="exceed_card_value">L\'importo supera il valore della carta</string>
     <string name="exchanging">Scambio</string>
-    <string name="expiration_date">Data di scadenza</string>
     <string name="expire_date">Data di scadenza</string>
     <string name="expires_at">Scade il</string>
     <string name="external_service">Servizio esterno</string>
@@ -327,7 +319,6 @@
     <string name="first_bch_installed_message"><![CDATA[Ora dobbiamo sincronizzarlo con la blockchain per recuperare il tuo saldo Bitcoin <font color="#f08c18">Cash</font>.<br><br>Questa procedura richiede del tempo e viene eseguita in background.<br>Più chiavi private hai, più tempo richiede; sii paziente. Ad esempio, se hai circa 1000 chiavi private, potrebbero servire più di 3 ore per la sincronizzazione completa.<br>Ti informeremo al termine.<br><br>Puoi sempre controllare l\'avanzamento della sincronizzazione qui: Impostazioni -> Modulo Bitcoin <font color="#f08c18">Cash</font>.<br><br>Per ogni account BTC con Bitcoin <font color="#f08c18">Cash</font> non recuperato, verrà creato un account Bitcoin <font color="#f08c18">Cash</font> corrispondente.<br><br>Vai alla scheda Saldo del tuo account Bitcoin <font color="#f08c18">Cash</font> per scambiarlo istantaneamente in BTC.]]></string>
     <string name="first_bch_installed_title"><![CDATA[Il modulo Mycelium Bitcoin <font color="#f08c18">Cash</font> è stato installato!]]></string>
     <string name="first_name">Nome</string>
-    <string name="following_fio_domains_registered">I seguenti FIO Domain sono registrati:</string>
     <string name="format" translatable="false">Formato</string>
     <string name="found_clipboard_public_key_title">Chiave pubblica trovata negli appunti</string>
     <string name="found_clipboard_public_keys_message">Sono state trovate chiavi pubbliche negli appunti. Vuoi importarle?</string>
@@ -385,7 +376,6 @@
     <string name="last_log_entries">Ultime voci di log</string>
     <string name="last_name">Cognome</string>
     <string name="learn_more_rmc"><u>Scopri di più su RMC</u></string>
-    <string name="leave_a_message_for_s">Lascia un messaggio per %s</string>
     <string name="legal_information">Informazioni legali</string>
     <string name="less">Meno</string>
     <string name="list_added_tokens">Token ERC-20 sull\'account \"%s\"</string>
@@ -412,7 +402,6 @@
     <string name="module_uninstall_progress">Disinstallazione modulo in corso...</string>
     <string name="modules">Moduli</string>
     <string name="more">Più</string>
-    <string name="my_fio_domains">I miei FIO Domain</string>
     <string name="mycelium_no_responaility_rmc">Mycelium non si assume alcuna responsabilità per RMC</string>
     <string name="mycelium_services">Servizi Mycelium</string>
     <string name="n_sat_min">%d sat/min</string>
@@ -428,7 +417,6 @@
     <string name="no_digital_asset">Nessun asset digitale</string>
     <string name="no_funds">Nessun fondo</string>
     <string name="no_google_play_installed">Google Play non installato</string>
-    <string name="no_logs">Nessun log</string>
     <string name="no_operations_history">Nessuna cronologia operazioni</string>
     <string name="no_orbot">Orbot non installato</string>
     <string name="no_order_linked">Nessun ordine collegato</string>
@@ -485,7 +473,6 @@
     <string name="register">Registrati</string>
     <string name="registration">Registrazione</string>
     <string name="removed">Rimosso</string>
-    <string name="renew_fio_domain">Rinnova FIO Domain</string>
     <string name="repeat_password">Ripeti password</string>
     <string name="rescan">Riscandisci</string>
     <string name="resend_confirmation_email">Invia di nuovo email di conferma</string>
@@ -514,7 +501,6 @@
     <string name="select_card_value_dialog">Seleziona il valore della carta</string>
     <string name="select_country">Seleziona paese</string>
     <string name="select_flows">Seleziona flussi</string>
-    <string name="select_name_to_associate">Collega gli account al tuo FIO Name. Solo <b>un</b> account per ogni criptovaluta può essere collegato a <b>un</b> FIO Name.</string>
     <string name="select_token">Aggiungi token ERC-20 all\'account \"%s\"</string>
     <string name="select_you_region">Seleziona la tua regione</string>
     <string name="select_your_country">Seleziona il tuo paese</string>
@@ -530,7 +516,6 @@
     <string name="set_password">Imposta password</string>
     <string name="shamir_share_hint"><![CDATA[Quote totali: numero di parti in cui suddividere la chiave privata.\n\nSoglia: numero di parti necessarie per ricostruire la chiave privata.]]></string>
     <string name="share">Condividi</string>
-    <string name="share_fio_public_key">Condividi chiave pubblica FIO</string>
     <string name="share_logs">Condividi log</string>
     <string name="share_news">Condividi notizia</string>
     <string name="share_of">Quota %1$d</string>
@@ -555,7 +540,6 @@
     <string name="support_team_text">Contatta il nostro team di supporto</string>
     <string name="sync_failed_reason_s">Sincronizzazione fallita: %s</string>
     <string name="sync_failed_s">Sincronizzazione fallita: %s</string>
-    <string name="tab_fio_requests">Richieste FIO</string>
     <string name="tab_partners">Partner</string>
     <string name="tab_vip">VIP</string>
     <string name="tap_next">Tocca per %s</string>

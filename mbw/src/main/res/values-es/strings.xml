@@ -182,7 +182,6 @@
     <!-- Credit Card -->
     <!-- Credit Card End-->
     <string name="error_details">Detalles del error</string>
-    <string name="about_fio_protocol_title">Acerca del protocolo FIO</string>
     <string name="access_from_any_device">Acceda desde cualquier dispositivo</string>
     <string name="activate_by">Activar antes del</string>
     <string name="all_countries">Todos los países</string>
@@ -247,13 +246,11 @@
     <string name="changelog_version_placeholder">Versión: %s</string>
     <string name="check_gap_bug_spannable_string">Disculpe la interrupción… \n \nHemos descubierto un error en la lógica de cuentas que causará problemas si algún día necesita restaurar desde su copia de seguridad de 12 palabras.\n\nPara más información consulte aquí: https://wallet.mycelium.com/info/gaps \n\n¿Podemos intentar resolverlo? Pulse OK para compartir con nosotros una dirección por cada cuenta afectada.</string>
     <string name="check_internet_and_try_again">Mycelium no puede conectarse al servidor debido a una mala conexión a Internet.\nVerifique su conexión a Internet e inténtelo de nuevo.</string>
-    <string name="choose_blockchain">Elegir blockchain</string>
     <string name="colorize">colorear</string>
     <string name="colu">Activo digital</string>
     <string name="configuration_change_restart_warning">Se requiere reiniciar la aplicación para aplicar los cambios de configuración.</string>
     <string name="confirm">Confirmar</string>
     <string name="confirm_change_on_device"><![CDATA[Por favor confirme la salida de <b>cambio</b> en su %3$s.<br><br><b>Valor:</b><br>%1$s<br><b>Dirección de cambio:</b><br>%2$s]]></string>
-    <string name="confirm_fio_link">¿Desea registrar un FIO Name para su cuenta HD Bitcoin %1$s?</string>
     <string name="confirm_output_on_device"><![CDATA[Por favor confirme la salida en su %3$s.<br><br><b>Valor:</b><br>%1$s<br><b>Dirección de destino:</b><br>%2$s<br>]]></string>
     <string name="confirmation">Confirmación de intercambio</string>
     <string name="connect_your_ext_sig_device_info">Esto solo funciona si su teléfono admite USB-OTG (on-the-go).\n\nPara conectar el dispositivo necesita un adaptador o cable USB-OTG. Conecte el dispositivo con su propio cable USB en el lado del cliente y conecte el lado del host a su teléfono.</string>
@@ -266,7 +263,6 @@
     <string name="country">País</string>
     <string name="course_outdated">El tipo de cambio está desactualizado</string>
     <string name="create_backup">Crear copia de seguridad</string>
-    <string name="create_fio_domain">Crear dominio FIO</string>
     <string name="credit_card_buy">Tarjeta de crédito</string>
     <string name="credit_card_buy_description">Comprar Bitcoin con tarjeta de crédito</string>
     <string name="credit_card_buy_setting_description">Comprar Bitcoin con tarjeta de crédito</string>
@@ -282,8 +278,6 @@
     <string name="decryption_password_hint">SUC ONT RAS EÑA ABC D</string>
     <string name="delete_document">¿Desea eliminar el documento?</string>
     <string name="delete_pk_message"><![CDATA[¿Desea eliminar la clave privada de la cuenta <b>\"%1$s\"</b> con <b>%2$s</b>?]]></string>
-    <string name="delete_received_fio_request">Eliminar solicitud FIO recibida</string>
-    <string name="delete_received_fio_request_msg">¿Está seguro de querer eliminar esta solicitud FIO?</string>
     <string name="deposits_without_destination_tag_will_be_lost">¡Los depósitos sin etiqueta de destino se perderán!</string>
     <string name="description">Descripción:</string>
     <string name="description_bump_fee">Envíe una transacción que aumente la comisión de esta transacción no confirmada.\n\n¿Desea gastar %2$s para subir la comisión a %1$dsat/B?</string>
@@ -294,7 +288,6 @@
     <string name="discover">Descubrir</string>
     <string name="do_you_want_resubmit">Ha actualizado la información a continuación. ¿Desea reenviar su solicitud?</string>
     <string name="doc_selfie"><![CDATA[Documentos y selfie]]></string>
-    <string name="domain_details">Detalles del dominio</string>
     <string name="download">Descargar</string>
     <string name="due_to_high_cryptocurrencies_volatility">Debido a la alta volatilidad de las criptomonedas, la tasa final puede ser ligeramente mayor o menor que la estimada aquí.</string>
     <string name="edit_gas_limit_advanced_users"><![CDATA[Editar Gas Limit <i>(para usuarios avanzados)</i>]]></string>
@@ -309,7 +302,6 @@
     <string name="excange_title">Intercambiar BCH a BTC</string>
     <string name="exceed_card_value">Excede el valor de la tarjeta</string>
     <string name="exchanging">intercambiando</string>
-    <string name="expiration_date">Fecha de vencimiento:</string>
     <string name="expire_date">Fecha de vencimiento:</string>
     <string name="expires_at">Fecha de vencimiento:</string>
     <string name="external_app_needed">Para actualizar el dispositivo necesita una herramienta externa, haga clic en aceptar para iniciarla.</string>
@@ -325,7 +317,6 @@
     <string name="first_bch_installed_message"><![CDATA[Ahora necesitamos sincronizarlo con la blockchain para recuperar su saldo de Bitcoin <font color="#f08c18">Cash</font>.<br><br>Este procedimiento lleva algún tiempo y se realiza en segundo plano.<br>Cuantas más claves privadas tenga, más tardará, sea paciente. Por ejemplo, si tiene alrededor de 1000 claves privadas, podría llevar más de 3 horas alcanzar la sincronización completa.<br>Le informaremos cuando se complete.<br><br>Siempre puede comprobar el progreso de la sincronización aquí: Ajustes -> Módulo Bitcoin <font color="#f08c18">Cash</font>.<br><br>Por cada cuenta BTC con Bitcoin <font color="#f08c18">Cash</font> no recuperado, se creará la cuenta correspondiente de Bitcoin <font color="#f08c18">Cash</font>.<br><br>Vaya a la pestaña Saldo de su cuenta de Bitcoin <font color="#f08c18">Cash</font> para intercambiarlo al instante por BTC.]]></string>
     <string name="first_bch_installed_title"><![CDATA[¡Se ha instalado el módulo Mycelium Bitcoin <font color="#f08c18">Cash</font>!]]></string>
     <string name="first_name">Nombre</string>
-    <string name="following_fio_domains_registered">Los siguientes dominios FIO han sido registrados</string>
     <string name="format" translatable="false">%1$td/%1$tm/%1$tY</string>
     <string name="found_clipboard_public_key_title">Clave pública encontrada en el portapapeles</string>
     <string name="found_clipboard_public_keys_message">El portapapeles contiene una clave pública.\n¿Desea limpiar el portapapeles?</string>
@@ -384,7 +375,6 @@
     <string name="label_use_device_location">usar la ubicación del dispositivo</string>
     <string name="last_name">Apellido</string>
     <string name="learn_more_rmc"><u>Saber más sobre RMC</u></string>
-    <string name="leave_a_message_for_s">Dejar un mensaje para %s</string>
     <string name="legal_information">Información legal</string>
     <string name="less">menos</string>
     <string name="list_added_tokens">Tokens ERC-20 en la cuenta \"%s\"</string>
@@ -408,7 +398,6 @@
     <string name="module_uninstall_progress">Desinstalando…</string>
     <string name="modules">Módulos</string>
     <string name="more">más</string>
-    <string name="my_fio_domains">Mis dominios FIO</string>
     <string name="mycelium_no_responaility_rmc">Si continúa, acepta proceder a RMC, un servicio de terceros. Todas sus interacciones con RMC están fuera del control de Mycelium y están sujetas al Acuerdo de Usuario, los Términos de Uso y la Política de Privacidad de RMC. Léalos atentamente. Mycelium no recopilará, almacenará ni utilizará ninguna información personal.\n\nMYCELIUM NO ACEPTA NINGUNA RESPONSABILIDAD Y NO SERÁ RESPONSABLE DE NINGUNA PÉRDIDA O DAÑO QUE SE SUFRA COMO RESULTADO DEL ACCESO, USO O CONFIANZA EN LA INFORMACIÓN Y SERVICIOS DEL EMISOR DE RMC</string>
     <string name="mycelium_services">Servicios de Mycelium</string>
     <string name="mycelium_terms_of_use">Términos de uso de Mycelium</string>
@@ -425,7 +414,6 @@
     <string name="no_digital_asset">Su clave privada BIP32 no contiene activos digitales.\n\nSi cree lo contrario, intente escanearla de nuevo.</string>
     <string name="no_funds">Sin fondos</string>
     <string name="no_google_play_installed">No hay Google Play instalado en el dispositivo</string>
-    <string name="no_logs">Sin registros</string>
     <string name="no_operations_history">Sin historial de operaciones</string>
     <string name="no_orbot">Orbot no instalado</string>
     <string name="no_order_linked">Actualmente no tiene compras vinculadas a su cuenta. Empiece explorando el catálogo de tiendas.</string>
@@ -481,7 +469,6 @@
     <string name="register">Registrar</string>
     <string name="registration">Registro</string>
     <string name="removed">desinstalado</string>
-    <string name="renew_fio_domain">Renovar dominio FIO</string>
     <string name="repeat_password">Repetir contraseña</string>
     <string name="rescan">Reescanear</string>
     <string name="resend_confirmation_email">Reenviar correo de confirmación.</string>
@@ -510,7 +497,6 @@
     <string name="select_card_value_dialog">Seleccione el valor de la tarjeta:</string>
     <string name="select_country">Seleccione país</string>
     <string name="select_flows">Seleccionar flujos</string>
-    <string name="select_name_to_associate">Conecte cuentas a su FIO Name. Solo se puede conectar <b>una</b> cuenta por cada criptomoneda con <b>un</b> FIO Name.</string>
     <string name="select_token">Añadir tokens ERC-20 a la cuenta \"%s\"</string>
     <string name="select_you_region">Seleccione su región</string>
     <string name="select_your_country">Seleccione su país</string>
@@ -526,7 +512,6 @@
     <string name="set_password">Establecer contraseña</string>
     <string name="shamir_share_hint"><![CDATA[Shares totales: número de partes en las que dividir la clave privada.\n\nUmbral: número de partes necesarias para reconstruir la clave privada.]]></string>
     <string name="share">Compartir</string>
-    <string name="share_fio_public_key">Compartir clave pública FIO</string>
     <string name="share_logs">Compartir registros</string>
     <string name="share_news">Compartir noticias</string>
     <string name="share_of">Share %1$d</string>
@@ -555,7 +540,6 @@
     <string name="support_team_text">Describa el problema y los pasos para reproducirlo. Para tener una imagen completa del problema, adjunte los registros.</string>
     <string name="sync_failed_reason_s">Sincronización fallida. Razón: %s</string>
     <string name="sync_failed_s">Sincronización fallida. %s</string>
-    <string name="tab_fio_requests">Solicitudes FIO</string>
     <string name="tab_partners">Empresas</string>
     <string name="tab_vip">VIP</string>
     <string name="tap_next">Toque para %s</string>

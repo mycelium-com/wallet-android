@@ -229,10 +229,8 @@
     <string name="provide_your_recovery_e_mail_address">Въведете вашия имейл адрес за възстановяване по-долу. Ще ви изпратим сигурен линк и инструкции как да нулирате паролата си.</string>
     <string name="rebroadcast_transaction_title">Преизпращане на транзакцията</string>
     <string name="receive_cointype">Получи %1$s</string>
-    <string name="receive_title_fio">FIO публичен ключ</string>
     <string name="received">Получено</string>
     <string name="receiver_address_hint">1Address1234\n567890abcdef\nghijklmnop</string>
-    <string name="recipient_has_no_such_address">%1$s няма свързан %2$s адрес</string>
     <string name="recipient_invalid">Невалиден адрес или FIO име</string>
     <string name="recipient_valid">Валиден получател</string>
     <string name="replace_transaction">Транзакция, която да бъде заменена с:</string>
@@ -240,11 +238,9 @@
     <string name="residential_address">Адрес по местоживеене</string>
     <string name="restore_address_as">Възстанови адрес като</string>
     <string name="return_to_payment">Назад към поръчките</string>
-    <string name="s_fio_request">%s FIO заявка</string>
     <string name="s_payment_request">%s заявка за плащане</string>
     <string name="send_cointype">Изпрати %1$s</string>
     <string name="send_fee_hint"><b>ВНИМАНИЕ.</b> Транзакции с такса на миньора с нисък приоритет може никога да не бъдат потвърдени или да бъдат потвърдени след много часове или дори дни. Не избирайте нисък приоритет, ако не разбирате как работи bitcoin мрежата.</string>
-    <string name="send_fio_request">Изпрати FIO заявка</string>
     <string name="send_mail">Изпрати поща…</string>
     <string name="sending_addresses">Адресна книга</string>
     <string name="sending_assets">Изпращане на %s активи.</string>
@@ -267,7 +263,6 @@
     <string name="tips_rmc_check_address">Ако сте изпратили цифрови активи към случаен bitcoin адрес, те не са унищожени.\nЗа да ги възстановите, имате две опции:\n1) Използвайте Colored Coins API, за да изпратите ръчно активите си обратно към адрес, управляван от Mycelium Wallet.\n2) Изпратете тикет до поддръжката на Mycelium Wallet за възстановяване на активите ви. За тази услуга може да се прилагат допълнителни такси. Ще получите подробна информация след свързване с поддръжката.\n\nИ в двата случая трябва да притежавате частния ключ на адреса, към който сте изпратили цифровите активи.</string>
     <string name="too_many_transaction_records">Не може да се извлече пълната история на транзакциите на сметката поради огромния ѝ размер. Помислете за прехвърляне на средствата към нова сметка.</string>
     <string name="total_amount">Обща сума:</string>
-    <string name="transaction_from_address_prefix">От: %s</string>
     <string name="transaction_gas_limit">Gas Limit (единици):</string>
     <string name="transaction_history_title">История на транзакциите</string>
     <string name="transaction_input_data">Входни данни:</string>

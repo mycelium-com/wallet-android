@@ -217,10 +217,8 @@
     <string name="provide_your_recovery_e_mail_address">以下にリカバリーメールアドレスを入力してください。安全なリンクとパスワードのリセット方法をお送りします。</string>
     <string name="rebroadcast_transaction_title">取引を再送信</string>
     <string name="receive_cointype">%1$s を受信</string>
-    <string name="receive_title_fio">FIO 公開鍵</string>
     <string name="received">受信済み</string>
     <string name="receiver_address_hint">1Address1234\n567890abcdef\nghijklmnop</string>
-    <string name="recipient_has_no_such_address">%1$s は %2$s アドレスに接続されていません</string>
     <string name="recipient_invalid">無効なアドレスまたは FIO ネーム</string>
     <string name="recipient_valid">受取人は有効です</string>
     <string name="remove_queued_transaction">このキュー内の取引を削除して、ブロードキャストを防ぎますか?</string>
@@ -232,12 +230,10 @@
     <string name="residential_address">居住地住所</string>
     <string name="restore_address_as">アドレスを次として復元</string>
     <string name="return_to_payment">注文に戻る</string>
-    <string name="s_fio_request">%s FIO リクエスト</string>
     <string name="s_payment_request">%s 支払いリクエスト</string>
     <string name="scan_address_book_desc">アドレスをスキャン。</string>
     <string name="send_cointype">%1$s を送信</string>
     <string name="send_fee_hint"><b>注意。</b> 低優先度のマイナー手数料の取引は確認されないか、確認に何時間も、何日もかかる場合があります。ビットコインネットワークの仕組みを理解していない場合は、低優先度を選択しないでください。</string>
-    <string name="send_fio_request">FIO リクエストを送信</string>
     <string name="send_mail">メールを送信…</string>
     <string name="sending_addresses">アドレス帳</string>
     <string name="sending_assets">%s 資産を送信中。</string>
@@ -260,7 +256,6 @@
     <string name="tips_rmc_check_address">ランダムなビットコインアドレスにデジタル資産を送信した場合、それらは破棄されません。\nそれらを取り戻すには 2 つのオプションがあります:\n1) Colored Coins API を使用して、Mycelium Wallet で管理されているアドレスに資産を手動で送り返します。\n2) 資産の取得のため Mycelium Wallet サポートにチケットを送信します。このサービスには追加料金が発生する場合があります。サポートに連絡後、詳細情報をお伝えします。\n\nどちらの場合も、デジタル資産を送信したアドレスの秘密鍵を所有している必要があります。</string>
     <string name="too_many_transaction_records">サイズが大きすぎるため、アカウントの全取引履歴を取得できません。資金を新しいアカウントに移動することを検討してください。</string>
     <string name="total_amount">合計金額:</string>
-    <string name="transaction_from_address_prefix">送信元: %s</string>
     <string name="transaction_gas_limit">Gas Limit (units):</string>
     <string name="transaction_input_data">入力データ:</string>
     <string name="transaction_not_broadcasted_info">ブロードキャストできません</string>

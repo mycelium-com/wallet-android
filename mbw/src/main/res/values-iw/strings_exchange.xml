@@ -170,9 +170,6 @@
     <string name="no_exchange_available">אין המרה זמינה לחשבון</string>
     <string name="no_gift_cards_linked">התחל על ידי גלישה בקטלוג החנויות או בדוק את סטטוס ההזמנות שלך.</string>
     <string name="no_purchased_gift_card">עדיין לא רכשת\nאף כרטיס מתנה</string>
-    <string name="partner_fiopresale">FIO Address Presale</string>
-    <string name="partner_fiopresale_info"/>
-    <string name="partner_fiopresale_short">המפתח שלך לחוויית בלוקצ\'יין טובה יותר</string>
     <string name="partner_more_info"><u>הפרטיות שלך היא בראש סדר העדיפויות שלנו</u></string>
     <string name="partner_more_info_text">
         Mycelium הוא אחד מארנקי ה-bitcoin הניידים האמינים והשימושיים ביותר.<br />

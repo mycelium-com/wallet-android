@@ -313,7 +313,6 @@
     <string name="input_look_ahead">Entrada de look ahead</string>
     <string name="card_code">Código do cartão:</string>
     <string name="i_know_what_iam_doing">Sei o que estou fazendo</string>
-    <string name="about_fio_protocol_title">Sobre o Protocolo FIO</string>
     <string name="access_from_any_device">Acesso de qualquer dispositivo</string>
     <string name="activate_by">Ativar até</string>
     <string name="and">e</string>
@@ -359,13 +358,11 @@
     <string name="can_t_scan_it">Não consegue escanear?</string>
     <string name="change_password">Alterar senha</string>
     <string name="check_gap_bug_spannable_string">Desculpe interromper… \n \nDescobrimos um bug na lógica de contas que causará problemas se um dia você precisar restaurar a partir do seu backup de 12 palavras.\n\nMais informações aqui: https://wallet.mycelium.com/info/gaps \n\nPodemos tentar resolvê-lo para você? Pressione OK para compartilhar conosco um endereço de cada conta afetada.</string>
-    <string name="choose_blockchain">Escolher blockchain</string>
     <string name="colorize">colorizar</string>
     <string name="colu">Ativo digital</string>
     <string name="configuration_change_restart_warning">É necessário reiniciar o aplicativo para aplicar as alterações de configuração.</string>
     <string name="confirm">Confirmar</string>
     <string name="confirm_change_on_device"><![CDATA[Por favor, confirme a saída de <b>troco</b> no seu %3$s.<br><br><b>Valor:</b><br>%1$s<br><b>Endereço de troco:</b><br>%2$s]]></string>
-    <string name="confirm_fio_link">Deseja registrar um FIO Name para sua conta HD Bitcoin %1$s?</string>
     <string name="confirm_output_on_device"><![CDATA[Por favor, confirme a saída no seu %3$s.<br><br><b>Valor:</b><br>%1$s<br><b>Endereço de destino:</b><br>%2$s<br>]]></string>
     <string name="confirmation">Confirmação de troca</string>
     <string name="connect_your_ext_sig_device_info">Isso só funciona se seu telefone suportar USB-OTG (on-the-go).\n\nPara conectar o dispositivo, você precisa de um adaptador ou cabo USB-OTG. Conecte o dispositivo com seu próprio cabo USB no lado cliente e conecte o lado host ao seu telefone.</string>
@@ -375,7 +372,6 @@
     <string name="continue_without_bch">Continuar sem BCH</string>
     <string name="country">País</string>
     <string name="create_backup">Criar backup</string>
-    <string name="create_fio_domain">Criar domínio FIO</string>
     <string name="credit_card_buy">Cartão de crédito</string>
     <string name="credit_card_buy_description">Comprar Bitcoin usando cartão de crédito</string>
     <string name="credit_card_buy_setting_description">Comprar Bitcoin usando cartão de crédito</string>
@@ -399,7 +395,6 @@
     <string name="discover">Descobrir</string>
     <string name="do_you_want_resubmit">Você atualizou as informações abaixo. Deseja reenviar sua solicitação?</string>
     <string name="doc_selfie"><![CDATA[Documentos & Selfie]]></string>
-    <string name="domain_details">Detalhes do domínio</string>
     <string name="download">Baixar</string>
     <string name="due_to_high_cryptocurrencies_volatility">Devido à alta volatilidade das criptomoedas, a taxa final pode ser ligeiramente superior ou inferior à estimada aqui.</string>
     <string name="edit_gas_limit_advanced_users"><![CDATA[Editar Gas Limit <i>(para usuários avançados)</i>]]></string>
@@ -411,7 +406,6 @@
     <string name="every_1000_shares_20mb">\na cada 1000 shares = ~20MB</string>
     <string name="excange_title">Trocar BCH por BTC</string>
     <string name="exchanging">trocando</string>
-    <string name="expiration_date">Data de validade:</string>
     <string name="external_app_needed">Para atualizar o dispositivo, você precisa de uma ferramenta externa. Clique em OK para iniciá-la.</string>
     <string name="external_service">Serviços externos</string>
     <string name="extsig_confrim_on_hardware"><![CDATA[Por favor, confirme esta transação no seu %1$s]]></string>
@@ -422,7 +416,6 @@
     <string name="first_bch_installed_message"><![CDATA[Agora precisamos sincronizar com a blockchain para recuperar seu saldo Bitcoin <font color="#f08c18">Cash</font>.<br><br>Esse procedimento leva algum tempo e é executado em segundo plano.<br>Quanto mais chaves privadas você tiver, mais demora — seja paciente. Por exemplo, com cerca de 1000 chaves privadas, pode levar mais de 3 horas para sincronizar completamente.<br>Iremos avisar quando estiver pronto.<br><br>Você sempre pode verificar o progresso aqui: Configurações -> módulo Bitcoin <font color="#f08c18">Cash</font>.<br><br>Para cada conta BTC com Bitcoin <font color="#f08c18">Cash</font> não recuperado, será criada uma conta Bitcoin <font color="#f08c18">Cash</font> correspondente.<br><br>Vá para a aba Saldo da sua conta Bitcoin <font color="#f08c18">Cash</font> para trocá-lo instantaneamente por BTC.]]></string>
     <string name="first_bch_installed_title"><![CDATA[O módulo Mycelium Bitcoin <font color="#f08c18">Cash</font> foi instalado!]]></string>
     <string name="first_name">Nome</string>
-    <string name="following_fio_domains_registered">Os seguintes domínios FIO foram registrados</string>
     <string name="format" translatable="false">%1$td/%1$tm/%1$tY</string>
     <string name="found_clipboard_public_key_title">Chave pública encontrada na área de transferência</string>
     <string name="found_clipboard_public_keys_message">A área de transferência contém uma chave pública.\nDeseja limpar a área de transferência?</string>
@@ -470,7 +463,6 @@
     <string name="label_type_it_in">digitar</string>
     <string name="last_name">Sobrenome</string>
     <string name="learn_more_rmc"><u>Saiba mais sobre o RMC</u></string>
-    <string name="leave_a_message_for_s">Deixar mensagem para %s</string>
     <string name="legal_information">Informações legais</string>
     <string name="list_added_tokens">Tokens ERC-20 na conta \"%s\"</string>
     <string name="loading">Carregando…</string>
@@ -488,7 +480,6 @@
     <string name="mm_dd_yyyy">dd/mm/aaaa</string>
     <string name="module_uninstall_progress">Desinstalando…</string>
     <string name="modules">Módulos</string>
-    <string name="my_fio_domains">Meus domínios FIO</string>
     <string name="mycelium_no_responaility_rmc">Se você continuar, concorda em prosseguir para o RMC, um serviço de terceiros. Todas as suas interações com o RMC estão fora do controle do Mycelium e estão sujeitas ao Acordo de Usuário, Termos de Uso e Política de Privacidade do RMC. Leia-os com atenção. Nenhuma informação pessoal será coletada, armazenada ou usada pelo Mycelium.\n\nO MYCELIUM NÃO ACEITA RESPONSABILIDADE E NÃO SERÁ RESPONSÁVEL POR QUALQUER PERDA OU DANO DECORRENTE DO ACESSO, USO OU CONFIANÇA NAS INFORMAÇÕES E SERVIÇOS DO EMISSOR DO RMC.</string>
     <string name="mycelium_services">Serviços Mycelium</string>
     <string name="n_sat_min">%d\nsat/min</string>
@@ -500,7 +491,6 @@
     <string name="no_connected_modules">Nenhum módulo conectado</string>
     <string name="no_digital_asset">Sua chave privada BIP32 não contém ativos digitais.\n\nSe você acredita que possui, tente escaneá-la novamente.</string>
     <string name="no_google_play_installed">Google Play não está instalado no dispositivo</string>
-    <string name="no_logs">Sem logs</string>
     <string name="no_orbot">Orbot não está instalado</string>
     <string name="no_spending_records">Você não tem nenhuma conta capaz de gastar.\n\nPara gastar, você precisa de uma conta com chave privada. No momento, não há contas HD Bitcoin ativas ou contas single-address com chaves privadas. Ative ou importe uma conta com chave privada para poder gastar.</string>
     <string name="no_turn_it_off">Desligar</string>
@@ -543,7 +533,6 @@
     <string name="register">Registrar</string>
     <string name="registration">Registro</string>
     <string name="removed">desinstalado</string>
-    <string name="renew_fio_domain">Renovar domínio FIO</string>
     <string name="repeat_password">Repetir senha</string>
     <string name="rescan">Rescanear</string>
     <string name="resend_confirmation_email">Reenviar e-mail de confirmação.</string>
@@ -568,7 +557,6 @@
     <string name="segwit_change_mode_title">Tratamento do troco da transação</string>
     <string name="select_all">Mostrar todos</string>
     <string name="select_flows">Selecionar fluxos</string>
-    <string name="select_name_to_associate">Conecte contas ao seu FIO Name. Apenas <b>uma</b> conta de cada criptomoeda pode ser conectada a <b>um</b> FIO Name.</string>
     <string name="select_token">Adicionar tokens ERC-20 à conta \"%s\"</string>
     <string name="select_you_region">Selecione sua região</string>
     <string name="select_your_country">Selecione seu país</string>
@@ -583,7 +571,6 @@
     <string name="set_password">Definir senha</string>
     <string name="shamir_share_hint"><![CDATA[Total de shares: número de partes em que dividir a chave privada.\n\nLimite: número de partes necessárias para reconstruir a chave privada.]]></string>
     <string name="share">Compartilhar</string>
-    <string name="share_fio_public_key">Compartilhar chave pública FIO</string>
     <string name="share_news">Compartilhar notícia</string>
     <string name="share_of">Share %1$d</string>
     <string name="show_bip_description">Mostrar o caminho de endereço BIP44 do endereço atual na tela inicial</string>
@@ -604,7 +591,6 @@
     <string name="success">Sucesso!</string>
     <string name="summary_media_flow">Mostrar Media Flow</string>
     <string name="support_center">Centro de suporte</string>
-    <string name="tab_fio_requests">Solicitações FIO</string>
     <string name="tab_partners">Empresas</string>
     <string name="tap_next">Toque para %s</string>
     <string name="tap_to_toggle_through_other_currencies">Toque para alternar entre outras moedas</string>

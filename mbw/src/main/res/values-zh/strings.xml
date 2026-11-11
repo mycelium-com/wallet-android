@@ -198,7 +198,6 @@
     <string name="label_type_it_in">请将其输入</string>
     <string name="label_use_device_location">使用设备位置</string>
     <string name="label_list_activity_indicator">有活动</string>
-    <string name="about_fio_protocol_title">关于 FIO 协议</string>
     <string name="access_from_any_device">可从任何设备访问</string>
     <string name="activate_by">激活方式</string>
     <string name="all_countries">所有国家</string>
@@ -262,13 +261,11 @@
     <string name="changelog_version_placeholder">版本：%s</string>
     <string name="check_gap_bug_spannable_string">抱歉打扰您…\n\n我们发现账户逻辑中存在一个 bug，如果您将来需要从 12 个单词的备份恢复，可能会出现问题。\n\n更多信息请查看：https://wallet.mycelium.com/info/gaps\n\n我们可以尝试为您解决吗？按确定，与我们分享每个受影响账户的一个地址。</string>
     <string name="check_internet_and_try_again">由于网络连接不佳，Mycelium 无法连接到服务器。\n请检查您的网络连接并重试。</string>
-    <string name="choose_blockchain">选择区块链</string>
     <string name="colorize">着色</string>
     <string name="colu">数字资产</string>
     <string name="configuration_change_restart_warning">需要重启应用以应用配置更改。</string>
     <string name="confirm">确认</string>
     <string name="confirm_change_on_device"><![CDATA[请在您的 %3$s 上确认 <b>找零</b> 输出。<br><br><b>金额：</b><br>%1$s<br><b>找零地址：</b><br>%2$s]]></string>
-    <string name="confirm_fio_link">您要为您的 HD Bitcoin 账户 %1$s 注册一个 FIO 名称吗？</string>
     <string name="confirm_output_on_device"><![CDATA[请在您的 %3$s 上确认输出。<br><br><b>金额：</b><br>%1$s<br><b>目标地址：</b><br>%2$s<br>]]></string>
     <string name="confirmation">兑换确认</string>
     <string name="connection_issues"><b>连接问题。</b>请确保您已连接网络。</string>
@@ -280,7 +277,6 @@
     <string name="country">国家</string>
     <string name="course_outdated">汇率已过期</string>
     <string name="create_backup">创建备份</string>
-    <string name="create_fio_domain">创建 FIO 域名</string>
     <string name="credit_card_buy">信用卡</string>
     <string name="credit_card_buy_description">使用信用卡购买比特币</string>
     <string name="credit_card_buy_setting_description">使用信用卡购买比特币</string>
@@ -297,8 +293,6 @@
     <string name="decryption_password_hint">YOU RPA SSW ORD ABC D</string>
     <string name="delete_document">您要删除该文件吗？</string>
     <string name="delete_pk_message"><![CDATA[您要删除持有 <b>%2$s</b> 的账户 <b>\"%1$s\"</b> 的私钥吗？]]></string>
-    <string name="delete_received_fio_request">删除收到的 FIO 请求</string>
-    <string name="delete_received_fio_request_msg">确定要删除此 FIO 请求吗？</string>
     <string name="deposits_without_destination_tag_will_be_lost">没有目标标签的充值将会丢失！</string>
     <string name="description">说明：</string>
     <string name="description_bump_fee">发送一笔新交易以提高此未确认交易的手续费。\n\n您要花费 %2$s 将手续费提高到 %1$dsat/B 吗？</string>
@@ -309,7 +303,6 @@
     <string name="discover">发现</string>
     <string name="do_you_want_resubmit">您已更新下面的信息。要重新提交您的申请吗？</string>
     <string name="doc_selfie"><![CDATA[文件和自拍]]></string>
-    <string name="domain_details">域名详情</string>
     <string name="download">下载</string>
     <string name="due_to_high_cryptocurrencies_volatility">由于加密货币波动性较大，最终汇率可能略高于或低于此处的估算值。</string>
     <string name="edit_gas_limit_advanced_users"><![CDATA[编辑 Gas Limit <i>（高级用户）</i>]]></string>
@@ -324,7 +317,6 @@
     <string name="excange_title">将 BCH 兑换为 BTC</string>
     <string name="exceed_card_value">超过卡面值</string>
     <string name="exchanging">兑换中</string>
-    <string name="expiration_date">到期日期：</string>
     <string name="expire_date">到期日期：</string>
     <string name="expires_at">到期日期：</string>
     <string name="external_service">外部服务</string>
@@ -339,7 +331,6 @@
     <string name="first_bch_installed_message"><![CDATA[现在我们需要将其与区块链同步以检索您的比特币 <font color="#f08c18">现金</font> 余额。<br><br>此过程需要一些时间，将在后台执行。<br>您拥有的私钥越多，所需时间越长，请耐心等待。例如，如果您有大约 1000 个私钥，可能需要超过 3 小时才能完成同步。<br>同步完成后我们将通知您。<br><br>您可以随时在此处查看同步进度：设置 -> 比特币 <font color="#f08c18">现金</font> 模块。<br><br>对于每个未取回比特币 <font color="#f08c18">现金</font> 的 BTC 账户，将创建对应的比特币 <font color="#f08c18">现金</font> 账户。<br><br>前往您的比特币 <font color="#f08c18">现金</font> 账户的余额标签页，立即将其兑换为 BTC。]]></string>
     <string name="first_bch_installed_title"><![CDATA[Mycelium 比特币 <font color="#f08c18">现金</font> 模块已安装！]]></string>
     <string name="first_name">名字</string>
-    <string name="following_fio_domains_registered">已注册以下 FIO 域名</string>
     <string name="format" translatable="false">%1$td/%1$tm/%1$tY</string>
     <string name="found_clipboard_public_key_title">剪贴板上发现公钥</string>
     <string name="found_clipboard_public_keys_message">剪贴板包含公钥。\n您要清除剪贴板吗？</string>
@@ -390,7 +381,6 @@
     <string name="label_token_icon">ERC-20 代币图标</string>
     <string name="last_name">姓</string>
     <string name="learn_more_rmc"><u>了解更多关于 RMC 的信息</u></string>
-    <string name="leave_a_message_for_s">为 %s 留言</string>
     <string name="legal_information">法律信息</string>
     <string name="less">较少</string>
     <string name="list_added_tokens">「%s」账户上的 ERC-20 代币</string>
@@ -414,7 +404,6 @@
     <string name="module_uninstall_progress">正在卸载…</string>
     <string name="modules">模块</string>
     <string name="more">更多</string>
-    <string name="my_fio_domains">我的 FIO 域名</string>
     <string name="mycelium_no_responaility_rmc">如果您继续，即表示您同意前往 RMC，一项第三方服务。您与 RMC 的所有互动均不在 Mycelium 的控制范围内，并受 RMC 的用户协议、使用条款和隐私政策的约束。请仔细阅读它们。Mycelium 不会收集、存储或使用任何个人信息。\n\nMYCELIUM 不承担任何责任，对因访问、使用或依赖 RMC 发行人的信息和服务而遭受的任何损失或损害概不负责。</string>
     <string name="mycelium_services">Mycelium 服务</string>
     <string name="n_sat_min">%d\nsat/min</string>
@@ -429,7 +418,6 @@
     <string name="no_digital_asset">您的 BIP32 私钥不持有任何数字资产。\n\n如果您认为有，请尝试重新扫描。</string>
     <string name="no_funds">无资金</string>
     <string name="no_google_play_installed">设备上未安装 Google Play</string>
-    <string name="no_logs">无日志</string>
     <string name="no_operations_history">无操作历史</string>
     <string name="no_orbot">未安装 Orbot</string>
     <string name="no_order_linked">您当前没有与账户关联的购买记录。通过浏览商店目录开始。</string>
@@ -484,7 +472,6 @@
     <string name="register">注册</string>
     <string name="registration">注册</string>
     <string name="removed">已卸载</string>
-    <string name="renew_fio_domain">续期 FIO 域名</string>
     <string name="repeat_password">重复密码</string>
     <string name="rescan">重新扫描</string>
     <string name="resend_confirmation_email">重新发送确认邮件。</string>
@@ -513,7 +500,6 @@
     <string name="select_card_value_dialog">选择卡面值：</string>
     <string name="select_country">选择国家</string>
     <string name="select_flows">选择流</string>
-    <string name="select_name_to_associate">将账户连接到您的 FIO 名称。每种加密货币只能连接<b>一个</b>账户到<b>一个</b>FIO 名称。</string>
     <string name="select_token">向「%s」账户添加 ERC-20 代币</string>
     <string name="select_you_region">选择您所在的地区</string>
     <string name="select_your_country">选择您所在的国家</string>
@@ -529,7 +515,6 @@
     <string name="set_password">设置密码</string>
     <string name="shamir_share_hint"><![CDATA[总分片数：将私钥分割成的部分数量。\n\n阈值：重建私钥所需的部分数量。]]></string>
     <string name="share">分享</string>
-    <string name="share_fio_public_key">分享 FIO 公钥</string>
     <string name="share_logs">分享日志</string>
     <string name="share_news">分享新闻</string>
     <string name="share_of">分片 %1$d</string>
@@ -558,7 +543,6 @@
     <string name="support_team_text">请描述问题以及重现步骤。为了完整了解问题，请附上日志。</string>
     <string name="sync_failed_reason_s">同步失败。原因：%s</string>
     <string name="sync_failed_s">同步失败。%s</string>
-    <string name="tab_fio_requests">FIO 请求</string>
     <string name="tab_partners">商家</string>
     <string name="tab_vip">VIP</string>
     <string name="tap_next">点击 %s</string>

@@ -42,22 +42,16 @@
     <string name="backup_not_verified">Záloha neoverená</string>
     <string name="backup_now">Zálohovať teraz</string>
     <string name="backup_words_title">Záloha Master Seed</string>
-    <string name="base_label_fio_account_legacy">FIO Legacy účet</string>
     <string name="bch_accounts_found"><![CDATA[Na vašich BTC účtoch sme našli %1$s Bitcoin <font color="#f08c18">Cash</font>.<br><br>Vytvorené sú %2$d zodpovedajúce Bitcoin <font color="#f08c18">Cash</font> účty.\nZostatok Bitcoin <font color="#f08c18">Cash</font> možno overiť na karte Účty.<br><br>Teraz môžete prejsť na kartu Zostatok vášho Bitcoin <font color="#f08c18">Cash</font> účtu a okamžite ho vymeniť za BTC.]]></string>
     <string name="bch_accounts_not_found"><![CDATA[Na vašich BTC účtoch sme nenašli žiadny Bitcoin <font color="#f08c18">Cash</font>.<br>Neustále monitorujeme vaše BTC účty a budeme vás informovať, ak sa nájde Bitcoin <font color="#f08c18">Cash</font>.]]></string>
     <string name="bip32_root_account">Root účet</string>
     <string name="block_access_to_account">Úmyselne deaktivujeme kartu Moje účty, kým spravujete svoj účet %1$s. Je to preto, aby sa zabránilo odosielaniu vašich digitálnych aktív kdekoľvek inde okrem iného účtu %1$s.</string>
-    <string name="btcv_account_creation_started">Vytváranie nového BTCV účtu…</string>
-    <string name="btcvault_hd_account">Pridať Bitcoin Vault HD účet</string>
     <string name="cant_disable_active_account">Nemôžete zakázať aktívny účet</string>
     <string name="choose_the_currency_and_btc_receiving_account">Vyberte menu a BTC prijímajúci účet</string>
     <string name="clipboard_not_available">Schránka nie je platná</string>
     <string name="confirm_delete_account_message_end">Chcete ho odstrániť?</string>
     <string name="confirm_delete_private_key_message">Pred odstránením privátneho kľúča sa uistite, že máte jeho zálohu uloženú offline a na bezpečnom mieste. Pri potrebe minúť bitcoiny z tohto účtu ho budete musieť \"pridať späť\" zo zálohy.</string>
     <string name="confirm_delete_private_key_message_end">Chcete ho nastaviť ako iba na čítanie?</string>
-    <string name="connect_accounts">Uložiť</string>
-    <string name="create_fio_account">Vytvoriť FIO účet</string>
-    <string name="create_fio_legacy_presale_account">Vytvoriť FIO Legacy účet</string>
     <string name="create_new_account">Pridať nový ETH účet</string>
     <string name="delete_account">Odstrániť účet</string>
     <string name="delete_account_message"><![CDATA[Chcete odstrániť účet <b>"%1$s"</b> obsahujúci <b>%2$s</b> a <b>"%3$s"</b> obsahujúci <b>%4$s</b>?]]></string>
@@ -83,7 +77,6 @@
     <string name="eth_account_creation_started">Vytváranie nového ETH účtu…</string>
     <string name="export">Exportovať kľúče účtu</string>
     <string name="export_account_data_warning">Chystáte sa exportovať citlivé údaje vybraného účtu.\n\nKtokoľvek, kto získa prístup k týmto kľúčom, môže buď prevziať bitcoiny, ktoré ovládajú, alebo získať informácie, ktoré by mohli ohroziť vaše súkromie.\n\nChcete pokračovať?</string>
-    <string name="export_fio_public_key_title">Exportovať FIO verejný kľúč</string>
     <string name="export_history">Exportovať históriu transakcií</string>
     <string name="export_not_possible">Export nie je možný, už máte účet %s</string>
     <string name="export_private_key_red_warning">Tento kľúč kopírujte len v bezpečnom prostredí.\nKtokoľvek, kto k nemu má prístup, získa kontrolu nad všetkými aktuálnymi a budúcimi bitcoinami pre tento účet.\n\nDlho stlačte sem pre zobrazenie \nQR kódu </string>
@@ -121,7 +114,6 @@
     <string name="hd_account_creation_started">Vytvára sa nový HD Bitcoin účet…</string>
     <string name="hd_account_selector_no_account_found">Nenašli sa žiadne aktívne účty.</string>
     <string name="hd_eth_account">Pridať Ethereum účet</string>
-    <string name="hd_fio_account">Pridať FIO účet</string>
     <string name="hide_unused_account_menu">Vymazať účet</string>
     <string name="import_decrypt_bip38_display_password">Zobraziť heslo</string>
     <string name="import_seed_title">Importovať Master Seed</string>
@@ -160,11 +152,9 @@
     <string name="master_seed_configuration_description">Chcete obnoviť zálohu alebo vytvoriť novú peňaženku?</string>
     <string name="master_seed_configuration_title">Vitajte v Mycelium</string>
     <string name="master_seed_create_new_button">Vytvoriť novú</string>
-    <string name="master_seed_not_configured">Master seed nie je nakonfigurovaný</string>
     <string name="master_seed_restore_backup_button">Obnoviť zálohu</string>
     <string name="migrating_accounts">Migrujú sa účty</string>
     <string name="my_accounts">Moje účty</string>
-    <string name="new_fio_legacy_presale_account_desc">Vytvorte FIO Legacy účet IBA ak ste si zakúpili FIO doménu počas FIO Presale.</string>
     <string name="no_account_yet_register">Ešte nemáte účet? <font color="#F2E868">Zaregistrovať sa</font></string>
     <string name="no_spendable_accounts">Žiadne minutiteľné účty</string>
     <string name="parent_eth_account">ETH %s:</string>
@@ -186,7 +176,6 @@
     <string name="select_eth_account_to_erc20_subtext">ERC-20 tokeny existujú na ETH účtoch a vyžadujú ETH na uskutočnenie transakcií.\nJeden ETH účet môže uchovávať neobmedzené typy ERC-20 tokenov - jeden z každého typu na ETH účet.</string>
     <string name="select_ext_sig_account_to_spend_from">Vyberte účet, z ktorého chcete míňať</string>
     <string name="select_ledger_account_to_spend_from">Vyberte účet, z ktorého chcete míňať</string>
-    <string name="select_name_to_associate_read_only_account">Účty pripojené k tomuto FIO menu. Iba <b>jeden</b> účet pre každú kryptomenu môže byť pripojený s <b>jedným</b> FIO menom.</string>
     <string name="select_spending_account">Vyberte účet na míňanie</string>
     <string name="select_token_new_account">Pridať ERC-20 tokeny do nového ETH účtu</string>
     <string name="set_up_2fa_to_secure_your_account">Nastavte 2FA na zabezpečenie vášho účtu</string>

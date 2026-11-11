@@ -171,9 +171,6 @@
     <string name="no_exchange_available">Hesap için kullanılabilir Borsa yok</string>
     <string name="no_gift_cards_linked">Mağaza kataloğunu keşfederek veya Siparişlerinizin durumunu kontrol ederek başlayın.</string>
     <string name="no_purchased_gift_card">HENÜZ HİÇBİR HEDİYE\nKARTI SATIN ALMADINIZ</string>
-    <string name="partner_fiopresale">FIO Adres Ön Satışı</string>
-    <string name="partner_fiopresale_info"/>
-    <string name="partner_fiopresale_short">Daha iyi bir blockchain deneyimine açılan anahtarınız</string>
     <string name="partner_more_info"><u>Gizliliğiniz en büyük önceliğimizdir</u></string>
     <string name="partner_more_info_text">
         Mycelium, en güvenilir ve kullanışlı mobil bitcoin cüzdanlarından biridir.<br />

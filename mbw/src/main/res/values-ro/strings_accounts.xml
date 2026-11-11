@@ -72,13 +72,10 @@
     <string name="backup_now">Backup acum</string>
     <string name="backup_private_key">Backup</string>
     <string name="backup_words_title">Master Seed Backup</string>
-    <string name="base_label_fio_account_legacy">Cont FIO Legacy</string>
     <string name="bch_accounts_found"><![CDATA[Am găsit %1$s Bitcoin <font color="#f08c18">Cash</font> în conturile dvs. BTC.<br><br>%2$d cont(uri) Bitcoin <font color="#f08c18">Cash</font> corespunzătoare au fost create.\nSoldul Bitcoin <font color="#f08c18">Cash</font> poate fi verificat în fila Conturi.<br><br>Acum puteți merge la fila Sold a contului(rilor) dvs. Bitcoin <font color="#f08c18">Cash</font> și să-l schimbați instantaneu în BTC.]]></string>
     <string name="bch_accounts_not_found"><![CDATA[Nu am găsit niciun Bitcoin <font color="#f08c18">Cash</font> în conturile dvs. BTC.<br>Monitorizăm continuu conturile dvs. BTC și vă vom informa dacă se găsește Bitcoin <font color="#f08c18">Cash</font>.]]></string>
     <string name="bip32_root_account">Cont rădăcină</string>
     <string name="block_access_to_account">Dezactivăm intenționat fila Conturile mele în timp ce vă administrați contul %1$s. Acest lucru este pentru a vă împiedica să vă trimiteți activele digitale în altă parte cu excepția unui alt cont %1$s.</string>
-    <string name="btcv_account_creation_started">Se creează un cont BTCV nou…</string>
-    <string name="btcvault_hd_account">Adaugă cont Bitcoin Vault HD</string>
     <string name="cant_disable_active_account">Nu puteți dezactiva contul activ</string>
     <string name="choose_the_currency_and_btc_receiving_account">Alegeți moneda și contul BTC de primire</string>
     <string name="clipboard">Clipboard</string>
@@ -86,9 +83,6 @@
     <string name="confirm_delete_account_message_end">Doriți să-l ștergeți?</string>
     <string name="confirm_delete_private_key_message">Înainte de a șterge cheia privată, asigurați-vă că aveți copia de rezervă stocată offline într-un loc sigur. Va trebui să o \"adăugați înapoi\" din copia de rezervă atunci când va trebui să cheltuiți bitcoin-urile din acest cont.</string>
     <string name="confirm_delete_private_key_message_end">Doriți să-l faceți watch-only?</string>
-    <string name="connect_accounts">Salvează</string>
-    <string name="create_fio_account">Creează cont FIO</string>
-    <string name="create_fio_legacy_presale_account">Creează cont FIO Legacy</string>
     <string name="create_new_account">Adaugă cont ETH nou</string>
     <string name="delete_account">Șterge cont</string>
     <string name="delete_account_message"><![CDATA[Doriți să ștergeți contul <b>\"%1$s\"</b> care conține <b>%2$s</b> și <b>\"%3$s\"</b> care conține <b>%4$s</b>?]]></string>
@@ -115,7 +109,6 @@
     <string name="eth_account_creation_started">Se creează un cont ETH nou…</string>
     <string name="export">Exportă cheile contului</string>
     <string name="export_account_data_warning">Sunteți pe cale să exportați date sensibile ale contului selectat.\n\nOricine obține acces la aceste chei poate fie să ia în posesie bitcoin-urile pe care le controlează, fie să obțină informații care ar putea submina confidențialitatea.\n\nDoriți să continuați?</string>
-    <string name="export_fio_public_key_title">Exportă cheia publică FIO</string>
     <string name="export_history">Exportă istoricul tranzacțiilor</string>
     <string name="export_not_possible">Exportul nu este posibil deoarece aveți deja contul %s</string>
     <string name="export_private_key_red_warning">Copiați această cheie doar într-un mediu sigur.\nOricine are acces la ea obține controlul asupra tuturor bitcoin-urilor curente și viitoare disponibile pentru acest cont.\n\nApăsați lung aici pentru a afișa \ncodul QR </string>
@@ -153,7 +146,6 @@
     <string name="hd_account_creation_started">Se creează un nou cont HD Bitcoin…</string>
     <string name="hd_account_selector_no_account_found">Nu s-au găsit conturi active.</string>
     <string name="hd_eth_account">Adaugă cont Ethereum</string>
-    <string name="hd_fio_account">Adaugă cont FIO</string>
     <string name="hide_unused_account_menu">Șterge Cont</string>
     <string name="import_decrypt_bip38_display_password">Afișează parola</string>
     <string name="import_decrypt_key_enter_password">Introdu parola de 15 caractere și suma de control.</string>
@@ -192,11 +184,9 @@
     <string name="master_seed_configuration_description">Vrei să restaurezi un backup, sau să creezi un portofel nou?</string>
     <string name="master_seed_configuration_title">Bun venit la Mycelium</string>
     <string name="master_seed_create_new_button">Creează nou</string>
-    <string name="master_seed_not_configured">Master seed nu este configurat</string>
     <string name="master_seed_restore_backup_button">Restaurează Backup</string>
     <string name="migrating_accounts">Se migrează conturile</string>
     <string name="my_accounts">Conturile mele</string>
-    <string name="new_fio_legacy_presale_account_desc">Creează cont FIO Legacy DOAR dacă ai cumpărat un FIO domain în timpul FIO Presale.</string>
     <string name="no_account_yet_register">Nu ai cont încă? <font color="#F2E868">Înregistrează-te</font></string>
     <string name="no_spendable_accounts">Niciun cont cheltuibil</string>
     <string name="parent_eth_account">ETH %s:</string>
@@ -218,7 +208,6 @@
     <string name="select_eth_account_to_erc20_subtext">Token-urile ERC-20 există pe conturi ETH și necesită ETH pentru a face tranzacții.\nUn singur cont ETH poate stoca tipuri nelimitate de token-uri ERC-20 - câte unul din fiecare tip per cont ETH.</string>
     <string name="select_ext_sig_account_to_spend_from">Selectați contul din care să cheltuiți</string>
     <string name="select_ledger_account_to_spend_from">Selectați contul din care să cheltuiți</string>
-    <string name="select_name_to_associate_read_only_account">Conturi conectate la acest nume FIO. Doar <b>un</b> cont per fiecare criptomonedă poate fi conectat cu <b>un</b> nume FIO.</string>
     <string name="select_spending_account">Selectați contul de cheltuire</string>
     <string name="select_token_new_account">Adaugă token-uri ERC-20 la noul cont ETH</string>
     <string name="set_up_2fa_to_secure_your_account">Configurați 2FA pentru a vă securiza contul</string>

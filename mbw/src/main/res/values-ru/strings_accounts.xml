@@ -230,16 +230,11 @@
     <string name="add_selfie">Добавить селфи</string>
     <string name="backup_code_will_be_the_font_only">Резервный код будет <font color="#CE3C4E">единственным способом войти в ваш аккаунт</font>, если ваш телефон будет недоступен</string>
     <string name="backup_not_generated">Резервный код не был сгенерирован</string>
-    <string name="base_label_fio_account_legacy">FIO Legacy аккаунт</string>
     <string name="cant_disable_active_account">Нельзя отключить активный аккаунт</string>
-    <string name="connect_accounts">Сохранить</string>
-    <string name="create_fio_account">Создать FIO аккаунт</string>
     <string name="ext_sig_you_sending_message"><![CDATA[<b>Сумма</b> — выбранное значение для отправки на адрес назначения.<br><b>Комиссия</b> — выбранное значение комиссии майнера.<br><b>Вы отправляете</b> — значение, которое реально будет отправлено из вашего кошелька.<br>Вы отправляете:<br>  Сумма %1$s<br>  + Комиссия %2$s<br>  = %3$s<br><b>Сдача</b> — значение сдачи, которое будет отправлено обратно на ваш адрес сдачи.<br><b>Итого</b> — значение, которое будет показано на экране вашего <b>%6$s</b>.<br>Итого:<br>  Вы отправляете %3$s<br>  + Сдача %4$s<br>  = %5$s]]></string>
     <string name="ext_sig_you_sending_title">Пояснение к сводке</string>
     <string name="hardware_account_create">Создание нового аккаунта аппаратного кошелька</string>
-    <string name="hd_fio_account">Добавить FIO аккаунт</string>
     <string name="loading_accounts">Загрузка аккаунтов</string>
-    <string name="master_seed_not_configured">Master seed не настроен</string>
     <string name="migrating_accounts">Миграция аккаунтов</string>
     <string name="no_account_yet_register">Ещё нет аккаунта? <font color="#F2E868">Зарегистрироваться</font></string>
     <string name="password">Пароль</string>
@@ -247,7 +242,6 @@
     <string name="payment_uri_wrong_account_eth">Выберите Ethereum аккаунт, чтобы прочитать payment uri</string>
     <string name="please_add_your_bequant_account_to_your_google_authenticator_app_by_manually_entering_the_codes_below_into_the_authenticator_app">Добавьте ваш Bequant аккаунт в приложение Google Authenticator, вручную введя коды ниже в приложение Authenticator.</string>
     <string name="secure_your_account">Защитите ваш аккаунт</string>
-    <string name="select_name_to_associate_read_only_account">Аккаунты, подключённые к этому FIO Name. К <b>одному</b> FIO Name можно подключить только <b>один</b> аккаунт каждой криптовалюты.</string>
     <string name="set_up_2fa_to_secure_your_account">Настройте 2FA для защиты вашего аккаунта</string>
     <string name="single_eth_account">У вас может быть только один Ethereum аккаунт.</string>
     <string name="your_account_was_verified_sucessfully">Ваш аккаунт успешно верифицирован.</string>

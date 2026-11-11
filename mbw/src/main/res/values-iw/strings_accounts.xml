@@ -34,22 +34,16 @@
     <string name="backup_not_verified">הגיבוי לא אומת</string>
     <string name="backup_now">גבה עכשיו</string>
     <string name="backup_words_title">גיבוי Master Seed</string>
-    <string name="base_label_fio_account_legacy">חשבון FIO Legacy</string>
     <string name="bch_accounts_found"><![CDATA[מצאנו %1$s Bitcoin <font color="#f08c18">Cash</font> בחשבונות BTC שלך.<br><br>%2$d חשבון(ות) Bitcoin <font color="#f08c18">Cash</font> מקבילים נוצרו.\nניתן לבדוק את יתרת Bitcoin <font color="#f08c18">Cash</font> בלשונית החשבונות.<br><br>כעת תוכל לגשת ללשונית היתרה של חשבון(ות) ה-Bitcoin <font color="#f08c18">Cash</font> שלך ולהמירו מיידית ל-BTC.]]></string>
     <string name="bch_accounts_not_found"><![CDATA[לא מצאנו Bitcoin <font color="#f08c18">Cash</font> בחשבונות BTC שלך.<br>אנו ממשיכים לעקוב אחר חשבונות ה-BTC שלך ונודיע לך אם יימצא Bitcoin <font color="#f08c18">Cash</font>.]]></string>
     <string name="bip32_root_account">חשבון Root</string>
     <string name="block_access_to_account">אנו משביתים בכוונה את לשונית החשבונות שלי בזמן שאתה מנהל את חשבון ה-%1$s שלך. זאת כדי למנוע ממך לשלוח את הנכסים הדיגיטליים שלך לכל מקום אחר מלבד חשבון %1$s אחר.</string>
-    <string name="btcv_account_creation_started">יוצר חשבון BTCV חדש…</string>
-    <string name="btcvault_hd_account">הוסף חשבון Bitcoin Vault HD</string>
     <string name="cant_disable_active_account">אינך יכול להשבית חשבון פעיל</string>
     <string name="choose_the_currency_and_btc_receiving_account">בחר את המטבע וחשבון קבלת ה-BTC</string>
     <string name="clipboard_not_available">Clipboard לא תקין</string>
     <string name="confirm_delete_account_message_end">האם ברצונך למחוק אותו?</string>
     <string name="confirm_delete_private_key_message">לפני מחיקת המפתח הפרטי, ודא שיש לך גיבוי שלו מאוחסן offline ובמקום בטוח. תצטרך \"להוסיפו בחזרה\" מהגיבוי כאשר תצטרך להוציא את הביטקוין מחשבון זה.</string>
     <string name="confirm_delete_private_key_message_end">האם ברצונך להפכו ל-watch-only?</string>
-    <string name="connect_accounts">שמור</string>
-    <string name="create_fio_account">צור חשבון FIO</string>
-    <string name="create_fio_legacy_presale_account">צור חשבון FIO Legacy</string>
     <string name="create_new_account">הוסף חשבון ETH חדש</string>
     <string name="delete_account">מחק חשבון</string>
     <string name="delete_account_message"><![CDATA[האם ברצונך למחוק את החשבון <b>"%1$s"</b> המחזיק <b>%2$s</b> ואת <b>"%3$s"</b> המחזיק <b>%4$s</b>?]]></string>
@@ -74,7 +68,6 @@
     <string name="eth_account_creation_started">יוצר חשבון ETH חדש…</string>
     <string name="export">ייצא מפתחות חשבון</string>
     <string name="export_account_data_warning">אתה עומד לייצא נתונים רגישים של החשבון הנבחר.\n\nכל מי שיגיע למפתחות אלה יכול לקחת בעלות על הביטקוין שהוא שולט עליו או להשיג מידע שעשוי לערער את פרטיותך.\n\nהאם ברצונך להמשיך?</string>
-    <string name="export_fio_public_key_title">ייצא מפתח ציבורי FIO</string>
     <string name="export_history">ייצא היסטוריית עסקאות</string>
     <string name="export_not_possible">ייצוא אינו אפשרי, יש לך כבר חשבון %s</string>
     <string name="export_private_key_red_warning">העתק מפתח זה רק בסביבה מאובטחת.\nכל מי שיש לו גישה אליו מקבל שליטה על כל הביטקוין הנוכחי והעתידי הזמין בחשבון זה.\n\nהקש ארוך כאן כדי להציג את \nקוד ה-QR </string>
@@ -112,7 +105,6 @@
     <string name="hd_account_creation_started">יוצר HD Bitcoin Account חדש…</string>
     <string name="hd_account_selector_no_account_found">לא נמצאו חשבונות פעילים.</string>
     <string name="hd_eth_account">הוסף Ethereum Account</string>
-    <string name="hd_fio_account">הוסף FIO Account</string>
     <string name="hide_unused_account_menu">מחק חשבון</string>
     <string name="import_decrypt_bip38_display_password">הצג סיסמה</string>
     <string name="import_wordlist_questions">אנא בחר את אורך רשימת המילים לשחזור וציין אם היא מוגנת בסיסמה.</string>
@@ -148,9 +140,7 @@
     <string name="loading_accounts">טוען חשבונות</string>
     <string name="master_seed_configuration_description">האם ברצונך לשחזר גיבוי, או ליצור ארנק חדש?</string>
     <string name="master_seed_configuration_title">ברוך הבא ל-Mycelium</string>
-    <string name="master_seed_not_configured">Master seed לא מוגדר</string>
     <string name="migrating_accounts">מהגר חשבונות</string>
-    <string name="new_fio_legacy_presale_account_desc">צור FIO Legacy Account רק אם רכשת FIO domain במהלך FIO Presale.</string>
     <string name="no_account_yet_register">עדיין אין חשבון? <font color="#F2E868">הירשם</font></string>
     <string name="no_spendable_accounts">אין חשבונות הניתנים להוצאה</string>
     <string name="parent_eth_account">ETH %s:</string>
@@ -172,7 +162,6 @@
     <string name="select_eth_account_to_erc20_subtext">אסימוני ERC-20 קיימים בחשבונות ETH ודורשים ETH לביצוע עסקאות.\nחשבון ETH יחיד יכול לאחסן סוגים בלתי מוגבלים של אסימוני ERC-20 - אחד מכל סוג לכל חשבון ETH.</string>
     <string name="select_ext_sig_account_to_spend_from">בחר חשבון להוצאה</string>
     <string name="select_ledger_account_to_spend_from">בחר חשבון להוצאה</string>
-    <string name="select_name_to_associate_read_only_account">חשבונות מחוברים לשם FIO זה. רק <b>חשבון אחד</b> לכל מטבע קריפטוגרפי יכול להיות מחובר ל-<b>שם FIO אחד</b>.</string>
     <string name="select_spending_account">בחר חשבון הוצאה</string>
     <string name="select_token_new_account">הוסף אסימוני ERC-20 לחשבון ETH חדש</string>
     <string name="set_up_2fa_to_secure_your_account">הגדר 2FA כדי לאבטח את החשבון שלך</string>

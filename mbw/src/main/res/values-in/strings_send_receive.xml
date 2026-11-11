@@ -215,10 +215,8 @@
     <string name="queue_transaction_message">Gagal menyiarkan transaksi.\nApakah Anda ingin mengantrekan transaksi agar dikirim secara otomatis saat Anda online?</string>
     <string name="rebroadcast_transaction_title">Siarkan ulang transaksi</string>
     <string name="receive_cointype">Terima %1$s</string>
-    <string name="receive_title_fio">FIO Public key</string>
     <string name="received">Diterima</string>
     <string name="receiver_address_hint">1Address1234\n567890abcdef\nghijklmnop</string>
-    <string name="recipient_has_no_such_address">%1$s tidak memiliki alamat %2$s yang terhubung</string>
     <string name="recipient_invalid">Alamat atau Nama FIO tidak valid</string>
     <string name="recipient_valid">Penerima Valid</string>
     <string name="remove_queued_transaction">Apakah Anda benar-benar ingin menghapus transaksi yang diantrekan ini dan mencegahnya disiarkan?</string>
@@ -231,12 +229,10 @@
     <string name="restore_address_as">Pulihkan alamat sebagai</string>
     <string name="retrieving_pubkey_address">Mengambil alamat berikutnya yang belum digunakan…</string>
     <string name="return_to_payment">Kembali ke Pesanan</string>
-    <string name="s_fio_request">%s FIO Request</string>
     <string name="s_payment_request">%s Payment Request</string>
     <string name="select_key_for_signing">Pilih Key untuk Penandatanganan</string>
     <string name="send_cointype">Kirim %1$s</string>
     <string name="send_fee_hint"><b>PERHATIAN.</b> Transaksi dengan miner fee prioritas rendah mungkin tidak pernah dikonfirmasi atau dikonfirmasi dalam beberapa jam atau bahkan hari. Jangan pilih prioritas rendah jika Anda tidak memahami cara kerja jaringan bitcoin.</string>
-    <string name="send_fio_request">Kirim FIO Request</string>
     <string name="send_mail">Kirim email…</string>
     <string name="sending_addresses">Buku Alamat</string>
     <string name="sending_assets">Mengirim aset %s.</string>
@@ -263,7 +259,6 @@
     <string name="tips_rmc_check_address">Jika Anda telah mengirim aset digital ke alamat bitcoin acak, aset tersebut tidak hancur.\nUntuk mengambilnya, Anda memiliki dua opsi:\n1) Gunakan Colored Coins API untuk mengirim aset Anda secara manual kembali ke alamat yang dikelola oleh Mycelium Wallet.\n2) Kirim tiket ke dukungan Mycelium Wallet untuk mengambil aset Anda. Untuk layanan ini, biaya tambahan mungkin berlaku. Anda akan menerima informasi terperinci setelah menghubungi dukungan.\n\nDalam kedua kasus, Anda harus memiliki private key dari alamat yang Anda kirimi aset digital.</string>
     <string name="too_many_transaction_records">Tidak dapat mengambil riwayat transaksi akun secara penuh karena ukurannya yang sangat besar. Pertimbangkan untuk memindahkan dana ke akun baru.</string>
     <string name="total_amount">Jumlah total:</string>
-    <string name="transaction_from_address_prefix">Dari: %s</string>
     <string name="transaction_gas_limit">Gas Limit (unit):</string>
     <string name="transaction_input_data">Input Data:</string>
     <string name="transaction_label_title">Label Transaksi</string>

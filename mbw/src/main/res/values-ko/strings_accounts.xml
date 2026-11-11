@@ -41,22 +41,16 @@
     <string name="backup_not_verified">백업이 검증되지 않았습니다</string>
     <string name="backup_now">지금 백업</string>
     <string name="backup_words_title">Master Seed 백업</string>
-    <string name="base_label_fio_account_legacy">FIO Legacy 계정</string>
     <string name="bch_accounts_found"><![CDATA[고객님의 BTC 계정에서 %1$s Bitcoin <font color="#f08c18">Cash</font>를 발견하였습니다.<br><br>%2$d개의 해당 Bitcoin <font color="#f08c18">Cash</font> 계정이 생성되었습니다.\nBitcoin <font color="#f08c18">Cash</font> 잔액은 계정 탭에서 확인하실 수 있습니다.<br><br>이제 Bitcoin <font color="#f08c18">Cash</font> 계정의 잔액 탭으로 이동하셔서 즉시 BTC로 교환하실 수 있습니다.]]></string>
     <string name="bch_accounts_not_found"><![CDATA[고객님의 BTC 계정에서 Bitcoin <font color="#f08c18">Cash</font>를 발견하지 못했습니다.<br>BTC 계정을 지속적으로 모니터링하고 있으며 Bitcoin <font color="#f08c18">Cash</font>가 발견되면 알려드리겠습니다.]]></string>
     <string name="bip32_root_account">Root 계정</string>
     <string name="block_access_to_account">고객님께서 %1$s 계정을 관리하시는 동안 의도적으로 내 계정 탭을 비활성화합니다. 이는 다른 %1$s 계정 외 다른 곳으로 디지털 자산을 보내는 것을 방지하기 위함입니다.</string>
-    <string name="btcv_account_creation_started">새 BTCV 계정 생성 중…</string>
-    <string name="btcvault_hd_account">Bitcoin Vault HD 계정 추가</string>
     <string name="cant_disable_active_account">활성 계정은 비활성화하실 수 없습니다</string>
     <string name="choose_the_currency_and_btc_receiving_account">통화 및 BTC 수신 계정 선택</string>
     <string name="clipboard_not_available">유효하지 않은 클립보드입니다</string>
     <string name="confirm_delete_account_message_end">삭제하시겠습니까?</string>
     <string name="confirm_delete_private_key_message">비밀키를 삭제하시기 전에 오프라인 및 안전한 장소에 백업이 저장되어 있는지 확인하십시오. 이 계정에서 비트코인을 사용하셔야 할 때 백업에서 \"다시 추가\"하셔야 합니다.</string>
     <string name="confirm_delete_private_key_message_end">watch-only로 만드시겠습니까?</string>
-    <string name="connect_accounts">저장</string>
-    <string name="create_fio_account">FIO 계정 생성</string>
-    <string name="create_fio_legacy_presale_account">FIO Legacy 계정 생성</string>
     <string name="create_new_account">새 ETH 계정 추가</string>
     <string name="delete_account">계정 삭제</string>
     <string name="delete_account_message"><![CDATA[<b>%2$s</b>를 보유한 <b>"%1$s"</b> 계정과 <b>%4$s</b>를 보유한 <b>"%3$s"</b> 계정을 삭제하시겠습니까?]]></string>
@@ -82,7 +76,6 @@
     <string name="eth_account_creation_started">새 ETH 계정 생성 중…</string>
     <string name="export">계정 키 내보내기</string>
     <string name="export_account_data_warning">선택하신 계정의 민감한 데이터를 내보내려고 합니다.\n\n이 키에 액세스할 수 있는 사람은 누구나 해당 비트코인을 소유하거나 프라이버시를 침해할 수 있는 정보를 얻을 수 있습니다.\n\n계속하시겠습니까?</string>
-    <string name="export_fio_public_key_title">FIO 공개 키 내보내기</string>
     <string name="export_history">거래 기록 내보내기</string>
     <string name="export_not_possible">이미 %s 계정이 있어 내보낼 수 없습니다</string>
     <string name="export_private_key_red_warning">이 키는 안전한 환경에서만 복사하시기 바랍니다.\n이에 액세스할 수 있는 사람은 누구나 이 계정의 모든 현재 및 향후 사용 가능한 비트코인을 통제할 수 있게 됩니다.\n\nQR 코드를 표시하시려면 \n여기를 길게 누르십시오 </string>
@@ -120,7 +113,6 @@
     <string name="hd_account_creation_started">새 HD Bitcoin 계정 생성 중…</string>
     <string name="hd_account_selector_no_account_found">활성 계정을 찾을 수 없습니다.</string>
     <string name="hd_eth_account">Ethereum 계정 추가</string>
-    <string name="hd_fio_account">FIO 계정 추가</string>
     <string name="hide_unused_account_menu">계정 삭제</string>
     <string name="import_decrypt_bip38_display_password">암호 표시</string>
     <string name="import_seed_title">Master Seed 가져오기</string>
@@ -159,11 +151,9 @@
     <string name="master_seed_configuration_description">백업을 복원하시겠습니까, 아니면 새 지갑을 만드시겠습니까?</string>
     <string name="master_seed_configuration_title">Mycelium에 오신 것을 환영합니다</string>
     <string name="master_seed_create_new_button">새로 만들기</string>
-    <string name="master_seed_not_configured">Master seed가 구성되지 않았습니다</string>
     <string name="master_seed_restore_backup_button">백업 복원</string>
     <string name="migrating_accounts">계정 마이그레이션 중</string>
     <string name="my_accounts">내 계정</string>
-    <string name="new_fio_legacy_presale_account_desc">FIO Presale 기간 동안 FIO 도메인을 구매한 경우에만 FIO Legacy 계정을 만드세요.</string>
     <string name="no_account_yet_register">아직 계정이 없으신가요? <font color="#F2E868">등록</font></string>
     <string name="no_spendable_accounts">사용 가능한 계정 없음</string>
     <string name="parent_eth_account">ETH %s:</string>
@@ -185,7 +175,6 @@
     <string name="select_eth_account_to_erc20_subtext">ERC-20 토큰은 ETH 계정에 존재하며 거래에 ETH가 필요합니다.\n단일 ETH 계정에는 ETH 계정당 각 유형 하나씩 무제한 유형의 ERC-20 토큰을 저장할 수 있습니다.</string>
     <string name="select_ext_sig_account_to_spend_from">사용할 계정 선택</string>
     <string name="select_ledger_account_to_spend_from">사용할 계정 선택</string>
-    <string name="select_name_to_associate_read_only_account">이 FIO 이름에 연결된 계정입니다. 각 암호화폐당 <b>하나의</b> 계정만 <b>하나의</b> FIO 이름과 연결할 수 있습니다.</string>
     <string name="select_spending_account">사용할 계정 선택</string>
     <string name="select_token_new_account">새 ETH 계정에 ERC-20 토큰 추가</string>
     <string name="set_up_2fa_to_secure_your_account">계정을 보호하기 위해 2FA 설정</string>

@@ -95,7 +95,6 @@
     <!-- Credit Card End-->
     <!-- Simplex start -->
     <!-- Simplex end -->
-    <string name="about_fio_protocol_title">Giới thiệu về FIO Protocol</string>
     <string name="accept">Chấp nhận</string>
     <string name="access_from_any_device">Truy cập từ bất kỳ thiết bị nào</string>
     <string name="activate_by">Kích hoạt bởi</string>
@@ -169,7 +168,6 @@
     <string name="check_gap_bug_spannable_string">Xin lỗi đã làm phiền bạn… \n \nChúng tôi đã phát hiện một lỗi trong logic tài khoản có thể gây ra vấn đề nếu bạn cần khôi phục từ bản sao lưu 12 từ.\n\nĐể biết thêm thông tin, xem tại đây: https://wallet.mycelium.com/info/gaps \n\nChúng tôi có thể thử khắc phục cho bạn không? Nhấn OK để chia sẻ một địa chỉ cho mỗi tài khoản bị ảnh hưởng với chúng tôi.</string>
     <string name="check_internet_and_try_again">Mycelium không thể kết nối tới máy chủ do kết nối internet kém.\nVui lòng kiểm tra kết nối internet và thử lại.</string>
     <string name="checkbox_wordlist_passphrase">Tôi có một cụm mật khẩu</string>
-    <string name="choose_blockchain">Chọn blockchain</string>
     <string name="cick_button_to_show_word">Nhấn nút bên dưới để bắt đầu</string>
     <string name="cold_storage_desc">Bạn sắp chi tiêu từ một khóa riêng tư trong lưu trữ lạnh. Đây có thể là bản sao lưu giấy của khóa riêng tư hoặc một phiếu khóa riêng tư từ máy ATM Bitcoin. Các định dạng sau được hỗ trợ:\nKhóa riêng tư, Master Seed, Khóa xPriv\n\nKhi giao dịch đã được gửi, mọi dấu vết của nó sẽ bị xóa khỏi bộ nhớ trong.</string>
     <string name="colorize">tô màu</string>
@@ -178,7 +176,6 @@
     <string name="configuration_change_restart_warning">Cần khởi động lại ứng dụng để áp dụng các thay đổi cấu hình.</string>
     <string name="confirm">Xác nhận</string>
     <string name="confirm_change_on_device"><![CDATA[Vui lòng xác nhận đầu ra <b>tiền thừa</b> trên %3$s của bạn.<br><br><b>Giá trị:</b><br>%1$s<br><b>Địa chỉ tiền thừa:</b><br>%2$s]]></string>
-    <string name="confirm_fio_link">Bạn có muốn đăng ký FIO Name cho tài khoản HD Bitcoin %1$s của mình không?</string>
     <string name="confirm_output_on_device"><![CDATA[Vui lòng xác nhận đầu ra trên %3$s của bạn.<br><br><b>Giá trị:</b><br>%1$s<br><b>Địa chỉ đích:</b><br>%2$s<br>]]></string>
     <string name="confirmation">Xác nhận trao đổi</string>
     <string name="connect_your_ext_sig_device_info">Cách này chỉ hoạt động nếu điện thoại của bạn hỗ trợ USB-OTG (on-the-go).\n\nĐể kết nối thiết bị, bạn cần một bộ chuyển đổi hoặc cáp USB-OTG. Cắm thiết bị bằng cáp USB của riêng nó vào phía client và kết nối phía host với điện thoại của bạn.</string>
@@ -193,7 +190,6 @@
     <string name="country">Quốc gia</string>
     <string name="course_outdated">Tỷ giá đã lỗi thời</string>
     <string name="create_backup">Tạo bản sao lưu</string>
-    <string name="create_fio_domain">Tạo FIO Domain</string>
     <string name="credit_card_buy">Thẻ tín dụng</string>
     <string name="credit_card_buy_description">Mua Bitcoin bằng thẻ tín dụng</string>
     <string name="credit_card_buy_setting_description">Mua Bitcoin bằng thẻ tín dụng</string>
@@ -211,8 +207,6 @@
     <string name="delete_document">Bạn có muốn xóa tài liệu này không?</string>
     <string name="delete_last_entered_word">Xóa từ cuối</string>
     <string name="delete_pk_message"><![CDATA[Bạn có muốn xóa khóa riêng tư của tài khoản <b>\"%1$s\"</b> đang giữ <b>%2$s</b> không?]]></string>
-    <string name="delete_received_fio_request">Xóa Yêu cầu FIO đã nhận</string>
-    <string name="delete_received_fio_request_msg">Bạn có chắc chắn muốn xóa Yêu cầu FIO này không?</string>
     <string name="deposits_without_destination_tag_will_be_lost">Các khoản nạp không có Thẻ đích sẽ bị mất!</string>
     <string name="description">Mô tả:</string>
     <string name="description_bump_fee">Gửi một giao dịch để tăng phí cho giao dịch chưa xác nhận này.\n\nBạn có muốn chi %2$s để tăng phí lên %1$dsat/B không?</string>
@@ -224,7 +218,6 @@
     <string name="discover">Khám phá</string>
     <string name="do_you_want_resubmit">Bạn đã cập nhật thông tin bên dưới. Bạn có muốn gửi lại đơn của mình không?</string>
     <string name="doc_selfie"><![CDATA[Tài liệu & ảnh tự chụp]]></string>
-    <string name="domain_details">Chi tiết domain</string>
     <string name="dont_allow_archiving_unused_notification">Bạn không thể lưu trữ một tài khoản HD Bitcoin chưa sử dụng</string>
     <string name="dont_allow_hiding_used_notification">Bạn không thể ẩn một tài khoản đã sử dụng, nhưng bạn có thể lưu trữ nó</string>
     <string name="dontagree">Tôi không đồng ý</string>
@@ -246,7 +239,6 @@
     <string name="excange_title">Đổi BCH sang BTC</string>
     <string name="exceed_card_value">Vượt giá trị thẻ</string>
     <string name="exchanging">đang trao đổi</string>
-    <string name="expiration_date">Ngày hết hạn:</string>
     <string name="expire_date">Ngày hết hạn:</string>
     <string name="expires_at">Ngày hết hạn:</string>
     <string name="external_app_needed">Để cập nhật thiết bị, bạn cần một công cụ bên ngoài, nhấn OK để khởi động.</string>
@@ -264,7 +256,6 @@
     <string name="first_bch_installed_message"><![CDATA[Bây giờ chúng tôi cần đồng bộ với blockchain để lấy số dư Bitcoin <font color="#f08c18">Cash</font> của bạn.<br><br>Quy trình này mất một thời gian và được thực hiện trong nền.<br>Bạn có càng nhiều khóa cá nhân thì càng mất thời gian, vui lòng kiên nhẫn. Ví dụ, nếu bạn có khoảng 1000 khóa cá nhân, có thể mất hơn 3 giờ để đồng bộ hoàn toàn.<br>Chúng tôi sẽ thông báo cho bạn khi hoàn tất.<br><br>Bạn luôn có thể kiểm tra tiến trình đồng bộ tại đây: Cài đặt -> Mô-đun Bitcoin <font color="#f08c18">Cash</font>.<br><br>Đối với mỗi tài khoản BTC chưa lấy được Bitcoin <font color="#f08c18">Cash</font>, tài khoản Bitcoin <font color="#f08c18">Cash</font> tương ứng sẽ được tạo.<br><br>Truy cập tab Số dư của tài khoản Bitcoin <font color="#f08c18">Cash</font> để đổi ngay sang BTC.]]></string>
     <string name="first_bch_installed_title"><![CDATA[Mô-đun Mycelium Bitcoin <font color="#f08c18">Cash</font> đã được cài đặt!]]></string>
     <string name="first_name">Tên</string>
-    <string name="following_fio_domains_registered">Các miền FIO sau đã được đăng ký</string>
     <string name="format" translatable="false">%1$td/%1$tm/%1$tY</string>
     <string name="found_clipboard_public_key_title">Tìm thấy khóa công khai trong Clipboard</string>
     <string name="found_clipboard_public_keys_message">Clipboard chứa một khóa công khai.\nBạn có muốn xóa clipboard không?</string>
@@ -334,7 +325,6 @@
     <string name="last_log_entries">Mục nhật ký gần nhất</string>
     <string name="last_name">Họ</string>
     <string name="learn_more_rmc"><u>Tìm hiểu thêm về RMC</u></string>
-    <string name="leave_a_message_for_s">Để lại tin nhắn cho %s</string>
     <string name="legal_information">Thông tin pháp lý</string>
     <string name="less">ít hơn</string>
     <string name="list_added_tokens">Token ERC-20 trên tài khoản \"%s\"</string>
@@ -363,7 +353,6 @@
     <string name="module_uninstall_progress">Đang gỡ cài đặt…</string>
     <string name="modules">Mô-đun</string>
     <string name="more">thêm</string>
-    <string name="my_fio_domains">Miền FIO của tôi</string>
     <string name="mycelium_no_responaility_rmc">Nếu bạn tiếp tục, bạn đồng ý chuyển đến RMC, một dịch vụ của bên thứ ba. Tất cả các tương tác của bạn với RMC nằm ngoài sự kiểm soát của Mycelium và tuân theo Thỏa thuận người dùng, Điều khoản sử dụng và Chính sách bảo mật của RMC. Vui lòng đọc kỹ. Mycelium sẽ không thu thập, lưu trữ hoặc sử dụng bất kỳ thông tin cá nhân nào.\n\nMYCELIUM KHÔNG CHỊU TRÁCH NHIỆM VÀ SẼ KHÔNG CHỊU TRÁCH NHIỆM PHÁP LÝ ĐỐI VỚI BẤT KỲ TỔN THẤT HOẶC THIỆT HẠI NÀO XẢY RA DO TRUY CẬP, SỬ DỤNG, HOẶC DỰA VÀO THÔNG TIN VÀ DỊCH VỤ CỦA NHÀ PHÁT HÀNH RMC</string>
     <string name="mycelium_services">Dịch vụ Mycelium</string>
     <string name="mycelium_terms_of_use">Điều khoản sử dụng Mycelium</string>
@@ -382,7 +371,6 @@
     <string name="no_digital_asset">Khóa cá nhân BIP32 của bạn không chứa bất kỳ tài sản số nào.\n\nNếu bạn cho rằng khác, hãy thử quét lại.</string>
     <string name="no_funds">Không có tiền</string>
     <string name="no_google_play_installed">Google Play chưa được cài đặt trên thiết bị</string>
-    <string name="no_logs">Không có nhật ký</string>
     <string name="no_operations_history">Không có lịch sử hoạt động</string>
     <string name="no_orbot">Orbot chưa được cài đặt</string>
     <string name="no_order_linked">Hiện tại bạn không có giao dịch mua nào liên kết với tài khoản. Bắt đầu bằng cách khám phá danh mục cửa hàng.</string>
@@ -446,7 +434,6 @@
     <string name="register">Đăng ký</string>
     <string name="registration">Đăng ký</string>
     <string name="removed">đã gỡ cài đặt</string>
-    <string name="renew_fio_domain">Gia hạn FIO Domain</string>
     <string name="repeat_password">Nhập lại mật khẩu</string>
     <string name="rescan">Quét lại</string>
     <string name="resend_confirmation_email">Gửi lại email xác nhận.</string>
@@ -477,7 +464,6 @@
     <string name="select_country">Chọn quốc gia</string>
     <string name="select_flows">Chọn dòng</string>
     <string name="select_local_currencies">Chọn tiền tệ của bạn</string>
-    <string name="select_name_to_associate">Kết nối tài khoản với FIO Name của bạn. Chỉ <b>một</b> tài khoản cho mỗi loại tiền điện tử có thể được kết nối với <b>một</b> FIO Name.</string>
     <string name="select_token">Thêm token ERC-20 vào tài khoản \"%s\"</string>
     <string name="select_you_region">Chọn khu vực của bạn</string>
     <string name="select_your_country">Chọn quốc gia của bạn</string>
@@ -494,7 +480,6 @@
     <string name="set_password">Đặt mật khẩu</string>
     <string name="shamir_share_hint"><![CDATA[Tổng số phần: số phần để chia private key.\n\nNgưỡng: số phần cần thiết để khôi phục private key.]]></string>
     <string name="share">Chia sẻ</string>
-    <string name="share_fio_public_key">Chia sẻ FIO public key</string>
     <string name="share_logs">Chia sẻ nhật ký</string>
     <string name="share_news">Chia sẻ tin tức</string>
     <string name="share_of">Phần %1$d</string>
@@ -539,7 +524,6 @@
     <string name="sync_failed_reason_s">Đồng bộ hóa thất bại. Lý do: %s</string>
     <string name="sync_failed_s">Đồng bộ hóa thất bại. %s</string>
     <string name="synchronizing_please_wait">Đang đồng bộ, vui lòng chờ …</string>
-    <string name="tab_fio_requests">Yêu cầu FIO</string>
     <string name="tab_partners">Doanh nghiệp</string>
     <string name="tab_vip">VIP</string>
     <string name="tap_next">Chạm để xem %s</string>

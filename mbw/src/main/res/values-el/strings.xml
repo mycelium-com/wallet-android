@@ -179,7 +179,6 @@
     <!-- Credit Card End-->
     <!-- Simplex start -->
     <!-- Simplex end -->
-    <string name="about_fio_protocol_title">Σχετικά με το Πρωτόκολλο FIO</string>
     <string name="access_from_any_device">Πρόσβαση από οποιαδήποτε συσκευή</string>
     <string name="activate_by">Ενεργοποίηση μέχρι</string>
     <string name="all_countries">Όλες οι χώρες</string>
@@ -244,13 +243,11 @@
     <string name="check_gap_bug_spannable_string">Συγγνώμη που σας διακόπτουμε… \n \nΑνακαλύψαμε ένα σφάλμα στη λογική λογαριασμών που θα προκαλέσει προβλήματα αν κάποτε χρειαστεί να επαναφέρετε από το αντίγραφο ασφαλείας 12 λέξεων.\n\nΓια περισσότερες πληροφορίες δείτε εδώ: https://wallet.mycelium.com/info/gaps \n\nΜπορούμε να προσπαθήσουμε να το επιλύσουμε για εσάς; Πατήστε OK, για να μοιραστείτε μία διεύθυνση ανά επηρεαζόμενο λογαριασμό μαζί μας.</string>
     <string name="check_internet_and_try_again">Το Mycelium δεν μπορεί να συνδεθεί στον διακομιστή λόγω κακής σύνδεσης στο διαδίκτυο.\nΠαρακαλώ επαληθεύστε τη σύνδεσή σας στο διαδίκτυο και προσπαθήστε ξανά.</string>
     <string name="checkbox_wordlist_passphrase">Έχω passphrase</string>
-    <string name="choose_blockchain">Επιλέξτε blockchain</string>
     <string name="colorize">χρωματισμός</string>
     <string name="colu">Ψηφιακό Στοιχείο</string>
     <string name="configuration_change_restart_warning">Απαιτείται επανεκκίνηση της εφαρμογής για να εφαρμοστούν οι αλλαγές διαμόρφωσης.</string>
     <string name="confirm">Επιβεβαίωση</string>
     <string name="confirm_change_on_device"><![CDATA[Παρακαλώ επιβεβαιώστε την έξοδο <b>ρέστων</b> στο %3$s.<br><br><b>Αξία:</b><br>%1$s<br><b>Διεύθυνση Ρέστων:</b><br>%2$s]]></string>
-    <string name="confirm_fio_link">Θέλετε να καταχωρήσετε ένα Όνομα FIO για τον HD Bitcoin λογαριασμό σας %1$s;</string>
     <string name="confirm_output_on_device"><![CDATA[Παρακαλώ επιβεβαιώστε την έξοδο στο %3$s.<br><br><b>Αξία:</b><br>%1$s<br><b>Διεύθυνση Προορισμού:</b><br>%2$s<br>]]></string>
     <string name="confirmation">Επιβεβαίωση ανταλλαγής</string>
     <string name="connect_your_ext_sig_device_info">Αυτό λειτουργεί μόνο αν το τηλέφωνό σας υποστηρίζει USB-OTG (on-the-go).\n\nΓια να συνδέσετε τη συσκευή χρειάζεστε έναν προσαρμογέα ή καλώδιο USB-OTG. Συνδέστε τη συσκευή με το δικό της καλώδιο USB στην πλευρά του πελάτη και συνδέστε την πλευρά host με το τηλέφωνό σας.</string>
@@ -263,7 +260,6 @@
     <string name="country">Χώρα</string>
     <string name="course_outdated">Η συναλλαγματική ισοτιμία είναι παρωχημένη</string>
     <string name="create_backup">Δημιουργία Αντιγράφου Ασφαλείας</string>
-    <string name="create_fio_domain">Δημιουργία Τομέα FIO</string>
     <string name="credit_card_buy">Πιστωτική Κάρτα</string>
     <string name="credit_card_buy_description">Αγορά Bitcoin με πιστωτική κάρτα</string>
     <string name="credit_card_buy_setting_description">Αγορά Bitcoin με πιστωτική κάρτα</string>
@@ -279,8 +275,6 @@
     <string name="decryption_password_hint">ΟΚΩ ΔΙΚ ΟΣΣ ΑΣΣ ABC D</string>
     <string name="delete_document">Θέλετε να διαγράψετε το έγγραφο;</string>
     <string name="delete_pk_message"><![CDATA[Θέλετε να διαγράψετε το ιδιωτικό κλειδί του λογαριασμού <b>\"%1$s\"</b> που περιέχει <b>%2$s</b>;]]></string>
-    <string name="delete_received_fio_request">Διαγραφή ληφθέντος Αιτήματος FIO</string>
-    <string name="delete_received_fio_request_msg">Είστε σίγουροι ότι θέλετε να διαγράψετε αυτό το Αίτημα FIO;</string>
     <string name="deposits_without_destination_tag_will_be_lost">Οι καταθέσεις χωρίς Ετικέτα Προορισμού θα χαθούν!</string>
     <string name="description">Περιγραφή:</string>
     <string name="description_bump_fee">Στείλτε μια συναλλαγή που αυξάνει την προμήθεια για αυτή την μη επιβεβαιωμένη συναλλαγή.\n\nΘέλετε να ξοδέψετε %2$s για να αυξήσετε την προμήθεια στα %1$dsat/B;</string>
@@ -291,7 +285,6 @@
     <string name="discover">Ανακάλυψη</string>
     <string name="do_you_want_resubmit">Έχετε ενημερώσει τις παρακάτω πληροφορίες. Θέλετε να υποβάλετε ξανά την αίτησή σας;</string>
     <string name="doc_selfie"><![CDATA[Έγγραφα & Selfie]]></string>
-    <string name="domain_details">Λεπτομέρειες τομέα</string>
     <string name="download">Λήψη</string>
     <string name="due_to_high_cryptocurrencies_volatility">Λόγω της υψηλής μεταβλητότητας των κρυπτονομισμάτων, η τελική ισοτιμία μπορεί να είναι ελαφρώς υψηλότερη ή χαμηλότερη από την εκτιμώμενη εδώ.</string>
     <string name="edit_gas_limit_advanced_users"><![CDATA[Επεξεργασία Ορίου Gas <i>(για προχωρημένους χρήστες)</i>]]></string>
@@ -307,7 +300,6 @@
     <string name="excange_title">Ανταλλαγή BCH σε BTC</string>
     <string name="exceed_card_value">Υπερβαίνει την αξία της κάρτας</string>
     <string name="exchanging">ανταλλάσσεται</string>
-    <string name="expiration_date">Ημερομηνία λήξης:</string>
     <string name="expire_date">Ημερομηνία λήξης:</string>
     <string name="expires_at">Ημερομηνία λήξης:</string>
     <string name="external_app_needed">Για να ενημερώσετε τη συσκευή χρειάζεστε ένα εξωτερικό εργαλείο, κάντε κλικ στο OK για να το εκκινήσετε.</string>
@@ -323,7 +315,6 @@
     <string name="first_bch_installed_message"><![CDATA[Τώρα πρέπει να το συγχρονίσουμε με το blockchain για να ανακτήσουμε το υπόλοιπο Bitcoin <font color="#f08c18">Cash</font> σας.<br><br>Αυτή η διαδικασία διαρκεί λίγο και εκτελείται στο παρασκήνιο.<br>Όσο περισσότερα ιδιωτικά κλειδιά έχετε τόσο περισσότερο διαρκεί, παρακαλώ κάντε υπομονή. Για παράδειγμα, αν έχετε περίπου 1000 ιδιωτικά κλειδιά, μπορεί να πάρει περισσότερο από 3 ώρες για να ολοκληρωθεί ο πλήρης συγχρονισμός.<br>Θα σας ενημερώσουμε όταν ολοκληρωθεί.<br><br>Μπορείτε πάντα να ελέγξετε την πρόοδο συγχρονισμού εδώ: Ρυθμίσεις -> μονάδα Bitcoin <font color="#f08c18">Cash</font>.<br><br>Για κάθε λογαριασμό BTC με μη ανακτημένο Bitcoin <font color="#f08c18">Cash</font>, θα δημιουργηθεί αντίστοιχος λογαριασμός Bitcoin <font color="#f08c18">Cash</font>.<br><br>Μεταβείτε στην καρτέλα Υπόλοιπο του λογαριασμού Bitcoin <font color="#f08c18">Cash</font> σας για να τον ανταλλάξετε άμεσα με BTC.]]></string>
     <string name="first_bch_installed_title"><![CDATA[Η μονάδα Mycelium Bitcoin <font color="#f08c18">Cash</font> εγκαταστάθηκε!]]></string>
     <string name="first_name">Όνομα</string>
-    <string name="following_fio_domains_registered">Καταχωρήθηκαν οι ακόλουθοι Τομείς FIO</string>
     <string name="format" translatable="false">%1$td/%1$tm/%1$tY</string>
     <string name="found_clipboard_public_key_title">Βρέθηκε Δημόσιο Κλειδί στο Πρόχειρο</string>
     <string name="found_clipboard_public_keys_message">Το πρόχειρο περιέχει ένα δημόσιο κλειδί.\nΘέλετε να εκκαθαρίσετε το πρόχειρο;</string>
@@ -383,7 +374,6 @@
     <string name="label_use_device_location">χρήση τοποθεσίας συσκευής</string>
     <string name="last_name">Επώνυμο</string>
     <string name="learn_more_rmc"><u>Μάθετε περισσότερα για το RMC</u></string>
-    <string name="leave_a_message_for_s">Αφήστε ένα μήνυμα για %s</string>
     <string name="legal_information">Νομικές Πληροφορίες</string>
     <string name="less">λιγότερα</string>
     <string name="list_added_tokens">Διακριτικά ERC-20 στον λογαριασμό \"%s\"</string>
@@ -409,7 +399,6 @@
     <string name="module_uninstall_progress">Απεγκατάσταση…</string>
     <string name="modules">Μονάδες</string>
     <string name="more">περισσότερα</string>
-    <string name="my_fio_domains">Τα FIO Domains μου</string>
     <string name="mycelium_no_responaility_rmc">Εάν συνεχίσετε, συμφωνείτε να μεταβείτε στο RMC, μια υπηρεσία τρίτου μέρους. Όλες οι αλληλεπιδράσεις σας με το RMC είναι εκτός ελέγχου του Mycelium και υπόκεινται στους Όρους Χρήσης Χρήστη, στους Όρους Χρήσης και στην Πολιτική Απορρήτου του RMC. Παρακαλώ διαβάστε τα προσεκτικά. Καμία προσωπική πληροφορία δεν θα συλλεχθεί, αποθηκευτεί ή χρησιμοποιηθεί από το Mycelium.\n\nΤΟ MYCELIUM ΔΕΝ ΑΠΟΔΕΧΕΤΑΙ ΚΑΜΙΑ ΕΥΘΥΝΗ ΚΑΙ ΔΕΝ ΘΑ ΕΙΝΑΙ ΥΠΕΥΘΥΝΟ ΓΙΑ ΟΠΟΙΑΔΗΠΟΤΕ ΑΠΩΛΕΙΑ Ή ΖΗΜΙΑ ΠΟΥ ΥΠΟΣΤΕΙΤΕ ΩΣ ΑΠΟΤΕΛΕΣΜΑ ΤΗΣ ΠΡΟΣΒΑΣΗΣ, ΧΡΗΣΗΣ Ή ΕΜΠΙΣΤΟΣΥΝΗΣ ΣΤΙΣ ΠΛΗΡΟΦΟΡΙΕΣ ΚΑΙ ΥΠΗΡΕΣΙΕΣ ΤΟΥ ΕΚΔΟΤΗ RMC</string>
     <string name="mycelium_services">Υπηρεσίες Mycelium</string>
     <string name="mycelium_terms_of_use">Όροι Χρήσης Mycelium</string>
@@ -425,7 +414,6 @@
     <string name="no_digital_asset">Το BIP32 ιδιωτικό κλειδί σας δεν περιέχει ψηφιακά στοιχεία.\n\nΑν πιστεύετε διαφορετικά, δοκιμάστε να το σαρώσετε ξανά.</string>
     <string name="no_funds">Χωρίς κεφάλαια</string>
     <string name="no_google_play_installed">Δεν είναι εγκατεστημένο το Google Play στη συσκευή</string>
-    <string name="no_logs">Χωρίς αρχεία καταγραφής</string>
     <string name="no_operations_history">Χωρίς ιστορικό λειτουργιών</string>
     <string name="no_orbot">Δεν είναι εγκατεστημένο το Orbot</string>
     <string name="no_order_linked">Δεν έχετε αυτή τη στιγμή αγορές συνδεδεμένες με τον λογαριασμό σας. Ξεκινήστε εξερευνώντας τον κατάλογο καταστημάτων.</string>
@@ -481,7 +469,6 @@
     <string name="register">Εγγραφή</string>
     <string name="registration">Εγγραφή</string>
     <string name="removed">απεγκαταστάθηκε</string>
-    <string name="renew_fio_domain">Ανανέωση FIO Domain</string>
     <string name="repeat_password">Επανάληψη κωδικού</string>
     <string name="rescan">Επανασάρωση</string>
     <string name="resend_confirmation_email">Επαναποστολή email επιβεβαίωσης.</string>
@@ -510,7 +497,6 @@
     <string name="select_card_value_dialog">Επιλέξτε αξία κάρτας:</string>
     <string name="select_country">Επιλέξτε χώρα</string>
     <string name="select_flows">Επιλογή ροών</string>
-    <string name="select_name_to_associate">Συνδέστε λογαριασμούς με το FIO Name σας. Μόνο <b>ένας</b> λογαριασμός ανά κρυπτονόμισμα μπορεί να συνδεθεί με <b>ένα</b> FIO Name.</string>
     <string name="select_token">Προσθήκη διακριτικών ERC-20 στον λογαριασμό \"%s\"</string>
     <string name="select_you_region">Επιλέξτε την περιοχή σας</string>
     <string name="select_your_country">Επιλέξτε τη χώρα σας</string>
@@ -526,7 +512,6 @@
     <string name="set_password">Ορισμός κωδικού</string>
     <string name="shamir_share_hint"><![CDATA[Συνολικά μερίδια: ένας αριθμός μερών στα οποία θα διαιρεθεί το ιδιωτικό κλειδί.\n\nΌριο: αριθμός μερών που χρειάζονται για την ανακατασκευή του ιδιωτικού κλειδιού.]]></string>
     <string name="share">Κοινοποίηση</string>
-    <string name="share_fio_public_key">Κοινοποίηση FIO public key</string>
     <string name="share_logs">Κοινοποίηση Αρχείων Καταγραφής</string>
     <string name="share_news">Κοινοποίηση Ειδήσεων</string>
     <string name="share_of">Μερίδιο %1$d</string>
@@ -555,7 +540,6 @@
     <string name="support_team_text">Παρακαλώ περιγράψτε το πρόβλημα και τα βήματα για να αναπαραχθεί. Για να έχουμε μια πλήρη εικόνα του προβλήματος, παρακαλώ επισυνάψτε τα αρχεία καταγραφής.</string>
     <string name="sync_failed_reason_s">Ο συγχρονισμός απέτυχε. Λόγος: %s</string>
     <string name="sync_failed_s">Ο συγχρονισμός απέτυχε. %s</string>
-    <string name="tab_fio_requests">Αιτήματα FIO</string>
     <string name="tab_partners">Επιχειρήσεις</string>
     <string name="tab_vip">VIP</string>
     <string name="tap_next">Πατήστε για %s</string>

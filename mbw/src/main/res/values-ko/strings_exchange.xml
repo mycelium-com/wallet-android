@@ -171,9 +171,6 @@
     <string name="no_exchange_available">계정에 사용 가능한 교환소가 없습니다</string>
     <string name="no_gift_cards_linked">매장 카탈로그를 살펴보거나 주문 상태를 확인하여 시작하세요.</string>
     <string name="no_purchased_gift_card">아직 구매한 기프트 카드가\n없습니다</string>
-    <string name="partner_fiopresale">FIO Address Presale</string>
-    <string name="partner_fiopresale_info"/>
-    <string name="partner_fiopresale_short">더 나은 블록체인 경험으로의 열쇠</string>
     <string name="partner_more_info"><u>고객님의 개인정보는 저희의 최우선 순위입니다</u></string>
     <string name="partner_more_info_text">
         Mycelium은 가장 신뢰받고 유용한 모바일 bitcoin 지갑 중 하나입니다.<br />

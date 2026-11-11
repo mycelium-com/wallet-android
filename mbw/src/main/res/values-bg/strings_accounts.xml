@@ -161,21 +161,15 @@
     <string name="backup_not_generated">Резервен код не е генериран</string>
     <string name="backup_not_verified">Резервното копие не е проверено</string>
     <string name="backup_now">Резервно копие сега</string>
-    <string name="base_label_fio_account_legacy">FIO Legacy сметка</string>
     <string name="bch_accounts_found"><![CDATA[Намерихме %1$s Bitcoin <font color="#f08c18">Cash</font> на вашите BTC сметки.<br><br>Създадени са %2$d съответстващи Bitcoin <font color="#f08c18">Cash</font> сметки.\nБалансът на Bitcoin <font color="#f08c18">Cash</font> може да бъде проверен в раздел Сметки.<br><br>Сега можете да отидете в раздела Баланс на вашата(ите) Bitcoin <font color="#f08c18">Cash</font> сметка(и) и моментално да я обмените за BTC.]]></string>
     <string name="bch_accounts_not_found"><![CDATA[Не открихме Bitcoin <font color="#f08c18">Cash</font> на вашите BTC сметки.<br>Постоянно следим вашите BTC сметки и ще ви информираме, ако бъде намерен Bitcoin <font color="#f08c18">Cash</font>.]]></string>
     <string name="bip32_root_account">Root сметка</string>
     <string name="block_access_to_account">Умишлено деактивираме раздела Моите сметки, докато управлявате вашата %1$s сметка. Това е, за да ви предпазим от изпращането на цифровите ви активи някъде другаде, освен на друга %1$s сметка.</string>
-    <string name="btcv_account_creation_started">Създаване на нова BTCV сметка…</string>
-    <string name="btcvault_hd_account">Добави Bitcoin Vault HD сметка</string>
     <string name="cant_disable_active_account">Не можете да деактивирате активна сметка</string>
     <string name="choose_the_currency_and_btc_receiving_account">Изберете валутата и BTC сметка за получаване</string>
     <string name="confirm_delete_account_message_end">Искате ли да я изтриете?</string>
     <string name="confirm_delete_private_key_message">Преди да изтриете частния ключ, уверете се, че имате негово резервно копие, съхранявано офлайн и на сигурно място. Ще трябва да го \"добавите обратно\" от резервно копие, когато трябва да харчите биткоините от тази сметка.</string>
     <string name="confirm_delete_private_key_message_end">Искате ли да я направите само за наблюдение?</string>
-    <string name="connect_accounts">Запази</string>
-    <string name="create_fio_account">Създай FIO сметка</string>
-    <string name="create_fio_legacy_presale_account">Създай FIO Legacy сметка</string>
     <string name="create_new_account">Добави нова ETH сметка</string>
     <string name="delete_account">Изтриване на сметка</string>
     <string name="delete_account_message"><![CDATA[Искате ли да изтриете сметка <b>\"%1$s\"</b>, съдържаща <b>%2$s</b>, и <b>\"%3$s\"</b>, съдържаща <b>%4$s</b>?]]></string>
@@ -196,7 +190,6 @@
     <string name="erc20_account_creation_started">Създаване на нова ERC-20 сметка…</string>
     <string name="eth_account_creation_started">Създаване на нова ETH сметка…</string>
     <string name="export">Експортирай ключове на сметка</string>
-    <string name="export_fio_public_key_title">Експортирай FIO публичен ключ</string>
     <string name="export_history">Експортирай история на транзакциите</string>
     <string name="export_not_possible">Експортът не е възможен, вече имате %s сметка</string>
     <string name="export_private_key_red_warning">Копирайте този ключ само в сигурна среда.\nВсеки, който има достъп до него, получава контрол върху всички текущи и в бъдеще налични биткоини за тази сметка.\n\nЗадръжте натиснато тук, за да покажете \nQR-кода </string>
@@ -210,7 +203,6 @@
     <string name="hardware_wallets">Хардуерни портфейли</string>
     <string name="hd_account_bch">Добави Bitcoin Cash HD сметка</string>
     <string name="hd_eth_account">Добави Ethereum сметка</string>
-    <string name="hd_fio_account">Добави FIO сметка</string>
     <string name="import_xpub_should_xpriv">За ниво на сметка 0 се поддържат само сметки с цифрови активи, които могат да харчат. Моля, използвайте xpriv вместо xpub</string>
     <string name="import_xpub_wrong_depth">Може да се импортират само xpub адреси на ниво на сметка (3).\nТова беше ниво %1$s.</string>
     <string name="ledger_please_wait">Моля, изчакайте …</string>
@@ -219,9 +211,7 @@
     <string name="ledger_unplugged_aid_preference_summary">Поддръжка на различен AID за персонализирани\nbuild-ове на Ledger unplugged</string>
     <string name="list_added_tokens_new_account">ERC-20 токени в нова сметка</string>
     <string name="loading_accounts">Зареждане на сметки</string>
-    <string name="master_seed_not_configured">Master Seed не е конфигуриран</string>
     <string name="migrating_accounts">Мигриране на сметки</string>
-    <string name="new_fio_legacy_presale_account_desc">Създайте FIO Legacy сметка САМО ако сте закупили FIO домейн по време на FIO Presale.</string>
     <string name="no_account_yet_register">Все още нямате сметка? <font color="#F2E868">Регистрирайте се</font></string>
     <string name="no_spendable_accounts">Няма сметки, от които можете да харчите</string>
     <string name="parent_eth_account">ETH %s:</string>
@@ -239,7 +229,6 @@
     <string name="select_account_to_pay_with">Изберете сметка за плащане:</string>
     <string name="select_eth_account_to_erc20">Изберете ETH сметка за съхранение на вашите ERC-20 токени</string>
     <string name="select_eth_account_to_erc20_subtext">ERC-20 токените съществуват в ETH сметки и изискват ETH за извършване на транзакции.\nЕдна ETH сметка може да съхранява неограничен брой типове ERC-20 токени - по един от всеки тип на ETH сметка.</string>
-    <string name="select_name_to_associate_read_only_account">Сметки, свързани с това FIO име. Само <b>една</b> сметка за всяка криптовалута може да бъде свързана с <b>едно</b> FIO име.</string>
     <string name="select_token_new_account">Добавете ERC-20 токени към нова ETH сметка</string>
     <string name="set_up_2fa_to_secure_your_account">Настройте 2FA, за да защитите сметката си</string>
     <string name="single_address_account">Сметка с един адрес</string>

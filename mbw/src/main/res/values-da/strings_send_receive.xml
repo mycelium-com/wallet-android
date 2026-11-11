@@ -219,10 +219,8 @@
     <string name="queue_transaction_message">Kunne ikke broadcaste transaktion.\nVil du sætte transaktionen i kø, så den sendes automatisk, når du kommer online?</string>
     <string name="rebroadcast_transaction_title">Genudsend transaktion</string>
     <string name="receive_cointype">Modtag %1$s</string>
-    <string name="receive_title_fio">FIO offentlig nøgle</string>
     <string name="received">Modtaget</string>
     <string name="receiver_address_hint">1Address1234\n567890abcdef\nghijklmnop</string>
-    <string name="recipient_has_no_such_address">%1$s har ingen %2$s adresse tilknyttet</string>
     <string name="recipient_invalid">Ugyldig adresse eller FIO-navn</string>
     <string name="recipient_valid">Modtager gyldig</string>
     <string name="remove_queued_transaction">Vil du virkelig fjerne denne kø-transaktion og forhindre den i at blive broadcastet?</string>
@@ -235,14 +233,12 @@
     <string name="restore_address_as">Gendan adresse som</string>
     <string name="retrieving_pubkey_address">Henter næste ubrugte adresse…</string>
     <string name="return_to_payment">Tilbage til ordrer</string>
-    <string name="s_fio_request">%s FIO-anmodning</string>
     <string name="s_payment_request">%s betalingsanmodning</string>
     <string name="select_key_for_signing">Vælg nøgle til signering</string>
     <string name="send">Send</string>
     <string name="send_bitcoins">Send Bitcoins</string>
     <string name="send_cointype">Send %1$s</string>
     <string name="send_fee_hint"><b>OPMÆRKSOMHED.</b> Transaktioner med lavt prioritets-minergebyr bliver muligvis aldrig bekræftet eller bekræftet i mange timer eller endda dage. Vælg ikke lav prioritet, hvis du ikke forstår, hvordan bitcoin-netværket fungerer.</string>
-    <string name="send_fio_request">Send FIO-anmodning</string>
     <string name="send_mail">Send mail…</string>
     <string name="sending_addresses">Adressebog</string>
     <string name="sending_assets">Sender %s aktiver.</string>
@@ -265,7 +261,6 @@
     <string name="tips_rmc_check_address">Hvis du har sendt digitale aktiver til en tilfældig bitcoin-adresse, er de ikke ødelagt.\nFor at hente dem har du to muligheder:\n1) Brug Colored Coins API til manuelt at sende dine aktiver tilbage til den adresse, der administreres af Mycelium Wallet.\n2) Indsend en supportanmodning til Mycelium Wallet for at hente dine aktiver. For denne tjeneste kan der gælde yderligere gebyrer. Du modtager detaljerede oplysninger efter at have kontaktet support.\n\nI begge tilfælde skal du eje en privat nøgle til den adresse, som du har sendt digitale aktiver til.</string>
     <string name="too_many_transaction_records">Kan ikke hente fuld kontotransaktionshistorik på grund af dens enorme størrelse. Overvej at flytte midler til en ny konto.</string>
     <string name="total_amount">Totalbeløb:</string>
-    <string name="transaction_from_address_prefix">Fra: %s</string>
     <string name="transaction_gas_limit">Gas-grænse (enheder):</string>
     <string name="transaction_history_title">Transaktionshistorik</string>
     <string name="transaction_input_data">Inputdata:</string>

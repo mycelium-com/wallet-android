@@ -148,20 +148,14 @@
     <string name="backup_not_generated">No se ha generado el código de copia de seguridad</string>
     <string name="backup_not_verified">Copia de seguridad no verificada</string>
     <string name="backup_now">Hacer copia de seguridad ahora</string>
-    <string name="base_label_fio_account_legacy">Cuenta FIO Legacy</string>
     <string name="bch_accounts_found"><![CDATA[Hemos encontrado %1$s en Bitcoin <font color="#f08c18">Cash</font> en sus cuentas BTC.<br><br>Se han creado %2$d cuenta(s) correspondiente(s) de Bitcoin <font color="#f08c18">Cash</font>.\nEl saldo de Bitcoin <font color="#f08c18">Cash</font> puede consultarse en la pestaña Cuentas.<br><br>Ahora puede ir a la pestaña Saldo de su cuenta de Bitcoin <font color="#f08c18">Cash</font> e intercambiarlo al instante por BTC.]]></string>
     <string name="bch_accounts_not_found"><![CDATA[No hemos encontrado Bitcoin <font color="#f08c18">Cash</font> en sus cuentas BTC.<br>Estamos monitorizando continuamente sus cuentas BTC y le informaremos si se encuentra Bitcoin <font color="#f08c18">Cash</font>.]]></string>
     <string name="block_access_to_account">Desactivamos intencionalmente la pestaña Mis cuentas mientras gestiona su cuenta %1$s. Esto es para evitar que envíe sus activos digitales a cualquier otro lugar excepto a otra cuenta %1$s.</string>
-    <string name="btcv_account_creation_started">Creando nueva cuenta BTCV…</string>
-    <string name="btcvault_hd_account">Añadir cuenta HD Bitcoin Vault</string>
     <string name="cant_disable_active_account">No puede desactivar la cuenta activa</string>
     <string name="choose_the_currency_and_btc_receiving_account">Elija la moneda y la cuenta de recepción BTC</string>
     <string name="confirm_delete_account_message_end">¿Desea eliminarla?</string>
     <string name="confirm_delete_private_key_message">Antes de eliminar la clave privada, asegúrese de tener su copia de seguridad almacenada offline y en un lugar seguro. Tendrá que \"añadirla de nuevo\" desde la copia de seguridad cuando necesite gastar los bitcoins de esta cuenta.</string>
     <string name="confirm_delete_private_key_message_end">¿Desea convertirla en solo lectura?</string>
-    <string name="connect_accounts">Guardar</string>
-    <string name="create_fio_account">Crear cuenta FIO</string>
-    <string name="create_fio_legacy_presale_account">Crear cuenta FIO Legacy</string>
     <string name="create_new_account">Añadir nueva cuenta ETH</string>
     <string name="delete_account">Eliminar cuenta</string>
     <string name="delete_account_message"><![CDATA[¿Desea eliminar la cuenta <b>\"%1$s\"</b> con <b>%2$s</b> y <b>\"%3$s\"</b> con <b>%4$s</b>?]]></string>
@@ -182,7 +176,6 @@
     <string name="erc20_account_creation_started">Creando nueva cuenta ERC-20…</string>
     <string name="eth_account_creation_started">Creando nueva cuenta ETH…</string>
     <string name="export">Exportar claves de cuenta</string>
-    <string name="export_fio_public_key_title">Exportar clave pública FIO</string>
     <string name="export_not_possible">La exportación no es posible, ya tiene una cuenta %s</string>
     <string name="export_private_key_red_warning">Solo copie esta clave en un entorno seguro.\nCualquiera que tenga acceso a ella obtiene control sobre todos los bitcoin actuales y futuros disponibles para esta cuenta.\n\nMantenga pulsado aquí para mostrar el \nQR-Code </string>
     <string name="ext_sig_change_to">Cambiar a:</string>
@@ -210,7 +203,6 @@
     <string name="hardware_wallets">Monederos hardware</string>
     <string name="hd_account_bch">Añadir cuenta HD Bitcoin Cash</string>
     <string name="hd_eth_account">Añadir cuenta Ethereum</string>
-    <string name="hd_fio_account">Añadir cuenta FIO</string>
     <string name="import_xpub_should_xpriv">Solo se admiten cuentas gastables con activos digitales para el nivel 0 de cuenta. Use xpriv en lugar de xpub</string>
     <string name="keepkey_import_account">Importar una cuenta HD Bitcoin de KeepKey</string>
     <string name="ledger_please_wait">Por favor espere…</string>
@@ -219,9 +211,7 @@
     <string name="ledger_unplugged_aid_preference_summary">Admitir un AID diferente para builds personalizadas\nde ledger unplugged</string>
     <string name="list_added_tokens_new_account">Tokens ERC-20 en la nueva cuenta</string>
     <string name="loading_accounts">Cargando cuentas</string>
-    <string name="master_seed_not_configured">La semilla maestra no está configurada</string>
     <string name="migrating_accounts">Migrando cuentas</string>
-    <string name="new_fio_legacy_presale_account_desc">Cree la cuenta FIO Legacy SOLO si compró un dominio FIO durante la preventa de FIO.</string>
     <string name="no_account_yet_register">¿Aún no tiene cuenta? <font color="#F2E868">Regístrese</font></string>
     <string name="no_spendable_accounts">No hay cuentas gastables</string>
     <string name="parent_eth_account">ETH %s:</string>
@@ -240,7 +230,6 @@
     <string name="select_eth_account_to_erc20">Seleccione la cuenta ETH para almacenar sus tokens ERC-20</string>
     <string name="select_eth_account_to_erc20_subtext">Los tokens ERC-20 existen en cuentas ETH y requieren ETH para hacer transacciones.\nUna sola cuenta ETH puede almacenar tipos ilimitados de tokens ERC-20: uno de cada tipo por cuenta ETH.</string>
     <string name="select_ext_sig_account_to_spend_from">Seleccione la cuenta desde la que gastar</string>
-    <string name="select_name_to_associate_read_only_account">Cuentas conectadas a este FIO Name. Solo se puede conectar <b>una</b> cuenta por cada criptomoneda con <b>un</b> FIO Name.</string>
     <string name="select_token_new_account">Añadir tokens ERC-20 a la nueva cuenta ETH</string>
     <string name="set_up_2fa_to_secure_your_account">Configure 2FA para asegurar su cuenta</string>
     <string name="single_address_account">Cuenta de dirección única</string>

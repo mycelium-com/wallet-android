@@ -169,7 +169,6 @@
     <!-- Credit Card End-->
     <!-- Simplex start -->
     <!-- Simplex end -->
-    <string name="about_fio_protocol_title">FIO Protocolについて</string>
     <string name="accept">承諾する</string>
     <string name="access_from_any_device">どのデバイスからでもアクセス可能</string>
     <string name="activate_by">有効期限</string>
@@ -237,13 +236,11 @@
     <string name="check_gap_bug_spannable_string">中断して申し訳ありませんが…\n \n12単語のバックアップから復元する必要がある場合に問題を引き起こす、アカウントロジックのバグを発見しました。\n\n詳細はこちらをご覧ください：https://wallet.mycelium.com/info/gaps \n\n解決を試みてもよろしいでしょうか？OKを押して、影響を受けるアカウントごとに1つのアドレスを共有してください。</string>
     <string name="check_internet_and_try_again">インターネット接続が悪いため、Myceliumはサーバーに接続できません。\nインターネット接続を確認し、再度お試しください。</string>
     <string name="checkbox_wordlist_passphrase">パスフレーズを持っています</string>
-    <string name="choose_blockchain">ブロックチェーンを選択</string>
     <string name="colorize">色付け</string>
     <string name="colu">デジタル資産</string>
     <string name="configuration_change_restart_warning">設定変更を適用するには、アプリケーションの再起動が必要です。</string>
     <string name="confirm">確認</string>
     <string name="confirm_change_on_device"><![CDATA[%3$sで<b>おつり</b>出力を確認してください。<br><br><b>金額：</b><br>%1$s<br><b>おつりアドレス：</b><br>%2$s]]></string>
-    <string name="confirm_fio_link">HD Bitcoinアカウント%1$s用のFIO Nameを登録しますか？</string>
     <string name="confirm_output_on_device"><![CDATA[%3$sで出力を確認してください。<br><br><b>金額：</b><br>%1$s<br><b>送信先アドレス：</b><br>%2$s<br>]]></string>
     <string name="confirmation">交換確認</string>
     <string name="connect_your_ext_sig_device_info">これは、お使いの携帯電話がUSB-OTG（オン・ザ・ゴー）をサポートしている場合のみ動作します。\n\nデバイスを接続するには、USB-OTGアダプターまたはケーブルが必要です。デバイス側にデバイス自身のUSBケーブルを接続し、ホスト側を携帯電話に接続してください。</string>
@@ -258,7 +255,6 @@
     <string name="country">国</string>
     <string name="course_outdated">為替レートが古くなっています</string>
     <string name="create_backup">バックアップを作成</string>
-    <string name="create_fio_domain">FIO Domainを作成</string>
     <string name="credit_card_buy">クレジットカード</string>
     <string name="credit_card_buy_description">クレジットカードでビットコインを購入</string>
     <string name="credit_card_buy_setting_description">クレジットカードでビットコインを購入</string>
@@ -275,8 +271,6 @@
     <string name="decryption_password_hint">YOU RPA SSW ORD ABC D</string>
     <string name="delete_document">書類を削除しますか？</string>
     <string name="delete_pk_message"><![CDATA[アカウント<b>「%1$s」</b>の秘密鍵（残高<b>%2$s</b>）を削除しますか？]]></string>
-    <string name="delete_received_fio_request">受信したFIO Requestを削除</string>
-    <string name="delete_received_fio_request_msg">本当にこのFIO Requestを削除してもよろしいですか？</string>
     <string name="deposits_without_destination_tag_will_be_lost">Destination Tagなしの入金は失われます！</string>
     <string name="description">説明：</string>
     <string name="description_bump_fee">この未確認取引の手数料を引き上げる取引を送ります。\n\n手数料を%1$dsat/Bにするために%2$sを使ってもよろしいですか？</string>
@@ -287,7 +281,6 @@
     <string name="discover">探す</string>
     <string name="do_you_want_resubmit">下記の情報を更新しました。申請を再送信しますか？</string>
     <string name="doc_selfie"><![CDATA[書類と自撮り写真]]></string>
-    <string name="domain_details">ドメイン詳細</string>
     <string name="dontagree">同意しません</string>
     <string name="download">ダウンロード</string>
     <string name="due_to_high_cryptocurrencies_volatility">暗号通貨の変動が大きいため、最終的なレートはここで見積もられたものよりわずかに高くなったり低くなったりすることがあります。</string>
@@ -304,7 +297,6 @@
     <string name="excange_title">BCHをBTCに交換</string>
     <string name="exceed_card_value">カード金額を超えています</string>
     <string name="exchanging">交換中</string>
-    <string name="expiration_date">有効期限：</string>
     <string name="expire_date">有効期限：</string>
     <string name="expires_at">有効期限：</string>
     <string name="external_app_needed">デバイスを更新するには外部ツールが必要です。OKをクリックして起動してください。</string>
@@ -321,7 +313,6 @@
     <string name="first_bch_installed_message"><![CDATA[Bitcoin <font color="#f08c18">Cash</font>残高を取得するためにブロックチェーンと同期する必要があります。<br><br>この処理には時間がかかり、バックグラウンドで実行されます。<br>秘密鍵が多いほど時間がかかりますので、しばらくお待ちください。例えば、約1000の秘密鍵がある場合、完全同期に到達するまで3時間以上かかることがあります。<br>完了したらお知らせします。<br><br>同期の進捗状況はいつでもこちらで確認できます：設定 -> Bitcoin <font color="#f08c18">Cash</font>モジュール。<br><br>Bitcoin <font color="#f08c18">Cash</font>が取得されていないBTCアカウントごとに、対応するBitcoin <font color="#f08c18">Cash</font>アカウントが作成されます。<br><br>Bitcoin <font color="#f08c18">Cash</font>アカウントの残高タブから、すぐにBTCに交換できます。]]></string>
     <string name="first_bch_installed_title"><![CDATA[Mycelium Bitcoin <font color="#f08c18">Cash</font>モジュールがインストールされました！]]></string>
     <string name="first_name">名</string>
-    <string name="following_fio_domains_registered">次のFIO Domainが登録されました</string>
     <string name="format" translatable="false">%1$td/%1$tm/%1$tY</string>
     <string name="found_clipboard_public_key_title">クリップボードに公開鍵が見つかりました</string>
     <string name="found_clipboard_public_keys_message">クリップボードに公開鍵が含まれています。\nクリップボードをクリアしますか？</string>
@@ -380,7 +371,6 @@
     <string name="label_use_device_location">デバイスの位置情報を使用</string>
     <string name="last_name">姓</string>
     <string name="learn_more_rmc"><u>RMC について詳しく</u></string>
-    <string name="leave_a_message_for_s">%s 宛のメッセージを残す</string>
     <string name="legal_information">法的情報</string>
     <string name="less">少なく</string>
     <string name="list_added_tokens">\"%s\" アカウントの ERC-20 トークン</string>
@@ -407,7 +397,6 @@
     <string name="module_uninstall_progress">アンインストール中…</string>
     <string name="modules">モジュール</string>
     <string name="more">もっと見る</string>
-    <string name="my_fio_domains">マイ FIO ドメイン</string>
     <string name="mycelium_no_responaility_rmc">続行する場合、サードパーティサービスである RMC へ進むことに同意したことになります。RMC とのやり取りはすべて Mycelium の管理外であり、RMC のユーザー契約、利用規約、プライバシーポリシーの対象となります。注意深くお読みください。Mycelium が個人情報を収集、保存、使用することはありません。\n\nMYCELIUM は、RMC 発行者の情報やサービスへのアクセス、使用、または依存の結果として被ったいかなる損失または損害に対しても一切の責任を負わず、また責任を負いません</string>
     <string name="mycelium_services">Mycelium サービス</string>
     <string name="mycelium_terms_of_use">Mycelium 利用規約</string>
@@ -423,7 +412,6 @@
     <string name="no_digital_asset">あなたの BIP32 秘密鍵にはデジタル資産がありません。\n\nそうでないと思われる場合は、再度スキャンしてください。</string>
     <string name="no_funds">資金なし</string>
     <string name="no_google_play_installed">デバイスに Google Play がインストールされていません</string>
-    <string name="no_logs">ログなし</string>
     <string name="no_operations_history">操作履歴がありません</string>
     <string name="no_orbot">Orbot がインストールされていません</string>
     <string name="no_order_linked">現在、アカウントにリンクされた購入はありません。ストアカタログを探索して始めましょう。</string>
@@ -479,7 +467,6 @@
     <string name="register">登録</string>
     <string name="registration">登録</string>
     <string name="removed">アンインストール済み</string>
-    <string name="renew_fio_domain">FIO ドメインを更新</string>
     <string name="repeat_password">パスワードを再入力</string>
     <string name="rescan">再スキャン</string>
     <string name="resend_confirmation_email">確認メールを再送する。</string>
@@ -508,7 +495,6 @@
     <string name="select_card_value_dialog">カードの額面を選択:</string>
     <string name="select_country">国を選択</string>
     <string name="select_flows">フローを選択</string>
-    <string name="select_name_to_associate">FIO ネームにアカウントを接続します。各暗号通貨につき <b>1 つ</b> のアカウントのみ <b>1 つ</b> の FIO ネームに接続できます。</string>
     <string name="select_token">\"%s\" アカウントに ERC-20 トークンを追加</string>
     <string name="select_you_region">地域を選択してください</string>
     <string name="select_your_country">国を選択してください</string>
@@ -524,7 +510,6 @@
     <string name="set_password">パスワードを設定</string>
     <string name="shamir_share_hint"><![CDATA[総シェア数: 秘密鍵を分割するパーツの数。\n\nしきい値: 秘密鍵を再構築するために必要なパーツの数。]]></string>
     <string name="share">共有</string>
-    <string name="share_fio_public_key">FIO 公開鍵を共有</string>
     <string name="share_logs">ログを共有</string>
     <string name="share_news">ニュースを共有</string>
     <string name="share_of">シェア %1$d</string>
@@ -555,7 +540,6 @@
     <string name="support_team_text">問題と再現手順を記載してください。問題の全体像を把握するため、ログを添付してください。</string>
     <string name="sync_failed_reason_s">同期に失敗しました。理由: %s</string>
     <string name="sync_failed_s">同期に失敗しました。%s</string>
-    <string name="tab_fio_requests">FIO リクエスト</string>
     <string name="tab_partners">ビジネス</string>
     <string name="tab_vip">VIP</string>
     <string name="tap_next">%s をタップ</string>

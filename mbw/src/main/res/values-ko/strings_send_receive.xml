@@ -166,10 +166,8 @@
     <string name="queue_transaction_message">거래 브로드캐스트에 실패했습니다.\n온라인 상태가 되면 자동으로 전송되도록 거래를 대기열에 추가하시겠습니까?</string>
     <string name="rebroadcast_transaction_title">거래 재전송</string>
     <string name="receive_cointype">%1$s 받기</string>
-    <string name="receive_title_fio">FIO 공개키</string>
     <string name="received">받음</string>
     <string name="receiver_address_hint">1Address1234\n567890abcdef\nghijklmnop</string>
-    <string name="recipient_has_no_such_address">%1$s에 연결된 %2$s 주소가 없습니다</string>
     <string name="recipient_invalid">잘못된 주소 또는 FIO 이름</string>
     <string name="recipient_valid">수신자 유효</string>
     <string name="remove_queued_transaction">이 대기 중인 거래를 제거하고 브로드캐스트되지 않도록 하시겠습니까?</string>
@@ -182,12 +180,10 @@
     <string name="restore_address_as">다음 형식으로 주소 복원</string>
     <string name="retrieving_pubkey_address">사용되지 않은 다음 주소 검색 중…</string>
     <string name="return_to_payment">주문으로 돌아가기</string>
-    <string name="s_fio_request">%s FIO 요청</string>
     <string name="s_payment_request">%s 결제 요청</string>
     <string name="select_key_for_signing">서명할 키 선택</string>
     <string name="send_cointype">%1$s 보내기</string>
     <string name="send_fee_hint"><b>주의.</b> 낮은 우선순위 채굴자 수수료를 사용한 거래는 확인되지 않거나 수 시간 또는 며칠이 걸려서 확인될 수 있습니다. 비트코인 네트워크의 작동 방식을 이해하지 못한다면 낮은 우선순위를 선택하지 마세요.</string>
-    <string name="send_fio_request">FIO 요청 보내기</string>
     <string name="send_mail">메일 보내기…</string>
     <string name="sending_addresses">주소록</string>
     <string name="sending_assets">%s 자산 보내는 중.</string>
@@ -212,7 +208,6 @@
     <string name="tips_rmc_check_address">디지털 자산을 임의의 비트코인 주소로 보낸 경우 자산은 파괴되지 않습니다.\n자산을 회수하려면 두 가지 옵션이 있습니다:\n1) Colored Coins API를 사용하여 자산을 Mycelium 지갑이 관리하는 주소로 수동으로 다시 보냅니다.\n2) 자산 회수를 위해 Mycelium 지갑 지원 팀에 티켓을 제출합니다. 이 서비스에는 추가 요금이 부과될 수 있습니다. 지원에 문의한 후 자세한 정보를 받게 됩니다.\n\n두 경우 모두 디지털 자산을 보낸 주소의 비밀키를 소유해야 합니다.</string>
     <string name="too_many_transaction_records">크기가 너무 커서 전체 계정 거래 내역을 가져올 수 없습니다. 자금을 새 계정으로 이동하는 것을 고려하세요.</string>
     <string name="total_amount">총 금액:</string>
-    <string name="transaction_from_address_prefix">보낸 사람: %s</string>
     <string name="transaction_gas_limit">Gas 한도 (units):</string>
     <string name="transaction_history_title">거래 내역</string>
     <string name="transaction_input_data">입력 데이터:</string>

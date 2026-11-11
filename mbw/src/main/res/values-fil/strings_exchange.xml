@@ -171,9 +171,6 @@
     <string name="no_exchange_available">Walang Exchange na available para sa Account</string>
     <string name="no_gift_cards_linked">Magsimula sa pamamagitan ng pag-explore sa store catalog o tingnan ang status ng iyong Orders.</string>
     <string name="no_purchased_gift_card">WALA KA PANG NABILING\nGIFT CARD</string>
-    <string name="partner_fiopresale">FIO Address Presale</string>
-    <string name="partner_fiopresale_info"/>
-    <string name="partner_fiopresale_short">Iyong susi sa mas magandang karanasan ng blockchain</string>
     <string name="partner_more_info"><u>Ang iyong privacy ay aming pangunahing priyoridad</u></string>
     <string name="partner_more_info_text">
         Ang Mycelium ay isa sa pinakapinagkakatiwalaan at kapaki-pakinabang na mobile bitcoin wallets.<br />

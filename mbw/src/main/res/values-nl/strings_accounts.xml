@@ -112,21 +112,15 @@
     <string name="backup_not_generated">Back-upcode is niet gegenereerd</string>
     <string name="backup_not_verified">Back-up niet geverifieerd</string>
     <string name="backup_now">Nu back-uppen</string>
-    <string name="base_label_fio_account_legacy">FIO Legacy-account</string>
     <string name="bch_accounts_found"><![CDATA[We hebben %1$s Bitcoin <font color="#f08c18">Cash</font> gevonden op uw BTC-accounts.<br><br>%2$d bijbehorende Bitcoin <font color="#f08c18">Cash</font>-account(s) aangemaakt.\nHet Bitcoin <font color="#f08c18">Cash</font>-saldo kan worden gecontroleerd op het tabblad Accounts.<br><br>U kunt nu naar het tabblad Saldo van uw Bitcoin <font color="#f08c18">Cash</font>-account(s) gaan en deze direct omwisselen naar BTC.]]></string>
     <string name="bch_accounts_not_found"><![CDATA[We hebben geen Bitcoin <font color="#f08c18">Cash</font> gevonden op uw BTC-accounts.<br>We monitoren uw BTC-accounts continu en informeren u zodra Bitcoin <font color="#f08c18">Cash</font> is gevonden.]]></string>
     <string name="bip32_root_account">Root-account</string>
     <string name="block_access_to_account">We deactiveren opzettelijk het tabblad Mijn Accounts terwijl u uw %1$s-account beheert. Dit is om te voorkomen dat u uw digitale activa elders verzendt dan naar een ander %1$s-account.</string>
-    <string name="btcv_account_creation_started">Nieuwe BTCV-account aanmaken…</string>
-    <string name="btcvault_hd_account">Bitcoin Vault HD-account toevoegen</string>
     <string name="cant_disable_active_account">U kunt een actief account niet uitschakelen</string>
     <string name="choose_the_currency_and_btc_receiving_account">Kies de valuta en het BTC-ontvangstaccount</string>
     <string name="confirm_delete_account_message_end">Wilt u het verwijderen?</string>
     <string name="confirm_delete_private_key_message">Voordat u de private key verwijdert, dient u zeker te weten dat u een back-up hiervan offline en op een veilige plaats heeft opgeslagen. U dient deze \"terug toe te voegen\" vanuit de back-up wanneer u de bitcoins van dit account wilt uitgeven.</string>
     <string name="confirm_delete_private_key_message_end">Wilt u dit watch-only maken?</string>
-    <string name="connect_accounts">Opslaan</string>
-    <string name="create_fio_account">FIO-account aanmaken</string>
-    <string name="create_fio_legacy_presale_account">FIO Legacy-account aanmaken</string>
     <string name="create_new_account">Nieuwe ETH-account toevoegen</string>
     <string name="delete_account">Account verwijderen</string>
     <string name="delete_account_message"><![CDATA[Wilt u account <b>\"%1$s\"</b> met <b>%2$s</b> en <b>\"%3$s\"</b> met <b>%4$s</b> verwijderen?]]></string>
@@ -147,7 +141,6 @@
     <string name="erc20_account_creation_started">Nieuwe ERC-20-account aanmaken…</string>
     <string name="eth_account_creation_started">Nieuwe ETH-account aanmaken…</string>
     <string name="export">Account-keys exporteren</string>
-    <string name="export_fio_public_key_title">FIO public key exporteren</string>
     <string name="export_history">Transactiegeschiedenis exporteren</string>
     <string name="export_not_possible">Exporteren is niet mogelijk, u heeft al een %s-account</string>
     <string name="export_private_key_red_warning">Kopieer deze key alleen in een veilige omgeving.\nIedereen die toegang heeft, krijgt controle over alle huidige en toekomstig beschikbare bitcoin voor dit account.\n\nLang ingedrukt houden om de \nQR-code te tonen </string>
@@ -182,7 +175,6 @@
     <string name="hardware_wallets">Hardware wallets</string>
     <string name="hd_account_bch">Bitcoin Cash HD-account toevoegen</string>
     <string name="hd_eth_account">Ethereum-account toevoegen</string>
-    <string name="hd_fio_account">FIO-account toevoegen</string>
     <string name="import_xpub_should_xpriv">Alleen besteedbare accounts met Digital Assets worden ondersteund voor accountniveau 0. Gebruik xpriv in plaats van xpub</string>
     <string name="import_xpub_wrong_depth">Kan alleen accountniveau (3) xpub-adressen importeren.\nDit was niveau %1$s.</string>
     <string name="info_add_account_keep_backup_secure">Info: Alle Bitcoin HD-accounts en het Ethereum-account zijn afgeleid van uw Master Seed - als u uw 12-woorden back-up veilig bewaart, kunt u alle Bitcoin HD-accounts en het Ethereum-account ermee herstellen.</string>
@@ -209,9 +201,7 @@
     <string name="ledger_unplugged_aid_preference_summary">Ondersteun een ander AID voor ledger\nunplugged custom builds</string>
     <string name="list_added_tokens_new_account">ERC-20-tokens op nieuw account</string>
     <string name="loading_accounts">Accounts laden</string>
-    <string name="master_seed_not_configured">Master seed is niet geconfigureerd</string>
     <string name="migrating_accounts">Accounts migreren</string>
-    <string name="new_fio_legacy_presale_account_desc">Maak een FIO Legacy-account ALLEEN aan als u tijdens de FIO Presale een FIO-domein heeft gekocht.</string>
     <string name="no_account_yet_register">Nog geen account? <font color="#F2E868">Registreren</font></string>
     <string name="no_spendable_accounts">Geen besteedbare accounts</string>
     <string name="parent_eth_account">ETH %s:</string>
@@ -232,7 +222,6 @@
     <string name="select_eth_account_to_erc20_subtext">ERC-20-tokens bestaan op ETH-accounts en vereisen ETH om transacties uit te voeren.\nEén enkel ETH-account kan onbeperkt veel typen ERC-20-tokens opslaan - één van elk type per ETH-account.</string>
     <string name="select_ext_sig_account_to_spend_from">Selecteer account om vanaf te besteden</string>
     <string name="select_ledger_account_to_spend_from">Selecteer account om vanaf te besteden</string>
-    <string name="select_name_to_associate_read_only_account">Accounts verbonden met deze FIO-naam. Slechts <b>één</b> account per cryptocurrency kan worden verbonden met <b>één</b> FIO-naam.</string>
     <string name="select_token_new_account">ERC-20-tokens toevoegen aan nieuw ETH-account</string>
     <string name="set_up_2fa_to_secure_your_account">Stel 2FA in om uw account te beveiligen</string>
     <string name="share_account_data">Accountgegevens delen</string>

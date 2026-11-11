@@ -193,9 +193,6 @@
     <string name="no_exchange_available">没有可用于该账户的兑换</string>
     <string name="no_gift_cards_linked">通过浏览商店目录开始，或查看您的订单状态。</string>
     <string name="no_purchased_gift_card">您尚未购买\n任何礼品卡</string>
-    <string name="partner_fiopresale">FIO 地址预售</string>
-    <string name="partner_fiopresale_info"/>
-    <string name="partner_fiopresale_short">您通往更好区块链体验的钥匙</string>
     <string name="partner_more_info"><u>您的隐私是我们的首要任务</u></string>
     <string name="partner_more_info_text">
         Mycelium 是最值得信赖且实用的移动比特币钱包之一。<br />

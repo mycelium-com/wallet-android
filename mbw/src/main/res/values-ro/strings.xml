@@ -74,7 +74,6 @@
     <!-- Credit Card End-->
     <!-- Simplex start -->
     <!-- Simplex end -->
-    <string name="about_fio_protocol_title">Despre FIO Protocol</string>
     <string name="accept">Acceptă</string>
     <string name="access_from_any_device">Acces de pe orice dispozitiv</string>
     <string name="activate_by">Activează până la</string>
@@ -150,7 +149,6 @@
     <string name="check_internet_and_try_again">Mycelium nu se poate conecta la server din cauza conexiunii proaste la internet.\nVă rugăm să verificați conexiunea la internet și să încercați din nou.</string>
     <string name="check_update">Verifică actualizări</string>
     <string name="checkbox_wordlist_passphrase">Am o passphrase</string>
-    <string name="choose_blockchain">Alegeți blockchain</string>
     <string name="cick_button_to_show_word">Apăsați butonul de mai jos pentru a începe</string>
     <string name="cold_storage_desc">Sunteți pe cale să cheltuiți dintr-o cheie privată în depozitare offline. Aceasta poate fi o copie de rezervă pe hârtie a cheii private sau un slip de cheie privată de la un ATM Bitcoin. Următoarele formate sunt acceptate:\nCheie privată, Master Seed, cheie xPriv\n\nOdată ce tranzacția a fost trimisă, orice urmă a acesteia va fi ștearsă din memoria internă.</string>
     <string name="colorize">colorează</string>
@@ -159,7 +157,6 @@
     <string name="configuration_change_restart_warning">Repornirea aplicației este necesară pentru a aplica modificările de configurare.</string>
     <string name="confirm">Confirmă</string>
     <string name="confirm_change_on_device"><![CDATA[Vă rugăm să confirmați ieșirea de <b>rest</b> pe %3$s.<br><br><b>Valoare:</b><br>%1$s<br><b>Adresă rest:</b><br>%2$s]]></string>
-    <string name="confirm_fio_link">Doriți să înregistrați un FIO Name pentru contul dvs. HD Bitcoin %1$s?</string>
     <string name="confirm_output_on_device"><![CDATA[Vă rugăm să confirmați ieșirea pe %3$s.<br><br><b>Valoare:</b><br>%1$s<br><b>Adresă destinație:</b><br>%2$s<br>]]></string>
     <string name="confirmation">Confirmare schimb</string>
     <string name="connect_your_ext_sig_device_info">Acest lucru funcționează doar dacă telefonul dvs. acceptă USB-OTG (on-the-go).\n\nPentru a conecta dispozitivul aveți nevoie de un adaptor sau cablu USB-OTG. Atașați dispozitivul cu propriul cablu USB pe partea client și conectați partea host cu telefonul.</string>
@@ -175,7 +172,6 @@
     <string name="country">Țară</string>
     <string name="course_outdated">Cursul de schimb este expirat</string>
     <string name="create_backup">Creează backup</string>
-    <string name="create_fio_domain">Creează FIO Domain</string>
     <string name="credit_card_buy">Card de credit</string>
     <string name="credit_card_buy_description">Cumpărați Bitcoin folosind cardul de credit</string>
     <string name="credit_card_buy_setting_description">Cumpărați Bitcoin folosind cardul de credit</string>
@@ -193,8 +189,6 @@
     <string name="delete_document">Doriți să ștergeți documentul?</string>
     <string name="delete_last_entered_word">Șterge ultimul cuvânt</string>
     <string name="delete_pk_message"><![CDATA[Doriți să ștergeți cheia privată a contului <b>\"%1$s\"</b> care conține <b>%2$s</b>?]]></string>
-    <string name="delete_received_fio_request">Șterge FIO Request primit</string>
-    <string name="delete_received_fio_request_msg">Sunteți sigur că doriți să ștergeți acest FIO Request?</string>
     <string name="deposits_without_destination_tag_will_be_lost">Depunerile fără Tag de destinație vor fi pierdute!</string>
     <string name="description">Descriere:</string>
     <string name="description_bump_fee">Trimiteți o tranzacție care mărește taxa pentru această tranzacție neconfirmată.\n\nDoriți să cheltuiți %2$s pentru a aduce taxa la %1$dsat/B?</string>
@@ -206,7 +200,6 @@
     <string name="discover">Descoperă</string>
     <string name="do_you_want_resubmit">Ați actualizat informațiile de mai jos. Doriți să retrimiteți cererea?</string>
     <string name="doc_selfie"><![CDATA[Documente & Selfie]]></string>
-    <string name="domain_details">Detalii domeniu</string>
     <string name="dont_allow_archiving_unused_notification">Nu puteți arhiva un cont HD Bitcoin neutilizat</string>
     <string name="dont_allow_hiding_used_notification">Nu puteți ascunde un cont utilizat, dar îl puteți arhiva</string>
     <string name="dontagree">Nu sunt de acord</string>
@@ -229,7 +222,6 @@
     <string name="excange_title">Schimbă BCH în BTC</string>
     <string name="exceed_card_value">Depășește valoarea cardului</string>
     <string name="exchanging">se schimbă</string>
-    <string name="expiration_date">Data expirării:</string>
     <string name="expire_date">Data expirării:</string>
     <string name="expires_at">Data expirării:</string>
     <string name="external_app_needed">Pentru a actualiza dispozitivul aveți nevoie de un instrument extern, apăsați ok pentru a-l lansa.</string>
@@ -247,7 +239,6 @@
     <string name="first_bch_installed_message"><![CDATA[Acum trebuie să-l sincronizăm cu blockchain-ul pentru a obține soldul tău Bitcoin <font color="#f08c18">Cash</font>.<br><br>Această procedură durează ceva timp și se desfășoară în fundal.<br>Cu cât ai mai multe chei private, cu atât durează mai mult, te rugăm să ai răbdare. De exemplu, dacă ai aproximativ 1000 de chei private, ar putea dura mai mult de 3 ore pentru a ajunge la sincronizare completă.<br>Te vom informa când este gata.<br><br>Poți verifica oricând progresul sincronizării aici: Setări -> modulul Bitcoin <font color="#f08c18">Cash</font>.<br><br>Pentru fiecare cont BTC pentru care nu a fost preluat Bitcoin <font color="#f08c18">Cash</font>, va fi creat un cont Bitcoin <font color="#f08c18">Cash</font> corespunzător.<br><br>Mergi la tab-ul Sold al contului tău Bitcoin <font color="#f08c18">Cash</font> pentru a-l schimba instantaneu în BTC.]]></string>
     <string name="first_bch_installed_title"><![CDATA[Modulul Mycelium Bitcoin <font color="#f08c18">Cash</font> a fost instalat!]]></string>
     <string name="first_name">Prenume</string>
-    <string name="following_fio_domains_registered">Următoarele FIO Domains înregistrate</string>
     <string name="format" translatable="false">%1$td/%1$tm/%1$tY</string>
     <string name="found_clipboard_public_key_title">Cheie publică găsită în Clipboard</string>
     <string name="found_clipboard_public_keys_message">Clipboard-ul conține o cheie publică.\nDorești să golești clipboard-ul?</string>
@@ -321,7 +312,6 @@
     <string name="last_log_entries">Ultimele intrări din jurnal</string>
     <string name="last_name">Nume de familie</string>
     <string name="learn_more_rmc"><u>Află mai multe despre RMC</u></string>
-    <string name="leave_a_message_for_s">Lasă un mesaj pentru %s</string>
     <string name="legal_information">Informații legale</string>
     <string name="less">mai puțin</string>
     <string name="list_added_tokens">Token-uri ERC-20 în contul \"%s\"</string>
@@ -349,7 +339,6 @@
     <string name="module_uninstall_progress">Se dezinstalează…</string>
     <string name="modules">Module</string>
     <string name="more">mai mult</string>
-    <string name="my_fio_domains">FIO Domains-urile mele</string>
     <string name="mycelium_no_responaility_rmc">Dacă continui, ești de acord să procedezi la RMC, un serviciu terț. Toate interacțiunile tale cu RMC sunt în afara controlului Mycelium și sunt supuse Acordului de utilizator, Termenilor de utilizare și Politicii de confidențialitate ale RMC. Te rog citește-le cu atenție. Nicio informație personală nu va fi colectată, stocată sau folosită de Mycelium.\n\nMYCELIUM NU ACCEPTĂ NICIO RESPONSABILITATE ȘI NU VA FI RĂSPUNZĂTOR PENTRU NICIO PIERDERE SAU DAUNĂ SUFERITĂ CA REZULTAT AL ACCESĂRII, UTILIZĂRII SAU ÎNCREDERII ÎN INFORMAȚIILE ȘI SERVICIILE EMITENTULUI RMC</string>
     <string name="mycelium_services">Servicii Mycelium</string>
     <string name="mycelium_terms_of_use">Termenii de utilizare Mycelium</string>
@@ -369,7 +358,6 @@
     <string name="no_digital_asset">Cheia ta privată BIP32 nu deține niciun activ digital.\n\nDacă crezi altfel, încearcă să o scanezi din nou.</string>
     <string name="no_funds">Fără fonduri</string>
     <string name="no_google_play_installed">Google Play nu este instalat pe dispozitiv</string>
-    <string name="no_logs">Fără jurnale</string>
     <string name="no_operations_history">Fără istoric operații</string>
     <string name="no_orbot">Orbot nu este instalat</string>
     <string name="no_order_linked">În prezent nu ai achiziții asociate contului tău. Începe explorând catalogul magazinelor.</string>
@@ -435,7 +423,6 @@
     <string name="register">Înregistrare</string>
     <string name="registration">Înregistrare</string>
     <string name="removed">dezinstalat</string>
-    <string name="renew_fio_domain">Reînnoiește domeniul FIO</string>
     <string name="repeat_password">Repetă parola</string>
     <string name="rescan">Rescanează</string>
     <string name="resend_confirmation_email">Retrimite e-mailul de confirmare.</string>
@@ -468,7 +455,6 @@
     <string name="select_country">Selectați țara</string>
     <string name="select_flows">Selectați fluxuri</string>
     <string name="select_local_currencies">Selectați monedele dvs.</string>
-    <string name="select_name_to_associate">Conectați conturile la numele FIO. Doar <b>un</b> cont per fiecare criptomonedă poate fi conectat cu <b>un</b> nume FIO.</string>
     <string name="select_token">Adaugă token-uri ERC-20 la contul \"%s\"</string>
     <string name="select_you_region">Selectați regiunea dvs.</string>
     <string name="select_your_country">Selectați țara dvs.</string>
@@ -485,7 +471,6 @@
     <string name="set_password">Setează parola</string>
     <string name="shamir_share_hint"><![CDATA[Total părți: numărul de părți în care se împarte cheia privată.\n\nPrag: numărul de părți necesare pentru a reconstrui cheia privată.]]></string>
     <string name="share">Partajează</string>
-    <string name="share_fio_public_key">Partajează cheia publică FIO</string>
     <string name="share_logs">Partajează jurnalele</string>
     <string name="share_news">Partajează știrile</string>
     <string name="share_of">Partea %1$d</string>
@@ -536,7 +521,6 @@
     <string name="sync_failed_reason_s">Sincronizarea a eșuat. Motiv: %s</string>
     <string name="sync_failed_s">Sincronizarea a eșuat. %s</string>
     <string name="synchronizing_please_wait">Se sincronizează, vă rugăm să așteptați …</string>
-    <string name="tab_fio_requests">Cereri FIO</string>
     <string name="tab_partners">Afaceri</string>
     <string name="tab_vip">VIP</string>
     <string name="tap_next">Apăsați pentru %s</string>

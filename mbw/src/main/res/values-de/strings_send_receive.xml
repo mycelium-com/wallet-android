@@ -274,9 +274,7 @@
     <string name="please_fill_proof_of_address">Bitte geben Sie Ihre persönlichen Daten so ein, wie sie auf dem Adressnachweis erscheinen.</string>
     <string name="proof_of_address">Adressnachweis</string>
     <string name="provide_your_recovery_e_mail_address">Geben Sie unten Ihre Wiederherstellungs-E-Mail-Adresse an. Wir senden Ihnen einen sicheren Link und Anweisungen zum Zurücksetzen Ihres Passworts.</string>
-    <string name="receive_title_fio">FIO Public Key</string>
     <string name="residential_address">Wohnadresse</string>
-    <string name="send_fio_request">FIO-Anfrage senden</string>
     <string name="send_mail">E-Mail senden…</string>
     <string name="thank_you_for_signing_up_with_bequant">Vielen Dank für Ihre Registrierung bei Bequant!</string>
     <string name="transaction_gas_limit">Gas-Limit (Einheiten):</string>

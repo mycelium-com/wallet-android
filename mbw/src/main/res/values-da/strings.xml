@@ -90,7 +90,6 @@
     <!-- Credit Card End-->
     <!-- Simplex start -->
     <!-- Simplex end -->
-    <string name="about_fio_protocol_title">Om FIO Protocol</string>
     <string name="accept">Acceptér</string>
     <string name="access_from_any_device">Adgang fra enhver enhed</string>
     <string name="activate_by">Aktivér inden</string>
@@ -166,7 +165,6 @@
     <string name="check_internet_and_try_again">Mycelium kan ikke oprette forbindelse til serveren på grund af dårlig internetforbindelse.\nVerificer venligst din internetforbindelse, og prøv igen.</string>
     <string name="check_update">Tjek for opdatering</string>
     <string name="checkbox_wordlist_passphrase">Jeg har en adgangsfrase</string>
-    <string name="choose_blockchain">Vælg blockchain</string>
     <string name="cick_button_to_show_word">Tryk på knappen nedenfor for at starte</string>
     <string name="cold_storage">Cold Storage</string>
     <string name="colorize">farvelæg</string>
@@ -175,7 +173,6 @@
     <string name="configuration_change_restart_warning">Genstart af applikationen er påkrævet for at anvende konfigurationsændringer.</string>
     <string name="confirm">Bekræft</string>
     <string name="confirm_change_on_device"><![CDATA[Bekræft venligst <b>byttepenge</b>-output på din %3$s.<br><br><b>Værdi:</b><br>%1$s<br><b>Byttepengeadresse:</b><br>%2$s]]></string>
-    <string name="confirm_fio_link">Vil du registrere et FIO-navn til din HD Bitcoin-konto %1$s?</string>
     <string name="confirm_output_on_device"><![CDATA[Bekræft venligst output på din %3$s.<br><br><b>Værdi:</b><br>%1$s<br><b>Destinationsadresse:</b><br>%2$s<br>]]></string>
     <string name="confirmation">Vekslingsbekræftelse</string>
     <string name="connect_your_ext_sig_device_info">Dette virker kun, hvis din telefon understøtter USB-OTG (on-the-go).\n\nFor at tilslutte enheden skal du bruge en USB-OTG-adapter eller -kabel. Tilslut enheden med dens eget USB-kabel på klientsiden, og forbind værtssiden med din telefon.</string>
@@ -191,7 +188,6 @@
     <string name="country">Land</string>
     <string name="course_outdated">Vekselkursen er forældet</string>
     <string name="create_backup">Opret backup</string>
-    <string name="create_fio_domain">Opret FIO-domæne</string>
     <string name="credit_card_buy">Kreditkort</string>
     <string name="credit_card_buy_description">Køb Bitcoin med kreditkort</string>
     <string name="credit_card_buy_setting_description">Køb Bitcoin med kreditkort</string>
@@ -209,8 +205,6 @@
     <string name="delete_document">Vil du slette dokumentet?</string>
     <string name="delete_last_entered_word">Slet sidste ord</string>
     <string name="delete_pk_message"><![CDATA[Vil du slette kontoens <b>\"%1$s\"</b> private nøgle der indeholder <b>%2$s</b>?]]></string>
-    <string name="delete_received_fio_request">Slet modtaget FIO-anmodning</string>
-    <string name="delete_received_fio_request_msg">Er du sikker på, at du vil slette denne FIO-anmodning?</string>
     <string name="deposits_without_destination_tag_will_be_lost">Indbetalinger uden Destination Tag vil gå tabt!</string>
     <string name="description">Beskrivelse:</string>
     <string name="description_bump_fee">Send en transaktion, der øger gebyret for denne ubekræftede transaktion.\n\nVil du bruge %2$s for at få gebyret op på %1$dsat/B?</string>
@@ -222,7 +216,6 @@
     <string name="discover">Opdag</string>
     <string name="do_you_want_resubmit">Du har opdateret oplysningerne nedenfor. Vil du genindsende din ansøgning?</string>
     <string name="doc_selfie"><![CDATA[Dokumenter & selfie]]></string>
-    <string name="domain_details">Domænedetaljer</string>
     <string name="dont_allow_archiving_unused_notification">Du kan ikke arkivere en ubrugt HD Bitcoin-konto</string>
     <string name="dont_allow_hiding_used_notification">Du kan ikke skjule en brugt konto, men du kan arkivere den</string>
     <string name="dontagree">Jeg accepterer ikke</string>
@@ -244,7 +237,6 @@
     <string name="excange_title">Veksl BCH til BTC</string>
     <string name="exceed_card_value">Overskrider kortværdi</string>
     <string name="exchanging">veksler</string>
-    <string name="expiration_date">Udløbsdato:</string>
     <string name="expire_date">Udløbsdato:</string>
     <string name="expires_at">Udløbsdato:</string>
     <string name="external_app_needed">For at opdatere enheden skal du bruge et eksternt værktøj, klik på okay for at starte det.</string>
@@ -262,7 +254,6 @@
     <string name="first_bch_installed_message"><![CDATA[Nu skal vi synkronisere det med blockchainen for at hente din Bitcoin <font color="#f08c18">Cash</font>-saldo.<br><br>Denne procedure tager noget tid og udføres i baggrunden.<br>Jo flere private nøgler du har, jo længere tager det, hav venligst tålmodighed. For eksempel, hvis du har omkring 1000 private nøgler, kan det tage mere end 3 timer at nå fuld synkronisering.<br>Vi vil informere dig, når det er gjort.<br><br>Du kan altid tjekke synkroniseringsfremskridtet her: Indstillinger -> Bitcoin <font color="#f08c18">Cash</font>-modul.<br><br>For hver BTC-konto med ikke-hentet Bitcoin <font color="#f08c18">Cash</font> vil der blive oprettet en tilsvarende Bitcoin <font color="#f08c18">Cash</font>-konto.<br><br>Gå til saldofanen for din Bitcoin <font color="#f08c18">Cash</font>-konto for straks at veksle den til BTC.]]></string>
     <string name="first_bch_installed_title"><![CDATA[Mycelium Bitcoin <font color="#f08c18">Cash</font>-modulet er blevet installeret!]]></string>
     <string name="first_name">Fornavn</string>
-    <string name="following_fio_domains_registered">Følgende FIO Domains registreret</string>
     <string name="format" translatable="false">%1$td/%1$tm/%1$tY</string>
     <string name="found_clipboard_public_key_title">Offentlig nøgle fundet på udklipsholder</string>
     <string name="found_clipboard_public_keys_message">Udklipsholderen indeholder en offentlig nøgle.\nVil du rydde udklipsholderen?</string>
@@ -333,7 +324,6 @@
     <string name="last_log_entries">Seneste logposter</string>
     <string name="last_name">Efternavn</string>
     <string name="learn_more_rmc"><u>Lær mere om RMC</u></string>
-    <string name="leave_a_message_for_s">Efterlad en besked til %s</string>
     <string name="legal_information">Juridiske oplysninger</string>
     <string name="less">mindre</string>
     <string name="list_added_tokens">ERC-20 tokens på \"%s\"-konto</string>
@@ -362,7 +352,6 @@
     <string name="module_uninstall_progress">Afinstallerer…</string>
     <string name="modules">Moduler</string>
     <string name="more">mere</string>
-    <string name="my_fio_domains">Mine FIO Domains</string>
     <string name="mycelium_no_responaility_rmc">Hvis du fortsætter, accepterer du at gå videre til RMC, en tredjepartstjeneste. Alle dine interaktioner med RMC er uden for Myceliums kontrol og er underlagt RMC\'s brugeraftale, brugsbetingelser og fortrolighedspolitik. Læs dem venligst omhyggeligt. Ingen personlige oplysninger vil blive indsamlet, opbevaret eller brugt af Mycelium.\n\nMYCELIUM PÅTAGER SIG INTET ANSVAR OG VIL IKKE VÆRE ANSVARLIG FOR NOGET TAB ELLER SKADE OVERHOVEDET PÅDRAGET SOM RESULTAT AF ADGANG TIL, BRUG AF ELLER TILLID TIL RMC-UDSTEDERS INFORMATION OG TJENESTER</string>
     <string name="mycelium_services">Mycelium-tjenester</string>
     <string name="mycelium_terms_of_use">Mycelium brugsbetingelser</string>
@@ -381,7 +370,6 @@
     <string name="no_digital_asset">Din BIP32 private nøgle indeholder ingen digitale aktiver.\n\nHvis du mener andet, så prøv at scanne den igen.</string>
     <string name="no_funds">Ingen midler</string>
     <string name="no_google_play_installed">Ingen Google Play installeret på enheden</string>
-    <string name="no_logs">Ingen logfiler</string>
     <string name="no_operations_history">Ingen operationshistorik</string>
     <string name="no_orbot">Ingen Orbot installeret</string>
     <string name="no_order_linked">Du har i øjeblikket ingen køb knyttet til din konto. Kom i gang ved at udforske butikskataloget.</string>
@@ -445,7 +433,6 @@
     <string name="register">Registrér</string>
     <string name="registration">Registrering</string>
     <string name="removed">afinstalleret</string>
-    <string name="renew_fio_domain">Forny FIO-domæne</string>
     <string name="repeat_password">Gentag adgangskode</string>
     <string name="rescan">Skan igen</string>
     <string name="resend_confirmation_email">Send bekræftelses-e-mail igen.</string>
@@ -477,7 +464,6 @@
     <string name="select_country">Vælg land</string>
     <string name="select_flows">Vælg flows</string>
     <string name="select_local_currencies">Vælg dine valutaer</string>
-    <string name="select_name_to_associate">Forbind konti til dit FIO-navn. Kun <b>én</b> konto pr. kryptovaluta kan være forbundet med <b>ét</b> FIO-navn.</string>
     <string name="select_token">Tilføj ERC-20-tokens til \"%s\"-konto</string>
     <string name="select_you_region">Vælg din region</string>
     <string name="select_your_country">Vælg dit land</string>
@@ -494,7 +480,6 @@
     <string name="set_password">Indstil adgangskode</string>
     <string name="shamir_share_hint"><![CDATA[Total andele: et antal dele, som den private nøgle skal opdeles i.\n\nGrænseværdi: et antal dele, der skal til for at rekonstruere den private nøgle.]]></string>
     <string name="share">Del</string>
-    <string name="share_fio_public_key">Del FIO offentlig nøgle</string>
     <string name="share_logs">Del logs</string>
     <string name="share_news">Del nyheder</string>
     <string name="share_of">Andel %1$d</string>
@@ -536,7 +521,6 @@
     <string name="support_team_text">Beskriv venligst problemet og trinene for at gengive det. For at få et komplet billede af problemet, vedhæft venligst logfilerne.</string>
     <string name="sync_failed_reason_s">Synkronisering mislykkedes. Årsag: %s</string>
     <string name="sync_failed_s">Synkronisering mislykkedes. %s</string>
-    <string name="tab_fio_requests">FIO-anmodninger</string>
     <string name="tab_partners">Virksomheder</string>
     <string name="tab_vip">VIP</string>
     <string name="tap_next">Tryk for %s</string>

@@ -193,7 +193,6 @@
     <string name="warning_sync_failed_reusing_first">同步失敗 ！重用此 xpub #1地址 ！</string>
     <!-- Simplex start -->
     <!-- Simplex end -->
-    <string name="about_fio_protocol_title">關於 FIO 協議</string>
     <string name="access_from_any_device">從任何裝置存取</string>
     <string name="activate_by">啟用方式</string>
     <string name="all_countries">所有國家</string>
@@ -264,13 +263,11 @@
 我們可以為您嘗試解決嗎？按下「確定」即會將每個受影響帳戶的一個地址分享給我們。</string>
     <string name="check_internet_and_try_again">由於網路連線不佳，Mycelium 無法連接到伺服器。
 請確認您的網路連線後再試一次。</string>
-    <string name="choose_blockchain">選擇區塊鏈</string>
     <string name="colorize">上色</string>
     <string name="colu">數位資產</string>
     <string name="configuration_change_restart_warning">需要重新啟動應用程式以套用設定變更。</string>
     <string name="confirm">確認</string>
     <string name="confirm_change_on_device"><![CDATA[請在您的 %3$s 上確認<b>找零</b>輸出。<br><br><b>金額：</b><br>%1$s<br><b>找零地址：</b><br>%2$s]]></string>
-    <string name="confirm_fio_link">您要為您的 HD Bitcoin 帳戶 %1$s 註冊 FIO 名稱嗎？</string>
     <string name="confirm_output_on_device"><![CDATA[請在您的 %3$s 上確認輸出。<br><br><b>金額：</b><br>%1$s<br><b>目的地址：</b><br>%2$s<br>]]></string>
     <string name="confirmation">兌換確認</string>
     <string name="connection_issues"><b>連線問題。</b>請確認您已連上網路。</string>
@@ -282,7 +279,6 @@
     <string name="country">國家</string>
     <string name="course_outdated">兌換匯率已過期</string>
     <string name="create_backup">建立備份</string>
-    <string name="create_fio_domain">建立 FIO 網域</string>
     <string name="credit_card_buy">信用卡</string>
     <string name="credit_card_buy_description">使用信用卡購買比特幣</string>
     <string name="credit_card_buy_setting_description">使用信用卡購買比特幣</string>
@@ -315,8 +311,6 @@
     <string name="decryption_password_hint">YOU RPA SSW ORD ABC D</string>
     <string name="delete_document">您要刪除此文件嗎？</string>
     <string name="delete_pk_message"><![CDATA[您要刪除帳戶 <b>"%1$s"</b> 持有 <b>%2$s</b> 的私鑰嗎？]]></string>
-    <string name="delete_received_fio_request">刪除已接收的 FIO 請求</string>
-    <string name="delete_received_fio_request_msg">您確定要刪除此 FIO 請求嗎？</string>
     <string name="deposits_without_destination_tag_will_be_lost">未填寫目的地標籤的存款將會遺失！</string>
     <string name="description">描述：</string>
     <string name="description_bump_fee">傳送一筆交易以提升此未確認交易的手續費。
@@ -330,7 +324,6 @@
     <string name="discover">探索</string>
     <string name="do_you_want_resubmit">您已更新以下資訊。您要重新提交申請嗎？</string>
     <string name="doc_selfie"><![CDATA[文件與自拍]]></string>
-    <string name="domain_details">網域詳情</string>
     <string name="download">下載</string>
     <string name="due_to_high_cryptocurrencies_volatility">由於加密貨幣市場波動劇烈，最終匯率可能會比此處預估的略高或略低。</string>
     <string name="edit_gas_limit_advanced_users"><![CDATA[編輯 Gas Limit <i>（適用於進階使用者）</i>]]></string>
@@ -346,7 +339,6 @@
     <string name="excange_title">將 BCH 兌換為 BTC</string>
     <string name="exceed_card_value">超過卡值</string>
     <string name="exchanging">兌換中</string>
-    <string name="expiration_date">到期日：</string>
     <string name="expire_date">到期日：</string>
     <string name="expires_at">到期日：</string>
     <string name="external_app_needed">更新裝置需要外部工具，按下「確定」即可啟動。</string>
@@ -362,7 +354,6 @@
     <string name="first_bch_installed_message"><![CDATA[現在我們需要將其與區塊鏈同步以擷取您的比特幣<font color="#f08c18">現金</font>餘額。<br><br>此程序需要一些時間，且在背景執行。<br>您擁有的私鑰越多，所需時間越長，請耐心等候。例如，若您有約 1000 個私鑰，可能需要超過 3 小時才能完成同步。<br>完成後我們會通知您。<br><br>您可以隨時在以下位置查看同步進度：設定 -> 比特幣<font color="#f08c18">現金</font>模組。<br><br>對於每個尚未擷取比特幣<font color="#f08c18">現金</font>的 BTC 帳戶，將會建立對應的比特幣<font color="#f08c18">現金</font>帳戶。<br><br>前往您比特幣<font color="#f08c18">現金</font>帳戶的「餘額」分頁，立即將其兌換為 BTC。]]></string>
     <string name="first_bch_installed_title"><![CDATA[Mycelium 比特幣<font color="#f08c18">現金</font>模組已安裝！]]></string>
     <string name="first_name">名字</string>
-    <string name="following_fio_domains_registered">已註冊以下 FIO 網域</string>
     <string name="format" translatable="false">%1$td/%1$tm/%1$tY</string>
     <string name="found_clipboard_public_key_title">剪貼簿中發現公鑰</string>
     <string name="found_clipboard_public_keys_message">剪貼簿中含有公鑰。
@@ -428,7 +419,6 @@ Authenticator 應用程式取得驗證碼。</string>
     <string name="label_use_device_location">使用裝置位置</string>
     <string name="last_name">姓氏</string>
     <string name="learn_more_rmc"><u>了解更多關於 RMC 的資訊</u></string>
-    <string name="leave_a_message_for_s">為 %s 留言</string>
     <string name="legal_information">法律資訊</string>
     <string name="less">較少</string>
     <string name="list_added_tokens">「%s」帳戶上的 ERC-20 代幣</string>
@@ -452,7 +442,6 @@ Authenticator 應用程式取得驗證碼。</string>
     <string name="module_uninstall_progress">解除安裝中…</string>
     <string name="modules">模組</string>
     <string name="more">更多</string>
-    <string name="my_fio_domains">我的 FIO 網域</string>
     <string name="mycelium_no_responaility_rmc">若您繼續，即表示同意前往 RMC，這是第三方服務。您與 RMC 的所有互動都不在 Mycelium 的控制範圍內，且須遵守 RMC 的使用者協議、使用條款與隱私權政策。請仔細閱讀。Mycelium 不會收集、儲存或使用任何個人資訊。
 
 MYCELIUM 不承擔任何責任，且對於因存取、使用或依賴 RMC 發行者的資訊與服務所造成的任何損失或損害概不負責。</string>
@@ -472,7 +461,6 @@ sat/min</string>
 若您認為有，請再次掃描。</string>
     <string name="no_funds">沒有資金</string>
     <string name="no_google_play_installed">裝置上未安裝 Google Play</string>
-    <string name="no_logs">沒有記錄</string>
     <string name="no_operations_history">沒有操作歷史</string>
     <string name="no_orbot">未安裝 Orbot</string>
     <string name="no_order_linked">您目前沒有任何購買項目連結至您的帳戶。從探索商店目錄開始。</string>
@@ -528,7 +516,6 @@ sat/min</string>
     <string name="register">註冊</string>
     <string name="registration">註冊</string>
     <string name="removed">已解除安裝</string>
-    <string name="renew_fio_domain">續約 FIO 網域</string>
     <string name="repeat_password">重複密碼</string>
     <string name="rescan">重新掃描</string>
     <string name="resend_confirmation_email">重新傳送確認電子郵件。</string>
@@ -557,7 +544,6 @@ sat/min</string>
     <string name="select_card_value_dialog">選擇卡值：</string>
     <string name="select_country">選擇國家</string>
     <string name="select_flows">選擇動態</string>
-    <string name="select_name_to_associate">將帳戶連結至您的 FIO 名稱。每種加密貨幣只能將<b>一個</b>帳戶連結至<b>一個</b> FIO 名稱。</string>
     <string name="select_token">新增 ERC-20 代幣到「%s」帳戶</string>
     <string name="select_you_region">選擇您的地區</string>
     <string name="select_your_country">選擇您的國家</string>
@@ -575,7 +561,6 @@ sat/min</string>
 
 門檻值：重組私鑰所需的部分數。]]></string>
     <string name="share">分享</string>
-    <string name="share_fio_public_key">分享 FIO 公鑰</string>
     <string name="share_logs">分享記錄</string>
     <string name="share_news">分享新聞</string>
     <string name="share_of">分片 %1$d</string>
@@ -604,7 +589,6 @@ sat/min</string>
     <string name="support_team_text">請描述問題與重現步驟。為獲得問題的完整資訊，請附上記錄檔。</string>
     <string name="sync_failed_reason_s">同步失敗。原因：%s</string>
     <string name="sync_failed_s">同步失敗。%s</string>
-    <string name="tab_fio_requests">FIO 請求</string>
     <string name="tab_partners">商家</string>
     <string name="tab_vip">VIP</string>
     <string name="tap_next">點選 %s</string>

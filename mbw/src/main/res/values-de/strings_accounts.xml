@@ -230,21 +230,16 @@
     <string name="add_selfie">Selfie hinzufügen</string>
     <string name="backup_code_will_be_the_font_only">Der Backup-Code ist die <font color="#CE3C4E">einzige Möglichkeit, sich in Ihr Konto einzuloggen</font>, falls Ihr Telefon nicht verfügbar ist</string>
     <string name="backup_not_generated">Backup-Code wurde nicht generiert</string>
-    <string name="base_label_fio_account_legacy">FIO Legacy-Konto</string>
     <string name="cant_disable_active_account">Sie können kein aktives Konto deaktivieren</string>
-    <string name="connect_accounts">Speichern</string>
-    <string name="create_fio_account">FIO-Konto erstellen</string>
     <string name="create_new_account">Neues ETH-Konto hinzufügen</string>
     <string name="delete_private_key_checkbox">Den privaten Schlüssel löschen, wodurch das Konto schreibgeschützt wird.</string>
     <string name="list_added_tokens_new_account">ERC-20-Tokens auf neuem Konto</string>
-    <string name="master_seed_not_configured">Master Seed ist nicht konfiguriert</string>
     <string name="no_account_yet_register">Noch kein Konto? <font color="#F2E868">Registrieren</font></string>
     <string name="password">Passwort</string>
     <string name="please_add_your_bequant_account_to_your_google_authenticator_app_by_manually_entering_the_codes_below_into_the_authenticator_app">Bitte fügen Sie Ihr Bequant-Konto zu Ihrer Google Authenticator-App hinzu, indem Sie die untenstehenden Codes manuell in die Authenticator-App eingeben.</string>
     <string name="secure_your_account">Sichern Sie Ihr Konto</string>
     <string name="select_eth_account_to_erc20">Wählen Sie ein ETH-Konto zum Speichern Ihrer ERC-20-Tokens</string>
     <string name="select_eth_account_to_erc20_subtext">ERC-20-Tokens existieren auf ETH-Konten und benötigen ETH für Transaktionen.\nEin einzelnes ETH-Konto kann unbegrenzt viele Arten von ERC-20-Tokens speichern – einer pro Typ pro ETH-Konto.</string>
-    <string name="select_name_to_associate_read_only_account">Mit diesem FIO-Namen verbundene Konten. Es kann <b>nur ein</b> Konto pro Kryptowährung mit <b>einem</b> FIO-Namen verbunden werden.</string>
     <string name="select_token_new_account">ERC-20-Tokens zu neuem ETH-Konto hinzufügen</string>
     <string name="set_up_2fa_to_secure_your_account">Richten Sie 2FA ein, um Ihr Konto zu schützen</string>
     <string name="your_account_was_verified_sucessfully">Ihr Konto wurde erfolgreich verifiziert.</string>

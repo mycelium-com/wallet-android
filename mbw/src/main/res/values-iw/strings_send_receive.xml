@@ -165,10 +165,8 @@
     <string name="queue_transaction_message">השידור של העסקה נכשל.\nהאם ברצונך להעביר את העסקה לתור כדי שתישלח אוטומטית כשתתחבר לאינטרנט?</string>
     <string name="rebroadcast_transaction_title">שדר עסקה מחדש</string>
     <string name="receive_cointype">קבל %1$s</string>
-    <string name="receive_title_fio">מפתח ציבורי FIO</string>
     <string name="received">התקבל</string>
     <string name="receiver_address_hint">1Address1234\n567890abcdef\nghijklmnop</string>
-    <string name="recipient_has_no_such_address">ל-%1$s אין כתובת %2$s מחוברת</string>
     <string name="recipient_invalid">כתובת או שם FIO לא תקינים</string>
     <string name="recipient_valid">הנמען תקין</string>
     <string name="remove_queued_transaction">האם אתה בטוח שברצונך להסיר את העסקה הזו מהתור ולמנוע את שידורה?</string>
@@ -181,12 +179,10 @@
     <string name="restore_address_as">שחזר כתובת כ</string>
     <string name="retrieving_pubkey_address">מאחזר את הכתובת הבאה שלא בשימוש…</string>
     <string name="return_to_payment">חזור להזמנות</string>
-    <string name="s_fio_request">בקשת %s FIO</string>
     <string name="s_payment_request">בקשת תשלום %s</string>
     <string name="select_key_for_signing">בחר מפתח לחתימה</string>
     <string name="send_cointype">שלח %1$s</string>
     <string name="send_fee_hint"><b>שים לב.</b> עסקאות עם עמלת כורה בעדיפות נמוכה עלולות לעולם לא להתאשר או להתאשר רק לאחר שעות רבות או אפילו ימים. אל תבחר בעדיפות נמוכה אם אינך מבין כיצד פועלת רשת BTC.</string>
-    <string name="send_fio_request">שלח בקשת FIO</string>
     <string name="send_mail">שלח דוא"ל…</string>
     <string name="sending_addresses">ספר כתובות</string>
     <string name="sending_assets">שולח נכסי %s.</string>
@@ -209,7 +205,6 @@
     <string name="tips_rmc_check_address">אם שלחת נכסים דיגיטליים לכתובת BTC אקראית, הם אינם הושמדו.\nכדי לאחזר אותם יש לך שתי אפשרויות:\n1) השתמש ב-Colored Coins API כדי לשלוח את הנכסים שלך ידנית בחזרה לכתובת המנוהלת על ידי Mycelium Wallet.\n2) הגש כרטיס לתמיכת Mycelium Wallet עבור אחזור הנכסים שלך. עבור שירות זה, ייתכן שיחולו חיובים נוספים. תקבל מידע מפורט לאחר יצירת קשר עם התמיכה.\n\nבשני המקרים, עליך להחזיק במפתח פרטי של הכתובת אליה שלחת את הנכסים הדיגיטליים.</string>
     <string name="too_many_transaction_records">לא ניתן לאחזר את היסטוריית העסקאות המלאה של החשבון בשל גודלה העצום. שקול להעביר כספים לחשבון חדש.</string>
     <string name="total_amount">סכום כולל:</string>
-    <string name="transaction_from_address_prefix">מאת: %s</string>
     <string name="transaction_gas_limit">Gas Limit (יחידות):</string>
     <string name="transaction_history_title">היסטוריית עסקאות</string>
     <string name="transaction_input_data">נתוני קלט:</string>

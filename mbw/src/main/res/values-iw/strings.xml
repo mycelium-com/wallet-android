@@ -226,7 +226,6 @@
     <!-- Credit Card End-->
     <!-- Simplex start -->
     <!-- Simplex end -->
-    <string name="about_fio_protocol_title">אודות פרוטוקול FIO</string>
     <string name="accept">קבל</string>
     <string name="access_from_any_device">גישה מכל מכשיר</string>
     <string name="activate_by">הפעל עד</string>
@@ -301,7 +300,6 @@
     <string name="check_gap_bug_spannable_string">סליחה על ההפרעה… \n \nגילינו באג בלוגיקת החשבונות שיגרום לבעיות אם אי פעם תצטרך לשחזר מהגיבוי בן 12 המילים שלך.\n\nלמידע נוסף ראה כאן: https://wallet.mycelium.com/info/gaps \n\nהאם נוכל לנסות לפתור זאת עבורך? לחץ אישור, כדי לשתף איתנו כתובת אחת לכל חשבון מושפע.</string>
     <string name="check_internet_and_try_again">Mycelium לא יכול להתחבר לשרת בגלל חיבור אינטרנט גרוע.\nאנא ודא את חיבור האינטרנט שלך ונסה שוב.</string>
     <string name="checkbox_wordlist_passphrase">יש לי passphrase</string>
-    <string name="choose_blockchain">בחר blockchain</string>
     <string name="cick_button_to_show_word">הקש על הכפתור למטה כדי להתחיל</string>
     <string name="cold_storage_desc">אתה עומד להוציא ממפתח פרטי באחסון קר. זה יכול להיות גיבוי נייר של מפתח פרטי או פתק מפתח פרטי מכספומט Bitcoin. הפורמטים הבאים נתמכים:\nמפתח פרטי, Master Seed, מפתח xPriv\n\nברגע שהעסקה נשלחת, כל עקבותיה יימחקו מהזיכרון הפנימי.</string>
     <string name="colorize">צבע</string>
@@ -310,7 +308,6 @@
     <string name="configuration_change_restart_warning">נדרשת הפעלה מחדש של האפליקציה כדי להחיל את שינויי התצורה.</string>
     <string name="confirm">אשר</string>
     <string name="confirm_change_on_device"><![CDATA[אנא אשר את פלט ה-<b>change</b> ב-%3$s שלך.<br><br><b>ערך:</b><br>%1$s<br><b>כתובת Change:</b><br>%2$s]]></string>
-    <string name="confirm_fio_link">האם ברצונך לרשום שם FIO עבור חשבון ה-HD Bitcoin שלך %1$s?</string>
     <string name="confirm_output_on_device"><![CDATA[אנא אשר את הפלט ב-%3$s שלך.<br><br><b>ערך:</b><br>%1$s<br><b>כתובת יעד:</b><br>%2$s<br>]]></string>
     <string name="confirmation">אישור המרה</string>
     <string name="connect_your_ext_sig_device_info">זה עובד רק אם הטלפון שלך תומך ב-USB-OTG (on-the-go).\n\nכדי לחבר את המכשיר אתה צריך מתאם או כבל USB-OTG. חבר את המכשיר עם כבל ה-USB שלו לצד הלקוח וחבר את צד המארח לטלפון שלך.</string>
@@ -325,7 +322,6 @@
     <string name="country">מדינה</string>
     <string name="course_outdated">שער ההמרה אינו עדכני</string>
     <string name="create_backup">צור גיבוי</string>
-    <string name="create_fio_domain">צור FIO Domain</string>
     <string name="credit_card_buy">כרטיס אשראי</string>
     <string name="credit_card_buy_description">קנה Bitcoin באמצעות כרטיס אשראי</string>
     <string name="credit_card_buy_setting_description">קנה Bitcoin באמצעות כרטיס אשראי</string>
@@ -343,8 +339,6 @@
     <string name="delete_document">האם ברצונך למחוק את המסמך?</string>
     <string name="delete_last_entered_word">מחק מילה אחרונה</string>
     <string name="delete_pk_message"><![CDATA[האם ברצונך למחוק את המפתח הפרטי של החשבון <b>"%1$s"</b> המחזיק <b>%2$s</b>?]]></string>
-    <string name="delete_received_fio_request">מחק בקשת FIO שהתקבלה</string>
-    <string name="delete_received_fio_request_msg">האם אתה בטוח שברצונך למחוק בקשת FIO זו?</string>
     <string name="deposits_without_destination_tag_will_be_lost">הפקדות ללא Destination Tag יאבדו!</string>
     <string name="description">תיאור:</string>
     <string name="description_bump_fee">שלח עסקה שמגדילה את העמלה עבור עסקה לא מאושרת זו.\n\nהאם ברצונך להוציא %2$s כדי להעלות את העמלה ל-%1$dsat/B?</string>
@@ -356,7 +350,6 @@
     <string name="discover">גלה</string>
     <string name="do_you_want_resubmit">עדכנת את המידע למטה. האם ברצונך להגיש מחדש את הבקשה שלך?</string>
     <string name="doc_selfie"><![CDATA[מסמכים וסלפי]]></string>
-    <string name="domain_details">פרטי Domain</string>
     <string name="dont_allow_archiving_unused_notification">אינך יכול להעביר לארכיון חשבון HD Bitcoin שאינו בשימוש</string>
     <string name="dont_allow_hiding_used_notification">אינך יכול להסתיר חשבון בשימוש, אך אתה יכול להעביר אותו לארכיון</string>
     <string name="dontagree">אני לא מסכים</string>
@@ -378,7 +371,6 @@
     <string name="excange_title">המר BCH ל-BTC</string>
     <string name="exceed_card_value">חרג מערך הכרטיס</string>
     <string name="exchanging">ממיר</string>
-    <string name="expiration_date">תאריך תפוגה:</string>
     <string name="expire_date">תאריך תפוגה:</string>
     <string name="expires_at">תאריך תפוגה:</string>
     <string name="external_app_needed">כדי לעדכן את המכשיר אתה צריך כלי חיצוני, לחץ אישור כדי להפעיל אותו.</string>
@@ -396,7 +388,6 @@
     <string name="first_bch_installed_message"><![CDATA[Now we need to sync it with the blockchain in order to retrieve your Bitcoin <font color="#f08c18">Cash</font>  balance.<br><br>This procedure takes some time and is performed in the background.<br>The more private keys you have the longer it takes, please be patient. For example, if you have around 1000 private keys, it could take more than 3 hours to reach full sync.<br>We will inform you when it is done.<br><br>You can always check the sync progress here:  Settings -> Bitcoin <font color="#f08c18">Cash</font> module.<br><br>For every BTC account with not retrieved Bitcoin <font color="#f08c18">Cash</font>, corresponding Bitcoin <font color="#f08c18">Cash</font> account will be created.<br><br>Go to Balance tab of your Bitcoin <font color="#f08c18">Cash</font> account to instantly  exchange it to BTC.]]></string>
     <string name="first_bch_installed_title"><![CDATA[מודול Mycelium Bitcoin <font color="#f08c18">Cash</font> הותקן!]]></string>
     <string name="first_name">שם פרטי</string>
-    <string name="following_fio_domains_registered">ה-FIO Domains הבאים נרשמו</string>
     <string name="format" translatable="false">%1$td/%1$tm/%1$tY</string>
     <string name="found_clipboard_public_key_title">מפתח ציבורי נמצא בלוח</string>
     <string name="found_clipboard_public_keys_message">הלוח מכיל מפתח ציבורי.\nהאם ברצונך לנקות את הלוח?</string>
@@ -467,7 +458,6 @@
     <string name="last_log_entries">רשומות יומן אחרונות</string>
     <string name="last_name">שם משפחה</string>
     <string name="learn_more_rmc"><u>למד עוד על RMC</u></string>
-    <string name="leave_a_message_for_s">השאר הודעה עבור %s</string>
     <string name="legal_information">מידע משפטי</string>
     <string name="less">פחות</string>
     <string name="list_added_tokens">ERC-20 tokens בחשבון \"%s\"</string>
@@ -495,7 +485,6 @@
     <string name="module_uninstall_progress">מסיר התקנה…</string>
     <string name="modules">מודולים</string>
     <string name="more">עוד</string>
-    <string name="my_fio_domains">ה-FIO Domains שלי</string>
     <string name="mycelium_no_responaility_rmc">אם תמשיך, אתה מסכים להמשיך ל-RMC, שירות צד שלישי. כל האינטראקציות שלך עם RMC הן מחוץ לשליטת Mycelium וכפופות ל-User Agreement, Terms of Use ו-Privacy Policy של RMC. אנא קרא אותם בעיון. שום מידע אישי  לא ייאסף, יישמר או ישמש על ידי Mycelium.\n\nMYCELIUM אינו לוקח אחריות ולא יהיה אחראי לכל אובדן או נזק כלשהו שייגרם כתוצאה מגישה, שימוש או הסתמכות על מידע ושירותים של מנפיק RMC</string>
     <string name="mycelium_services">שירותי Mycelium</string>
     <string name="mycelium_terms_of_use">Mycelium Terms Of Use</string>
@@ -514,7 +503,6 @@
     <string name="no_digital_asset">המפתח הפרטי BIP32 שלך אינו מחזיק נכסים דיגיטליים.\n\nאם אתה סבור אחרת נסה לסרוק אותו שוב.</string>
     <string name="no_funds">אין כספים</string>
     <string name="no_google_play_installed">Google Play לא מותקן במכשיר</string>
-    <string name="no_logs">אין יומנים</string>
     <string name="no_operations_history">אין היסטוריית פעולות</string>
     <string name="no_orbot">Orbot לא מותקן</string>
     <string name="no_order_linked">אין לך כעת רכישות המקושרות לחשבונך. התחל על ידי גלישה בקטלוג החנויות.</string>
@@ -578,7 +566,6 @@
     <string name="register">הירשם</string>
     <string name="registration">הרשמה</string>
     <string name="removed">הוסר</string>
-    <string name="renew_fio_domain">חדש FIO Domain</string>
     <string name="repeat_password">חזור על הסיסמה</string>
     <string name="rescan">סרוק שוב</string>
     <string name="resend_confirmation_email">שלח שוב דוא"ל אישור.</string>
@@ -610,7 +597,6 @@
     <string name="select_country">בחר מדינה</string>
     <string name="select_flows">בחר זרימות</string>
     <string name="select_local_currencies">בחר את המטבעות שלך</string>
-    <string name="select_name_to_associate">חבר חשבונות לשם FIO שלך. רק <b>חשבון אחד</b> לכל מטבע קריפטוגרפי יכול להיות מחובר ל-<b>שם FIO אחד</b>.</string>
     <string name="select_token">הוסף אסימוני ERC-20 לחשבון \"%s\"</string>
     <string name="select_you_region">בחר את האזור שלך</string>
     <string name="select_your_country">בחר את המדינה שלך</string>
@@ -627,7 +613,6 @@
     <string name="set_password">הגדר סיסמה</string>
     <string name="shamir_share_hint"><![CDATA[סך השיתופים: מספר חלקים לחלוקת המפתח הפרטי.\n\nסף: מספר חלקים הנדרש לשחזור המפתח הפרטי.]]></string>
     <string name="share">שתף</string>
-    <string name="share_fio_public_key">שתף מפתח ציבורי FIO</string>
     <string name="share_logs">שתף יומנים</string>
     <string name="share_news">שתף חדשות</string>
     <string name="share_of">שתף %1$d</string>
@@ -671,7 +656,6 @@
     <string name="support_team_text">אנא תאר את הבעיה ואת השלבים לשחזורה. כדי לקבל תמונה מלאה של הבעיה, אנא צרף את היומנים.</string>
     <string name="sync_failed_reason_s">הסנכרון נכשל. סיבה: %s</string>
     <string name="sync_failed_s">הסנכרון נכשל. %s</string>
-    <string name="tab_fio_requests">בקשות FIO</string>
     <string name="tab_partners">עסקים</string>
     <string name="tab_vip">VIP</string>
     <string name="tap_next">הקש עבור %s</string>

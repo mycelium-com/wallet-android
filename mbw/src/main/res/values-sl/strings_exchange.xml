@@ -191,9 +191,6 @@
     <string name="no_exchange_available">Za račun ni na voljo nobene menjave</string>
     <string name="no_gift_cards_linked">Začnite z raziskovanjem kataloga trgovin ali preverite status svojih naročil.</string>
     <string name="no_purchased_gift_card">ŠE NISTE KUPILI\nNOBENE DARILNE KARTICE</string>
-    <string name="partner_fiopresale">FIO Address Presale</string>
-    <string name="partner_fiopresale_info"/>
-    <string name="partner_fiopresale_short">Vaš ključ do boljše izkušnje verige blokov</string>
     <string name="partner_more_info"><u>Vaša zasebnost je naša glavna prioriteta</u></string>
     <string name="partner_more_info_text">
         Mycelium je ena najbolj zaupanja vrednih in uporabnih mobilnih bitcoin denarnic.<br />

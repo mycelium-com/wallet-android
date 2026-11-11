@@ -170,7 +170,6 @@
     <!-- Credit Card End-->
     <!-- Simplex start -->
     <!-- Simplex end -->
-    <string name="about_fio_protocol_title">O FIO Protocol</string>
     <string name="access_from_any_device">Dostop z vsake naprave</string>
     <string name="activate_by">Aktiviraj do</string>
     <string name="all_countries">Vse države</string>
@@ -235,13 +234,11 @@
     <string name="changelog_version_placeholder">Različica: %s</string>
     <string name="check_gap_bug_spannable_string">Oprostite za prekinitev… \n \nOdkrili smo napako v logiki računa, ki bo povzročila težave, če boste nekoč potrebovali obnovitev iz 12-besedne varnostne kopije.\n\nZa več informacij glejte tukaj: https://wallet.mycelium.com/info/gaps \n\nLahko poskusimo to rešiti za vas? Pritisnite V redu, da z nami delite en naslov za vsak prizadeti račun.</string>
     <string name="check_internet_and_try_again">Mycelium se ne more povezati s strežnikom zaradi slabe internetne povezave.\nProsimo preverite svojo internetno povezavo in poskusite znova.</string>
-    <string name="choose_blockchain">Izberite blockchain</string>
     <string name="colorize">obarvaj</string>
     <string name="colu">Digital Asset</string>
     <string name="configuration_change_restart_warning">Za uveljavitev sprememb konfiguracije je potreben ponovni zagon aplikacije.</string>
     <string name="confirm">Potrdi</string>
     <string name="confirm_change_on_device"><![CDATA[Prosimo potrdite <b>drobiž</b> izhod na vašem %3$s.<br><br><b>Vrednost:</b><br>%1$s<br><b>Naslov za drobiž:</b><br>%2$s]]></string>
-    <string name="confirm_fio_link">Ali želite registrirati FIO Name za vaš HD Bitcoin račun %1$s?</string>
     <string name="confirm_output_on_device"><![CDATA[Prosimo potrdite izhod na vašem %3$s.<br><br><b>Vrednost:</b><br>%1$s<br><b>Ciljni naslov:</b><br>%2$s<br>]]></string>
     <string name="confirmation">Potrditev menjave</string>
     <string name="connect_your_ext_sig_device_info">To deluje le, če vaš telefon podpira USB-OTG (on-the-go).\n\nZa povezavo naprave potrebujete USB-OTG-adapter ali kabel. Napravo priključite z lastnim USB-kablom na strani odjemalca in stran gostitelja povežite s telefonom.</string>
@@ -256,7 +253,6 @@
     <string name="country">Država</string>
     <string name="course_outdated">Menjalni tečaj je zastarel</string>
     <string name="create_backup">Ustvari varnostno kopijo</string>
-    <string name="create_fio_domain">Ustvari FIO Domain</string>
     <string name="credit_card_buy">Kreditna kartica</string>
     <string name="credit_card_buy_description">Kupi Bitcoin s kreditno kartico</string>
     <string name="credit_card_buy_setting_description">Kupi Bitcoin s kreditno kartico</string>
@@ -271,8 +267,6 @@
     <string name="dear_user_s_s">Spoštovani %s %s,</string>
     <string name="delete_document">Ali želite izbrisati dokument?</string>
     <string name="delete_pk_message"><![CDATA[Ali želite izbrisati zasebni ključ računa <b>\"%1$s\"</b> z <b>%2$s</b>?]]></string>
-    <string name="delete_received_fio_request">Izbriši prejet FIO Request</string>
-    <string name="delete_received_fio_request_msg">Ali ste prepričani, da želite izbrisati ta FIO Request?</string>
     <string name="deposits_without_destination_tag_will_be_lost">Pologi brez Destination Tag bodo izgubljeni!</string>
     <string name="description">Opis:</string>
     <string name="description_bump_fee">Pošlji transakcijo, ki poveča provizijo za to nepotrjeno transakcijo.\n\nAli želite porabiti %2$s, da povečate provizijo na %1$dsat/B?</string>
@@ -283,7 +277,6 @@
     <string name="discover">Odkrij</string>
     <string name="do_you_want_resubmit">Posodobili ste spodnje informacije. Ali želite ponovno oddati svojo vlogo?</string>
     <string name="doc_selfie"><![CDATA[Dokumenti & selfie]]></string>
-    <string name="domain_details">Podrobnosti domene</string>
     <string name="download">Prenos</string>
     <string name="due_to_high_cryptocurrencies_volatility">Zaradi visoke volatilnosti kriptovalut bo lahko končni tečaj nekoliko višji ali nižji od ocenjenega tukaj.</string>
     <string name="edit_gas_limit_advanced_users"><![CDATA[Uredi Gas Limit <i>(za napredne uporabnike)</i>]]></string>
@@ -299,7 +292,6 @@
     <string name="excange_title">Zamenjaj BCH v BTC</string>
     <string name="exceed_card_value">Presežena vrednost kartice</string>
     <string name="exchanging">menjava</string>
-    <string name="expiration_date">Datum poteka:</string>
     <string name="expire_date">Datum poteka:</string>
     <string name="expires_at">Datum poteka:</string>
     <string name="external_app_needed">Za posodobitev naprave potrebujete zunanje orodje, kliknite v redu za zagon.</string>
@@ -315,7 +307,6 @@
     <string name="first_bch_installed_message"><![CDATA[Zdaj ga moramo sinhronizirati z blockchainom, da pridobimo vaše stanje Bitcoin <font color="#f08c18">Cash</font>.<br><br>Ta postopek traja nekaj časa in se izvaja v ozadju.<br>Več kot imate zasebnih ključev, dlje traja, prosimo bodite potrpežljivi. Na primer, če imate okoli 1000 zasebnih ključev, bi lahko trajalo več kot 3 ure, da doseže polno sinhronizacijo.<br>Obvestili vas bomo, ko bo končano.<br><br>Napredek sinhronizacije lahko vedno preverite tukaj: Nastavitve -> Modul Bitcoin <font color="#f08c18">Cash</font>.<br><br>Za vsak BTC račun s ne pridobljenim Bitcoin <font color="#f08c18">Cash</font> bo ustvarjen ustrezen Bitcoin <font color="#f08c18">Cash</font> račun.<br><br>Pojdite v zavihek Stanje vašega Bitcoin <font color="#f08c18">Cash</font> računa, da ga takoj zamenjate v BTC.]]></string>
     <string name="first_bch_installed_title"><![CDATA[Modul Mycelium Bitcoin <font color="#f08c18">Cash</font> je nameščen!]]></string>
     <string name="first_name">Ime</string>
-    <string name="following_fio_domains_registered">Registrirane so naslednje FIO Domains</string>
     <string name="format" translatable="false">%1$td/%1$tm/%1$tY</string>
     <string name="found_clipboard_public_key_title">Javni ključ najden na odložišču</string>
     <string name="found_clipboard_public_keys_message">Odložišče vsebuje javni ključ.\nAli želite počistiti odložišče?</string>
@@ -373,7 +364,6 @@
     <string name="label_use_device_location">uporabi lokacijo naprave</string>
     <string name="last_name">Priimek</string>
     <string name="learn_more_rmc"><u>Več o RMC</u></string>
-    <string name="leave_a_message_for_s">Pustite sporočilo za %s</string>
     <string name="legal_information">Pravne informacije</string>
     <string name="less">manj</string>
     <string name="list_added_tokens">ERC-20 žetoni na računu \"%s\"</string>
@@ -400,7 +390,6 @@
     <string name="module_uninstall_progress">Odstranjevanje…</string>
     <string name="modules">Moduli</string>
     <string name="more">več</string>
-    <string name="my_fio_domains">Moje FIO domene</string>
     <string name="mycelium_no_responaility_rmc">Če nadaljujete, se strinjate, da nadaljujete na RMC, storitev tretje osebe. Vse vaše interakcije z RMC so izven nadzora Mycelium in so predmet uporabniške pogodbe RMC, pogojev uporabe in pravilnika o zasebnosti. Prosimo, preberite jih natančno. Mycelium ne bo zbiral, shranjeval ali uporabljal nobenih osebnih informacij.\n\nMYCELIUM NE PREVZEMA ODGOVORNOSTI IN NE BO ODGOVOREN ZA KAKRŠNO KOLI IZGUBO ALI ŠKODO, KI BI NASTALA ZARADI DOSTOPA, UPORABE ALI ZANAŠANJA NA INFORMACIJE IN STORITVE IZDAJATELJA RMC</string>
     <string name="mycelium_services">Storitve Mycelium</string>
     <string name="mycelium_terms_of_use">Pogoji uporabe Mycelium</string>
@@ -416,7 +405,6 @@
     <string name="no_digital_asset">Vaš zasebni ključ BIP32 ne hrani digitalnih sredstev.\n\nČe menite drugače, ga poskusite ponovno prečitati.</string>
     <string name="no_funds">Brez sredstev</string>
     <string name="no_google_play_installed">Google Play ni nameščen na napravi</string>
-    <string name="no_logs">Brez dnevnikov</string>
     <string name="no_operations_history">Brez zgodovine operacij</string>
     <string name="no_orbot">Orbot ni nameščen</string>
     <string name="no_order_linked">Trenutno nimate povezanih nakupov s svojim računom. Začnite z raziskovanjem kataloga trgovin.</string>
@@ -471,7 +459,6 @@
     <string name="register">Registriraj</string>
     <string name="registration">Registracija</string>
     <string name="removed">odstranjeno</string>
-    <string name="renew_fio_domain">Obnovi FIO domeno</string>
     <string name="repeat_password">Ponovi geslo</string>
     <string name="rescan">Ponovno preglej</string>
     <string name="resend_confirmation_email">Ponovno pošlji potrditveni e-mail.</string>
@@ -500,7 +487,6 @@
     <string name="select_card_value_dialog">Izberite vrednost kartice:</string>
     <string name="select_country">Izberite državo</string>
     <string name="select_flows">Izberi tokove</string>
-    <string name="select_name_to_associate">Povežite račune s svojim FIO imenom. Samo <b>en</b> račun za vsako kriptovaluto se lahko poveže z <b>enim</b> FIO imenom.</string>
     <string name="select_token">Dodaj ERC-20 žetone na račun \"%s\"</string>
     <string name="select_you_region">Izberite svojo regijo</string>
     <string name="select_your_country">Izberite svojo državo</string>
@@ -516,7 +502,6 @@
     <string name="set_password">Nastavi geslo</string>
     <string name="shamir_share_hint"><![CDATA[Skupaj delov: število delov, na katere se razdeli zasebni ključ.\n\nPrag: število delov, potrebnih za rekonstrukcijo zasebnega ključa.]]></string>
     <string name="share">Deli</string>
-    <string name="share_fio_public_key">Deli FIO javni ključ</string>
     <string name="share_logs">Deli dnevnike</string>
     <string name="share_news">Deli novice</string>
     <string name="share_of">Del %1$d</string>
@@ -545,7 +530,6 @@
     <string name="support_team_text">Prosimo opišite težavo in korake za njeno reprodukcijo. Za popolno sliko težave priložite dnevnike.</string>
     <string name="sync_failed_reason_s">Sinhronizacija ni uspela. Razlog: %s</string>
     <string name="sync_failed_s">Sinhronizacija ni uspela. %s</string>
-    <string name="tab_fio_requests">FIO zahteve</string>
     <string name="tab_partners">Podjetja</string>
     <string name="tab_vip">VIP</string>
     <string name="tap_next">Tapnite za %s</string>

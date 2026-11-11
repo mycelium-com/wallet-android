@@ -22,7 +22,6 @@
     <!-- Simplex start -->
     <!-- Simplex end -->
     <string name="about">Tungkol sa</string>
-    <string name="about_fio_protocol_title">Tungkol sa FIO Protocol</string>
     <string name="accept">Tanggapin</string>
     <string name="access_from_any_device">I-access mula sa anumang device</string>
     <string name="activate_action">I-activate</string>
@@ -108,7 +107,6 @@
     <string name="check_internet_and_try_again">Hindi makakonekta ang Mycelium sa server dahil sa mahinang internet connection.\nMangyaring i-verify ang iyong internet connection at subukan ulit.</string>
     <string name="check_update">I-check ang Update</string>
     <string name="checkbox_wordlist_passphrase">May passphrase ako</string>
-    <string name="choose_blockchain">Pumili ng blockchain</string>
     <string name="cick_button_to_show_word">I-tap ang button sa ibaba upang magsimula</string>
     <string name="close">Isara</string>
     <string name="cold_storage">Cold Storage</string>
@@ -121,7 +119,6 @@
     <string name="confirm">Kumpirmahin</string>
     <string name="confirm_change_on_device"><![CDATA[Mangyaring kumpirmahin ang <b>change</b> output sa iyong %3$s.<br><br><b>Halaga:</b><br>%1$s<br><b>Change Address:</b><br>%2$s]]></string>
     <string name="confirm_delete_pk_title">Sigurado Ka Ba?</string>
-    <string name="confirm_fio_link">Gusto mo bang magrehistro ng FIO Name para sa iyong HD Bitcoin account %1$s?</string>
     <string name="confirm_output_on_device"><![CDATA[Mangyaring kumpirmahin ang output sa iyong %3$s.<br><br><b>Halaga:</b><br>%1$s<br><b>Destination Address:</b><br>%2$s<br>]]></string>
     <string name="confirmation">Kumpirmasyon ng exchange</string>
     <string name="connect_your_ext_sig_device_info">Ito ay gumagana lamang kung sumusuporta ang iyong telepono sa USB-OTG (on-the-go).\n\nUpang ikonekta ang device kailangan mo ng USB-OTG-adapter o cable. Ikabit ang device sa sarili nitong USB-Cable sa client-side at ikonekta ang host-side sa iyong telepono.</string>
@@ -139,7 +136,6 @@
     <string name="country">Bansa</string>
     <string name="course_outdated">Ang exchange rate ay luma na</string>
     <string name="create_backup">Gumawa ng Backup</string>
-    <string name="create_fio_domain">Lumikha ng FIO Domain</string>
     <string name="credit_card_buy">Credit Card</string>
     <string name="credit_card_buy_description">Bumili ng Bitcoin gamit ang credit card</string>
     <string name="credit_card_buy_setting_description">Bumili ng Bitcoin gamit ang credit card</string>
@@ -160,8 +156,6 @@
     <string name="delete_document">Gusto mo bang tanggalin ang dokumento?</string>
     <string name="delete_last_entered_word">Tanggalin ang Huling Salita</string>
     <string name="delete_pk_message"><![CDATA[Gusto mo bang tanggalin ang account <b>"%1$s"</b> private key na may <b>%2$s</b>?]]></string>
-    <string name="delete_received_fio_request">Tanggalin ang natanggap na FIO Request</string>
-    <string name="delete_received_fio_request_msg">Sigurado ka bang gusto mong tanggalin ang FIO Request na ito?</string>
     <string name="deposits_without_destination_tag_will_be_lost">Ang mga deposito na walang Destination Tag ay mawawala!</string>
     <string name="description">Paglalarawan:</string>
     <string name="description_bump_fee">Magpadala ng transaksyon na nagpapataas ng fee para sa unconfirmed transaction na ito.\n\nGusto mo bang gumastos ng %2$s upang maging %1$dsat/B ang fee?</string>
@@ -173,7 +167,6 @@
     <string name="discover">Tuklasin</string>
     <string name="do_you_want_resubmit">Na-update mo ang impormasyon sa ibaba. Gusto mo bang muling i-submit ang iyong application?</string>
     <string name="doc_selfie"><![CDATA[Mga Dokumento & Selfie]]></string>
-    <string name="domain_details">Detalye ng domain</string>
     <string name="dont_allow_archiving_unused_notification">Hindi mo maaaring i-archive ang hindi nagamit na HD Bitcoin account</string>
     <string name="dont_allow_hiding_used_notification">Hindi mo maaaring itago ang nagamit na account, ngunit maaari mo itong i-archive</string>
     <string name="dontagree">Hindi ako sumasang-ayon</string>
@@ -198,7 +191,6 @@
     <string name="excange_title">Palitan ang BCH sa BTC</string>
     <string name="exceed_card_value">Lumampas sa card value</string>
     <string name="exchanging">pinapalitan</string>
-    <string name="expiration_date">Petsa ng pag-expire:</string>
     <string name="expire_date">Petsa ng pag-expire:</string>
     <string name="expires_at">Petsa ng pag-expire:</string>
     <string name="explore">Tuklasin</string>
@@ -217,7 +209,6 @@
     <string name="first_bch_installed_message"><![CDATA[Ngayon kailangan nating i-sync ito sa blockchain upang makuha ang iyong Bitcoin <font color="#f08c18">Cash</font> balance.<br><br>Ang prosesong ito ay tumatagal at isinasagawa sa background.<br>Kung mas marami kang private keys, mas matagal ito, kaya pakihintay. Halimbawa, kung mayroon kang mga 1000 private keys, maaaring tumagal ito ng higit sa 3 oras upang maabot ang ganap na pag-sync.<br>Ipapaalam namin sa iyo kapag tapos na.<br><br>Maaari mong palaging tingnan ang sync progress dito: Settings -> Bitcoin <font color="#f08c18">Cash</font> module.<br><br>Para sa bawat BTC account na hindi nakuha ang Bitcoin <font color="#f08c18">Cash</font>, ang katumbas na Bitcoin <font color="#f08c18">Cash</font> account ay malilikha.<br><br>Pumunta sa Balance tab ng iyong Bitcoin <font color="#f08c18">Cash</font> account upang agad itong palitan sa BTC.]]></string>
     <string name="first_bch_installed_title"><![CDATA[Na-install na ang Mycelium Bitcoin <font color="#f08c18">Cash</font> module!]]></string>
     <string name="first_name">Pangalan</string>
-    <string name="following_fio_domains_registered">Nakarehistro ang sumusunod na FIO Domains</string>
     <string name="format" translatable="false">%1$td/%1$tm/%1$tY</string>
     <string name="found_clipboard_public_key_title">Nakitang Public Key sa Clipboard</string>
     <string name="found_clipboard_public_keys_message">Ang clipboard ay naglalaman ng public key.\nGusto mo bang i-clear ang clipboard?</string>
@@ -297,7 +288,6 @@
     <string name="last_log_entries">Mga huling log entries</string>
     <string name="last_name">Apelyido</string>
     <string name="learn_more_rmc"><u>Matuto pa tungkol sa RMC</u></string>
-    <string name="leave_a_message_for_s">Mag-iwan ng mensahe para kay %s</string>
     <string name="legal_information">Legal na Impormasyon</string>
     <string name="less">mas kaunti</string>
     <string name="list_added_tokens">ERC-20 tokens sa \"%s\" account</string>
@@ -328,7 +318,6 @@
     <string name="module_uninstall_progress">Ina-uninstall…</string>
     <string name="modules">Modules</string>
     <string name="more">higit pa</string>
-    <string name="my_fio_domains">Aking mga FIO Domain</string>
     <string name="mycelium_license">Mycelium License</string>
     <string name="mycelium_no_responaility_rmc">Kung magpapatuloy ka, sumasang-ayon ka na magpatuloy sa RMC, isang third party service. Lahat ng iyong pakikipag-ugnayan sa RMC ay nasa labas ng kontrol ng Mycelium at sakop ng RMC\'s User Agreement, Terms of Use at Privacy Policy. Mangyaring basahin ang mga ito nang mabuti. Walang personal na impormasyon ang kokolektahin, iimbak o gagamitin ng Mycelium.\n\nWALANG TINATANGGAP NA RESPONSIBILIDAD ANG MYCELIUM AT HINDI MANANAGOT SA ANUMANG PAGKAWALA O PINSALA NA NARANASAN BILANG RESULTA NG PAG-ACCESS, PAGGAMIT, O PAGTITIWALA SA IMPORMASYON AT MGA SERBISYO NG RMC ISSUER</string>
     <string name="mycelium_services">Mycelium services</string>
@@ -351,7 +340,6 @@
     <string name="no_digital_asset">Ang iyong BIP32 private key ay walang hawak na anumang digital assets.\n\nKung naniniwala kang kabaligtaran subukang i-scan muli.</string>
     <string name="no_funds">Walang pondo</string>
     <string name="no_google_play_installed">Walang Google Play na naka-install sa device</string>
-    <string name="no_logs">Walang logs</string>
     <string name="no_network_connection">Walang Network Connection</string>
     <string name="no_operations_history">Walang kasaysayan ng operasyon</string>
     <string name="no_orbot">Walang naka-install na Orbot</string>
@@ -424,7 +412,6 @@
     <string name="register">Magrehistro</string>
     <string name="registration">Pagpaparehistro</string>
     <string name="removed">na-uninstall</string>
-    <string name="renew_fio_domain">I-renew ang FIO Domain</string>
     <string name="repeat_password">Ulitin ang password</string>
     <string name="rescan">I-rescan</string>
     <string name="resend_confirmation_email">Ipadala muli ang confirmation email.</string>
@@ -459,7 +446,6 @@
     <string name="select_country">Pumili ng bansa</string>
     <string name="select_flows">Pumili ng mga flow</string>
     <string name="select_local_currencies">Piliin ang iyong mga pera</string>
-    <string name="select_name_to_associate">Ikonekta ang mga account sa iyong FIO Name. Isang <b>isa</b> lamang account sa bawat cryptocurrency ang maaaring maikonekta sa <b>isang</b> FIO Name.</string>
     <string name="select_token">Magdagdag ng mga ERC-20 token sa \"%s\" account</string>
     <string name="select_you_region">Piliin ang iyong rehiyon</string>
     <string name="select_your_country">Piliin ang iyong bansa</string>
@@ -477,7 +463,6 @@
     <string name="set_password">Itakda ang password</string>
     <string name="shamir_share_hint"><![CDATA[Total shares: bilang ng mga bahagi upang hatiin ang private key.\n\nThreshold: bilang ng mga bahagi na kinakailangan upang muling buuin ang private key.]]></string>
     <string name="share">Ibahagi</string>
-    <string name="share_fio_public_key">Ibahagi ang FIO public key</string>
     <string name="share_logs">Ibahagi ang mga Log</string>
     <string name="share_news">Ibahagi ang Balita</string>
     <string name="share_of">Ibahagi ang %1$d</string>
@@ -533,7 +518,6 @@
     <string name="sync_failed_s">Nabigo ang Synchronization. %s</string>
     <string name="synchronizing_please_wait">Nag-sa-synchronize, mangyaring maghintay …</string>
     <string name="tab_balance">Balanse</string>
-    <string name="tab_fio_requests">FIO Requests</string>
     <string name="tab_partners">Mga Negosyo</string>
     <string name="tab_vip">VIP</string>
     <string name="tap_next">I-tap para sa %s</string>

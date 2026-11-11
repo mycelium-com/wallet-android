@@ -80,22 +80,16 @@
     <string name="backup_not_verified">Kopia zapasowa nie została zweryfikowana</string>
     <string name="backup_now">Wykonaj kopię zapasową teraz</string>
     <string name="backup_words_title">Kopia zapasowa Master Seed</string>
-    <string name="base_label_fio_account_legacy">Konto FIO Legacy</string>
     <string name="bch_accounts_found"><![CDATA[Znaleźliśmy %1$s Bitcoin <font color="#f08c18">Cash</font> na Twoich kontach BTC.<br><br>Utworzono %2$d odpowiadające konta Bitcoin <font color="#f08c18">Cash</font>.\nSaldo Bitcoin <font color="#f08c18">Cash</font> można sprawdzić w zakładce Konta.<br><br>Teraz możesz przejść do zakładki Saldo swojego konta Bitcoin <font color="#f08c18">Cash</font> i natychmiast wymienić je na BTC.]]></string>
     <string name="bch_accounts_not_found"><![CDATA[Nie znaleźliśmy żadnego Bitcoin <font color="#f08c18">Cash</font> na Twoich kontach BTC.<br>Stale monitorujemy Twoje konta BTC i poinformujemy Cię, jeśli zostanie znaleziony Bitcoin <font color="#f08c18">Cash</font>.]]></string>
     <string name="bip32_root_account">Konto główne</string>
     <string name="block_access_to_account">Celowo dezaktywujemy zakładkę Moje konta, gdy zarządzasz swoim kontem %1$s. Ma to zapobiec wysyłaniu Twoich cyfrowych aktywów gdziekolwiek indziej niż na inne konto %1$s.</string>
-    <string name="btcv_account_creation_started">Tworzenie nowego konta BTCV…</string>
-    <string name="btcvault_hd_account">Dodaj konto Bitcoin Vault HD</string>
     <string name="cant_disable_active_account">Nie możesz wyłączyć aktywnego konta</string>
     <string name="choose_the_currency_and_btc_receiving_account">Wybierz walutę i konto odbiorcze BTC</string>
     <string name="clipboard_not_available">Schowek jest nieprawidłowy</string>
     <string name="confirm_delete_account_message_end">Czy chcesz je usunąć?</string>
     <string name="confirm_delete_private_key_message">Przed usunięciem klucza prywatnego upewnij się, że masz jego kopię zapasową przechowywaną offline w bezpiecznym miejscu. Będziesz musiał \"dodać go z powrotem\" z kopii zapasowej, gdy będziesz chciał wydać bitcoiny z tego konta.</string>
     <string name="confirm_delete_private_key_message_end">Czy chcesz uczynić go tylko-do-odczytu (watch-only)?</string>
-    <string name="connect_accounts">Zapisz</string>
-    <string name="create_fio_account">Utwórz konto FIO</string>
-    <string name="create_fio_legacy_presale_account">Utwórz konto FIO Legacy</string>
     <string name="create_new_account">Dodaj nowe konto ETH</string>
     <string name="delete_account">Usuń konto</string>
     <string name="delete_account_message"><![CDATA[Czy chcesz usunąć konto <b>\"%1$s\"</b> z saldem <b>%2$s</b> oraz <b>\"%3$s\"</b> z saldem <b>%4$s</b>?]]></string>
@@ -120,7 +114,6 @@
     <string name="eth_account_creation_started">Tworzenie nowego konta ETH…</string>
     <string name="export">Eksportuj klucze konta</string>
     <string name="export_account_data_warning">Zamierzasz wyeksportować wrażliwe dane wybranego konta.\n\nKażdy, kto uzyska dostęp do tych kluczy, może albo przejąć kontrolowane bitcoiny, albo zdobyć informacje, które mogą naruszyć Twoją prywatność.\n\nCzy chcesz kontynuować?</string>
-    <string name="export_fio_public_key_title">Eksportuj klucz publiczny FIO</string>
     <string name="export_history">Eksportuj historię transakcji</string>
     <string name="export_not_possible">Eksport nie jest możliwy, masz już konto %s</string>
     <string name="export_private_key_red_warning">Kopiuj ten klucz tylko w bezpiecznym środowisku.\nKażdy, kto ma do niego dostęp, uzyskuje kontrolę nad wszystkimi obecnymi i przyszłymi bitcoinami dostępnymi na tym koncie.\n\nNaciśnij i przytrzymaj tutaj, aby pokazać \nkod QR </string>
@@ -157,7 +150,6 @@
     <string name="hd_account_creation_started">Tworzenie nowego konta HD Bitcoin…</string>
     <string name="hd_account_selector_no_account_found">Nie znaleziono aktywnych kont.</string>
     <string name="hd_eth_account">Dodaj konto Ethereum</string>
-    <string name="hd_fio_account">Dodaj konto FIO</string>
     <string name="hide_unused_account_menu">Usuń konto</string>
     <string name="import_decrypt_bip38_display_password">Pokaż hasło</string>
     <string name="import_wordlist_questions">Wybierz długość listy słów do przywrócenia i wskaż czy jest chroniona hasłem.</string>
@@ -193,11 +185,9 @@
     <string name="master_seed_configuration_description">Czy chcesz przywrócić kopię zapasową, czy utworzyć nowy portfel?</string>
     <string name="master_seed_configuration_title">Witamy w Mycelium</string>
     <string name="master_seed_create_new_button">Utwórz nowy</string>
-    <string name="master_seed_not_configured">Master seed nie jest skonfigurowany</string>
     <string name="master_seed_restore_backup_button">Przywróć kopię zapasową</string>
     <string name="migrating_accounts">Migracja kont</string>
     <string name="my_accounts">Moje konta</string>
-    <string name="new_fio_legacy_presale_account_desc">Utwórz konto FIO Legacy TYLKO jeśli zakupiłeś domenę FIO podczas przedsprzedaży FIO.</string>
     <string name="no_account_yet_register">Nie masz jeszcze konta? <font color="#F2E868">Zarejestruj się</font></string>
     <string name="no_spendable_accounts">Brak kont do wydawania</string>
     <string name="parent_eth_account">ETH %s:</string>
@@ -219,7 +209,6 @@
     <string name="select_eth_account_to_erc20_subtext">Tokeny ERC-20 istnieją na kontach ETH i wymagają ETH do wykonywania transakcji.\nPojedyncze konto ETH może przechowywać nieograniczoną liczbę typów tokenów ERC-20 - po jednym z każdego typu na konto ETH.</string>
     <string name="select_ext_sig_account_to_spend_from">Wybierz konto do wydania</string>
     <string name="select_ledger_account_to_spend_from">Wybierz konto do wydania</string>
-    <string name="select_name_to_associate_read_only_account">Konta połączone z tą nazwą FIO. Tylko <b>jedno</b> konto na każdą kryptowalutę może być połączone z <b>jedną</b> nazwą FIO.</string>
     <string name="select_spending_account">Wybierz konto do wydania</string>
     <string name="select_token_new_account">Dodaj tokeny ERC-20 do nowego konta ETH</string>
     <string name="set_up_2fa_to_secure_your_account">Skonfiguruj 2FA, aby zabezpieczyć swoje konto</string>

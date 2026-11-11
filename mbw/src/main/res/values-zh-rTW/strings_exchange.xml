@@ -227,9 +227,6 @@
     <string name="no_gift_cards_linked">從探索商店目錄開始，或查看您訂單的狀態。</string>
     <string name="no_purchased_gift_card">您尚未購買
 任何禮物卡</string>
-    <string name="partner_fiopresale">FIO 地址預售</string>
-    <string name="partner_fiopresale_info"/>
-    <string name="partner_fiopresale_short">您通往更佳區塊鏈體驗的鑰匙</string>
     <string name="partner_more_info"><u>您的隱私是我們的首要任務</u></string>
     <string name="partner_more_info_text">
         Mycelium 是最受信賴與最實用的行動比特幣錢包之一。<br />

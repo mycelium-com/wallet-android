@@ -305,9 +305,6 @@
     <string name="exchange_rate_unavailable_msg">Курс обмена временно недоступен.\nПроверьте сетевое подключение и попробуйте снова или вернитесь позже.</string>
     <string name="exchange_to_do_so_end">Шаг 5. Отправьте средства.</string>
     <string name="exchange_to_do_so_memo">Шаг 4. Скопируйте и вставьте memo ниже.</string>
-    <string name="partner_fiopresale">FIO Address Presale</string>
-    <string name="partner_fiopresale_info"/>
-    <string name="partner_fiopresale_short">Ваш ключ к лучшему опыту в блокчейне</string>
     <string name="receiving_exchange">получение</string>
     <string name="sepa_buy_sell_description">Покупайте/продавайте bitcoin через Single Euro Payments Area.</string>
     <string name="sepa_buy_sell_settings_description">Показывать опцию SEPA buy/sell</string>

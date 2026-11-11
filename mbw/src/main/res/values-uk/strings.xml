@@ -532,7 +532,6 @@
     <string name="button_continue">Продовжити</string>
     <string name="card_code">Код картки:</string>
     <string name="checkbox_wordlist_passphrase">Я маю парольну фразу</string>
-    <string name="choose_blockchain">Виберіть блокчейн</string>
     <string name="cick_button_to_show_word">Натисніть кнопку нижче, щоб почати</string>
     <string name="connect_your_ext_sig_device_info">Це працює лише якщо ваш телефон підтримує USB-OTG (on-the-go).\n\nЩоб підключити пристрій, потрібен USB-OTG-перехідник або кабель. Підключіть пристрій його власним USB-кабелем зі сторони клієнта та з\'єднайте сторону хоста з вашим телефоном.</string>
     <string name="connect_your_ledger_info">Ledger Nano працює лише якщо ваш телефон підтримує USB-OTG (on-the-go).\n\nЩоб підключити Ledger Nano, потрібен USB-OTG-перехідник або кабель. Підключіть Ledger Nano зі сторони клієнта та з\'єднайте сторону хоста з вашим телефоном.</string>

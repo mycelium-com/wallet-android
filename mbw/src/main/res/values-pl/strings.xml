@@ -94,7 +94,6 @@
     <!-- Credit Card End-->
     <!-- Simplex start -->
     <!-- Simplex end -->
-    <string name="about_fio_protocol_title">O protokole FIO</string>
     <string name="accept">Akceptuj</string>
     <string name="access_from_any_device">Dostęp z dowolnego urządzenia</string>
     <string name="activate_by">Aktywuj do</string>
@@ -168,7 +167,6 @@
     <string name="check_gap_bug_spannable_string">Przepraszamy za przerwę… \n \nWykryliśmy błąd w logice kont, który spowoduje problemy, jeśli kiedyś będziesz musiał odzyskać konto z 12-słownej kopii zapasowej.\n\nWięcej informacji znajdziesz tutaj: https://wallet.mycelium.com/info/gaps \n\nCzy możemy spróbować to dla Ciebie rozwiązać? Naciśnij OK, aby udostępnić nam jeden adres na dotknięte konto.</string>
     <string name="check_internet_and_try_again">Mycelium nie może połączyć się z serwerem z powodu słabego połączenia internetowego.\nSprawdź swoje połączenie internetowe i spróbuj ponownie.</string>
     <string name="checkbox_wordlist_passphrase">Posiadam hasło passphrase</string>
-    <string name="choose_blockchain">Wybierz blockchain</string>
     <string name="cick_button_to_show_word">Naciśnij przycisk poniżej, aby rozpocząć</string>
     <string name="cold_storage_desc">Zamierzasz wydać środki z klucza prywatnego w cold storage. Może to być papierowa kopia zapasowa klucza prywatnego lub paragon z bankomatu Bitcoin. Obsługiwane są następujące formaty:\nPrivate Key, Master Seed, xPriv Key\n\nPo wysłaniu transakcji wszelki ślad po niej zostanie usunięty z pamięci wewnętrznej.</string>
     <string name="colorize">koloruj</string>
@@ -177,7 +175,6 @@
     <string name="configuration_change_restart_warning">W celu zastosowania zmian konfiguracji wymagane jest ponowne uruchomienie aplikacji.</string>
     <string name="confirm">Potwierdź</string>
     <string name="confirm_change_on_device"><![CDATA[Potwierdź wyjście <b>reszty</b> na swoim %3$s.<br><br><b>Wartość:</b><br>%1$s<br><b>Adres reszty:</b><br>%2$s]]></string>
-    <string name="confirm_fio_link">Czy chcesz zarejestrować FIO Name dla swojego konta HD Bitcoin %1$s?</string>
     <string name="confirm_output_on_device"><![CDATA[Potwierdź wyjście na swoim %3$s.<br><br><b>Wartość:</b><br>%1$s<br><b>Adres docelowy:</b><br>%2$s<br>]]></string>
     <string name="confirmation">Potwierdzenie wymiany</string>
     <string name="connect_your_ext_sig_device_info">To działa tylko, jeśli Twój telefon obsługuje USB-OTG (on-the-go).\n\nAby podłączyć urządzenie, potrzebujesz adaptera lub kabla USB-OTG. Podłącz urządzenie jego własnym kablem USB po stronie klienta i połącz stronę hosta z telefonem.</string>
@@ -192,7 +189,6 @@
     <string name="country">Kraj</string>
     <string name="course_outdated">Kurs wymiany jest nieaktualny</string>
     <string name="create_backup">Utwórz kopię zapasową</string>
-    <string name="create_fio_domain">Utwórz FIO Domain</string>
     <string name="credit_card_buy">Karta kredytowa</string>
     <string name="credit_card_buy_description">Kup Bitcoin za pomocą karty kredytowej</string>
     <string name="credit_card_buy_setting_description">Kup Bitcoin za pomocą karty kredytowej</string>
@@ -210,8 +206,6 @@
     <string name="delete_document">Czy chcesz usunąć dokument?</string>
     <string name="delete_last_entered_word">Usuń ostatnie słowo</string>
     <string name="delete_pk_message"><![CDATA[Czy chcesz usunąć konto <b>\"%1$s\"</b> klucz prywatny zawierający <b>%2$s</b>?]]></string>
-    <string name="delete_received_fio_request">Usuń otrzymane FIO Request</string>
-    <string name="delete_received_fio_request_msg">Czy na pewno chcesz usunąć ten FIO Request?</string>
     <string name="deposits_without_destination_tag_will_be_lost">Wpłaty bez Destination Tag zostaną utracone!</string>
     <string name="description">Opis:</string>
     <string name="description_bump_fee">Wyślij transakcję, która zwiększa prowizję dla tej niepotwierdzonej transakcji.\n\nCzy chcesz wydać %2$s, aby ustawić prowizję na %1$dsat/B?</string>
@@ -223,7 +217,6 @@
     <string name="discover">Odkryj</string>
     <string name="do_you_want_resubmit">Zaktualizowałeś poniższe informacje. Czy chcesz ponownie złożyć wniosek?</string>
     <string name="doc_selfie"><![CDATA[Dokumenty & Selfie]]></string>
-    <string name="domain_details">Szczegóły domeny</string>
     <string name="dont_allow_archiving_unused_notification">Nie możesz zarchiwizować nieużywanego konta HD Bitcoin</string>
     <string name="dont_allow_hiding_used_notification">Nie możesz ukryć używanego konta, ale możesz je zarchiwizować</string>
     <string name="dontagree">Nie zgadzam się</string>
@@ -245,7 +238,6 @@
     <string name="excange_title">Wymień BCH na BTC</string>
     <string name="exceed_card_value">Przekroczono wartość karty</string>
     <string name="exchanging">wymienianie</string>
-    <string name="expiration_date">Data wygaśnięcia:</string>
     <string name="expire_date">Data wygaśnięcia:</string>
     <string name="expires_at">Data wygaśnięcia:</string>
     <string name="external_app_needed">Aby zaktualizować urządzenie potrzebujesz zewnętrznego narzędzia, kliknij OK aby je uruchomić.</string>
@@ -263,7 +255,6 @@
     <string name="first_bch_installed_message"><![CDATA[Teraz musimy zsynchronizować to z blockchainem aby pobrać saldo Bitcoin <font color="#f08c18">Cash</font>.<br><br>Ta procedura zajmuje trochę czasu i jest wykonywana w tle.<br>Im więcej kluczy prywatnych posiadasz, tym dłużej trwa, prosimy o cierpliwość. Na przykład, jeśli posiadasz około 1000 kluczy prywatnych, osiągnięcie pełnej synchronizacji może zająć ponad 3 godziny.<br>Poinformujemy Cię, gdy się zakończy.<br><br>Zawsze możesz sprawdzić postęp synchronizacji tutaj: Ustawienia -> moduł Bitcoin <font color="#f08c18">Cash</font>.<br><br>Dla każdego konta BTC z niepobranym Bitcoin <font color="#f08c18">Cash</font>, zostanie utworzone odpowiadające mu konto Bitcoin <font color="#f08c18">Cash</font>.<br><br>Przejdź do zakładki Saldo swojego konta Bitcoin <font color="#f08c18">Cash</font> aby natychmiast wymienić je na BTC.]]></string>
     <string name="first_bch_installed_title"><![CDATA[Moduł Mycelium Bitcoin <font color="#f08c18">Cash</font> został zainstalowany!]]></string>
     <string name="first_name">Imię</string>
-    <string name="following_fio_domains_registered">Zarejestrowano następujące FIO Domains</string>
     <string name="format" translatable="false">%1$td/%1$tm/%1$tY</string>
     <string name="found_clipboard_public_key_title">Znaleziono klucz publiczny w schowku</string>
     <string name="found_clipboard_public_keys_message">Schowek zawiera klucz publiczny.\nCzy chcesz wyczyścić schowek?</string>
@@ -335,7 +326,6 @@
     <string name="last_log_entries">Ostatnie wpisy logu</string>
     <string name="last_name">Nazwisko</string>
     <string name="learn_more_rmc"><u>Dowiedz się więcej o RMC</u></string>
-    <string name="leave_a_message_for_s">Zostaw wiadomość dla %s</string>
     <string name="legal_information">Informacje prawne</string>
     <string name="less">mniej</string>
     <string name="list_added_tokens">Tokeny ERC-20 na koncie \"%s\"</string>
@@ -364,7 +354,6 @@
     <string name="module_uninstall_progress">Odinstalowywanie…</string>
     <string name="modules">Moduły</string>
     <string name="more">więcej</string>
-    <string name="my_fio_domains">Moje FIO Domains</string>
     <string name="mycelium_no_responaility_rmc">Jeśli kontynuujesz, zgadzasz się na przejście do RMC, usługi strony trzeciej. Wszystkie Twoje interakcje z RMC są poza kontrolą Mycelium i podlegają umowie użytkownika RMC, warunkom użytkowania i polityce prywatności. Przeczytaj je uważnie. Żadne dane osobowe nie będą zbierane, przechowywane ani używane przez Mycelium.\n\nMYCELIUM NIE PRZYJMUJE ŻADNEJ ODPOWIEDZIALNOŚCI I NIE BĘDZIE ODPOWIEDZIALNY ZA JAKIEKOLWIEK STRATY LUB SZKODY PONIESIONE W WYNIKU DOSTĘPU, KORZYSTANIA LUB POLEGANIA NA INFORMACJACH I USŁUGACH WYDAWCY RMC</string>
     <string name="mycelium_services">Usługi Mycelium</string>
     <string name="mycelium_terms_of_use">Warunki użytkowania Mycelium</string>
@@ -383,7 +372,6 @@
     <string name="no_digital_asset">Twój klucz prywatny BIP32 nie zawiera żadnych aktywów cyfrowych.\n\nJeśli sądzisz inaczej, spróbuj zeskanować go ponownie.</string>
     <string name="no_funds">Brak środków</string>
     <string name="no_google_play_installed">Brak zainstalowanego Google Play na urządzeniu</string>
-    <string name="no_logs">Brak logów</string>
     <string name="no_operations_history">Brak historii operacji</string>
     <string name="no_orbot">Brak zainstalowanego Orbot</string>
     <string name="no_order_linked">Obecnie nie masz żadnych zakupów powiązanych ze swoim kontem. Zacznij od przeglądania katalogu sklepów.</string>
@@ -446,7 +434,6 @@
     <string name="register">Zarejestruj się</string>
     <string name="registration">Rejestracja</string>
     <string name="removed">odinstalowano</string>
-    <string name="renew_fio_domain">Odnów domenę FIO</string>
     <string name="repeat_password">Powtórz hasło</string>
     <string name="rescan">Skanuj ponownie</string>
     <string name="resend_confirmation_email">Wyślij ponownie e-mail potwierdzający.</string>
@@ -478,7 +465,6 @@
     <string name="select_country">Wybierz kraj</string>
     <string name="select_flows">Wybierz strumienie</string>
     <string name="select_local_currencies">Wybierz swoje waluty</string>
-    <string name="select_name_to_associate">Połącz konta z Twoją nazwą FIO. Tylko <b>jedno</b> konto na każdą kryptowalutę może być połączone z <b>jedną</b> nazwą FIO.</string>
     <string name="select_token">Dodaj tokeny ERC-20 do konta \"%s\"</string>
     <string name="select_you_region">Wybierz swój region</string>
     <string name="select_your_country">Wybierz swój kraj</string>
@@ -495,7 +481,6 @@
     <string name="set_password">Ustaw hasło</string>
     <string name="shamir_share_hint"><![CDATA[Łączna liczba części: liczba części, na które ma zostać podzielony klucz prywatny.\n\nPróg: liczba części potrzebnych do odtworzenia klucza prywatnego.]]></string>
     <string name="share">Udostępnij</string>
-    <string name="share_fio_public_key">Udostępnij klucz publiczny FIO</string>
     <string name="share_logs">Udostępnij logi</string>
     <string name="share_news">Udostępnij wiadomość</string>
     <string name="share_of">Część %1$d</string>
@@ -540,7 +525,6 @@
     <string name="sync_failed_reason_s">Synchronizacja nie powiodła się. Powód: %s</string>
     <string name="sync_failed_s">Synchronizacja nie powiodła się. %s</string>
     <string name="synchronizing_please_wait">Synchronizacja, proszę czekać …</string>
-    <string name="tab_fio_requests">Żądania FIO</string>
     <string name="tab_partners">Firmy</string>
     <string name="tab_vip">VIP</string>
     <string name="tap_next">Dotknij dla %s</string>

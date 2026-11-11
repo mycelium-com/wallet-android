@@ -191,9 +191,6 @@
     <string name="no_exchange_available">アカウントで利用できる交換がありません</string>
     <string name="no_gift_cards_linked">ストアカタログを探索するか、注文のステータスを確認して始めましょう。</string>
     <string name="no_purchased_gift_card">まだギフトカードを\n購入していません</string>
-    <string name="partner_fiopresale">FIO アドレスプレセール</string>
-    <string name="partner_fiopresale_info"/>
-    <string name="partner_fiopresale_short">より良いブロックチェーン体験への鍵</string>
     <string name="partner_more_info"><u>あなたのプライバシーは私たちの最優先事項です</u></string>
     <string name="partner_more_info_text">
         Mycelium は最も信頼され、便利なモバイルビットコインウォレットの一つです。<br />

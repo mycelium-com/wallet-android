@@ -203,10 +203,8 @@
     <string name="proof_of_address">Prova di indirizzo</string>
     <string name="provide_your_recovery_e_mail_address">Fornisci il tuo indirizzo email di recupero</string>
     <string name="receive_cointype">Ricevi %1$s</string>
-    <string name="receive_title_fio">Ricevi tramite FIO</string>
     <string name="received">Ricevuto</string>
     <string name="receiver_address_hint">Indirizzo del destinatario</string>
-    <string name="recipient_has_no_such_address">%1$s non ha un indirizzo %2$s collegato</string>
     <string name="recipient_invalid">Destinatario non valido</string>
     <string name="recipient_valid">Destinatario valido</string>
     <string name="replace_transaction">Sostituisci transazione</string>
@@ -214,11 +212,9 @@
     <string name="residential_address">Indirizzo di residenza</string>
     <string name="restore_address_as">Ripristina indirizzo come</string>
     <string name="return_to_payment">Torna al pagamento</string>
-    <string name="s_fio_request">Richiesta FIO %s</string>
     <string name="s_payment_request">Richiesta di pagamento %s</string>
     <string name="send_cointype">Invia %1$s</string>
     <string name="send_fee_hint"><b>ATTENZIONE.</b> Le transazioni con commissione del miner a bassa priorità potrebbero non essere mai confermate o essere confermate dopo molte ore o persino giorni. Non scegliere bassa priorità se non capisci come funziona la rete bitcoin.</string>
-    <string name="send_fio_request">Invia richiesta FIO</string>
     <string name="send_mail">Invia email</string>
     <string name="sending_addresses">Indirizzi di invio</string>
     <string name="sending_assets">Invio asset %s.</string>
@@ -240,7 +236,6 @@
     <string name="tips_rmc_check_address">Suggerimento: controlla l\'indirizzo RMC</string>
     <string name="too_many_transaction_records">Troppi record di transazioni</string>
     <string name="total_amount">Importo totale</string>
-    <string name="transaction_from_address_prefix">Da: %s</string>
     <string name="transaction_gas_limit">Limite di gas della transazione</string>
     <string name="transaction_input_data">Dati di input della transazione</string>
     <string name="transaction_not_sent_nonstandard">Impossibile trasmettere la transazione a causa di un errore:\n%1$s\nSegnala questo incidente al supporto tecnico.\nLa transazione raw è stata copiata negli appunti, se possibile allegala alla tua richiesta.</string>

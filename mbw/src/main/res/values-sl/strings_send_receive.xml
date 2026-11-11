@@ -230,10 +230,8 @@
     <string name="proof_of_address">Dokazilo o naslovu</string>
     <string name="provide_your_recovery_e_mail_address">Spodaj navedite svoj e-poštni naslov za obnovitev. Poslali vam bomo varno povezavo in navodila za ponastavitev gesla.</string>
     <string name="receive_cointype">Prejmi %1$s</string>
-    <string name="receive_title_fio">FIO javni ključ</string>
     <string name="received">Prejeto</string>
     <string name="receiver_address_hint">1Naslov1234\n567890abcdef\nghijklmnop</string>
-    <string name="recipient_has_no_such_address">%1$s nima povezanega naslova %2$s</string>
     <string name="recipient_invalid">Neveljaven naslov ali FIO ime</string>
     <string name="recipient_valid">Prejemnik veljaven</string>
     <string name="replace_transaction">Transakcija, ki se zamenja z:</string>
@@ -241,11 +239,9 @@
     <string name="residential_address">Naslov prebivališča</string>
     <string name="restore_address_as">Obnovi naslov kot</string>
     <string name="return_to_payment">Nazaj na naročila</string>
-    <string name="s_fio_request">%s FIO zahteva</string>
     <string name="s_payment_request">%s zahteva za plačilo</string>
     <string name="send_cointype">Pošlji %1$s</string>
     <string name="send_fee_hint"><b>POZOR.</b> Transakcije z nizko prioriteto rudarske provizije morda nikoli ne bodo potrjene ali bodo potrjene v številnih urah ali celo dneh. Ne izberite nizke prioritete, če ne razumete, kako deluje bitcoin omrežje.</string>
-    <string name="send_fio_request">Pošlji FIO zahtevo</string>
     <string name="send_mail">Pošlji pošto…</string>
     <string name="sending_addresses">Imenik</string>
     <string name="sending_assets">Pošiljanje sredstev %s.</string>
@@ -267,7 +263,6 @@
     <string name="tips_rmc_check_address">Če ste poslali digitalna sredstva na naključni bitcoin naslov, niso uničena.\nZa njihovo pridobitev imate dve možnosti:\n1) Uporabite Colored Coins API za ročno pošiljanje sredstev nazaj na naslov, ki ga upravlja denarnica Mycelium.\n2) Pošljite tiket podpori denarnice Mycelium za pridobitev vaših sredstev. Za to storitev se lahko zaračunajo dodatni stroški. Po stiku s podporo boste prejeli podrobne informacije.\n\nV obeh primerih morate imeti zasebni ključ naslova, na katerega ste poslali digitalna sredstva.</string>
     <string name="too_many_transaction_records">Ni mogoče pridobiti celotne zgodovine transakcij računa zaradi njene ogromne velikosti. Razmislite o premiku sredstev na nov račun.</string>
     <string name="total_amount">Skupni znesek:</string>
-    <string name="transaction_from_address_prefix">Od: %s</string>
     <string name="transaction_gas_limit">Gas Limit (enote):</string>
     <string name="transaction_input_data">Vhodni podatki:</string>
     <string name="transaction_not_broadcasted_info">Ni mogoče oddati</string>

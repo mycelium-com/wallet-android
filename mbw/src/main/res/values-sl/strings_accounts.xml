@@ -138,21 +138,15 @@
     <string name="backup_not_generated">Varnostna koda ni bila ustvarjena</string>
     <string name="backup_not_verified">Varnostna kopija ni preverjena</string>
     <string name="backup_now">Varnostna kopija zdaj</string>
-    <string name="base_label_fio_account_legacy">FIO Legacy račun</string>
     <string name="bch_accounts_found"><![CDATA[Na vaših BTC računih smo našli %1$s Bitcoin <font color="#f08c18">Cash</font>.<br><br>Ustvarjenih je %2$d ustreznih računov Bitcoin <font color="#f08c18">Cash</font>.\nStanje Bitcoin <font color="#f08c18">Cash</font> lahko preverite v zavihku Računi.<br><br>Zdaj lahko greste v zavihek Stanje vašega računa Bitcoin <font color="#f08c18">Cash</font> in ga takoj zamenjate v BTC.]]></string>
     <string name="bch_accounts_not_found"><![CDATA[Na vaših BTC računih nismo našli nobenega Bitcoin <font color="#f08c18">Cash</font>.<br>Vaše BTC račune neprestano spremljamo in vas bomo obvestili, če bomo našli Bitcoin <font color="#f08c18">Cash</font>.]]></string>
     <string name="bip32_root_account">Korenski račun</string>
     <string name="block_access_to_account">Namerno deaktiviramo zavihek Moji računi, medtem ko upravljate svoj %1$s račun. To je zato, da vam preprečimo pošiljanje digitalnih sredstev kamor koli drugam, razen na drug %1$s račun.</string>
-    <string name="btcv_account_creation_started">Ustvarjanje novega BTCV računa…</string>
-    <string name="btcvault_hd_account">Dodaj Bitcoin Vault HD račun</string>
     <string name="cant_disable_active_account">Aktivnega računa ne morete onemogočiti</string>
     <string name="choose_the_currency_and_btc_receiving_account">Izberite valuto in BTC prejemni račun</string>
     <string name="confirm_delete_account_message_end">Ali ga želite izbrisati?</string>
     <string name="confirm_delete_private_key_message">Pred brisanjem zasebnega ključa se prepričajte, da imate njegovo varnostno kopijo shranjeno offline na varnem mestu. Ko boste hoteli porabiti bitcoine s tega računa, ga boste morali \"dodati nazaj\" iz varnostne kopije.</string>
     <string name="confirm_delete_private_key_message_end">Ali ga želite preklopiti samo na ogled?</string>
-    <string name="connect_accounts">Shrani</string>
-    <string name="create_fio_account">Ustvari FIO račun</string>
-    <string name="create_fio_legacy_presale_account">Ustvari FIO Legacy račun</string>
     <string name="create_new_account">Dodaj nov ETH račun</string>
     <string name="delete_account">Izbriši račun</string>
     <string name="delete_account_message"><![CDATA[Ali želite izbrisati račun <b>\"%1$s\"</b> z <b>%2$s</b> in <b>\"%3$s\"</b> z <b>%4$s</b>?]]></string>
@@ -173,7 +167,6 @@
     <string name="erc20_account_creation_started">Ustvarjanje novega ERC-20 računa…</string>
     <string name="eth_account_creation_started">Ustvarjanje novega ETH računa…</string>
     <string name="export">Izvozi ključe računa</string>
-    <string name="export_fio_public_key_title">Izvozi FIO javni ključ</string>
     <string name="export_not_possible">Izvoz ni možen, %s račun že imate</string>
     <string name="export_private_key_red_warning">Ta ključ kopirajte le v varnem okolju.\nKdor koli ima dostop do njega, pridobi nadzor nad vsemi trenutnimi in v prihodnosti razpoložljivimi bitcoini za ta račun.\n\nPridržite tukaj za prikaz \nQR kode </string>
     <string name="ext_sig_amount">Znesek:</string>
@@ -204,7 +197,6 @@
     <string name="hardware_wallets">Hardver denarnice</string>
     <string name="hd_account_bch">Dodaj Bitcoin Cash HD račun</string>
     <string name="hd_eth_account">Dodaj Ethereum račun</string>
-    <string name="hd_fio_account">Dodaj FIO račun</string>
     <string name="import_xpub_should_xpriv">Za raven računa 0 so podprti samo porabljivi računi z digitalnimi sredstvi. Namesto xpub uporabite xpriv.</string>
     <string name="import_xpub_wrong_depth">Uvoziti je mogoče samo xpub naslove ravni računa (3).\nTa je bil ravni %1$s.</string>
     <string name="keepkey_import_account">Uvozi KeepKey-HD Bitcoin-račun</string>
@@ -219,9 +211,7 @@
     <string name="ledger_unplugged_aid_preference_summary">Podpora drugega AID za ledger\nunplugged custom builds</string>
     <string name="list_added_tokens_new_account">ERC-20 žetoni na novem računu</string>
     <string name="loading_accounts">Nalaganje računov</string>
-    <string name="master_seed_not_configured">Master Seed ni nastavljen</string>
     <string name="migrating_accounts">Migracija računov</string>
-    <string name="new_fio_legacy_presale_account_desc">Ustvarite FIO Legacy račun SAMO, če ste kupili FIO domeno med FIO Presale.</string>
     <string name="no_account_yet_register">Še nimate računa? <font color="#F2E868">Registrirajte se</font></string>
     <string name="no_spendable_accounts">Ni porabljivih računov</string>
     <string name="parent_eth_account">ETH %s:</string>
@@ -240,7 +230,6 @@
     <string name="select_eth_account_to_erc20">Izberite ETH račun za hranjenje vaših ERC-20 žetonov</string>
     <string name="select_eth_account_to_erc20_subtext">ERC-20 žetoni obstajajo na ETH računih in zahtevajo ETH za izvajanje transakcij.\nEn ETH račun lahko hrani neomejeno število vrst ERC-20 žetonov - po enega od vsake vrste na ETH račun.</string>
     <string name="select_ext_sig_account_to_spend_from">Izberite račun za porabo</string>
-    <string name="select_name_to_associate_read_only_account">Računi povezani s tem FIO imenom. Samo <b>en</b> račun za vsako kriptovaluto se lahko poveže z <b>enim</b> FIO imenom.</string>
     <string name="select_token_new_account">Dodaj ERC-20 žetone na nov ETH račun</string>
     <string name="set_up_2fa_to_secure_your_account">Nastavite 2FA za zavarovanje svojega računa</string>
     <string name="single_address_account">Račun z enim samim naslovom</string>

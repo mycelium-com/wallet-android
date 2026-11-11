@@ -233,10 +233,8 @@
     <string name="proof_of_address">Doklad o adrese</string>
     <string name="provide_your_recovery_e_mail_address">Níže uveďte svou e-mailovou adresu pro obnovení. Zašleme vám zabezpečený odkaz a pokyny, jak obnovit heslo.</string>
     <string name="receive_cointype">Přijmout %1$s</string>
-    <string name="receive_title_fio">Veřejný klíč FIO</string>
     <string name="received">Přijato</string>
     <string name="receiver_address_hint">1Address1234\n567890abcdef\nghijklmnop</string>
-    <string name="recipient_has_no_such_address">%1$s nemá připojenou adresu %2$s</string>
     <string name="recipient_invalid">Neplatná adresa nebo FIO Name</string>
     <string name="recipient_valid">Příjemce je platný</string>
     <string name="replace_transaction">Transakce, která má být nahrazena za:</string>
@@ -244,11 +242,9 @@
     <string name="residential_address">Adresa bydliště</string>
     <string name="restore_address_as">Obnovit adresu jako</string>
     <string name="return_to_payment">Zpět na objednávky</string>
-    <string name="s_fio_request">%s FIO Request</string>
     <string name="s_payment_request">%s platební požadavek</string>
     <string name="send_cointype">Odeslat %1$s</string>
     <string name="send_fee_hint"><b>POZOR.</b> Transakce s nízkou prioritou poplatku těžařům nemusí být nikdy potvrzeny nebo mohou být potvrzeny za mnoho hodin či dokonce dnů. Nevolte nízkou prioritu, pokud nerozumíte tomu, jak funguje bitcoinová síť.</string>
-    <string name="send_fio_request">Odeslat FIO Request</string>
     <string name="send_mail">Odeslat e-mail…</string>
     <string name="sending_addresses">Adresář</string>
     <string name="sending_assets">Odeslání aktiv %s.</string>
@@ -270,7 +266,6 @@
     <string name="tips_rmc_check_address">Pokud jste odeslali digitální aktiva na náhodnou bitcoinovou adresu, nejsou zničena.\nPro jejich získání máte dvě možnosti:\n1) Použijte Colored Coins API k ručnímu zaslání svých aktiv zpět na adresu spravovanou Mycelium peněženkou.\n2) Pošlete tiket podpoře Mycelium peněženky pro získání svých aktiv. Za tuto službu mohou být účtovány další poplatky. Po kontaktování podpory obdržíte podrobné informace.\n\nV obou případech musíte vlastnit soukromý klíč adresy, na kterou jste odeslali digitální aktiva.</string>
     <string name="too_many_transaction_records">Nelze načíst úplnou historii transakcí účtu kvůli její velké velikosti. Zvažte přesun prostředků na nový účet.</string>
     <string name="total_amount">Celková částka:</string>
-    <string name="transaction_from_address_prefix">Od: %s</string>
     <string name="transaction_gas_limit">Gas Limit (jednotky):</string>
     <string name="transaction_input_data">Vstupní data:</string>
     <string name="transaction_not_sent_nonstandard">Nepodařilo se odeslat transakci kvůli chybě:\n%1$s\nProsím nahlaste tento incident technické podpoře.\nSurová transakce byla zkopírována do schránky, pokud je to možné, prosím připojte ji ke své žádosti.</string>

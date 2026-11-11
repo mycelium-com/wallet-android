@@ -137,21 +137,15 @@
     <string name="backup_not_generated">Säkerhetskopieringskod genererades inte</string>
     <string name="backup_not_verified">Säkerhetskopia inte verifierad</string>
     <string name="backup_now">Säkerhetskopiera nu</string>
-    <string name="base_label_fio_account_legacy">FIO Legacy-konto</string>
     <string name="bch_accounts_found"><![CDATA[Vi har hittat %1$s Bitcoin <font color="#f08c18">Cash</font> på dina BTC-konton.<br><br>%2$d motsvarande Bitcoin <font color="#f08c18">Cash</font>-konto(n) skapade.\nBitcoin <font color="#f08c18">Cash</font>-saldot kan kontrolleras på fliken Konton.<br><br>Nu kan du gå till saldofliken för dina Bitcoin <font color="#f08c18">Cash</font>-konto(n) och omedelbart växla det till BTC.]]></string>
     <string name="bch_accounts_not_found"><![CDATA[Vi har inte hittat någon Bitcoin <font color="#f08c18">Cash</font> på dina BTC-konton.<br>Vi övervakar kontinuerligt dina BTC-konton och informerar dig om Bitcoin <font color="#f08c18">Cash</font> hittas.]]></string>
     <string name="bip32_root_account">Root-konto</string>
     <string name="block_access_to_account">Vi inaktiverar avsiktligt fliken Mina konton medan du hanterar ditt %1$s-konto. Detta är för att förhindra att du skickar dina digitala tillgångar någon annanstans än till ett annat %1$s-konto.</string>
-    <string name="btcv_account_creation_started">Skapar nytt BTCV-konto…</string>
-    <string name="btcvault_hd_account">Lägg till Bitcoin Vault HD-konto</string>
     <string name="cant_disable_active_account">Du kan inte inaktivera ett aktivt konto</string>
     <string name="choose_the_currency_and_btc_receiving_account">Välj valuta och BTC-mottagarkonto</string>
     <string name="confirm_delete_account_message_end">Vill du radera det?</string>
     <string name="confirm_delete_private_key_message">Innan du raderar den privata nyckeln, se till att du har en säkerhetskopia av den lagrad offline och på en säker plats. Du måste \"lägga tillbaka\" den från säkerhetskopia när du behöver spendera bitcoinsen från detta konto.</string>
     <string name="confirm_delete_private_key_message_end">Vill du göra det till watch-only?</string>
-    <string name="connect_accounts">Spara</string>
-    <string name="create_fio_account">Skapa FIO-konto</string>
-    <string name="create_fio_legacy_presale_account">Skapa FIO Legacy-konto</string>
     <string name="create_new_account">Lägg till nytt ETH-konto</string>
     <string name="delete_account">Radera konto</string>
     <string name="delete_account_message"><![CDATA[Vill du radera kontot <b>\"%1$s\"</b> som innehåller <b>%2$s</b> och <b>\"%3$s\"</b> som innehåller <b>%4$s</b>?]]></string>
@@ -172,7 +166,6 @@
     <string name="erc20_account_creation_started">Skapar nytt ERC-20-konto…</string>
     <string name="eth_account_creation_started">Skapar nytt ETH-konto…</string>
     <string name="export">Exportera kontonycklar</string>
-    <string name="export_fio_public_key_title">Exportera FIO publik nyckel</string>
     <string name="export_history">Exportera transaktionshistorik</string>
     <string name="export_not_possible">Export är inte möjlig, du har redan ett %s-konto</string>
     <string name="export_private_key_red_warning">Kopiera endast denna nyckel i en säker miljö.\nDen som har tillgång till den får kontroll över alla nuvarande och framtida tillgängliga bitcoin för detta konto.\n\nLångtryck här för att visa \nQR-koden </string>
@@ -204,7 +197,6 @@
     <string name="hardware_wallets">Hardware wallets</string>
     <string name="hd_account_bch">Lägg till Bitcoin Cash HD-konto</string>
     <string name="hd_eth_account">Lägg till Ethereum-konto</string>
-    <string name="hd_fio_account">Lägg till FIO-konto</string>
     <string name="import_xpub_should_xpriv">Endast spenderbara konton med digitala tillgångar stöds för kontonivå 0. Använd xpriv istället för xpub</string>
     <string name="import_xpub_wrong_depth">Kan endast importera xpub-adresser på kontonivå (3).\nDetta var nivå %1$s.</string>
     <string name="keepkey_import_account">Importera ett KeepKey-HD Bitcoin-konto</string>
@@ -219,9 +211,7 @@
     <string name="ledger_unplugged_aid_preference_summary">Stöd ett annat AID för anpassade ledger\nunplugged-byggen</string>
     <string name="list_added_tokens_new_account">ERC-20-tokens på nytt konto</string>
     <string name="loading_accounts">Läser in konton</string>
-    <string name="master_seed_not_configured">Master Seed är inte konfigurerat</string>
     <string name="migrating_accounts">Migrerar konton</string>
-    <string name="new_fio_legacy_presale_account_desc">Skapa ENDAST FIO Legacy-konto om du har köpt FIO-domän under FIO Presale.</string>
     <string name="no_account_yet_register">Inget konto än? <font color="#F2E868">Registrera</font></string>
     <string name="no_spendable_accounts">Inga spenderbara konton</string>
     <string name="parent_eth_account">ETH %s:</string>
@@ -240,7 +230,6 @@
     <string name="select_eth_account_to_erc20">Välj ETH-konto för att lagra dina ERC-20-tokens</string>
     <string name="select_eth_account_to_erc20_subtext">ERC-20-tokens finns på ETH-konton och kräver ETH för att göra transaktioner.\nEtt enda ETH-konto kan lagra obegränsat antal typer av ERC-20-tokens - en av varje typ per ETH-konto.</string>
     <string name="select_ext_sig_account_to_spend_from">Välj konto att spendera från</string>
-    <string name="select_name_to_associate_read_only_account">Konton anslutna till detta FIO-namn. Endast <b>ett</b> konto per kryptovaluta kan anslutas till <b>ett</b> FIO-namn.</string>
     <string name="select_token_new_account">Lägg till ERC-20-tokens till nytt ETH-konto</string>
     <string name="set_up_2fa_to_secure_your_account">Konfigurera 2FA för att säkra ditt konto</string>
     <string name="single_address_account">Enkeladresskonto</string>

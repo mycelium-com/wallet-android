@@ -166,20 +166,14 @@
     <string name="backup_not_generated">未生成备份代码</string>
     <string name="backup_not_verified">备份未验证</string>
     <string name="backup_now">立即备份</string>
-    <string name="base_label_fio_account_legacy">FIO 旧版账户</string>
     <string name="bch_accounts_found"><![CDATA[我们在您的 BTC 账户中发现了 %1$s 比特币 <font color="#f08c18">现金</font>。<br><br>已创建 %2$d 个对应的比特币 <font color="#f08c18">现金</font> 账户。\n可以在账户标签页中查看比特币 <font color="#f08c18">现金</font> 余额。<br><br>现在您可以前往比特币 <font color="#f08c18">现金</font> 账户的余额标签页，立即将其兑换为 BTC。]]></string>
     <string name="bch_accounts_not_found"><![CDATA[我们没有在您的 BTC 账户中发现任何比特币 <font color="#f08c18">现金</font>。<br>我们会持续监控您的 BTC 账户，如果发现比特币 <font color="#f08c18">现金</font> 将通知您。]]></string>
     <string name="block_access_to_account">在您管理 %1$s 账户期间，我们会有意停用「我的账户」标签页。这是为了防止您将数字资产发送到 %1$s 账户以外的任何地方。</string>
-    <string name="btcv_account_creation_started">正在创建新的 BTCV 账户…</string>
-    <string name="btcvault_hd_account">添加 Bitcoin Vault HD 账户</string>
     <string name="cant_disable_active_account">您无法停用激活账户</string>
     <string name="choose_the_currency_and_btc_receiving_account">选择币种和 BTC 接收账户</string>
     <string name="confirm_delete_account_message_end">您要删除它吗？</string>
     <string name="confirm_delete_private_key_message">在删除私钥之前，请确保您已将其备份离线存储在安全的地方。当您需要从此账户花费比特币时，您必须从备份中「重新添加」。</string>
     <string name="confirm_delete_private_key_message_end">您要将其变为只读吗？</string>
-    <string name="connect_accounts">保存</string>
-    <string name="create_fio_account">创建 FIO 账户</string>
-    <string name="create_fio_legacy_presale_account">创建 FIO 旧版账户</string>
     <string name="create_new_account">添加新的 ETH 账户</string>
     <string name="delete_account">删除账户</string>
     <string name="delete_account_message"><![CDATA[您要删除持有 <b>%2$s</b> 的账户 <b>\"%1$s\"</b> 和持有 <b>%4$s</b> 的账户 <b>\"%3$s\"</b> 吗？]]></string>
@@ -200,7 +194,6 @@
     <string name="erc20_account_creation_started">正在创建新的 ERC-20 账户…</string>
     <string name="eth_account_creation_started">正在创建新的 ETH 账户…</string>
     <string name="export">导出账户密钥</string>
-    <string name="export_fio_public_key_title">导出 FIO 公钥</string>
     <string name="export_not_possible">无法导出，您已有 %s 账户</string>
     <string name="export_private_key_red_warning">请仅在安全的环境中复制此密钥。\n任何能访问该密钥的人都将获得对此账户当前及将来所有比特币的控制权。\n\n长按此处显示\nQR 码 </string>
     <string name="ext_sig_change_to">找零至：</string>
@@ -213,16 +206,13 @@
     <string name="hardware_wallets">硬件钱包</string>
     <string name="hd_account_bch">添加比特币现金 HD 账户</string>
     <string name="hd_eth_account">添加以太坊账户</string>
-    <string name="hd_fio_account">添加 FIO 账户</string>
     <string name="import_xpub_should_xpriv">账户级别 0 仅支持具有数字资产的可花费账户。请使用 xpriv 而不是 xpub</string>
     <string name="ledger_please_wait">请稍候 …</string>
     <string name="ledger_unplugged_aid_preference">设置 Ledger Unplugged AID</string>
     <string name="ledger_unplugged_aid_preference_summary">支持 Ledger Unplugged 自定义\n版本的不同 AID</string>
     <string name="list_added_tokens_new_account">新账户上的 ERC-20 代币</string>
     <string name="loading_accounts">正在加载账户</string>
-    <string name="master_seed_not_configured">主种子未配置</string>
     <string name="migrating_accounts">正在迁移账户</string>
-    <string name="new_fio_legacy_presale_account_desc">仅在您于 FIO 预售期间购买了 FIO 域名时才创建 FIO 旧版账户。</string>
     <string name="no_account_yet_register">还没有账户？<font color="#F2E868">注册</font></string>
     <string name="no_spendable_accounts">无可花费账户</string>
     <string name="parent_eth_account">ETH %s：</string>
@@ -240,7 +230,6 @@
     <string name="select_account_to_pay_with">选择支付账户：</string>
     <string name="select_eth_account_to_erc20">选择 ETH 账户来存储您的 ERC-20 代币</string>
     <string name="select_eth_account_to_erc20_subtext">ERC-20 代币存在于 ETH 账户中，需要 ETH 来进行交易。\n单个 ETH 账户可以存储无限种 ERC-20 代币——每个 ETH 账户每种类型一个。</string>
-    <string name="select_name_to_associate_read_only_account">已连接到此 FIO 名称的账户。每种加密货币只能连接<b>一个</b>账户到<b>一个</b>FIO 名称。</string>
     <string name="select_token_new_account">向新的 ETH 账户添加 ERC-20 代币</string>
     <string name="set_up_2fa_to_secure_your_account">设置 2FA 以保护您的账户</string>
     <string name="single_address_account">单地址账户</string>

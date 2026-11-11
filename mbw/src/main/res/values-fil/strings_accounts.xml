@@ -47,13 +47,10 @@
     <string name="backup_now">Mag-backup ngayon</string>
     <string name="backup_private_key">Backup</string>
     <string name="backup_words_title">Master Seed Backup</string>
-    <string name="base_label_fio_account_legacy">FIO Legacy Account</string>
     <string name="bch_accounts_found"><![CDATA[Nakahanap kami ng %1$s Bitcoin <font color="#f08c18">Cash</font> sa iyong BTC accounts.<br><br>%2$d katumbas na Bitcoin <font color="#f08c18">Cash</font> account(s) ang nilikha.\nAng Bitcoin <font color="#f08c18">Cash</font> balance ay maaaring i-check sa Accounts tab.<br><br>Ngayon ay maaari kang pumunta sa Balance tab ng iyong Bitcoin <font color="#f08c18">Cash</font> account(s) at agad itong palitan sa BTC.]]></string>
     <string name="bch_accounts_not_found"><![CDATA[Wala kaming nakitang anumang Bitcoin <font color="#f08c18">Cash</font> sa iyong BTC accounts.<br>Patuloy naming sinusubaybayan ang iyong BTC accounts at ipapaalam namin sa iyo kung may makitang Bitcoin <font color="#f08c18">Cash</font>.]]></string>
     <string name="bip32_root_account">Root Account</string>
     <string name="block_access_to_account">Sinasadya naming i-deactivate ang My Accounts tab habang pinamamahalaan mo ang iyong %1$s account. Ito ay upang maiwasan kang magpadala ng iyong digital assets sa kahit saan maliban sa ibang %1$s account.</string>
-    <string name="btcv_account_creation_started">Lumilikha ng bagong BTCV Account…</string>
-    <string name="btcvault_hd_account">Magdagdag ng Bitcoin Vault HD Account</string>
     <string name="cant_disable_active_account">Hindi mo maaaring i-disable ang aktibong account</string>
     <string name="choose_the_currency_and_btc_receiving_account">Piliin ang currency at BTC receiving account</string>
     <string name="clipboard">Clipboard</string>
@@ -63,10 +60,7 @@
     <string name="confirm_delete_account_message_end">Gusto mo bang tanggalin ito?</string>
     <string name="confirm_delete_private_key_message">Bago tanggalin ang pribadong susi, siguraduhing mayroon kang backup nito na nakaimbak offline at sa ligtas na lugar. Kailangan mong \"idagdag ulit ito\" mula sa backup kapag kailangan mong gastusin ang bitcoins mula sa account na ito.</string>
     <string name="confirm_delete_private_key_message_end">Gusto mo bang gawin itong watch-only?</string>
-    <string name="connect_accounts">I-save</string>
     <string name="copy_private_key_to_clipboard">Kopyahin ang Pribadong Susi sa Clipboard</string>
-    <string name="create_fio_account">Lumikha ng FIO Account</string>
-    <string name="create_fio_legacy_presale_account">Lumikha ng FIO Legacy Account</string>
     <string name="create_new_account">Magdagdag ng bagong ETH Account</string>
     <string name="delete_account">Tanggalin ang Account</string>
     <string name="delete_account_message"><![CDATA[Gusto mo bang tanggalin ang account <b>"%1$s"</b> na may <b>%2$s</b> at <b>"%3$s"</b> na may <b>%4$s</b>?]]></string>
@@ -101,7 +95,6 @@
     <string name="eth_account_creation_started">Lumilikha ng bagong ETH Account…</string>
     <string name="export">I-export ang account keys</string>
     <string name="export_account_data_warning">Malapit mo nang i-export ang sensitibong data ng napiling account.\n\nSinumang makakakuha ng access sa mga key na ito ay maaaring kumuha ng bitcoin na kontrolado nito o makakuha ng impormasyon na maaaring magpababa ng iyong privacy.\n\nGusto mo bang magpatuloy?</string>
-    <string name="export_fio_public_key_title">I-export ang FIO public key</string>
     <string name="export_history">I-export ang transaction history</string>
     <string name="export_not_possible">Hindi posible ang pag-export, mayroon ka nang %s account</string>
     <string name="export_private_key_red_warning">Kopyahin lamang ang key na ito sa ligtas na kapaligiran.\nSinumang may access dito ay nakakakontrol sa lahat ng kasalukuyan at sa hinaharap na available na bitcoin para sa account na ito.\n\nLong-press dito upang ipakita ang \nQR-Code </string>
@@ -142,7 +135,6 @@
     <string name="hd_account_creation_started">Lumilikha ng bagong HD Bitcoin Account…</string>
     <string name="hd_account_selector_no_account_found">Walang nakitang aktibong account.</string>
     <string name="hd_eth_account">Magdagdag ng Ethereum Account</string>
-    <string name="hd_fio_account">Magdagdag ng FIO Account</string>
     <string name="hide_unused_account_menu">Tanggalin ang Account</string>
     <string name="import_decrypt_bip38_description">Magde-decrypt ka ng BIP38 password protected private key.</string>
     <string name="import_decrypt_bip38_display_password">Ipakita ang password</string>
@@ -189,11 +181,9 @@
     <string name="master_seed_configuration_description">Gusto mo bang i-restore ang backup, o gumawa ng bagong wallet?</string>
     <string name="master_seed_configuration_title">Maligayang pagdating sa Mycelium</string>
     <string name="master_seed_create_new_button">Gumawa ng Bago</string>
-    <string name="master_seed_not_configured">Hindi naka-configure ang Master Seed</string>
     <string name="master_seed_restore_backup_button">I-restore ang Backup</string>
     <string name="migrating_accounts">Naglilipat ng accounts</string>
     <string name="my_accounts">Aking mga Account</string>
-    <string name="new_fio_legacy_presale_account_desc">Gumawa ng FIO Legacy Account LAMANG kung bumili ka ng FIO domain sa panahon ng FIO Presale.</string>
     <string name="no_account_yet_register">Wala pang account? <font color="#F2E868">Magrehistro</font></string>
     <string name="no_spendable_accounts">Walang magagastos na account</string>
     <string name="parent_eth_account">ETH %s:</string>
@@ -217,7 +207,6 @@
     <string name="select_eth_account_to_erc20_subtext">Ang mga ERC-20 token ay umiiral sa ETH Accounts at nangangailangan ng ETH upang gumawa ng mga transaksyon.\nIsang ETH Account ay maaaring magtago ng walang limitasyong uri ng mga ERC-20 token - isa sa bawat uri sa bawat ETH account.</string>
     <string name="select_ext_sig_account_to_spend_from">Pumili ng account na gagastusan</string>
     <string name="select_ledger_account_to_spend_from">Pumili ng account na gagastusan</string>
-    <string name="select_name_to_associate_read_only_account">Mga account na nakakonekta sa FIO Name na ito. <b>Isa</b> lamang account sa bawat cryptocurrency ang maaaring maikonekta sa <b>isang</b> FIO Name.</string>
     <string name="select_spending_account">Pumili ng Spending Account</string>
     <string name="select_token_new_account">Magdagdag ng mga ERC-20 token sa bagong ETH Account</string>
     <string name="set_up_2fa_to_secure_your_account">Mag-set up ng 2FA upang i-secure ang iyong account</string>

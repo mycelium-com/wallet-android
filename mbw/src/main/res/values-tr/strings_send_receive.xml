@@ -197,11 +197,9 @@
     <string name="rebroadcast_transaction_title">İşlemi yeniden yayınla</string>
     <string name="receive">Al</string>
     <string name="receive_cointype">%1$s Al</string>
-    <string name="receive_title_fio">FIO Genel anahtarı</string>
     <string name="received">Alındı</string>
     <string name="receiver_address_hint">1Adres1234\n567890abcdef\nghijklmnop</string>
     <string name="receiving">%1$s alınıyor</string>
-    <string name="recipient_has_no_such_address">%1$s bağlı %2$s adresine sahip değil</string>
     <string name="recipient_invalid">Geçersiz adres veya FIO Adı</string>
     <string name="recipient_title">Alıcı adresini girin:</string>
     <string name="recipient_valid">Alıcı Geçerli</string>
@@ -215,7 +213,6 @@
     <string name="restore_address_as">Adresi şu olarak geri yükle</string>
     <string name="retrieving_pubkey_address">Bir sonraki kullanılmamış adres alınıyor…</string>
     <string name="return_to_payment">Siparişlere Dön</string>
-    <string name="s_fio_request">%s FIO İsteği</string>
     <string name="s_payment_request">%s Ödeme İsteği</string>
     <string name="scan_address_book_desc">Adresi tara.</string>
     <string name="scan_qr_code">QR Kodunu Tara</string>
@@ -224,7 +221,6 @@
     <string name="send_bitcoins">Bitcoin Gönder</string>
     <string name="send_cointype">%1$s Gönder</string>
     <string name="send_fee_hint"><b>DİKKAT.</b> Düşük öncelikli madenci ücretiyle gönderilen işlemler hiç onaylanmayabilir veya saatler hatta günler içinde onaylanabilir. Bitcoin ağının nasıl çalıştığını anlamıyorsanız düşük önceliği seçmeyin.</string>
-    <string name="send_fio_request">FIO İsteği Gönder</string>
     <string name="send_mail">Mail gönder…</string>
     <string name="sending">%1$s gönderiliyor</string>
     <string name="sending_addresses">Adres Defteri</string>
@@ -258,7 +254,6 @@
     <string name="too_many_transaction_records">Devasa boyutu nedeniyle hesabın tam işlem geçmişi alınamıyor. Fonları yeni bir hesaba taşımayı düşünün.</string>
     <string name="total_amount">Toplam miktar:</string>
     <string name="transaction_details">İşlem Ayrıntıları</string>
-    <string name="transaction_from_address_prefix">Kimden: %s</string>
     <string name="transaction_gas_limit">Gaz Limiti (birim):</string>
     <string name="transaction_history_title">İşlem geçmişi</string>
     <string name="transaction_input_data">Girdi Verisi:</string>

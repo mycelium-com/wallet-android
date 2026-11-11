@@ -227,10 +227,8 @@
     <string name="provide_your_recovery_e_mail_address">Ange din e-postadress för återställning nedan. Vi skickar dig en säker länk och instruktioner om hur du återställer ditt lösenord.</string>
     <string name="rebroadcast_transaction_title">Sänd transaktion igen</string>
     <string name="receive_cointype">Ta emot %1$s</string>
-    <string name="receive_title_fio">FIO offentlig nyckel</string>
     <string name="received">Mottaget</string>
     <string name="receiver_address_hint">1Adress1234\n567890abcdef\nghijklmnop</string>
-    <string name="recipient_has_no_such_address">%1$s har ingen %2$s-adress kopplad</string>
     <string name="recipient_invalid">Ogiltig adress eller FIO-namn</string>
     <string name="recipient_valid">Giltig mottagare</string>
     <string name="replace_transaction">Transaktion att ersättas med:</string>
@@ -238,11 +236,9 @@
     <string name="residential_address">Bostadsadress</string>
     <string name="restore_address_as">Återställ adress som</string>
     <string name="return_to_payment">Tillbaka till beställningar</string>
-    <string name="s_fio_request">%s FIO-förfrågan</string>
     <string name="s_payment_request">%s betalningsförfrågan</string>
     <string name="send_cointype">Skicka %1$s</string>
     <string name="send_fee_hint"><b>OBS.</b> Transaktioner med mining-avgift med låg prioritet kanske aldrig bekräftas eller bekräftas på många timmar eller till och med dagar. Välj inte låg prioritet om du inte förstår hur bitcoin-nätverket fungerar.</string>
-    <string name="send_fio_request">Skicka FIO-förfrågan</string>
     <string name="send_mail">Skicka e-post…</string>
     <string name="sending_addresses">Adressbok</string>
     <string name="sending_assets">Skickar %s tillgångar.</string>
@@ -265,7 +261,6 @@
     <string name="tips_rmc_check_address">Om du har skickat digitala tillgångar till en slumpmässig bitcoin-adress förstörs de inte.\nFör att hämta dem har du två alternativ:\n1) Använd Colored Coins API för att manuellt skicka tillbaka dina tillgångar till adressen som hanteras av Mycelium Wallet.\n2) Skicka in ett ärende till Mycelium Wallet support för att hämta dina tillgångar. För denna tjänst kan ytterligare avgifter tillkomma. Du får detaljerad information efter att du kontaktat support.\n\nI båda fallen måste du äga en privat nyckel för adressen du har skickat digitala tillgångar till.</string>
     <string name="too_many_transaction_records">Det går inte att hämta full kontotransaktionshistorik på grund av dess enorma storlek. Överväg att flytta medel till ett nytt konto.</string>
     <string name="total_amount">Totalt belopp:</string>
-    <string name="transaction_from_address_prefix">Från: %s</string>
     <string name="transaction_gas_limit">Gas Limit (enheter):</string>
     <string name="transaction_history_title">Transaktionshistorik</string>
     <string name="transaction_input_data">Indata:</string>
