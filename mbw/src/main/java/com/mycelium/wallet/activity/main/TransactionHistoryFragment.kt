@@ -59,6 +59,7 @@ import com.mycelium.wapi.wallet.coins.Value.Companion.valueOf
 import com.mycelium.wapi.wallet.colu.ColuAccount
 import com.mycelium.wapi.wallet.eth.AbstractEthERC20Account
 import com.mycelium.wapi.wallet.tron.AbstractTronAccount
+import com.mycelium.wallet.tron.TronHistoryFilter
 import com.mycelium.wapi.wallet.eth.EthTxStatus
 import com.squareup.otto.Subscribe
 import kotlinx.coroutines.*
@@ -252,7 +253,7 @@ class TransactionHistoryFragment : Fragment() {
                     var toAddEmpty: Boolean
                     synchronized(toAdd) { toAddEmpty = toAdd.isEmpty() }
                     if (toAddEmpty && isLoadingPossible.compareAndSet(true, false)) {
-                        Preloader(toAdd, model.account.value!!, totalItemCount,
+                        Preloader(requireContext().applicationContext, toAdd, model.account.value!!, totalItemCount,
                                 OFFSET, isLoadingPossible).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
                     }
                     if (firstVisibleItem + visibleItemCount == totalItemCount && !toAddEmpty) {
@@ -623,11 +624,16 @@ class TransactionHistoryFragment : Fragment() {
         override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
             menuInflater.inflate(R.menu.transaction_history_options_global, menu)
             menuInflater.inflate(R.menu.export_history, menu)
+            menuInflater.inflate(R.menu.tron_history_filter, menu)
         }
 
         override fun onPrepareMenu(menu: Menu) {
             super.onPrepareMenu(menu)
             menu.findItem(R.id.miExportHistory).isVisible = (adapter?.count ?: 0) > 0
+            menu.findItem(R.id.miTronShowAllOperations)?.apply {
+                isVisible = model.account.value is AbstractTronAccount
+                isChecked = TronHistoryFilter.isShowAll(requireContext())
+            }
         }
 
         override fun onMenuItemSelected(menuItem: MenuItem): Boolean =
@@ -640,6 +646,16 @@ class TransactionHistoryFragment : Fragment() {
 
                 R.id.miExportHistory -> {
                     shareTransactionHistory()
+                    true
+                }
+
+                R.id.miTronShowAllOperations -> {
+                    val showAll = !menuItem.isChecked
+                    menuItem.isChecked = showAll
+                    TronHistoryFilter.setShowAll(requireContext(), showAll)
+                    isLoadingPossible.set(true)
+                    binding?.lvTransactionHistory?.setSelection(0)
+                    model.reloadHistory()
                     true
                 }
 

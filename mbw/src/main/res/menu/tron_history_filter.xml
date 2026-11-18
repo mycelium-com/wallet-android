@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <!-- TRON / TRC20 only: off = transfers only (default), on = staking, delegation, votes, … too -->
+    <item android:id="@+id/miTronShowAllOperations"
+          android:title="@string/tron_history_show_all_operations"
+          android:checkable="true"
+          android:orderInCategory="2"
+          android:visible="false"
+          app:showAsAction="never" />
+
+</menu>

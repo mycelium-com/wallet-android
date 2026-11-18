@@ -297,4 +297,5 @@
     <string name="tx_status_replaced">Заменено</string>
     <string name="what_is_address_type">Что такое тип адреса?</string>
     <string name="what_is_address_type_description"><![CDATA[Существует три формата Bitcoin-адресов:<p><b>P2PKH — Legacy</b>, начинающийся с \"%1$s\".</p><p><b>P2SH — SegWit совместимый</b>, начинающийся с \"%2$s\". По умолчанию.</p><p><b>Bech32 — SegWit native</b>, начинающийся с \"%3$s\".</p><p>Используйте <b>P2SH</b> или <b>Bech32</b> для получения средств, если хотите в будущем отправлять SegWit транзакции с низкой комиссией.</p><p>Bech32 — самый новый и экономичный стандарт, но он пока не получил широкого распространения, поэтому не все смогут отправить bitcoin на него. Поскольку Bech32 пока используется не широко, blockchain-аналитикам может быть проще обнаружить ваш денежный поток.</p>]]></string>
+    <string name="tron_history_show_all_operations">Показывать все операции</string>
 </resources>

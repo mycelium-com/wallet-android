@@ -59,6 +59,31 @@ class TronAccountBacking(
                 bandwidth, energy, feeLimit, success, hasTokenTransfers, TronTxType.fromName(tronTxType))
         }).executeAsList().readable().applyFeeLinks()
 
+    /**
+     * Like [getTransactionSummaries], but only TRX / TRC20 value transfers, plus the TRX fee rows
+     * of TRC20 sends (contract calls on one of [tokenContracts] or matching a stored TRC20 transfer).
+     */
+    fun getTransferSummaries(offset: Long, limit: Long, ownerAddress: String,
+                             tokenContracts: Collection<String>): List<TronTransactionSummary> =
+        tronQueries.selectTransferSummaries(uuid, tokenContracts, limit, offset, mapper = { txid: String,
+                                                                             _: CryptoCurrency,
+                                                                             blockNumber: Int,
+                                                                             timestamp: Long,
+                                                                             value: Value,
+                                                                             fee: Value,
+                                                                             _: Int,
+                                                                             from: String,
+                                                                             to: String,
+                                                                             bandwidth: BigInteger,
+                                                                             energy: BigInteger,
+                                                                             feeLimit: BigInteger,
+                                                                             success: Boolean,
+                                                                             hasTokenTransfers: Boolean,
+                                                                             tronTxType: String ->
+            createTransactionSummary(ownerAddress, txid, blockNumber, timestamp, value, fee, from, to,
+                bandwidth, energy, feeLimit, success, hasTokenTransfers, TronTxType.fromName(tronTxType))
+        }).executeAsList().readable().applyFeeLinks()
+
     /** @param timestampParameter time in seconds */
     fun getTransactionSummariesSince(timestampParameter: Long, ownerAddress: String): List<TronTransactionSummary> =
         tronQueries.selectTransactionSummariesSince(uuid, timestampParameter, mapper = { txid: String,

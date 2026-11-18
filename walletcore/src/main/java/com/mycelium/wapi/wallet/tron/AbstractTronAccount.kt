@@ -262,6 +262,20 @@ abstract class AbstractTronAccount(
     override fun getTransactionSummaries(offset: Int, limit: Int): List<TransactionSummary> =
         backing.getTransactionSummaries(offset.toLong(), limit.toLong(), receivingAddress.addressString)
 
+    /**
+     * History page for the UI. With [transfersOnly] only TRX / TRC20 value transfers are returned
+     * (staking, resource delegation, votes, other contract calls etc. are skipped in SQL, so
+     * offset-based paging stays consistent). TRC20 sends — contract calls on [tokenContracts] —
+     * stay visible on the TRX account, since they burn its TRX fee.
+     */
+    fun getTransactionSummaries(offset: Int, limit: Int, transfersOnly: Boolean,
+                                tokenContracts: Collection<String> = emptyList()): List<TransactionSummary> =
+        if (transfersOnly) {
+            backing.getTransferSummaries(offset.toLong(), limit.toLong(), receivingAddress.addressString, tokenContracts)
+        } else {
+            getTransactionSummaries(offset, limit)
+        }
+
     override fun getTransactionsSince(receivingSince: Long): List<TransactionSummary> =
         backing.getTransactionSummariesSince(receivingSince / 1000, receivingAddress.addressString)
 
