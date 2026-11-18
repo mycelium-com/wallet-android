@@ -62,10 +62,12 @@ class TronAccountBacking(
     /**
      * Like [getTransactionSummaries], but only TRX / TRC20 value transfers, plus the TRX fee rows
      * of TRC20 sends (contract calls on one of [tokenContracts] or matching a stored TRC20 transfer).
+     * Zero-value transfers and incoming ones below [DUST_UNITS] of the coin (address poisoning) are
+     * left out.
      */
     fun getTransferSummaries(offset: Long, limit: Long, ownerAddress: String,
                              tokenContracts: Collection<String>): List<TronTransactionSummary> =
-        tronQueries.selectTransferSummaries(uuid, tokenContracts, limit, offset, mapper = { txid: String,
+        tronQueries.selectTransferSummaries(uuid, ownerAddress, dustThreshold, tokenContracts, limit, offset, mapper = { txid: String,
                                                                              _: CryptoCurrency,
                                                                              blockNumber: Int,
                                                                              timestamp: Long,
@@ -173,6 +175,10 @@ class TronAccountBacking(
         }
         return this
     }
+
+    /** [DUST_UNITS] of [currency] in its base units (sun for TRX, token units for TRC20). */
+    private val dustThreshold: Double =
+        java.math.BigDecimal(DUST_UNITS).movePointRight(currency.unitExponent).toDouble()
 
     fun insertFeeLink(feeTxId: String, mainTxId: String) {
         tronQueries.insertFeeLink(feeTxId, mainTxId, uuid)
@@ -388,5 +394,10 @@ class TronAccountBacking(
             isFrom && isTo -> feeOnly // self
             else -> Value.zeroValue(currency)
         }
+    }
+
+    companion object {
+        /** Incoming transfers below this many coins are treated as poisoning dust in the transfers-only history. */
+        const val DUST_UNITS = "0.1"
     }
 }

@@ -34,7 +34,12 @@ FROM TronAccountBacking AS tb
 -- default view hides staking, resource delegation, votes, contract calls and other operations.
 -- Exception: on the TRX account a TRC20 send is a contract call that burns the TRX fee; it stays
 -- visible when it targets a known token contract (:tokenContracts) or is stored as a TRC20
--- transfer by one of the wallet's token accounts.
+-- transfer by one of the wallet's token accounts — unless it burned nothing (paid with staked
+-- energy/bandwidth), which would only render as a "0 TRX" row.
+-- Address-poisoning dust is hidden too: zero-value transfers (spoofed `transferFrom(victim, x, 0)`
+-- shows up as "outgoing") and incoming transfers below :dustThreshold (in base units, e.g.
+-- 0.000001 TRX from a look-alike address). The amount is parsed from the stored Value JSON without
+-- json_extract, which old Android SQLite builds (minSdk 24) lack.
 selectTransferSummaries:
 SELECT tb.txid, b.currency, b.blockNumber, b.timestamp, b.value, b.fee, b.confirmations,
     tb.fromAddress, tb.toAddress, tb.bandwidth, tb.energy, tb.feeLimit, tb.success, tb.hasTokenTransfers, tb.tronTxType
@@ -42,8 +47,13 @@ FROM TronAccountBacking AS tb
     INNER JOIN AccountBacking AS b
     ON tb.uuid = b.uuid AND tb.txid = b.txid
         WHERE tb.uuid = (:uuid)
-          AND (tb.tronTxType IN ('TRX_TRANSFER', 'TRC20_TRANSFER')
+          AND ((tb.tronTxType IN ('TRX_TRANSFER', 'TRC20_TRANSFER')
+                AND CAST(rtrim(substr(b.value, instr(b.value, '"Value":') + 8), '}') AS REAL) > 0
+                AND (tb.toAddress != (:ownerAddress) OR tb.fromAddress = (:ownerAddress)
+                     OR CAST(rtrim(substr(b.value, instr(b.value, '"Value":') + 8), '}') AS REAL) >= (:dustThreshold)))
                OR (tb.tronTxType = 'CONTRACT_CALL'
+                   AND (CAST(rtrim(substr(b.fee, instr(b.fee, '"Value":') + 8), '}') AS REAL) > 0
+                        OR CAST(rtrim(substr(b.value, instr(b.value, '"Value":') + 8), '}') AS REAL) > 0)
                    AND (tb.toAddress IN :tokenContracts
                         OR EXISTS (SELECT 1 FROM TronAccountBacking AS t2
                                    WHERE t2.txid = tb.txid AND t2.tronTxType = 'TRC20_TRANSFER'))))
