@@ -177,10 +177,10 @@ class WalletApplication : Application(), ModuleMessageReceiver {
                         .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
                 val launchedPlain = activity is ModernMain &&
                         (activity.intent.action == null || activity.intent.action == Intent.ACTION_MAIN)
-                if (!launchedPlain) {
-                    // deep link (gift box, exchange, POP…) or a restored screen: reopen it after the PIN
-                    redirect.putExtra(StartupActivity.EXTRA_REDIRECT_INTENT, Intent(activity.intent).setClass(activity, activity.javaClass))
-                }
+                // deep link (gift box, exchange, POP…) or a restored screen: reopen it after the PIN.
+                // Handed over in memory, not as an extra (exported StartupActivity, Play "Intent Redirection").
+                StartupActivity.pendingRedirect =
+                        if (launchedPlain) null else Intent(activity.intent).setClass(activity, activity.javaClass)
                 activity.startActivity(redirect)
                 activity.finish()
             }
