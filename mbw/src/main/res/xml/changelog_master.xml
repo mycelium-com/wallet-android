@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog>
-    <release version="3.23.0.2" versioncode="3230002">
+    <release version="3.23.0.3" versioncode="3230003">
         <change>Hello, Tron! — Hold, send and receive TRX and TRC-20 tokens like USDT right next to your Bitcoin and Ethereum, all from the same seed</change>
         <change>No TRX? No Problem — Pay TRC-20 network fees with the token you are sending. No need to top up TRX just to move your USDT</change>
         <change>Gas-Free ERC-20 Transfers — Send USDT and other ERC-20 tokens even with an empty ETH balance: the network fee is paid in the token itself</change>
