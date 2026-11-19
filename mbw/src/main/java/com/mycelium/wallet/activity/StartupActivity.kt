@@ -398,12 +398,13 @@ class StartupActivity : AppCompatActivity(), AccountCreationObserver {
         } else if (getIntent().hasExtra("action")) {
             getIntent().extras?.let { intent.putExtras(it) }
         }
-        @Suppress("DEPRECATION")
-        val redirect = getIntent().getParcelableExtra<Intent>(EXTRA_REDIRECT_INTENT)
+        // Taken from memory, never from our (exported) launch intent: reading an Intent extra here and
+        // starting it would let any app open our non-exported screens (Play "Intent Redirection").
+        val redirect = pendingRedirect
+        pendingRedirect = null
         if (redirect?.component?.packageName == packageName) {
             // the startup-PIN gate intercepted a deeper screen (deep link / restored activity):
             // put the wallet underneath and reopen that screen on top
-            redirect.removeExtra(EXTRA_REDIRECT_INTENT)
             // a deep link arrives with NEW_TASK/CLEAR_TOP: drop them, the screen must sit on top of ModernMain
             redirect.flags = 0
             if (redirect.component?.className == ModernMain::class.java.name) {
@@ -650,8 +651,13 @@ class StartupActivity : AppCompatActivity(), AccountCreationObserver {
     }
 
     companion object {
-        /** Intent of the screen the startup-PIN gate intercepted; replayed after the PIN (see WalletApplication). */
-        const val EXTRA_REDIRECT_INTENT = "redirectIntent"
+        /**
+         * Intent of the screen the startup-PIN gate intercepted; replayed after the PIN (see WalletApplication).
+         * Kept in process memory on purpose — it must not travel as an extra of this exported activity.
+         */
+        @Volatile
+        @JvmStatic
+        var pendingRedirect: Intent? = null
         private const val ACTION_GIFTBOX_HOST = "action.giftbox"
         private const val MINIMUM_SPLASH_TIME = 100
         private const val REQUEST_FROM_URI = 2

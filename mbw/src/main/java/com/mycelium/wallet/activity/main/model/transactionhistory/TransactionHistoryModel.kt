@@ -20,10 +20,15 @@ class TransactionHistoryModel(application: Application) : AndroidViewModel(appli
 
     val transactionHistory =
             account.switchMap {
-                TransactionHistoryLiveData(mbwManager, it).apply {
+                TransactionHistoryLiveData(mbwManager, application, it).apply {
                     txs = this
                 }
             }
+
+    /** Re-creates the history LiveData for the current account (e.g. after the TRON filter changed). */
+    fun reloadHistory() {
+        account.value = account.value
+    }
 
     fun cacheAddressBook() {
         addressBook.clear()

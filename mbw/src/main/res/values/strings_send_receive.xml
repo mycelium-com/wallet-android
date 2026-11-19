@@ -262,6 +262,7 @@
     <string name="tron_bandwidth">Bandwidth</string>
     <string name="tron_energy">Energy</string>
     <string name="tron_tx_result">Result</string>
+    <string name="tron_history_show_all_operations">Show all operations</string>
     <string name="tron_tx_type_trx_transfer">TRX transfer</string>
     <string name="tron_tx_type_trc20_transfer">TRC-20 transfer</string>
     <string name="tron_tx_type_contract_call">Smart contract call</string>

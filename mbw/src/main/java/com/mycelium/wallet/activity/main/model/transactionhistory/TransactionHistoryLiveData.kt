@@ -1,10 +1,12 @@
 package com.mycelium.wallet.activity.main.model.transactionhistory
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.os.AsyncTask
 import androidx.lifecycle.LiveData
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.event.*
+import com.mycelium.wallet.tron.TronHistoryFilter
 import com.mycelium.wapi.wallet.TransactionSummary
 import com.mycelium.wapi.wallet.WalletAccount
 import com.squareup.otto.Subscribe
@@ -17,6 +19,7 @@ import kotlin.math.max
  * This class is intended to manage transaction history for current selected account.
  */
 class TransactionHistoryLiveData(val mbwManager: MbwManager,
+                                 private val context: Context,
                                  private var account: WalletAccount<*>)
     : LiveData<Set<TransactionSummary>>() {
     private var historyList = mutableSetOf<TransactionSummary>()
@@ -65,7 +68,7 @@ class TransactionHistoryLiveData(val mbwManager: MbwManager,
         }
 
         override fun doInBackground(vararg voids: Void): List<TransactionSummary> =
-            account.getTransactionSummaries(0, max(20, value!!.size)) as List<TransactionSummary>
+            TronHistoryFilter.historyPage(context, account, 0, max(20, value!!.size))
 
         override fun onPostExecute(transactions: List<TransactionSummary>) {
             updateValue(transactions)
